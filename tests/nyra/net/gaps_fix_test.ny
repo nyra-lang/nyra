@@ -1,6 +1,6 @@
 // Smoke test for networking limitations fixes (v1.15.0)
 
-fn test_handler(slot, ctx) {
+fn http_handler(slot, ctx) {
     if slot == 1 {
         return response_ok_json("{\"ok\":true}")
     }
@@ -58,7 +58,7 @@ fn test_map_insert_drop() {
 fn test_handler_infer_ok() {
     let mut router = HttpRouter_new()
     router = HttpRouter_register_slot(router, METHOD_GET, "/health", 1)
-    serve_handlers("127.0.0.1", 19999, 0, router, test_handler)
+    serve_handlers("127.0.0.1", 19999, 0, router, http_handler)
 }
 
 fn main() {

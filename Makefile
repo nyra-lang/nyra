@@ -24,7 +24,7 @@ help:
 	@printf '%s\n' \
 		'Nyra Makefile — common targets' \
 		'' \
-		'  make test-all          Full test suite (build + tests + smokes)' \
+		'  make test-all          Full test suite (fast gates first, heavy last; runs all gates even on failure)' \
 		'  make test-preflight    Fast pre-check before test-all' \
 		'  make build-workspace   cargo build --workspace' \
 		'  make build-cli         Build target/debug/nyra only' \
@@ -36,7 +36,9 @@ help:
 		'  make sync-webdocs-code-tabs  Sync doc code-tab pairs' \
 		'  make gen-suite-tests   Regenerate compiletest suite (GEN_SUITE_ARGS=--profile ci|full)' \
 		'' \
-		'Test subsets:' \
+		'Test subsets (test-all runs fast → slow):' \
+		'  make test-all-core-fast    Count + webdocs + optional-types (~1 min)' \
+		'  make test-all-core-slow    Compiletest grid + fuzz smoke (~10+ min)' \
 		'  make test-all-windows  Core Nyra gates on Windows (CI subset)' \
 		'  make test-conformance  CONF-LANG pass/fail/fixtures' \
 		'  make test-nyra-lang    tests/nyra native suite' \

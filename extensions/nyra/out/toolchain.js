@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolveNyraCommand = resolveNyraCommand;
+exports.resolveDebugCommand = resolveDebugCommand;
 exports.probeToolchain = probeToolchain;
 exports.ensureToolchain = ensureToolchain;
 exports.runNyra = runNyra;
@@ -44,8 +45,20 @@ const path = __importStar(require("path"));
 const vscode = __importStar(require("vscode"));
 /** Resolve nyra CLI path: bundled binary (optional) or user setting. */
 function resolveNyraCommand(context) {
+    return resolveToolchainPath(context, "languageServerPath");
+}
+/** Resolve debug adapter CLI (`nyra dap`). Falls back to language server path. */
+function resolveDebugCommand(context) {
     const config = vscode.workspace.getConfiguration("nyra");
-    const configured = config.get("languageServerPath", "nyra");
+    const dap = config.get("debugAdapterPath", "");
+    if (dap) {
+        return resolveToolchainPath(context, "debugAdapterPath");
+    }
+    return resolveNyraCommand(context);
+}
+function resolveToolchainPath(context, key) {
+    const config = vscode.workspace.getConfiguration("nyra");
+    const configured = config.get(key, "nyra");
     if (config.get("useBundledToolchain", false)) {
         const bundled = bundledBinaryPath(context);
         if (bundled && fs.existsSync(bundled)) {

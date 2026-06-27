@@ -48,7 +48,7 @@ async function activate(context) {
     (0, tests_1.registerTestController)(context, command);
     context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("nyra", {
         createDebugAdapterDescriptor() {
-            const dapPath = (0, toolchain_1.resolveNyraCommand)(context);
+            const dapPath = (0, toolchain_1.resolveDebugCommand)(context);
             return new vscode.DebugAdapterExecutable(dapPath, ["dap"]);
         },
     }));

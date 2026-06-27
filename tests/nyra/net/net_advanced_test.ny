@@ -46,7 +46,7 @@ fn test_http_pool_types() {
 
 fn test_channel_str() {
     let ch = Channel_str_new()
-    ch.send("hello")
+    let ch = ch.send("hello")
     let v = ch.recv()
     if strcmp(v, "hello") != 0 {
         print("channel_str failed")

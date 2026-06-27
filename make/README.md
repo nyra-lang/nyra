@@ -25,7 +25,9 @@ The root [`Makefile`](../Makefile) is the **only** contributor entry point for t
 ```bash
 make help              # list targets
 make test-preflight    # fast pre-check (~1–3 min)
-make test-all          # full suite (CI core)
+make test-all          # full suite (CI core; fast gates first; failures collected at end)
+make test-all-core-fast   # quick subset before slow compiletest/fuzz
+make test-all-core-slow   # compiletest + fuzz smoke only
 make test-conformance  # CONF-LANG only
 make smoke-stdlib      # nyra check every stdlib module
 make install-dev       # cargo install + stdlib sync

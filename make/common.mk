@@ -8,6 +8,7 @@ MAKE_PY := $(ROOT)/make/py
 TARGET_DIR := $(ROOT)/target
 NYRA_BIN := $(TARGET_DIR)/debug/nyra
 TEST_ALL_LOG := $(TARGET_DIR)/test-all.txt
+TEST_ALL_FAILURES_FILE := $(TARGET_DIR)/.nyra-test-all-failures
 NYRA_TEST_STATS_FILE ?= $(TARGET_DIR)/.nyra-test-all-stats
 
 export NYRA_ROOT := $(ROOT)
@@ -31,6 +32,17 @@ endef
 
 define log_ok
 	@printf 'make: ✅ ok — %s\n' "$(1)"
+endef
+
+# test-all gates: run to completion, collect failures for the final summary.
+define run_gate
+	@ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+		$(MAKE_LIB)/test-all-gate.sh make $(1) '$(2)'
+endef
+
+define run_cmd
+	@ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+		$(MAKE_LIB)/test-all-gate.sh cmd '$(1)' $(2)
 endef
 
 endif
