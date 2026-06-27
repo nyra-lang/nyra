@@ -47,14 +47,15 @@ fn main() {
 ## Regenerating combinatorial tests
 
 ```bash
-make gen-suite-tests                  # fast profile (~1.7k generated, default)
-make gen-suite-tests GEN_SUITE_ARGS="--profile full"   # full combinatorial (~10k, nightly)
+make gen-suite-tests                  # ci profile (~3k generated, default)
+make gen-suite-tests GEN_SUITE_ARGS="--profile fast"   # fast profile (~1.7k)
+make gen-suite-tests GEN_SUITE_ARGS="--profile full"   # full combinatorial (~10k, weekly CI)
 make gen-suite-tests GEN_SUITE_ARGS="--dry-run"
 ```
 
 Generated tests live under `pass/generated/`, `fail/generated/`, `run/generated/`, and `fail/regression/`. Commit them after regeneration.
 
-**Scale:** default **fast** profile (~1.6k total suite files) — see `tests/suite/.count-baseline`. Use `--profile full` when you need exhaustive combinatorial coverage.
+**Scale:** default **ci** profile (~3k total suite files) — see `tests/suite/.count-baseline`. Use `--profile fast` for quicker local iteration or `--profile full` for exhaustive combinatorial coverage (weekly CI).
 
 Multi-file import tests live under `projects/` (entry point is always `main.ny`).
 

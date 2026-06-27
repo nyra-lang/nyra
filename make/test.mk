@@ -23,8 +23,8 @@ suite-clean:
 test-compiletest: suite-clean ensure-nyra
 	$(call log_step,compiletest suite)
 	@if ! $(MAKE_LIB)/test-count.sh >/dev/null 2>&1; then \
-		printf 'make: suite count mismatch — regenerating fast profile tests\n'; \
-		python3 $(MAKE_PY)/gen-suite-tests.py --profile fast; \
+		printf 'make: suite count mismatch — regenerating %s profile tests\n' "$(NYRA_SUITE_PROFILE)"; \
+		python3 $(MAKE_PY)/gen-suite-tests.py --profile $(NYRA_SUITE_PROFILE); \
 		$(MAKE_LIB)/test-count.sh; \
 	fi
 	@cargo test -p compiler suite_ -- --nocapture

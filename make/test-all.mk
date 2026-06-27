@@ -25,6 +25,7 @@ test-all-core: build-workspace ensure-nyra
 	@$(MAKE) test-conformance
 	@$(MAKE) test-optional-types
 	@$(MAKE) smoke-stdlib
+	@$(MAKE) smoke-stdlib-runtime
 	@$(MAKE) smoke-stdlib-priority
 	@$(MAKE) smoke-stdlib-medium
 	@$(MAKE) smoke-corpus

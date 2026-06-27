@@ -160,16 +160,24 @@ fn compile_one_source(
 
     cmd.arg("-Wno-override-module");
 
-    let status = cmd
-        .status()
+    let output = cmd
+        .output()
         .map_err(|e| format!("failed to compile {}: {e}", source.display()))?;
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let detail = if stderr.is_empty() {
+            stdout.trim()
+        } else {
+            stderr.trim()
+        };
         Err(format!(
-            "nyra cc: failed to compile link-source {} (exit {})",
+            "nyra cc: failed to compile link-source {} (exit {}): {}",
             source.display(),
-            status.code().unwrap_or(-1)
+            output.status.code().unwrap_or(-1),
+            detail
         ))
     }
 }
@@ -216,6 +224,10 @@ mod tests {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../examples/packages/ny-sqlite");
         let m = pkg::resolve_project_native_link(&root).expect("resolve");
         let src = PathBuf::from(&m.link_sources[0]);
+        if !sqlite_headers_available() {
+            eprintln!("skip compiles_ny_sqlite_shim_to_object — install libsqlite3 dev headers");
+            return;
+        }
         let tmp = std::env::temp_dir().join(format!("nyra_cobj_build_{}", std::process::id()));
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
@@ -231,5 +243,23 @@ mod tests {
         assert_eq!(objs.len(), 1);
         assert!(objs[0].is_file());
         let _ = fs::remove_dir_all(&tmp);
+    }
+
+    fn sqlite_headers_available() -> bool {
+        let clang = llvm_tools::find_clang();
+        let out = std::process::Command::new(&clang)
+            .args(["-E", "-x", "c", "-"])
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn();
+        let Ok(mut child) = out else {
+            return false;
+        };
+        use std::io::Write;
+        if child.stdin.take().and_then(|mut s| s.write_all(b"#include <sqlite3.h>\n").ok()).is_none() {
+            return false;
+        }
+        child.wait().map(|s| s.success()).unwrap_or(false)
     }
 }

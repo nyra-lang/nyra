@@ -5,15 +5,11 @@ Operational guide for CI failures, regressions, and tier promotion.
 ## CI pipeline stages
 
 1. **lint** — `cargo fmt --check`, `cargo clippy -D warnings`
-2. **test** — `cargo test --workspace`, example corpus, insta snapshots
-3. **nyra test** — native tests under `tests/nyra/`
-4. **stdlib smoke** — compile-check stdlib modules
-5. **ABI roundtrip** — `scripts/abi-roundtrip.sh`
-6. **cross-smoke** — wasm32-wasi compile
-7. **perf regression** — `scripts/perf-check.sh` vs `benchmarks/ci-baseline.json`
-8. **fuzz-smoke** (weekly) — short libFuzzer run
+2. **test-all (Linux)** — `make test-all` with `TEST_SAN=1`, `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=ci`, cross-compile (linux + mingw windows), compiletest ~2.8k files
+3. **test-all-windows** — conformance, nyra-lang, stdlib compile + runtime smoke, native Windows build
+4. **weekly** — `--profile full` compiletest (~10k) + extended fuzz
 
-Local mirror: `./scripts/test-all.sh` with optional `TEST_PERF=1`.
+Local mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
 
 ## Detection principles
 

@@ -1,10 +1,22 @@
 # Changelog
 
+## v1.36.9 (2026-06-27)
+
+**Testing — stronger `make test-all` gates**
+
+- **CI** — Linux cross-compile (linux + mingw windows) runs by default; `TEST_FUZZ=1` on every push; compiletest uses `ci` profile (~3k cases)
+- **CI** — Windows job runs `make test-all-windows` (conformance, nyra-lang, stdlib compile + runtime smoke, native build)
+- **Tests** — expanded `tests/conformance/` (Option, Result, HashMap, Vec, break, generics fail cases)
+- **Tests** — new `examples/stdlib_runtime_smoke.ny` (+ typed) and `smoke-stdlib-runtime` gate
+- **Weekly CI** — regenerates `--profile full` compiletest grid + extended fuzz
+
 ## v1.36.8 (2026-06-27)
 
 **Runtime fix — `clock_gettime` in `rt_common.h` on Linux**
 
 - **Fixed** — `rt_common.h` includes `<time.h>` and enables `_DEFAULT_SOURCE` on Linux so `clock_gettime` / `CLOCK_MONOTONIC` are declared when runtime `.c` files are compiled by `clang` in CI
+- **Fixed** — link step prefers in-repo `stdlib/rt/` when building from a source tree (avoids stale `~/.nyra` copies on CI/dev machines)
+- **CI** — install `libsqlite3-dev` for NyraPkg sqlite shim compile tests
 
 ## v1.36.7 (2026-06-27)
 

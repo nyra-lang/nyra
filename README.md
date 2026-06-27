@@ -12,10 +12,7 @@
   <em>Fast like a panther. Sharp by design.</em>
 </p>
 
-> **Beta — Core + Stable Extended ready for apps.** Nyra **Core** and **Stable Extended** (`?`, enum payloads, spawn, `impl Drop`) are semver-stable. **Extended preview** (async, traits, macros) may change. See [`docs/status.md`](docs/status.md) · [`webDocs/roadmap.html`](webDocs/roadmap.html).
-
----
-
+> 
 ## What is Nyra?
 
 **Nyra** is a programming language in active development. The name evokes agility and focus—the same qualities the language aims to deliver: code that reads cleanly, runs efficiently, and stays easy to reason about as projects grow.

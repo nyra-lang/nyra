@@ -527,12 +527,22 @@ pub fn link_binary(
     }
 
     let status = cmd
-        .status()
+        .output()
         .map_err(|e| format!("Failed to invoke clang: {e}"))?;
 
-    if !status.success() {
+    if !status.status.success() {
         let _ = fs::remove_file(&link_tmp);
-        return Err(format!("clang failed to link LLVM IR ({clang})"));
+        let stderr = String::from_utf8_lossy(&status.stderr);
+        let stdout = String::from_utf8_lossy(&status.stdout);
+        let detail = if stderr.is_empty() {
+            stdout.trim().to_string()
+        } else {
+            stderr.trim().to_string()
+        };
+        if detail.is_empty() {
+            return Err(format!("clang failed to link LLVM IR ({clang})"));
+        }
+        return Err(format!("clang failed to link LLVM IR ({clang}): {detail}"));
     }
 
     fs::rename(&link_tmp, bin_path).map_err(|e| {

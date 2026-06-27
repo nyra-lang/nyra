@@ -13,7 +13,7 @@ gen-abi-header:
 gen-bindings-doc:
 	@python3 $(MAKE_PY)/gen-bindings-doc.py
 
-# Usage: make gen-suite-tests GEN_SUITE_ARGS="--profile fast"
+# Usage: make gen-suite-tests GEN_SUITE_ARGS="--profile ci|fast|full"
 gen-suite-tests:
 	@python3 $(MAKE_PY)/gen-suite-tests.py $(GEN_SUITE_ARGS)
 

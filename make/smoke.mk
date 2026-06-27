@@ -1,7 +1,7 @@
 # Smoke tests — stdlib, examples, CLI, apps, cross-compile, Sonic.
 
 .PHONY: smoke-cli smoke-apps smoke-database smoke-sqlite
-.PHONY: smoke-stdlib smoke-stdlib-priority smoke-stdlib-medium
+.PHONY: smoke-stdlib smoke-stdlib-runtime smoke-stdlib-priority smoke-stdlib-medium
 .PHONY: smoke-corpus smoke-examples smoke-serde-pkg smoke-cross smoke-sonic smoke-enterprise
 .PHONY: smoke-vscode-extension smoke-runtime smoke-cross-wasm smoke-cross-linux smoke-cross-windows
 .PHONY: test-runtime-smoke
@@ -20,6 +20,9 @@ smoke-sqlite: ensure-nyra
 
 smoke-stdlib: ensure-nyra
 	@$(MAKE_LIB)/stdlib-smoke.sh
+
+smoke-stdlib-runtime: ensure-nyra
+	@$(MAKE_LIB)/stdlib-runtime-smoke.sh
 
 smoke-stdlib-priority: ensure-nyra
 	@$(MAKE_LIB)/stdlib-priority-smoke.sh
@@ -97,19 +100,24 @@ smoke-cross-wasm: ensure-nyra
 	fi
 
 smoke-cross-linux: ensure-nyra
-	@if [ -n "$(NYRA_CROSS_LINUX)" ]; then \
+	@. $(MAKE_LIB)/cross-target-helpers.sh; \
+	hello="$(ROOT)/examples/syntax"; \
+	if cross_linux_linker_ready; then \
 		$(NYRA_BIN) build $(ROOT)/examples/syntax/hello.ny --release --for linux; \
-		hello="$(ROOT)/examples/syntax"; \
-		test -f "$$hello/target/x86_64-unknown-linux-gnu/release/hello" \
-		  || test -f "$$hello/target/aarch64-unknown-linux-gnu/release/hello"; \
-	else printf 'make: note: set NYRA_CROSS_LINUX=1 to test linux cross-compile\n'; \
-	fi
+		bin="$$(cross_find_artifact "$$hello" release hello)" || { \
+			echo "make: missing linux artifact under $$hello/target/" >&2; exit 1; \
+		}; \
+		printf 'make: linux artifact: %s\n' "$$bin"; \
+		if [ -x "$$bin" ]; then "$$bin"; fi; \
+	else cross_log_skip "linux cross linker unavailable"; fi
 
 smoke-cross-windows: ensure-nyra
-	@if [ -n "$(NYRA_CROSS_WINDOWS)" ]; then \
-		$(NYRA_BIN) build $(ROOT)/examples/syntax/hello.ny --for windows -o hello_win.exe; \
-		hello="$(ROOT)/examples/syntax"; \
-		test -f "$$hello/target/x86_64-pc-windows-gnu/debug/hello_win.exe" \
-		  || test -f "$$hello/target/aarch64-pc-windows-gnu/debug/hello_win.exe"; \
-	else printf 'make: note: set NYRA_CROSS_WINDOWS=1 with mingw-w64 to test windows cross-compile\n'; \
-	fi
+	@. $(MAKE_LIB)/cross-target-helpers.sh; \
+	hello="$(ROOT)/examples/syntax"; \
+	if cross_windows_linker_ready; then \
+		$(NYRA_BIN) build $(ROOT)/examples/syntax/spawn_channel.ny --for windows -o spawn_win.exe; \
+		bin="$$(cross_find_artifact "$$hello" debug spawn_win.exe)" || { \
+			echo "make: missing windows cross artifact under $$hello/target/" >&2; exit 1; \
+		}; \
+		printf 'make: windows cross artifact: %s\n' "$$bin"; \
+	else cross_log_skip "mingw-w64 not installed (apt: g++-mingw-w64)"; fi

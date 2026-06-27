@@ -83,8 +83,3 @@ Opt out: `# no_std` or `nyra build --no-prelude` (explicit `import "stdlib/…"`
 
 Implementation: `compiler/resolve/src/prelude.rs` · `compiler/resolve/src/symbols.rs` · `compiler/types/src/intrinsics.rs`.
 
-## References
-
-- API reference: `webDocs/stdlib.html`
-- Language skill (AI): `webDocs/nyra-skill.md` → Stdlib section
-- Change checklist: `.cursor/rules/nyra-guidelines.mdc`

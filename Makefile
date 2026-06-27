@@ -16,6 +16,7 @@ include make/build.mk
 include make/install.mk
 include make/generators.mk
 include make/test-all.mk
+include make/test-windows.mk
 
 .PHONY: help test build check fmt clean
 
@@ -33,9 +34,10 @@ help:
 		'  make gen-bindings-doc  Regenerate docs/bindings.md + webDocs/bindings.html' \
 		'  make build-webdocs     Regenerate webDocs search index + skill' \
 		'  make sync-webdocs-code-tabs  Sync doc code-tab pairs' \
-		'  make gen-suite-tests   Regenerate compiletest suite (GEN_SUITE_ARGS=--profile fast)' \
+		'  make gen-suite-tests   Regenerate compiletest suite (GEN_SUITE_ARGS=--profile ci|full)' \
 		'' \
 		'Test subsets:' \
+		'  make test-all-windows  Core Nyra gates on Windows (CI subset)' \
 		'  make test-conformance  CONF-LANG pass/fail/fixtures' \
 		'  make test-nyra-lang    tests/nyra native suite' \
 		'  make test-compiletest  tests/suite compiletest grid' \
@@ -45,13 +47,14 @@ help:
 		'Smoke:' \
 		'  make smoke-cli         fmt, pkg, bind, LSP, DAP' \
 		'  make smoke-stdlib      nyra check every stdlib module' \
+		'  make smoke-stdlib-runtime  stdlib runtime smoke (zero-types + typed)' \
 		'  make smoke-sonic       Sonic / enterprise conformance' \
 		'' \
 		'Optional gates (with test-all):' \
 		'  TEST_SAN=1 make test-all' \
 		'  TEST_PERF=1 make test-all' \
-		'  TEST_FUZZ=1 make test-all' \
-		'  NYRA_CROSS_LINUX=1 make test-all' \
+		'  TEST_FUZZ=1 make test-all   # nightly fuzz (~25 min; enabled in CI)' \
+		'  NYRA_SUITE_PROFILE=fast make test-all   # smaller compiletest grid' \
 		'' \
 		'Generators live in make/py/ — always invoke via make targets above.'
 

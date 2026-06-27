@@ -201,8 +201,53 @@ FAST_PROFILE = SuiteProfile(
     fail_stdlib_import_extra=(1, 5, 10, 15, 20, 25, 30),
 )
 
-PROFILES = {"fast": FAST_PROFILE, "full": _full_profile()}
-_profile: SuiteProfile = FAST_PROFILE
+CI_PROFILE = SuiteProfile(
+    name="ci",
+    arith_values=(1, 2, 3, 4, 5, 7, 9, 11),
+    cmp_values=(0, 1, 2, 3, 5, 7, 11),
+    arith_run_pairs=((1, 2), (2, 3), (3, 3), (5, 4), (7, 2), (9, 3), (10, 2), (11, 11)),
+    cmp_run_pairs=((0, 1), (1, 0), (2, 3), (3, 7), (5, 5), (7, 9), (9, 2), (0, 9)),
+    fn_grid_i=(1, 2, 3, 5, 10, 15, 25),
+    fn_grid_j=(1, 2, 5, 10, 15, 20),
+    nested_outer=(1, 2, 3, 5, 10),
+    nested_inner=(1, 2, 5, 10, 15, 20),
+    match_indices=(1, 2, 3, 5, 10, 25, 50, 100, 150, 200, 360),
+    expr_nest_indices=(1, 2, 3, 5, 10, 25, 50, 75, 100, 125, 149),
+    while_limits=(1, 2, 3, 10, 20, 50, 100, 150, 180),
+    option_indices=(1, 2, 3, 5, 10, 25, 50, 75, 100),
+    char_indices=(1, 2, 5, 13, 26, 52, 78, 99, 100),
+    array_sizes=(2, 3, 5, 10, 15, 21),
+    generics_indices=(1, 2, 3, 5, 10, 20, 30, 35, 40),
+    parser_indices=(1, 2, 3, 5, 10, 15, 20),
+    control_for_limits=(2, 3, 5, 10, 15, 21),
+    control_array_sizes=(2, 3, 5, 10, 15, 21),
+    lexer_string_lit_indices=(1, 2, 5, 10, 15, 25),
+    stdlib_array_sizes=(1, 2, 5, 10, 20, 30, 50),
+    stdlib_string_indices=(0, 1, 2, 3, 4, 5),
+    struct_use_indices=(1, 2, 5, 10, 15, 20, 24),
+    run_control_for_limits=(1, 2, 3, 5, 10, 15, 25),
+    run_control_while_targets=(1, 2, 3, 5, 10, 15),
+    run_control_if_values=(5, 8, 10, 12, 15, 19),
+    print_values=(1, 2, 3, 4, 10, 42, 99, 100, 127, 128, 255, 256, 512, 999, 1024, 1234, 1500, 1700, 1725),
+    project_const_indices=(1, 2, 5, 10, 15, 20, 30),
+    project_fn_indices=(1, 2, 5, 10, 15, 20),
+    project_fail_indices=(1, 2, 5, 10, 15, 20),
+    project_run_indices=(1, 2, 5, 10, 15, 20),
+    fail_assign_indices=(1, 2, 5),
+    fail_move_fns=("take", "consume", "save", "store", "send", "eat", "use"),
+    fail_move_vars=("s", "msg", "name", "text", "data", "value", "input"),
+    fail_mut_borrow_indices=(1, 2, 5, 10, 15, 20),
+    fail_lexer_unclosed=(1, 2, 3, 5, 8, 10),
+    fail_parser_missing_brace=(1, 2, 3, 5, 8, 10),
+    fail_parser_undefined=(1, 2, 3, 5, 8, 10),
+    fail_regression_move=(1, 2, 5, 10, 20, 32),
+    fail_regression_mut_borrow=(1, 2, 4, 8, 12, 16),
+    fail_fuzz_garbage=(1, 2, 3, 5, 10, 25, 50, 75, 100, 150),
+    fail_stdlib_import_extra=(1, 2, 5, 10, 15, 20, 25, 30),
+)
+
+PROFILES = {"fast": FAST_PROFILE, "ci": CI_PROFILE, "full": _full_profile()}
+_profile: SuiteProfile = CI_PROFILE
 
 
 def _array_index_pairs() -> list[tuple[int, int]]:
@@ -1743,8 +1788,8 @@ def main() -> int:
     parser.add_argument(
         "--profile",
         choices=sorted(PROFILES),
-        default="fast",
-        help="fast (~1.5k generated tests, default) or full (~10k, nightly)",
+        default="ci",
+        help="fast (~1.5k), ci (~3k, default for test-all), or full (~10k, exhaustive)",
     )
     args = parser.parse_args()
     _profile = PROFILES[args.profile]

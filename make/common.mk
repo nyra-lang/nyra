@@ -14,6 +14,7 @@ export NYRA_ROOT := $(ROOT)
 export NYRA_BIN
 export NYRA := $(NYRA_BIN)
 export NYRA_TEST_STATS_FILE
+export NYRA_SUITE_PROFILE
 
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
@@ -22,8 +23,7 @@ SHELL := /bin/bash
 TEST_PERF ?=
 TEST_FUZZ ?=
 TEST_SAN ?=
-NYRA_CROSS_LINUX ?=
-NYRA_CROSS_WINDOWS ?=
+NYRA_SUITE_PROFILE ?= ci
 
 define log_step
 	@printf 'make: ⏳ %s ...\n' "$(1)"

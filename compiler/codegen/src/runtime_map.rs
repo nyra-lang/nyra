@@ -560,6 +560,25 @@ pub fn stdlib_rt_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../stdlib/rt")
 }
 
+/// True when this binary was built from a Nyra source tree with `stdlib/rt/` present.
+pub fn repo_stdlib_rt_available() -> bool {
+    let rt_dir = stdlib_rt_dir();
+    if !rt_dir.is_dir() {
+        return false;
+    }
+    let probe = rt_dir.join("rt_io.c");
+    runtime_module_has_symbols(&probe, &["stdin_read_line"])
+}
+
+fn installed_rt_common_is_stale(rt_dir: &Path) -> bool {
+    let path = rt_dir.join("rt_common.h");
+    let Ok(text) = std::fs::read_to_string(&path) else {
+        return false;
+    };
+    text.contains("clock_gettime(CLOCK_MONOTONIC")
+        && !text.contains("#include <time.h>")
+}
+
 pub fn resolve_runtime_modules(profile: &RuntimeProfile, target: &str) -> Result<Vec<PathBuf>, String> {
     if target.contains("wasm") {
         return resolve_wasi_runtime(profile);
@@ -694,6 +713,10 @@ pub fn resolve_runtime_modules_installed(
     if profile.is_empty() {
         return Ok(Vec::new());
     }
+    // Dev tree / CI: prefer in-repo `stdlib/rt/` over `~/.nyra` (avoids stale installed copies).
+    if repo_stdlib_rt_available() {
+        return resolve_runtime_modules(profile, target);
+    }
     if let Some(rt_dir) = runtime_dir_from_install() {
         let map = symbol_module_map();
         let mut symbols_by_mod: HashMap<&'static str, Vec<&str>> = HashMap::new();
@@ -704,7 +727,7 @@ pub fn resolve_runtime_modules_installed(
         }
 
         let mut paths = Vec::new();
-        let mut stale = false;
+        let mut stale = installed_rt_common_is_stale(&rt_dir);
         for mod_name in profile.modules() {
             let p = rt_dir.join(mod_name);
             if !p.is_file() {
@@ -714,6 +737,9 @@ pub fn resolve_runtime_modules_installed(
             let needed = symbols_by_mod.get(mod_name).map(|v| v.as_slice()).unwrap_or(&[]);
             if !runtime_module_has_symbols(&p, needed) {
                 stale = true;
+                break;
+            }
+            if stale {
                 break;
             }
             if let Ok(text) = std::fs::read_to_string(&p) {
@@ -755,6 +781,11 @@ pub fn resolve_runtime_modules_installed(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn repo_stdlib_rt_available_in_workspace() {
+        assert!(repo_stdlib_rt_available());
+    }
 
     #[test]
     fn c_symbol_for_strips_nyra_prefix_convention() {
