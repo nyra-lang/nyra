@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.36.13 (2026-06-27)
+
+**Test fixes — `nyra test tests/nyra` and stdlib helpers**
+
+- **Fixed** — `stdlib/testing.ny` imports `os/syscall.ny` for `os_exit` (removes W002 unused-import noise)
+- **Fixed** — `TcpHub.add` returns `i32` status from `rt_tcp_hub_add` (invalid fd returns `-1`)
+- **Fixed** — `tests/nyra/games_gaps.ny` bool comparison (`light == false`)
+- **Fixed** — `tests/nyra/net/net_advanced_test.ny` `Channel_str` send/recv ownership chain
+- **Fixed** — `tests/nyra/net/gaps_fix_test.ny` HTTP handler renamed to `http_handler` (not picked up as `nyra test` case)
+
 ## v1.36.12 (2026-06-27)
 
 **Removed Sonic framework from the Nyra repository**
