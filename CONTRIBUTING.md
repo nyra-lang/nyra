@@ -293,7 +293,7 @@ cargo test --workspace
 ## Development setup
 
 1. Install [Rust](https://rustup.rs/) (stable).
-2. Install **clang** (Xcode CLT on macOS, `clang` package on Linux).
+2. Install **clang** and **libclang** (Xcode CLT on macOS; on Linux: `clang` + `libclang-dev` for `nyra bind c` / `nyra-c-bindgen`).
 3. Clone and build:
 
 ```bash

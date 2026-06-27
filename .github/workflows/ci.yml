@@ -42,7 +42,10 @@ jobs:
           fi
 
       - name: System dependencies
-        run: sudo apt-get update && sudo apt-get install -y clang lld wasi-libc python3
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang lld libclang-dev llvm-dev wasi-libc python3
 
       - name: Full Nyra test suite (incl. sanitizer + perf + cross)
         run: make test-all
@@ -84,7 +87,7 @@ jobs:
       - name: System dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang golang nodejs python3
+          sudo apt-get install -y clang lld libclang-dev llvm-dev golang nodejs python3
 
       - name: Cross-language benchmark (quick subset)
         env:
@@ -118,6 +121,11 @@ jobs:
 
       - name: Install nightly
         run: rustup toolchain install nightly
+
+      - name: System dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang lld libclang-dev llvm-dev
 
       - name: Install cargo-fuzz
         run: cargo install cargo-fuzz --locked

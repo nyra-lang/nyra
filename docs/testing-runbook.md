@@ -29,6 +29,16 @@ Local mirror: `./scripts/test-all.sh` with optional `TEST_PERF=1`.
 
 ## When CI fails
 
+### `clang-sys` / `llvm-config` / `libclang.so` (Linux CI or local build)
+
+`cargo build --workspace` compiles `nyra-c-bindgen`, which links against **libclang**. On Ubuntu/Debian install development headers, not only the `clang` compiler:
+
+```bash
+sudo apt-get install -y clang lld libclang-dev llvm-dev
+```
+
+CI uses the same packages in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
+
 ### Snapshot mismatch (`insta`)
 
 - **Intentional change**: run `INSTA_UPDATE=1 cargo test -p compiler --test codegen_snapshots --test diagnostics_snapshots`, review diff, commit `.snap` files.
