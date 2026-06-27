@@ -1,6 +1,12 @@
 #ifndef NYRA_RT_COMMON_H
 #define NYRA_RT_COMMON_H
 
+/* clock_gettime requires POSIX visibility before any libc headers on Linux. */
+#if defined(__linux__) && !defined(_POSIX_C_SOURCE) && !defined(_DEFAULT_SOURCE) \
+    && !defined(_GNU_SOURCE)
+#define _DEFAULT_SOURCE
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +16,8 @@
 #if defined(__APPLE__)
 #include <mach/mach.h>
 #include <mach/mach_time.h>
+#else
+#include <time.h>
 #endif
 
 typedef uint64_t NyraTimeStamp;

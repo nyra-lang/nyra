@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.36.8 (2026-06-27)
+
+**Runtime fix — `clock_gettime` in `rt_common.h` on Linux**
+
+- **Fixed** — `rt_common.h` includes `<time.h>` and enables `_DEFAULT_SOURCE` on Linux so `clock_gettime` / `CLOCK_MONOTONIC` are declared when runtime `.c` files are compiled by `clang` in CI
+
 ## v1.36.7 (2026-06-27)
 
 **Runtime fix — export `async_future_done` for async state-machine spawn bodies**
