@@ -16,7 +16,10 @@ test-all-init:
 	@ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
 		$(MAKE_LIB)/test-all-gate.sh init
 	@printf 'test-all: started %s\nroot: %s\n' "$$(date '+%Y-%m-%d %H:%M:%S')" "$(ROOT)" >$(TEST_ALL_LOG)
-	@printf 'make: 🚀 Starting Nyra test suite (root: %s)\n' "$(ROOT)"
+	@ROOT="$(ROOT)" TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+		TEST_PERF="$(TEST_PERF)" TEST_SAN="$(TEST_SAN)" TEST_FUZZ="$(TEST_FUZZ)" \
+		NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
+		$(MAKE_LIB)/test-all-progress.sh init
 	@printf 'make: live log: %s\n' "$(TEST_ALL_LOG)"
 	@printf 'make: failures log: %s\n' "$(TEST_ALL_FAILURES_FILE)"
 	@. $(MAKE_LIB)/test-stats.sh && nyra_stats_init
@@ -31,7 +34,7 @@ test-all-core:
 
 # Seconds–~1 min: static checks, small scripts, no full compile grid.
 test-all-core-fast:
-	$(call log_step,fast gates)
+	$(call log_phase,fast gates)
 	$(call run_gate,test-count,suite test count)
 	$(call run_gate,test-webdocs-tabs,webdocs code tabs)
 	$(call run_gate,smoke-vscode-extension,vscode extension compile)
@@ -40,7 +43,7 @@ test-all-core-fast:
 
 # ~1–5 min: Rust unit/integration (excl. compiletest), Nyra scripts, CLI smokes.
 test-all-core-medium:
-	$(call log_step,medium gates)
+	$(call log_phase,medium gates)
 	$(call run_gate,test-cargo-workspace,cargo test --workspace)
 	$(call run_gate,test-nyra-lang,nyra language tests)
 	$(call run_gate,test-runtime-smoke,runtime smoke)
@@ -52,7 +55,7 @@ test-all-core-medium:
 
 # ~5–15 min: conformance, corpus/examples, stdlib compile + runtime smokes.
 test-all-core-heavy:
-	$(call log_step,heavy gates)
+	$(call log_phase,heavy gates)
 	$(call run_gate,test-conformance,conformance tests)
 	$(call run_gate,smoke-corpus,corpus smoke)
 	$(call run_gate,smoke-examples,examples smoke)
@@ -63,7 +66,7 @@ test-all-core-heavy:
 
 # ~10+ min: compiletest grid (~3k CI / ~10k full) and libFuzzer smoke (5×60s).
 test-all-core-slow:
-	$(call log_step,slow gates)
+	$(call log_phase,slow gates)
 	$(call run_gate,test-compiletest,compiletest suite)
 	$(call run_gate,test-fuzz-smoke,fuzz smoke)
 
@@ -82,23 +85,35 @@ test-all-extended:
 	$(call run_gate,test-fuzz-stress,fuzz stress corpus)
 	@if [ "$(TEST_PERF)" = "1" ]; then \
 		ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+			TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+			NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
 			$(MAKE_LIB)/test-all-gate.sh make test-perf perf check; \
 	fi
 	@if [ "$(TEST_SAN)" = "1" ]; then \
 		ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+			TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+			NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
 			$(MAKE_LIB)/test-all-gate.sh make test-sanitizer sanitizer check; \
 		ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+			TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+			NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
 			$(MAKE_LIB)/test-all-gate.sh make test-race-tsan race tsan; \
 		ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+			TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+			NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
 			$(MAKE_LIB)/test-all-gate.sh make test-race-native race native; \
 	fi
 	@if [ "$(TEST_FUZZ)" = "1" ]; then \
 		ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+			TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+			NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
 			$(MAKE_LIB)/test-all-gate.sh make test-fuzz-nightly fuzz nightly; \
 	fi
 
 test-all-summary: test-all-banner
 	@ROOT="$(ROOT)" TEST_ALL_FAILURES_FILE="$(TEST_ALL_FAILURES_FILE)" \
+		TEST_ALL_LOG="$(TEST_ALL_LOG)" \
+		NYRA_TEST_ALL_PROGRESS_FILE="$(NYRA_TEST_ALL_PROGRESS_FILE)" \
 		$(MAKE_LIB)/test-all-gate.sh summary
 
 test-all-banner:
@@ -117,12 +132,12 @@ test-all-banner:
 	printf "$${y}        passed: %s   errors: %s   warnings: %s$${r}\n" \
 		"$$NYRA_TEST_STATS_PASSED" "$$NYRA_TEST_STATS_ERRORS" "$$NYRA_TEST_STATS_WARNINGS"; \
 	if [ "$$failures" -gt 0 ] 2>/dev/null; then \
-		printf "$${red}$${b}\n       ╔═══════════════════════════════════════╗\n"; \
-		printf "       ║   ✗   %s GATE(S) FAILED — see below   ✗   ║\n" "$$failures"; \
-		printf "       ╚═══════════════════════════════════════╝\n$${r}\n"; \
+		printf "$${red}$${b}\n       +-------------------------------------------+\n"; \
+		printf "       |  !!  %s GATE(S) FAILED — see below  !!  |\n" "$$failures"; \
+		printf "       +-------------------------------------------+\n$${r}\n"; \
 	else \
-		printf "$${g}$${b}\n       ╔═══════════════════════════════════════╗\n"; \
-		printf "       ║     ✓   A L L   T E S T S   P A S S E D   ✓     ║\n"; \
-		printf "       ╚═══════════════════════════════════════╝\n$${r}\n"; \
+		printf "$${g}$${b}\n       +-------------------------------------------+\n"; \
+		printf "       |     OK   A L L   T E S T S   P A S S E D   |\n"; \
+		printf "       +-------------------------------------------+\n$${r}\n"; \
 	fi; \
 	printf "$${dim}  nyra test suite — %s$${r}\n\n" "$$(date +%Y-%m-%d %H:%M:%S)"
