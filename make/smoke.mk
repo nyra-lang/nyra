@@ -1,8 +1,8 @@
-# Smoke tests — stdlib, examples, CLI, apps, cross-compile, Sonic.
+# Smoke tests — stdlib, examples, CLI, apps, cross-compile.
 
 .PHONY: smoke-cli smoke-apps smoke-database smoke-sqlite
 .PHONY: smoke-stdlib smoke-stdlib-runtime smoke-stdlib-priority smoke-stdlib-medium
-.PHONY: smoke-corpus smoke-examples smoke-serde-pkg smoke-cross smoke-sonic smoke-enterprise
+.PHONY: smoke-corpus smoke-examples smoke-serde-pkg smoke-cross
 .PHONY: smoke-vscode-extension smoke-runtime smoke-cross-wasm smoke-cross-linux smoke-cross-windows
 .PHONY: test-runtime-smoke
 
@@ -41,11 +41,6 @@ smoke-serde-pkg: ensure-nyra
 
 smoke-cross: ensure-nyra
 	@$(MAKE_LIB)/cross-smoke.sh
-
-smoke-sonic: ensure-nyra
-	@$(MAKE_LIB)/sonic-check.sh
-
-smoke-enterprise: smoke-sonic
 
 smoke-vscode-extension:
 	$(call log_step,vscode extension compile)

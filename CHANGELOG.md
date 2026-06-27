@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.36.12 (2026-06-27)
+
+**Removed Sonic framework from the Nyra repository**
+
+- **Removed** — `sonic/` tree, `import "sonic/..."` resolver, `make smoke-sonic`, and enterprise/microservice Sonic example projects
+- **Tests** — retained workspace smoke patterns as `CONF-WS-*` in `conformance/workspace.rs` (`graph_arc_smoke`, `monolith_struct_smoke`, multi-module struct import)
+- **Examples** — `examples/net_http_smoke.ny` now uses stdlib `HttpRouter` only (no Sonic HTTP layer)
+
+## v1.36.11 (2026-06-27)
+
+**Link fix — `rt_args.c` requires `rt_vec.c` on Linux**
+
+- **Fixed** — programs that only reference `rt_args_init` now also link `rt_vec.c` (`vec_str_from_argv` calls `vec_str_new` / `vec_str_push`)
+- **Fixed** — `examples/packages/ny-sqlite/rt/sqlite.c` includes `<stdint.h>` for `intptr_t` (strict Linux CI clang)
+
 ## v1.36.9 (2026-06-27)
 
 **Testing — stronger `make test-all` gates**

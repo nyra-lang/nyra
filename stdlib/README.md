@@ -40,7 +40,7 @@ These constraints come from the Nyra project guidelines and apply to every stdli
 | **Archive** | `archive/tar.ny`, `archive/zip.ny` | tar, real ZIP (store method) |
 | **Core** | `vec.ny`, `map.ny`, `fs/`, `strings/`, `time/` | Collections, FS, strings, time |
 
-Framework stacks (e.g. Sonic microservices, Socket.io hubs) stay **outside** stdlib in `sonic/` — stdlib provides primitives; frameworks compose them.
+Framework stacks (HTTP routers, Socket.io hubs, etc.) belong in **NyraPkg** or your own modules — stdlib provides primitives; apps compose them.
 
 ## NyraPkg role
 

@@ -35,7 +35,7 @@ fuzz/artifacts/
 fuzz/corpus/*.lock
 
 # -----------------------------------------------------------------------------
-# Node.js (examples/ffi, sonic/comparison, etc.)
+# Node.js (examples/ffi, etc.)
 # -----------------------------------------------------------------------------
 node_modules/
 npm-debug.log*
@@ -102,4 +102,3 @@ root_git_status_sb.txt
 scripts/test-all.txt
 
 WebDocs/
-sonic/

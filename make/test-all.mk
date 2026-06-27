@@ -33,7 +33,6 @@ test-all-core: build-workspace ensure-nyra
 	@$(MAKE) smoke-serde-pkg
 	@$(MAKE) smoke-cli
 	@$(MAKE) smoke-vscode-extension
-	@$(MAKE) smoke-sonic
 	@$(MAKE) test-runtime-smoke
 	@$(MAKE) test-webdocs-tabs
 	@$(MAKE) test-comparison-parity

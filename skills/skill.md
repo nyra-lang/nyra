@@ -47,8 +47,8 @@ Do not invent features not listed here. Full docs: `webDocs/` in the Nyra reposi
 - **v2.3:** composite struct field drop, auto-owned `extern fn -> string`, `Box_string` (superseded by `Box<string>` in v2.4), `OptionStr`.
 - **v2.4:** generic `enum Option<T>` / `enum Result<T,E>` monomorph; enum payload drop; `struct Box<T>` + `Box_new(string)` (replaces `Box_string`).
 - **v2.5:** generic `struct Arc<T>` (`Arc<i32>`, `Arc<string>`); auto Drop for monomorph instances; `Arc_i32` kept as legacy alias in `stdlib/arc.ny`.
-- **v2.6:** `stdlib/microservice.ny`, async bootstrap + HTTP health, team workspace example.
-- **v2.7:** `stdlib/enterprise/mod.ny`, `nyra.mod` workspaces (`enterprise_platform`, `team_api`), `CONF-ENT-*` conformance, `scripts/enterprise-check.sh`, full `webDocs/enterprise.html`. Tracing/service mesh = external.
+- **v2.6:** async bootstrap patterns, HTTP health via stdlib `net/http`.
+- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance (`conformance/workspace.rs`), `webDocs/enterprise.html`. Tracing/service mesh = external.
 - **v2.8:** return type inference (`void` default), generic call-site inference (`id(7)`), auto-borrow at calls (`T` → `&T`), `string.clone()` + synthesized struct `Clone`, struct ctor sugar `User("Ada")` / `Point()`.
 - **v2.9:** Swift-style use-after-move diagnostics (`was moved into save()` + fix-it notes), `move` / `clone` prefix at call sites (`save(move user)`, `save(clone user)`).
 - **v3.0:** auto Copy inference for all-Copy structs (`Point`, `Rect`); `#[derive(Copy)]` validation; no annotation needed for value types.
@@ -1292,7 +1292,7 @@ fn main() {
 }
 ```
 
-Full API: `webDocs/net-http.html` · `examples/net_http_smoke.ny`. Production frameworks: **Sonic** (`sonic serve`) — NestJS-style stack with C runtime shims for concurrency and DB drivers.
+Full API: `webDocs/net-http.html` · `examples/net_http_smoke.ny`. Compose with `stdlib/db/*` and NyraPkg drivers for production services.
 
 **Low-level runtime** (still valid): `read_file`, `vec_i32_*`, `map_str_i32_*`, `channel_*`, `bridge_exec`, `spawn { }`.
 
@@ -1375,7 +1375,7 @@ Nyra **compiles to native LLVM code** — it is not interpreted. C appears in th
 | Layer | Role | Example |
 |-------|------|---------|
 | **Nyra runtime** | Bootstrap I/O, strings, spawn, channels | `stdlib/rt/*.c` → stable C ABI |
-| **FFI shims** | Thin wrappers around existing C APIs | `link-source rt/hiredis_shim.c`, `sonic/rt/sonic_db.c` |
+| **FFI shims** | Thin wrappers around existing C APIs | `link-source rt/hiredis_shim.c`, `examples/packages/ny-redis/rt/` |
 | **Your app logic** | Business code, routing, validation | `.ny` files — **preferred** |
 
 Nyra is **not** “too weak” for these tasks — C is used for mature libraries (OpenSSL, libpq, hiredis) and low-level runtime, same pattern as Rust + libc. Application code stays in Nyra; do not rewrite Redis/Postgres wire protocols in Nyra.
@@ -1825,4 +1825,4 @@ Tests: `tests/nyra/break_clone_test.ny` · `tests/nyra/hashmap_chain_test.ny` ·
 | Example apps | examples.html |
 | **This AI skill file** | ai-skill.html · nyra-skill.md |
 
-Repo docs: [`docs/bindings.md`](../docs/bindings.md) · [`stdlib/README.md`](../stdlib/README.md) · Sonic native interop: [`sonic/docs/native-interop.md`](../../sonic/docs/native-interop.md)
+Repo docs: [`docs/bindings.md`](../docs/bindings.md) · [`stdlib/README.md`](../stdlib/README.md) · [`webDocs/c-bindgen.html`](../webDocs/c-bindgen.html)

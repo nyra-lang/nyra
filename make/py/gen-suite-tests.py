@@ -1114,7 +1114,7 @@ def gen_run_stdlib(dry_run: bool) -> int:
         ("contains_false", '"hello".contains("xyz")', "0"),
         ("starts_true", '"hello".starts_with("he")', "1"),
         ("ends_true", '"hello".ends_with("lo")', "1"),
-        ("replace", '"foo".replace("o", "0")', "f0o"),
+        ("replace", '"foo".replace("o", "0")', "f00"),
     ]
     for name, expr, expected in cases:
         body = f"""// run-stdout: {expected}

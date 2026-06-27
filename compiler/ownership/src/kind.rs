@@ -110,12 +110,7 @@ pub fn callee_returns_owned(callee: &str) -> bool {
 }
 
 /// Extern fns that return `string` views into caller-owned or global storage (must not `free`).
-pub const BORROWED_EXTERN_RETURNS: &[&str] = &[
-    "sonic_map_get",
-    "sonic_map_get_from_raw_headers",
-    "sonic_worker_req_header_get",
-    "os_getenv",
-];
+pub const BORROWED_EXTERN_RETURNS: &[&str] = &["os_getenv"];
 
 pub fn callee_returns_borrowed(callee: &str) -> bool {
     BORROWED_EXTERN_RETURNS.contains(&callee)

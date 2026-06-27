@@ -23,11 +23,8 @@ mod arc;
 #[path = "conformance/async_v1.rs"]
 mod async_v1;
 
-#[path = "conformance/microservice.rs"]
-mod microservice;
-
-#[path = "conformance/enterprise.rs"]
-mod enterprise;
+#[path = "conformance/workspace.rs"]
+mod workspace;
 
 #[path = "conformance/inference.rs"]
 mod inference;

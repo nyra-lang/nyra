@@ -15,10 +15,10 @@ nyra pkg install ny-mysql@^0.1.0
 
 ## Connection spec
 
-`Mysql_connect` expects Sonic-style spec:
+`Mysql_connect` expects semicolon-separated DSN:
 
 ```
-127.0.0.1;3306;sonic;root;secret
+127.0.0.1;3306;nyra;root;secret
 ```
 
 (host;port;database;user;password)

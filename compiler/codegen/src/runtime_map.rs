@@ -534,6 +534,10 @@ impl RuntimeProfile {
         if mods.contains("rt_strings.c") {
             mods.insert("rt_vec.c");
         }
+        // rt_args.c defines vec_str_from_argv → vec_str_* (whole .c unit is linked).
+        if mods.contains("rt_args.c") {
+            mods.insert("rt_vec.c");
+        }
         // rt_array.c debug formatters call str_cat / i32_to_string / f64_to_string.
         if mods.contains("rt_array.c") {
             mods.insert("rt_strings.c");
@@ -818,6 +822,15 @@ mod tests {
         p.symbols.insert("spawn".into());
         assert!(p.modules().contains("rt_spawn.c"));
         assert!(p.modules().contains("rt_async.c"));
+    }
+
+    #[test]
+    fn rt_args_module_pulls_vec_for_argv_helper() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("rt_args_init".into());
+        let mods = p.modules();
+        assert!(mods.contains("rt_args.c"));
+        assert!(mods.contains("rt_vec.c"));
     }
 
     #[test]

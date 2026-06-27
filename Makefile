@@ -48,7 +48,6 @@ help:
 		'  make smoke-cli         fmt, pkg, bind, LSP, DAP' \
 		'  make smoke-stdlib      nyra check every stdlib module' \
 		'  make smoke-stdlib-runtime  stdlib runtime smoke (zero-types + typed)' \
-		'  make smoke-sonic       Sonic / enterprise conformance' \
 		'' \
 		'Optional gates (with test-all):' \
 		'  TEST_SAN=1 make test-all' \

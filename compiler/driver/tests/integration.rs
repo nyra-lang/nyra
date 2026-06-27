@@ -955,25 +955,3 @@ fn compiles_graph_arc_smoke_without_errors() {
     assert!(output.borrow_errors.is_empty(), "{:?}", output.borrow_errors);
     assert!(output.llvm_ir.is_some());
 }
-
-#[test]
-fn compiles_microservice_async_smoke_without_errors() {
-    let path = examples_dir().join("microservice_async_smoke.ny");
-    let output = Compiler::compile_file(&path, &CompileOptions::default()).unwrap();
-    assert!(output.lexer_errors.is_empty(), "{:?}", output.lexer_errors);
-    assert!(output.parser_errors.is_empty(), "{:?}", output.parser_errors);
-    assert!(output.type_errors.is_empty(), "{:?}", output.type_errors);
-    assert!(output.borrow_errors.is_empty(), "{:?}", output.borrow_errors);
-    assert!(output.llvm_ir.is_some());
-}
-
-#[test]
-fn compiles_enterprise_platform_without_errors() {
-    let path = examples_dir().join("projects/enterprise_platform/main.ny");
-    let output = Compiler::compile_file(&path, &CompileOptions::default()).unwrap();
-    assert!(output.lexer_errors.is_empty(), "{:?}", output.lexer_errors);
-    assert!(output.parser_errors.is_empty(), "{:?}", output.parser_errors);
-    assert!(output.type_errors.is_empty(), "{:?}", output.type_errors);
-    assert!(output.borrow_errors.is_empty(), "{:?}", output.borrow_errors);
-    assert!(output.llvm_ir.is_some());
-}

@@ -3,7 +3,6 @@ pub mod prelude;
 pub mod merge;
 pub mod sources;
 pub mod stdlib;
-pub mod sonic;
 pub mod symbols;
 pub use paths::*;
 pub use sources::collect_source_files;
@@ -11,7 +10,6 @@ pub use stdlib::{
     collect_stdlib_sources, collect_stdlib_sources_near, resolve_pkg_import,
     resolve_stdlib_import, resolve_stdlib_import_near, stdlib_roots, stdlib_roots_near,
 };
-pub use sonic::{resolve_sonic_import, sonic_roots};
 pub use symbols::{collect_program_uses, top_level_export_names};
 
 use std::collections::HashSet;
@@ -246,10 +244,6 @@ pub fn resolve_import_path(base_dir: &Path, import_path: &str) -> Result<PathBuf
     }
 
     if let Some(resolved) = resolve_stdlib_import_near(import_path, Some(base_dir)) {
-        return Ok(resolved);
-    }
-
-    if let Some(resolved) = resolve_sonic_import(import_path) {
         return Ok(resolved);
     }
 

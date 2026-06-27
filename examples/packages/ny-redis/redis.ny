@@ -8,7 +8,7 @@ extern fn redis_brpop(conn: ptr, key: string, timeout_sec: i32) -> string
 extern fn redis_close(conn: ptr) -> void
 extern fn redis_free_string(value: string) -> void
 
-const REDIS_QUEUE_KEY = "sonic:queue"
+const REDIS_QUEUE_KEY = "nyra:queue"
 
 fn Redis_connect(host: string, port: i32) -> ptr {
     return redis_connect(host, port)

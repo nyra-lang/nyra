@@ -1,5 +1,5 @@
 // PostgreSQL driver — requires `link pq` (libpq) in nyra.mod for native backend.
-// DSN: host;port;dbname;user;password  (same as Sonic DB spec)
+// DSN: host;port;dbname;user;password
 
 extern fn _postgres_stub_open(dsn: string) -> ptr
 extern fn postgres_exec(handle: ptr, sql: string) -> i32

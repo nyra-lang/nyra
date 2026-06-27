@@ -58,7 +58,6 @@ GLOB_DIRS = [
     "webDocs",
     "scripts",
     "stubs",
-    "sonic",
     "Apps",
     "bindgen",
     "c-bindgen",

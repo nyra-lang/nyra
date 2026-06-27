@@ -71,7 +71,6 @@
 | Component | Status |
 |-----------|--------|
 | NyraPkg | Semver registry, `link` lines |
-| Sonic (HTTP backend) | Production-oriented — `sonic serve` |
 | Editor grammar | TextMate `grammar/nyra.tmLanguage.json` |
 
 ## Not yet production gates

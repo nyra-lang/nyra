@@ -113,7 +113,6 @@ nyra watch . --on run         # rebuild + run
 | Script | Purpose |
 |--------|---------|
 | `scripts/test-all.sh` | Full suite |
-| `scripts/enterprise-check.sh` | CONF-ENT-* |
 | `scripts/sanitizer-check.sh` | ASan/UBSan smoke |
 | `scripts/fuzz-smoke.sh` | 60s libFuzzer per target |
 | `scripts/fuzz-nightly.sh` | 5min libFuzzer (weekly CI) |

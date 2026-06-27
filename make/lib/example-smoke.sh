@@ -30,7 +30,6 @@ check examples/rust-bridge/regex/main.ny
 check examples/bridge/main.ny
 
 # Project examples (compile-only; runtime needs services / network).
-check examples/projects/team_api/main.ny
 check examples/projects/tcp_echo/server.ny
 check examples/projects/tcp_echo/client.ny
 check examples/projects/https_smoke/main.ny

@@ -18,7 +18,7 @@ nyra pkg install ny-postgres@^0.1.0
 Pass a libpq connection string to `Postgres_connect`, e.g.:
 
 ```
-host=127.0.0.1 port=5432 dbname=sonic user=postgres password=secret
+host=127.0.0.1 port=5432 dbname=nyra user=postgres password=secret
 ```
 
 Or set `DATABASE_URL` for the smoke test in `main.ny`.
