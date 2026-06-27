@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.36.10 (2026-06-27)
+
+**Link fix — `rt_args.c` requires `rt_vec.c` on Linux**
+
+- **Fixed** — programs that only reference `rt_args_init` now also link `rt_vec.c` (`vec_str_from_argv` calls `vec_str_new` / `vec_str_push`)
+- **Fixed** — `examples/packages/ny-sqlite/rt/sqlite.c` includes `<stdint.h>` for `intptr_t` (strict Linux CI clang)
+
 ## v1.36.9 (2026-06-27)
 
 **Testing — stronger `make test-all` gates**
