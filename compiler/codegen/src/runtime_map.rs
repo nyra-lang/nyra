@@ -732,6 +732,7 @@ pub fn resolve_runtime_modules_installed(
                             text.contains("pthread_create") && !text.contains("pthread.h")
                         }
                         "rt_strings.c" => !text.contains("str_replacen("),
+                        "rt_async.c" => text.contains("static int async_future_done"),
                         _ => false,
                     }
                 };
@@ -795,6 +796,13 @@ mod tests {
         let mods = p.modules();
         assert!(mods.contains("rt_strings.c"));
         assert!(mods.contains("rt_vec.c"));
+    }
+
+    #[test]
+    fn async_future_done_maps_to_rt_async() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("async_future_done".into());
+        assert!(p.modules().contains("rt_async.c"));
     }
 
     #[test]

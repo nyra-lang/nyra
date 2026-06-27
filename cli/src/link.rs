@@ -843,4 +843,50 @@ mod tests {
         assert!(out.contains("fast"), "stdout: {out}");
         let _ = std::fs::remove_dir_all(&work);
     }
+
+    #[test]
+    fn async_state_machine_string_links_rt_async() {
+        use compiler::{
+            load_program_with_options, parse_source, set_diagnostic_root, LoadOptions,
+        };
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../tests/nyra/async_state_machine_string_test.ny");
+        let compile_opts = compiler::CompileOptions::default();
+        let loaded = load_program_with_options(&path, LoadOptions { auto_prelude: true })
+            .unwrap();
+        let mut program = loaded.program;
+        program.functions.retain(|f| f.name != "main");
+        let harness_main = parse_source(
+            "fn main() {\n    test_state_machine_string_return()\n}",
+            "harness.ny",
+        )
+        .unwrap();
+        program.functions.extend(harness_main.functions);
+        set_diagnostic_root(path.parent().unwrap());
+        let out = compiler::Compiler::compile_program(
+            &program,
+            &path.to_string_lossy(),
+            &compile_opts,
+            Some(&path),
+            loaded.errors,
+        )
+        .unwrap();
+        assert!(
+            out.runtime_profile.symbols.contains("async_future_done"),
+            "{:?}",
+            out.runtime_profile.symbols
+        );
+        let work = std::env::temp_dir().join(format!("nyra_link_async_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&work);
+        std::fs::create_dir_all(&work).unwrap();
+        let ll = work.join("async.ll");
+        let bin = work.join("async");
+        std::fs::write(&ll, out.llvm_ir.unwrap()).unwrap();
+        let profile = LinkProfile::default();
+        link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();
+        assert!(bin.is_file());
+        let run = std::process::Command::new(&bin).output().unwrap();
+        assert!(run.status.success(), "stderr: {}", String::from_utf8_lossy(&run.stderr));
+        let _ = std::fs::remove_dir_all(&work);
+    }
 }

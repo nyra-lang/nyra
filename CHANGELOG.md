@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.36.7 (2026-06-27)
+
+**Runtime fix — export `async_future_done` for async state-machine spawn bodies**
+
+- **Fixed** — `async_future_done` and `async_future_ptr_value` are now globally visible in `rt_async.c` (removed erroneous `static` forward declarations that hid them from the linker)
+- **Fixed** — codegen runtime profile scan also covers `module_level` IR (spawn/closure helper functions)
+
 ## v1.36.6 (2026-06-27)
 
 **Typecheck fix — reject bool vs integer comparisons**

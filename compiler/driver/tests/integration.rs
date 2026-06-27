@@ -3,7 +3,7 @@ mod common;
 use std::thread;
 use std::time::Duration;
 
-use common::{examples_dir, ir_defines_main, nyra_bin, run_nyra, run_nyra_file};
+use common::{examples_dir, ir_defines_main, nyra_bin, run_nyra, run_nyra_file, tests_dir};
 use compiler::{CompileOptions, Compiler};
 
 #[test]
@@ -681,6 +681,56 @@ fn end_to_end_colored_print() {
     assert!(stdout.contains("Hello"));
     assert!(stdout.contains("Hex"));
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn async_state_machine_string_links_async_future_done() {
+    use compiler::{load_program_with_options, parse_source, set_diagnostic_root, LoadOptions};
+    let path = tests_dir().join("nyra/async_state_machine_string_test.ny");
+    let compile_opts = CompileOptions::default();
+    let load_opts = LoadOptions {
+        auto_prelude: true,
+    };
+    let loaded = load_program_with_options(&path, load_opts).unwrap();
+    let mut program = loaded.program;
+    program.functions.retain(|f| f.name != "main");
+    let harness_main = parse_source(
+        "fn main() {\n    test_state_machine_string_return()\n}",
+        "harness.ny",
+    )
+    .unwrap();
+    program.functions.extend(harness_main.functions);
+    set_diagnostic_root(path.parent().unwrap());
+    let output = Compiler::compile_program(
+        &program,
+        &path.to_string_lossy(),
+        &compile_opts,
+        Some(&path),
+        loaded.errors,
+    )
+    .unwrap();
+    assert!(
+        output.type_errors.is_empty(),
+        "type errors: {:?}",
+        output.type_errors
+    );
+    let ir = output.llvm_ir.expect("llvm ir");
+    assert!(
+        ir.contains("async_future_done"),
+        "expected async_future_done in IR"
+    );
+    assert!(
+        output.runtime_profile.symbols.contains("async_future_done"),
+        "runtime profile missing async_future_done: {:?}",
+        output.runtime_profile.symbols
+    );
+    use compiler::runtime_map::resolve_runtime_modules_installed;
+    let mods = resolve_runtime_modules_installed(&output.runtime_profile, "").unwrap();
+    assert!(
+        mods.iter().any(|p| p.ends_with("rt_async.c")),
+        "link modules missing rt_async.c: {:?}",
+        mods
+    );
 }
 
 #[test]

@@ -115,20 +115,24 @@ impl Codegen {
     pub(super) fn sync_runtime_symbols_from_ir(&mut self) {
         let map = crate::runtime_map::symbol_module_map();
         let mut needed = Vec::new();
-        for line in &self.lines {
-            let trimmed = line.trim_start();
-            if trimmed.starts_with("declare ") {
-                continue;
-            }
-            if !trimmed.contains(" call ") {
-                continue;
-            }
-            for sym in map.keys() {
-                if line.contains(&format!("@{sym}(")) {
-                    needed.push((*sym).to_string());
+        let mut scan_lines = |lines: &[String]| {
+            for line in lines {
+                let trimmed = line.trim_start();
+                if trimmed.starts_with("declare ") {
+                    continue;
+                }
+                if !trimmed.contains(" call ") {
+                    continue;
+                }
+                for sym in map.keys() {
+                    if line.contains(&format!("@{sym}(")) {
+                        needed.push((*sym).to_string());
+                    }
                 }
             }
-        }
+        };
+        scan_lines(&self.lines);
+        scan_lines(&self.module_level);
         for sym in needed {
             self.record_runtime(&sym);
         }

@@ -6,8 +6,8 @@
 #define NYRA_FUTURE_BOOL 1
 #define NYRA_FUTURE_PTR 2
 
-static int async_future_done(int handle);
-static void *async_future_ptr_value(int handle);
+int async_future_done(int handle);
+void *async_future_ptr_value(int handle);
 
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
