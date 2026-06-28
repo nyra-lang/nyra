@@ -11,7 +11,7 @@ Official Nyra language extension: syntax highlighting, LSP, and DAP debugging.
 
 ## Setup
 
-1. Install the [Nyra toolchain](https://github.com/hamdymohamedak/Nyra/blob/main/install.md).
+1. Install the [Nyra toolchain](https://github.com/nyra-lang/nyra#quick-start).
 2. Install this extension from the Marketplace or a `.vsix` build.
 3. Open a folder with `main.ny`.
 

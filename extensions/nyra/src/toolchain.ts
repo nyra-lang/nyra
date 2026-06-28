@@ -79,7 +79,7 @@ export async function ensureToolchain(
     if (pick === "Open install guide") {
       vscode.env.openExternal(
         vscode.Uri.parse(
-          "https://github.com/hamdymohamedak/Nyra/blob/main/install.md"
+          "https://github.com/nyra-lang/nyra#quick-start"
         )
       );
     } else if (pick === "Configure path") {

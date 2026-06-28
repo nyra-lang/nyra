@@ -294,6 +294,7 @@ static char *json_escape_dup(const char *s) {
     return out;
 }
 
+#if !defined(_WIN32)
 static char *read_pipe_all(int fd, size_t max_cap) {
     char *buf = (char *)malloc(max_cap + 1);
     if (!buf) {
@@ -311,7 +312,6 @@ static char *read_pipe_all(int fd, size_t max_cap) {
     return buf;
 }
 
-#if !defined(_WIN32)
 static char *command_exec_capture_posix(const char *program, void *args_handle) {
     if (!program || !*program) {
         return dup_bytes("{\"code\":-1,\"stdout\":\"\",\"stderr\":\"missing program\"}", 52);

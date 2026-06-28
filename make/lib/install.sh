@@ -3,7 +3,7 @@
 # Optional: | sh -s -- --version 0.1.0 --install-dir ~/.nyra
 set -eu
 
-REPO="${NYRA_INSTALL_REPO:-hamdymohamedak/Nyra}"
+REPO="${NYRA_INSTALL_REPO:-nyra-lang/nyra}"
 INSTALL_DIR="${NYRA_INSTALL_DIR:-$HOME/.nyra}"
 VERSION="latest"
 
@@ -12,7 +12,7 @@ usage() {
 Nyra installer
 
 Usage:
-  curl -fsSL https://raw.githubusercontent.com/hamdymohamedak/Nyra/main/scripts/install.sh | sh
+  curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh
   curl -fsSL .../install.sh | sh -s -- --version 0.1.0
   curl -fsSL .../install.sh | sh -s -- --install-dir DIR
 

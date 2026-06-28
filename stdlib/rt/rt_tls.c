@@ -17,6 +17,11 @@
 #define NYRA_TLS_OPENSSL 0
 #endif
 
+#if !NYRA_TLS_OPENSSL
+typedef struct NyraSslOpaque SSL;
+typedef struct NyraSslCtxOpaque SSL_CTX;
+#endif
+
 #define NYRA_TLS_MAX 32
 #define NYRA_TLS_HANDLE_BASE 0x100000
 

@@ -64,7 +64,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: System dependencies
-        run: brew install llvm libsqlite3
+        run: brew install llvm sqlite
 
       - name: macOS core Nyra tests
         shell: bash

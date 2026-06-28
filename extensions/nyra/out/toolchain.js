@@ -96,7 +96,7 @@ async function ensureToolchain(context) {
     if (!info.available) {
         const pick = await vscode.window.showWarningMessage(`Nyra CLI not found or not runnable: '${command}'. Install Nyra and ensure 'nyra lsp' works.`, "Open install guide", "Configure path");
         if (pick === "Open install guide") {
-            vscode.env.openExternal(vscode.Uri.parse("https://github.com/hamdymohamedak/Nyra/blob/main/install.md"));
+            vscode.env.openExternal(vscode.Uri.parse("https://github.com/nyra-lang/nyra#quick-start"));
         }
         else if (pick === "Configure path") {
             vscode.commands.executeCommand("workbench.action.openSettings", "nyra.languageServerPath");
