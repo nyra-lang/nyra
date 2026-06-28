@@ -10,7 +10,7 @@ Nyra is actively developed (current toolchain version: see `Cargo.toml`, e.g. **
 
 | You want to… | Read |
 |--------------|------|
-| **Understand Nyra syntax & semantics** | [`webDocs/nyra-skill.md`](webDocs/nyra-skill.md) (canonical language reference) |
+| **Understand Nyra syntax & semantics** | [`nyra-skill.md`](https://github.com/nyra-lang/docs/blob/main/nyra-skill.md) in the [docs repo](https://github.com/nyra-lang/docs) · [live site](https://nyra-lang.github.io/docs/) |
 | **Know where compiler code goes** | [`docs/architecture.md`](docs/architecture.md) |
 | **Understand stdlib layout & auto-prelude** | [`stdlib/README.md`](stdlib/README.md) |
 | **Run the full test suite & debug CI** | [`docs/testing-runbook.md`](docs/testing-runbook.md) |
@@ -38,7 +38,7 @@ Complete this before merging any change that affects user-visible behavior:
 | 1 | **Tests** — add or update coverage; run `make test-all` (or at minimum `cargo test --workspace` + affected Nyra tests). Test **zero-types and explicit types**. |
 | 2 | **Examples** — add or update under `examples/` (`feature.ny` + `feature.typed.ny` when applicable). |
 | 3 | **No regressions** — unrelated features still pass. |
-| 4 | **webDocs** — update [`webDocs/`](webDocs/) when syntax, stdlib, CLI, or ABI changes; rebuild skill + search index (see [Release workflow](#release-workflow-version--webdocs)). |
+| 4 | **webDocs** — update the [docs repo](https://github.com/nyra-lang/docs) when syntax, stdlib, CLI, or ABI changes; rebuild skill + search index (see [Release workflow](#release-workflow-version--webdocs)). Published site: [nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/). |
 | 5 | **Makefile** — wire new test gates into the root `Makefile` (`make test-all` dependencies). |
 | 6 | **Version** — bump `[workspace.package] version` in [`Cargo.toml`](Cargo.toml) + [`CHANGELOG.md`](CHANGELOG.md) for language updates (see [`agents/skill.md`](agents/skill.md)). |
 | 7 | **Status** — update [`docs/status.md`](docs/status.md) when feature depth changes. |
@@ -99,7 +99,7 @@ No manual prelude registration — the compiler builds a **virtual symbol table*
 4. **ABI** — add entry to [`docs/abi-manifest.toml`](docs/abi-manifest.toml); run `make gen-abi-header` → updates `stdlib/nyra_rt.h`; extend [`compiler/driver/tests/abi_manifest.rs`](compiler/driver/tests/abi_manifest.rs).
 5. **Test** in `tests/nyra/<feature>_test.ny`.
 6. **Example** — `examples/builtins/.../foo.ny` + `foo.typed.ny`.
-7. **Docs** — [`webDocs/stdlib.html`](webDocs/stdlib.html) · [`webDocs/bindings.html`](webDocs/bindings.html).
+7. **Docs** — [stdlib.html](https://nyra-lang.github.io/docs/stdlib.html) · [bindings.html](https://nyra-lang.github.io/docs/bindings.html) ([docs repo](https://github.com/nyra-lang/docs)).
 
 Optional friendly names: thin wrappers in `stdlib/builtins_*.ny` (e.g. [`stdlib/builtins_json.ny`](stdlib/builtins_json.ny)).
 
@@ -125,7 +125,7 @@ For ops lowered directly to LLVM (`abs_i32`, `min_i32`, …): edit `compiler/typ
 | **Examples** | Add or improve `.ny` samples under `examples/` (zero-types + typed pairs) |
 | **Apps** | Extend multi-file projects under [`Apps/`](Apps/) (Basics, Graphics, FileSystem, learn, …) |
 | **Tooling** | CLI (`cli/`), formatter, `nyra diag`, `nyra lsp`, NyraPkg (`pkg/`) |
-| **Docs** | `docs/`, `webDocs/`, `install.md`, `grammar/README.md` |
+| **Docs** | `docs/` (this repo), [docs repo](https://github.com/nyra-lang/docs) (web site source), `grammar/README.md` |
 | **Grammar** | Update [`grammar/nyra.tmLanguage.json`](grammar/nyra.tmLanguage.json) when keywords change |
 | **Benchmarks** | Fair cross-language benches in `examples/comparison/` |
 | **Runtime** | C runtime `stdlib/rt/`, headers `stdlib/nyra_rt.h`, Rust helpers `rt/` |
@@ -152,8 +152,9 @@ Nyra/
 │   └── conformance/   # CONF-LANG pass/fail/fixtures
 ├── Apps/              # Reference multi-file applications
 ├── examples/          # Samples, builtins, comparison benchmarks
-├── docs/              # Architecture, status, ABI, testing runbook
-├── webDocs/           # Static HTML site + nyra-skill.md
+├── docs/              # Architecture, status, ABI, testing runbook (this repo)
+│                      # Web docs → separate repo: github.com/nyra-lang/docs
+│                      # Live site → nyra-lang.github.io/docs/
 ├── skills/            # Contributor guidelines & design notes
 ├── Makefile           # Primary entry (make test-all, make help, …)
 ├── make/              # Modular Make targets, lib recipes, py generators
@@ -185,7 +186,7 @@ nyra run examples/comparison/dungeon
 cargo run -p cli -- run examples/comparison/dungeon
 ```
 
-Expected output starts with `Dungeon Steps`, then score lines and `3`. See [`examples/comparison/dungeon/README.md`](examples/comparison/dungeon/README.md) and [webDocs/dungeon-steps.html](webDocs/dungeon-steps.html).
+Expected output starts with `Dungeon Steps`, then score lines and `3`. See [`examples/comparison/dungeon/README.md`](examples/comparison/dungeon/README.md) and [dungeon-steps.html](https://nyra-lang.github.io/docs/dungeon-steps.html).
 
 Larger app collections live under [`Apps/`](Apps/) (Basics algorithms, Graphics, GhostTerm, FileSystem tools, learn track, …).
 
@@ -231,7 +232,7 @@ make bench
 2. For user-facing features, ship **`foo.ny`** (zero-types) and **`foo.typed.ny`** (explicit types) when both styles apply.
 3. Multi-file projects: `main.ny` at project root (or `nyra.mod` for packages).
 4. Run `nyra check` and `nyra run` on your paths.
-5. Mention in the PR; optionally add to [`webDocs/examples.html`](webDocs/examples.html).
+5. Mention in the PR; optionally add to [examples.html](https://nyra-lang.github.io/docs/examples.html) in the [docs repo](https://github.com/nyra-lang/docs).
 
 ---
 
@@ -324,13 +325,13 @@ The root [`run`](run) file lists handy one-liners (examples, bench, test).
 | `nyra test [path]` | Run `test fn` / `test_*` / `*_test.ny` |
 | `nyra fmt [--write] <path>` | Format `.ny` sources |
 | `nyra build --release` | `-O3` + LLVM opt + thin LTO |
-| `nyra build --for windows\|linux\|macos` | Cross-compile (see `webDocs/targets.html`) |
+| `nyra build --for windows\|linux\|macos` | Cross-compile (see [targets.html](https://nyra-lang.github.io/docs/targets.html)) |
 | `nyra build --target wasm32-wasi` | Wasm subset (`stdlib/nyra_rt_wasi.c`) |
 | `nyra check --deny-extended` | Core-only CI (reject Extended tier features) |
 | `nyra pkg init` / `verify` / `build` | NyraPkg workflow |
 | `nyra lsp` | Language server (stdio) |
 
-Details: [`webDocs/tooling.html`](webDocs/tooling.html) · [`install.md`](install.md).
+Details: [tooling.html](https://nyra-lang.github.io/docs/tooling.html) · [Installation](https://nyra-lang.github.io/docs/install.html).
 
 ---
 
@@ -349,7 +350,7 @@ When you add a keyword to the lexer (`compiler/lexer/src/lib.rs`), update in the
 2. **Checklist** — complete the [mandatory checklist](#mandatory-checklist-language--stdlib--cli--runtime-changes) above.
 3. **Tests** — `cargo test --workspace` at minimum; `make test-all` for language/stdlib work.
 4. **Examples** — user-visible behavior needs `examples/` updates (zero-types + typed where applicable).
-5. **Docs** — `docs/` and `webDocs/`; feature depth → [`docs/status.md`](docs/status.md).
+5. **Docs** — `docs/` (this repo) and the [docs repo](https://github.com/nyra-lang/docs); feature depth → [`docs/status.md`](docs/status.md).
 6. **Style** — `cargo fmt` on touched Rust files.
 7. **CI** — see [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and [`docs/testing-runbook.md`](docs/testing-runbook.md).
 
@@ -363,17 +364,20 @@ When you add a keyword to the lexer (`compiler/lexer/src/lib.rs`), update in the
 
 ## Release workflow (version + webDocs)
 
+User-facing docs live in the **[docs repo](https://github.com/nyra-lang/docs)** and publish to **[nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/)**.
+
 For any user-visible language/stdlib/CLI/ABI change:
 
 1. Bump **`[workspace.package] version`** in [`Cargo.toml`](Cargo.toml) (minor bump for language updates after 1.0 — see [`agents/skill.md`](agents/skill.md)).
 2. Add section to [`CHANGELOG.md`](CHANGELOG.md).
-3. Update relevant `webDocs/*.html` and [`webDocs/nyra-skill.md`](webDocs/nyra-skill.md).
-4. Rebuild derived docs:
+3. In the [docs repo](https://github.com/nyra-lang/docs), update relevant `*.html` and [`nyra-skill.md`](https://github.com/nyra-lang/docs/blob/main/nyra-skill.md).
+4. Rebuild derived docs in the docs repo:
 
 ```bash
-node webDocs/scripts/build-nyra-skill.mjs    # → skills/skill.md
-node webDocs/scripts/build-search-index.mjs
-# or: make build-webdocs
+git clone git@github.com:nyra-lang/docs.git
+cd docs
+node scripts/build-nyra-skill.mjs    # sync → nyra repo skills/skill.md when applicable
+node scripts/build-search-index.mjs
 ```
 
 5. Update [`docs/status.md`](docs/status.md) when feature depth changes.
@@ -389,7 +393,7 @@ For async, TCP, HTTP, JSON, TLS, crypto, and other runtime-backed stdlib APIs:
 3. **ABI** — [`docs/abi-manifest.toml`](docs/abi-manifest.toml) + `make gen-abi-header` + [`compiler/driver/tests/abi_manifest.rs`](compiler/driver/tests/abi_manifest.rs).
 4. **Integration test** — `compiler/driver/tests/integration.rs` or `nyra run` on an example.
 5. **Example** — `examples/builtins/` or `examples/projects/`.
-6. **Docs** — [`webDocs/stdlib.html`](webDocs/stdlib.html), [`webDocs/backend.html`](webDocs/backend.html) if applicable.
+6. **Docs** — [stdlib.html](https://nyra-lang.github.io/docs/stdlib.html), [backend.html](https://nyra-lang.github.io/docs/backend.html) if applicable ([docs repo](https://github.com/nyra-lang/docs)).
 7. **Reinstall** — `./scripts/updateLang.sh   # or: make install-dev` after pulling runtime changes.
 
 DB drivers that need heavy native deps often start in **NyraPkg** (`examples/packages/ny-sqlite/`) before graduating into stdlib.
@@ -429,7 +433,7 @@ Do not commit large generated bench artifacts unless the PR explicitly updates p
 
 | Topic | Document |
 |-------|----------|
-| Language reference (AI + humans) | [`webDocs/nyra-skill.md`](webDocs/nyra-skill.md) |
+| Language reference (AI + humans) | [`nyra-skill.md`](https://github.com/nyra-lang/docs/blob/main/nyra-skill.md) · [live docs](https://nyra-lang.github.io/docs/) |
 | Toolchain architecture | [`docs/architecture.md`](docs/architecture.md) |
 | Stdlib design & auto-prelude | [`stdlib/README.md`](stdlib/README.md) |
 | Testing & CI debugging | [`docs/testing-runbook.md`](docs/testing-runbook.md) |
