@@ -99,6 +99,7 @@ fn synthesize_serialize_to_json(type_name: &str) -> Function {
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -205,6 +206,7 @@ fn synthesize_serialize_to_bytes(type_name: &str, has_bin: bool) -> Function {
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -247,6 +249,7 @@ fn synthesize_deserialize_from_json(type_name: &str) -> Function {
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 

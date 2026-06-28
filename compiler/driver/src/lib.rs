@@ -277,6 +277,7 @@ impl Compiler {
         desugar_try(&mut program);
         coerce_auto_borrow(&mut program);
         fold_program_consts(&mut program);
+        let comptime_fn_errors = const_eval::fold_attributed_comptime_functions(&mut program);
 
         let mut warnings = if program.allow_extended {
             vec![]
@@ -309,6 +310,7 @@ impl Compiler {
         }
         let mut type_errors = type_checker.errors.clone();
         type_errors.extend(mono_errors);
+        type_errors.extend(comptime_fn_errors);
 
         if let Some(entry) = lint_entry {
             warnings.extend(check_unused_imports(entry, Some(&program)));

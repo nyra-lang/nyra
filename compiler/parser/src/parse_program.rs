@@ -167,6 +167,10 @@ impl Parser {
                     self.pending_fn_attrs.cold = true;
                     self.advance();
                 }
+                TokenKind::AttrComptime => {
+                    self.pending_fn_attrs.comptime = true;
+                    self.advance();
+                }
                 TokenKind::Struct => {
                     if let Some(s) = self.parse_struct() {
                         self.parsed_struct_names.push(s.name.clone());

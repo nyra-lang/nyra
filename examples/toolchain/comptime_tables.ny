@@ -8,13 +8,13 @@ fn hash_step(n) {
     return (n * 2654435761) % 2147483647
 }
 
-fn sum_to(n) {
+fn sum_array(values) {
     let mut acc = 0
-    for i in 0..n {
-        acc = acc + hash_step(i)
+    for x in values {
+        acc = acc + hash_step(x)
     }
     return acc
 }
 
 pub const SEED = hash_step(42)
-pub const SUM_FIVE = sum_to(5)
+pub const SUM_FOUR = sum_array([0, 1, 2, 3])

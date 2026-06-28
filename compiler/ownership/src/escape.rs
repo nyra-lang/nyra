@@ -455,6 +455,7 @@ impl EscapeGraph {
                     ArrowBody::Block(b) => self.analyze_block(b, scope),
                 }
             }
+            Expression::ComptimeBlock { body, .. } => self.analyze_block(body, scope),
             Expression::EnumVariant(v) => {
                 for a in &v.args {
                     self.analyze_expr_escapes(a, scope);
@@ -676,6 +677,11 @@ fn collect_vars(expr: &Expression, out: &mut Vec<String>) {
                 }
             }
         },
+        Expression::ComptimeBlock { body, .. } => {
+            for stmt in &body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
         Expression::EnumVariant(v) => {
             for a in &v.args {
                 collect_vars(a, out);

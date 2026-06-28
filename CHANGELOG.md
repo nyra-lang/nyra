@@ -1,5 +1,65 @@
 # Changelog
 
+## v1.38.0 (2026-06-28)
+
+**Comptime — Zig-style power (optional)**
+
+- **Added** — comptime **strings** (literals, concat, equality) and **string literal match** arms
+- **Added** — `.len()` on comptime arrays and strings; `[elem; N]` / `[elem; param]` array repeat
+- **Added** — mutable comptime updates: `table[i] = v`, `s.field = v` (requires `let mut`); immutable `let` reassignment rejected
+- **Added** — integer literal match patterns (`match n { 0 => …, 7 => … }`)
+- **Added** — comptime modules retain exported **`pub struct` / `pub enum`** definitions
+- **Added** — example `comptime_power.ny`; tests `tests/nyra/comptime/power_test*`
+- **Docs** — `skills/skill.md` comptime philosophy and expanded capability list
+
+## v1.37.5 (2026-06-28)
+
+**Comptime — structs, enums, and tuples**
+
+- **Added** — comptime struct literals, field access, spread (`{ ...s, x: 1 }`), and struct match patterns
+- **Added** — comptime enum values with single or multi-arg payloads (`Opt.Some(42)`)
+- **Added** — comptime tuple literals and tuple match patterns
+- **Added** — examples `comptime_struct_enum.ny`; tests `tests/nyra/comptime/struct_enum_test*`
+- **Docs** — `skills/skill.md` struct/enum/tuple comptime support
+
+## v1.37.4 (2026-06-28)
+
+**Comptime — `match` expressions**
+
+- **Added** — comptime evaluation for `match` on enums, bools, and integers (with `_ if guard` arms)
+- **Added** — comptime enum values (`Status.Ok`, payload variants with one argument)
+- **Added** — `true` / `false` as bool match patterns in the parser
+- **Added** — examples `comptime_match.ny`; tests `tests/nyra/comptime/match_test*`
+- **Docs** — `skills/skill.md` match section
+
+## v1.37.3 (2026-06-28)
+
+**Comptime — `comptime { }` blocks and loop control**
+
+- **Added** — `comptime { ... }` block expressions fold to a compile-time value
+- **Added** — `while`, `break`, and `continue` in comptime evaluation (including inside `#[comptime]` functions and comptime modules)
+- **Fixed** — fold `comptime { }` in `const` initializers even when no `#[comptime]` functions are present
+- **Added** — examples `comptime_block_loops.ny`; tests `tests/nyra/comptime/loops_test*`
+- **Docs** — `skills/skill.md` updated
+
+## v1.37.2 (2026-06-28)
+
+**Comptime — `#[comptime]` on single functions**
+
+- **Added** — `#[comptime]` attribute on individual functions in normal files; calls fold at compile time and the function is stripped from the binary
+- **Fixed** — typed `const` folding preserves declared integer kind (`i64`, etc.) after comptime evaluation
+- **Added** — examples `examples/toolchain/comptime_fn_attr.ny` (+ `.typed.ny`); tests under `tests/nyra/comptime/fn_attr*`
+- **Docs** — `skills/skill.md` documents file-level `comptime` vs `#[comptime]`
+
+## v1.37.1 (2026-06-28)
+
+**Comptime — `for x in arr` and generic calls**
+
+- **Added** — comptime evaluation for `for x in arr` over fixed arrays and array literals/spreads/index
+- **Added** — generic function calls in comptime modules (monomorph before const fold)
+- **Changed** — monomorph collects and rewrites generic calls in top-level `const` initializers
+- **Updated** — examples/tests for for-in + generics in comptime
+
 ## v1.37.0 (2026-06-28)
 
 **Comptime modules — optional compile-time evaluation**

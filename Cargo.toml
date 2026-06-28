@@ -32,7 +32,7 @@ members = [
 default-members = ["cli"]
 
 [workspace.package]
-version = "1.37.0"
+version = "1.38.0"
 edition = "2021"
 license = "Proprietary"
 authors = ["Nyra Contributors"]

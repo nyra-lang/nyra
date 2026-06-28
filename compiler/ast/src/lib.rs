@@ -161,6 +161,8 @@ pub struct Function {
     pub hot: bool,
     /// `#[cold]` — emit LLVM `cold`.
     pub cold: bool,
+    /// `#[comptime]` — evaluate at compile time when called with known arguments; stripped from runtime binary.
+    pub comptime: bool,
     /// Leading `///` doc comment lines joined with newlines.
     pub doc: Option<String>,
 }
@@ -441,6 +443,8 @@ pub enum Expression {
     Cast(Box<CastExpr>),
     /// ES6-style arrow function `(x: T) => expr` or `(x: T) => { ... }` (hoisted before typecheck).
     ArrowFn(Box<ArrowFnExpr>),
+    /// `comptime { ... }` — compile-time block expression (folded when evaluable).
+    ComptimeBlock { body: Block, span: Span },
     Invalid,
 }
 

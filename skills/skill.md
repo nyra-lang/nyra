@@ -224,9 +224,11 @@ const MAX_HP = 100
 
 Fixed at compile time; shared fixed values across the program. Not the same as `let` — you cannot compute `const` from runtime input unless the expression is folded at compile time (see **comptime** below).
 
-### `comptime` — compile-time module (optional)
+### `comptime` — compile-time evaluation (optional)
 
-Put `comptime` on the **first line** of a file to make the **entire unit** compile-time only. All functions in that file are evaluated at compile time; only `pub const` (and optional `pub struct`/`enum`) are exported to importers. Comptime modules cannot define `main`, `spawn`, `async`, `print`, or `extern`.
+Three forms:
+
+1. **File-level** — put `comptime` on the **first line** of a file. The **entire unit** is compile-time only; only `pub const` (and optional `pub struct`/`enum`) are exported to importers. Comptime modules cannot define `main`, `spawn`, `async`, `print`, or `extern`.
 
 ```ny
 comptime
@@ -238,7 +240,34 @@ fn mix(n) {
 pub const SEED = mix(14)
 ```
 
-Import from a normal file:
+2. **Function-level** — put `#[comptime]` on a **single function** in a normal file. Calls with known arguments fold at compile time; the function is stripped from the runtime binary.
+
+```ny
+#[comptime]
+fn mix(n) {
+    return n * 3
+}
+
+const SEED = mix(14)
+
+fn main() {
+    let seed = SEED   // 42 — folded at compile time
+}
+```
+
+3. **Block expression** — `comptime { ... }` folds a compile-time block to a value (trailing expression or `return`).
+
+```ny
+const TOTAL = comptime {
+    let mut acc = 0
+    for i in 0..10 {
+        acc = acc + i
+    }
+    acc
+}
+```
+
+Import from a normal file (file-level comptime module):
 
 ```ny
 import "tables.ny" as tables
@@ -248,13 +277,25 @@ fn main() {
 }
 ```
 
-Check a comptime module: `nyra check examples/toolchain/comptime_tables.ny` (no codegen / no `main` required). Examples: `examples/toolchain/comptime_tables.ny`, `comptime_import_main.ny` (zero-types + `.typed.ny` pairs).
+Check a comptime module: `nyra check examples/toolchain/comptime_tables.ny` (no codegen / no `main` required). Examples: `examples/toolchain/comptime_tables.ny`, `comptime_import_main.ny`, `comptime_fn_attr.ny`, `comptime_block_loops.ny`, `comptime_match.ny`, `comptime_struct_enum.ny`, `comptime_power.ny` (zero-types + `.typed.ny` pairs).
 
-| | `let` | `let mut` | `const` | `comptime` file |
-|---|-------|-----------|---------|-----------------|
-| Reassign? | No | Yes | No | N/A (no runtime) |
-| When set? | Runtime in code | Runtime; can change | Compile time | Compile time (whole file) |
-| Example | `let name = "Ali"` | `let mut gold = 0` | `const MAX = 100` | `comptime` + `pub const TABLE = ...` |
+**Philosophy (Zig-like, optional):** Nyra does not force comptime — use normal runtime code by default. When you need lookup tables, string routing, or generated constants with **zero runtime cost**, opt in via `comptime` file, `#[comptime]`, or `comptime { }`. The interpreter folds values before codegen so hot paths stay lean (like Zig `comptime`, but always optional).
+
+**Supported in comptime eval:** integers, bools, **strings** (literals, `+` concat, `==` / `!=`), fixed arrays (`[1, 2, 3]`, `[x; N]`, `[x; param]`, spreads), **`.len()`** on arrays/strings, **mutable array/struct updates** (`table[i] = v`, `s.field = v` with `let mut`), **structs** (literals, field access, spread, struct match), **enums** (unit + payload), **tuples**, `for i in 0..N`, `for x in arr`, `while` / `break` / `continue`, `comptime { }` blocks, **`match`** (enum, bool, **integer literals**, **string literals**, guards, struct, tuple), generic calls (monomorphized before eval), pure function calls, `if` / `return` / `let mut`.
+
+**Match in comptime:** enum arms (`Status.Ok`, `Opt.Some(x)`), bool (`true` / `false`), integer literals (`0`, `7`, …) and `_ if guard`, **string literals** (`"GET" => …`), struct arms (`Point { x, y }`), tuple arms (`(a, b)`). Or-patterns (`A | B =>`) work via desugar.
+
+**Comptime modules export:** `pub const` values plus **`pub struct` / `pub enum`** type definitions (private helpers and functions are stripped).
+
+**Still forbidden in comptime:** `main`, `print`, `spawn`, `async`, `extern`, `unsafe`, `asm`, `parallel for`. Runtime calls to `#[comptime]` functions are a compile error. Reassigning `let` (non-`mut`) bindings is rejected.
+
+Use `priv const` for internal comptime helpers (Nyra defaults to `pub` when visibility is omitted); export only `pub const` values importers need.
+
+| | `let` | `let mut` | `const` | `comptime` file | `#[comptime]` fn |
+|---|-------|-----------|---------|-----------------|------------------|
+| Reassign? | No | Yes | No | N/A (no runtime) | N/A (stripped) |
+| When set? | Runtime in code | Runtime; can change | Compile time | Compile time (whole file) | Compile time (per call site) |
+| Example | `let name = "Ali"` | `let mut gold = 0` | `const MAX = 100` | `comptime` + `pub const TABLE = ...` | `#[comptime] fn hash(n) { ... }` |
 
 - Immutable `let` of **Move** types (heap `string`) transfers ownership on use.
 - `let mut` of Copy types (`i32`, `bool`, enums) is not moved on function call.
@@ -272,6 +313,7 @@ Quick lookup for syntax the lexer and parser accept today. Types are optional un
 | `fn` | Function definition |
 | `let` / `let mut` | Immutable / mutable binding |
 | `const` | Compile-time constant |
+| `comptime` | Optional compile-time evaluation (file, `#[comptime]`, or `comptime { }` block) |
 | `if` / `else` | Conditional (also expression) |
 | `while` | Loop |
 | `break` | Exit innermost `while` / `for` |

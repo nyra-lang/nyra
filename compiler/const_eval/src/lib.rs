@@ -1,15 +1,33 @@
 mod comptime;
 
-pub use comptime::{finalize_comptime_module, strip_comptime_artifacts};
+pub use comptime::{finalize_comptime_module, fold_attributed_comptime_functions, strip_comptime_artifacts};
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use ast::{BinaryOp, Expression, Literal, UnaryOp};
+use errors::Span;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConstValue {
     Int(i64),
     Bool(bool),
+    /// Fixed comptime array.
+    Array(Vec<ConstValue>),
+    /// Compile-time string (UTF-8).
+    String(String),
+    /// Enum variant at comptime (unit or payload — tuple when multiple args).
+    Enum {
+        enum_name: String,
+        variant: String,
+        payload: Option<Box<ConstValue>>,
+    },
+    /// Struct value at comptime.
+    Struct {
+        name: String,
+        fields: BTreeMap<String, ConstValue>,
+    },
+    /// Tuple value at comptime.
+    Tuple(Vec<ConstValue>),
 }
 
 pub fn eval_const_expr(
@@ -22,6 +40,7 @@ pub fn eval_const_expr(
         Expression::Literal(Literal::Float(_, _)) => None,
         Expression::Literal(Literal::Char(_)) => None,
         Expression::Literal(Literal::Bool(b)) => Some(ConstValue::Bool(*b)),
+        Expression::Literal(Literal::String(s)) => Some(ConstValue::String(s.clone())),
         Expression::Variable { name, .. } => consts.get(name).cloned(),
         Expression::Binary(b) => {
             let l = eval_const_expr(&b.left, consts)?;
@@ -29,6 +48,9 @@ pub fn eval_const_expr(
             match (b.op, l, r) {
                 (BinaryOp::Add, ConstValue::Int(a), ConstValue::Int(b)) => {
                     Some(ConstValue::Int(a.saturating_add(b)))
+                }
+                (BinaryOp::Add, ConstValue::String(a), ConstValue::String(b)) => {
+                    Some(ConstValue::String(format!("{a}{b}")))
                 }
                 (BinaryOp::Sub, ConstValue::Int(a), ConstValue::Int(b)) => {
                     Some(ConstValue::Int(a.saturating_sub(b)))
@@ -76,7 +98,13 @@ pub fn eval_const_expr(
                 (BinaryOp::Eq, ConstValue::Int(a), ConstValue::Int(b)) => {
                     Some(ConstValue::Bool(a == b))
                 }
+                (BinaryOp::Eq, ConstValue::String(a), ConstValue::String(b)) => {
+                    Some(ConstValue::Bool(a == b))
+                }
                 (BinaryOp::Ne, ConstValue::Int(a), ConstValue::Int(b)) => {
+                    Some(ConstValue::Bool(a != b))
+                }
+                (BinaryOp::Ne, ConstValue::String(a), ConstValue::String(b)) => {
                     Some(ConstValue::Bool(a != b))
                 }
                 (BinaryOp::Lt, ConstValue::Int(a), ConstValue::Int(b)) => {
@@ -114,9 +142,60 @@ pub fn eval_const_expr(
 }
 
 pub fn const_value_to_expr(v: &ConstValue) -> Expression {
+    const_value_to_expr_typed(v, None)
+}
+
+pub fn const_value_to_expr_typed(v: &ConstValue, ty: Option<&ast::TypeAnnotation>) -> Expression {
     match v {
-        ConstValue::Int(n) => Expression::Literal(Literal::Int(*n)),
+        ConstValue::Int(n) => {
+            if let Some(ast::TypeAnnotation::Integer(kind)) = ty {
+                Expression::Literal(Literal::IntKind(*n, *kind))
+            } else {
+                Expression::Literal(Literal::Int(*n))
+            }
+        }
         ConstValue::Bool(b) => Expression::Literal(Literal::Bool(*b)),
+        ConstValue::String(s) => Expression::Literal(Literal::String(s.clone())),
+        ConstValue::Array(elems) => {
+            let elem_ty = ty.and_then(|t| match t {
+                ast::TypeAnnotation::Array { elem, .. } => Some(elem.as_ref()),
+                _ => None,
+            });
+            Expression::ArrayLiteral(ast::ArrayLiteralExpr::from_elems(
+                elems
+                    .iter()
+                    .map(|e| const_value_to_expr_typed(e, elem_ty))
+                    .collect(),
+            ))
+        }
+        ConstValue::Enum {
+            enum_name,
+            variant,
+            payload,
+        } => Expression::EnumVariant(ast::EnumVariantExpr {
+            enum_name: Some(enum_name.clone()),
+            variant: variant.clone(),
+            args: match payload.as_deref() {
+                None => vec![],
+                Some(ConstValue::Tuple(elems)) => {
+                    elems.iter().map(const_value_to_expr).collect()
+                }
+                Some(single) => vec![const_value_to_expr(single)],
+            },
+            span: Span::default(),
+        }),
+        ConstValue::Struct { name, fields } => Expression::StructLiteral(ast::StructLiteralExpr {
+            name: name.clone(),
+            spreads: vec![],
+            fields: fields
+                .iter()
+                .map(|(k, v)| (k.clone(), const_value_to_expr(v)))
+                .collect(),
+            span: Span::default(),
+        }),
+        ConstValue::Tuple(elems) => Expression::TupleLiteral(
+            elems.iter().map(const_value_to_expr).collect(),
+        ),
     }
 }
 
@@ -129,7 +208,7 @@ pub fn fold_program_consts(program: &mut ast::Program) {
     }
     for c in &mut program.consts {
         if let Some(v) = eval_const_expr(&c.value, &consts) {
-            c.value = const_value_to_expr(&v);
+            c.value = const_value_to_expr_typed(&v, c.ty.as_ref());
         }
     }
     for f in &mut program.functions {
@@ -294,7 +373,7 @@ fn fold_block_consts(block: &mut ast::Block, consts: &HashMap<String, ConstValue
         if let ast::Statement::Const(c) = stmt {
             if let Some(v) = eval_const_expr(&c.value, &local) {
                 local.insert(c.name.clone(), v.clone());
-                c.value = const_value_to_expr(&v);
+                c.value = const_value_to_expr_typed(&v, c.ty.as_ref());
             }
         } else if let ast::Statement::Let(l) = stmt {
             if let Some(v) = eval_const_expr(&l.value, &local) {

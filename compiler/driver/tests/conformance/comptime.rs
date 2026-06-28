@@ -9,6 +9,12 @@ fn comptime_module_folds_imported_const() {
 }
 
 #[test]
+fn comptime_for_in_generic_import() {
+    let out = compile_file_rel("tests/nyra/comptime/for_in_generic_test.ny");
+    assert_clean(&out);
+}
+
+#[test]
 fn comptime_directive_must_be_at_top() {
     let out = compile(
         r#"const X = 1

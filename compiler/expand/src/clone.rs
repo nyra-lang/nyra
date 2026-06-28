@@ -89,6 +89,7 @@ fn synthesize_clone_method(type_name: &str, sdef: &StructDef) -> Function {
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 

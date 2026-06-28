@@ -305,6 +305,7 @@ fn collect_expr_uses(expr: &Expression, uses: &mut HashSet<String>) {
             ast::ArrowBody::Expr(e) => collect_expr_uses(e, uses),
             ast::ArrowBody::Block(b) => collect_block_uses(b, uses),
         },
+        Expression::ComptimeBlock { body, .. } => collect_block_uses(body, uses),
         Expression::Literal(_) | Expression::Invalid => {}
     }
 }

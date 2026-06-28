@@ -481,6 +481,7 @@ fn collect_expr_refs(expr: &Expression, out: &mut Vec<Symbol>) {
             ast::ArrowBody::Expr(e) => collect_expr_refs(e, out),
             ast::ArrowBody::Block(b) => collect_block_symbols(b, out),
         },
+        Expression::ComptimeBlock { body, .. } => collect_block_symbols(body, out),
         Expression::Literal(_) | Expression::Invalid => {}
     }
     let _ = expr_span(expr);

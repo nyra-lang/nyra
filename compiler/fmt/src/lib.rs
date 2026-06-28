@@ -751,6 +751,10 @@ fn emit_expr(expr: &Expression, out: &mut String) {
                 ArrowBody::Block(b) => emit_block(b, 0, out),
             }
         }
+        Expression::ComptimeBlock { body, .. } => {
+            out.push_str("comptime ");
+            emit_block(body, 0, out);
+        }
         Expression::Invalid => out.push_str("/* invalid */"),
     }
 }

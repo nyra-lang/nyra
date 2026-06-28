@@ -522,6 +522,7 @@ fn synthesize_json_encode(sdef: &StructDef, serde_structs: &HashSet<String>) -> 
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -574,6 +575,7 @@ fn synthesize_json_decode(sdef: &StructDef, serde_structs: &HashSet<String>) -> 
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -736,6 +738,7 @@ fn synthesize_bin_encode(sdef: &StructDef, serde_structs: &HashSet<String>, bin_
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -926,6 +929,7 @@ fn synthesize_bin_decode(sdef: &StructDef, serde_structs: &HashSet<String>, bin_
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 

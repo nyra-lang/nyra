@@ -75,6 +75,7 @@ fn desugar_expr(expr: &Expression, program: &mut Program, counter: &mut usize) -
                 inline: false,
                 hot: false,
                 cold: false,
+                comptime: false,
             });
             Expression::Variable {
                 name,

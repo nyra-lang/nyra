@@ -1014,6 +1014,34 @@ impl TypeChecker {
                 to
             }
             Expression::Invalid => Type::Unknown,
+            Expression::ComptimeBlock { body, span } => {
+                let mut inner = TypeEnv {
+                    variables: env.variables.clone(),
+                    functions: env.functions.clone(),
+                };
+                let mut last_ty = Type::Unknown;
+                for stmt in &body.statements {
+                    match stmt {
+                        Statement::Expression(e) => {
+                            last_ty = self.check_expr(e, &mut inner);
+                        }
+                        Statement::Return(r) => {
+                            if let Some(v) = &r.value {
+                                return self.check_expr(v, &mut inner);
+                            }
+                        }
+                        _ => self.check_statement(stmt, &mut inner, &Type::Unknown),
+                    }
+                }
+                if last_ty == Type::Unknown {
+                    self.errors.push(NyraError::new(
+                        ErrorKind::Type,
+                        span.clone(),
+                        "comptime block must produce a value at compile time",
+                    ));
+                }
+                last_ty
+            }
             Expression::ArrowFn(a) => {
                 let mut inner = TypeEnv {
                     variables: env.variables.clone(),

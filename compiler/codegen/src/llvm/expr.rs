@@ -826,6 +826,10 @@ impl Codegen {
                 reg: "0".into(),
                 ty: "i32".into(),
             },
+            Expression::ComptimeBlock { .. } => ExprValue {
+                reg: "0".into(),
+                ty: "i32".into(),
+            },
         }
     }
 }

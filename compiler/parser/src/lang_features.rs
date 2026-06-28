@@ -566,6 +566,18 @@ impl Parser {
             self.advance();
             return MatchPattern::Literal(lit);
         }
+        if let TokenKind::Number(n) | TokenKind::NumberSuffix(n, _) = self.current_kind().clone() {
+            self.advance();
+            return MatchPattern::Variant(n.to_string());
+        }
+        if matches!(self.current_kind(), TokenKind::True) {
+            self.advance();
+            return MatchPattern::Variant("true".into());
+        }
+        if matches!(self.current_kind(), TokenKind::False) {
+            self.advance();
+            return MatchPattern::Variant("false".into());
+        }
         if let TokenKind::Identifier(p) = self.current_kind().clone() {
             if p == "_" {
                 self.advance();

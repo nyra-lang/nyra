@@ -615,6 +615,7 @@ impl Parser {
             inline: fn_attrs.inline,
             hot: fn_attrs.hot,
             cold: fn_attrs.cold,
+            comptime: fn_attrs.comptime,
             doc,
         })
     }
