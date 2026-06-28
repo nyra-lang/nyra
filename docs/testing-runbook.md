@@ -5,13 +5,22 @@ Operational guide for CI failures, regressions, and tier promotion.
 ## CI pipeline stages
 
 1. **lint** — `cargo fmt --check`, `cargo clippy -D warnings`
-2. **test-all (Linux)** — `make test-all` with `TEST_SAN=1`, `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=ci`, cross-compile (linux + mingw windows), compiletest ~2.8k files
-3. **test-all-windows** — conformance, nyra-lang, stdlib compile + runtime smoke, native Windows build
+2. **test-linux** — `make test-all` with `TEST_SAN=1`, `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=ci`, cross-compile (linux + mingw windows), compiletest ~2.8k files
+3. **test-macos** — `make test-all-macos` (platform core + native hello build/run)
+4. **test-windows** — `make test-all-windows` (platform core + native Windows build, package smoke, DAP)
 4. **weekly** — `--profile full` compiletest (~10k) + extended fuzz
 
 Local mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
 
 **Gate order:** `test-all` runs **fast → slow** so simple failures surface before heavy compiletest (~3k CI files), fuzz smoke (5×60s), cross-compile, and optional sanitizer/perf/nightly-fuzz gates. Subsets: `make test-all-core-fast`, `make test-all-core-slow`.
+
+**CI platforms (every push/PR):**
+
+| OS | Workflow job | Make target | Scope |
+|----|--------------|-------------|--------|
+| **Linux** | `test-linux` | `make test-all` | Full suite (compiletest, fuzz, cross, san/perf) |
+| **macOS** | `test-macos` | `make test-all-macos` | Platform core + native build/run smoke |
+| **Windows** | `test-windows` | `make test-all-windows` | Platform core + native build smoke + package/DAP |
 
 ## Detection principles
 

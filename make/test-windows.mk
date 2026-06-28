@@ -1,18 +1,11 @@
-# Windows CI core — Nyra language/runtime gates (subset of test-all-core).
+# Windows CI core — platform core gates + native build smoke.
 
 .PHONY: test-all-windows test-all-windows-native
 
-test-all-windows: build-workspace ensure-nyra
-	$(call log_step,Windows core Nyra tests)
-	@$(MAKE) test-conformance
-	@$(MAKE) test-nyra-lang
-	@$(MAKE) test-optional-types
-	@$(MAKE) smoke-stdlib
-	@$(MAKE) smoke-stdlib-runtime
-	@$(MAKE) smoke-stdlib-priority
-	@$(MAKE) test-runtime-smoke
+test-all-windows: test-platform-core
+	$(call log_step,Windows CI)
 	@$(MAKE) test-all-windows-native
-	$(call log_ok,Windows core Nyra tests)
+	$(call log_ok,Windows CI)
 
 test-all-windows-native: ensure-nyra
 	$(call log_step,native Windows build smoke)

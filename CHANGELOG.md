@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.36.17 (2026-06-28)
+
+**CI — Linux + macOS + Windows on every push/PR**
+
+- **CI** — three parallel jobs: `test-linux` (`make test-all`), `test-macos` (`make test-all-macos`), `test-windows` (`make test-all-windows`)
+- **Added** — `make/test-platform.mk` shared platform core (cargo tests, conformance, nyra-lang, stdlib smokes)
+- **Added** — `make/test-macos.mk` native macOS hello build + run smoke
+- **Changed** — Windows/macOS platform core now includes `cargo test --workspace` (codegen snapshots)
+
 ## v1.36.16 (2026-06-28)
 
 **Codegen snapshots — cross-platform CI**
