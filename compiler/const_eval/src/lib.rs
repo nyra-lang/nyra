@@ -7,6 +7,10 @@ use std::collections::{BTreeMap, HashMap};
 use ast::{BinaryOp, Expression, Literal, UnaryOp};
 use errors::Span;
 
+fn const_wrap_i32(n: i64) -> i64 {
+    n as i32 as i64
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConstValue {
     Int(i64),
@@ -47,29 +51,29 @@ pub fn eval_const_expr(
             let r = eval_const_expr(&b.right, consts)?;
             match (b.op, l, r) {
                 (BinaryOp::Add, ConstValue::Int(a), ConstValue::Int(b)) => {
-                    Some(ConstValue::Int(a.saturating_add(b)))
+                    Some(ConstValue::Int(const_wrap_i32(a.wrapping_add(b))))
                 }
                 (BinaryOp::Add, ConstValue::String(a), ConstValue::String(b)) => {
                     Some(ConstValue::String(format!("{a}{b}")))
                 }
                 (BinaryOp::Sub, ConstValue::Int(a), ConstValue::Int(b)) => {
-                    Some(ConstValue::Int(a.saturating_sub(b)))
+                    Some(ConstValue::Int(const_wrap_i32(a.wrapping_sub(b))))
                 }
                 (BinaryOp::Mul, ConstValue::Int(a), ConstValue::Int(b)) => {
-                    Some(ConstValue::Int(a.saturating_mul(b)))
+                    Some(ConstValue::Int(const_wrap_i32(a.wrapping_mul(b))))
                 }
                 (BinaryOp::Div, ConstValue::Int(a), ConstValue::Int(b)) => {
                     if b == 0 {
                         None
                     } else {
-                        Some(ConstValue::Int(a / b))
+                        Some(ConstValue::Int(const_wrap_i32(a / b)))
                     }
                 }
                 (BinaryOp::Mod, ConstValue::Int(a), ConstValue::Int(b)) => {
                     if b == 0 {
                         None
                     } else {
-                        Some(ConstValue::Int(a % b))
+                        Some(ConstValue::Int(const_wrap_i32(a % b)))
                     }
                 }
                 (BinaryOp::BitOr, ConstValue::Int(a), ConstValue::Int(b)) => {
@@ -131,7 +135,7 @@ pub fn eval_const_expr(
         Expression::Unary(u) => {
             let v = eval_const_expr(&u.operand, consts)?;
             match (&u.op, v) {
-                (UnaryOp::Neg, ConstValue::Int(n)) => Some(ConstValue::Int(-n)),
+                (UnaryOp::Neg, ConstValue::Int(n)) => Some(ConstValue::Int(const_wrap_i32(-n))),
                 (UnaryOp::Not, ConstValue::Bool(b)) => Some(ConstValue::Bool(!b)),
                 _ => None,
             }

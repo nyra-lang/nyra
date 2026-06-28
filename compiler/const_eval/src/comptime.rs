@@ -27,6 +27,11 @@ enum BlockMode {
 
 type BlockEval = ControlFlow<ConstValue, LoopAction>;
 
+/// Nyra `i32` arithmetic wraps; comptime stores ints as `i64` but must match runtime width.
+fn comptime_wrap_i32(n: i64) -> i64 {
+    n as i32 as i64
+}
+
 /// Variable bindings and mutability for comptime interpretation.
 #[derive(Clone, Debug)]
 struct ComptimeFrame {
@@ -293,6 +298,13 @@ fn fold_comptime_exprs_in_program(
     program: &mut Program,
     comptime_fns: &HashMap<String, Function>,
 ) {
+    let _ = comptime_fns;
+    let all_fns: HashMap<String, Function> = program
+        .functions
+        .iter()
+        .map(|f| (f.name.clone(), f.clone()))
+        .collect();
+
     let mut module_consts = HashMap::new();
     for c in &program.consts {
         if let Some(v) = eval_const_expr(&c.value, &module_consts) {
@@ -301,8 +313,8 @@ fn fold_comptime_exprs_in_program(
     }
 
     for c in &mut program.consts {
-        fold_comptime_in_expr(&mut c.value, comptime_fns, &module_consts);
-        if let Ok(v) = eval_comptime_expr(&c.value, &ComptimeFrame::from_env(&module_consts), comptime_fns, 0) {
+        fold_comptime_in_expr(&mut c.value, &all_fns, &module_consts);
+        if let Ok(v) = eval_comptime_expr(&c.value, &ComptimeFrame::from_env(&module_consts), &all_fns, 0) {
             module_consts.insert(c.name.clone(), v.clone());
             c.value = const_value_to_expr_typed(&v, c.ty.as_ref());
         } else if let Some(v) = eval_const_expr(&c.value, &module_consts) {
@@ -313,12 +325,12 @@ fn fold_comptime_exprs_in_program(
 
     for f in &mut program.functions {
         let mut env = module_consts.clone();
-        fold_comptime_in_block(&mut f.body, comptime_fns, &mut env);
+        fold_comptime_in_block(&mut f.body, &all_fns, &mut env);
     }
     for imp in &mut program.impls {
         for m in &mut imp.methods {
             let mut env = module_consts.clone();
-            fold_comptime_in_block(&mut m.body, comptime_fns, &mut env);
+            fold_comptime_in_block(&mut m.body, &all_fns, &mut env);
         }
     }
 }
@@ -574,7 +586,7 @@ fn eval_comptime_expr(
             for arg in &c.args {
                 args.push(eval_comptime_expr(arg, frame, functions, depth)?);
             }
-            eval_comptime_function(f, &args, functions, depth + 1)
+            eval_comptime_function(f, &args, functions, depth + 1, frame)
         }
         Expression::MethodCall(mc) if mc.method == "len" && mc.args.is_empty() && !mc.optional => {
             let obj = eval_comptime_expr(&mc.object, frame, functions, depth)?;
@@ -1013,22 +1025,22 @@ fn apply_binary(op: ast::BinaryOp, l: ConstValue, r: ConstValue) -> Option<Const
     use ast::BinaryOp;
     match (op, l, r) {
         (BinaryOp::Add, ConstValue::Int(a), ConstValue::Int(b)) => {
-            Some(ConstValue::Int(a.saturating_add(b)))
+            Some(ConstValue::Int(comptime_wrap_i32(a.wrapping_add(b))))
         }
         (BinaryOp::Add, ConstValue::String(a), ConstValue::String(b)) => {
             Some(ConstValue::String(format!("{a}{b}")))
         }
         (BinaryOp::Sub, ConstValue::Int(a), ConstValue::Int(b)) => {
-            Some(ConstValue::Int(a.saturating_sub(b)))
+            Some(ConstValue::Int(comptime_wrap_i32(a.wrapping_sub(b))))
         }
         (BinaryOp::Mul, ConstValue::Int(a), ConstValue::Int(b)) => {
-            Some(ConstValue::Int(a.saturating_mul(b)))
+            Some(ConstValue::Int(comptime_wrap_i32(a.wrapping_mul(b))))
         }
         (BinaryOp::Div, ConstValue::Int(a), ConstValue::Int(b)) if b != 0 => {
-            Some(ConstValue::Int(a / b))
+            Some(ConstValue::Int(comptime_wrap_i32(a / b)))
         }
         (BinaryOp::Mod, ConstValue::Int(a), ConstValue::Int(b)) if b != 0 => {
-            Some(ConstValue::Int(a % b))
+            Some(ConstValue::Int(comptime_wrap_i32(a % b)))
         }
         (BinaryOp::Eq, ConstValue::Int(a), ConstValue::Int(b)) => Some(ConstValue::Bool(a == b)),
         (BinaryOp::Eq, ConstValue::String(a), ConstValue::String(b)) => {
@@ -1059,7 +1071,7 @@ fn apply_binary(op: ast::BinaryOp, l: ConstValue, r: ConstValue) -> Option<Const
 
 fn apply_unary(op: UnaryOp, v: ConstValue) -> Option<ConstValue> {
     match (op, v) {
-        (UnaryOp::Neg, ConstValue::Int(n)) => Some(ConstValue::Int(-n)),
+        (UnaryOp::Neg, ConstValue::Int(n)) => Some(ConstValue::Int(comptime_wrap_i32(-n))),
         (UnaryOp::Not, ConstValue::Bool(b)) => Some(ConstValue::Bool(!b)),
         _ => None,
     }
@@ -1070,6 +1082,7 @@ fn eval_comptime_function(
     args: &[ConstValue],
     functions: &HashMap<String, Function>,
     depth: usize,
+    globals: &ComptimeFrame,
 ) -> Result<ConstValue, NyraError> {
     if f.params.len() != args.len() {
         return Err(comptime_error(
@@ -1082,7 +1095,8 @@ fn eval_comptime_function(
             ),
         ));
     }
-    let mut frame = ComptimeFrame::new();
+    let mut frame = globals.clone();
+    frame.mutables.clear();
     for (p, v) in f.params.iter().zip(args.iter()) {
         frame.values.insert(p.name.clone(), v.clone());
         if p.mutable {
@@ -2110,5 +2124,73 @@ pub const ZERO = origin()
         assert_eq!(program.structs.len(), 1);
         assert!(program.structs[0].public);
         assert!(program.functions.is_empty());
+    }
+
+    #[test]
+    fn comptime_block_calls_plain_helper_fn() {
+        let mut program = parse(
+            r#"fn mix(n) {
+    return n * 2
+}
+
+const R = comptime {
+    mix(21)
+}
+"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        assert!(matches!(
+            program.consts[0].value,
+            Expression::Literal(Literal::Int(42))
+        ));
+    }
+
+    #[test]
+    fn comptime_block_while_calls_plain_helper_fn() {
+        let mut program = parse(
+            r#"fn mix(n) {
+    return n * 2
+}
+
+const R = comptime {
+    let mut acc = 0
+    let mut i = 0
+    while i < 3 {
+        acc = acc + mix(i)
+        i = i + 1
+    }
+    acc
+}
+"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        assert!(matches!(
+            program.consts[0].value,
+            Expression::Literal(Literal::Int(6))
+        ));
+    }
+
+    #[test]
+    fn comptime_helper_reads_module_const() {
+        let mut program = parse(
+            r#"const MOD = 1000000007
+
+fn mix(n) {
+    return (n * 100003) % MOD
+}
+
+const R = comptime {
+    mix(10)
+}
+"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        assert!(matches!(
+            program.consts[1].value,
+            Expression::Literal(Literal::Int(1_000_030))
+        ));
     }
 }
