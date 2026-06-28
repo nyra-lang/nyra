@@ -1,11 +1,11 @@
 # Nyra installer for native Windows (PowerShell 5.1+)
-# Usage: irm https://raw.githubusercontent.com/hamdymohamedak/Nyra/main/scripts/install.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.ps1 | iex
 #        .\install.ps1 -Version 1.1.0 -InstallDir "$env:USERPROFILE\.nyra"
 
 param(
     [string]$Version = "latest",
     [string]$InstallDir = "$env:USERPROFILE\.nyra",
-    [string]$Repo = "hamdymohamedak/Nyra"
+    [string]$Repo = "nyra-lang/nyra"
 )
 
 $ErrorActionPreference = "Stop"

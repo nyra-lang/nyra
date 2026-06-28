@@ -7,9 +7,9 @@ Syntax highlighting for `.ny` and `.nyra` source files in editors that support *
 | | |
 |--|--|
 | **Repository path** | [`grammar/nyra.tmLanguage.json`](nyra.tmLanguage.json) |
-| **Raw URL (main branch)** | `https://raw.githubusercontent.com/hamdymohamedak/Nyra/main/grammar/nyra.tmLanguage.json` |
-| **Latest (v0.3.0)** | `https://raw.githubusercontent.com/hamdymohamedak/Nyra/v0.3.0/grammar/nyra.tmLanguage.json` |
-| **Pinned (v0.2.0)** | `https://raw.githubusercontent.com/hamdymohamedak/Nyra/v0.2.0/grammar/nyra.tmLanguage.json` |
+| **Raw URL (main branch)** | `https://raw.githubusercontent.com/nyra-lang/nyra/main/grammar/nyra.tmLanguage.json` |
+| **Latest (v0.3.0)** | `https://raw.githubusercontent.com/nyra-lang/nyra/v0.3.0/grammar/nyra.tmLanguage.json` |
+| **Pinned (v0.2.0)** | `https://raw.githubusercontent.com/nyra-lang/nyra/v0.2.0/grammar/nyra.tmLanguage.json` |
 
 The canonical spec for language syntax is [`docs/spec-v1.md`](../docs/spec-v1.md). This JSON mirrors the **surface keywords** for highlighting only; it is not a formal grammar.
 

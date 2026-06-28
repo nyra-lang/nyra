@@ -297,7 +297,7 @@ cargo test --workspace
 3. Clone and build:
 
 ```bash
-git clone https://github.com/hamdymohamedak/Nyra.git
+git clone git@github.com:nyra-lang/nyra.git
 cd Nyra
 cargo build --workspace
 ```
@@ -398,7 +398,7 @@ DB drivers that need heavy native deps often start in **NyraPkg** (`examples/pac
 
 ## Reporting issues
 
-Open a [GitHub issue](https://github.com/hamdymohamedak/Nyra/issues) with:
+Open a [GitHub issue](https://github.com/nyra-lang/nyra/issues) with:
 
 - A **minimal `.ny` reproducer** (or path to a failing example).
 - Output of `nyra check <file>` and/or `nyra run <file>`.

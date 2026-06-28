@@ -10,7 +10,7 @@ use nyra_bindgen::bindgen_crate;
 use crate::semver::{parse_req, parse_version, best_match, Req, Version};
 
 const CRATES_IO: &str = "https://crates.io/api/v1/crates";
-const CRATES_IO_USER_AGENT: &str = "nyra/1.0 (https://github.com/hamdymohamedak/Nyra)";
+const CRATES_IO_USER_AGENT: &str = "nyra/1.0 (https://github.com/nyra-lang/nyra)";
 
 fn crates_io_get(url: &str) -> Result<String, String> {
     let output = Command::new("curl")
