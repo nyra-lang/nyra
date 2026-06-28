@@ -14,6 +14,7 @@ Cursor loads **`.cursor/rules/nyra-guidelines.mdc`** automatically (`alwaysApply
 
 | File | Purpose |
 |------|---------|
+| `docs/contributor-map.md` | What to change → where to go (flowchart + test placement) |
 | `.cursor/rules/nyra-guidelines.mdc` | Always-on agent rule |
 | `Makefile` | Contributor test/build entry (`make help`) |
 | `skills/guidelines.md` | Same checklist (human-readable) |

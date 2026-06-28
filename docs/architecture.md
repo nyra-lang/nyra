@@ -131,10 +131,11 @@ myapp/
 
 | Task | Start here |
 |------|------------|
+| **Not sure where to go** | [`contributor-map.md`](contributor-map.md) — decision flowchart |
 | New `print` / I/O feature | `codegen/llvm/print.rs`, `stdlib/rt/rt_io.c` |
 | New syntax | `lexer/`, `parser/`, `ast/`, `compiler/driver/tests/` |
 | New CLI flag | `cli/src/app/args.rs`, `cli/src/app/session.rs` |
 | Docs | `webDocs/`, `docs/`, run `./scripts/build-webdocs.sh` |
 | Package manager | `pkg/src/`, `cli/src/commands/pkg.rs` |
 
-See also [CONTRIBUTING.md](../CONTRIBUTING.md) and [docs/spec-v1.md](spec-v1.md).
+See also [CONTRIBUTING.md](../CONTRIBUTING.md) and [docs/contributor-map.md](contributor-map.md).

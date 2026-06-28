@@ -8,7 +8,7 @@ use errors::{ErrorKind, NyraError, Span};
 
 use crate::{const_value_to_expr, const_value_to_expr_typed, eval_const_expr, ConstValue};
 
-const MAX_COMPTIME_STEPS: usize = 65_536;
+const MAX_COMPTIME_STEPS: usize = 4_194_304;
 const MAX_COMPTIME_DEPTH: usize = 256;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

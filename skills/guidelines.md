@@ -2,6 +2,8 @@
 
 **Canonical agent rule:** `.cursor/rules/nyra-guidelines.mdc` (`alwaysApply: true` — loaded automatically in Cursor).
 
+**Not sure which folder to edit?** See [`docs/contributor-map.md`](../docs/contributor-map.md).
+
 Any modification or addition to the language, compiler, stdlib, CLI, or runtime must follow:
 
 1. **Tests** — Cover with all supported test types; run `make test-all` for full language verification when appropriate.
