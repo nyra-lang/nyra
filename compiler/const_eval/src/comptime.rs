@@ -1525,8 +1525,12 @@ fn fold_comptime_in_expr(
         }
         _ => {}
     }
-    if let Ok(v) = eval_comptime_expr(expr, &ComptimeFrame::from_env(env), functions, 0) {
-        *expr = const_value_to_expr(&v);
+    // Keep variable references intact when nested (e.g. `s.trim()`); replacing them
+    // with literals duplicates codegen for the binding and the use site.
+    if !matches!(expr, Expression::Variable { .. }) {
+        if let Ok(v) = eval_comptime_expr(expr, &ComptimeFrame::from_env(env), functions, 0) {
+            *expr = const_value_to_expr(&v);
+        }
     }
 }
 
@@ -2192,5 +2196,30 @@ const R = comptime {
             program.consts[1].value,
             Expression::Literal(Literal::Int(1_000_030))
         ));
+    }
+
+    #[test]
+    fn comptime_fold_keeps_variable_uses_for_runtime_bindings() {
+        let mut program = parse(
+            r#"fn main() {
+    let s = "  hi  "
+    print(s.trim())
+}"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        let main = program.functions.iter().find(|f| f.name == "main").unwrap();
+        let trim = match &main.body.statements[1] {
+            ast::Statement::Print(p) => match &p.args[0] {
+                Expression::MethodCall(mc) => mc,
+                other => panic!("expected trim call, got {other:?}"),
+            },
+            other => panic!("expected print, got {other:?}"),
+        };
+        assert!(
+            matches!(&trim.object, Expression::Variable { name, .. } if name == "s"),
+            "comptime fold must not replace binding uses with literals: {:?}",
+            trim.object
+        );
     }
 }

@@ -386,8 +386,15 @@ entry:
   %call.N = call i64 @instant_now()
   %alloca.N = alloca %DateTime
   %gep.N = getelementptr inbounds %DateTime, %DateTime* %alloca.N, i32 0, i32 0
-  %call.N = call %CalendarDate @Date_new(i32 1970, i32 1, i32 1)
-  store %CalendarDate %call.N, %CalendarDate* %gep.N
+  %alloca.N = alloca %CalendarDate
+  %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %alloca.N, i32 0, i32 0
+  store i32 1970, i32* %gep.N
+  %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %alloca.N, i32 0, i32 1
+  store i32 1, i32* %gep.N
+  %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %alloca.N, i32 0, i32 2
+  store i32 1, i32* %gep.N
+  %load.N = load %CalendarDate, %CalendarDate* %alloca.N
+  store %CalendarDate %load.N, %CalendarDate* %gep.N
   %gep.N = getelementptr inbounds %DateTime, %DateTime* %alloca.N, i32 0, i32 1
   store i32 0, i32* %gep.N
   %gep.N = getelementptr inbounds %DateTime, %DateTime* %alloca.N, i32 0, i32 2
@@ -791,14 +798,25 @@ endif.N:
   %bin.N = icmp eq i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
-  %call.N = call %HttpResponse @response_internal_error()
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 500, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
-  ret %HttpResponse %call.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 else.N:
   br label %endif.N
 endif.N:
@@ -868,9 +886,19 @@ entry:
 }
 define %HttpResponse @response_bad_request() {
 entry:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 400, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call %HttpResponse @response_json(i32 400, ptr %str.N)
-  ret %HttpResponse %call.N
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 }
 define %HttpResponse @response_created_json(ptr %0) {
 entry:
@@ -894,9 +922,19 @@ entry:
 }
 define %HttpResponse @response_internal_error() {
 entry:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 500, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call %HttpResponse @response_json(i32 500, ptr %str.N)
-  ret %HttpResponse %call.N
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 }
 define %HttpResponse @response_json(i32 %0, ptr %1) {
 entry:
@@ -915,9 +953,19 @@ entry:
 }
 define %HttpResponse @response_method_not_allowed() {
 entry:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 405, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call %HttpResponse @response_json(i32 405, ptr %str.N)
-  ret %HttpResponse %call.N
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 }
 define %HttpResponse @response_no_content() {
 entry:
@@ -937,9 +985,19 @@ entry:
 }
 define %HttpResponse @response_not_found() {
 entry:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 404, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call %HttpResponse @response_json(i32 404, ptr %str.N)
-  ret %HttpResponse %call.N
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 }
 define %HttpResponse @response_ok_json(ptr %0) {
 entry:
@@ -963,9 +1021,19 @@ entry:
 }
 define %HttpResponse @response_unauthorized() {
 entry:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 401, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call %HttpResponse @response_json(i32 401, ptr %str.N)
-  ret %HttpResponse %call.N
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 }
 define %HttpUrl @Deserialize_HttpUrl_from_json(ptr %0) {
 entry:
@@ -1370,8 +1438,7 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   %alloca.N = alloca %TcpStream
   %gep.N = getelementptr inbounds %TcpStream, %TcpStream* %alloca.N, i32 0, i32 0
-  %unary.N = sub i32 0, 1
-  store i32 %unary.N, i32* %gep.N
+  store i32 -1, i32* %gep.N
   %load.N = load %TcpStream, %TcpStream* %alloca.N
   ret %TcpStream %load.N
 }
@@ -1571,8 +1638,7 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %unary.N = sub i32 0, 1
-  ret i32 %unary.N
+  ret i32 -1
 }
 define i32 @http_status_from_header(ptr %0) {
 entry:
@@ -1652,9 +1718,7 @@ endif.N:
 }
 define i32 @main() {
 entry:
-  %call.N = call %Future_i32 @work()
-  %future_h.N = extractvalue %Future_i32 %call.N, 0
-  %await.N = call i32 @async_await(i32 %future_h.N)
+  %await.N = call i32 @async_await(i32 42)
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %await.N)
   ret i32 0

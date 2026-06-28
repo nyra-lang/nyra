@@ -9,7 +9,6 @@ target triple = "nyra-snapshot-host"
 
 declare i32 @printf(ptr, ...)
 declare void @abort()
-declare void @bounds_assert_i32(i32)
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
 define i32 @main() {
@@ -21,13 +20,7 @@ entry:
   store i32 2, i32* %gep.N
   %gep.N = getelementptr inbounds [3 x i32], [3 x i32]* %alloca.N, i32 0, i32 2
   store i32 3, i32* %gep.N
-  %bounds_cmp.N = icmp ult i32 0, 3
-  %bounds_ok.N = zext i1 %bounds_cmp.N to i32
-  call void @bounds_assert_i32(i32 %bounds_ok.N)
-  %arr.base.N = getelementptr inbounds [3 x i32], [3 x i32]* %alloca.N, i32 0, i32 0
-  %gep.N = getelementptr inbounds i32, i32* %arr.base.N, i32 0
-  %load.N = load i32, i32* %gep.N
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %load.N)
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 1)
   ret i32 0
 }
