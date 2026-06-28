@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-all:
-    name: make test-all
+  test-linux:
+    name: Linux — make test-all
     runs-on: ubuntu-latest
     env:
       TEST_SAN: "1"
@@ -50,10 +50,31 @@ jobs:
             clang lld libclang-dev llvm-dev libsqlite3-dev wasi-libc python3 \
             g++-mingw-w64-x86-64 gcc-mingw-w64-x86-64
 
-      - name: Full Nyra test suite (incl. sanitizer + perf + fuzz + cross)
+      - name: Full Nyra test suite (sanitizer + perf + fuzz + cross)
         run: make test-all
 
-  windows:
+  test-macos:
+    name: macOS — make test-all-macos
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: System dependencies
+        run: brew install llvm libsqlite3
+
+      - name: macOS core Nyra tests
+        shell: bash
+        run: |
+          export LIBCLANG_PATH="$(brew --prefix llvm)/lib"
+          export DYLD_LIBRARY_PATH="$LIBCLANG_PATH"
+          make test-all-macos
+
+  test-windows:
+    name: Windows — make test-all-windows
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -81,7 +102,7 @@ jobs:
   benchmark:
     name: make bench (quick)
     runs-on: ubuntu-latest
-    needs: test-all
+    needs: [test-linux, test-macos, test-windows]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4

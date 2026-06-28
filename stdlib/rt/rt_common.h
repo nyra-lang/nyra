@@ -11,12 +11,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-#if defined(__APPLE__)
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <unistd.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #else
+#include <unistd.h>
 #include <time.h>
 #endif
 
@@ -25,6 +31,14 @@ typedef uint64_t NyraTimeStamp;
 static inline NyraTimeStamp nyra_now(void) {
 #if defined(__APPLE__)
     return mach_absolute_time();
+#elif defined(_WIN32)
+    static LARGE_INTEGER freq;
+    LARGE_INTEGER counter;
+    if (freq.QuadPart == 0) {
+        QueryPerformanceFrequency(&freq);
+    }
+    QueryPerformanceCounter(&counter);
+    return (uint64_t)((counter.QuadPart * 1000000000ULL) / (uint64_t)freq.QuadPart);
 #else
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);

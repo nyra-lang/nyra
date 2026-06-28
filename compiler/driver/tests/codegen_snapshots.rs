@@ -191,3 +191,17 @@ snap_ir!(snap_clone_method, r#"fn main() {
     let b = a.clone()
     print(b)
 }"#);
+
+#[test]
+fn normalize_ir_canonicalizes_target_triple() {
+    let ir = r#"source_filename = "test.ny"
+target triple = "x86_64-unknown-linux-gnu"
+
+define i32 @main() {
+  ret i32 0
+}
+"#;
+    let norm = normalize_ir(ir);
+    assert!(norm.contains("target triple = \"nyra-snapshot-host\""));
+    assert!(!norm.contains("x86_64-unknown-linux-gnu"));
+}

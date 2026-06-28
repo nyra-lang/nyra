@@ -25,12 +25,16 @@ Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, 
 8. By default, the language should support zero types, like GoLang and JavaScript—no types at all, no structs, no enums, etc. However, if the programmer wants to add types for organization, that's excellent and they should be able to do so. But fundamentally, the language is built with zero types by default.
 
 9. And most importantly, type inference happens behind the scenes: the type is inferred very intelligently by the language to make the developer experience (DX) extremely smooth. If the language fails to recognize the type of something, it stops the program with an error and explains to the developer that it could not determine a certain type, and that they must specify the type manually. This is the only case where the developer is required to add the type themselves, and such cases should be very rare and exceptional.
-10. Update the language version with every change so that the version numbers accurately reflect improvements and modifications.
+10. **Version bump (selective, not every change)** — Do **not** bump `Cargo.toml` / `CHANGELOG.md` on every commit. Bump the language version **only** when at least one applies:
+   - **Bug fix** — a real code problem was found and fixed (user-visible or correctness/runtime/linker/typecheck).
+   - **Major update** — a significant, user-facing feature, stdlib addition, ABI/toolchain change, or breaking behavior worth calling out in release notes.
+   - Skip version bumps for: refactors, internal-only cleanup, comment/docs-only edits (unless docs ship a new public behavior), CI/Makefile tweaks, test-only changes, and small incremental work that does not fix a bug or deliver a notable feature.
+   - When you do bump: patch for fixes (`1.x.Y`), minor for notable features (`1.Y.0`); update `CHANGELOG.md` with a concise entry; see `agents/skill.md` if present.
 ## Scope
 
 | Change type            | Required                                                                            |
 |------------------------|-------------------------------------------------------------------------------------|
-| Language / stdlib / ABI| All 5 steps + see `agents/skill.md` (version bump, changelog)                      |
+| Language / stdlib / ABI| All checklist steps; version bump + changelog **only** for bug fixes or major updates (see item 10) |
 | CLI flags / toolchain  | Tests + webDocs (`tooling.html`, `performance.html`) + examples if user-facing      |
 | Docs-only              | Step 4 only                                                                         |
 
@@ -41,5 +45,7 @@ Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, 
 - Human-readable copy: `skills/guidelines.md`
 
 > **ملحوظة مهمة**: لابد من اختبار اللغة في وضعية zero types (بدون أنواع) وفي وضعية الأنواع (مع أنواع صريحة) بنفس الوقت في الاختبارات، والتأكد أن المبرمج يمكنه إختيار أي منهما دون مواجهة مشاكل.
+
+> **تحديث النسخة**: لا تُرفع نسخة اللغة (`Cargo.toml` / `CHANGELOG`) مع كل تغيير — فقط عند إصلاح مشكلة حقيقية في الكود أو عند تحديث كبير ومهم يستحق ذكره في release notes.
 
 Do not duplicate these rules elsewhere; edit `.cursor/rules/nyra-guidelines.mdc` or `skills/guidelines.md`.

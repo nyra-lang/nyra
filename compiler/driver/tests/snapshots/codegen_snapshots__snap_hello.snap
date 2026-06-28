@@ -3,7 +3,7 @@ source: compiler/driver/tests/codegen_snapshots.rs
 expression: normalize_ir(& ir)
 ---
 source_filename = "test.ny"
-target triple = "arm64-apple-darwin"
+target triple = "nyra-snapshot-host"
 
 @.str.N = private unnamed_addr constant [6 x i8] c"Hello\00", align 1
 

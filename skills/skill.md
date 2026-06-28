@@ -13,7 +13,7 @@
 Use this file as the **sole authoritative reference** for Nyra syntax, semantics, stdlib, toolchain, PGO, and escape analysis.
 Do not invent features not listed here. Full docs: `webDocs/` in the Nyra repository.
 
-> **Project status — v1.2 production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, spawn, enum payloads) ship **without W001**. See [Stability](#stability-v10) · `docs/status.md`.
+> **Project status — v1.36 production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, spawn, enum payloads) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · `docs/status.md`.
 
 ## Table of contents
 
@@ -40,7 +40,7 @@ Do not invent features not listed here. Full docs: `webDocs/` in the Nyra reposi
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v1.2.x** — **Core tier semver-stable**; Extended tier experimental ([`docs/stability-v1.md`](../docs/stability-v1.md)).
+- Version baseline: **v1.36.x** — **Core tier semver-stable**; **Stable Extended** shipped ([`docs/stability-v1.md`](../docs/stability-v1.md) · [`docs/status.md`](../docs/status.md)).
 - **v1.2:** template strings, arrow functions, `net/http` handler dispatch, language bridge (Python/Node/Java workers), NyraPkg semver + registry, `link-source` auto-link, bindings reference, native C interop pattern.
 - **v2.1:** stack closures (loop-safe), arrow param inference, tuple destructure in arrow params, `??` nullish coalescing, `?.` optional chaining.
 - **v2.2:** heap closure promotion; `?.method()`; **`Option.Some(T)` payloads** when using `import "stdlib/option.ny"` (replaces tag-only built-in `Option` for that module).
@@ -1666,9 +1666,9 @@ fn main() {
 
 See `webDocs/c-bindgen.html` · `webDocs/ffi-abi.html`
 
-## Traits & dynamic dispatch (Extended)
+## Traits & dynamic dispatch (Stable Extended)
 
-Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. This is **MVP / experimental** — not production-ready for full polymorphism.
+Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. Shipped on **Stable Extended** — multi-method vtables, `dyn Trait + Send + Sync` bounds, and trait-object `Drop`. Remaining gate: multi-trait `dyn A + B` objects.
 
 ### Static dispatch
 

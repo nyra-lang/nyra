@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.36.18 (2026-06-28)
+
+**skills — sync from webDocs nyra-skill.md**
+
+- **Updated** — `skills/skill.md` stability tier (v1.36 production-ready, Stable Extended traits) via `node webDocs/scripts/build-nyra-skill.mjs`
+- **Docs** — see [`webDocs/CHANGELOG.md`](webDocs/CHANGELOG.md) in the standalone docs repo
+
+## v1.36.17 (2026-06-28)
+
+**CI — Linux + macOS + Windows on every push/PR**
+
+- **CI** — three parallel jobs: `test-linux` (`make test-all`), `test-macos` (`make test-all-macos`), `test-windows` (`make test-all-windows`)
+- **Added** — `make/test-platform.mk` shared platform core (cargo tests, conformance, nyra-lang, stdlib smokes)
+- **Added** — `make/test-macos.mk` native macOS hello build + run smoke
+- **Changed** — Windows/macOS platform core now includes `cargo test --workspace` (codegen snapshots)
+
+## v1.36.16 (2026-06-28)
+
+**Codegen snapshots — cross-platform CI**
+
+- **Fixed** — `normalize_ir` canonicalizes `target triple` to `nyra-snapshot-host` so Linux/macOS/Windows CI share one insta baseline
+- **Updated** — all `codegen_snapshots__*.snap` files to the canonical triple
+
+## v1.36.15 (2026-06-28)
+
+**Windows CI — runtime C headers (`unistd.h`)**
+
+- **Fixed** — `stdlib/rt/rt_common.h` guards `<unistd.h>` on `_WIN32`; monotonic time via `QueryPerformanceCounter`
+- **Fixed** — `stdlib/rt/rt_time.c` uses `_isatty(_fileno(stdout))` on Windows instead of POSIX `isatty`
+- **Fixed** — `stdlib/rt/rt_tls.c` drops unused `<unistd.h>` include
+
 ## v1.36.14 (2026-06-28)
 
 **Stdlib compile smoke — type annotations and import paths**

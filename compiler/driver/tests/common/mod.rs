@@ -178,18 +178,23 @@ pub fn normalize_ir(ir: &str) -> String {
                 && !t.starts_with("declare void @rt_args_init")
                 && !t.starts_with("call void @rt_args_init")
         })
-        .map(|line| {
-            let mut s = line.to_string();
-            if s.trim_start().starts_with("define i32 @main(") {
-                s = "define i32 @main() {".to_string();
-            }
-            s
-        })
+        .map(normalize_ir_line)
         .collect();
 
     let stripped = strip_stdlib_serde_functions(&filtered.join("\n"));
     let ssa_norm = normalize_ssa_names(&stripped);
     sort_ir_sections(&normalize_string_constants(&ssa_norm))
+}
+
+fn normalize_ir_line(line: &str) -> String {
+    let trimmed = line.trim();
+    if trimmed.starts_with("target triple = ") {
+        return "target triple = \"nyra-snapshot-host\"".to_string();
+    }
+    if trimmed.starts_with("define i32 @main(") {
+        return "define i32 @main() {".to_string();
+    }
+    line.to_string()
 }
 
 /// Drop lazy-prelude struct JSON/clone helpers — not under test in codegen snapshots.

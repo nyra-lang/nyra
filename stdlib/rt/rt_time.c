@@ -1,6 +1,7 @@
 #include "rt_common.h"
 #include <time.h>
 #if defined(_WIN32)
+#include <io.h>
 #include <windows.h>
 #endif
 
@@ -21,10 +22,18 @@ static NyraTimer *nyra_find_timer(const char *label) {
     return NULL;
 }
 
+static int nyra_stdout_is_tty(void) {
+#if defined(_WIN32)
+    return _isatty(_fileno(stdout));
+#else
+    return isatty(STDOUT_FILENO);
+#endif
+}
+
 static void nyra_print_elapsed(const char *label, double elapsed_s) {
     const char *unit;
     double value;
-    int color = isatty(STDOUT_FILENO);
+    int color = nyra_stdout_is_tty();
 
     if (elapsed_s >= 1.0) {
         unit = "s";

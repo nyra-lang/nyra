@@ -16,6 +16,8 @@ include make/build.mk
 include make/install.mk
 include make/generators.mk
 include make/test-all.mk
+include make/test-platform.mk
+include make/test-macos.mk
 include make/test-windows.mk
 
 .PHONY: help test build check fmt clean
@@ -25,6 +27,8 @@ help:
 		'Nyra Makefile — common targets' \
 		'' \
 		'  make test-all          Full test suite (fast gates first, heavy last; runs all gates even on failure)' \
+		'  make test-all-macos    macOS CI core (platform core + native build smoke)' \
+		'  make test-all-windows  Windows CI core (platform core + native build smoke)' \
 		'  make test-preflight    Fast pre-check before test-all' \
 		'  make build-workspace   cargo build --workspace' \
 		'  make build-cli         Build target/debug/nyra only' \
