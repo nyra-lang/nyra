@@ -2,7 +2,56 @@
 
 Thank you for helping build Nyra. This guide explains **where things live**, **how to run and test changes**, and **what we expect in pull requests**.
 
-Nyra is actively developed (current toolchain version: see `Cargo.toml`, e.g. **1.9.x**). The compiler, CLI, stdlib, and docs evolve quickly. When in doubt, open an issue or a small PR and ask.
+Nyra is actively developed (current toolchain version: see `[workspace.package] version` in [`Cargo.toml`](Cargo.toml)). The compiler, CLI, stdlib, and docs evolve quickly. When in doubt, open an issue or a small PR and ask.
+
+---
+
+## What to change → where to go
+
+**Canonical guide:** [`docs/contributor-map.md`](docs/contributor-map.md) (flowchart, test placement, `expand/` index, large-file split targets).
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              What do you want to add or change?           │
+└─────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+   Syntax / keyword     Stdlib function       CLI flag
+        │                   │                   │
+   lexer → parser       stdlib/**/*.ny        cli/src/commands/
+   → ast → expand?      (+ rt/*.c if C)       cli/src/app/args.rs
+   → typecheck          (+ runtime_map.rs)
+   → codegen?
+   → const_eval? (comptime)
+        │
+   tests/nyra/foo.ny + foo.typed.ny
+   examples/foo.ny + foo.typed.ny
+   grammar/nyra.tmLanguage.json
+
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+   Type rules          Ownership / borrow    Generics
+   typecheck/          ownership/             monomorph/
+   types/              borrowck/              expand/ (synthesis)
+
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+   Builtin (print)     Import / prelude      Package manager
+   typecheck +         resolve/              pkg/
+   codegen +           (prelude.rs)          cli/src/commands/pkg*
+   stdlib/rt/
+
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+   Comptime eval        Remove / deprecate    (see table below)
+   const_eval/          reverse the paths
+   (comptime.rs)        above; delete tests,
+   + parser/            examples, docs,
+   + typecheck/         grammar entries
+```
+
+**Removing a feature:** walk the same crates in reverse, then delete matching entries in `tests/nyra/`, `examples/`, `grammar/`, and docs.
 
 ---
 
@@ -10,7 +59,8 @@ Nyra is actively developed (current toolchain version: see `Cargo.toml`, e.g. **
 
 | You want to… | Read |
 |--------------|------|
-| **Understand Nyra syntax & semantics** | [`nyra-skill.md`](https://github.com/nyra-lang/docs/blob/main/nyra-skill.md) in the [docs repo](https://github.com/nyra-lang/docs) · [live site](https://nyra-lang.github.io/docs/) |
+| **Find the right folder for your change** | [`docs/contributor-map.md`](docs/contributor-map.md) |
+| **Understand Nyra syntax & semantics** | [`skills/skill.md`](skills/skill.md) · [live site](https://nyra-lang.github.io/docs/) |
 | **Know where compiler code goes** | [`docs/architecture.md`](docs/architecture.md) |
 | **Understand stdlib layout & auto-prelude** | [`stdlib/README.md`](stdlib/README.md) |
 | **Run the full test suite & debug CI** | [`docs/testing-runbook.md`](docs/testing-runbook.md) |
@@ -51,7 +101,8 @@ Docs-only PRs need step 4 only.
 
 | Change type | Primary locations |
 |-------------|-------------------|
-| **New keyword / syntax** | `compiler/lexer/` → `compiler/parser/` → `compiler/expand/` → `grammar/nyra.tmLanguage.json` |
+| **New keyword / syntax** | `compiler/lexer/` → `compiler/parser/` → `compiler/ast/` → `compiler/expand/` (if sugar) → `compiler/typecheck/` → `compiler/codegen/` → `grammar/nyra.tmLanguage.json` |
+| **Comptime behavior** | `compiler/const_eval/` (`comptime.rs`) · `compiler/parser/` · `compiler/typecheck/` |
 | **Type rules / inference** | `compiler/typecheck/` · `compiler/types/` |
 | **Ownership / borrow errors** | `compiler/ownership/` · `compiler/borrowck/` |
 | **Generics / monomorph** | `compiler/monomorph/` |
@@ -65,7 +116,7 @@ Docs-only PRs need step 4 only.
 | **NyraPkg** | `pkg/` · `cli/src/commands/pkg*` |
 | **Conformance contracts** | `tests/conformance/` · `compiler/driver/tests/conformance/` |
 
-Full pipeline order: [`docs/architecture.md`](docs/architecture.md).
+Full pipeline order: [`docs/architecture.md`](docs/architecture.md). Desugaring passes in `compiler/expand/`: see the module index in [`docs/contributor-map.md`](docs/contributor-map.md#compilerexpand-module-index).
 
 ---
 
@@ -120,10 +171,10 @@ For ops lowered directly to LLVM (`abs_i32`, `min_i32`, …): edit `compiler/typ
 
 | Area | You can… |
 |------|-----------|
-| **Language** | Fix bugs in lexer/parser/typecheck/borrow/codegen; add tests in `compiler/driver/tests/` — see [`docs/architecture.md`](docs/architecture.md) |
+| **Language** | Fix bugs or add features across the compiler pipeline; add tests in `tests/nyra/` — see [`docs/contributor-map.md`](docs/contributor-map.md) |
 | **Stdlib** | Add modules under `stdlib/` + `stdlib/rt/` — see [How to add a stdlib function](#how-to-add-a-stdlib-function) |
-| **Examples** | Add or improve `.ny` samples under `examples/` (zero-types + typed pairs) |
-| **Apps** | Extend multi-file projects under [`Apps/`](Apps/) (Basics, Graphics, FileSystem, learn, …) |
+| **Examples** | Add or improve `.ny` samples under `examples/` (zero-types + typed pairs) — **small demos and builtins** |
+| **Apps** | Extend multi-file projects under [`Apps/`](Apps/) — **full reference applications** (games, IDE, databases) |
 | **Tooling** | CLI (`cli/`), formatter, `nyra diag`, `nyra lsp`, NyraPkg (`pkg/`) |
 | **Docs** | `docs/` (this repo), [docs repo](https://github.com/nyra-lang/docs) (web site source), `grammar/README.md` |
 | **Grammar** | Update [`grammar/nyra.tmLanguage.json`](grammar/nyra.tmLanguage.json) when keywords change |
@@ -151,18 +202,20 @@ Nyra/
 │   ├── suite/         # Compiletest pass/fail/run corpus
 │   └── conformance/   # CONF-LANG pass/fail/fixtures
 ├── Apps/              # Reference multi-file applications
-├── examples/          # Samples, builtins, comparison benchmarks
-├── docs/              # Architecture, status, ABI, testing runbook (this repo)
-│                      # Web docs → separate repo: github.com/nyra-lang/docs
-│                      # Live site → nyra-lang.github.io/docs/
-├── skills/            # Contributor guidelines & design notes
+├── examples/          # Small demos, builtins, comparison benchmarks
+├── Apps/              # Full reference applications (games, IDE, databases, …)
+├── docs/              # Architecture, contributor map, status, ABI, testing runbook
+│                      #   contributor-map.md — what to change → where to go
+│                      # Web docs also in webDocs/ (this repo) + github.com/nyra-lang/docs
+├── skills/            # Language reference (skill.md) & contributor guidelines
+├── agents/            # Agent/release workflow (skill.md)
 ├── Makefile           # Primary entry (make test-all, make help, …)
 ├── make/              # Modular Make targets, lib recipes, py generators
 ├── scripts/           # install.sh (curl), install.ps1 only
 └── benchmarks/        # CI perf baselines
 ```
 
-**Compiler pipeline (compile order):** lexer → parser → expand → resolve → monomorph → typecheck → ownership → borrowck → const_eval → codegen. Details: [`docs/architecture.md`](docs/architecture.md).
+**Compiler pipeline:** `resolve/` runs at **load time** (imports, prelude). **Compile time** (`compiler/driver`): lexer → parser → expand → monomorph → typecheck → ownership → borrowck → const_eval → codegen. Details: [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
@@ -245,6 +298,20 @@ make test-all
 ```
 
 Logs to `target/test-all.txt`. Optional: `TEST_PERF=1` for perf gate. See [`docs/testing-runbook.md`](docs/testing-runbook.md) for CI stages, snapshot updates, and rollback policy.
+
+### Where to put tests
+
+| Test kind | Location | When to use |
+|-----------|----------|-------------|
+| **Feature test (default)** | `tests/nyra/<name>_test.ny` (+ `.typed.ny`) | Every user-visible language/stdlib change — **start here** |
+| **Small repro / fixture** | `tests/nyra/<name>.ny` | Paired with a `*_test.ny` runner |
+| **Rust unit tests** | Same Rust module (`#[cfg(test)]`) | Internal helper logic |
+| **Driver integration** | `compiler/driver/tests/` | Pipeline, snapshots, ABI manifest |
+| **CONF-LANG contract** | `tests/conformance/pass/` or `fail/` | Stable language contract tests |
+| **Compiletest grid** | `tests/suite/` | Large pass/fail/run corpus (usually generated) |
+| **Runnable demo** | `examples/<topic>/` | User-facing samples (`foo.ny` + `foo.typed.ny`) |
+
+**Rule of thumb:** new language features → `tests/nyra/` first. Add conformance or suite entries only when you need a stable contract or grid coverage.
 
 ### Test layers
 
@@ -425,7 +492,7 @@ Do not commit large generated bench artifacts unless the PR explicitly updates p
 2. **User-facing binary** stays `nyra`; C runtime entry stays `nyra_rt.c` / `nyra_rt.h` for ABI stability.
 3. **Public compiler API** is exported from the `compiler` driver crate only.
 4. **Integration tests** live in `compiler/driver/tests/`.
-5. **Split large files** before they exceed ~800–1200 lines (see [`docs/architecture.md`](docs/architecture.md)).
+5. **Split large files** before they exceed ~800–1200 lines (see [`docs/contributor-map.md`](docs/contributor-map.md#large-files--split-before-extending) · [`docs/architecture.md`](docs/architecture.md)).
 
 ---
 
@@ -433,7 +500,8 @@ Do not commit large generated bench artifacts unless the PR explicitly updates p
 
 | Topic | Document |
 |-------|----------|
-| Language reference (AI + humans) | [`nyra-skill.md`](https://github.com/nyra-lang/docs/blob/main/nyra-skill.md) · [live docs](https://nyra-lang.github.io/docs/) |
+| **What to change → where to go** | [`docs/contributor-map.md`](docs/contributor-map.md) |
+| Language reference (AI + humans) | [`skills/skill.md`](skills/skill.md) · [live docs](https://nyra-lang.github.io/docs/) |
 | Toolchain architecture | [`docs/architecture.md`](docs/architecture.md) |
 | Stdlib design & auto-prelude | [`stdlib/README.md`](stdlib/README.md) |
 | Testing & CI debugging | [`docs/testing-runbook.md`](docs/testing-runbook.md) |

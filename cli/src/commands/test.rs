@@ -128,7 +128,7 @@ fn run_tests(
             ));
             std::fs::create_dir_all(&out_dir).map_err(|e| e.to_string())?;
             let ll = out_dir.join("out.ll");
-            let bin = out_dir.join("test_bin");
+            let bin = out_dir.join(format!("test_bin{}", spec.exe_extension()));
             std::fs::write(&ll, ir).map_err(|e| e.to_string())?;
             let mut profile = base_profile.clone();
             let (link_libs, link_search_paths, link_args, link_sources) =

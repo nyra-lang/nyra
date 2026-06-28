@@ -38,6 +38,7 @@ pub fn expr_span(expr: &Expression) -> Span {
         Expression::TemplateLiteral(t) => t.span.clone(),
         Expression::Cast(c) => c.span.clone(),
         Expression::ArrowFn(a) => a.span.clone(),
+        Expression::ComptimeBlock { span, .. } => span.clone(),
         Expression::ArrayLiteral(al) => al
             .all_exprs()
             .next()

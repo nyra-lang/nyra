@@ -69,6 +69,8 @@ pub enum ErrorKind {
     Runtime,
     Internal,
     Lint,
+    /// Compile-time evaluation (`comptime` modules and constants).
+    ConstEval,
 }
 
 #[derive(Debug, Clone)]

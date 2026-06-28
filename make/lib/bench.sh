@@ -41,6 +41,10 @@ SP_NY_PATH=""
 SP_NY_NAME=""
 SP_NY_TYPED_PATH=""
 SP_NY_TYPED_NAME=""
+SP_NY_CT_PATH=""
+SP_NY_CT_TYPED_PATH=""
+SP_NY_CT_NAME=""
+SP_NY_CT_TYPED_NAME=""
 SP_GO_SRC=""
 SP_RUST_SRC=""
 SP_JS_SRC=""
@@ -186,6 +190,20 @@ suite_paths() {
       SP_C_SRC="$COMPARISON/loop_nofold/sum_loop_nofold.c"
       SP_CPP_SRC="$COMPARISON/loop_nofold/sum_loop_nofold.cpp"
       ;;
+    comptime_table)
+      SP_NY_PATH="$COMPARISON/comptime_table/bench.ny"
+      SP_NY_NAME="bench_comptime_table"
+      SP_NY_CT_PATH="$COMPARISON/comptime_table/bench_comptime.ny"
+      SP_NY_CT_NAME="bench_comptime_table_ct"
+      SP_NY_TYPED_PATH="$COMPARISON/comptime_table/bench_typed.ny"
+      SP_NY_TYPED_NAME="bench_comptime_table_typed"
+      SP_NY_CT_TYPED_PATH="$COMPARISON/comptime_table/bench_comptime_typed.ny"
+      SP_NY_CT_TYPED_NAME="bench_comptime_table_ct_typed"
+      SP_GO_SRC="$COMPARISON/comptime_table/bench.go"
+      SP_RUST_SRC="$COMPARISON/comptime_table/bench.rs"
+      SP_C_SRC="$COMPARISON/comptime_table/bench.c"
+      SP_CPP_SRC="$COMPARISON/comptime_table/bench.cpp"
+      ;;
     cpu_bound)
       SP_NY_PATH="$COMPARISON/cpu_bound/bench.ny"
       SP_NY_NAME="bench_cpu_bound"
@@ -252,6 +270,8 @@ lang_in_suite() {
   case "$lang" in
     Nyra) [[ -n "$SP_NY_PATH" ]] ;;
     Nyra-typed) [[ -n "$SP_NY_TYPED_PATH" && -e "$SP_NY_TYPED_PATH" ]] ;;
+    Nyra-comptime) [[ -n "$SP_NY_CT_PATH" && -f "$SP_NY_CT_PATH" ]] ;;
+    Nyra-comptime-typed) [[ -n "$SP_NY_CT_TYPED_PATH" && -f "$SP_NY_CT_TYPED_PATH" ]] ;;
     C) [[ -n "$SP_C_SRC" && -f "$SP_C_SRC" ]] ;;
     C++) [[ -n "$SP_CPP_SRC" && -f "$SP_CPP_SRC" ]] ;;
     Go) [[ -n "$SP_GO_SRC" && -f "$SP_GO_SRC" ]] ;;
@@ -465,6 +485,8 @@ lang_display_name() {
   case "$1" in
     Nyra) echo "Nyra (Zero Types)" ;;
     Nyra-typed) echo "Nyra (Explicit Types)" ;;
+    Nyra-comptime) echo "Nyra (Comptime)" ;;
+    Nyra-comptime-typed) echo "Nyra (Comptime + Types)" ;;
     *) echo "$1" ;;
   esac
 }
@@ -716,6 +738,16 @@ bench_one_lang() {
         bench_row "$suite" "Nyra-typed" "$ms" "$kb"
       fi
       ;;
+    Nyra-comptime)
+      ny_bin="$(build_nyra "$SP_NY_CT_PATH" "$SP_NY_CT_NAME")"
+      read -r ms kb <<<"$(measure_cmd "$ny_bin")"
+      bench_row "$suite" "Nyra-comptime" "$ms" "$kb"
+      ;;
+    Nyra-comptime-typed)
+      ny_bin="$(build_nyra "$SP_NY_CT_TYPED_PATH" "$SP_NY_CT_TYPED_NAME")"
+      read -r ms kb <<<"$(measure_cmd "$ny_bin")"
+      bench_row "$suite" "Nyra-comptime-typed" "$ms" "$kb"
+      ;;
     C)
       c_bin="$BENCH_DIR/${suite}_c"
       if c_bin="$(build_c "$SP_C_SRC" "$c_bin")"; then
@@ -777,7 +809,7 @@ run_comparison_suite() {
   local suite="$1"
   log "== $suite =="
   local lang
-  for lang in Nyra Nyra-typed C C++ Go Rust Node Python Java; do
+  for lang in Nyra Nyra-typed Nyra-comptime Nyra-comptime-typed C C++ Go Rust Node Python Java; do
     log "  -> $lang"
     bench_one_lang "$suite" "$lang"
   done
@@ -785,9 +817,9 @@ run_comparison_suite() {
 
 run_isolated_langs() {
   local lang suite
-  local langs=(Nyra Nyra-typed C C++ Go Rust Node Python Java)
+  local langs=(Nyra Nyra-typed Nyra-comptime Nyra-comptime-typed C C++ Go Rust Node Python Java)
   local suites=(
-    hello arithmetic dungeon loop fib nested struct_sum loop_nofold cpu_bound mix
+    hello arithmetic dungeon loop fib nested struct_sum loop_nofold comptime_table cpu_bound mix
     escape_local_channel escape_spawn_channel escape_point_sroa
   )
   if [[ "${BENCH_EXTENDED:-1}" == "1" ]] && [[ "${BENCH_QUICK:-0}" != "1" ]]; then
@@ -795,8 +827,8 @@ run_isolated_langs() {
   elif [[ "${BENCH_EXTENDED:-1}" == "0" ]]; then
     log "BENCH_EXTENDED=0 — skipping extended suites (memory/strings/collections/algorithms/concurrency)"
   fi
-  if [[ "${BENCH_QUICK:-0}" == "1" ]]; then
-    suites=(hello arithmetic nested cpu_bound)
+    if [[ "${BENCH_QUICK:-0}" == "1" ]]; then
+    suites=(hello arithmetic nested cpu_bound comptime_table)
     log "BENCH_QUICK=1 — subset: ${suites[*]}"
   fi
   if [[ "$BENCH_SKIP_PGO" != "1" ]] && [[ "${BENCH_QUICK:-0}" != "1" ]]; then
@@ -840,12 +872,12 @@ main() {
   } >>"$LATEST"
 
   if [[ "$BENCH_NO_ISOLATE" == "1" ]]; then
-    local quick_suites=(hello arithmetic dungeon loop fib nested struct_sum loop_nofold cpu_bound mix escape_local_channel escape_spawn_channel escape_point_sroa)
+    local quick_suites=(hello arithmetic dungeon loop fib nested struct_sum loop_nofold comptime_table cpu_bound mix escape_local_channel escape_spawn_channel escape_point_sroa)
     if [[ "${BENCH_EXTENDED:-1}" == "1" ]] && [[ "${BENCH_QUICK:-0}" != "1" ]]; then
       quick_suites+=("${EXTENDED_SUITES[@]}")
     fi
     if [[ "${BENCH_QUICK:-0}" == "1" ]]; then
-      quick_suites=(hello arithmetic nested cpu_bound)
+      quick_suites=(hello arithmetic nested cpu_bound comptime_table)
       log "BENCH_QUICK=1 — subset: ${quick_suites[*]}"
     fi
     for suite in "${quick_suites[@]}"; do

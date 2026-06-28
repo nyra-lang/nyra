@@ -41,8 +41,12 @@ static void tls_set_error(const char *msg) {
         g_tls_last_error[0] = '\0';
         return;
     }
-    strncpy(g_tls_last_error, msg, sizeof(g_tls_last_error) - 1);
-    g_tls_last_error[sizeof(g_tls_last_error) - 1] = '\0';
+    size_t n = strlen(msg);
+    if (n >= sizeof(g_tls_last_error)) {
+        n = sizeof(g_tls_last_error) - 1;
+    }
+    memcpy(g_tls_last_error, msg, n);
+    g_tls_last_error[n] = '\0';
 }
 
 static void tls_set_openssl_error(const char *prefix) {

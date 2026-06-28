@@ -122,6 +122,8 @@ pub enum TokenKind {
     AttrHot,
     /// `#[cold]` — unlikely executed; LLVM `cold`.
     AttrCold,
+    /// `#[comptime]` — function is evaluated at compile time (see `comptime` file directive).
+    AttrComptime,
     LParen,
     RParen,
     LBrace,
@@ -1091,12 +1093,19 @@ impl Lexer {
             }
             return TokenKind::AttrCold;
         }
+        if name == "comptime" {
+            self.skip_whitespace_and_comments();
+            if self.peek() == Some(']') {
+                self.advance();
+            }
+            return TokenKind::AttrComptime;
+        }
         {
             let span = self.span_from(start);
             self.errors.push(NyraError::new(
                 ErrorKind::Lexer,
                 span,
-                format!("Unknown attribute '#[{name}]' (supported: derive, no_escape, inline, hot, cold)"),
+                format!("Unknown attribute '#[{name}]' (supported: derive, no_escape, inline, hot, cold, comptime)"),
             ));
             self.skip_to_attr_end();
             return TokenKind::AttrDerive(vec![]);

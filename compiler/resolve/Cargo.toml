@@ -8,6 +8,7 @@ description = "Nyra module resolution and multi-file loading"
 
 [dependencies]
 ast = { path = "../ast" }
+const_eval = { path = "../const_eval" }
 errors = { path = "../errors" }
 lexer = { path = "../lexer" }
 parser = { path = "../parser" }

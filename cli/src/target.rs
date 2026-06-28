@@ -449,9 +449,7 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             }
         }
         TargetOs::Windows => {
-            if rt.needs_pthread {
-                cmd.arg("-lpthread");
-            }
+            // Windows rt modules use native CRITICAL_SECTION / Win32 threads, not pthread.
             if rt.uses_rt_net {
                 cmd.arg("-lws2_32");
             }

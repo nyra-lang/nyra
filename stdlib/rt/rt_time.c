@@ -75,7 +75,7 @@ void time_start(const char *label) {
         if (!entry) {
             return;
         }
-        entry->label = strdup(label);
+        entry->label = nyra_rt_strdup(label);
         if (!entry->label) {
             free(entry);
             return;

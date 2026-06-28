@@ -102,6 +102,7 @@ fn lower_nested_async_block(
         builder.complete_fn.clone(),
         builder.result_kind,
     );
+    nested.finish_promise = false;
     nested.local_types = builder.local_types.clone();
     let (entry, _) = nested.lower_block(block, exit, checker)?;
     let hoisted = std::mem::take(&mut nested.hoisted);
@@ -206,6 +207,8 @@ struct CfgBuilder {
     complete_fn: String,
     result_kind: PollKind,
     local_types: HashMap<String, Type>,
+    /// When false (nested `spawn`/`unsafe` poll loops), exit without completing the outer promise.
+    finish_promise: bool,
 }
 
 impl CfgBuilder {
@@ -220,6 +223,7 @@ impl CfgBuilder {
             complete_fn,
             result_kind,
             local_types: HashMap::new(),
+            finish_promise: true,
         }
     }
 
@@ -248,6 +252,14 @@ impl CfgBuilder {
 
     fn goto_state(&self, target: i32) -> Statement {
         stmt_assign(STATE_VAR, expr_int(target as i64, self.span.clone()), self.span.clone())
+    }
+
+    fn finish(&self, value: Expression) -> Vec<Statement> {
+        if self.finish_promise {
+            self.complete(value)
+        } else {
+            vec![self.goto_state(COMPLETE_EXIT)]
+        }
     }
 
     fn complete(&self, value: Expression) -> Vec<Statement> {
@@ -456,13 +468,13 @@ impl CfgBuilder {
                     if let Some(Expression::Await(inner)) = &r.value {
                         let next = self.alloc_state();
                         self.emit_await(cur, *inner.clone(), None, next, checker);
-                        self.push_state(next, self.complete(expr_var("__nyra_await_result", self.span.clone())));
+                        self.push_state(next, self.finish(expr_var("__nyra_await_result", self.span.clone())));
                     } else {
                         let ret = r
                             .value
                             .clone()
                             .unwrap_or_else(|| expr_int(0, self.span.clone()));
-                        self.push_state(cur, self.complete(ret));
+                        self.push_state(cur, self.finish(ret));
                     }
                     return Some((entry, true));
                 }
@@ -488,7 +500,7 @@ impl CfgBuilder {
         self.push_state(cur, flush(&mut prefix));
         if cur != exit {
             if exit == COMPLETE_EXIT {
-                self.push_state(cur, self.complete(await_result_zero_expr(self.result_kind, self.span.clone())));
+                self.push_state(cur, self.finish(await_result_zero_expr(self.result_kind, self.span.clone())));
             } else {
                 self.push_state(cur, vec![self.goto_state(exit)]);
             }

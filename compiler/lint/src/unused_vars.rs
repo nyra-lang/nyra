@@ -235,6 +235,7 @@ fn mark_expr_uses(expr: &Expression, scopes: &mut Vec<HashMap<String, Binding>>)
             ast::ArrowBody::Expr(e) => mark_expr_uses(e, scopes),
             ast::ArrowBody::Block(b) => check_block(b, scopes, &mut vec![]),
         },
+        Expression::ComptimeBlock { body, .. } => check_block(body, scopes, &mut vec![]),
         Expression::Literal(_) | Expression::Invalid => {}
     }
 }

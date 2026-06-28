@@ -59,6 +59,7 @@ fn synthesize_arc_drop_impl(program: &mut Program, type_name: &str, dec_fn: &str
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     };
     program.trait_impls.push(TraitImpl {
         type_name: type_name.to_string(),
@@ -138,7 +139,7 @@ fn mangle_type(t: &TypeAnnotation) -> String {
     }
 }
 
-fn mangle_inst(name: &str, type_args: &[TypeAnnotation]) -> String {
+pub fn mangle_inst(name: &str, type_args: &[TypeAnnotation]) -> String {
     if let Some(alias) = collection_struct_alias(name, type_args) {
         return alias;
     }
@@ -1533,6 +1534,9 @@ fn collect_calls(expr: &Expression, out: &mut Vec<(String, Vec<TypeAnnotation>)>
 }
 
 fn collect_from_program(program: &Program, out: &mut Vec<(String, Vec<TypeAnnotation>)>) {
+    for c in &program.consts {
+        collect_calls(&c.value, out);
+    }
     for f in &program.functions {
         for stmt in &f.body.statements {
             collect_from_stmt(stmt, out);
@@ -1680,6 +1684,9 @@ pub fn monomorphize_program(program: &mut Program) -> Vec<errors::NyraError> {
         for stmt in &mut f.body.statements {
             rewrite_stmt(stmt);
         }
+    }
+    for c in &mut program.consts {
+        rewrite_expr(&mut c.value);
     }
     bound_errors
 }

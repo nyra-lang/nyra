@@ -28,6 +28,12 @@ fn infer_expr_ann(expr: &Expression, env: &HashMap<String, TypeAnnotation>) -> O
         },
         Expression::Grouped(inner) => infer_expr_ann(inner, env),
         Expression::StructLiteral(s) => Some(TypeAnnotation::Struct(s.name.clone())),
+        Expression::ArrayLiteral(al) if al.spreads.is_empty() && !al.elems.is_empty() => {
+            infer_expr_ann(&al.elems[0], env).map(|elem| TypeAnnotation::Array {
+                elem: Box::new(elem),
+                len: Some(al.elems.len()),
+            })
+        }
         _ => None,
     }
 }
@@ -274,6 +280,15 @@ pub fn infer_generic_call_sites(program: &mut Program) {
         .collect();
     if generics.is_empty() {
         return;
+    }
+    let mut const_env = HashMap::new();
+    for c in &mut program.consts {
+        rewrite_expr_calls(&mut c.value, &const_env, &generics);
+        if let Some(ty) = &c.ty {
+            const_env.insert(c.name.clone(), ty.clone());
+        } else if let Some(ann) = infer_expr_ann(&c.value, &const_env) {
+            const_env.insert(c.name.clone(), ann);
+        }
     }
     for f in &mut program.functions {
         let mut env = HashMap::new();

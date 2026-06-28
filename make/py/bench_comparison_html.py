@@ -11,6 +11,8 @@ from pathlib import Path
 LANG_COLORS = {
     "Nyra": "#3d9a8b",
     "Nyra-typed": "#2d7a6e",
+    "Nyra-comptime": "#1e5c52",
+    "Nyra-comptime-typed": "#164840",
     "C": "#7eb6ff",
     "C++": "#00599c",
     "Go": "#00a8cc",
@@ -19,10 +21,12 @@ LANG_COLORS = {
     "Python": "#5b9bd5",
     "Java": "#e76f00",
 }
-LANG_ORDER = ["Nyra", "Nyra-typed", "C", "C++", "Go", "Rust", "Node", "Python", "Java"]
+LANG_ORDER = ["Nyra", "Nyra-typed", "Nyra-comptime", "Nyra-comptime-typed", "C", "C++", "Go", "Rust", "Node", "Python", "Java"]
 LANG_DISPLAY = {
     "Nyra": "Nyra (Zero Types)",
     "Nyra-typed": "Nyra (Explicit Types)",
+    "Nyra-comptime": "Nyra (Comptime)",
+    "Nyra-comptime-typed": "Nyra (Comptime + Types)",
 }
 
 
@@ -68,6 +72,7 @@ SUITE_ORDER = [
     "cpu_bound",
     "mix",
     "loop_nofold",
+    "comptime_table",
     # Extended — memory
     "memory_alloc_struct",
     "memory_free_struct",
@@ -108,6 +113,7 @@ SUITE_INFO = {
     "cpu_bound": "Mod mul-add chain (180M, mod 997)",
     "mix": "Chained mod mix (270M, mod 1e9+7)",
     "loop_nofold": "Modular sum anti-constant-fold (N=375M)",
+    "comptime_table": "Lookup table build (64×8k mix) + sum — Nyra-comptime folds all at compile time",
     "memory_alloc_struct": "malloc/free struct nodes (500k default, BENCH_SCALE)",
     "memory_free_struct": "alloc+free 16 B blocks",
     "memory_arena": "bump arena simulation",

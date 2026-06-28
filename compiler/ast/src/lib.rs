@@ -32,6 +32,8 @@ pub struct Program {
     pub module: Option<String>,
     /// `# no_std` / `no_std` directive — no automatic `nyra_rt` linking; freestanding subset.
     pub no_std: bool,
+    /// `comptime` directive — entire file is compile-time only (first line of the unit).
+    pub comptime: bool,
     /// `allow_extended` directive — suppress Extended-tier stability warnings (W001) for this unit.
     pub allow_extended: bool,
     pub imports: Vec<ImportDecl>,
@@ -159,6 +161,8 @@ pub struct Function {
     pub hot: bool,
     /// `#[cold]` — emit LLVM `cold`.
     pub cold: bool,
+    /// `#[comptime]` — evaluate at compile time when called with known arguments; stripped from runtime binary.
+    pub comptime: bool,
     /// Leading `///` doc comment lines joined with newlines.
     pub doc: Option<String>,
 }
@@ -439,6 +443,8 @@ pub enum Expression {
     Cast(Box<CastExpr>),
     /// ES6-style arrow function `(x: T) => expr` or `(x: T) => { ... }` (hoisted before typecheck).
     ArrowFn(Box<ArrowFnExpr>),
+    /// `comptime { ... }` — compile-time block expression (folded when evaluable).
+    ComptimeBlock { body: Block, span: Span },
     Invalid,
 }
 

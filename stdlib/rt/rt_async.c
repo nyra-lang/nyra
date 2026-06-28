@@ -155,19 +155,47 @@ static struct {
 static int g_io_n = 0;
 #endif
 
+static void timers_lock(void) {
+#if defined(_WIN32)
+    table_lock_init();
+    EnterCriticalSection(&g_table_cs);
+#else
+    pthread_mutex_lock(&g_table_mu);
+#endif
+}
+
+static void timers_unlock(void) {
+#if defined(_WIN32)
+    LeaveCriticalSection(&g_table_cs);
+#else
+    pthread_mutex_unlock(&g_table_mu);
+#endif
+}
+
 static int process_timers(void) {
     int64_t now = nyra_now_ms();
     int fired = 0;
+    int ids[NYRA_MAX_TIMERS];
+    int values[NYRA_MAX_TIMERS];
+    int pending = 0;
+
+    timers_lock();
     for (int i = 0; i < NYRA_MAX_TIMERS; i++) {
         if (!g_timers[i].active) {
             continue;
         }
         if (now >= g_timers[i].deadline_ms) {
-            int tid = g_timers[i].task_id;
+            ids[pending] = g_timers[i].task_id;
+            values[pending] = g_timers[i].value;
+            pending++;
             g_timers[i].active = 0;
-            async_promise_complete(tid, g_timers[i].value);
-            fired++;
         }
+    }
+    timers_unlock();
+
+    for (int i = 0; i < pending; i++) {
+        async_promise_complete(ids[i], values[i]);
+        fired++;
     }
     return fired;
 }
@@ -177,15 +205,18 @@ static int register_timer(int task_id, int delay_ms) {
         return -1;
     }
     int64_t deadline = nyra_now_ms() + (int64_t)delay_ms;
+    timers_lock();
     for (int i = 0; i < NYRA_MAX_TIMERS; i++) {
         if (!g_timers[i].active) {
             g_timers[i].task_id = task_id;
             g_timers[i].deadline_ms = deadline;
             g_timers[i].value = delay_ms;
             g_timers[i].active = 1;
+            timers_unlock();
             return 0;
         }
     }
+    timers_unlock();
     return -1;
 }
 

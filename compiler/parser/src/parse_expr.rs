@@ -471,6 +471,15 @@ impl Parser {
                         self.parse_error_here("Expected name after '::'");
                     }
                 }
+                if name == "comptime" {
+                    skip_newlines(&self.tokens, &mut self.position);
+                    if check(&self.tokens, self.position, &TokenKind::LBrace) {
+                        let start = self.prev_span();
+                        let body = self.parse_block();
+                        let span = merge_spans(&start, &self.prev_span());
+                        return self.parse_postfix(Expression::ComptimeBlock { body, span });
+                    }
+                }
                 // `x => expr` — single inferred arrow param without parens
                 if check(&self.tokens, self.position, &TokenKind::FatArrow) {
                     let start = self.prev_span();

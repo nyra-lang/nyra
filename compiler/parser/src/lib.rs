@@ -27,6 +27,7 @@ struct FnAttrs {
     inline: bool,
     hot: bool,
     cold: bool,
+    comptime: bool,
 }
 
 #[cfg(test)]

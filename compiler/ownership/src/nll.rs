@@ -157,6 +157,7 @@ fn record_expr_uses(expr: &Expression, idx: usize, last: &mut HashMap<String, us
         }
         Expression::Cast(c) => record_expr_uses(&c.expr, idx, last),
         Expression::ArrowFn(_) => {}
+        Expression::ComptimeBlock { .. } => {}
         Expression::Literal(_) | Expression::EnumVariant(_) | Expression::Invalid => {}
     }
 }
@@ -344,6 +345,11 @@ fn collect_expr_captures(
             let block = arrow_to_block(a);
             for stmt in &block.statements {
                 collect_stmt_captures(stmt, &local, seen, out);
+            }
+        }
+        Expression::ComptimeBlock { body, .. } => {
+            for stmt in &body.statements {
+                collect_stmt_captures(stmt, declared, seen, out);
             }
         }
         Expression::Literal(_) | Expression::EnumVariant(_) | Expression::Invalid => {}
@@ -562,6 +568,13 @@ fn collect_free_vars_expr(
             }
             let block = arrow_to_block(a);
             for free in collect_free_vars_block(&block, &mut inner) {
+                if seen.insert(free.clone()) {
+                    out.push(free);
+                }
+            }
+        }
+        Expression::ComptimeBlock { body, .. } => {
+            for free in collect_free_vars_block(body, &mut bound.clone()) {
                 if seen.insert(free.clone()) {
                     out.push(free);
                 }

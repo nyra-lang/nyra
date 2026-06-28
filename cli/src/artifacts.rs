@@ -158,8 +158,9 @@ mod tests {
 
     #[test]
     fn cross_windows_uses_triple_subdir_and_exe() {
+        // Use an non-host Windows triple so layout is cross on every CI runner (incl. Windows MSVC).
         let spec = resolve(&TargetFlags {
-            for_os: Some("windows".into()),
+            target: Some("aarch64-pc-windows-gnu".into()),
             ..Default::default()
         })
         .unwrap();

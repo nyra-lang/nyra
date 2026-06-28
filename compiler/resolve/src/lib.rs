@@ -79,7 +79,7 @@ pub fn load_program_with_options(
     let mut visited = HashSet::new();
     let mut errors = Vec::new();
     let mut program = load_file_recursive(&entry, &mut visited, &mut errors)?;
-    if options.auto_prelude && !program.no_std {
+    if options.auto_prelude && !program.no_std && !program.comptime {
         prelude::inject_lazy_stdlib_prelude(&entry, &mut program, &mut visited, &mut errors)?;
     }
     Ok(LoadOutput { program, errors })
@@ -113,6 +113,7 @@ pub(crate) fn load_file_recursive(
         return Ok(Program {
             module: None,
             no_std: false,
+            comptime: false,
             allow_extended: false,
             imports: vec![],
             consts: vec![],
@@ -176,6 +177,10 @@ pub(crate) fn load_file_recursive(
                 );
             }
         }
+    }
+
+    if merged.comptime {
+        errors.extend(const_eval::finalize_comptime_module(&mut merged));
     }
 
     Ok(merged)

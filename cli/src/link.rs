@@ -890,7 +890,8 @@ mod tests {
         let _ = std::fs::remove_dir_all(&work);
         std::fs::create_dir_all(&work).unwrap();
         let ll = work.join("async.ll");
-        let bin = work.join("async");
+        let spec = crate::target::TargetSpec::host();
+        let bin = work.join(format!("async{}", spec.exe_extension()));
         std::fs::write(&ll, out.llvm_ir.unwrap()).unwrap();
         let profile = LinkProfile::default();
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();

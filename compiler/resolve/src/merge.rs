@@ -78,6 +78,9 @@ pub(crate) fn merge_program(target: &mut Program, other: Program, import_alias: 
         }
     }
     for f in other.functions {
+        if other.comptime {
+            continue;
+        }
         if !f.public {
             continue;
         }
@@ -127,6 +130,7 @@ mod tests {
         let mut target = Program {
             module: None,
             no_std: false,
+            comptime: false,
             allow_extended: false,
             imports: vec![],
             consts: vec![],

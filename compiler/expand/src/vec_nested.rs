@@ -48,6 +48,7 @@ fn make_fn(name: &str, params: Vec<Param>, ret: Option<TypeAnnotation>, body: Bl
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
         doc: None,
     }
 }

@@ -2,7 +2,7 @@
 description: Mandatory Nyra workflow — tests, examples, webDocs, test-all.sh (always apply)
 alwaysApply: true
 ---
-
+**Not sure which folder to edit?** See [`docs/contributor-map.md`](../docs/contributor-map.md).
 # Nyra change guidelines (mandatory)
 
 Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, or user-visible behavior — without waiting for the user to ask.
