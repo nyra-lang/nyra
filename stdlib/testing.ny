@@ -1,4 +1,4 @@
-import "os/unistd.ny"
+import "os/syscall.ny"
 
 fn test_fail(msg: string) -> void {
     print(msg)

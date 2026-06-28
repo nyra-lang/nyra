@@ -20,10 +20,10 @@ fn AstRow_len(row){
     return row.kinds.len()
 }
 
-fn AstRow_kind(row, index){
+fn AstRow_kind(row: AstRow, index: i32) -> string {
     return row.kinds.get(index)
 }
 
-fn AstRow_text(row, index){
+fn AstRow_text(row: AstRow, index: i32) -> string {
     return row.texts.get(index)
 }

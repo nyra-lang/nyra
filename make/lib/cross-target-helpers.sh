@@ -44,9 +44,11 @@ cross_linux_linker_ready() {
   case "$(uname -s 2>/dev/null || echo unknown)" in
     Linux) return 0 ;;
   esac
+  # macOS/Windows: require an explicit GNU cross toolchain (host clang lacks linux sysroot).
   command -v x86_64-linux-gnu-gcc >/dev/null 2>&1 \
     || command -v aarch64-linux-gnu-gcc >/dev/null 2>&1 \
-    || command -v clang >/dev/null 2>&1
+    || command -v x86_64-linux-gnu-clang >/dev/null 2>&1 \
+    || command -v aarch64-linux-gnu-clang >/dev/null 2>&1
 }
 
 cross_log_skip() {

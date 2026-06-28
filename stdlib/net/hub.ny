@@ -15,9 +15,8 @@ fn TcpHub_new(max_clients: i32) -> TcpHub {
 }
 
 impl TcpHub {
-    fn add(self, fd: i32) -> TcpHub {
-        rt_tcp_hub_add(self.handle, fd)
-        return self
+    fn add(self, fd: i32) -> i32 {
+        return rt_tcp_hub_add(self.handle, fd)
     }
 
     fn remove(self, fd: i32) -> TcpHub {

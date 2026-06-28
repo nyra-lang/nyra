@@ -30,7 +30,7 @@ fn VoxelChunk_i32_new(size, fill) {
     return VoxelChunk_i32 { size: size, blocks: blocks }
 }
 
-fn VoxelChunk_i32_neighbor_air(chunk, _x, _y, _z, nx, ny, nz) {
+fn VoxelChunk_i32_neighbor_air(chunk: VoxelChunk_i32, _x: i32, _y: i32, _z: i32, nx: i32, ny: i32, nz: i32) -> i32 {
     if VoxelChunk_i32_in_bounds(chunk.size, nx, ny, nz) == 0 {
         return 1
     }
@@ -41,7 +41,7 @@ fn VoxelChunk_i32_neighbor_air(chunk, _x, _y, _z, nx, ny, nz) {
 }
 
 impl VoxelChunk_i32 {
-    fn get(self, x, y, z) {
+    fn get(self, x: i32, y: i32, z: i32) -> i32 {
         if VoxelChunk_i32_in_bounds(self.size, x, y, z) == 0 {
             return 0
         }
@@ -49,7 +49,7 @@ impl VoxelChunk_i32 {
         return Vec_i32_get(self.blocks, idx)
     }
 
-    fn set(self, x, y, z, value) {
+    fn set(self, x: i32, y: i32, z: i32, value: i32) -> VoxelChunk_i32 {
         if VoxelChunk_i32_in_bounds(self.size, x, y, z) == 0 {
             return self
         }
@@ -58,7 +58,7 @@ impl VoxelChunk_i32 {
         return self
     }
 
-    fn solid_count(self) {
+    fn solid_count(self) -> i32 {
         let n = self.size * self.size * self.size
         let mut count = 0
         let mut i = 0
@@ -71,7 +71,7 @@ impl VoxelChunk_i32 {
         return count
     }
 
-    fn visible_face_count(self) {
+    fn visible_face_count(self) -> i32 {
         let mut faces = 0
         let mut x = 0
         while x < self.size {
@@ -110,19 +110,19 @@ impl VoxelChunk_i32 {
 }
 
 // Aliases for tests/examples that prefer free functions.
-fn VoxelChunk_i32_get(chunk, x, y, z) {
+fn VoxelChunk_i32_get(chunk: VoxelChunk_i32, x: i32, y: i32, z: i32) -> i32 {
     return chunk.get(x, y, z)
 }
 
-fn VoxelChunk_i32_set(chunk, x, y, z, value) {
+fn VoxelChunk_i32_set(chunk: VoxelChunk_i32, x: i32, y: i32, z: i32, value: i32) -> VoxelChunk_i32 {
     return chunk.set(x, y, z, value)
 }
 
-fn VoxelChunk_i32_solid_count(chunk) {
+fn VoxelChunk_i32_solid_count(chunk: VoxelChunk_i32) -> i32 {
     return chunk.solid_count()
 }
 
-fn VoxelChunk_i32_visible_face_count(chunk) {
+fn VoxelChunk_i32_visible_face_count(chunk: VoxelChunk_i32) -> i32 {
     return chunk.visible_face_count()
 }
 

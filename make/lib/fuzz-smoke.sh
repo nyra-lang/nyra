@@ -2,6 +2,20 @@
 # Short fuzz smoke (requires `cargo install cargo-fuzz`).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+PROGRESS="$ROOT/make/lib/test-all-progress.sh"
+
+fuzz_progress() {
+  local cur="$1"
+  local total="$2"
+  local detail="$3"
+  if [[ -n "${NYRA_TEST_ALL_PROGRESS_FILE:-}" ]]; then
+    NYRA_TEST_ALL_PROGRESS_FILE="$NYRA_TEST_ALL_PROGRESS_FILE" \
+      TEST_ALL_LOG="${TEST_ALL_LOG:-}" \
+      "$PROGRESS" sub "fuzz smoke" "$cur" "$total" "$detail"
+  else
+    printf 'fuzz-smoke: [%s/%s] %s\n' "$cur" "$total" "$detail"
+  fi
+}
 
 if ! command -v cargo-fuzz >/dev/null 2>&1; then
   echo "fuzz-smoke: cargo-fuzz not installed — skipping (install with: cargo install cargo-fuzz)"
@@ -53,8 +67,12 @@ fuzz_cargo() {
 }
 
 cd "$ROOT/fuzz"
-for target in fuzz_lexer fuzz_parser fuzz_compile fuzz_gen fuzz_codegen; do
-  echo "fuzz-smoke: $target (sanitizer=$SAN)"
+targets=(fuzz_lexer fuzz_parser fuzz_compile fuzz_gen fuzz_codegen)
+total="${#targets[@]}"
+idx=0
+for target in "${targets[@]}"; do
+  idx=$((idx + 1))
+  fuzz_progress "$idx" "$total" "$target (sanitizer=$SAN)"
   # shellcheck disable=SC2046
   fuzz_cargo run "$target" --sanitizer "$SAN" -- $(fuzz_extra_args "$target")
 done

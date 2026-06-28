@@ -27,7 +27,7 @@ extern fn EndMode3D() -> void
 extern fn DrawCube(position: Vector3, width: f64, height: f64, length: f64, color: Color) -> void
 extern fn DrawGrid(slices: i32, spacing: f64) -> void
 
-fn Raylib_vec3(v) {
+fn Raylib_vec3(v: Gfx3D_Vec3) {
     return Vector3 { x: v.x, y: v.y, z: v.z }
 }
 
@@ -42,7 +42,7 @@ fn Raylib_camera_orbit(target_x, target_y, target_z, distance, yaw_deg, pitch_de
     }
 }
 
-fn Raylib_mode3d_begin(camera) {
+fn Raylib_mode3d_begin(camera: Camera3D) {
     BeginMode3D(camera)
 }
 

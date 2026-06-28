@@ -46,13 +46,19 @@ function registerTaskProvider(context, command) {
             const root = folder.uri.fsPath;
             const defs = [
                 { task: "build", args: ["build", "."], group: vscode.TaskGroup.Build },
+                {
+                    task: "build-debug",
+                    label: "Nyra: build (debug)",
+                    args: ["build", ".", "--debug-symbols"],
+                    group: vscode.TaskGroup.Build,
+                },
                 { task: "run", args: ["run", "."], group: vscode.TaskGroup.Build },
                 { task: "check", args: ["check", "."], group: vscode.TaskGroup.Build },
                 { task: "test", args: ["test", "."], group: vscode.TaskGroup.Test },
                 { task: "fmt", args: ["fmt", "--write", "."] },
             ];
-            return defs.map(({ task, args, group }) => {
-                const t = new vscode.Task({ type: "nyra", task, path: "." }, folder, `Nyra: ${task}`, "nyra", new vscode.ShellExecution(command, args, { cwd: root }), PROBLEM_MATCHER);
+            return defs.map(({ task, args, group, label }) => {
+                const t = new vscode.Task({ type: "nyra", task, path: "." }, folder, label ?? `Nyra: ${task}`, "nyra", new vscode.ShellExecution(command, args, { cwd: root }), PROBLEM_MATCHER);
                 if (group) {
                     t.group = group;
                 }
@@ -68,6 +74,7 @@ function registerTaskProvider(context, command) {
             const taskPath = task.definition.path ?? ".";
             const argsMap = {
                 build: ["build", taskPath],
+                "build-debug": ["build", taskPath, "--debug-symbols"],
                 run: ["run", taskPath],
                 check: ["check", taskPath],
                 test: ["test", taskPath],

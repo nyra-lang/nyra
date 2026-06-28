@@ -27,7 +27,7 @@ fn test_continue_stmt() {
 
 fn test_bool_int_cmp() {
     let light = 1 % 2 == 0
-    if light == 0 {
+    if light == false {
         print("ok bool int")
     }
 }

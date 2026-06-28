@@ -11,6 +11,8 @@ Operational guide for CI failures, regressions, and tier promotion.
 
 Local mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
 
+**Gate order:** `test-all` runs **fast → slow** so simple failures surface before heavy compiletest (~3k CI files), fuzz smoke (5×60s), cross-compile, and optional sanitizer/perf/nightly-fuzz gates. Subsets: `make test-all-core-fast`, `make test-all-core-slow`.
+
 ## Detection principles
 
 | Layer | Catches |

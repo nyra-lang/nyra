@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.36.14 (2026-06-28)
+
+**Stdlib compile smoke — type annotations and import paths**
+
+- **Fixed** — `stdlib/games/raylib_gfx.ny` explicit `Gfx3D_Vec3` / `Camera3D` parameter types
+- **Fixed** — `stdlib/games/voxel.ny` `get`/`set` return types and wrapper signatures (avoids string `get` inference)
+- **Fixed** — `stdlib/net/cache.ny` import paths (`../` not `../../`)
+- **Fixed** — `stdlib/parser/ast_row.ny` `AstRow_kind` / `AstRow_text` index types
+- **Fixed** — macOS `cross linux smoke` skips when no GNU linux cross toolchain (host clang lacks linux sysroot)
+- **Fixed** — `make test-all` banner timestamp on macOS/BSD (`date` via progress helper)
+
+## v1.36.13 (2026-06-27)
+
+**Test fixes — `nyra test tests/nyra` and stdlib helpers**
+
+- **Fixed** — `stdlib/testing.ny` imports `os/syscall.ny` for `os_exit` (removes W002 unused-import noise)
+- **Fixed** — `TcpHub.add` returns `i32` status from `rt_tcp_hub_add` (invalid fd returns `-1`)
+- **Fixed** — `tests/nyra/games_gaps.ny` bool comparison (`light == false`)
+- **Fixed** — `tests/nyra/net/net_advanced_test.ny` `Channel_str` send/recv ownership chain
+- **Fixed** — `tests/nyra/net/gaps_fix_test.ny` HTTP handler renamed to `http_handler` (not picked up as `nyra test` case)
+
 ## v1.36.12 (2026-06-27)
 
 **Removed Sonic framework from the Nyra repository**

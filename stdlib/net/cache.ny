@@ -1,7 +1,7 @@
-import "../../map.ny"
-import "../../strings.ny"
-import "../../fs.ny"
-import "../../time/instant.ny"
+import "../map.ny"
+import "../strings.ny"
+import "../fs.ny"
+import "../time/instant.ny"
 
 struct TtlCache {
     entries: HashMap_str_str
