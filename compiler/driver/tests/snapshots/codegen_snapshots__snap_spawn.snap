@@ -20,7 +20,7 @@ define i32 @main() {
 entry:
   %spawn.cap.N = alloca %SpawnCap.main.N
   %spawn.gep.N = getelementptr inbounds %SpawnCap.main.N, %SpawnCap.main.N* %spawn.cap.N, i64 0, i32 0
-  store i32 %99, i32* %spawn.gep.N
+  store i32 100, i32* %spawn.gep.N
   %spawn.heap.N = call ptr @malloc(i64 8)
   call void @llvm.memcpy.p0.p0.i64(ptr %spawn.heap.N, ptr %spawn.cap.N, i64 8, i1 false)
   call i32 @spawn_capture(ptr @__spawn_main_0, ptr %spawn.heap.N, i64 8)

@@ -373,6 +373,34 @@ fn link_target_spec(target: &str) -> TargetSpec {
     }
 }
 
+/// Temp link artifact path. On Windows keep a `.exe` suffix so lld writes a PE where we expect it
+/// (`foo.exe` → `with_extension("nyra-link-tmp")` would otherwise become `foo.nyra-link-tmp` and
+/// the linker may emit `foo.nyra-link-tmp.exe`, breaking rename).
+fn link_temp_path(bin_path: &Path, spec: &TargetSpec) -> PathBuf {
+    if spec.is_windows() {
+        let stem = bin_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("out");
+        bin_path.with_file_name(format!("{stem}.nyra-link-tmp.exe"))
+    } else {
+        bin_path.with_extension("nyra-link-tmp")
+    }
+}
+
+fn resolve_link_output(link_tmp: &Path, spec: &TargetSpec) -> PathBuf {
+    if link_tmp.is_file() {
+        return link_tmp.to_path_buf();
+    }
+    if spec.is_windows() {
+        let with_exe = PathBuf::from(format!("{}.exe", link_tmp.display()));
+        if with_exe.is_file() {
+            return with_exe;
+        }
+    }
+    link_tmp.to_path_buf()
+}
+
 pub fn link_binary(
     ll_path: &Path,
     bin_path: &Path,
@@ -505,7 +533,7 @@ pub fn link_binary(
         }
     }
 
-    let link_tmp = bin_path.with_extension("nyra-link-tmp");
+    let link_tmp = link_temp_path(bin_path, &spec);
     if link_tmp.exists() {
         let _ = fs::remove_file(&link_tmp);
     }
@@ -545,8 +573,16 @@ pub fn link_binary(
         return Err(format!("clang failed to link LLVM IR ({clang}): {detail}"));
     }
 
-    fs::rename(&link_tmp, bin_path).map_err(|e| {
+    let linked = resolve_link_output(&link_tmp, &spec);
+    if !linked.is_file() {
         let _ = fs::remove_file(&link_tmp);
+        return Err(format!(
+            "clang link succeeded but output is missing (expected {})",
+            linked.display()
+        ));
+    }
+    fs::rename(&linked, bin_path).map_err(|e| {
+        let _ = fs::remove_file(&linked);
         format!("failed to install {}: {e}", bin_path.display())
     })?;
     if profile.cdylib {
@@ -769,6 +805,38 @@ mod link_source_filter_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::target::TargetSpec;
+
+    #[test]
+    fn link_temp_path_keeps_exe_suffix_on_windows() {
+        let spec = TargetSpec {
+            triple: "x86_64-pc-windows-msvc".into(),
+            os: crate::target::TargetOs::Windows,
+            arch: crate::target::TargetArch::X86_64,
+            is_cross: false,
+            is_wasm: false,
+        };
+        let bin = Path::new("out/async.exe");
+        assert_eq!(
+            link_temp_path(bin, &spec),
+            PathBuf::from("out/async.nyra-link-tmp.exe")
+        );
+        let bin_no_ext = Path::new("out/input");
+        assert_eq!(
+            link_temp_path(bin_no_ext, &spec),
+            PathBuf::from("out/input.nyra-link-tmp.exe")
+        );
+    }
+
+    #[test]
+    fn link_temp_path_non_windows_uses_extension() {
+        let spec = TargetSpec::host();
+        let bin = Path::new("out/async");
+        assert_eq!(
+            link_temp_path(bin, &spec),
+            PathBuf::from("out/async.nyra-link-tmp")
+        );
+    }
 
     #[test]
     fn release_defaults_to_o3_thin_lto() {
@@ -833,7 +901,8 @@ mod tests {
         let _ = std::fs::remove_dir_all(&work);
         std::fs::create_dir_all(&work).unwrap();
         let ll = work.join("input.ll");
-        let bin = work.join("input");
+        let spec = crate::target::TargetSpec::host();
+        let bin = work.join(format!("input{}", spec.exe_extension()));
         std::fs::write(&ll, out.llvm_ir.unwrap()).unwrap();
         let profile = LinkProfile::default();
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();

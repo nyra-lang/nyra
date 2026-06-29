@@ -13,27 +13,7 @@ declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
 define i32 @main() {
 entry:
-  %alloca.N = alloca i32
-  br label %match.chain.N
-match.chain.N:
-  %cmp.N = icmp eq i32 0, 0
-  br i1 %cmp.N, label %match.body.N, label %match.next.N
-match.body.N:
-  br label %match.payload.ok.N
-match.payload.ok.N:
-  store i32 1, i32* %alloca.N
-  br label %match.end.N
-match.next.N:
-  %cmp.N = icmp eq i32 0, 1
-  br i1 %cmp.N, label %match.body.N, label %match.end.N
-match.body.N:
-  br label %match.payload.ok.N
-match.payload.ok.N:
-  store i32 2, i32* %alloca.N
-  br label %match.end.N
-match.end.N:
-  %load.N = load i32, i32* %alloca.N
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %load.N)
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 1)
   ret i32 0
 }

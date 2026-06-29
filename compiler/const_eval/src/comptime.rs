@@ -671,13 +671,17 @@ fn eval_comptime_expr(
         }
         Expression::If(i) => {
             let cond = eval_comptime_expr(&i.condition, frame, functions, depth)?;
+            let then_v = eval_comptime_expr(&i.then_expr, frame, functions, depth)?;
+            let else_v = eval_comptime_expr(&i.else_expr, frame, functions, depth)?;
+            if !comptime_branch_compatible(&then_v, &else_v) {
+                return Err(comptime_error(
+                    i.span.clone(),
+                    "comptime if branches have incompatible types",
+                ));
+            }
             match cond {
-                ConstValue::Bool(true) => {
-                    eval_comptime_expr(&i.then_expr, frame, functions, depth)
-                }
-                ConstValue::Bool(false) => {
-                    eval_comptime_expr(&i.else_expr, frame, functions, depth)
-                }
+                ConstValue::Bool(true) => Ok(then_v),
+                ConstValue::Bool(false) => Ok(else_v),
                 _ => Err(comptime_error(
                     i.span.clone(),
                     "comptime if condition must be bool",
@@ -1436,6 +1440,75 @@ fn fold_comptime_in_stmt(
     }
 }
 
+fn skip_comptime_fold_replace(expr: &Expression) -> bool {
+    match expr {
+        Expression::Variable { .. } => true,
+        Expression::FieldAccess(fa) => matches!(&fa.object, Expression::Variable { .. }),
+        Expression::Index(ix) => matches!(&ix.object, Expression::Variable { .. }),
+        Expression::MethodCall(mc) => matches!(&mc.object, Expression::Variable { .. }),
+        _ => false,
+    }
+}
+
+fn comptime_branch_compatible(a: &ConstValue, b: &ConstValue) -> bool {
+    match (a, b) {
+        (ConstValue::Int(_), ConstValue::Int(_)) => true,
+        (ConstValue::Bool(_), ConstValue::Bool(_)) => true,
+        (ConstValue::String(_), ConstValue::String(_)) => true,
+        (ConstValue::Array(a_elems), ConstValue::Array(b_elems)) => {
+            a_elems.len() == b_elems.len()
+                && a_elems
+                    .iter()
+                    .zip(b_elems)
+                    .all(|(x, y)| comptime_branch_compatible(x, y))
+        }
+        (
+            ConstValue::Struct {
+                name: a_name,
+                fields: a_fields,
+            },
+            ConstValue::Struct {
+                name: b_name,
+                fields: b_fields,
+            },
+        ) => {
+            a_name == b_name
+                && a_fields.len() == b_fields.len()
+                && a_fields
+                    .iter()
+                    .all(|(k, av)| b_fields.get(k).is_some_and(|bv| comptime_branch_compatible(av, bv)))
+        }
+        (ConstValue::Tuple(a_elems), ConstValue::Tuple(b_elems)) => {
+            a_elems.len() == b_elems.len()
+                && a_elems
+                    .iter()
+                    .zip(b_elems)
+                    .all(|(x, y)| comptime_branch_compatible(x, y))
+        }
+        (
+            ConstValue::Enum {
+                enum_name: a_enum,
+                variant: a_var,
+                payload: a_payload,
+            },
+            ConstValue::Enum {
+                enum_name: b_enum,
+                variant: b_var,
+                payload: b_payload,
+            },
+        ) => {
+            a_enum == b_enum
+                && a_var == b_var
+                && match (a_payload.as_deref(), b_payload.as_deref()) {
+                    (None, None) => true,
+                    (Some(a), Some(b)) => comptime_branch_compatible(a, b),
+                    _ => false,
+                }
+        }
+        _ => false,
+    }
+}
+
 fn fold_comptime_in_expr(
     expr: &mut Expression,
     functions: &HashMap<String, Function>,
@@ -1525,8 +1598,12 @@ fn fold_comptime_in_expr(
         }
         _ => {}
     }
-    if let Ok(v) = eval_comptime_expr(expr, &ComptimeFrame::from_env(env), functions, 0) {
-        *expr = const_value_to_expr(&v);
+    // Preserve runtime binding uses (borrowck / codegen) and if-expressions whose
+    // branches fail comptime compatibility (typecheck still needs both arms).
+    if !skip_comptime_fold_replace(expr) {
+        if let Ok(v) = eval_comptime_expr(expr, &ComptimeFrame::from_env(env), functions, 0) {
+            *expr = const_value_to_expr(&v);
+        }
     }
 }
 
@@ -2192,5 +2269,80 @@ const R = comptime {
             program.consts[1].value,
             Expression::Literal(Literal::Int(1_000_030))
         ));
+    }
+
+    #[test]
+    fn comptime_fold_keeps_variable_uses_for_runtime_bindings() {
+        let mut program = parse(
+            r#"fn main() {
+    let s = "  hi  "
+    print(s.trim())
+}"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        let main = program.functions.iter().find(|f| f.name == "main").unwrap();
+        let trim = match &main.body.statements[1] {
+            ast::Statement::Print(p) => match &p.args[0] {
+                Expression::MethodCall(mc) => mc,
+                other => panic!("expected trim call, got {other:?}"),
+            },
+            other => panic!("expected print, got {other:?}"),
+        };
+        assert!(
+            matches!(&trim.object, Expression::Variable { name, .. } if name == "s"),
+            "comptime fold must not replace binding uses with literals: {:?}",
+            trim.object
+        );
+    }
+
+    #[test]
+    fn comptime_fold_preserves_if_branch_typecheck() {
+        let mut program = parse(
+            r#"fn main() {
+    let x = if true { 1 } else { "x" }
+}"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        let main = program.functions.iter().find(|f| f.name == "main").unwrap();
+        match &main.body.statements[0] {
+            ast::Statement::Let(l) => match &l.value {
+                Expression::If(_) => {}
+                other => panic!("expected if expression for typecheck, got {other:?}"),
+            },
+            other => panic!("expected let, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn comptime_fold_preserves_field_access_on_binding() {
+        let mut program = parse(
+            r#"struct Item {
+    id: i32
+    name: string
+}
+fn consume(x: Item) -> void { print(x.id) }
+fn main() {
+    let item = Item { id: 1 name: "x" }
+    consume(item)
+    print(item.name)
+}"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        let main = program.functions.iter().find(|f| f.name == "main").unwrap();
+        let use_after_move = match &main.body.statements[2] {
+            ast::Statement::Print(p) => &p.args[0],
+            other => panic!("expected print, got {other:?}"),
+        };
+        assert!(
+            matches!(
+                use_after_move,
+                Expression::FieldAccess(fa)
+                    if matches!(&fa.object, Expression::Variable { name, .. } if name == "item")
+            ),
+            "field access on moved binding must survive comptime fold: {use_after_move:?}"
+        );
     }
 }

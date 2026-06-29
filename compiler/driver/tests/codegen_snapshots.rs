@@ -130,7 +130,8 @@ snap_ir!(snap_tuple_literal, r#"fn main() {
     print(t.0)
 }"#);
 snap_ir!(snap_spawn, r#"fn main() {
-    let n = 99
+    let mut n = 99
+    n = 100
     spawn { print(n) }
 }"#);
 snap_ir!(snap_async_fn, r#"async fn work() -> i32 { return 42 }

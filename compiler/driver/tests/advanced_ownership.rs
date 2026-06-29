@@ -8,7 +8,8 @@ fn compile(src: &str) -> compiler::CompileOutput {
 fn spawn_emits_capture_and_spawn_capture_call() {
     let out = compile(
         r#"fn main() {
-    let n = 99
+    let mut n = 99
+    n = 100
     spawn {
         print(n)
     }

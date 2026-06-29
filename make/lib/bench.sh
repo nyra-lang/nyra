@@ -332,6 +332,17 @@ PY
   awk "BEGIN {printf \"%.4f %d\", ($count > 0 ? $t_total / $count : 0), $peak_kb}"
 }
 
+# Multi-file packages and struct-heavy suites expand to stdlib runtime calls
+# (Vec_str_*, json_encode_*, bin_buf_*) that require the prelude.
+nyra_bench_use_prelude() {
+  local ny_file="$1"
+  [[ -d "$ny_file" ]] && return 0
+  case "$ny_file" in
+    *struct_sum*) return 0 ;;
+  esac
+  return 1
+}
+
 build_nyra() {
   local ny_file="$1"
   local out_name="$2"
@@ -342,7 +353,10 @@ build_nyra() {
   fi
   local nyra_flags=()
   if [[ "$BENCH_RELEASE" == "1" ]]; then
-    nyra_flags=(--release --no-prelude)
+    nyra_flags=(--release)
+    if ! nyra_bench_use_prelude "$ny_file"; then
+      nyra_flags+=(--no-prelude)
+    fi
   fi
   if [[ "$BENCH_PGO" == "1" ]]; then
     nyra_flags+=(--pgo)
@@ -377,7 +391,11 @@ build_nyra_pgo() {
   local build_log
   build_log="$(mktemp "${TMPDIR:-/tmp}/nyra-bench-pgo.XXXXXX")"
   log "PGO: building $ny_file (instrument → train main → merge → release)..."
-  built="$(cd "$ROOT" && cargo run $profile -p cli --quiet -- build "$ny_file" -o "$out_name" --release --pgo --no-prelude 2>"$build_log" | sed -n 's/^built: //p')"
+  local pgo_flags=(--release --pgo)
+  if ! nyra_bench_use_prelude "$ny_file"; then
+    pgo_flags+=(--no-prelude)
+  fi
+  built="$(cd "$ROOT" && cargo run $profile -p cli --quiet -- build "$ny_file" -o "$out_name" ${pgo_flags[@]+"${pgo_flags[@]}"} 2>"$build_log" | sed -n 's/^built: //p')"
   if [[ -z "$built" || ! -x "$built" ]]; then
     log "error: PGO build failed for $ny_file"
     sed 's/^/  /' "$build_log" >&2
@@ -400,7 +418,7 @@ write_header() {
   [[ "$BENCH_RELEASE" != "1" ]] && nyra_build="debug"
   [[ "$BENCH_PGO" == "1" ]] && nyra_build="${nyra_build}+pgo (all suites)"
   [[ "$BENCH_SKIP_PGO" != "1" ]] && nyra_build="${nyra_build}; cpu_bound_pgo=release+pgo"
-  [[ "$BENCH_RELEASE" == "1" ]] && nyra_build="${nyra_build}; Nyra flags: --no-prelude, -march=native (host release default)"
+  [[ "$BENCH_RELEASE" == "1" ]] && nyra_build="${nyra_build}; Nyra flags: --no-prelude (single-file suites), prelude (multi-file/struct_sum), -march=native"
   local isolation_note="languages run in isolation (BENCH_LANG_COOLDOWN=${LANG_COOLDOWN}s between langs)"
   [[ "$BENCH_NO_ISOLATE" == "1" ]] && isolation_note="all languages per suite (BENCH_NO_ISOLATE=1)"
   cat >"$LATEST" <<EOF
@@ -722,7 +740,7 @@ bench_one_lang() {
         read -r ms kb <<<"$(measure_cmd "$ny_bin")"
         bench_row "$suite" "Nyra" "$ms" "$kb"
       else
-        ny_bin="$(build_nyra "$SP_NY_PATH" "$SP_NY_NAME")"
+        ny_bin="$(build_nyra "$SP_NY_PATH" "$SP_NY_NAME")" || return 0
         read -r ms kb <<<"$(measure_cmd "$ny_bin")"
         bench_row "$suite" "Nyra" "$ms" "$kb"
       fi
@@ -733,18 +751,18 @@ bench_one_lang() {
         read -r ms kb <<<"$(measure_cmd "$ny_bin")"
         bench_row "$suite" "Nyra-typed" "$ms" "$kb"
       else
-        ny_bin="$(build_nyra "$SP_NY_TYPED_PATH" "$SP_NY_TYPED_NAME")"
+        ny_bin="$(build_nyra "$SP_NY_TYPED_PATH" "$SP_NY_TYPED_NAME")" || return 0
         read -r ms kb <<<"$(measure_cmd "$ny_bin")"
         bench_row "$suite" "Nyra-typed" "$ms" "$kb"
       fi
       ;;
     Nyra-comptime)
-      ny_bin="$(build_nyra "$SP_NY_CT_PATH" "$SP_NY_CT_NAME")"
+      ny_bin="$(build_nyra "$SP_NY_CT_PATH" "$SP_NY_CT_NAME")" || return 0
       read -r ms kb <<<"$(measure_cmd "$ny_bin")"
       bench_row "$suite" "Nyra-comptime" "$ms" "$kb"
       ;;
     Nyra-comptime-typed)
-      ny_bin="$(build_nyra "$SP_NY_CT_TYPED_PATH" "$SP_NY_CT_TYPED_NAME")"
+      ny_bin="$(build_nyra "$SP_NY_CT_TYPED_PATH" "$SP_NY_CT_TYPED_NAME")" || return 0
       read -r ms kb <<<"$(measure_cmd "$ny_bin")"
       bench_row "$suite" "Nyra-comptime-typed" "$ms" "$kb"
       ;;

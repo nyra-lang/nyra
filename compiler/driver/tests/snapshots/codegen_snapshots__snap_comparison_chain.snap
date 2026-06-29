@@ -13,10 +13,7 @@ declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
 define i32 @main() {
 entry:
-  %bin.N = icmp sge i32 5, 3
-  %bin.N = icmp sle i32 5, 10
-  %bin.N = and i1 %bin.N, %bin.N
-  br i1 %bin.N, label %then.N, label %else.N
+  br i1 1, label %then.N, label %else.N
 then.N:
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   call i32 (ptr, ...) @printf(ptr %fmt.N, i32 1)

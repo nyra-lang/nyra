@@ -20,7 +20,8 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, llvm_value_operand,
+    resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -81,7 +82,8 @@ impl Codegen {
                 "  %{gep} = getelementptr inbounds %{cap_ty_name}, %{cap_ty_name}* %{cap_alloca}, i64 0, i32 {i}"
             ));
             self.emit(&format!(
-                "  store {ty} %{val_reg}, {} %{gep}",
+                "  store {ty} {}, {} %{gep}",
+                llvm_value_operand(&val_reg),
                 llvm_ptr(ty)
             ));
             if self.drop_plan.is_owned_in(&drop_state.func, name) {
@@ -235,8 +237,13 @@ impl Codegen {
                 Binding::LocalChannel { slot } => return slot.clone(),
             }
         }
-        let (loaded, _) = self.binding_load(binding);
-        loaded
+        match binding {
+            Binding::Param { index, .. } => format!("%{index}"),
+            _ => {
+                let (loaded, _) = self.binding_load(binding);
+                loaded
+            }
+        }
     }
 }
 

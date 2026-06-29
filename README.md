@@ -144,19 +144,19 @@ Nyra is compared against **C, C++, Go, Rust, Node, Python, and Java** on the sam
 programs under [`examples/comparison/`](examples/comparison/). **Lower runtime and RAM are better.**
 Compile time is excluded; numbers are mean wall-clock over timed runs.
 
-**Last run:** 2026-06-23T21:27:07Z · **Platform:** Darwin arm64 · **Runs:** 5 (warmup 1 discarded) · **Nyra:** release; cpu_bound_pgo=release+pgo; Nyra flags: --no-prelude, -march=native (host release default)
+**Last run:** 2026-06-28T22:16:43Z · **Platform:** Darwin arm64 · **Runs:** 5 (warmup 1 discarded) · **Nyra:** release; cpu_bound_pgo=release+pgo; Nyra flags: --no-prelude (single-file suites), prelude (multi-file/struct_sum), -march=native
 
 **[Interactive report →](examples/comparison/results/latest.html)** ·
 raw data: [`data.tsv`](examples/comparison/results/data.tsv)
 
 | Language | CPU hot loop | Nested loops | Linear sum | Hello I/O |
 |----------|----------:|----------:|----------:|----------:|
-| Nyra (Zero Types) | 808 ms | 52.3 ms | 1,179 ms | 2.1 ms |
-| Nyra (Explicit Types) | 809 ms | 52.5 ms | 1,182 ms | 2.2 ms |
-| C | 463 ms | 57.8 ms | 1,299 ms | 2.3 ms |
-| C++ | 468 ms | 57.7 ms | 1,295 ms | 2.2 ms |
-| Go | 579 ms | 58.5 ms | 1,308 ms | 3.1 ms |
-| Rust | 865 ms | 68.8 ms | 1,544 ms | 2.6 ms |
+| Nyra (Zero Types) | 808 ms | 52.5 ms | 1,415 ms | 2.1 ms |
+| Nyra (Explicit Types) | 809 ms | 52.5 ms | 1,420 ms | 2.1 ms |
+| C | 463 ms | 58.3 ms | 1,299 ms | 2.3 ms |
+| C++ | 465 ms | 57.7 ms | 1,299 ms | 2.4 ms |
+| Go | 579 ms | 58.9 ms | 1,302 ms | 3.3 ms |
+| Rust | 865 ms | 68.8 ms | 1,548 ms | 2.4 ms |
 
 **cpu_bound snapshot:** Nyra (Zero Types) `808 ms` vs fastest compiled (C `463 ms`) — **1.75×** wall time.
 
@@ -166,10 +166,12 @@ raw data: [`data.tsv`](examples/comparison/results/data.tsv)
 |----------|----------:|
 | Nyra (Zero Types) | 1.0 MB |
 | Nyra (Explicit Types) | 1.0 MB |
+| Nyra-comptime | 1.0 MB |
+| Nyra-comptime-typed | 1.0 MB |
 | C | 1.0 MB |
 | C++ | 1.0 MB |
 | Rust | 1.2 MB |
-| Go | 3.5 MB |
+| Go | 3.6 MB |
 
 ```bash
 make bench              # full matrix + HTML report

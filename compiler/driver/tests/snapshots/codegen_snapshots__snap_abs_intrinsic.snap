@@ -11,17 +11,14 @@ declare double @atan2_f64(double %0, double %1)
 declare double @cos_f64(double %0)
 declare double @sin_f64(double %0)
 declare double @tan_f64(double %0)
-declare i32 @llvm.abs.i32(i32, i1)
 declare i32 @printf(ptr, ...)
 declare void @abort()
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
 define i32 @main() {
 entry:
-  %unary.N = sub i32 0, 42
-  %abs.N = call i32 @llvm.abs.i32(i32 %unary.N, i1 true)
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %abs.N)
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 42)
   ret i32 0
 }
 define i32 @pow_i32(i32 %0, i32 %1) {
