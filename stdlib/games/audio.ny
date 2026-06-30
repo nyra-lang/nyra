@@ -12,7 +12,7 @@ fn GameAudioSession_new() {
     return GameAudioSession { master_volume: 1.0, initialized: 0, current_path: "" }
 }
 
-fn GameAudioSession_set_volume(session, volume) {
+fn GameAudioSession_set_volume(session: GameAudioSession, volume: f64) -> GameAudioSession {
     let mut v = volume
     if v < 0.0 {
         v = 0.0
@@ -27,7 +27,7 @@ fn GameAudioSession_set_volume(session, volume) {
     }
 }
 
-fn GameAudio_has_suffix(path, suffix) {
+fn GameAudio_has_suffix(path: string, suffix: string) -> i32 {
     let n = strlen(path)
     let m = strlen(suffix)
     if n < m {
@@ -40,7 +40,7 @@ fn GameAudio_has_suffix(path, suffix) {
     return 0
 }
 
-fn GameAudio_is_music_path(path) {
+fn GameAudio_is_music_path(path: string) -> i32 {
     if GameAudio_has_suffix(path, ".wav") == 1 {
         return 1
     }
@@ -56,7 +56,7 @@ fn GameAudio_is_music_path(path) {
     return 0
 }
 
-fn GameAudio_is_sfx_path(path) {
+fn GameAudio_is_sfx_path(path: string) -> i32 {
     if GameAudio_has_suffix(path, ".wav") == 1 {
         return 1
     }
@@ -66,15 +66,15 @@ fn GameAudio_is_sfx_path(path) {
     return 0
 }
 
-fn GameAudioSession_path(session: GameAudioSession) {
+fn GameAudioSession_path(session: GameAudioSession) -> string {
     return session.current_path
 }
 
-fn GameAudioSession_volume(session: GameAudioSession) {
+fn GameAudioSession_volume(session: GameAudioSession) -> f64 {
     return session.master_volume
 }
 
-fn GameAudioSession_select(session, path) {
+fn GameAudioSession_select(session: GameAudioSession, path: string) -> GameAudioSession {
     if GameAudio_is_music_path(path) == 0 {
         return session
     }
