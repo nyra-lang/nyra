@@ -1,5 +1,6 @@
 ---
 source: compiler/driver/tests/codegen_snapshots.rs
+assertion_line: 95
 expression: normalize_ir(& ir)
 ---
 source_filename = "test.ny"
@@ -188,6 +189,8 @@ declare ptr @json_encode_str_array(ptr %0)
 declare ptr @json_get_array(ptr %0, ptr %1)
 declare ptr @json_get_object(ptr %0, ptr %1)
 declare ptr @json_get_string(ptr %0, ptr %1)
+declare ptr @json_join_raw_array(ptr %0)
+declare ptr @json_split_array_elements(ptr %0)
 declare ptr @rt_bridge_exec(ptr %0, ptr %1)
 declare ptr @rt_bridge_exec_arg(ptr %0, ptr %1, ptr %2)
 declare ptr @rt_tls_last_error()
@@ -378,15 +381,8 @@ entry:
   %call.N = call i64 @instant_now()
   %alloca.N = alloca %DateTime
   %gep.N = getelementptr inbounds %DateTime, %DateTime* %alloca.N, i32 0, i32 0
-  %alloca.N = alloca %CalendarDate
-  %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %alloca.N, i32 0, i32 0
-  store i32 1970, i32* %gep.N
-  %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %alloca.N, i32 0, i32 1
-  store i32 1, i32* %gep.N
-  %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %alloca.N, i32 0, i32 2
-  store i32 1, i32* %gep.N
-  %load.N = load %CalendarDate, %CalendarDate* %alloca.N
-  store %CalendarDate %load.N, %CalendarDate* %gep.N
+  %call.N = call %CalendarDate @Date_new(i32 1970, i32 1, i32 1)
+  store %CalendarDate %call.N, %CalendarDate* %gep.N
   %gep.N = getelementptr inbounds %DateTime, %DateTime* %alloca.N, i32 0, i32 1
   store i32 0, i32* %gep.N
   %gep.N = getelementptr inbounds %DateTime, %DateTime* %alloca.N, i32 0, i32 2
@@ -619,9 +615,9 @@ entry:
   %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %alloca.N = alloca %HttpUrl
   store %HttpUrl %call.N, %HttpUrl* %alloca.N
   %gep.N = getelementptr inbounds %HttpUrl, %HttpUrl* %alloca.N, i32 0, i32 0
@@ -639,23 +635,25 @@ then.N:
   %call.N = call i32 @str_len(ptr %2)
   %call.N = call ptr @i32_to_string(i32 %call.N)
   %call.N = call ptr @str_cat(ptr %str.N, ptr %call.N)
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %str.N, ptr %3)
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %call.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
   br label %endif.N
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %2)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
@@ -667,25 +665,14 @@ endif.N:
   %bin.N = icmp eq i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
-  %alloca.N = alloca %HttpResponse
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
-  store i32 500, i32* %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
+  %call.N = call %HttpResponse @response_internal_error()
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
-  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
-  ret %HttpResponse %load.N
+  ret %HttpResponse %call.N
 else.N:
   br label %endif.N
 endif.N:
@@ -755,19 +742,9 @@ entry:
 }
 define %HttpResponse @response_bad_request() {
 entry:
-  %alloca.N = alloca %HttpResponse
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
-  store i32 400, i32* %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
-  ret %HttpResponse %load.N
+  %call.N = call %HttpResponse @response_json(i32 400, ptr %str.N)
+  ret %HttpResponse %call.N
 }
 define %HttpResponse @response_created_json(ptr %0) {
 entry:
@@ -791,19 +768,9 @@ entry:
 }
 define %HttpResponse @response_internal_error() {
 entry:
-  %alloca.N = alloca %HttpResponse
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
-  store i32 500, i32* %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
-  ret %HttpResponse %load.N
+  %call.N = call %HttpResponse @response_json(i32 500, ptr %str.N)
+  ret %HttpResponse %call.N
 }
 define %HttpResponse @response_json(i32 %0, ptr %1) {
 entry:
@@ -822,19 +789,9 @@ entry:
 }
 define %HttpResponse @response_method_not_allowed() {
 entry:
-  %alloca.N = alloca %HttpResponse
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
-  store i32 405, i32* %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
-  ret %HttpResponse %load.N
+  %call.N = call %HttpResponse @response_json(i32 405, ptr %str.N)
+  ret %HttpResponse %call.N
 }
 define %HttpResponse @response_no_content() {
 entry:
@@ -854,19 +811,9 @@ entry:
 }
 define %HttpResponse @response_not_found() {
 entry:
-  %alloca.N = alloca %HttpResponse
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
-  store i32 404, i32* %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
-  ret %HttpResponse %load.N
+  %call.N = call %HttpResponse @response_json(i32 404, ptr %str.N)
+  ret %HttpResponse %call.N
 }
 define %HttpResponse @response_ok_json(ptr %0) {
 entry:
@@ -890,19 +837,9 @@ entry:
 }
 define %HttpResponse @response_unauthorized() {
 entry:
-  %alloca.N = alloca %HttpResponse
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
-  store i32 401, i32* %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %str_clone.N = call ptr @str_clone(ptr %str.N)
-  store ptr %str_clone.N, ptr %gep.N
-  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
-  ret %HttpResponse %load.N
+  %call.N = call %HttpResponse @response_json(i32 401, ptr %str.N)
+  ret %HttpResponse %call.N
 }
 define %HttpUrl @Deserialize_HttpUrl_from_json(ptr %0) {
 entry:
@@ -2392,8 +2329,8 @@ while.cond.N:
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %1)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %1)
   %call.N = call ptr @vec_str_get(ptr %0, i32 %loop.phi.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
   store ptr %call.N, ptr %alloca.N
@@ -2520,23 +2457,23 @@ endif.N:
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %str.N, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %ref.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %ref.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
@@ -2565,9 +2502,9 @@ endif.N:
   %call.N = call ptr @str_cat(ptr %str.N, ptr %0)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   ret ptr %call.N
@@ -2594,8 +2531,8 @@ entry:
   %load.N = load i32, i32* %gep.N
   %call.N = call ptr @status_text(i32 %load.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %str.N, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %ref.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -2630,21 +2567,21 @@ if.else.N:
   br label %if.expr.N
 if.expr.N:
   %load.N = load ptr, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
-  %ld.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %ref.N)
   %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %0, i32 0, i32 1
   %load.N = load ptr, ptr %gep.N
   %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
@@ -2683,18 +2620,18 @@ entry:
   %call.N = call ptr @i32_to_string(i32 %load.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %call.N, ptr %ld.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %ref.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %str.N)
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %call.N, ptr %ld.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %ref.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
@@ -2719,14 +2656,14 @@ entry:
   store ptr %0, ptr %alloca.N
   br label %while.cond.N
 while.cond.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = icmp sgt i32 %call.N, 0
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %ld.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %ref.N, ptr %str.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -2736,8 +2673,8 @@ after.break.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 0, i32 %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @substring(ptr %ref.N, i32 0, i32 %call.N)
   %call.N = call i32 @str_to_i32_hex(ptr %call.N)
   %bin.N = icmp sle i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
@@ -2750,8 +2687,8 @@ else.N:
 endif.N:
   %bin.N = add i32 %call.N, 2
   %bin.N = add i32 %bin.N, %call.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = icmp sgt i32 %bin.N, %call.N
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -2761,20 +2698,20 @@ after.break.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 %bin.N, i32 %call.N)
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @substring(ptr %ref.N, i32 %bin.N, i32 %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %bin.N = add i32 %bin.N, %call.N
   %bin.N = add i32 %bin.N, 2
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = add i32 %bin.N, %call.N
   %bin.N = add i32 %bin.N, 2
   %bin.N = sub i32 %call.N, %bin.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 %bin.N, i32 %bin.N)
+  %call.N = call ptr @substring(ptr %ref.N, i32 %bin.N, i32 %bin.N)
   store ptr %call.N, ptr %alloca.N
   br label %while.cond.N
 while.end.N:
@@ -2936,8 +2873,8 @@ entry:
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @strstr_pos(ptr %0, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @strstr_pos(ptr %0, ptr %ref.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -2948,17 +2885,17 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = add i32 %call.N, %call.N
   %call.N = call i32 @str_len(ptr %0)
   %bin.N = sub i32 %call.N, %bin.N
   %call.N = call ptr @substring(ptr %0, i32 %bin.N, i32 %bin.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %ld.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %ref.N, ptr %str.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -2969,8 +2906,8 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 0, i32 %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @substring(ptr %ref.N, i32 0, i32 %call.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   ret ptr %call.N
@@ -3077,9 +3014,9 @@ endif.N:
   %call.N = call ptr @substring(ptr %0, i32 %bin.N, i32 %bin.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %ld.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %ref.N, ptr %str.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3088,13 +3025,13 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 0, i32 %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @substring(ptr %ref.N, i32 0, i32 %call.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %ld.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %ref.N, ptr %str.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3103,8 +3040,8 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 0, i32 %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @substring(ptr %ref.N, i32 0, i32 %call.N)
   ret ptr %call.N
 }
 define ptr @query_from_line(ptr %0) {
@@ -3125,9 +3062,9 @@ endif.N:
   %call.N = call ptr @substring(ptr %0, i32 %bin.N, i32 %bin.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %ld.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %ref.N, ptr %str.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3138,13 +3075,13 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 0, i32 %call.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @substring(ptr %ref.N, i32 0, i32 %call.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %ld.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %ref.N, ptr %str.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3157,13 +3094,13 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %bin.N = add i32 %call.N, 1
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = add i32 %call.N, 1
   %bin.N = sub i32 %call.N, %bin.N
-  %call.N = call ptr @substring(ptr %ld.N, i32 %bin.N, i32 %bin.N)
+  %call.N = call ptr @substring(ptr %ref.N, i32 %bin.N, i32 %bin.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
@@ -3177,8 +3114,8 @@ entry:
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %1)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %1)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   ret ptr %call.N
@@ -3333,7 +3270,9 @@ entry:
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
-  ret ptr %0
+  %call.N = call i32 @str_len(ptr %0)
+  %call.N = call ptr @substring(ptr %0, i32 0, i32 %call.N)
+  ret ptr %call.N
 else.N:
   br label %endif.N
 endif.N:
@@ -3363,8 +3302,8 @@ entry:
   %call.N = call ptr @str_cat(ptr %1, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @strstr_pos(ptr %0, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @strstr_pos(ptr %0, ptr %ref.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3375,8 +3314,8 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = add i32 %call.N, %call.N
   %call.N = call i32 @str_len(ptr %0)
   %bin.N = sub i32 %call.N, %bin.N
@@ -3419,11 +3358,11 @@ while.cond.N:
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %call.N = call ptr @vec_str_get(ptr %0, i32 %loop.phi.N)
   %call.N = call ptr @vec_str_get(ptr %1, i32 %loop.phi.N)
   %call.N = call ptr @toml_encode_field(ptr %call.N, ptr %call.N)
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %call.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
   store ptr %call.N, ptr %alloca.N
   %bin.N = add i32 %loop.phi.N, 1
   %loop.in.N = add i32 0, %bin.N
@@ -3531,8 +3470,8 @@ entry:
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @strstr_pos(ptr %0, ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @strstr_pos(ptr %0, ptr %ref.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3543,8 +3482,8 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %ld.N = load ptr, ptr %alloca.N
-  %call.N = call i32 @str_len(ptr %ld.N)
+  %ref.N = load ptr, ptr %alloca.N
+  %call.N = call i32 @str_len(ptr %ref.N)
   %bin.N = add i32 %call.N, %call.N
   %call.N = call i32 @str_len(ptr %0)
   %bin.N = sub i32 %call.N, %bin.N
@@ -3589,11 +3528,11 @@ while.cond.N:
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
-  %ld.N = load ptr, ptr %alloca.N
+  %ref.N = load ptr, ptr %alloca.N
   %call.N = call ptr @vec_str_get(ptr %0, i32 %loop.phi.N)
   %call.N = call ptr @vec_str_get(ptr %1, i32 %loop.phi.N)
   %call.N = call ptr @yaml_encode_field(ptr %call.N, ptr %call.N)
-  %call.N = call ptr @str_cat(ptr %ld.N, ptr %call.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
   store ptr %call.N, ptr %alloca.N
   %bin.N = add i32 %loop.phi.N, 1
   %loop.in.N = add i32 0, %bin.N
