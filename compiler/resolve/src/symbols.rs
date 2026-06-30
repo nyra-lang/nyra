@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use ast::{BinaryOp, Expression, ImplDef, Program, Statement, TypeAnnotation, UnaryOp};
+use ast::{for_each_expr_in_block, BinaryOp, Expression, ImplDef, Program, Statement, TypeAnnotation, UnaryOp};
 
 /// Top-level names exported by a compilation unit (for prelude index + lint).
 pub fn top_level_export_names(program: &Program) -> HashSet<String> {
@@ -269,13 +269,13 @@ fn collect_expr_uses(expr: &Expression, uses: &mut HashSet<String>) {
                 if let Some(g) = &arm.guard {
                     collect_expr_uses(g, uses);
                 }
-                collect_expr_uses(&arm.body, uses);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_expr_uses(e, uses));
             }
         }
         Expression::If(i) => {
             collect_expr_uses(&i.condition, uses);
-            collect_expr_uses(&i.then_expr, uses);
-            collect_expr_uses(&i.else_expr, uses);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_expr_uses(e, uses));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_expr_uses(e, uses));
         }
         Expression::Index(i) => {
             collect_expr_uses(&i.object, uses);

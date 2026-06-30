@@ -18,4 +18,4 @@ fn env_has(name: string) -> i32 {
     return 0
 }
 
-extern fn strlen(s: string) -> i32
+extern fn strlen(s: &string) -> i32

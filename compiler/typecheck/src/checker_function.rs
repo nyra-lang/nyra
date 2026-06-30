@@ -334,6 +334,10 @@ impl TypeChecker {
         }
     }
 
+    pub(super) fn infer_name_type_in_block(&self, name: &str, block: &Block) -> Option<Type> {
+        Self::unify_param_type_hints(self.collect_param_type_hints(name, block)).ok()
+    }
+
     pub(super) fn infer_name_type_in_stmt(&self, name: &str, stmt: &Statement) -> Option<Type> {
         Self::unify_param_type_hints({
             let mut hints = Vec::new();
@@ -451,8 +455,8 @@ impl TypeChecker {
             }
             Expression::If(i) => self
                 .infer_name_type_in_expr(name, &i.condition)
-                .or_else(|| self.infer_name_type_in_expr(name, &i.then_expr))
-                .or_else(|| self.infer_name_type_in_expr(name, &i.else_expr)),
+                .or_else(|| self.infer_name_type_in_block(name, &i.then_block))
+                .or_else(|| self.infer_name_type_in_block(name, &i.else_block)),
             Expression::Match(m) => {
                 if Self::expr_is_param_name(&m.scrutinee, name) {
                     if let Some(ty) = self.infer_enum_type_from_match(m) {
@@ -469,7 +473,7 @@ impl TypeChecker {
                     }
                 }
                 for arm in &m.arms {
-                    if let Some(t) = self.infer_name_type_in_expr(name, &arm.body) {
+                    if let Some(t) = self.infer_name_type_in_block(name, &arm.body) {
                         return Some(t);
                     }
                     if let Some(ref guard) = arm.guard {

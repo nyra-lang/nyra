@@ -325,13 +325,13 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.expr_uses_struct_receiver(param, &i.condition)
-                    || self.expr_uses_struct_receiver(param, &i.then_expr)
-                    || self.expr_uses_struct_receiver(param, &i.else_expr)
+                    || self.block_uses_struct_receiver(param, &i.then_block)
+                    || self.block_uses_struct_receiver(param, &i.else_block)
             }
             Expression::Match(m) => {
                 self.expr_uses_struct_receiver(param, &m.scrutinee)
                     || m.arms.iter().any(|a| {
-                        self.expr_uses_struct_receiver(param, &a.body)
+                        self.block_uses_struct_receiver(param, &a.body)
                             || a.guard
                                 .as_ref()
                                 .is_some_and(|g| self.expr_uses_struct_receiver(param, g))
@@ -562,8 +562,8 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.collect_fn_value_hints_in_expr(&i.condition, callee, param_index, hints);
-                self.collect_fn_value_hints_in_expr(&i.then_expr, callee, param_index, hints);
-                self.collect_fn_value_hints_in_expr(&i.else_expr, callee, param_index, hints);
+                for_each_expr_in_block(&i.then_block, &mut |e| self.collect_fn_value_hints_in_expr(e, callee, param_index, hints));
+                for_each_expr_in_block(&i.else_block, &mut |e| self.collect_fn_value_hints_in_expr(e, callee, param_index, hints));
             }
             Expression::Grouped(inner) => {
                 self.collect_fn_value_hints_in_expr(inner, callee, param_index, hints);
@@ -712,8 +712,8 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.collect_call_site_hints_in_expr(&i.condition, callee, param_index, hints, locals);
-                self.collect_call_site_hints_in_expr(&i.then_expr, callee, param_index, hints, locals);
-                self.collect_call_site_hints_in_expr(&i.else_expr, callee, param_index, hints, locals);
+                for_each_expr_in_block(&i.then_block, &mut |e| self.collect_call_site_hints_in_expr(e, callee, param_index, hints, locals));
+                for_each_expr_in_block(&i.else_block, &mut |e| self.collect_call_site_hints_in_expr(e, callee, param_index, hints, locals));
             }
             Expression::Grouped(inner) => {
                 self.collect_call_site_hints_in_expr(inner, callee, param_index, hints, locals);
@@ -966,8 +966,8 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.expr_mentions_param(&i.condition, param)
-                    || self.expr_mentions_param(&i.then_expr, param)
-                    || self.expr_mentions_param(&i.else_expr, param)
+                    || self.block_mentions_param(&i.then_block, param)
+                    || self.block_mentions_param(&i.else_block, param)
             }
             Expression::Grouped(inner) => self.expr_mentions_param(inner, param),
             _ => false,
@@ -1145,8 +1145,7 @@ impl TypeChecker {
                 Some(Type::Struct(sl.name.clone()))
             }
             Expression::If(i) => self
-                .infer_expr_type_hint(&i.then_expr, env)
-                .or_else(|| self.infer_expr_type_hint(&i.else_expr, env)),
+                .infer_block_type_hint(&i.then_block, env).or_else(|| self.infer_block_type_hint(&i.else_block, env)),
             Expression::Binary(b) => self
                 .infer_expr_type_hint(&b.left, env)
                 .or_else(|| self.infer_expr_type_hint(&b.right, env)),
@@ -1239,5 +1238,35 @@ impl TypeChecker {
             _ => {}
         }
         None
+    }
+
+    fn block_uses_struct_receiver(&self, param: &str, block: &Block) -> bool {
+        let mut found = false;
+        for_each_expr_in_block(block, &mut |e| {
+            if self.expr_uses_struct_receiver(param, e) {
+                found = true;
+            }
+        });
+        found
+    }
+
+    fn block_mentions_param(&self, block: &Block, param: &str) -> bool {
+        let mut found = false;
+        for_each_expr_in_block(block, &mut |e| {
+            if self.expr_mentions_param(e, param) {
+                found = true;
+            }
+        });
+        found
+    }
+
+    fn infer_block_type_hint(&self, block: &Block, env: &super::TypeEnv) -> Option<Type> {
+        let mut last = None;
+        for_each_expr_in_block(block, &mut |e| {
+            if let Some(ty) = self.infer_expr_type_hint(e, env) {
+                last = Some(ty);
+            }
+        });
+        last
     }
 }

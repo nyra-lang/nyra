@@ -61,8 +61,8 @@ fn rewrite_await_expr(expr: &mut Expression, checker: &TypeChecker) {
         }
         Expression::If(i) => {
             rewrite_await_expr(&mut i.condition, checker);
-            rewrite_await_expr(&mut i.then_expr, checker);
-            rewrite_await_expr(&mut i.else_expr, checker);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| rewrite_await_expr(e, checker));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| rewrite_await_expr(e, checker));
         }
         Expression::FieldAccess(f) => rewrite_await_expr(&mut f.object, checker),
         Expression::Index(ix) => {
@@ -98,7 +98,7 @@ fn rewrite_await_expr(expr: &mut Expression, checker: &TypeChecker) {
                 if let Some(g) = &mut arm.guard {
                     rewrite_await_expr(g, checker);
                 }
-                rewrite_await_expr(&mut arm.body, checker);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| rewrite_await_expr(e, checker));
             }
         }
         Expression::TupleLiteral(elems) => {

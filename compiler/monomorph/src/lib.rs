@@ -277,8 +277,8 @@ fn collect_applied_from_expr(expr: &Expression, out: &mut Vec<(String, Vec<TypeA
         Expression::Grouped(g) => collect_applied_from_expr(g, out),
         Expression::If(i) => {
             collect_applied_from_expr(&i.condition, out);
-            collect_applied_from_expr(&i.then_expr, out);
-            collect_applied_from_expr(&i.else_expr, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_applied_from_expr(e, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_applied_from_expr(e, out));
         }
         Expression::Match(m) => {
             collect_applied_from_expr(&m.scrutinee, out);
@@ -286,7 +286,7 @@ fn collect_applied_from_expr(expr: &Expression, out: &mut Vec<(String, Vec<TypeA
                 if let Some(g) = &a.guard {
                     collect_applied_from_expr(g, out);
                 }
-                collect_applied_from_expr(&a.body, out);
+                for_each_expr_in_block(&a.body, &mut |e| collect_applied_from_expr(e, out));
             }
         }
         Expression::Await(e) => collect_applied_from_expr(e, out),
@@ -401,6 +401,18 @@ fn collect_applied_from_stmt(stmt: &Statement, out: &mut Vec<(String, Vec<TypeAn
 }
 
 fn collect_applied_from_program(program: &Program, out: &mut Vec<(String, Vec<TypeAnnotation>)>) {
+    for s in &program.structs {
+        for f in &s.fields {
+            collect_applied_from_type(&f.ty, out);
+        }
+    }
+    for e in &program.enums {
+        for v in &e.variants {
+            for f in &v.fields {
+                collect_applied_from_type(f, out);
+            }
+        }
+    }
     for f in &program.functions {
         for p in &f.params {
             collect_applied_from_type(&p.ty, out);
@@ -438,6 +450,20 @@ fn instantiate_struct(s: &StructDef, type_args: &[TypeAnnotation]) -> StructDef 
     }
 }
 
+fn synthesize_vec_handle_struct(inst_name: &str) -> StructDef {
+    StructDef {
+        name: inst_name.into(),
+        doc: None,
+        type_params: vec![],
+        attrs: StructAttrs::default(),
+        fields: vec![StructField {
+            name: "handle".into(),
+            ty: TypeAnnotation::Ptr,
+        }],
+        public: false,
+    }
+}
+
 fn monomorphize_structs(program: &mut Program) {
     let mut needed = Vec::new();
     collect_applied_from_program(program, &mut needed);
@@ -461,6 +487,13 @@ fn monomorphize_structs(program: &mut Program) {
         }
         seen.insert(key);
         let Some(orig) = originals.get(&name) else {
+            if name == "Vec"
+                && type_args.len() == 1
+                && matches!(&type_args[0], TypeAnnotation::Struct(_))
+            {
+                program.structs.push(synthesize_vec_handle_struct(&inst_name));
+                existing.insert(inst_name);
+            }
             continue;
         };
         program.structs.push(instantiate_struct(orig, &type_args));
@@ -731,8 +764,12 @@ fn collect_enum_instantiations_from_expr(
         Expression::Grouped(g) => collect_enum_instantiations_from_expr(g, generic, out),
         Expression::If(i) => {
             collect_enum_instantiations_from_expr(&i.condition, generic, out);
-            collect_enum_instantiations_from_expr(&i.then_expr, generic, out);
-            collect_enum_instantiations_from_expr(&i.else_expr, generic, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| {
+                collect_enum_instantiations_from_expr(e, generic, out);
+            });
+            for_each_expr_in_block(&i.else_block, &mut |e| {
+                collect_enum_instantiations_from_expr(e, generic, out);
+            });
         }
         Expression::Match(m) => {
             collect_enum_instantiations_from_expr(&m.scrutinee, generic, out);
@@ -740,7 +777,7 @@ fn collect_enum_instantiations_from_expr(
                 if let Some(g) = &a.guard {
                     collect_enum_instantiations_from_expr(g, generic, out);
                 }
-                collect_enum_instantiations_from_expr(&a.body, generic, out);
+                for_each_expr_in_block(&a.body, &mut |e| collect_enum_instantiations_from_expr(e, generic, out));
             }
         }
         Expression::MethodCall(mc) => {
@@ -978,8 +1015,12 @@ fn rewrite_generic_enum_variants_expr(
         }
         Expression::If(i) => {
             rewrite_generic_enum_variants_expr(&mut i.condition, generic_bases, var_types, func_params);
-            rewrite_generic_enum_variants_expr(&mut i.then_expr, generic_bases, var_types, func_params);
-            rewrite_generic_enum_variants_expr(&mut i.else_expr, generic_bases, var_types, func_params);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| {
+                rewrite_generic_enum_variants_expr(e, generic_bases, var_types, func_params);
+            });
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| {
+                rewrite_generic_enum_variants_expr(e, generic_bases, var_types, func_params);
+            });
         }
         Expression::Match(m) => {
             rewrite_match_patterns(m, generic_bases, var_types);
@@ -988,7 +1029,9 @@ fn rewrite_generic_enum_variants_expr(
                 if let Some(g) = &mut a.guard {
                     rewrite_generic_enum_variants_expr(g, generic_bases, var_types, func_params);
                 }
-                rewrite_generic_enum_variants_expr(&mut a.body, generic_bases, var_types, func_params);
+                for_each_expr_in_block_mut(&mut a.body, &mut |e| {
+                    rewrite_generic_enum_variants_expr(e, generic_bases, var_types, func_params);
+                });
             }
         }
         Expression::Call(c) => {
@@ -1208,8 +1251,12 @@ fn rewrite_struct_literals_expr(expr: &mut Expression, map: &HashMap<String, Str
         Expression::Grouped(g) => rewrite_struct_literals_expr(g, map),
         Expression::If(i) => {
             rewrite_struct_literals_expr(&mut i.condition, map);
-            rewrite_struct_literals_expr(&mut i.then_expr, map);
-            rewrite_struct_literals_expr(&mut i.else_expr, map);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| {
+                rewrite_struct_literals_expr(e, map);
+            });
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| {
+                rewrite_struct_literals_expr(e, map);
+            });
         }
         Expression::Match(m) => {
             rewrite_struct_literals_expr(&mut m.scrutinee, map);
@@ -1217,7 +1264,7 @@ fn rewrite_struct_literals_expr(expr: &mut Expression, map: &HashMap<String, Str
                 if let Some(g) = &mut a.guard {
                     rewrite_struct_literals_expr(g, map);
                 }
-                rewrite_struct_literals_expr(&mut a.body, map);
+                for_each_expr_in_block_mut(&mut a.body, &mut |e| rewrite_struct_literals_expr(e, map));
             }
         }
         Expression::Await(e) => rewrite_struct_literals_expr(e, map),
@@ -1314,8 +1361,8 @@ fn substitute_expr(expr: &Expression, map: &HashMap<String, TypeAnnotation>) -> 
         }
         Expression::If(i) => Expression::If(Box::new(IfExpr {
             condition: substitute_expr(&i.condition, map),
-            then_expr: substitute_expr(&i.then_expr, map),
-            else_expr: substitute_expr(&i.else_expr, map),
+            then_block: substitute_block(&i.then_block, map),
+            else_block: substitute_block(&i.else_block, map),
             span: i.span.clone(),
         })),
         Expression::Match(m) => Expression::Match(Box::new(MatchExpr {
@@ -1326,7 +1373,7 @@ fn substitute_expr(expr: &Expression, map: &HashMap<String, TypeAnnotation>) -> 
                 .map(|a| MatchArm {
                     pattern: a.pattern.clone(),
                     guard: a.guard.as_ref().map(|g| substitute_expr(g, map)),
-                    body: substitute_expr(&a.body, map),
+                    body: substitute_block(&a.body, map),
                 })
                 .collect(),
             span: m.span.clone(),
@@ -1478,8 +1525,8 @@ fn collect_calls(expr: &Expression, out: &mut Vec<(String, Vec<TypeAnnotation>)>
         Expression::Grouped(g) => collect_calls(g, out),
         Expression::If(i) => {
             collect_calls(&i.condition, out);
-            collect_calls(&i.then_expr, out);
-            collect_calls(&i.else_expr, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_calls(e, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_calls(e, out));
         }
         Expression::Match(m) => {
             collect_calls(&m.scrutinee, out);
@@ -1487,7 +1534,7 @@ fn collect_calls(expr: &Expression, out: &mut Vec<(String, Vec<TypeAnnotation>)>
                 if let Some(g) = &a.guard {
                     collect_calls(g, out);
                 }
-                collect_calls(&a.body, out);
+                for_each_expr_in_block(&a.body, &mut |e| collect_calls(e, out));
             }
         }
         Expression::Await(e) => collect_calls(e, out),
@@ -1710,8 +1757,8 @@ fn rewrite_expr(expr: &mut Expression) {
         Expression::Grouped(g) => rewrite_expr(g),
         Expression::If(i) => {
             rewrite_expr(&mut i.condition);
-            rewrite_expr(&mut i.then_expr);
-            rewrite_expr(&mut i.else_expr);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| rewrite_expr(e));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| rewrite_expr(e));
         }
         Expression::Match(m) => {
             rewrite_expr(&mut m.scrutinee);
@@ -1719,7 +1766,7 @@ fn rewrite_expr(expr: &mut Expression) {
                 if let Some(g) = &mut a.guard {
                     rewrite_expr(g);
                 }
-                rewrite_expr(&mut a.body);
+                for_each_expr_in_block_mut(&mut a.body, &mut |e| rewrite_expr(e));
             }
         }
         Expression::Await(e) => rewrite_expr(e),

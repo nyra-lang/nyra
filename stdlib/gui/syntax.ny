@@ -1,8 +1,8 @@
-extern fn strlen(s: string) -> i32
-extern fn strcmp(a: string, b: string) -> i32
-extern fn strstr_pos(hay: string, needle: string) -> i32
-extern fn substring(s: string, start: i32, len: i32) -> string
-extern fn char_at(s: string, i: i32) -> i32
+extern fn strlen(s: &string) -> i32
+extern fn strcmp(a: &string, b: &string) -> i32
+extern fn strstr_pos(hay: &string, needle: &string) -> i32
+extern fn substring(s: &string, start: i32, len: i32) -> string
+extern fn char_at(s: &string, i: i32) -> i32
 
 const SYNTAX_PLAIN = 0
 const SYNTAX_KEYWORD = 1

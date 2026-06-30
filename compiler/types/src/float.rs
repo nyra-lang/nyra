@@ -43,6 +43,14 @@ pub fn float_llvm(k: FloatKind) -> &'static str {
 }
 
 pub fn is_print_scalar(ty: &Type) -> bool {
+    if let Type::Ref {
+        inner,
+        mutable: false,
+        ..
+    } = ty
+    {
+        return is_print_scalar(inner);
+    }
     ty == &Type::String
         || crate::integer::is_integer(ty)
         || is_float(ty)

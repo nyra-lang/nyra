@@ -65,11 +65,11 @@ impl Codegen {
                 })
                 .unwrap_or_else(|| "i32".into()),
             Expression::Grouped(inner) => self.infer_expr_llvm_ty(inner, env),
-            Expression::If(i) => self.infer_expr_llvm_ty(&i.then_expr, env),
+            Expression::If(i) => self.infer_block_expr_llvm_ty(&i.then_block, env),
             Expression::Match(m) => m
                 .arms
                 .first()
-                .map(|a| self.infer_expr_llvm_ty(&a.body, env))
+                .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
                 .unwrap_or_else(|| "i32".into()),
             Expression::Binary(_) => "i32".into(),
             Expression::Unary(u) => match u.op {
@@ -175,6 +175,13 @@ impl Codegen {
                                     }
                                 }
                                 let ptr_reg = match binding {
+                                    Binding::Stack { slot, ty } if ty == "ptr" && u.op == UnaryOp::Ref => {
+                                        let loaded = self.fresh("ref");
+                                        self.emit(&format!(
+                                            "  %{loaded} = load ptr, ptr %{slot}"
+                                        ));
+                                        format!("%{loaded}")
+                                    }
                                     Binding::Stack { slot, .. } => format!("%{slot}"),
                                     Binding::Reg { reg, .. } => {
                                         if reg.starts_with('%') {
@@ -183,7 +190,7 @@ impl Codegen {
                                             format!("%{reg}")
                                         }
                                     }
-                                    Binding::Param { index, .. } => index.to_string(),
+                                    Binding::Param { index, .. } => format!("%{index}"),
                                     Binding::Closure(_) => "0".to_string(),
                                     Binding::PromotedStruct {
                                         struct_name,

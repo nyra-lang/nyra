@@ -6,6 +6,7 @@ use errors::{ErrorKind, NyraError, Span};
 
 use super::{TypeChecker, TypeEnv, VarInfo};
 use super::diagnostics;
+use super::helpers::types_assignable;
 use types::{self, float_assignable, integer_assignable, integer_literal_fits, int_literal_value, Type};
 
 impl TypeChecker {
@@ -13,6 +14,38 @@ impl TypeChecker {
         for stmt in &block.statements {
             self.check_statement(stmt, env, expected_ret);
         }
+    }
+
+    /// Type of a block used as an expression: last `expr` stmt or `return` value.
+    pub(super) fn check_block_expr_value(&mut self, block: &Block, env: &mut TypeEnv, span: &Span) -> Type {
+        let mut inner = TypeEnv {
+            variables: env.variables.clone(),
+            functions: env.functions.clone(),
+        };
+        let mut last_ty = Type::Unknown;
+        for stmt in &block.statements {
+            match stmt {
+                Statement::Expression(e) => {
+                    last_ty = self.check_expr(e, &mut inner);
+                }
+                Statement::Return(r) => {
+                    return if let Some(v) = &r.value {
+                        self.check_expr(v, &mut inner)
+                    } else {
+                        Type::Void
+                    };
+                }
+                _ => self.check_statement(stmt, &mut inner, &Type::Unknown),
+            }
+        }
+        if last_ty == Type::Unknown {
+            self.errors.push(NyraError::new(
+                ErrorKind::Type,
+                span.clone(),
+                "Block must produce a value (use a trailing expression or `return`)",
+            ));
+        }
+        last_ty
     }
 
     pub(super) fn check_statement(&mut self, stmt: &Statement, env: &mut TypeEnv, expected_ret: &Type) {
@@ -140,9 +173,9 @@ impl TypeChecker {
                 if let Some(v) = &r.value {
                     let ty = self.check_expr(v, env);
                     if ty != Type::Unknown
-                        && ty != *expected_ret
                         && *expected_ret != Type::Void
                         && *expected_ret != Type::Generic("_".into())
+                        && !types_assignable(&ty, expected_ret)
                     {
                         self.errors.push(NyraError::new(
                             ErrorKind::Type,

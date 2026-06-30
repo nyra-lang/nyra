@@ -37,8 +37,8 @@ impl Parser {
         let span = merge_spans(&expr_span(&condition), &expr_span(&else_expr));
         Expression::If(Box::new(IfExpr {
             condition,
-            then_expr,
-            else_expr,
+            then_block: block_from_expr(then_expr),
+            else_block: block_from_expr(else_expr),
             span,
         }))
     }
@@ -277,7 +277,7 @@ impl Parser {
                 let operand = self.parse_unary();
                 self.make_unary(UnaryOp::Move, operand)
             }
-            TokenKind::Clone => {
+            TokenKind::Clone if self.looks_like_clone_operand() => {
                 self.advance();
                 let operand = self.parse_unary();
                 self.make_unary(UnaryOp::Clone, operand)
@@ -456,6 +456,22 @@ impl Parser {
                 self.advance();
                 self.parse_postfix(Expression::Variable {
                     name: "self".into(),
+                    span,
+                })
+            }
+            TokenKind::Clone => {
+                let span = self.current_span();
+                self.advance();
+                self.parse_postfix(Expression::Variable {
+                    name: "clone".into(),
+                    span,
+                })
+            }
+            TokenKind::Module => {
+                let span = self.current_span();
+                self.advance();
+                self.parse_postfix(Expression::Variable {
+                    name: "module".into(),
                     span,
                 })
             }
@@ -643,12 +659,16 @@ impl Parser {
                 break;
             }
             let pattern = self.parse_match_pattern();
+            skip_newlines(&self.tokens, &mut self.position);
             let guard = if check(&self.tokens, self.position, &TokenKind::If) {
                 self.advance();
-                Some(self.parse_expression())
+                let g = self.parse_expression();
+                skip_newlines(&self.tokens, &mut self.position);
+                Some(g)
             } else {
                 None
             };
+            skip_newlines(&self.tokens, &mut self.position);
             consume(
                 &self.tokens,
                 &mut self.position,
@@ -678,12 +698,17 @@ impl Parser {
         }))
     }
 
-    fn parse_match_arm_body(&mut self) -> Expression {
-        let expr = self.parse_or();
+    fn parse_match_arm_body(&mut self) -> Block {
+        skip_newlines(&self.tokens, &mut self.position);
+        let block = if check(&self.tokens, self.position, &TokenKind::LBrace) {
+            self.parse_block()
+        } else {
+            block_from_expr(self.parse_or())
+        };
         if check(&self.tokens, self.position, &TokenKind::Comma) {
             self.advance();
         }
-        expr
+        block
     }
 
     fn is_spread_token(&self) -> bool {
@@ -716,14 +741,10 @@ impl Parser {
                 }
                 continue;
             }
-            let fname = match self.current_kind() {
-                TokenKind::Identifier(n) => {
-                    let n = n.clone();
-                    self.advance();
-                    n
-                }
-                _ => break,
-            };
+            let fname = self.parse_binding_name("Expected field name in struct literal");
+            if fname == "_invalid" {
+                break;
+            }
             consume(
                 &self.tokens,
                 &mut self.position,

@@ -367,6 +367,7 @@ impl Codegen {
         self.current_fn_ptrs.clear();
         self.no_escape_stack_safe.clear();
         self.mut_ssa_locals.clear();
+        self.heap_string_bindings.clear();
         self.non_negative_vars.clear();
         self.zero_init_ssa_vars.clear();
         self.loop_stack.clear();

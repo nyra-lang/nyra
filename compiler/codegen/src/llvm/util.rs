@@ -154,6 +154,7 @@ mod escape_tests {
 use std::collections::{HashMap, HashSet};
 
 use ast::*;
+use types::monomorph_inst_name;
 
 pub(super) fn is_array_ty(ty: &str) -> bool {
     ty.starts_with('[')
@@ -282,12 +283,7 @@ pub(super) fn llvm_type_ann_resolved(
         TypeAnnotation::FnPtr { .. } => "ptr".into(),
         TypeAnnotation::DynTrait { trait_name, .. } => format!("%Dyn_{trait_name}"),
         TypeAnnotation::Applied { base, args } => {
-            let suffix: String = args
-                .iter()
-                .map(|a| llvm_type_ann_resolved(a, structs, enum_names))
-                .collect::<Vec<_>>()
-                .join("_");
-            format!("%{base}__{suffix}")
+            format!("%{}", monomorph_inst_name(base, args))
         }
     }
 }

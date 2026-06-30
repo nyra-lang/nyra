@@ -2,7 +2,7 @@
 extern fn rt_bridge_exec(program: string, input: string) -> string
 extern fn rt_bridge_exec_arg(program: string, arg1: string, input: string) -> string
 extern fn json_get_string(json: string, key: string) -> string
-extern fn strcat(a: string, b: string) -> string
+extern fn strcat(a: &string, b: &string) -> string
 extern fn i32_to_string(n: i32) -> string
 
 fn bridge_exec(program: string, json_line: string) -> string {

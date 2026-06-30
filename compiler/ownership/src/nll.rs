@@ -110,8 +110,8 @@ fn record_expr_uses(expr: &Expression, idx: usize, last: &mut HashMap<String, us
         }
         Expression::If(i) => {
             record_expr_uses(&i.condition, idx, last);
-            record_expr_uses(&i.then_expr, idx, last);
-            record_expr_uses(&i.else_expr, idx, last);
+            for_each_expr_in_block(&i.then_block, &mut |e| record_expr_uses(e, idx, last));
+            for_each_expr_in_block(&i.else_block, &mut |e| record_expr_uses(e, idx, last));
         }
         Expression::Match(m) => {
             record_expr_uses(&m.scrutinee, idx, last);
@@ -119,7 +119,7 @@ fn record_expr_uses(expr: &Expression, idx: usize, last: &mut HashMap<String, us
                 if let Some(g) = &arm.guard {
                     record_expr_uses(g, idx, last);
                 }
-                record_expr_uses(&arm.body, idx, last);
+                for_each_expr_in_block(&arm.body, &mut |e| record_expr_uses(e, idx, last));
             }
         }
         Expression::Await(inner) => record_expr_uses(inner, idx, last),
@@ -289,8 +289,8 @@ fn collect_expr_captures(
         }
         Expression::If(i) => {
             collect_expr_captures(&i.condition, declared, seen, out);
-            collect_expr_captures(&i.then_expr, declared, seen, out);
-            collect_expr_captures(&i.else_expr, declared, seen, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_expr_captures(e, declared, seen, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_expr_captures(e, declared, seen, out));
         }
         Expression::Match(m) => {
             collect_expr_captures(&m.scrutinee, declared, seen, out);
@@ -298,7 +298,7 @@ fn collect_expr_captures(
                 if let Some(g) = &arm.guard {
                     collect_expr_captures(g, declared, seen, out);
                 }
-                collect_expr_captures(&arm.body, declared, seen, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_expr_captures(e, declared, seen, out));
             }
         }
         Expression::Await(inner) => collect_expr_captures(inner, declared, seen, out),
@@ -513,8 +513,8 @@ fn collect_free_vars_expr(
         }
         Expression::If(i) => {
             collect_free_vars_expr(&i.condition, bound, seen, out);
-            collect_free_vars_expr(&i.then_expr, bound, seen, out);
-            collect_free_vars_expr(&i.else_expr, bound, seen, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_free_vars_expr(e, bound, seen, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_free_vars_expr(e, bound, seen, out));
         }
         Expression::Match(m) => {
             collect_free_vars_expr(&m.scrutinee, bound, seen, out);
@@ -522,7 +522,7 @@ fn collect_free_vars_expr(
                 if let Some(g) = &arm.guard {
                     collect_free_vars_expr(g, bound, seen, out);
                 }
-                collect_free_vars_expr(&arm.body, bound, seen, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_free_vars_expr(e, bound, seen, out));
             }
         }
         Expression::Await(inner) => collect_free_vars_expr(inner, bound, seen, out),

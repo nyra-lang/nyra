@@ -57,6 +57,39 @@ fn mangle_type_ann(t: &TypeAnnotation) -> String {
     }
 }
 
+fn collection_struct_alias(base: &str, type_args: &[TypeAnnotation]) -> Option<String> {
+    match (base, type_args) {
+        ("Vec", [TypeAnnotation::String]) => Some("StrVec".into()),
+        ("HashMap", [TypeAnnotation::String, TypeAnnotation::Integer(_)]) => {
+            Some("HashMap_str_i32".into())
+        }
+        ("HashMap", [TypeAnnotation::String, TypeAnnotation::String]) => {
+            Some("HashMap_str_str".into())
+        }
+        ("Future", [TypeAnnotation::Integer(_)]) => Some("Future_i32".into()),
+        ("Future", [TypeAnnotation::Bool]) => Some("Future_bool".into()),
+        ("Future", [TypeAnnotation::String]) => Some("Future_string".into()),
+        _ => None,
+    }
+}
+
+/// Monomorph instantiation name for `Base<Args…>` (matches `monomorph` struct names).
+pub fn monomorph_inst_name(base: &str, type_args: &[TypeAnnotation]) -> String {
+    if let Some(alias) = collection_struct_alias(base, type_args) {
+        return alias;
+    }
+    if type_args.is_empty() {
+        base.to_string()
+    } else {
+        let suffix: String = type_args
+            .iter()
+            .map(mangle_type_ann)
+            .collect::<Vec<_>>()
+            .join("_");
+        format!("{base}__{suffix}")
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct EnumVariantInfo {
     pub name: String,

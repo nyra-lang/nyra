@@ -51,7 +51,22 @@ impl Codegen {
                     }
                     self.mark_non_negative_from_mod_assign(name, value, env);
                 } else if let Some(binding) = env.get(name).cloned() {
+                    if self.heap_string_bindings.contains(name) {
+                        let ty = Self::binding_ty(&binding);
+                        if ty == "ptr" {
+                            let (loaded, _) = self.binding_load(&binding);
+                            self.emit_runtime_call(
+                                "free",
+                                &format!("  call void @free(ptr %{loaded})"),
+                            );
+                        }
+                    }
                     self.binding_store_expr(&binding, &val);
+                    if self.rvalue_produces_heap_string(value) {
+                        self.heap_string_bindings.insert(name.clone());
+                    } else if matches!(value, Expression::Literal(Literal::String(_))) {
+                        self.heap_string_bindings.remove(name);
+                    }
                 }
             }
             Expression::Unary(u) if u.op == UnaryOp::Deref => {
@@ -231,6 +246,67 @@ impl Codegen {
         has_return
     }
 
+    pub(super) fn compile_block_as_expr(
+        &mut self,
+        block: &Block,
+        env: &Env,
+        drop_state: &mut DropState,
+    ) -> ExprValue {
+        let mut child_env = env.clone();
+        let mut scope_owned = Vec::new();
+        let mut heap_closures = Vec::new();
+        let defers: Vec<Expression> = Vec::new();
+        let mut last: Option<ExprValue> = None;
+        for stmt in &block.statements {
+            match stmt {
+                Statement::Return(r) => {
+                    if let Some(v) = &r.value {
+                        return self.compile_expr(v, &mut child_env);
+                    }
+                    return ExprValue {
+                        reg: "0".into(),
+                        ty: "void".into(),
+                    };
+                }
+                Statement::Expression(e) => {
+                    self.register_call_moves(e, &mut child_env, drop_state);
+                    last = Some(self.compile_expr(e, &mut child_env));
+                }
+                _ => {
+                    let _ = self.compile_statement(
+                        stmt,
+                        &mut child_env,
+                        "void",
+                        drop_state,
+                        &mut scope_owned,
+                        &mut heap_closures,
+                        &defers,
+                    );
+                }
+            }
+        }
+        last.unwrap_or_else(|| ExprValue {
+            reg: "0".into(),
+            ty: "i32".into(),
+        })
+    }
+
+    pub(super) fn infer_block_expr_llvm_ty(&self, block: &Block, env: &Env) -> String {
+        for stmt in block.statements.iter().rev() {
+            match stmt {
+                Statement::Return(r) => {
+                    if let Some(v) = &r.value {
+                        return self.infer_expr_llvm_ty(v, env);
+                    }
+                    return "void".into();
+                }
+                Statement::Expression(e) => return self.infer_expr_llvm_ty(e, env),
+                _ => {}
+            }
+        }
+        "i32".into()
+    }
+
     pub(super) fn emit_deferred_expr(&mut self, e: &Expression, env: &mut Env) {
         let v = self.compile_expr(e, env);
         if v.ty == "ptr" {
@@ -292,6 +368,15 @@ impl Codegen {
         for arg in &c.args {
             if let Expression::ArrowFn(arrow) = arg {
                 self.mark_arrow_capture_moves(arrow, env, drop_state);
+            } else if let Expression::Unary(u) = arg {
+                if matches!(u.op, UnaryOp::Ref | UnaryOp::RefMut) {
+                    continue;
+                }
+                if let Expression::Variable { name, .. } = &u.operand {
+                    if self.drop_plan.is_owned_in(&drop_state.func, name) {
+                        drop_state.mark_moved(name);
+                    }
+                }
             } else if let Expression::Variable { name, .. } = arg {
                 if self.drop_plan.is_owned_in(&drop_state.func, name) {
                     drop_state.mark_moved(name);

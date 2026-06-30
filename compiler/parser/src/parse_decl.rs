@@ -104,14 +104,10 @@ impl Parser {
         while !check(&self.tokens, self.position, &TokenKind::RBrace)
             && !is_at_end(&self.tokens, self.position)
         {
-            let fname = match self.current_kind() {
-                TokenKind::Identifier(n) => {
-                    let n = n.clone();
-                    self.advance();
-                    n
-                }
-                _ => break,
-            };
+            let fname = self.parse_binding_name("Expected field name");
+            if fname == "_invalid" {
+                break;
+            }
             consume(
                 &self.tokens,
                 &mut self.position,

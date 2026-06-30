@@ -9,7 +9,6 @@ Each directory is an independent **`nyra pkg init` project** (own `nyra.mod`, `m
 | App | What it does | Run | Stdlib / runtime used |
 |-----|--------------|-----|------------------------|
 | `Linter/` | Style rules + optional `check()` | `cd Linter && nyra run . src` · `nyra run . --check .` | `check`, file walk |
-| `PackageManager/` | Parse `nyra.mod`, `pkg_verify()` | `cd PackageManager && nyra run . .` | `stdlib/pkg.ny` |
 | `DocumentationGenerator/` | `///` + `fn`/`struct` scan → `API.md` | `cd DocumentationGenerator && nyra run . src API.md` | `write_file` |
 | `TestRunner/` | Discover + run tests via `exec(nyra, …)` | `cd TestRunner && nyra run . .` | `exec`, `compiler_nyra_bin` |
 | `BenchmarkTool/` | `bench_loop` + `benchmark { }` demo | `cd BenchmarkTool && nyra run . 3` | `bench_loop` |
@@ -21,7 +20,7 @@ Build all:
 
 ```bash
 BASE="Apps/dev"
-for d in Linter PackageManager DocumentationGenerator TestRunner BenchmarkTool Fuzzer Profiler MemoryLeakDetector; do
+for d in Linter DocumentationGenerator TestRunner BenchmarkTool Fuzzer Profiler MemoryLeakDetector; do
   (cd "$BASE/$d" && nyra build .) || exit 1
 done
 ```
@@ -37,7 +36,7 @@ done
 
 | Gap | Resolution |
 |-----|------------|
-| No NyraPkg install/publish API | `stdlib/pkg.ny` — `pkg_verify`, `pkg_install`, `pkg_publish` |
+| Package install / verify | Use standalone [nyrapkg](https://github.com/nyra-lang/nyrapkg) (`init`, `add`, `install`, `verify`) |
 | No ASan CLI flag | `nyra build --sanitize` (`-fsanitize=address`) |
 | Limited `compiler.ny` | Added `build()`, `fmt()`, `run()` subprocess helpers |
 

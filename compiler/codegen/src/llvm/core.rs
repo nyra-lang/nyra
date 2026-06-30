@@ -62,6 +62,7 @@ impl Codegen {
             current_func: String::new(),
             local_channel_type_emitted: false,
             mut_ssa_locals: HashSet::new(),
+            heap_string_bindings: HashSet::new(),
             non_negative_vars: HashSet::new(),
             zero_init_ssa_vars: HashSet::new(),
             loop_stack: Vec::new(),

@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use ast::*;
 use ast::expr_span;
 use lexer::{Token, TokenKind};
-use crate::recovery::{check, consume, is_at_end, merge_spans, skip_newlines};
+use crate::recovery::{check, consume, is_at_end, merge_spans, skip_chain_newlines, skip_newlines};
 use crate::Parser;
 
 impl Parser {
@@ -522,7 +522,9 @@ impl Parser {
         skip_newlines(&self.tokens, &mut p);
         match self.tokens.get(p).map(|t| &t.kind) {
             Some(TokenKind::DotDot) | Some(TokenKind::DotDotDot) => true,
-            Some(TokenKind::Identifier(_)) => self
+            Some(TokenKind::Identifier(_))
+            | Some(TokenKind::Module)
+            | Some(TokenKind::Clone) => self
                 .tokens
                 .get(p + 1)
                 .map(|t| &t.kind)
@@ -723,7 +725,7 @@ impl Parser {
     pub(super) fn parse_if_expr(&mut self) -> Expression {
         self.advance();
         let condition = self.parse_expression();
-        let then_expr = self.parse_braced_expr();
+        let then_block = self.parse_block();
         consume(
             &self.tokens,
             &mut self.position,
@@ -731,15 +733,19 @@ impl Parser {
             "Expected 'else' in if expression",
             &mut self.errors,
         );
-        let else_expr = self.parse_braced_expr();
+        let else_block = self.parse_block();
         let span = merge_spans(
             &expr_span(&condition),
-            &expr_span(&else_expr),
+            &then_block
+                .statements
+                .last()
+                .map(stmt_span)
+                .unwrap_or_else(|| expr_span(&condition)),
         );
         Expression::If(Box::new(IfExpr {
             condition,
-            then_expr,
-            else_expr,
+            then_block,
+            else_block,
             span,
         }))
     }
@@ -824,6 +830,7 @@ impl Parser {
     }
 
     pub(super) fn parse_field_after_dot(&mut self) -> Option<String> {
+        skip_chain_newlines(&self.tokens, &mut self.position);
         match self.current_kind().clone() {
             TokenKind::Identifier(field) => {
                 self.advance();
@@ -832,6 +839,10 @@ impl Parser {
             TokenKind::Clone => {
                 self.advance();
                 Some("clone".into())
+            }
+            TokenKind::Module => {
+                self.advance();
+                Some("module".into())
             }
             TokenKind::Number(n) => {
                 self.advance();
@@ -846,6 +857,7 @@ impl Parser {
             if self.errors_over_limit() {
                 break;
             }
+            skip_chain_newlines(&self.tokens, &mut self.position);
             if check(&self.tokens, self.position, &TokenKind::LBracket) {
                 self.advance();
                 let index = self.parse_expression();

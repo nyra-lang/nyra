@@ -273,6 +273,8 @@ fn check_statement(
         Statement::If(i) => {
             let _ = uses_moved(&i.condition, state, ctx, diag, errors);
             register_borrows_from_expr(&i.condition, stmt_idx, state, errors);
+            // Condition borrows (e.g. strcmp(&a, &b)) end before branch bodies.
+            state.clear_borrows();
             let mut then_s = state.fork();
             check_block(&i.then_block, &mut then_s, ctx, diag, errors);
             if let Some(e) = &i.else_block {
@@ -287,6 +289,7 @@ fn check_statement(
         Statement::While(w) => {
             let _ = uses_moved(&w.condition, state, ctx, diag, errors);
             register_borrows_from_expr(&w.condition, stmt_idx, state, errors);
+            state.clear_borrows();
             let mut loop_s = state.fork();
             check_block(&w.body, &mut loop_s, ctx, diag, errors);
             state.clear_borrows();
@@ -572,6 +575,9 @@ fn register_borrows_from_expr(
         },
         Expression::Binary(b) => {
             register_borrows_from_expr(&b.left, stmt_idx, state, errors);
+            if matches!(b.op, BinaryOp::And | BinaryOp::Or) {
+                state.expire_borrows_before(stmt_idx + 1);
+            }
             register_borrows_from_expr(&b.right, stmt_idx, state, errors);
         }
         Expression::Call(c) => {
@@ -587,8 +593,8 @@ fn register_borrows_from_expr(
         }
         Expression::If(i) => {
             register_borrows_from_expr(&i.condition, stmt_idx, state, errors);
-            register_borrows_from_expr(&i.then_expr, stmt_idx, state, errors);
-            register_borrows_from_expr(&i.else_expr, stmt_idx, state, errors);
+            for_each_expr_in_block(&i.then_block, &mut |e| register_borrows_from_expr(e, stmt_idx, state, errors));
+            for_each_expr_in_block(&i.else_block, &mut |e| register_borrows_from_expr(e, stmt_idx, state, errors));
         }
         Expression::Match(m) => {
             register_borrows_from_expr(&m.scrutinee, stmt_idx, state, errors);
@@ -596,7 +602,7 @@ fn register_borrows_from_expr(
                 if let Some(g) = &arm.guard {
                     register_borrows_from_expr(g, stmt_idx, state, errors);
                 }
-                register_borrows_from_expr(&arm.body, stmt_idx, state, errors);
+                for_each_expr_in_block(&arm.body, &mut |e| register_borrows_from_expr(e, stmt_idx, state, errors));
             }
         }
         Expression::Await(inner) => register_borrows_from_expr(inner, stmt_idx, state, errors),
@@ -822,13 +828,13 @@ fn visit_expr(
         Expression::Match(m) => {
             visit_expr(&m.scrutinee, state, ctx, diag, errors, found);
             for arm in &m.arms {
-                visit_expr(&arm.body, state, ctx, diag, errors, found);
+                for_each_expr_in_block(&arm.body, &mut |e| visit_expr(e, state, ctx, diag, errors, found));
             }
         }
         Expression::If(i) => {
             visit_expr(&i.condition, state, ctx, diag, errors, found);
-            visit_expr(&i.then_expr, state, ctx, diag, errors, found);
-            visit_expr(&i.else_expr, state, ctx, diag, errors, found);
+            for_each_expr_in_block(&i.then_block, &mut |e| visit_expr(e, state, ctx, diag, errors, found));
+            for_each_expr_in_block(&i.else_block, &mut |e| visit_expr(e, state, ctx, diag, errors, found));
         }
         Expression::Index(ix) => {
             visit_expr(&ix.object, state, ctx, diag, errors, found);

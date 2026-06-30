@@ -1,24 +1,14 @@
 mod lockfile;
-mod registry;
-mod registry_client;
 mod rust_bridge;
 mod semver;
 
 pub use semver::{best_match, parse_req, parse_version, satisfies, Req, Version};
 
 pub use lockfile::{
-    cache_module_path, fetch_git, sha256_hex, LockEntry, LockFile, LockSource,
-};
-pub use registry::{
-    fetch_package, fetch_package_versioned, known_packages, resolve_package_name,
-    resolved_version_for_package, repo_root, split_name_and_req, PackageSpec,
-};
-pub use registry_client::{
-    default_registry_url, http_get, list_package_versions, list_packages, resolve_from_registry,
-    registry_data_dir, RegistryPackage,
+    cache_module_path, sha256_hex, LockEntry, LockFile, LockSource,
 };
 pub use rust_bridge::{
-    add_rust_dependency, bind_rust_crate, bind_rust_crate_with_options, build_link_crate,
+    bind_rust_crate, bind_rust_crate_with_options, build_link_crate,
     known_bridge, parse_rust_module, rust_cache_dir, BindOptions, BridgeMeta,
 };
 
@@ -31,20 +21,20 @@ pub struct RequireEntry {
     pub version_req: Option<Req>,
 }
 
-    #[derive(Debug, Default)]
-    pub struct NyraMod {
-        pub module: String,
-        pub version: Option<String>,
-        pub requires: Vec<RequireEntry>,
-        pub link_libs: Vec<String>,
-        pub link_search_paths: Vec<String>,
-        pub link_args: Vec<String>,
-        pub link_sources: Vec<String>,
-        /// Rust crate bridges (`link-crate uuid`).
-        pub link_crates: Vec<String>,
-        /// Args for the instrumented binary during `nyra build --pgo` (`pgo-run ...` lines).
-        pub pgo_run_args: Vec<String>,
-    }
+#[derive(Debug, Default)]
+pub struct NyraMod {
+    pub module: String,
+    pub version: Option<String>,
+    pub requires: Vec<RequireEntry>,
+    pub link_libs: Vec<String>,
+    pub link_search_paths: Vec<String>,
+    pub link_args: Vec<String>,
+    pub link_sources: Vec<String>,
+    /// Rust crate bridges (`link-crate uuid`).
+    pub link_crates: Vec<String>,
+    /// Args for the instrumented binary during `nyra build --pgo` (`pgo-run ...` lines).
+    pub pgo_run_args: Vec<String>,
+}
 
 pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
@@ -215,94 +205,6 @@ fn merge_link_fields(dst: &mut NyraMod, src: &NyraMod) {
     }
 }
 
-pub fn sync_lock_from_mod(mod_path: &Path, lock_path: &Path, sum_path: &Path) -> Result<(), String> {
-    let nyra_mod = parse_nyra_mod(mod_path)?;
-    let mut lock = if lock_path.exists() {
-        LockFile::read(lock_path)?
-    } else {
-        LockFile::new(if nyra_mod.module.is_empty() {
-            "example.local"
-        } else {
-            nyra_mod.module.as_str()
-        })
-    };
-    lock.module = nyra_mod.module.clone();
-
-    for req in nyra_mod.requires {
-        if lock.require.iter().any(|e| e.module == req.name) {
-            continue;
-        }
-        if let Some(crate_name) = parse_rust_module(&req.name) {
-            bind_rust_crate(
-                mod_path.parent().unwrap_or(Path::new(".")),
-                crate_name,
-                req.version_req.as_ref(),
-            )?;
-            let cache = rust_cache_dir(mod_path.parent().unwrap_or(Path::new(".")), crate_name);
-            let meta = BridgeMeta::read(&cache)?;
-            lock.require.push(LockEntry {
-                module: req.name.clone(),
-                version: meta.version,
-                source: LockSource::Local,
-                checksum: sha256_hex(meta.crate_name.as_bytes()),
-            });
-            continue;
-        }
-        let dest = cache_module_path(&req.name);
-        fetch_package_versioned(&req.name, &dest, req.version_req.as_ref())?;
-        let pinned = resolved_version_for_package(&req.name, req.version_req.as_ref());
-        let (source, checksum) = if req.name.starts_with("https://") || req.name.starts_with("git@") {
-            let bytes = std::fs::read_dir(&dest)
-                .map_err(|e| e.to_string())?
-                .flatten()
-                .map(|e| e.path().display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-            (
-                LockSource::Git {
-                    url: req.name.clone(),
-                    rev: "main".into(),
-                },
-                sha256_hex(bytes.as_bytes()),
-            )
-        } else if let Ok(pkg) =
-            resolve_from_registry(&default_registry_url(), &req.name, req.version_req.as_ref())
-        {
-            let bytes = std::fs::read_dir(&dest)
-                .map_err(|e| e.to_string())?
-                .flatten()
-                .map(|e| e.path().display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-            (
-                LockSource::Git {
-                    url: pkg.git_url,
-                    rev: pkg.git_rev,
-                },
-                sha256_hex(bytes.as_bytes()),
-            )
-        } else {
-            let bytes = std::fs::read_dir(&dest)
-                .map_err(|e| e.to_string())?
-                .flatten()
-                .map(|e| e.path().display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-            (LockSource::Local, sha256_hex(bytes.as_bytes()))
-        };
-        lock.require.push(LockEntry {
-            module: req.name,
-            version: pinned,
-            source,
-            checksum,
-        });
-    }
-
-    lock.write(lock_path)?;
-    lock.write_sum(sum_path)?;
-    Ok(())
-}
-
 pub fn verify_project(root: &Path) -> Result<(), String> {
     verify_lock_versions(root)?;
     let mod_path = root.join("nyra.mod");
@@ -350,99 +252,6 @@ fn format_req(req: &Req) -> String {
         Req::Tilde(v) => format!("~{}.{}.{}", v.major, v.minor, v.patch),
         Req::Gte(v) => format!(">={}.{}.{}", v.major, v.minor, v.patch),
     }
-}
-
-/// Add a dependency to `nyra.mod`, fetch into `.nyra/cache/`, merge native link lines.
-pub fn add_dependency(project_root: &Path, module: &str) -> Result<(), String> {
-    let (name, inline_req) = split_name_and_req(module);
-    if parse_rust_module(name).is_some() {
-        return add_rust_dependency(project_root, module);
-    }
-    let mod_path = project_root.join("nyra.mod");
-    if !mod_path.is_file() {
-        return Err("nyra.mod not found — run `nyra pkg init` first".into());
-    }
-    let mut content = std::fs::read_to_string(&mod_path).map_err(|e| e.to_string())?;
-    let require_line = if let Some(req) = &inline_req {
-        format!("require {name} {}", format_req(req))
-    } else {
-        format!("require {name}")
-    };
-    let already = content.lines().any(|l| {
-        let t = l.trim();
-        t == require_line || t == format!("require {name}")
-    });
-    if !already {
-        if !content.ends_with('\n') {
-            content.push('\n');
-        }
-        content.push_str(&format!("{require_line}\n"));
-        std::fs::write(&mod_path, &content).map_err(|e| e.to_string())?;
-    }
-    let dest = cache_module_path(name);
-    fetch_package_versioned(name, &dest, inline_req.as_ref())?;
-    merge_package_links(&mod_path, name)?;
-    sync_lock_from_mod(
-        &mod_path,
-        &project_root.join("nyra.lock"),
-        &project_root.join("nyra.sum"),
-    )
-}
-
-fn merge_package_links(project_mod: &Path, package_name: &str) -> Result<(), String> {
-    let pkg_mod = cache_module_path(package_name).join("nyra.mod");
-    if !pkg_mod.is_file() {
-        return Ok(());
-    }
-    let pkg = parse_nyra_mod(&pkg_mod)?;
-    let mut content = std::fs::read_to_string(project_mod).map_err(|e| e.to_string())?;
-    let mut changed = false;
-    for lib in &pkg.link_libs {
-        let line = format!("link {lib}");
-        if !content.lines().any(|l| l.trim() == line) {
-            if !content.ends_with('\n') {
-                content.push('\n');
-            }
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    for path in &pkg.link_search_paths {
-        let line = format!("link -L{path}");
-        if !content.lines().any(|l| l.trim() == line) {
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    for arg in &pkg.link_args {
-        let line = format!("link-arg {arg}");
-        if !content.lines().any(|l| l.trim() == line) {
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    for crate_name in &pkg.link_crates {
-        let line = format!("link-crate {crate_name}");
-        if !content.lines().any(|l| l.trim() == line) {
-            if !content.ends_with('\n') {
-                content.push('\n');
-            }
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    if changed {
-        std::fs::write(project_mod, content).map_err(|e| e.to_string())?;
-    }
-    Ok(())
-}
-
-pub fn cache_dir() -> std::path::PathBuf {
-    std::path::PathBuf::from(".nyra/cache")
-}
-
-pub fn resolve_module(module: &str) -> std::path::PathBuf {
-    cache_module_path(module)
 }
 
 fn verify_lock_versions(root: &Path) -> Result<(), String> {

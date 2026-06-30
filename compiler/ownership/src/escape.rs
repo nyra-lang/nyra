@@ -395,13 +395,13 @@ impl EscapeGraph {
             }
             Expression::If(i) => {
                 self.analyze_expr_escapes(&i.condition, scope);
-                self.analyze_expr_escapes(&i.then_expr, scope);
-                self.analyze_expr_escapes(&i.else_expr, scope);
+                for_each_expr_in_block(&i.then_block, &mut |e| self.analyze_expr_escapes(e, scope));
+                for_each_expr_in_block(&i.else_block, &mut |e| self.analyze_expr_escapes(e, scope));
             }
             Expression::Match(m) => {
                 self.analyze_expr_escapes(&m.scrutinee, scope);
                 for arm in &m.arms {
-                    self.analyze_expr_escapes(&arm.body, scope);
+                    for_each_expr_in_block(&arm.body, &mut |e| self.analyze_expr_escapes(e, scope));
                     if let Some(g) = &arm.guard {
                         self.analyze_expr_escapes(g, scope);
                     }
@@ -648,13 +648,13 @@ fn collect_vars(expr: &Expression, out: &mut Vec<String>) {
         Expression::Grouped(inner) => collect_vars(inner, out),
         Expression::If(i) => {
             collect_vars(&i.condition, out);
-            collect_vars(&i.then_expr, out);
-            collect_vars(&i.else_expr, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_vars(e, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_vars(e, out));
         }
         Expression::Match(m) => {
             collect_vars(&m.scrutinee, out);
             for arm in &m.arms {
-                collect_vars(&arm.body, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_vars(e, out));
                 if let Some(g) = &arm.guard {
                     collect_vars(g, out);
                 }

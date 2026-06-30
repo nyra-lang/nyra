@@ -93,6 +93,18 @@ impl Codegen {
         }
     }
 
+    pub(super) fn rvalue_produces_heap_string(&self, expr: &Expression) -> bool {
+        match expr {
+            Expression::Call(c) => callee_returns_owned(&c.callee),
+            Expression::MethodCall(mc) => matches!(
+                mc.method.as_str(),
+                "trim" | "to_upper" | "to_lower" | "replace" | "replacen"
+            ),
+            Expression::TemplateLiteral(_) => true,
+            _ => false,
+        }
+    }
+
     pub(super) fn emit_strcat(&mut self, left: &ExprValue, right: &ExprValue) -> ExprValue {
         let a = self.materialize_ptr_reg(&left.reg);
         let b = self.materialize_ptr_reg(&right.reg);

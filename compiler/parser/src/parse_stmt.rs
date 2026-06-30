@@ -105,26 +105,7 @@ impl Parser {
     /// `mut x = expr` — shorthand for `let mut x = expr`
     pub(super) fn parse_mut_decl(&mut self) -> Statement {
         self.advance(); // mut
-        let name = match self.current_kind() {
-            TokenKind::Identifier(n) => {
-                let n = n.clone();
-                self.advance();
-                n
-            }
-            _ => {
-                self.parse_error_here(                    "Expected variable name after 'mut'",
-                );
-                synchronize(&self.tokens, &mut self.position);
-                return Statement::Let(LetStmt {
-                    mutable: true,
-                    name: "_invalid".into(),
-                    destructure: vec![],
-                    span: self.current_span(),
-                    ty: None,
-                    value: Expression::Invalid,
-                });
-            }
-        };
+        let name = self.parse_binding_name("Expected variable name after 'mut'");
 
         consume(
             &self.tokens,
@@ -275,26 +256,8 @@ impl Parser {
                 span,
             )
         } else {
-            match self.current_kind() {
-                TokenKind::Identifier(n) => {
-                    let n = n.clone();
-                    self.advance();
-                    (n.clone(), vec![], self.prev_span())
-                }
-                _ => {
-                    self.parse_error_here(                        "Expected variable name after 'let'",
-                    );
-                    synchronize(&self.tokens, &mut self.position);
-                    return Statement::Let(LetStmt {
-                        mutable,
-                        name: "_invalid".into(),
-                        destructure: vec![],
-                        span: self.current_span(),
-                        ty: None,
-                        value: Expression::Invalid,
-                    });
-                }
-            }
+            let n = self.parse_binding_name("Expected variable name after 'let'");
+            (n.clone(), vec![], self.prev_span())
         };
 
         let ty = if check(&self.tokens, self.position, &TokenKind::Colon) {

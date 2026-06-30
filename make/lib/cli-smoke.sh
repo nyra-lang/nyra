@@ -78,24 +78,35 @@ if [[ -z "$out" ]]; then
   fail "ide references produced no output"
 fi
 
-# --- pkg ---
-log "pkg init (temp project)"
-PKG_TMP="$(mktemp -d)"
-"${NYRA[@]}" pkg init "$PKG_TMP" >/dev/null
-if [[ ! -f "$PKG_TMP/nyra.mod" || ! -f "$PKG_TMP/main.ny" ]]; then
-  fail "pkg init missing nyra.mod or main.ny"
+# --- pkg (nyra pkg ↔ nyrapkg aliases) ---
+NYRAPKG_BIN="${NYRAPKG:-$ROOT/../nyrapkg/target/release/nyrapkg}"
+if [[ -x "$NYRAPKG_BIN" ]]; then
+  export NYRAPKG="$NYRAPKG_BIN"
+  log "nyra pkg init (delegates to nyrapkg)"
+  PKG_INIT_TMP="$(mktemp -d)"
+  if ! "${NYRA[@]}" pkg init "$PKG_INIT_TMP" >/dev/null; then
+    fail "nyra pkg init"
+  fi
+  if [[ ! -f "$PKG_INIT_TMP/nyra.mod" ]]; then
+    fail "nyra pkg init missing nyra.mod"
+  fi
+  rm -rf "$PKG_INIT_TMP"
 fi
 
-log "pkg verify (temp project)"
-if ! "${NYRA[@]}" pkg verify "$PKG_TMP" >/dev/null; then
-  fail "pkg verify temp project"
+scaffold_pkg_project() {
+  local d="$1"
+  mkdir -p "$d"
+  printf 'module example.local\n\n' >"$d/nyra.mod"
+  printf 'fn main() {\n    print("hello world")\n}\n' >"$d/main.ny"
+}
+
+log "pkg scaffold (temp project)"
+PKG_TMP="$(mktemp -d)"
+scaffold_pkg_project "$PKG_TMP"
+if [[ ! -f "$PKG_TMP/nyra.mod" || ! -f "$PKG_TMP/main.ny" ]]; then
+  fail "pkg scaffold missing nyra.mod or main.ny"
 fi
 rm -rf "$PKG_TMP"
-
-log "pkg verify ny-sqlite fixture"
-if ! "${NYRA[@]}" pkg verify "$PKG_FIXTURE" >/dev/null; then
-  fail "pkg verify ny-sqlite"
-fi
 
 log "pkg prune --check (prune_unused fixture)"
 PRUNE_FIXTURE="$ROOT/tests/fixtures/prune_unused"
@@ -110,11 +121,6 @@ if ! "${NYRA[@]}" pkg build "$PKG_FIXTURE" >/dev/null 2>&1; then
 fi
 
 SERDE_FIXTURE="$ROOT/examples/packages/ny-serde"
-log "pkg verify ny-serde fixture"
-if ! "${NYRA[@]}" pkg verify "$SERDE_FIXTURE" >/dev/null; then
-  fail "pkg verify ny-serde"
-fi
-
 log "pkg build ny-serde fixture"
 if ! "${NYRA[@]}" pkg build "$SERDE_FIXTURE" >/dev/null 2>&1; then
   fail "pkg build ny-serde"
@@ -122,7 +128,7 @@ fi
 
 log "bind rust serde_json --template (temp project)"
 BIND_SERDE_TMP="$(mktemp -d)"
-"${NYRA[@]}" pkg init "$BIND_SERDE_TMP" >/dev/null 2>&1
+scaffold_pkg_project "$BIND_SERDE_TMP"
 if ! "${NYRA[@]}" bind rust serde_json --template --project "$BIND_SERDE_TMP" >/dev/null 2>&1; then
   fail "bind rust serde_json --template"
 fi
@@ -134,7 +140,7 @@ rm -rf "$BIND_SERDE_TMP"
 # --- bind ---
 log "bind rust uuid --template (temp project)"
 BIND_TMP="$(mktemp -d)"
-"${NYRA[@]}" pkg init "$BIND_TMP" >/dev/null 2>&1
+scaffold_pkg_project "$BIND_TMP"
 if ! "${NYRA[@]}" bind rust uuid --template --project "$BIND_TMP" >/dev/null 2>&1; then
   fail "bind rust uuid --template"
 fi

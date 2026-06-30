@@ -1,4 +1,4 @@
-extern fn strcat(a: string, b: string) -> string
+extern fn strcat(a: &string, b: &string) -> string
 extern fn str_push_char(s: string, ch: i32) -> string
 
 struct StringBuilder {
@@ -10,7 +10,7 @@ fn StringBuilder_new() -> StringBuilder {
 }
 
 fn StringBuilder_push(mut sb: StringBuilder, piece: string) -> StringBuilder {
-    sb.buf = strcat(sb.buf, piece)
+    sb.buf = strcat(clone sb.buf, piece)
     return sb
 }
 

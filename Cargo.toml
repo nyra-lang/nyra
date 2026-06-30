@@ -9,7 +9,6 @@ members = [
     "bindgen",
     "c-bindgen",
     "pkg",
-    "pkg-registry",
     "rt",
     "compiler/driver",
     "compiler/lint",

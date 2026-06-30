@@ -315,6 +315,9 @@ impl TypeChecker {
                     })
                     .unwrap_or(false)
             }
+            TypeAnnotation::Ref { inner, mutable: false, .. } => {
+                self.abi_type_ann_allowed(inner, allow_generic, type_params)
+            }
             TypeAnnotation::Ref { .. }
             | TypeAnnotation::Lifetime(_)
             | TypeAnnotation::ForAll { .. }
@@ -395,6 +398,9 @@ impl TypeChecker {
             Type::Generic(name) if allow_generic && type_params.iter().any(|p| p == name) => true,
             Type::Generic(_) if allow_generic => true,
             Type::Generic(_) => false,
+            Type::Ref { inner, mutable: false, .. } => {
+                self.abi_type_allowed(inner, allow_generic, type_params)
+            }
             Type::Ref { .. }
             | Type::ForAll { .. }
             | Type::Handle

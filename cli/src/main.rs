@@ -11,6 +11,7 @@ mod commands;
 mod debug;
 mod fmt;
 mod link;
+mod nyrapkg;
 mod pgo;
 mod target;
 mod toolchain;

@@ -658,11 +658,10 @@ fn emit_expr(expr: &Expression, out: &mut String) {
         Expression::If(i) => {
             out.push_str("if ");
             emit_expr(&i.condition, out);
-            out.push_str(" { ");
-            emit_expr(&i.then_expr, out);
-            out.push_str(" } else { ");
-            emit_expr(&i.else_expr, out);
-            out.push_str(" }");
+            out.push(' ');
+            emit_block(&i.then_block, 0, out);
+            out.push_str(" else ");
+            emit_block(&i.else_block, 0, out);
         }
         Expression::Index(ix) => {
             emit_expr(&ix.object, out);
@@ -766,7 +765,7 @@ fn emit_match_arm(arm: &MatchArm, out: &mut String) {
         emit_expr(guard, out);
     }
     out.push_str(" => ");
-    emit_expr(&arm.body, out);
+    emit_block(&arm.body, 0, out);
 }
 
 fn emit_match_pattern(p: &MatchPattern, out: &mut String) {

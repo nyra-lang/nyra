@@ -114,8 +114,12 @@ fn collect_generic_calls_from_expr(
         Expression::Grouped(g) => collect_generic_calls_from_expr(g, originals, trait_impls, out),
         Expression::If(i) => {
             collect_generic_calls_from_expr(&i.condition, originals, trait_impls, out);
-            collect_generic_calls_from_expr(&i.then_expr, originals, trait_impls, out);
-            collect_generic_calls_from_expr(&i.else_expr, originals, trait_impls, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| {
+                collect_generic_calls_from_expr(e, originals, trait_impls, out);
+            });
+            for_each_expr_in_block(&i.else_block, &mut |e| {
+                collect_generic_calls_from_expr(e, originals, trait_impls, out);
+            });
         }
         Expression::Match(m) => {
             collect_generic_calls_from_expr(&m.scrutinee, originals, trait_impls, out);
@@ -123,7 +127,7 @@ fn collect_generic_calls_from_expr(
                 if let Some(g) = &arm.guard {
                     collect_generic_calls_from_expr(g, originals, trait_impls, out);
                 }
-                collect_generic_calls_from_expr(&arm.body, originals, trait_impls, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_generic_calls_from_expr(e, originals, trait_impls, out));
             }
         }
         Expression::Await(e) => collect_generic_calls_from_expr(e, originals, trait_impls, out),

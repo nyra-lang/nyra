@@ -1,6 +1,6 @@
-extern fn strlen(s: string) -> i32
-extern fn strcmp(a: string, b: string) -> i32
-extern fn substring(s: string, start: i32, len: i32) -> string
+extern fn strlen(s: &string) -> i32
+extern fn strcmp(a: &string, b: &string) -> i32
+extern fn substring(s: &string, start: i32, len: i32) -> string
 
 struct GameAudioSession {
     master_volume: f64

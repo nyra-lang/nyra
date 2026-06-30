@@ -307,6 +307,9 @@ impl Codegen {
                 {
                     scope_owned.push(l.name.clone());
                 }
+                if self.rvalue_produces_heap_string(&l.value) {
+                    self.heap_string_bindings.insert(l.name.clone());
+                }
                 if let Expression::Variable { name, .. } = &l.value {
                     if self.drop_plan.is_owned_in(&drop_state.func, name) {
                         drop_state.mark_moved(name);

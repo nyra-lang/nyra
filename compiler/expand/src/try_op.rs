@@ -185,10 +185,13 @@ fn contains_try(expr: &Expression) -> bool {
         Expression::FieldAccess(f) => contains_try(&f.object),
         Expression::Index(ix) => contains_try(&ix.object) || contains_try(&ix.index),
         Expression::Match(m) => {
-            contains_try(&m.scrutinee) || m.arms.iter().any(|a| contains_try(&a.body))
+            contains_try(&m.scrutinee)
+                || m.arms.iter().any(|a| a.body.statements.iter().any(stmt_contains_try))
         }
         Expression::If(i) => {
-            contains_try(&i.condition) || contains_try(&i.then_expr) || contains_try(&i.else_expr)
+            contains_try(&i.condition)
+                || i.then_block.statements.iter().any(stmt_contains_try)
+                || i.else_block.statements.iter().any(stmt_contains_try)
         }
         Expression::Grouped(g) => contains_try(g),
         Expression::ArrayLiteral(al) => al.all_exprs().any(contains_try),
@@ -287,7 +290,8 @@ fn desugar_try_stmt(
         Statement::Return(r) => {
             if let Some(v) = &r.value {
                 if let Expression::Match(m) = v {
-                    if m.arms.iter().any(|a| contains_try(&a.body)) || contains_try(&m.scrutinee)
+                    if m.arms.iter().any(|a| a.body.statements.iter().any(stmt_contains_try))
+                        || contains_try(&m.scrutinee)
                     {
                         return desugar_return_match_with_try(
                             m,
@@ -328,7 +332,8 @@ fn expand_stmt_without_top_level_try(
     match stmt {
         Statement::Let(l) => {
             if let Expression::Match(m) = &l.value {
-                if m.arms.iter().any(|a| contains_try(&a.body)) || contains_try(&m.scrutinee) {
+                if m.arms.iter().any(|a| a.body.statements.iter().any(stmt_contains_try))
+                    || contains_try(&m.scrutinee) {
                     return desugar_let_match_with_try(l, fn_returns, current_fn_return, counter);
                 }
             }
@@ -478,6 +483,53 @@ fn expand_stmt_without_top_level_try(
     }
 }
 
+fn hoist_try_in_block(
+    block: &Block,
+    fn_returns: &HashMap<String, TypeAnnotation>,
+    counter: &mut usize,
+) -> (Vec<Statement>, Block) {
+    let mut prelude = Vec::new();
+    let mut out = Vec::new();
+    for stmt in &block.statements {
+        match stmt {
+            Statement::Expression(e) if contains_try(e) => {
+                let h = hoist_try_expr(e, fn_returns, counter, TrySuccessMode::Unwrap);
+                prelude.extend(h.prelude);
+                out.push(Statement::Expression(h.expr));
+            }
+            Statement::Let(l) if contains_try(&l.value) => {
+                let h = hoist_try_expr(&l.value, fn_returns, counter, TrySuccessMode::Unwrap);
+                prelude.extend(h.prelude);
+                let mut nl = l.clone();
+                nl.value = h.expr;
+                out.push(Statement::Let(nl));
+            }
+            Statement::Const(c) if contains_try(&c.value) => {
+                let h = hoist_try_expr(&c.value, fn_returns, counter, TrySuccessMode::Unwrap);
+                prelude.extend(h.prelude);
+                let mut nc = c.clone();
+                nc.value = h.expr;
+                out.push(Statement::Const(nc));
+            }
+            Statement::Return(r) => {
+                if let Some(v) = &r.value {
+                    if contains_try(v) {
+                        let h = hoist_try_expr(v, fn_returns, counter, TrySuccessMode::Unwrap);
+                        prelude.extend(h.prelude);
+                        out.push(Statement::Return(ReturnStmt {
+                            value: Some(h.expr),
+                        }));
+                        continue;
+                    }
+                }
+                out.push(stmt.clone());
+            }
+            other => out.push(other.clone()),
+        }
+    }
+    (prelude, Block { statements: out })
+}
+
 fn hoist_try_expr(
     expr: &Expression,
     fn_returns: &HashMap<String, TypeAnnotation>,
@@ -609,17 +661,17 @@ fn hoist_try_expr(
         }
         Expression::If(i) => {
             let ch = hoist_try_expr(&i.condition, fn_returns, counter, TrySuccessMode::Unwrap);
-            let th = hoist_try_expr(&i.then_expr, fn_returns, counter, TrySuccessMode::Unwrap);
-            let eh = hoist_try_expr(&i.else_expr, fn_returns, counter, TrySuccessMode::Unwrap);
+            let (tp, then_block) = hoist_try_in_block(&i.then_block, fn_returns, counter);
+            let (ep, else_block) = hoist_try_in_block(&i.else_block, fn_returns, counter);
             let mut prelude = ch.prelude;
-            prelude.extend(th.prelude);
-            prelude.extend(eh.prelude);
+            prelude.extend(tp);
+            prelude.extend(ep);
             HoistResult {
                 prelude,
                 expr: Expression::If(Box::new(IfExpr {
                     condition: ch.expr,
-                    then_expr: th.expr,
-                    else_expr: eh.expr,
+                    then_block,
+                    else_block,
                     span: i.span.clone(),
                 })),
             }
@@ -723,6 +775,27 @@ fn wrap_arm_as_enum(
 }
 
 fn arm_body_for_lifted_match(
+    pattern: &MatchPattern,
+    body: &Block,
+    enum_inst: &str,
+    span: &Span,
+) -> Block {
+    let trailing = block_trailing_expression(body).unwrap_or(Expression::Invalid);
+    let expr = transform_arm_body_expr(pattern, &trailing, enum_inst, span);
+    let mut stmts = body.statements.clone();
+    if let Some(last) = stmts.last_mut() {
+        match last {
+            Statement::Expression(e) => *e = expr,
+            Statement::Return(r) => r.value = Some(expr),
+            _ => stmts.push(Statement::Expression(expr)),
+        }
+    } else {
+        stmts.push(Statement::Expression(expr));
+    }
+    Block { statements: stmts }
+}
+
+fn transform_arm_body_expr(
     pattern: &MatchPattern,
     body: &Expression,
     enum_inst: &str,
@@ -870,18 +943,18 @@ fn desugar_let_match_with_try(
                     MatchArm {
                         pattern: qualified_pattern(&enum_inst, &enum_inst, ok_v, Some(&ok_bind)),
                         guard: None,
-                        body: Expression::Variable {
+                        body: block_from_expr(Expression::Variable {
                             name: ok_bind,
                             span: l.span.clone(),
-                        },
+                        }),
                     },
                     MatchArm {
                         pattern: qualified_pattern(&enum_inst, &enum_inst, fail_v, Some(&err_bind)),
                         guard: None,
-                        body: Expression::Variable {
+                        body: block_from_expr(Expression::Variable {
                             name: err_bind,
                             span: l.span.clone(),
-                        },
+                        }),
                     },
                 ],
                 span: l.span.clone(),
@@ -930,10 +1003,10 @@ fn desugar_return_match_with_try(
             current_fn_return,
             &span,
         );
-        let bh = hoist_try_expr(&arm.body, fn_returns, counter, TrySuccessMode::KeepEnum);
-        let mut ret_expr = bh.expr;
+        let (prelude, hoisted) = hoist_try_in_block(&arm.body, fn_returns, counter);
+        let mut ret_expr = block_trailing_expression(&hoisted).unwrap_or(Expression::Invalid);
         resolve_generic_enum_variants(&mut ret_expr, &enum_inst);
-        then_stmts.extend(bh.prelude);
+        then_stmts.extend(prelude);
         then_stmts.push(Statement::Return(ReturnStmt {
             value: Some(ret_expr),
         }));
@@ -985,12 +1058,12 @@ fn pattern_matches_expr(
                 MatchArm {
                     pattern: resolved,
                     guard: None,
-                    body: Expression::Literal(Literal::Int(1)),
+                    body: block_from_expr(Expression::Literal(Literal::Int(1))),
                 },
                 MatchArm {
                     pattern: MatchPattern::Wildcard,
                     guard: None,
-                    body: Expression::Literal(Literal::Int(0)),
+                    body: block_from_expr(Expression::Literal(Literal::Int(0))),
                 },
             ],
             span: span.clone(),
@@ -1059,15 +1132,15 @@ fn unwrap_variant_payload(
             MatchArm {
                 pattern: qualified_pattern(enum_name, enum_name, variant, Some(bind)),
                 guard: None,
-                body: Expression::Variable {
+                body: block_from_expr(Expression::Variable {
                     name: bind.to_string(),
                     span: span.clone(),
-                },
+                }),
             },
             MatchArm {
                 pattern: MatchPattern::Wildcard,
                 guard: None,
-                body: Expression::Literal(Literal::Int(0)),
+                body: block_from_expr(Expression::Literal(Literal::Int(0))),
             },
         ],
         span: span.clone(),
@@ -1244,12 +1317,12 @@ fn is_failure_match(value: &Expression, enum_name: &str, kind: TryKind, span: &S
             MatchArm {
                 pattern: qualified_pattern(enum_name, base, fail_v, Some("_")),
                 guard: None,
-                body: Expression::Literal(Literal::Int(1)),
+                body: block_from_expr(Expression::Literal(Literal::Int(1))),
             },
             MatchArm {
                 pattern: qualified_pattern(enum_name, ok_base, ok_v, Some("_")),
                 guard: None,
-                body: Expression::Literal(Literal::Int(0)),
+                body: block_from_expr(Expression::Literal(Literal::Int(0))),
             },
         ],
         span: span.clone(),
@@ -1266,15 +1339,15 @@ fn unwrap_ok_expr(value: &Expression, enum_name: &str, kind: TryKind, span: &Spa
             MatchArm {
                 pattern: qualified_pattern(enum_name, base, ok_v, Some(&bind)),
                 guard: None,
-                body: Expression::Variable {
+                body: block_from_expr(Expression::Variable {
                     name: bind,
                     span: span.clone(),
-                },
+                }),
             },
             MatchArm {
                 pattern: qualified_pattern(enum_name, fail_base, fail_v, Some("_")),
                 guard: None,
-                body: Expression::Literal(Literal::Int(0)),
+                body: block_from_expr(Expression::Literal(Literal::Int(0))),
             },
         ],
         span: span.clone(),

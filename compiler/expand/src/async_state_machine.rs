@@ -27,14 +27,14 @@ fn expr_has_await(expr: &Expression) -> bool {
         Expression::Grouped(g) => expr_has_await(g),
         Expression::If(i) => {
             expr_has_await(&i.condition)
-                || expr_has_await(&i.then_expr)
-                || expr_has_await(&i.else_expr)
+                || block_has_await(&i.then_block)
+                || block_has_await(&i.else_block)
         }
         Expression::Match(m) => {
             expr_has_await(&m.scrutinee)
                 || m.arms.iter().any(|a| {
                     a.guard.as_ref().is_some_and(expr_has_await)
-                        || expr_has_await(&a.body)
+                        || block_has_await(&a.body)
                 })
         }
         Expression::Call(c) => c.args.iter().any(expr_has_await),

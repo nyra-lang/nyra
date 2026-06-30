@@ -438,55 +438,6 @@ pub fn build_link_crate(project_root: &Path, crate_name: &str) -> Result<(String
     Ok((meta.lib_name, search))
 }
 
-/// Add `require rust::NAME` + `link-crate NAME` to nyra.mod and bind the crate.
-pub fn add_rust_dependency(project_root: &Path, spec: &str) -> Result<(), String> {
-    let (name_part, ver_part) = spec.split_once('@').unwrap_or((spec, ""));
-    let rust_name = parse_rust_module(name_part.trim()).ok_or_else(|| {
-        format!("expected rust::crate_name (got '{spec}')")
-    })?;
-    let version_req = if ver_part.trim().is_empty() {
-        None
-    } else {
-        Some(parse_req(ver_part.trim())?)
-    };
-
-    bind_rust_crate(project_root, rust_name, version_req.as_ref())?;
-
-    let mod_path = project_root.join("nyra.mod");
-    if !mod_path.is_file() {
-        return Err("nyra.mod not found — run `nyra pkg init` first".into());
-    }
-    let mut content = std::fs::read_to_string(&mod_path).map_err(|e| e.to_string())?;
-
-    let require_line = if let Some(ref req) = version_req {
-        format!("require rust::{rust_name} {}", format_req(req))
-    } else {
-        format!("require rust::{rust_name}")
-    };
-    let link_line = format!("link-crate {rust_name}");
-
-    for line in [&require_line, &link_line] {
-        if !content.lines().any(|l| l.trim() == line) {
-            if !content.ends_with('\n') {
-                content.push('\n');
-            }
-            content.push_str(line);
-            content.push('\n');
-        }
-    }
-    std::fs::write(&mod_path, &content).map_err(|e| e.to_string())?;
-    Ok(())
-}
-
-fn format_req(req: &Req) -> String {
-    match req {
-        Req::Exact(v) => format!("={}.{}.{}", v.major, v.minor, v.patch),
-        Req::Caret(v) => format!("^{}.{}.{}", v.major, v.minor, v.patch),
-        Req::Tilde(v) => format!("~{}.{}.{}", v.major, v.minor, v.patch),
-        Req::Gte(v) => format!(">={}.{}.{}", v.major, v.minor, v.patch),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

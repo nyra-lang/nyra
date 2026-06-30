@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use sha2::{Digest, Sha256};
 
@@ -90,44 +89,6 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
     let mut h = Sha256::new();
     h.update(bytes);
     format!("{:x}", h.finalize())
-}
-
-pub fn fetch_git(url: &str, rev: &str, dest: &Path) -> Result<(), String> {
-    if dest.exists() {
-        let status = Command::new("git")
-            .args(["-C", dest.to_str().unwrap(), "fetch", "--depth", "1", "origin", rev])
-            .status()
-            .map_err(|e| format!("git fetch failed: {e}"))?;
-        if !status.success() {
-            return Err(format!("git fetch failed for {}", dest.display()));
-        }
-        let checkout = Command::new("git")
-            .args(["-C", dest.to_str().unwrap(), "checkout", rev])
-            .status()
-            .map_err(|e| e.to_string())?;
-        if !checkout.success() {
-            return Err(format!("git checkout {rev} failed"));
-        }
-        return Ok(());
-    }
-    fs::create_dir_all(dest.parent().unwrap_or(dest)).map_err(|e| e.to_string())?;
-    let status = Command::new("git")
-        .args([
-            "clone",
-            "--depth",
-            "1",
-            "--branch",
-            rev,
-            url,
-            &dest.to_string_lossy(),
-        ])
-        .status()
-        .map_err(|e| format!("git clone failed: {e}"))?;
-    if status.success() {
-        Ok(())
-    } else {
-        Err(format!("git clone {url} failed"))
-    }
 }
 
 pub fn cache_module_path(module: &str) -> PathBuf {

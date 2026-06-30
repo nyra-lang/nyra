@@ -93,6 +93,8 @@ pub struct Codegen {
     local_channel_type_emitted: bool,
     /// `let mut` scalars promoted to SSA (name → update binding on assign, no alloca).
     mut_ssa_locals: HashSet<String>,
+    /// Locals whose current `ptr` value came from heap allocation (safe to `free` on reassignment).
+    heap_string_bindings: HashSet<String>,
     /// Locals proven to stay >= 0 for i32 (loop counters, positive `%` chains).
     non_negative_vars: HashSet<String>,
     /// `let mut` SSA scalars initialized from a non-negative literal (e.g. `mut acc = 0`).
