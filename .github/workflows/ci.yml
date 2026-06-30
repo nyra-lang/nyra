@@ -25,6 +25,7 @@ jobs:
     name: "build · macOS"
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: macos
@@ -36,6 +37,7 @@ jobs:
     name: "build · Windows"
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -45,18 +47,23 @@ jobs:
 
   # ── Tier 1: fast (~1–3 min per gate, parallel) ───────────────────────────────
   tier1-macos:
-    name: "tier1 · macOS · ${{ matrix.gate }}"
+    name: "tier1 · macOS · ${{ matrix.label }}"
     needs: build-macos
+    if: ${{ !cancelled() && needs.build-macos.result == 'success' }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        gate:
-          - test-optional-types
-          - test-conformance
-          - test-cargo-workspace
+        include:
+          - gate: test-optional-types
+            label: optional-types
+          - gate: test-conformance
+            label: conformance
+          - gate: test-cargo-workspace
+            label: cargo-workspace
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: macos
@@ -67,18 +74,23 @@ jobs:
         run: make test-platform-ci-tier1
 
   tier1-windows:
-    name: "tier1 · Windows · ${{ matrix.gate }}"
+    name: "tier1 · Windows · ${{ matrix.label }}"
     needs: build-windows
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        gate:
-          - test-optional-types
-          - test-conformance
-          - test-cargo-workspace
+        include:
+          - gate: test-optional-types
+            label: optional-types
+          - gate: test-conformance
+            label: conformance
+          - gate: test-cargo-workspace
+            label: cargo-workspace
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -90,18 +102,23 @@ jobs:
 
   # ── Tier 2: medium (~3–10 min, parallel) ─────────────────────────────────────
   tier2-macos:
-    name: "tier2 · macOS · ${{ matrix.gate }}"
+    name: "tier2 · macOS · ${{ matrix.label }}"
     needs: [build-macos, tier1-macos]
-    if: always() && needs.build-macos.result == 'success' && !cancelled()
+    if: >-
+      ${{ !cancelled() && needs.build-macos.result == 'success' &&
+          (needs.tier1-macos.result == 'success' || needs.tier1-macos.result == 'failure') }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        gate:
-          - test-nyra-lang
-          - smoke-stdlib-priority
+        include:
+          - gate: test-nyra-lang
+            label: nyra-lang
+          - gate: smoke-stdlib-priority
+            label: stdlib-priority
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: macos
@@ -112,18 +129,23 @@ jobs:
         run: make test-platform-ci-tier2
 
   tier2-windows:
-    name: "tier2 · Windows · ${{ matrix.gate }}"
+    name: "tier2 · Windows · ${{ matrix.label }}"
     needs: [build-windows, tier1-windows]
-    if: always() && needs.build-windows.result == 'success' && !cancelled()
+    if: >-
+      ${{ !cancelled() && needs.build-windows.result == 'success' &&
+          (needs.tier1-windows.result == 'success' || needs.tier1-windows.result == 'failure') }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        gate:
-          - test-nyra-lang
-          - smoke-stdlib-priority
+        include:
+          - gate: test-nyra-lang
+            label: nyra-lang
+          - gate: smoke-stdlib-priority
+            label: stdlib-priority
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -135,19 +157,25 @@ jobs:
 
   # ── Tier 3: heavy (~5–20 min, parallel) ──────────────────────────────────────
   tier3-macos:
-    name: "tier3 · macOS · ${{ matrix.gate }}"
+    name: "tier3 · macOS · ${{ matrix.label }}"
     needs: [build-macos, tier2-macos]
-    if: always() && needs.build-macos.result == 'success' && !cancelled()
+    if: >-
+      ${{ !cancelled() && needs.build-macos.result == 'success' &&
+          (needs.tier2-macos.result == 'success' || needs.tier2-macos.result == 'failure') }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        gate:
-          - smoke-stdlib
-          - smoke-stdlib-runtime
-          - test-runtime-smoke
+        include:
+          - gate: smoke-stdlib
+            label: stdlib
+          - gate: smoke-stdlib-runtime
+            label: stdlib-runtime
+          - gate: test-runtime-smoke
+            label: runtime-smoke
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: macos
@@ -158,19 +186,25 @@ jobs:
         run: make test-platform-ci-tier3
 
   tier3-windows:
-    name: "tier3 · Windows · ${{ matrix.gate }}"
+    name: "tier3 · Windows · ${{ matrix.label }}"
     needs: [build-windows, tier2-windows]
-    if: always() && needs.build-windows.result == 'success' && !cancelled()
+    if: >-
+      ${{ !cancelled() && needs.build-windows.result == 'success' &&
+          (needs.tier2-windows.result == 'success' || needs.tier2-windows.result == 'failure') }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        gate:
-          - smoke-stdlib
-          - smoke-stdlib-runtime
-          - test-runtime-smoke
+        include:
+          - gate: smoke-stdlib
+            label: stdlib
+          - gate: smoke-stdlib-runtime
+            label: stdlib-runtime
+          - gate: test-runtime-smoke
+            label: runtime-smoke
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -184,9 +218,12 @@ jobs:
   native-macos:
     name: "native · macOS"
     needs: [build-macos, tier3-macos]
-    if: always() && needs.build-macos.result == 'success' && !cancelled()
+    if: >-
+      ${{ !cancelled() && needs.build-macos.result == 'success' &&
+          (needs.tier3-macos.result == 'success' || needs.tier3-macos.result == 'failure') }}
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: macos
@@ -197,9 +234,12 @@ jobs:
   native-windows:
     name: "native · Windows"
     needs: [build-windows, tier3-windows]
-    if: always() && needs.build-windows.result == 'success' && !cancelled()
+    if: >-
+      ${{ !cancelled() && needs.build-windows.result == 'success' &&
+          (needs.tier3-windows.result == 'success' || needs.tier3-windows.result == 'failure') }}
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -210,9 +250,10 @@ jobs:
   windows-package:
     name: "package · Windows"
     needs: build-windows
-    if: always() && needs.build-windows.result == 'success' && !cancelled()
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -223,9 +264,10 @@ jobs:
   windows-dap:
     name: "dap · Windows"
     needs: build-windows
-    if: always() && needs.build-windows.result == 'success' && !cancelled()
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: windows
@@ -267,36 +309,60 @@ jobs:
           WIN_PACKAGE: ${{ needs.windows-package.result }}
           WIN_DAP: ${{ needs.windows-dap.result }}
         run: |
-          icon() { case "$1" in success) echo '✅';; failure) echo '❌';; skipped) echo '⏭️';; *) echo "⚠️ $1";; esac; }
+          set -euo pipefail
+          icon() {
+            case "$1" in
+              success) printf '✅' ;;
+              failure) printf '❌' ;;
+              skipped) printf '⏭️' ;;
+              cancelled) printf '🚫' ;;
+              '') printf '—' ;;
+              *) printf '⚠️ %s' "$1" ;;
+            esac
+          }
           {
             echo "## CI stages"
             echo ""
             echo "| Stage | macOS | Windows |"
             echo "|-------|-------|---------|"
-            echo "| 0 build | $(icon "$BUILD_MACOS") | $(icon "$BUILD_WINDOWS") |"
-            echo "| 1 fast | $(icon "$TIER1_MACOS") | $(icon "$TIER1_WINDOWS") |"
-            echo "| 2 medium | $(icon "$TIER2_MACOS") | $(icon "$TIER2_WINDOWS") |"
-            echo "| 3 heavy | $(icon "$TIER3_MACOS") | $(icon "$TIER3_WINDOWS") |"
-            echo "| 4 native | $(icon "$NATIVE_MACOS") | $(icon "$NATIVE_WINDOWS") |"
-            echo "| extras | — | package $(icon "$WIN_PACKAGE") · dap $(icon "$WIN_DAP") |"
+            printf '| 0 build | %s | %s |\n' "$(icon "$BUILD_MACOS")" "$(icon "$BUILD_WINDOWS")"
+            printf '| 1 fast | %s | %s |\n' "$(icon "$TIER1_MACOS")" "$(icon "$TIER1_WINDOWS")"
+            printf '| 2 medium | %s | %s |\n' "$(icon "$TIER2_MACOS")" "$(icon "$TIER2_WINDOWS")"
+            printf '| 3 heavy | %s | %s |\n' "$(icon "$TIER3_MACOS")" "$(icon "$TIER3_WINDOWS")"
+            printf '| 4 native | %s | %s |\n' "$(icon "$NATIVE_MACOS")" "$(icon "$NATIVE_WINDOWS")"
+            printf '| extras | — | package %s · dap %s |\n' "$(icon "$WIN_PACKAGE")" "$(icon "$WIN_DAP")"
+            echo ""
+            echo "_Skipped stages usually mean an earlier stage on that OS failed (e.g. build)._"
           } >> "$GITHUB_STEP_SUMMARY"
-          failed=0
           for r in "$BUILD_MACOS" "$BUILD_WINDOWS" "$TIER1_MACOS" "$TIER1_WINDOWS" \
                    "$TIER2_MACOS" "$TIER2_WINDOWS" "$TIER3_MACOS" "$TIER3_WINDOWS" \
                    "$NATIVE_MACOS" "$NATIVE_WINDOWS" "$WIN_PACKAGE" "$WIN_DAP"; do
-            [[ "$r" == "failure" ]] && failed=1
+            if [[ "$r" == "failure" ]]; then
+              echo "::error::CI stage failed — see job logs and the summary table above."
+            fi
           done
-          exit "$failed"
 
   benchmark:
     name: make bench (quick)
     runs-on: ubuntu-latest
-    needs: ci-summary
+    needs:
+      - build-macos
+      - build-windows
+      - tier3-macos
+      - tier3-windows
+      - native-macos
+      - native-windows
     if: >-
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      needs.ci-summary.result == 'success'
+      needs.build-macos.result == 'success' &&
+      needs.build-windows.result == 'success' &&
+      needs.tier3-macos.result == 'success' &&
+      needs.tier3-windows.result == 'success' &&
+      needs.native-macos.result == 'success' &&
+      needs.native-windows.result == 'success'
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: linux
@@ -326,6 +392,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: linux

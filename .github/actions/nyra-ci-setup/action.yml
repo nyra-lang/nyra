@@ -1,5 +1,5 @@
 name: Nyra CI setup
-description: Checkout, Rust toolchain, cache, and OS dependencies for Nyra CI jobs.
+description: Rust toolchain, cache, and OS dependencies for Nyra CI jobs (run actions/checkout first).
 
 inputs:
   platform:
@@ -9,8 +9,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
-
     - uses: dtolnay/rust-toolchain@stable
 
     - uses: Swatinem/rust-cache@v2
