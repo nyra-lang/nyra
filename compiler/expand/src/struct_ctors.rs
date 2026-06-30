@@ -74,8 +74,8 @@ fn rewrite_expr(
         Expression::Grouped(g) => rewrite_expr(g, structs, functions),
         Expression::If(i) => {
             rewrite_expr(&mut i.condition, structs, functions);
-            rewrite_expr(&mut i.then_expr, structs, functions);
-            rewrite_expr(&mut i.else_expr, structs, functions);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| rewrite_expr(e, structs, functions));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| rewrite_expr(e, structs, functions));
         }
         Expression::Match(m) => {
             rewrite_expr(&mut m.scrutinee, structs, functions);
@@ -83,7 +83,7 @@ fn rewrite_expr(
                 if let Some(g) = &mut arm.guard {
                     rewrite_expr(g, structs, functions);
                 }
-                rewrite_expr(&mut arm.body, structs, functions);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| rewrite_expr(e, structs, functions));
             }
         }
         Expression::Await(e) => rewrite_expr(e, structs, functions),

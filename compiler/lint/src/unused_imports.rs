@@ -281,7 +281,7 @@ fn collect_stmt_uses(stmt: &ast::Statement, uses: &mut HashSet<String>) {
 }
 
 fn collect_expr_uses(expr: &ast::Expression, uses: &mut HashSet<String>) {
-    use ast::Expression;
+    use ast::{for_each_expr_in_block, Expression};
     match expr {
         Expression::Variable { name, .. } => {
             uses.insert(name.clone());
@@ -332,13 +332,13 @@ fn collect_expr_uses(expr: &ast::Expression, uses: &mut HashSet<String>) {
                 if let Some(g) = &arm.guard {
                     collect_expr_uses(g, uses);
                 }
-                collect_expr_uses(&arm.body, uses);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_expr_uses(e, uses));
             }
         }
         Expression::If(i) => {
             collect_expr_uses(&i.condition, uses);
-            collect_expr_uses(&i.then_expr, uses);
-            collect_expr_uses(&i.else_expr, uses);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_expr_uses(e, uses));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_expr_uses(e, uses));
         }
         Expression::Index(i) => {
             collect_expr_uses(&i.object, uses);

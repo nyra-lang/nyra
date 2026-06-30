@@ -231,6 +231,67 @@ impl Codegen {
         has_return
     }
 
+    pub(super) fn compile_block_as_expr(
+        &mut self,
+        block: &Block,
+        env: &Env,
+        drop_state: &mut DropState,
+    ) -> ExprValue {
+        let mut child_env = env.clone();
+        let mut scope_owned = Vec::new();
+        let mut heap_closures = Vec::new();
+        let defers: Vec<Expression> = Vec::new();
+        let mut last: Option<ExprValue> = None;
+        for stmt in &block.statements {
+            match stmt {
+                Statement::Return(r) => {
+                    if let Some(v) = &r.value {
+                        return self.compile_expr(v, &mut child_env);
+                    }
+                    return ExprValue {
+                        reg: "0".into(),
+                        ty: "void".into(),
+                    };
+                }
+                Statement::Expression(e) => {
+                    self.register_call_moves(e, &mut child_env, drop_state);
+                    last = Some(self.compile_expr(e, &mut child_env));
+                }
+                _ => {
+                    let _ = self.compile_statement(
+                        stmt,
+                        &mut child_env,
+                        "void",
+                        drop_state,
+                        &mut scope_owned,
+                        &mut heap_closures,
+                        &defers,
+                    );
+                }
+            }
+        }
+        last.unwrap_or_else(|| ExprValue {
+            reg: "0".into(),
+            ty: "i32".into(),
+        })
+    }
+
+    pub(super) fn infer_block_expr_llvm_ty(&self, block: &Block, env: &Env) -> String {
+        for stmt in block.statements.iter().rev() {
+            match stmt {
+                Statement::Return(r) => {
+                    if let Some(v) = &r.value {
+                        return self.infer_expr_llvm_ty(v, env);
+                    }
+                    return "void".into();
+                }
+                Statement::Expression(e) => return self.infer_expr_llvm_ty(e, env),
+                _ => {}
+            }
+        }
+        "i32".into()
+    }
+
     pub(super) fn emit_deferred_expr(&mut self, e: &Expression, env: &mut Env) {
         let v = self.compile_expr(e, env);
         if v.ty == "ptr" {

@@ -353,8 +353,10 @@ impl Codegen {
         env: &Env,
     ) -> ExprValue {
         let cond = self.compile_expr(&i.condition, env);
-        let then_v = self.compile_expr(&i.then_expr, env);
-        let else_v = self.compile_expr(&i.else_expr, env);
+        let mut then_drop = DropState::default();
+        let then_v = self.compile_block_as_expr(&i.then_block, env, &mut then_drop);
+        let mut else_drop = DropState::default();
+        let else_v = self.compile_block_as_expr(&i.else_block, env, &mut else_drop);
         let merge = self.fresh_label("if.expr");
         let then_l = self.fresh_label("if.then");
         let else_l = self.fresh_label("if.else");
@@ -399,7 +401,7 @@ impl Codegen {
         let result_ty = m
             .arms
             .iter()
-            .map(|a| self.infer_expr_llvm_ty(&a.body, env))
+            .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
             .find(|ty| ty != "void")
             .unwrap_or_else(|| "i32".into());
         let result_ty = struct_value_type(&result_ty);
@@ -549,7 +551,8 @@ impl Codegen {
                 ));
                 self.emit(&format!("{guard_ok}:"));
             }
-            let val = self.compile_expr(&arm.body, &arm_env);
+            let mut arm_drop = DropState::default();
+            let val = self.compile_block_as_expr(&arm.body, &arm_env, &mut arm_drop);
             self.emit_struct_store(&val, &result_alloca, &result_ty);
             self.emit(&format!("  br label %{end_l}"));
             if !is_last {

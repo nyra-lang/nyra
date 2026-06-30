@@ -333,9 +333,10 @@ fn main() { print(0) }"#;
             None
         }).expect("let n");
         if let Expression::Match(m) = &let_stmt.value {
+            let trailing = ast::block_trailing_expression(&m.arms[0].body);
             assert!(matches!(
-                m.arms[0].body,
-                Expression::Unary(ref u) if u.op == ast::UnaryOp::Try
+                trailing,
+                Some(Expression::Unary(ref u)) if u.op == ast::UnaryOp::Try
             ));
         } else {
             panic!("expected match expr, got {:?}", let_stmt.value);

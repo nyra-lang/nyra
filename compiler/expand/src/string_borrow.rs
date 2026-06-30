@@ -71,8 +71,8 @@ fn desugar_call(expr: &mut Expression) {
         }
         Expression::If(i) => {
             desugar_call(&mut i.condition);
-            desugar_call(&mut i.then_expr);
-            desugar_call(&mut i.else_expr);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| desugar_call(e));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| desugar_call(e));
         }
         Expression::Match(m) => {
             desugar_call(&mut m.scrutinee);
@@ -80,7 +80,7 @@ fn desugar_call(expr: &mut Expression) {
                 if let Some(g) = &mut arm.guard {
                     desugar_call(g);
                 }
-                desugar_call(&mut arm.body);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| desugar_call(e));
             }
         }
         Expression::Await(e) => desugar_call(e),

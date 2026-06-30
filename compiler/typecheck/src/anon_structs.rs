@@ -373,13 +373,13 @@ fn patch_anon_names_in_expr(expr: &mut Expression, queue: &mut Vec<String>) {
                 if let Some(g) = &mut arm.guard {
                     patch_anon_names_in_expr(g, queue);
                 }
-                patch_anon_names_in_expr(&mut arm.body, queue);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| patch_anon_names_in_expr(e, queue));
             }
         }
         Expression::If(i) => {
             patch_anon_names_in_expr(&mut i.condition, queue);
-            patch_anon_names_in_expr(&mut i.then_expr, queue);
-            patch_anon_names_in_expr(&mut i.else_expr, queue);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| patch_anon_names_in_expr(e, queue));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| patch_anon_names_in_expr(e, queue));
         }
         Expression::Index(ix) => {
             patch_anon_names_in_expr(&mut ix.object, queue);

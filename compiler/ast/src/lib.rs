@@ -1,10 +1,12 @@
 mod float;
 mod integer;
 mod span;
+mod expr_walk;
 
 pub use float::FloatKind;
 pub use integer::IntKind;
 pub use span::{binding_name, expr_span, is_explicit_move, stmt_span, variable_name};
+pub use expr_walk::{for_each_expr_in_block, for_each_expr_in_block_mut};
 
 use errors::Span;
 use std::collections::HashMap;
@@ -508,9 +510,28 @@ pub struct IndexExpr {
 #[derive(Debug, Clone, PartialEq)]
 pub struct IfExpr {
     pub condition: Expression,
-    pub then_expr: Expression,
-    pub else_expr: Expression,
+    pub then_block: Block,
+    pub else_block: Block,
     pub span: Span,
+}
+
+/// Wrap a single expression as a one-statement block (if branches, ternary desugar).
+pub fn block_from_expr(expr: Expression) -> Block {
+    Block {
+        statements: vec![Statement::Expression(expr)],
+    }
+}
+
+/// Last value-producing statement in a block expression (`expr` or `return expr`).
+pub fn block_trailing_expression(block: &Block) -> Option<Expression> {
+    for stmt in block.statements.iter().rev() {
+        match stmt {
+            Statement::Expression(e) => return Some(e.clone()),
+            Statement::Return(r) => return r.value.clone(),
+            _ => {}
+        }
+    }
+    None
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -524,7 +545,7 @@ pub struct MatchExpr {
 pub struct MatchArm {
     pub pattern: MatchPattern,
     pub guard: Option<Expression>,
-    pub body: Expression,
+    pub body: Block,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

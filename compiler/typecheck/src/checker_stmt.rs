@@ -15,6 +15,38 @@ impl TypeChecker {
         }
     }
 
+    /// Type of a block used as an expression: last `expr` stmt or `return` value.
+    pub(super) fn check_block_expr_value(&mut self, block: &Block, env: &mut TypeEnv, span: &Span) -> Type {
+        let mut inner = TypeEnv {
+            variables: env.variables.clone(),
+            functions: env.functions.clone(),
+        };
+        let mut last_ty = Type::Unknown;
+        for stmt in &block.statements {
+            match stmt {
+                Statement::Expression(e) => {
+                    last_ty = self.check_expr(e, &mut inner);
+                }
+                Statement::Return(r) => {
+                    return if let Some(v) = &r.value {
+                        self.check_expr(v, &mut inner)
+                    } else {
+                        Type::Void
+                    };
+                }
+                _ => self.check_statement(stmt, &mut inner, &Type::Unknown),
+            }
+        }
+        if last_ty == Type::Unknown {
+            self.errors.push(NyraError::new(
+                ErrorKind::Type,
+                span.clone(),
+                "Block must produce a value (use a trailing expression or `return`)",
+            ));
+        }
+        last_ty
+    }
+
     pub(super) fn check_statement(&mut self, stmt: &Statement, env: &mut TypeEnv, expected_ret: &Type) {
         let sp = stmt_span(stmt);
         match stmt {

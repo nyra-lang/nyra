@@ -530,8 +530,8 @@ impl TypeChecker {
                         "If expression condition must be bool",
                     ));
                 }
-                let t = self.check_expr(&i.then_expr, env);
-                let e = self.check_expr(&i.else_expr, env);
+                let t = self.check_block_expr_value(&i.then_block, env, &sp);
+                let e = self.check_block_expr_value(&i.else_block, env, &sp);
                 if t != e && t != Type::Unknown && e != Type::Unknown {
                     self.errors.push(NyraError::new(
                         ErrorKind::Type,
@@ -539,7 +539,11 @@ impl TypeChecker {
                         "If expression branches must have the same type",
                     ));
                 }
-                t
+                if t != Type::Unknown {
+                    t
+                } else {
+                    e
+                }
             }
             Expression::Index(ix) => {
                 let obj = self.check_expr(&ix.object, env);

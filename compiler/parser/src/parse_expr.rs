@@ -37,8 +37,8 @@ impl Parser {
         let span = merge_spans(&expr_span(&condition), &expr_span(&else_expr));
         Expression::If(Box::new(IfExpr {
             condition,
-            then_expr,
-            else_expr,
+            then_block: block_from_expr(then_expr),
+            else_block: block_from_expr(else_expr),
             span,
         }))
     }
@@ -678,12 +678,17 @@ impl Parser {
         }))
     }
 
-    fn parse_match_arm_body(&mut self) -> Expression {
-        let expr = self.parse_or();
+    fn parse_match_arm_body(&mut self) -> Block {
+        skip_newlines(&self.tokens, &mut self.position);
+        let block = if check(&self.tokens, self.position, &TokenKind::LBrace) {
+            self.parse_block()
+        } else {
+            block_from_expr(self.parse_or())
+        };
         if check(&self.tokens, self.position, &TokenKind::Comma) {
             self.advance();
         }
-        expr
+        block
     }
 
     fn is_spread_token(&self) -> bool {

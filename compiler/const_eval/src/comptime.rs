@@ -3,7 +3,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::ControlFlow;
 
-use ast::{Block, Expression, ForKind, Function, MatchPayloadPattern, MatchPattern, Program, Statement, UnaryOp};
+use ast::{for_each_expr_in_block, for_each_expr_in_block_mut, Block, Expression, ForKind, Function, MatchPayloadPattern, MatchPattern, Program, Statement, UnaryOp};
 use errors::{ErrorKind, NyraError, Span};
 
 use crate::{const_value_to_expr, const_value_to_expr_typed, eval_const_expr, ConstValue};
@@ -467,8 +467,8 @@ fn walk_expr_forbidden(expr: &Expression, fn_name: &str, errors: &mut Vec<NyraEr
         }
         Expression::If(i) => {
             walk_expr_forbidden(&i.condition, fn_name, errors);
-            walk_expr_forbidden(&i.then_expr, fn_name, errors);
-            walk_expr_forbidden(&i.else_expr, fn_name, errors);
+            for_each_expr_in_block(&i.then_block, &mut |e| walk_expr_forbidden(e, fn_name, errors));
+            for_each_expr_in_block(&i.else_block, &mut |e| walk_expr_forbidden(e, fn_name, errors));
         }
         Expression::Grouped(g) => walk_expr_forbidden(g, fn_name, errors),
         Expression::Index(ix) => {
@@ -493,7 +493,7 @@ fn walk_expr_forbidden(expr: &Expression, fn_name: &str, errors: &mut Vec<NyraEr
                 if let Some(g) = &arm.guard {
                     walk_expr_forbidden(g, fn_name, errors);
                 }
-                walk_expr_forbidden(&arm.body, fn_name, errors);
+                for_each_expr_in_block(&arm.body, &mut |e| walk_expr_forbidden(e, fn_name, errors));
             }
         }
         Expression::Cast(c) => walk_expr_forbidden(&c.expr, fn_name, errors),
@@ -671,8 +671,22 @@ fn eval_comptime_expr(
         }
         Expression::If(i) => {
             let cond = eval_comptime_expr(&i.condition, frame, functions, depth)?;
-            let then_v = eval_comptime_expr(&i.then_expr, frame, functions, depth)?;
-            let else_v = eval_comptime_expr(&i.else_expr, frame, functions, depth)?;
+            let mut then_frame = frame.clone();
+            let then_v = eval_comptime_value_block(
+                &i.then_block,
+                &mut then_frame,
+                functions,
+                depth,
+                i.span.clone(),
+            )?;
+            let mut else_frame = frame.clone();
+            let else_v = eval_comptime_value_block(
+                &i.else_block,
+                &mut else_frame,
+                functions,
+                depth,
+                i.span.clone(),
+            )?;
             if !comptime_branch_compatible(&then_v, &else_v) {
                 return Err(comptime_error(
                     i.span.clone(),
@@ -818,7 +832,7 @@ fn eval_comptime_match(
                 }
             }
         }
-        return eval_comptime_expr(&arm.body, &arm_frame, functions, depth);
+        return eval_comptime_value_block(&arm.body, &mut arm_frame, functions, depth, m.span.clone());
     }
     Err(comptime_error(
         m.span.clone(),
@@ -1546,8 +1560,8 @@ fn fold_comptime_in_expr(
         }
         Expression::If(i) => {
             fold_comptime_in_expr(&mut i.condition, functions, env);
-            fold_comptime_in_expr(&mut i.then_expr, functions, env);
-            fold_comptime_in_expr(&mut i.else_expr, functions, env);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| fold_comptime_in_expr(e, functions, env));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| fold_comptime_in_expr(e, functions, env));
         }
         Expression::Grouped(g) => fold_comptime_in_expr(g, functions, env),
         Expression::EnumVariant(ev) => {
@@ -1577,7 +1591,7 @@ fn fold_comptime_in_expr(
                 if let Some(g) = &mut arm.guard {
                     fold_comptime_in_expr(g, functions, env);
                 }
-                fold_comptime_in_expr(&mut arm.body, functions, env);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| fold_comptime_in_expr(e, functions, env));
             }
         }
         Expression::Cast(c) => fold_comptime_in_expr(&mut c.expr, functions, env),
@@ -1723,8 +1737,8 @@ fn check_runtime_comptime_calls_in_expr(
         Expression::Grouped(g) => check_runtime_comptime_calls_in_expr(g, comptime_names, errors),
         Expression::If(i) => {
             check_runtime_comptime_calls_in_expr(&i.condition, comptime_names, errors);
-            check_runtime_comptime_calls_in_expr(&i.then_expr, comptime_names, errors);
-            check_runtime_comptime_calls_in_expr(&i.else_expr, comptime_names, errors);
+            for_each_expr_in_block(&i.then_block, &mut |e| check_runtime_comptime_calls_in_expr(e, comptime_names, errors));
+            for_each_expr_in_block(&i.else_block, &mut |e| check_runtime_comptime_calls_in_expr(e, comptime_names, errors));
         }
         Expression::Index(ix) => {
             check_runtime_comptime_calls_in_expr(&ix.object, comptime_names, errors);
@@ -1750,7 +1764,7 @@ fn check_runtime_comptime_calls_in_expr(
                 if let Some(g) = &arm.guard {
                     check_runtime_comptime_calls_in_expr(g, comptime_names, errors);
                 }
-                check_runtime_comptime_calls_in_expr(&arm.body, comptime_names, errors);
+                for_each_expr_in_block(&arm.body, &mut |e| check_runtime_comptime_calls_in_expr(e, comptime_names, errors));
             }
         }
         Expression::Cast(c) => check_runtime_comptime_calls_in_expr(&c.expr, comptime_names, errors),

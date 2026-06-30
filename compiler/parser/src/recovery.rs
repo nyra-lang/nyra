@@ -78,6 +78,48 @@ pub fn skip_newlines(tokens: &[Token], position: &mut usize) {
     }
 }
 
+fn prev_significant_kind(tokens: &[Token], position: usize) -> Option<&TokenKind> {
+    tokens[..position]
+        .iter()
+        .rev()
+        .find(|t| !matches!(t.kind, TokenKind::Newline))
+        .map(|t| &t.kind)
+}
+
+fn next_significant_kind(tokens: &[Token], position: usize) -> Option<&TokenKind> {
+    let mut p = position;
+    while p < tokens.len() && tokens[p].kind == TokenKind::Newline {
+        p += 1;
+    }
+    tokens.get(p).map(|t| &t.kind)
+}
+
+fn is_chain_field_name(kind: &TokenKind) -> bool {
+    matches!(
+        kind,
+        TokenKind::Identifier(_) | TokenKind::Clone | TokenKind::Number(_)
+    )
+}
+
+/// Skip newlines that continue a dot/method chain across lines.
+pub fn skip_chain_newlines(tokens: &[Token], position: &mut usize) {
+    loop {
+        if *position >= tokens.len() || tokens[*position].kind != TokenKind::Newline {
+            break;
+        }
+        let prev = prev_significant_kind(tokens, *position);
+        let next = next_significant_kind(tokens, *position);
+        let leading_dot = matches!(next, Some(TokenKind::Dot | TokenKind::QuestionDot));
+        let trailing_dot = matches!(prev, Some(TokenKind::Dot | TokenKind::QuestionDot));
+        let member_after_dot = trailing_dot && next.is_some_and(is_chain_field_name);
+        if leading_dot || member_after_dot {
+            *position += 1;
+            continue;
+        }
+        break;
+    }
+}
+
 pub fn merge_spans(a: &Span, b: &Span) -> Span {
     let file = if !a.file.is_empty() {
         a.file.clone()
@@ -205,5 +247,33 @@ mod tests {
             .collect();
         assert!(!looks_like_ternary_question(&try_then_ternary, qs[0]));
         assert!(looks_like_ternary_question(&try_then_ternary, qs[1]));
+    }
+
+    #[test]
+    fn skip_chain_newlines_across_leading_dot() {
+        let tokens = parse_tokens("foo\n.push()");
+        let mut pos = tokens
+            .iter()
+            .position(|t| matches!(&t.kind, TokenKind::Identifier(s) if s == "foo"))
+            .unwrap()
+            + 1;
+        skip_chain_newlines(&tokens, &mut pos);
+        assert!(matches!(tokens.get(pos).map(|t| &t.kind), Some(TokenKind::Dot)));
+    }
+
+    #[test]
+    fn skip_chain_newlines_across_trailing_dot() {
+        let tokens = parse_tokens("foo.\npush()");
+        let dot = tokens
+            .iter()
+            .position(|t| matches!(t.kind, TokenKind::Dot))
+            .unwrap()
+            + 1;
+        let mut pos = dot;
+        skip_chain_newlines(&tokens, &mut pos);
+        assert!(matches!(
+            tokens.get(pos).map(|t| &t.kind),
+            Some(TokenKind::Identifier(s)) if s == "push"
+        ));
     }
 }

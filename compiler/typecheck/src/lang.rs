@@ -211,7 +211,7 @@ impl TypeChecker {
                             ));
                         }
                     }
-                    arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                    arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
                 }
                 if !has_wildcard {
                     for v in &variant_names {
@@ -264,7 +264,7 @@ impl TypeChecker {
                         ));
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         } else if let Type::Struct(struct_name) = &scrutinee_ty {
             for arm in &m.arms {
@@ -348,7 +348,7 @@ impl TypeChecker {
                         ));
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         } else if let Type::Tuple { elems } = &scrutinee_ty {
             for arm in &m.arms {
@@ -410,7 +410,7 @@ impl TypeChecker {
                         ));
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         } else {
             for arm in &m.arms {
@@ -445,7 +445,7 @@ impl TypeChecker {
                         ));
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         }
 

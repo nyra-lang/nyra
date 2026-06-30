@@ -65,11 +65,11 @@ impl Codegen {
                 })
                 .unwrap_or_else(|| "i32".into()),
             Expression::Grouped(inner) => self.infer_expr_llvm_ty(inner, env),
-            Expression::If(i) => self.infer_expr_llvm_ty(&i.then_expr, env),
+            Expression::If(i) => self.infer_block_expr_llvm_ty(&i.then_block, env),
             Expression::Match(m) => m
                 .arms
                 .first()
-                .map(|a| self.infer_expr_llvm_ty(&a.body, env))
+                .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
                 .unwrap_or_else(|| "i32".into()),
             Expression::Binary(_) => "i32".into(),
             Expression::Unary(u) => match u.op {

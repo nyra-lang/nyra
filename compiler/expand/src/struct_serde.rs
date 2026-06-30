@@ -108,8 +108,8 @@ fn encode_value_expr(field_ty: &TypeAnnotation, self_field: Expression, serde_st
         }),
         TypeAnnotation::Bool => Expression::If(Box::new(IfExpr {
             condition: self_field.clone(),
-            then_expr: Expression::Literal(Literal::String("true".into())),
-            else_expr: Expression::Literal(Literal::String("false".into())),
+            then_block: block_from_expr(Expression::Literal(Literal::String("true".into()))),
+            else_block: block_from_expr(Expression::Literal(Literal::String("false".into()))),
             span: span.clone(),
         })),
         TypeAnnotation::Struct(name) if serde_structs.contains(name) => Expression::Call(CallExpr {
@@ -349,8 +349,8 @@ fn decode_value_expr(
                     right: Expression::Literal(Literal::Int(0)),
                     span: span.clone(),
                 })),
-                then_expr: Expression::Literal(Literal::Bool(true)),
-                else_expr: Expression::Literal(Literal::Bool(false)),
+                then_block: block_from_expr(Expression::Literal(Literal::Bool(true))),
+                else_block: block_from_expr(Expression::Literal(Literal::Bool(false))),
                 span,
             }))
         }
@@ -767,8 +767,8 @@ fn bin_write_field_expr(
     if matches!(field_ty, TypeAnnotation::Bool) {
         let as_i32 = Expression::If(Box::new(IfExpr {
             condition: self_field,
-            then_expr: Expression::Literal(Literal::Int(1)),
-            else_expr: Expression::Literal(Literal::Int(0)),
+            then_block: block_from_expr(Expression::Literal(Literal::Int(1))),
+            else_block: block_from_expr(Expression::Literal(Literal::Int(0))),
             span: span.clone(),
         }));
         return (

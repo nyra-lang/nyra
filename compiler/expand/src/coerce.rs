@@ -62,8 +62,8 @@ fn coerce_expr_tree(expr: &mut Expression, sigs: &HashMap<String, Function>) {
         Expression::Grouped(g) => coerce_expr_tree(g, sigs),
         Expression::If(i) => {
             coerce_expr_tree(&mut i.condition, sigs);
-            coerce_expr_tree(&mut i.then_expr, sigs);
-            coerce_expr_tree(&mut i.else_expr, sigs);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| coerce_expr_tree(e, sigs));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| coerce_expr_tree(e, sigs));
         }
         Expression::Match(m) => {
             coerce_expr_tree(&mut m.scrutinee, sigs);
@@ -71,7 +71,7 @@ fn coerce_expr_tree(expr: &mut Expression, sigs: &HashMap<String, Function>) {
                 if let Some(g) = &mut arm.guard {
                     coerce_expr_tree(g, sigs);
                 }
-                coerce_expr_tree(&mut arm.body, sigs);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| coerce_expr_tree(e, sigs));
             }
         }
         Expression::Await(e) => coerce_expr_tree(e, sigs),

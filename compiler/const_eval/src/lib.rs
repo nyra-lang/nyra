@@ -4,7 +4,7 @@ pub use comptime::{finalize_comptime_module, fold_attributed_comptime_functions,
 
 use std::collections::{BTreeMap, HashMap};
 
-use ast::{BinaryOp, Expression, Literal, UnaryOp};
+use ast::{for_each_expr_in_block_mut, BinaryOp, Expression, Literal, UnaryOp};
 use errors::Span;
 
 fn const_wrap_i32(n: i64) -> i64 {
@@ -322,8 +322,8 @@ fn resolve_array_repeat_counts_expr(expr: &mut Expression, consts: &HashMap<Stri
         Expression::Grouped(g) => resolve_array_repeat_counts_expr(g, consts),
         Expression::If(i) => {
             resolve_array_repeat_counts_expr(&mut i.condition, consts);
-            resolve_array_repeat_counts_expr(&mut i.then_expr, consts);
-            resolve_array_repeat_counts_expr(&mut i.else_expr, consts);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| resolve_array_repeat_counts_expr(e, consts));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| resolve_array_repeat_counts_expr(e, consts));
         }
         Expression::Call(c) => {
             for a in &mut c.args {
@@ -354,7 +354,7 @@ fn resolve_array_repeat_counts_expr(expr: &mut Expression, consts: &HashMap<Stri
                 if let Some(g) = &mut arm.guard {
                     resolve_array_repeat_counts_expr(g, consts);
                 }
-                resolve_array_repeat_counts_expr(&mut arm.body, consts);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| resolve_array_repeat_counts_expr(e, consts));
             }
         }
         Expression::Cast(c) => resolve_array_repeat_counts_expr(&mut c.expr, consts),

@@ -128,8 +128,12 @@ fn rewrite_expr_calls(
         Expression::Grouped(g) => rewrite_expr_calls(g, env, generics),
         Expression::If(i) => {
             rewrite_expr_calls(&mut i.condition, env, generics);
-            rewrite_expr_calls(&mut i.then_expr, env, generics);
-            rewrite_expr_calls(&mut i.else_expr, env, generics);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| {
+                rewrite_expr_calls(e, env, generics);
+            });
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| {
+                rewrite_expr_calls(e, env, generics);
+            });
         }
         Expression::Match(m) => {
             rewrite_expr_calls(&mut m.scrutinee, env, generics);
@@ -137,7 +141,7 @@ fn rewrite_expr_calls(
                 if let Some(g) = &mut arm.guard {
                     rewrite_expr_calls(g, env, generics);
                 }
-                rewrite_expr_calls(&mut arm.body, env, generics);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| rewrite_expr_calls(e, env, generics));
             }
         }
         Expression::Await(e) => rewrite_expr_calls(e, env, generics),

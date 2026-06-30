@@ -21,13 +21,13 @@ fn expr_has_arrow(expr: &Expression) -> bool {
         Expression::Match(m) => {
             expr_has_arrow(&m.scrutinee)
                 || m.arms.iter().any(|a| {
-                    a.guard.as_ref().is_some_and(expr_has_arrow) || expr_has_arrow(&a.body)
+                    a.guard.as_ref().is_some_and(expr_has_arrow) || block_has_arrow(&a.body)
                 })
         }
         Expression::If(i) => {
             expr_has_arrow(&i.condition)
-                || expr_has_arrow(&i.then_expr)
-                || expr_has_arrow(&i.else_expr)
+                || block_has_arrow(&i.then_block)
+                || block_has_arrow(&i.else_block)
         }
         Expression::Index(ix) => expr_has_arrow(&ix.object) || expr_has_arrow(&ix.index),
         Expression::ArrayLiteral(al) => al.all_exprs().any(expr_has_arrow),
@@ -152,15 +152,15 @@ fn desugar_expr(expr: &Expression, program: &mut Program, counter: &mut usize) -
                 .map(|a| MatchArm {
                     pattern: a.pattern.clone(),
                     guard: a.guard.as_ref().map(|g| desugar_expr(g, program, counter)),
-                    body: desugar_expr(&a.body, program, counter),
+                    body: desugar_block(&a.body, program, counter),
                 })
                 .collect(),
             span: m.span.clone(),
         })),
         Expression::If(i) => Expression::If(Box::new(IfExpr {
             condition: desugar_expr(&i.condition, program, counter),
-            then_expr: desugar_expr(&i.then_expr, program, counter),
-            else_expr: desugar_expr(&i.else_expr, program, counter),
+            then_block: desugar_block(&i.then_block, program, counter),
+            else_block: desugar_block(&i.else_block, program, counter),
             span: i.span.clone(),
         })),
         Expression::Index(ix) => Expression::Index(Box::new(IndexExpr {
