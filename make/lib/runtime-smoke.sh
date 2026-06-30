@@ -17,8 +17,10 @@ NYRA="$NYRA_BIN"
 
 log() { echo "runtime-smoke: $*" >&2; }
 fail() {
-  log "FAILED: $*"
-  ta_fail "$*" "" || exit 1
+  local label="$1"
+  local detail="${2:-}"
+  log "FAILED: $label"
+  ta_fail "$label" "$detail" || exit 1
 }
 
 run_expect() {

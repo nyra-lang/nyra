@@ -49,39 +49,7 @@ smoke-vscode-extension:
 
 # Nyra run/test smoke steps from the legacy test-all.sh.
 test-runtime-smoke: ensure-nyra
-	$(call log_step,runtime smoke examples and tests)
-	@$(NYRA_BIN) run examples/syntax/hello.ny
-	@$(NYRA_BIN) run examples/syntax/for_in.ny
-	@$(NYRA_BIN) run examples/syntax/string_methods.ny
-	@$(NYRA_BIN) run examples/syntax/date_basics.ny
-	@$(NYRA_BIN) run examples/syntax/array_sort.ny
-	@test "$$($(NYRA_BIN) run examples/syntax/math.ny)" = "30"
-	@$(NYRA_BIN) run examples/syntax/hashmap_chain.ny
-	@$(NYRA_BIN) run tests/nyra/net/gaps_fix_test.ny
-	@$(NYRA_BIN) run tests/nyra/net/map_drop_test.ny
-	@$(NYRA_BIN) run tests/nyra/net/net_prod_test.ny
-	@$(NYRA_BIN) run tests/nyra/net/net_prod_test.typed.ny
-	@$(NYRA_BIN) run tests/nyra/language_gaps.ny
-	@$(NYRA_BIN) run tests/nyra/language_gaps.typed.ny
-	@$(NYRA_BIN) test tests/nyra/match_or_test.ny
-	@$(NYRA_BIN) run tests/nyra/match_or_test.typed.ny
-	@$(NYRA_BIN) test tests/nyra/match_nested_test.ny
-	@$(NYRA_BIN) run tests/nyra/match_nested_test.typed.ny
-	@$(NYRA_BIN) test tests/nyra/match_struct_tuple_test.ny
-	@$(NYRA_BIN) run tests/nyra/match_struct_tuple_test.typed.ny
-	@$(NYRA_BIN) run tests/nyra/modules_test.ny
-	@$(NYRA_BIN) run tests/nyra/modules_test.typed.ny
-	@$(NYRA_BIN) run tests/nyra/stdlib_gaps.ny
-	@$(NYRA_BIN) run tests/nyra/stdlib_gaps.typed.ny
-	@$(NYRA_BIN) run tests/nyra/games_stdlib.ny
-	@$(NYRA_BIN) run tests/nyra/games_stdlib.typed.ny
-	@$(NYRA_BIN) run tests/nyra/games_gaps.ny
-	@$(NYRA_BIN) run examples/dev/compiler_inprocess.ny
-	@$(NYRA_BIN) test tests/nyra/parser_gaps_test.ny
-	@$(NYRA_BIN) test tests/nyra/parser_gaps.typed.ny
-	@$(NYRA_BIN) build examples/projects/calculator
-	@$(NYRA_BIN) test examples/smoke_test_test.ny
-	$(call log_ok,runtime smoke examples and tests)
+	@$(MAKE_LIB)/runtime-smoke.sh
 
 smoke-cross-wasm: ensure-nyra
 	@. $(MAKE_LIB)/wasm-toolchain.sh; \
