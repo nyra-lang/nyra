@@ -21,9 +21,11 @@ fn Json_non_empty_lines(text: string) -> StrVec {
     let mut out = StrVec_new()
     let mut i = 0
     while i < lines.len() {
-        let line = trim(lines.get(i))
-        if strlen(line) > 0 && str_starts_with(line, "#") == 0 {
-            out = out.push(line)
+        let raw = trim(lines.get(i))
+        let n = strlen(raw)
+        let is_comment = if n > 0 { str_starts_with(raw, "#") } else { 0 }
+        if n > 0 && is_comment == 0 {
+            out = out.push(raw)
         }
         i = i + 1
     }

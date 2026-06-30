@@ -46,17 +46,18 @@ fn find_port_end(url: string, port_start: i32, n: i32) -> i32 {
 }
 
 fn parse_http_url(url: string) -> HttpUrl {
+    let src = clone url
     let mut i = 0
-    let n = strlen(url)
+    let n = strlen(src)
     let mut secure = false
     if n >= 8 {
-        if strcmp(substring(url, 0, 8), "https://") == 0 {
+        if strcmp(substring(src, 0, 8), "https://") == 0 {
             secure = true
             i = 8
         }
     }
     if !secure && n >= 7 {
-        if strcmp(substring(url, 0, 7), "http://") == 0 {
+        if strcmp(substring(src, 0, 7), "http://") == 0 {
             i = 7
         }
     }
@@ -66,15 +67,15 @@ fn parse_http_url(url: string) -> HttpUrl {
         port = 443
     }
     let mut path = "/"
-    let host_end = find_host_end(url, i, n)
+    let host_end = find_host_end(clone src, i, n)
     if host_end > i {
-        host = substring(url, i, host_end - i)
+        host = substring(clone src, i, host_end - i)
     }
     let mut path_start = host_end
-    if host_end < n && char_at(url, host_end) == 58 {
+    if host_end < n && char_at(clone src, host_end) == 58 {
         let port_start = host_end + 1
-        let port_end = find_port_end(url, port_start, n)
-        let port_str = substring(url, port_start, port_end - port_start)
+        let port_end = find_port_end(clone src, port_start, n)
+        let port_str = substring(clone src, port_start, port_end - port_start)
         port = parse_i32_digits(port_str)
         if port == 0 {
             if secure {
@@ -85,8 +86,8 @@ fn parse_http_url(url: string) -> HttpUrl {
         }
         path_start = port_end
     }
-    if path_start < n && char_at(url, path_start) == 47 {
-        path = substring(url, path_start, n - path_start)
+    if path_start < n && char_at(clone src, path_start) == 47 {
+        path = substring(clone src, path_start, n - path_start)
     }
     return HttpUrl { host: host, port: port, path: path, secure: secure }
 }
