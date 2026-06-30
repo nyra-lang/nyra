@@ -247,16 +247,17 @@ impl Codegen {
                 .or_else(|| else_end.get(name))
                 .map(|(_, ty)| ty.clone())
                 .unwrap_or_else(|| "i32".into());
+            let default_op = if ty == "ptr" { "null" } else { "0" };
             let then_op = then_end
                 .get(name)
                 .map(|(op, _)| op.clone())
                 .or_else(|| pre_if.get(name).map(|(op, _)| op.clone()))
-                .unwrap_or_else(|| "0".into());
+                .unwrap_or_else(|| default_op.into());
             let else_op = else_end
                 .get(name)
                 .map(|(op, _)| op.clone())
                 .or_else(|| pre_if.get(name).map(|(op, _)| op.clone()))
-                .unwrap_or_else(|| "0".into());
+                .unwrap_or_else(|| default_op.into());
             let phi_reg = self.fresh("if.phi");
             self.emit(&format!(
                 "  %{phi_reg} = phi {ty} [{then_op}, %{then_pred}], [{else_op}, %{else_pred}]"

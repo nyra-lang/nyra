@@ -487,25 +487,26 @@ fn hoist_try_in_block(
     block: &Block,
     fn_returns: &HashMap<String, TypeAnnotation>,
     counter: &mut usize,
+    success_mode: TrySuccessMode,
 ) -> (Vec<Statement>, Block) {
     let mut prelude = Vec::new();
     let mut out = Vec::new();
     for stmt in &block.statements {
         match stmt {
             Statement::Expression(e) if contains_try(e) => {
-                let h = hoist_try_expr(e, fn_returns, counter, TrySuccessMode::Unwrap);
+                let h = hoist_try_expr(e, fn_returns, counter, success_mode);
                 prelude.extend(h.prelude);
                 out.push(Statement::Expression(h.expr));
             }
             Statement::Let(l) if contains_try(&l.value) => {
-                let h = hoist_try_expr(&l.value, fn_returns, counter, TrySuccessMode::Unwrap);
+                let h = hoist_try_expr(&l.value, fn_returns, counter, success_mode);
                 prelude.extend(h.prelude);
                 let mut nl = l.clone();
                 nl.value = h.expr;
                 out.push(Statement::Let(nl));
             }
             Statement::Const(c) if contains_try(&c.value) => {
-                let h = hoist_try_expr(&c.value, fn_returns, counter, TrySuccessMode::Unwrap);
+                let h = hoist_try_expr(&c.value, fn_returns, counter, success_mode);
                 prelude.extend(h.prelude);
                 let mut nc = c.clone();
                 nc.value = h.expr;
@@ -514,7 +515,7 @@ fn hoist_try_in_block(
             Statement::Return(r) => {
                 if let Some(v) = &r.value {
                     if contains_try(v) {
-                        let h = hoist_try_expr(v, fn_returns, counter, TrySuccessMode::Unwrap);
+                        let h = hoist_try_expr(v, fn_returns, counter, success_mode);
                         prelude.extend(h.prelude);
                         out.push(Statement::Return(ReturnStmt {
                             value: Some(h.expr),
@@ -661,8 +662,10 @@ fn hoist_try_expr(
         }
         Expression::If(i) => {
             let ch = hoist_try_expr(&i.condition, fn_returns, counter, TrySuccessMode::Unwrap);
-            let (tp, then_block) = hoist_try_in_block(&i.then_block, fn_returns, counter);
-            let (ep, else_block) = hoist_try_in_block(&i.else_block, fn_returns, counter);
+            let (tp, then_block) =
+                hoist_try_in_block(&i.then_block, fn_returns, counter, TrySuccessMode::Unwrap);
+            let (ep, else_block) =
+                hoist_try_in_block(&i.else_block, fn_returns, counter, TrySuccessMode::Unwrap);
             let mut prelude = ch.prelude;
             prelude.extend(tp);
             prelude.extend(ep);
@@ -1003,7 +1006,8 @@ fn desugar_return_match_with_try(
             current_fn_return,
             &span,
         );
-        let (prelude, hoisted) = hoist_try_in_block(&arm.body, fn_returns, counter);
+        let (prelude, hoisted) =
+            hoist_try_in_block(&arm.body, fn_returns, counter, TrySuccessMode::KeepEnum);
         let mut ret_expr = block_trailing_expression(&hoisted).unwrap_or(Expression::Invalid);
         resolve_generic_enum_variants(&mut ret_expr, &enum_inst);
         then_stmts.extend(prelude);

@@ -16,6 +16,7 @@ impl TypeChecker {
     ) -> Result<Type, Vec<Type>> {
         let hints: Vec<Type> = hints
             .into_iter()
+            .map(Self::normalize_string_param_hint)
             .filter(|t| *t != Type::Unknown && *t != Type::Generic("_".into()))
             .collect();
         if hints.is_empty() {
@@ -135,6 +136,13 @@ impl TypeChecker {
             Ok(first)
         } else {
             Err(hints)
+        }
+    }
+
+    fn normalize_string_param_hint(ty: Type) -> Type {
+        match ty {
+            Type::Ref { inner, .. } if *inner == Type::String => Type::String,
+            other => other,
         }
     }
 
@@ -1160,6 +1168,11 @@ impl TypeChecker {
     fn expr_bare_param(expr: &Expression) -> Option<&str> {
         match expr {
             Expression::Variable { name, .. } => Some(name.as_str()),
+            Expression::Unary(u)
+                if matches!(u.op, UnaryOp::Ref | UnaryOp::RefMut | UnaryOp::Deref) =>
+            {
+                Self::expr_bare_param(&u.operand)
+            }
             Expression::MethodCall(m)
                 if m.method == "clone" && m.args.is_empty() && !m.optional =>
             {
@@ -1174,23 +1187,25 @@ impl TypeChecker {
         param_name: &str,
         call: &CallExpr,
     ) -> Option<Type> {
+        if call.callee == "strcat" && call.args.len() == 2 {
+            if Self::expr_is_param_name(&call.args[0], param_name)
+                || Self::expr_is_param_name(&call.args[1], param_name)
+            {
+                return Some(Type::String);
+            }
+        }
+        if call.callee == "strcmp" && call.args.len() == 2 {
+            if Self::expr_is_param_name(&call.args[0], param_name)
+                || Self::expr_is_param_name(&call.args[1], param_name)
+            {
+                return Some(Type::String);
+            }
+        }
         if let Some(sig) = self.env.functions.get(&call.callee) {
             for (arg, expected) in call.args.iter().zip(sig.params.iter()) {
                 if Self::expr_is_param_name(arg, param_name) && *expected != Type::Unknown {
-                    return Some(expected.clone());
+                    return Some(Self::normalize_string_param_hint(expected.clone()));
                 }
-            }
-        }
-        if call.callee == "strcat" && call.args.len() == 2 {
-            if Self::expr_is_param_name(&call.args[1], param_name)
-                && matches!(&call.args[0], Expression::Literal(Literal::String(_)))
-            {
-                return Some(Type::String);
-            }
-            if Self::expr_is_param_name(&call.args[0], param_name)
-                && matches!(&call.args[1], Expression::Literal(Literal::String(_)))
-            {
-                return Some(Type::String);
             }
         }
         let i32 = Type::Integer(ast::IntKind::I32);

@@ -1,7 +1,5 @@
 import "../io.ny"
 import "../strings.ny"
-import "console.ny"
-import "pty.ny"
 
 extern fn stdin_read_line(prompt: string) -> string
 

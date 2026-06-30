@@ -20,6 +20,7 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
+    llvm_value_operand,
     llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
@@ -225,12 +226,13 @@ impl Codegen {
         self.emit(&format!("  %{env_alloca} = alloca %{cap_ty_name}"));
         for (i, (name, ty)) in fields.iter().enumerate() {
             let val_reg = self.load_binding_for_spawn(name, ty, env);
+            let store_val = llvm_value_operand(&val_reg);
             let gep = self.fresh("closure.gep");
             self.emit(&format!(
                 "  %{gep} = getelementptr inbounds %{cap_ty_name}, %{cap_ty_name}* %{env_alloca}, i64 0, i32 {i}"
             ));
             self.emit(&format!(
-                "  store {ty} %{val_reg}, {} %{gep}",
+                "  store {ty} {store_val}, {} %{gep}",
                 llvm_ptr(ty)
             ));
             if self.drop_plan.is_owned_in(&drop_state.func, name) {

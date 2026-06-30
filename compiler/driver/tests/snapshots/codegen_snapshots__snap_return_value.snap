@@ -1,5 +1,6 @@
 ---
 source: compiler/driver/tests/codegen_snapshots.rs
+assertion_line: 122
 expression: normalize_ir(& ir)
 ---
 source_filename = "test.ny"
@@ -18,7 +19,8 @@ entry:
 }
 define i32 @main() {
 entry:
+  %call.N = call i32 @add(i32 3, i32 4)
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 7)
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %call.N)
   ret i32 0
 }

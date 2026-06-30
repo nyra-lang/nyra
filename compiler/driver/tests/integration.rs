@@ -719,6 +719,7 @@ fn async_state_machine_string_links_async_future_done() {
         ir.contains("async_future_done"),
         "expected async_future_done in IR"
     );
+    assert_no_invalid_opaque_ptr_zero(&ir);
     assert!(
         output.runtime_profile.symbols.contains("async_future_done"),
         "runtime profile missing async_future_done: {:?}",
@@ -731,6 +732,39 @@ fn async_state_machine_string_links_async_future_done() {
         "link modules missing rt_async.c: {:?}",
         mods
     );
+    assert_no_invalid_opaque_ptr_zero(&ir);
+}
+
+/// Opaque `ptr` must use `ptr %n` or `ptr null`, never `ptr 0` (clang link error).
+fn assert_no_invalid_opaque_ptr_zero(ir: &str) {
+    for line in ir.lines() {
+        let trimmed = line.trim();
+        if trimmed.contains("ptr 0,") || trimmed.contains("ptr 0)") {
+            panic!("invalid opaque ptr constant in IR: {trimmed}");
+        }
+        if trimmed.contains("phi ptr [0,") {
+            panic!("invalid opaque ptr phi in IR: {trimmed}");
+        }
+    }
+}
+
+#[test]
+fn parse_http_url_string_alias_emits_valid_ptr_operands() {
+    let src = r#"
+import "stdlib/http/request.ny"
+
+fn main() {
+    let u = parse_http_url("http://example.com/path")
+    if strlen(u.host) == 0 {
+        assert_eq(1, 0)
+    }
+}
+"#;
+    let output = Compiler::compile_source(src, "parse_url.ny", &CompileOptions::default()).unwrap();
+    assert!(output.type_errors.is_empty(), "{:?}", output.type_errors);
+    let ir = output.llvm_ir.expect("llvm ir");
+    assert!(ir.contains("@find_host_end"));
+    assert_no_invalid_opaque_ptr_zero(&ir);
 }
 
 #[test]

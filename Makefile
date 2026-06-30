@@ -3,6 +3,7 @@
 # Quick start:
 #   make help
 #   make test-preflight    # fast smoke (~1–3 min)
+#   make test-triage       # common CI failures in one report (~5–15 min)
 #   make test-all          # full suite (same as CI core)
 #   make install-dev       # build + install nyra from source
 
@@ -18,6 +19,7 @@ include make/release.mk
 include make/generators.mk
 include make/test-all.mk
 include make/test-platform.mk
+include make/test-platform-ci.mk
 include make/test-macos.mk
 include make/test-windows.mk
 
@@ -31,6 +33,7 @@ help:
 		'  make test-all-macos    macOS CI core (platform core + native build smoke)' \
 		'  make test-all-windows  Windows CI core (platform core + native build smoke)' \
 		'  make test-preflight    Fast pre-check before test-all' \
+		'  make test-triage       Common CI gates; all failures in target/.nyra-test-all-failures' \
 		'  make build-workspace   cargo build --workspace' \
 		'  make build-cli         Build target/debug/nyra only' \
 		'  make install-dev       Dev install (cargo install + stdlib sync)' \

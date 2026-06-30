@@ -262,7 +262,7 @@ impl Codegen {
             ));
             format!("%{tmp}")
         } else {
-            reg.to_string()
+            llvm_ptr_reg(reg)
         }
     }
 

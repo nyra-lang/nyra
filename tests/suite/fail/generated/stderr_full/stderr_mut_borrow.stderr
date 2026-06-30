@@ -1,2 +1,1 @@
-error[E008]: cannot pass a reference to `print`
 error[E010]: cannot assign to `v` because it is borrowed

@@ -270,7 +270,7 @@ pub fn optimize_llvm_ir(
     };
 
     let ll_out = work_dir.join("out.opt.ll");
-    let passes = if let Some(ref prof) = profile.pgo_use {
+    let passes = if let Some(ref _prof) = profile.pgo_use {
         format!("{},pgo-instr-use", profile.opt_level.llvm_passes())
     } else {
         profile.opt_level.llvm_passes().to_string()
@@ -415,7 +415,12 @@ pub fn link_binary(
     } else {
         target.to_string()
     };
-    let ll_link = optimize_llvm_ir(ll_path, work_dir, profile, &triple_for_opt)?;
+    let ll_work = work_dir.join("link.ll");
+    if ll_path != ll_work {
+        fs::copy(ll_path, &ll_work).map_err(|e| format!("copy {}: {e}", ll_path.display()))?;
+    }
+    sanitize_ir_file(&ll_work)?;
+    let ll_link = optimize_llvm_ir(&ll_work, work_dir, profile, &triple_for_opt)?;
     let mut rt_modules = resolve_runtime_modules_installed(runtime_profile, target)?;
 
     if profile.cdylib {
@@ -439,12 +444,14 @@ pub fn link_binary(
         &spec,
     )?;
     rt_modules = filter_runtime_modules_superseded_by_link_objects(rt_modules, &link_objects)?;
+    let rt_objects =
+        crate::c_cache::compile_link_sources(&rt_modules, work_dir, profile, &spec)?;
 
     let clang = llvm_tools::find_clang();
     let mut cmd = Command::new(&clang);
     cmd.arg(&ll_link);
-    for rt in &rt_modules {
-        cmd.arg(rt);
+    for obj in &rt_objects {
+        cmd.arg(obj);
     }
     for obj in &link_objects {
         cmd.arg(obj);
@@ -460,6 +467,9 @@ pub fn link_binary(
         needs_libm: runtime_profile.needs_libm(),
     };
     apply_target_link_flags(&mut cmd, &spec, &rt_flags);
+    if spec.is_windows() && llvm_tools::find_lld().is_some() {
+        cmd.arg("-fuse-ld=lld");
+    }
 
     cmd.arg(profile.opt_level.clang_flag());
 
@@ -562,11 +572,14 @@ pub fn link_binary(
         let _ = fs::remove_file(&link_tmp);
         let stderr = String::from_utf8_lossy(&status.stderr);
         let stdout = String::from_utf8_lossy(&status.stdout);
-        let detail = if stderr.is_empty() {
-            stdout.trim().to_string()
-        } else {
-            stderr.trim().to_string()
-        };
+        let mut detail = stderr.trim().to_string();
+        let stdout_trim = stdout.trim();
+        if !stdout_trim.is_empty() {
+            if !detail.is_empty() {
+                detail.push('\n');
+            }
+            detail.push_str(stdout_trim);
+        }
         if detail.is_empty() {
             return Err(format!("clang failed to link LLVM IR ({clang})"));
         }
@@ -653,22 +666,23 @@ fn demangle_linker_symbol(sym: &str) -> String {
 }
 
 fn object_exported_symbols(path: &Path) -> Result<HashSet<String>, String> {
-    let output = if cfg!(target_os = "macos") {
+    let path_s = path.to_str().ok_or("non-utf8 object path")?;
+    let output = if let Some(llvm_nm) = llvm_tools::find_llvm_nm() {
+        Command::new(&llvm_nm)
+            .args(["--extern-only", "--defined-only", "-g", path_s])
+            .output()
+    } else if cfg!(target_os = "macos") {
         Command::new("nm")
-            .args(["-gU", path.to_str().ok_or("non-utf8 object path")?])
+            .args(["-gU", path_s])
             .output()
     } else {
         Command::new("nm")
-            .args([
-                "-g",
-                "--defined-only",
-                path.to_str().ok_or("non-utf8 object path")?,
-            ])
+            .args(["-g", "--defined-only", path_s])
             .output()
     }
     .map_err(|e| format!("nm {}: {e}", path.display()))?;
 
-    if !output.status.success() {
+     if !output.status.success() {
         return Err(format!(
             "nm failed for {}: {}",
             path.display(),
@@ -922,6 +936,54 @@ mod tests {
         let out = String::from_utf8_lossy(&run.stdout);
         assert!(out.contains("fast"), "stdout: {out}");
         let _ = std::fs::remove_dir_all(&work);
+    }
+
+    #[test]
+    fn async_link_profile_rt_objects_have_unique_symbols() {
+        use compiler::{load_program_with_options, parse_source, set_diagnostic_root, LoadOptions};
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../tests/nyra/async_state_machine_string_test.ny");
+        let loaded = load_program_with_options(&path, LoadOptions { auto_prelude: true }).unwrap();
+        let mut program = loaded.program;
+        program.functions.retain(|f| f.name != "main");
+        let harness_main = parse_source(
+            "fn main() {\n    test_state_machine_string_return()\n}",
+            "harness.ny",
+        )
+        .unwrap();
+        program.functions.extend(harness_main.functions);
+        set_diagnostic_root(path.parent().unwrap());
+        let out = compiler::Compiler::compile_program(
+            &program,
+            &path.to_string_lossy(),
+            &compiler::CompileOptions::default(),
+            Some(&path),
+            loaded.errors,
+        )
+        .unwrap();
+        let mods =
+            compiler::runtime_map::resolve_runtime_modules_installed(&out.runtime_profile, "")
+                .unwrap();
+        let work =
+            std::env::temp_dir().join(format!("nyra_rt_obj_syms_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&work);
+        fs::create_dir_all(&work).unwrap();
+        let spec = crate::target::TargetSpec::host();
+        let profile = LinkProfile::default();
+        let objects = crate::c_cache::compile_link_sources(&mods, &work, &profile, &spec).unwrap();
+        let mut owner: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+        for (obj, src) in objects.iter().zip(mods.iter()) {
+            let syms = object_exported_symbols(obj).unwrap();
+            for sym in syms {
+                if let Some(prev) = owner.insert(sym.clone(), src.display().to_string()) {
+                    panic!(
+                        "duplicate runtime symbol `{sym}` in {} and {prev}",
+                        src.display()
+                    );
+                }
+            }
+        }
+        let _ = fs::remove_dir_all(&work);
     }
 
     #[test]

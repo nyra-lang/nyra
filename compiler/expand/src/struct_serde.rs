@@ -235,67 +235,105 @@ fn encode_field_value(
                     value: serde_int(0, span),
                 }),
             ];
-            let mut loop_body = vec![Statement::If(IfStmt {
+            let first_elem = Statement::If(IfStmt {
                 condition: Expression::Binary(Box::new(BinaryExpr {
-                    left: serde_var(&i_var, span),
+                    left: serde_call(&len_fn, vec![self_field.clone()], span),
                     op: BinaryOp::Gt,
                     right: serde_int(0, span),
                     span: span.clone(),
                 })),
                 then_block: Block {
-                    statements: vec![Statement::Assign(AssignStmt {
-                        target: serde_var(&out_var, span),
-                        value: serde_call(
-                            "strcat",
-                            vec![
-                                serde_var(&out_var, span),
-                                serde_str(",", span),
-                            ],
-                            span,
-                        ),
-                        span: span.clone(),
-                    })],
+                    statements: vec![
+                        Statement::Let(LetStmt {
+                            name: elem_var.clone(),
+                            mutable: false,
+                            destructure: vec![],
+                            span: span.clone(),
+                            ty: Some(TypeAnnotation::Struct(struct_name.clone())),
+                            value: serde_call(
+                                &get_fn,
+                                vec![self_field.clone(), serde_int(0, span)],
+                                span,
+                            ),
+                        }),
+                        Statement::Assign(AssignStmt {
+                            target: serde_var(&out_var, span),
+                            value: serde_call(
+                                "strcat",
+                                vec![
+                                    serde_var(&out_var, span),
+                                    serde_call(
+                                        &enc_fn,
+                                        vec![serde_var(&elem_var, span)],
+                                        span,
+                                    ),
+                                ],
+                                span,
+                            ),
+                            span: span.clone(),
+                        }),
+                        Statement::Assign(AssignStmt {
+                            target: serde_var(&i_var, span),
+                            value: serde_int(1, span),
+                            span: span.clone(),
+                        }),
+                    ],
                 },
                 else_block: None,
-            })];
-            loop_body.push(Statement::Let(LetStmt {
-                name: elem_var.clone(),
-                mutable: false,
-                destructure: vec![],
-                span: span.clone(),
-                ty: Some(TypeAnnotation::Struct(struct_name.clone())),
-                value: serde_call(
-                    &get_fn,
-                    vec![self_field.clone(), serde_var(&i_var, span)],
-                    span,
-                ),
-            }));
-            loop_body.push(Statement::Assign(AssignStmt {
-                target: serde_var(&out_var, span),
-                value: serde_call(
-                    "strcat",
-                    vec![
-                        serde_var(&out_var, span),
-                        serde_call(
-                            &enc_fn,
-                            vec![serde_var(&elem_var, span)],
-                            span,
-                        ),
-                    ],
-                    span,
-                ),
-                span: span.clone(),
-            }));
-            loop_body.push(Statement::Assign(AssignStmt {
-                target: serde_var(&i_var, span),
-                value: Expression::Binary(Box::new(BinaryExpr {
-                    left: serde_var(&i_var, span),
-                    op: BinaryOp::Add,
-                    right: serde_int(1, span),
+            });
+            stmts.push(first_elem);
+            let mut loop_body = vec![
+                Statement::Let(LetStmt {
+                    name: elem_var.clone(),
+                    mutable: false,
+                    destructure: vec![],
                     span: span.clone(),
-                })),
-                span: span.clone(),
-            }));
+                    ty: Some(TypeAnnotation::Struct(struct_name.clone())),
+                    value: serde_call(
+                        &get_fn,
+                        vec![self_field.clone(), serde_var(&i_var, span)],
+                        span,
+                    ),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&out_var, span),
+                    value: serde_call(
+                        "strcat",
+                        vec![
+                            serde_var(&out_var, span),
+                            serde_str(",", span),
+                        ],
+                        span,
+                    ),
+                    span: span.clone(),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&out_var, span),
+                    value: serde_call(
+                        "strcat",
+                        vec![
+                            serde_var(&out_var, span),
+                            serde_call(
+                                &enc_fn,
+                                vec![serde_var(&elem_var, span)],
+                                span,
+                            ),
+                        ],
+                        span,
+                    ),
+                    span: span.clone(),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&i_var, span),
+                    value: Expression::Binary(Box::new(BinaryExpr {
+                        left: serde_var(&i_var, span),
+                        op: BinaryOp::Add,
+                        right: serde_int(1, span),
+                        span: span.clone(),
+                    })),
+                    span: span.clone(),
+                }),
+            ];
             stmts.push(Statement::While(WhileStmt {
                 condition: Expression::Binary(Box::new(BinaryExpr {
                     left: serde_var(&i_var, span),

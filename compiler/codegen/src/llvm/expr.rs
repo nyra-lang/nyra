@@ -718,7 +718,7 @@ impl Codegen {
                     let reg = self.fresh("str_clone");
                     self.emit_runtime_call(
                         "str_clone",
-                        &format!("  %{reg} = call ptr @str_clone(ptr {})", obj.reg),
+                        &format!("  %{reg} = call ptr @str_clone(ptr {})", llvm_ptr_reg(&obj.reg)),
                     );
                     return ExprValue {
                         reg: format!("%{reg}"),

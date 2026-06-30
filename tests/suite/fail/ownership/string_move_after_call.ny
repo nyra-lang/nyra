@@ -5,5 +5,5 @@ fn use_twice(s: string) -> void {
 test fn test_string_by_value_moves() {
     let msg = "hello"
     use_twice(msg)
-    print(msg)
+    print(msg) //~ ERROR was moved
 }

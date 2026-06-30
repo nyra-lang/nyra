@@ -2,12 +2,10 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: Invalid character '@'
+error: Expected identifier after '@'
   --> p.ny:1:21
-error[P006]: Invalid expression
-  --> p.ny:1:23
-error[P008]: Expected '}' to close block
-  --> p.ny:1:24
+error[E002]: undefined variable ``
+  --> p.ny:1:21
 warning[W003]: unused variable `x`
   --> p.ny:1:17
    = help: prefix with `_` if intentional: `let _x = ...`

@@ -1,0 +1,54 @@
+name: Nyra CI setup
+description: Rust toolchain, cache, and OS dependencies for Nyra CI jobs (run actions/checkout first).
+
+inputs:
+  platform:
+    description: Runner OS family — macos, windows, or linux
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: dtolnay/rust-toolchain@stable
+
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Cache Homebrew (macOS)
+      if: inputs.platform == 'macos'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Cellar/llvm
+          /opt/homebrew/Cellar/sqlite
+          /opt/homebrew/opt/llvm
+          /opt/homebrew/opt/sqlite
+        key: brew-nyra-macos-${{ hashFiles('.github/workflows/ci.yml', '.github/actions/nyra-ci-setup/action.yml') }}
+        restore-keys: |
+          brew-nyra-macos-
+
+    - name: System dependencies (macOS)
+      if: inputs.platform == 'macos'
+      shell: bash
+      run: brew install llvm sqlite
+
+    - name: macOS LLVM paths
+      if: inputs.platform == 'macos'
+      shell: bash
+      run: |
+        echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
+        echo "DYLD_LIBRARY_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
+
+    - name: Install LLVM (Windows)
+      if: inputs.platform == 'windows'
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "18.1.8"
+
+    - name: System dependencies (Linux)
+      if: inputs.platform == 'linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          clang lld libclang-dev llvm-dev libsqlite3-dev python3

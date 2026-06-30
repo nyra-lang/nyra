@@ -2,11 +2,6 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(& out)
 ---
-error[E008]: cannot pass a reference to `print`
-  --> test.ny:5:11
-   = note: expected string, i32, f32, f64, char, bool, or a fixed array of those — found `&'local i32`
-   = help: dereference: `print(*name)`
-   = help: end any active borrows before printing the value
 error[E010]: cannot assign to `v` because it is borrowed
   --> test.ny:4:5
    = help: drop the borrow before assigning, or clone the value: `let copy = clone v`

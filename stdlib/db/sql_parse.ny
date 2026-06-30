@@ -19,12 +19,13 @@ fn SqlParse_upper(token: string) -> string {
 
 fn SqlParse_join_csv(vec: StrVec) -> string {
     let n = vec.len()
-    let mut out = ""
-    let mut i = 0
+    if n == 0 {
+        return ""
+    }
+    let mut out = vec.get(0)
+    let mut i = 1
     while i < n {
-        if i > 0 {
-            out = strcat(out, ", ")
-        }
+        out = strcat(out, ", ")
         out = strcat(out, vec.get(i))
         i = i + 1
     }
@@ -239,17 +240,23 @@ fn SqlParse_parse_insert(tokens: StrVec) -> SqlAst {
 
 fn SqlParse_join_from(tokens: StrVec, start: i32, stop_word: string) -> string {
     let n = tokens.len()
-    let mut out = ""
-    let mut i = start
+    if start >= n {
+        return ""
+    }
+    if strlen(stop_word) > 0 {
+        if strcmp(SqlParse_upper(tokens.get(start)), stop_word) == 0 {
+            return ""
+        }
+    }
+    let mut out = tokens.get(start)
+    let mut i = start + 1
     while i < n {
         if strlen(stop_word) > 0 {
             if strcmp(SqlParse_upper(tokens.get(i)), stop_word) == 0 {
                 return out
             }
         }
-        if i > start {
-            out = strcat(out, " ")
-        }
+        out = strcat(out, " ")
         out = strcat(out, tokens.get(i))
         i = i + 1
     }

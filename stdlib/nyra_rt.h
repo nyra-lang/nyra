@@ -345,6 +345,9 @@ char *http_get(const char *url);
 /* since Nyra 0.3.0 */
 int http_status(const char *response_header);
 
+/* since Nyra 1.38.0 */
+int http_download_file(const char *url, const char *path);
+
 /* since Nyra 0.3.0 */
 char *json_get_string(const char *json, const char *key);
 
@@ -720,6 +723,18 @@ int create_dir(const char *path);
 /* since Nyra 1.1.0 */
 int remove_dir(const char *path);
 
+/* since Nyra 1.38.0 */
+int create_dir_all(const char *path);
+
+/* since Nyra 1.38.0 */
+int remove_dir_all(const char *path);
+
+/* since Nyra 1.38.0 */
+int copy_dir(const char *src, const char *dst);
+
+/* since Nyra 1.38.0 */
+int copy_dir_contents(const char *src, const char *dst);
+
 /* since Nyra 1.1.0 */
 char *str_to_upper(const char *s);
 
@@ -926,6 +941,12 @@ void *bin_decode_blob_at(void *bin, int32_t index);
 
 /* since Nyra 2.5.0 */
 char *json_encode_str_array(void *handle);
+
+/* since Nyra 1.38.0 */
+char *json_join_raw_array(void *handle);
+
+/* since Nyra 1.38.0 */
+void *json_split_array_elements(const char *array_json);
 
 /* since Nyra 2.5.0 */
 int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname);

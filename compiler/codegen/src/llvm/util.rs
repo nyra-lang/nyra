@@ -87,7 +87,7 @@ pub(super) fn is_string_builtin_method(method: &str) -> bool {
 }
 
 pub(super) fn llvm_ptr_reg(reg: &str) -> String {
-    if reg.starts_with('%') {
+    if reg.starts_with('%') || reg.starts_with('@') || reg == "null" {
         reg.to_string()
     } else {
         format!("%{reg}")
@@ -148,8 +148,14 @@ mod escape_tests {
     pub(super) fn escape_string_escapes_ascii_controls() {
         assert_eq!(escape_string("a\\b\"c\nd"), "a\\\\b\\22c\\0Ad");
     }
-}
 
+    #[test]
+    pub(super) fn llvm_ptr_reg_formats_bare_ssa_numbers() {
+        assert_eq!(super::llvm_ptr_reg("0"), "%0");
+        assert_eq!(super::llvm_ptr_reg("%1"), "%1");
+        assert_eq!(super::llvm_ptr_reg("null"), "null");
+    }
+}
 
 use std::collections::{HashMap, HashSet};
 

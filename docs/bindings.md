@@ -99,10 +99,13 @@ make gen-bindings-doc
 | `color_ansi` | `const char *color_ansi(const char *spec)` | `rt_io.c` | 1.2.0 | — |
 | `command_exec_capture` | `char *command_exec_capture(const char *program, void *args_handle)` | `rt_process.c` | 1.14.0 | — |
 | `command_run` | `int command_run(const char *program, void *args_handle)` | `rt_process.c` | 1.0.0 | — |
+| `copy_dir` | `int copy_dir(const char *src, const char *dst)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `copy_dir_contents` | `int copy_dir_contents(const char *src, const char *dst)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `copy_file` | `long long copy_file(const char *src, const char *dst)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `cos_f64` | `double cos_f64(double x)` | `rt_math.c` | 1.16.0 | `stdlib/math.ny` |
 | `cpu_count` | `int32_t cpu_count(void)` | `rt_parallel.c` | 1.3.0 | — |
 | `create_dir` | `int create_dir(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `create_dir_all` | `int create_dir_all(const char *path)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `date_now` | `void date_now(int *out)` | `rt_time.c` | 1.3.0 | — |
 | `f64_to_string` | `char *f64_to_string(double n)` | `rt_strings.c` | 1.3.3 | `stdlib/strconv/mod.ny` |
 | `file_exists` | `int file_exists(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/fs.ny`, `stdlib/gui/picker.ny` |
@@ -119,6 +122,7 @@ make gen-bindings-doc
 | `gzip_file` | `int gzip_file(const char *src, const char *dst)` | `rt_gzip.c` | 1.3.0 | `stdlib/compress/gzip.ny` |
 | `heap_free` | `void heap_free(void *p)` | `rt_alloc.c` | 0.2.0 | — |
 | `hmac_sha256_hex` | `char *hmac_sha256_hex(const char *key, const char *data)` | `rt_crypto.c` | 1.3.3 | `stdlib/crypto/hmac.ny` |
+| `http_download_file` | `int http_download_file(const char *url, const char *path)` | `rt_http.c` | 1.38.0 | `stdlib/http/download.ny` |
 | `http_get` | `char *http_get(const char *url)` | `rt_http.c` | 0.3.0 | — |
 | `http_status` | `int http_status(const char *response_header)` | `rt_http.c` | 0.3.0 | — |
 | `i32_to_string` | `char *i32_to_string(int n)` | `rt_strings.c` | 0.2.0 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/strconv/mod.ny`, `stdlib/strings.ny`, `stdlib/time/date.ny` |
@@ -139,6 +143,8 @@ make gen-bindings-doc
 | `json_get_i32` | `int json_get_i32(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny`, `stdlib/json.ny`, `stdlib/process.ny` |
 | `json_get_object` | `char *json_get_object(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny` |
 | `json_get_string` | `char *json_get_string(const char *json, const char *key)` | `rt_json.c` | 0.3.0 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/json.ny`, `stdlib/process.ny` |
+| `json_join_raw_array` | `char *json_join_raw_array(void *handle)` | `rt_json.c` | 1.38.0 | `stdlib/json/mod.ny` |
+| `json_split_array_elements` | `void *json_split_array_elements(const char *array_json)` | `rt_json.c` | 1.38.0 | `stdlib/json/jsonl.ny`, `stdlib/json/mod.ny` |
 | `list_dir` | `char *list_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny`, `stdlib/gui/picker.ny` |
 | `map_str_i32_contains` | `int map_str_i32_contains(void *handle, const char *key)` | `rt_map.c` | 0.4.0 | `stdlib/map.ny` |
 | `map_str_i32_free` | `void map_str_i32_free(void *handle)` | `rt_map.c` | 0.4.0 | `stdlib/map.ny` |
@@ -197,6 +203,7 @@ make gen-bindings-doc
 | `regex_free` | `void regex_free(void *handle)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
 | `regex_is_match` | `int regex_is_match(void *handle, const char *text)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
 | `remove_dir` | `int remove_dir(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `remove_dir_all` | `int remove_dir_all(const char *path)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `remove_file` | `int remove_file(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `rsa_available` | `int rsa_available(void)` | `rt_crypto_openssl.c` | 1.3.3 | `stdlib/crypto/rsa.ny` |
 | `rsa_public_encrypt_pem` | `char *rsa_public_encrypt_pem(const char *pem_pub, const char *plaintext)` | `rt_crypto_openssl.c` | 1.3.3 | `stdlib/crypto/rsa.ny` |
@@ -273,7 +280,7 @@ make gen-bindings-doc
 | `sqlite_step` | `int sqlite_step(void *stmt)` | `rt_sqlite.c` | 1.21.0 | `stdlib/db/sqlite.ny` |
 | `stdin_read_bytes` | `void *stdin_read_bytes(int max_bytes)` | `rt_bytes.c` | 1.3.0 | `stdlib/fs/bytes.ny` |
 | `stdin_read_key` | `int stdin_read_key(void)` | `rt_io.c` | 1.16.0 | `stdlib/terminal/raw.ny` |
-| `stdin_read_line` | `char *stdin_read_line(const char *prompt)` | `rt_io.c` | 1.1.0 | `stdlib/terminal/mod.ny` |
+| `stdin_read_line` | `char *stdin_read_line(const char *prompt)` | `rt_io.c` | 1.1.0 | `stdlib/bufio/mod.ny`, `stdlib/terminal/mod.ny` |
 | `stdin_set_raw_mode` | `void stdin_set_raw_mode(int enable)` | `rt_io.c` | 1.16.0 | `stdlib/terminal/raw.ny` |
 | `stdout_flush` | `void stdout_flush(void)` | `rt_io.c` | 0.2.0 | `stdlib/io.ny` |
 | `stdout_write_bytes` | `void stdout_write_bytes(void *handle)` | `rt_bytes.c` | 1.3.0 | `stdlib/fs/bytes.ny` |

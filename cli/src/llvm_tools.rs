@@ -165,6 +165,10 @@ pub fn find_lld() -> Option<String> {
     find_llvm_tool("lld")
 }
 
+pub fn find_llvm_nm() -> Option<String> {
+    find_llvm_tool("llvm-nm")
+}
+
 pub fn find_wasm_ld() -> Option<String> {
     find_llvm_tool("wasm-ld").or_else(|| find_lld())
 }
@@ -271,7 +275,27 @@ pub fn sanitize_ir_for_clang(content: &str) -> String {
     let mut out = content.replace(" captures(none)", "");
     out = out.replace(" captures(all)", "");
     out = out.replace(" captures(ret)", "");
-    out
+    for (from, to) in [
+        ("ptr 0,", "ptr %0,"),
+        ("ptr 0)", "ptr %0)"),
+        ("phi ptr [0,", "phi ptr [%0,"),
+    ] {
+        if out.contains(from) {
+            out = out.replace(from, to);
+        }
+    }
+    // Codegen occasionally double-prefixes SSA names (%%1) when a register already includes '%'.
+    let mut fixed = String::with_capacity(out.len());
+    let mut chars = out.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '%' && chars.peek() == Some(&'%') {
+            chars.next();
+            fixed.push('%');
+        } else {
+            fixed.push(c);
+        }
+    }
+    fixed
 }
 
 pub fn require_llvm_opt() -> Result<String, String> {
@@ -307,6 +331,22 @@ mod tests {
         let cleaned = sanitize_ir_for_clang(raw);
         assert!(!cleaned.contains("captures("));
         assert!(cleaned.contains("readonly"));
+    }
+
+    #[test]
+    fn sanitize_fixes_opaque_ptr_zero_operands() {
+        let raw = "  %call = call i32 @find_host_end(ptr 0, i32 %x, i32 %y)";
+        let cleaned = sanitize_ir_for_clang(raw);
+        assert!(cleaned.contains("ptr %0,"));
+        assert!(!cleaned.contains("ptr 0,"));
+    }
+
+    #[test]
+    fn sanitize_fixes_double_percent_ssa() {
+        let raw = "  store i32 %%1, i32* %closure.gep.91";
+        let cleaned = sanitize_ir_for_clang(raw);
+        assert!(cleaned.contains("store i32 %1,"));
+        assert!(!cleaned.contains("%%"));
     }
 
     #[test]

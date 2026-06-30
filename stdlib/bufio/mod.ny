@@ -1,6 +1,7 @@
 import "../strings.ny"
 import "../vec_str.ny"
-import "../terminal/mod.ny"
+
+extern fn stdin_read_line(prompt: string) -> string
 
 struct Scanner {
     data: string

@@ -201,6 +201,22 @@ fn main() {
 }
 
 #[test]
+fn conf_inf_012b_strcmp_body_only_ref() {
+    let out = compile(
+        r#"fn f(flag) {
+    if strcmp("x", flag) == 0 {
+        return 1
+    }
+    return 0
+}
+fn main() {
+    print(0)
+}"#,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+}
+
+#[test]
 fn conf_inf_014_cat_run_files_get() {
     let out = compile(
         r#"struct StrVec { handle: ptr }

@@ -22,6 +22,7 @@ test-all-init:
 		$(MAKE_LIB)/test-all-progress.sh init
 	@printf 'make: live log: %s\n' "$(TEST_ALL_LOG)"
 	@printf 'make: failures log: %s\n' "$(TEST_ALL_FAILURES_FILE)"
+	@printf 'make: gate logs (on failure): %s/\n' "$(TEST_ALL_GATE_LOGS_DIR)"
 	@. $(MAKE_LIB)/test-stats.sh && nyra_stats_init
 
 test-all-core:

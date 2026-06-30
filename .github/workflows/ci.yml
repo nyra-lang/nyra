@@ -12,110 +12,363 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Staged CI: build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native/extras.
+# Within each tier, gates run in parallel (matrix). Later tiers still run if an earlier
+# tier failed (if: always) so every failure is visible in one run.
+
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
-  test-linux:
-    name: Linux — make test-all
-    runs-on: ubuntu-latest
-    env:
-      TEST_SAN: "1"
-      TEST_PERF: "1"
-      TEST_FUZZ: "1"
-      NYRA_SUITE_PROFILE: ci
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-
-      - name: Install nightly (fuzz smoke)
-        run: rustup toolchain install nightly
-
-      - name: Cache cargo-fuzz
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/bin/cargo-fuzz
-          key: cargo-fuzz-${{ runner.os }}-v1
-
-      - name: Install cargo-fuzz
-        run: |
-          if ! command -v cargo-fuzz >/dev/null 2>&1; then
-            cargo install cargo-fuzz --locked
-          fi
-
-      - name: System dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            clang lld libclang-dev llvm-dev libsqlite3-dev wasi-libc python3 \
-            g++-mingw-w64-x86-64 gcc-mingw-w64-x86-64
-
-      - name: Full Nyra test suite (sanitizer + perf + fuzz + cross)
-        run: make test-all
-
-  test-macos:
-    name: macOS — make test-all-macos
+  # ── Stage 0: build (macOS ∥ Windows) ─────────────────────────────────────────
+  build-macos:
+    name: "build · macOS"
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-
-      - name: System dependencies
-        run: brew install llvm sqlite
-
-      - name: macOS core Nyra tests
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: macos
+      - name: Build workspace + nyra
         shell: bash
-        run: |
-          export LIBCLANG_PATH="$(brew --prefix llvm)/lib"
-          export DYLD_LIBRARY_PATH="$LIBCLANG_PATH"
-          make test-all-macos
+        run: make test-platform-ci-build
 
-  test-windows:
-    name: Windows — make test-all-windows
+  build-windows:
+    name: "build · Windows"
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-
-      - name: Install LLVM (clang for nyra build)
-        uses: KyleMayes/install-llvm-action@v2
+      - uses: ./.github/actions/nyra-ci-setup
         with:
-          version: "18.1.8"
-
-      - name: Windows core Nyra tests
+          platform: windows
+      - name: Build workspace + nyra
         shell: bash
-        run: make test-all-windows
+        run: make test-platform-ci-build
 
+  # ── Tier 1: fast (~1–3 min per gate, parallel) ───────────────────────────────
+  tier1-macos:
+    name: "tier1 · macOS · ${{ matrix.label }}"
+    needs: build-macos
+    if: ${{ !cancelled() && needs.build-macos.result == 'success' }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: test-optional-types
+            label: optional-types
+          - gate: test-conformance
+            label: conformance
+          - gate: test-cargo-workspace
+            label: cargo-workspace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: macos
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier1
+
+  tier1-windows:
+    name: "tier1 · Windows · ${{ matrix.label }}"
+    needs: build-windows
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: test-optional-types
+            label: optional-types
+          - gate: test-conformance
+            label: conformance
+          - gate: test-cargo-workspace
+            label: cargo-workspace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: windows
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier1
+
+  # ── Tier 2: medium (~3–10 min, parallel) ─────────────────────────────────────
+  tier2-macos:
+    name: "tier2 · macOS · ${{ matrix.label }}"
+    needs: [build-macos, tier1-macos]
+    if: >-
+      ${{ !cancelled() && needs.build-macos.result == 'success' &&
+          (needs.tier1-macos.result == 'success' || needs.tier1-macos.result == 'failure') }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: test-nyra-lang
+            label: nyra-lang
+          - gate: smoke-stdlib-priority
+            label: stdlib-priority
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: macos
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier2
+
+  tier2-windows:
+    name: "tier2 · Windows · ${{ matrix.label }}"
+    needs: [build-windows, tier1-windows]
+    if: >-
+      ${{ !cancelled() && needs.build-windows.result == 'success' &&
+          (needs.tier1-windows.result == 'success' || needs.tier1-windows.result == 'failure') }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: test-nyra-lang
+            label: nyra-lang
+          - gate: smoke-stdlib-priority
+            label: stdlib-priority
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: windows
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier2
+
+  # ── Tier 3: heavy (~5–20 min, parallel) ──────────────────────────────────────
+  tier3-macos:
+    name: "tier3 · macOS · ${{ matrix.label }}"
+    needs: [build-macos, tier2-macos]
+    if: >-
+      ${{ !cancelled() && needs.build-macos.result == 'success' &&
+          (needs.tier2-macos.result == 'success' || needs.tier2-macos.result == 'failure') }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: smoke-stdlib
+            label: stdlib
+          - gate: smoke-stdlib-runtime
+            label: stdlib-runtime
+          - gate: test-runtime-smoke
+            label: runtime-smoke
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: macos
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier3
+
+  tier3-windows:
+    name: "tier3 · Windows · ${{ matrix.label }}"
+    needs: [build-windows, tier2-windows]
+    if: >-
+      ${{ !cancelled() && needs.build-windows.result == 'success' &&
+          (needs.tier2-windows.result == 'success' || needs.tier2-windows.result == 'failure') }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: smoke-stdlib
+            label: stdlib
+          - gate: smoke-stdlib-runtime
+            label: stdlib-runtime
+          - gate: test-runtime-smoke
+            label: runtime-smoke
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: windows
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier3
+
+  # ── Stage 4: native / packaging (parallel after build) ─────────────────────────
+  native-macos:
+    name: "native · macOS"
+    needs: [build-macos, tier3-macos]
+    if: >-
+      ${{ !cancelled() && needs.build-macos.result == 'success' &&
+          (needs.tier3-macos.result == 'success' || needs.tier3-macos.result == 'failure') }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: macos
+      - name: Native macOS build smoke
+        shell: bash
+        run: make test-all-macos-native
+
+  native-windows:
+    name: "native · Windows"
+    needs: [build-windows, tier3-windows]
+    if: >-
+      ${{ !cancelled() && needs.build-windows.result == 'success' &&
+          (needs.tier3-windows.result == 'success' || needs.tier3-windows.result == 'failure') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: windows
+      - name: Native Windows build smoke
+        shell: bash
+        run: make test-all-windows-native
+
+  windows-package:
+    name: "package · Windows"
+    needs: build-windows
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: windows
       - name: Package smoke (Windows asset layout)
         shell: bash
         run: make package-release VERSION=1.1.0-test TRIPLE=x86_64-pc-windows-msvc
 
+  windows-dap:
+    name: "dap · Windows"
+    needs: build-windows
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: windows
       - name: DAP smoke
         run: cargo build -p nyra-dap
+
+  # ── Summary (always) ─────────────────────────────────────────────────────────
+  ci-summary:
+    name: CI summary
+    needs:
+      - build-macos
+      - build-windows
+      - tier1-macos
+      - tier1-windows
+      - tier2-macos
+      - tier2-windows
+      - tier3-macos
+      - tier3-windows
+      - native-macos
+      - native-windows
+      - windows-package
+      - windows-dap
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write job summary
+        shell: bash
+        env:
+          BUILD_MACOS: ${{ needs.build-macos.result }}
+          BUILD_WINDOWS: ${{ needs.build-windows.result }}
+          TIER1_MACOS: ${{ needs.tier1-macos.result }}
+          TIER1_WINDOWS: ${{ needs.tier1-windows.result }}
+          TIER2_MACOS: ${{ needs.tier2-macos.result }}
+          TIER2_WINDOWS: ${{ needs.tier2-windows.result }}
+          TIER3_MACOS: ${{ needs.tier3-macos.result }}
+          TIER3_WINDOWS: ${{ needs.tier3-windows.result }}
+          NATIVE_MACOS: ${{ needs.native-macos.result }}
+          NATIVE_WINDOWS: ${{ needs.native-windows.result }}
+          WIN_PACKAGE: ${{ needs.windows-package.result }}
+          WIN_DAP: ${{ needs.windows-dap.result }}
+        run: |
+          set -euo pipefail
+          icon() {
+            case "$1" in
+              success) printf '✅' ;;
+              failure) printf '❌' ;;
+              skipped) printf '⏭️' ;;
+              cancelled) printf '🚫' ;;
+              '') printf '—' ;;
+              *) printf '⚠️ %s' "$1" ;;
+            esac
+          }
+          {
+            echo "## CI stages"
+            echo ""
+            echo "| Stage | macOS | Windows |"
+            echo "|-------|-------|---------|"
+            printf '| 0 build | %s | %s |\n' "$(icon "$BUILD_MACOS")" "$(icon "$BUILD_WINDOWS")"
+            printf '| 1 fast | %s | %s |\n' "$(icon "$TIER1_MACOS")" "$(icon "$TIER1_WINDOWS")"
+            printf '| 2 medium | %s | %s |\n' "$(icon "$TIER2_MACOS")" "$(icon "$TIER2_WINDOWS")"
+            printf '| 3 heavy | %s | %s |\n' "$(icon "$TIER3_MACOS")" "$(icon "$TIER3_WINDOWS")"
+            printf '| 4 native | %s | %s |\n' "$(icon "$NATIVE_MACOS")" "$(icon "$NATIVE_WINDOWS")"
+            printf '| extras | — | package %s · dap %s |\n' "$(icon "$WIN_PACKAGE")" "$(icon "$WIN_DAP")"
+            echo ""
+            echo "_Skipped stages usually mean an earlier stage on that OS failed (e.g. build)._"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for r in "$BUILD_MACOS" "$BUILD_WINDOWS" "$TIER1_MACOS" "$TIER1_WINDOWS" \
+                   "$TIER2_MACOS" "$TIER2_WINDOWS" "$TIER3_MACOS" "$TIER3_WINDOWS" \
+                   "$NATIVE_MACOS" "$NATIVE_WINDOWS" "$WIN_PACKAGE" "$WIN_DAP"; do
+            if [[ "$r" == "failure" ]]; then
+              echo "::error::CI stage failed — see job logs and the summary table above."
+            fi
+          done
 
   benchmark:
     name: make bench (quick)
     runs-on: ubuntu-latest
-    needs: [test-linux, test-macos, test-windows]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build-macos
+      - build-windows
+      - tier3-macos
+      - tier3-windows
+      - native-macos
+      - native-windows
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.build-macos.result == 'success' &&
+      needs.build-windows.result == 'success' &&
+      needs.tier3-macos.result == 'success' &&
+      needs.tier3-windows.result == 'success' &&
+      needs.native-macos.result == 'success' &&
+      needs.native-windows.result == 'success'
     steps:
       - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-
-      - name: System dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang lld libclang-dev llvm-dev golang nodejs python3
-
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
+      - name: Extra Linux deps (bench)
+        shell: bash
+        run: sudo apt-get install -y golang nodejs
       - name: Cross-language benchmark (quick subset)
         env:
           BENCH_QUICK: "1"
@@ -126,7 +379,6 @@ jobs:
           BENCH_NO_OPEN: "1"
           BENCH_UPDATE_README: "0"
         run: make bench
-
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         with:
@@ -141,27 +393,16 @@ jobs:
     if: github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
       - name: Install nightly
         run: rustup toolchain install nightly
-
-      - name: System dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang lld libclang-dev llvm-dev python3
-
       - name: Install cargo-fuzz
         run: cargo install cargo-fuzz --locked
-
       - name: Regenerate full compiletest profile
         run: make gen-suite-tests GEN_SUITE_ARGS="--profile full"
-
       - name: Full compiletest suite
         run: cargo test -p compiler suite_ -- --nocapture
-
       - name: Extended fuzz gate (longer than push CI)
         run: make test-fuzz-nightly

@@ -2,7 +2,5 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: Return type mismatch: expected &i32, got &'local i32
-  --> test.ny:3:14
 error: cannot return reference to local variable; value does not live long enough
   --> test.ny:1:1

@@ -351,14 +351,7 @@ impl TypeChecker {
         match expr {
             Expression::Call(c) if c.callee == "strcat" && c.args.len() == 2 => {
                 let (left, right) = (&c.args[0], &c.args[1]);
-                if Self::expr_is_param_name(left, name)
-                    && matches!(right, Expression::Literal(Literal::String(_)))
-                {
-                    return Some(Type::String);
-                }
-                if Self::expr_is_param_name(right, name)
-                    && matches!(left, Expression::Literal(Literal::String(_)))
-                {
+                if Self::expr_is_param_name(left, name) || Self::expr_is_param_name(right, name) {
                     return Some(Type::String);
                 }
                 c.args

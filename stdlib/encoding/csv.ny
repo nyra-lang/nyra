@@ -94,12 +94,13 @@ fn csv_parse_line(line: string) -> StrVec {
 
 fn csv_join_rows(rows: ptr) -> string {
     let n = Vec_str_len(rows)
-    let mut out = ""
-    let mut i = 0
+    if n == 0 {
+        return ""
+    }
+    let mut out = Vec_str_get(rows, 0)
+    let mut i = 1
     while i < n {
-        if i > 0 {
-            out = strcat(out, "\n")
-        }
+        out = strcat(out, "\n")
         out = strcat(out, Vec_str_get(rows, i))
         i = i + 1
     }

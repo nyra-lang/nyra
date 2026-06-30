@@ -77,13 +77,16 @@ nyra_stats_check() {
     nyra_export_cli
   fi
   out="$("$NYRA_BIN" check "$path" 2>&1)" || ec=$?
-  if [[ -n "$out" ]]; then
+  if [[ -n "$out" && "${NYRA_TEST_ALL:-}" != "1" ]]; then
     printf '%s\n' "$out" >&2
   fi
   nyra_stats_count_diagnostics "$out"
   if (( ec == 0 )); then
     nyra_stats_pass
     return 0
+  fi
+  if [[ "${NYRA_TEST_ALL:-}" == "1" ]] && declare -f ta_record_failure >/dev/null 2>&1; then
+    ta_record_failure "check $path" "$out"
   fi
   return "$ec"
 }

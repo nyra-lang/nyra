@@ -834,6 +834,13 @@ tier = "stable"
 since = "0.3.0"
 
 [[symbol]]
+name = "http_download_file"
+c_sig = "int http_download_file(const char *url, const char *path)"
+module = "rt_http.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
 name = "json_get_string"
 c_sig = "char *json_get_string(const char *json, const char *key)"
 module = "rt_json.c"
@@ -1742,6 +1749,34 @@ c_sig = "int remove_dir(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
 since = "1.1.0"
+
+[[symbol]]
+name = "create_dir_all"
+c_sig = "int create_dir_all(const char *path)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "remove_dir_all"
+c_sig = "int remove_dir_all(const char *path)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "copy_dir"
+c_sig = "int copy_dir(const char *src, const char *dst)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "copy_dir_contents"
+c_sig = "int copy_dir_contents(const char *src, const char *dst)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
 
 [[symbol]]
 name = "str_to_upper"
@@ -2710,6 +2745,20 @@ c_sig = "char *json_encode_str_array(void *handle)"
 module = "rt_json.c"
 tier = "stable"
 since = "2.5.0"
+
+[[symbol]]
+name = "json_join_raw_array"
+c_sig = "char *json_join_raw_array(void *handle)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "json_split_array_elements"
+c_sig = "void *json_split_array_elements(const char *array_json)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.38.0"
 
 [[symbol]]
 name = "rt_tls_upgrade_client_verify"

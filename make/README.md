@@ -15,6 +15,7 @@ The root [`Makefile`](../Makefile) is the **only** contributor entry point for t
 | `make/install.mk` | Dev install, release installer, LLVM toolchain |
 | `make/generators.mk` | Python generators (`make gen-abi-header`, …) |
 | `make/test-all.mk` | Full suite orchestration (`make test-all`) |
+| `make/test-platform.mk` | macOS/Windows CI core (same `run_gate` aggregation) |
 | `make/lib/*.sh` | Internal recipe scripts (invoked by Make targets) |
 | `make/py/*.py` | Generator implementations (invoked only via `make`) |
 | `scripts/install.sh` | `curl \| sh` installer shim → `make/lib/install.sh` |
@@ -25,6 +26,7 @@ The root [`Makefile`](../Makefile) is the **only** contributor entry point for t
 ```bash
 make help              # list targets
 make test-preflight    # fast pre-check (~1–3 min)
+make test-triage       # common CI failures (~5–15 min); see target/.nyra-test-all-failures
 make test-all          # full suite (Linux CI; fast gates first)
 make test-all-macos    # macOS CI core
 make test-all-windows  # Windows CI core
@@ -38,6 +40,30 @@ make gen-abi-header    # regenerate stdlib/nyra_rt.h
 make gen-bindings-doc  # regenerate bindings docs
 make build-webdocs     # webDocs skill + search index
 ```
+
+## Failure aggregation (`make test-all`, `make test-all-macos`, `make test-all-windows`)
+
+- Gates run **quietly** during the suite (progress bar + gate name only); full output is captured, not streamed.
+- Every gate and per-test failure is appended to `target/.nyra-test-all-failures`.
+- Failed gate logs are kept under `target/.nyra-test-all-gate-logs/` until the suite ends.
+- A complete failure dump is printed **once at the end** in `test-all-summary` / `test-platform-summary`.
+- Multi-file smoke scripts (`stdlib-smoke`, `corpus-smoke`, `example-smoke`, `apps-smoke`, `runtime-smoke`) **continue on failure** under `NYRA_TEST_ALL=1` so no error is lost to an early exit.
+
+## GitHub Actions CI (`.github/workflows/ci.yml`)
+
+Staged pipeline — fastest gates first, **parallel within each tier**:
+
+| Stage | Jobs (matrix) | Typical time |
+|-------|----------------|--------------|
+| 0 build | macOS ∥ Windows | ~3–8 min |
+| 1 fast | `test-optional-types`, `test-conformance`, `test-cargo-workspace` | ~1–3 min each |
+| 2 medium | `test-nyra-lang`, `smoke-stdlib-priority` | ~3–10 min each |
+| 3 heavy | `smoke-stdlib`, `smoke-stdlib-runtime`, `test-runtime-smoke` | ~5–20 min each |
+| 4 native | `test-all-*-native`, Windows package + DAP | varies |
+
+Later tiers still run when an earlier tier fails (`if: always`) so all breakages surface in one run. The **CI summary** job lists pass/fail per stage.
+
+Local monolithic targets (`make test-all-macos`, `make test-all-windows`) are unchanged. CI gate env: `NYRA_CI_GATE=<target> make test-platform-ci-tierN`.
 
 ## Generator targets (`make/py/`)
 
