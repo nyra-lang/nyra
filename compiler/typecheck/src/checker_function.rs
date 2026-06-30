@@ -458,6 +458,15 @@ impl TypeChecker {
                     if let Some(ty) = self.infer_enum_type_from_match(m) {
                         return Some(ty);
                     }
+                    if let Some(ty) = self.infer_string_type_from_match(m) {
+                        return Some(ty);
+                    }
+                    if let Some(ty) = self.infer_struct_type_from_match(m) {
+                        return Some(ty);
+                    }
+                    if let Some(ty) = self.infer_tuple_type_from_match(m) {
+                        return Some(ty);
+                    }
                 }
                 for arm in &m.arms {
                     if let Some(t) = self.infer_name_type_in_expr(name, &arm.body) {
@@ -567,6 +576,56 @@ impl TypeChecker {
         enums.dedup();
         if enums.len() == 1 {
             Some(Type::Enum(enums[0].clone()))
+        } else {
+            None
+        }
+    }
+
+    fn infer_string_type_from_match(&self, m: &MatchExpr) -> Option<Type> {
+        let has_string_lit = m
+            .arms
+            .iter()
+            .any(|arm| matches!(arm.pattern, MatchPattern::Literal(_)));
+        if has_string_lit {
+            Some(Type::String)
+        } else {
+            None
+        }
+    }
+
+    fn infer_struct_type_from_match(&self, m: &MatchExpr) -> Option<Type> {
+        let mut names: Vec<String> = m
+            .arms
+            .iter()
+            .filter_map(|arm| match &arm.pattern {
+                MatchPattern::Struct(name, _) if self.structs.contains_key(name) => {
+                    Some(name.clone())
+                }
+                _ => None,
+            })
+            .collect();
+        names.sort();
+        names.dedup();
+        if names.len() == 1 {
+            Some(Type::Struct(names[0].clone()))
+        } else {
+            None
+        }
+    }
+
+    fn infer_tuple_type_from_match(&self, m: &MatchExpr) -> Option<Type> {
+        let mut arities = Vec::new();
+        for arm in &m.arms {
+            if let MatchPattern::Tuple(binds) = &arm.pattern {
+                arities.push(binds.len());
+            }
+        }
+        arities.sort();
+        arities.dedup();
+        if arities.len() == 1 {
+            Some(Type::Tuple {
+                elems: vec![Type::Unknown; arities[0]],
+            })
         } else {
             None
         }

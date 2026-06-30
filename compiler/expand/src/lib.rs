@@ -382,3 +382,17 @@ fn main() {
         ));
     }
 }
+
+#[cfg(test)]
+mod async_is_async_tests {
+    use super::*;
+    #[test]
+    fn give_keeps_is_async_after_expand() {
+        let src = r#"async fn give() -> i32 { return 7 }"#;
+        let (tokens, _) = lexer::Lexer::new(src, "t.ny").tokenize();
+        let (mut program, _) = parser::Parser::new(tokens).parse();
+        assert!(program.functions[0].is_async);
+        expand_program(&mut program);
+        assert!(program.functions[0].is_async, "expand stripped is_async");
+    }
+}

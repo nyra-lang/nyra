@@ -1017,12 +1017,19 @@ fn lookup_comptime_function<'a>(
     } else {
         call.callee.clone()
     };
-    functions.get(&name).ok_or_else(|| {
+    let f = functions.get(&name).ok_or_else(|| {
         comptime_error(
             call.span.clone(),
             format!("unknown comptime function `{name}`"),
         )
-    })
+    })?;
+    if f.is_async {
+        return Err(comptime_error(
+            call.span.clone(),
+            format!("async function `{name}` cannot be evaluated at comptime"),
+        ));
+    }
+    Ok(f)
 }
 
 fn apply_binary(op: ast::BinaryOp, l: ConstValue, r: ConstValue) -> Option<ConstValue> {
@@ -1524,6 +1531,18 @@ fn fold_comptime_in_expr(
             for a in &mut c.args {
                 fold_comptime_in_expr(a, functions, env);
             }
+            if let Some(f) = functions.get(&c.callee) {
+                if f.comptime {
+                    if let Ok(v) = eval_comptime_expr(
+                        expr,
+                        &ComptimeFrame::from_env(env),
+                        functions,
+                        0,
+                    ) {
+                        *expr = const_value_to_expr(&v);
+                    }
+                }
+            }
         }
         Expression::If(i) => {
             fold_comptime_in_expr(&mut i.condition, functions, env);
@@ -1598,10 +1617,11 @@ fn fold_comptime_in_expr(
         }
         _ => {}
     }
-    // Preserve runtime binding uses (borrowck / codegen) and if-expressions whose
-    // branches fail comptime compatibility (typecheck still needs both arms).
+    // Only fold literal arithmetic / const lookups here. Full comptime evaluation
+    // (calls, match, etc.) is limited to `#[comptime]` call sites above — otherwise
+    // async calls and runtime matches get incorrectly replaced with literals.
     if !skip_comptime_fold_replace(expr) {
-        if let Ok(v) = eval_comptime_expr(expr, &ComptimeFrame::from_env(env), functions, 0) {
+        if let Some(v) = eval_const_expr(expr, env) {
             *expr = const_value_to_expr(&v);
         }
     }
@@ -2294,6 +2314,27 @@ const R = comptime {
             "comptime fold must not replace binding uses with literals: {:?}",
             trim.object
         );
+    }
+
+    #[test]
+    fn comptime_fold_does_not_replace_async_fn_calls() {
+        let mut program = parse(
+            r#"async fn give() -> i32 { return 7 }
+fn main() {
+    let b = give()
+}"#,
+        );
+        let errors = fold_attributed_comptime_functions(&mut program);
+        assert!(errors.is_empty(), "{errors:?}");
+        let main = program.functions.iter().find(|f| f.name == "main").unwrap();
+        let call = match &main.body.statements[0] {
+            ast::Statement::Let(l) => match &l.value {
+                Expression::Call(c) => c,
+                other => panic!("expected async call, got {other:?}"),
+            },
+            other => panic!("expected let, got {other:?}"),
+        };
+        assert_eq!(call.callee, "give");
     }
 
     #[test]

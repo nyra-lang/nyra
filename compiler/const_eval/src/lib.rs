@@ -34,10 +34,24 @@ pub enum ConstValue {
     Tuple(Vec<ConstValue>),
 }
 
+const MAX_CONST_EVAL_DEPTH: usize = 256;
+
 pub fn eval_const_expr(
     expr: &Expression,
     consts: &HashMap<String, ConstValue>,
 ) -> Option<ConstValue> {
+    eval_const_expr_depth(expr, consts, 0)
+}
+
+fn eval_const_expr_depth(
+    expr: &Expression,
+    consts: &HashMap<String, ConstValue>,
+    depth: usize,
+) -> Option<ConstValue> {
+    if depth > MAX_CONST_EVAL_DEPTH {
+        return None;
+    }
+    let next = depth + 1;
     match expr {
         Expression::Literal(Literal::Int(n)) => Some(ConstValue::Int(*n)),
         Expression::Literal(Literal::IntKind(n, _)) => Some(ConstValue::Int(*n)),
@@ -47,8 +61,8 @@ pub fn eval_const_expr(
         Expression::Literal(Literal::String(s)) => Some(ConstValue::String(s.clone())),
         Expression::Variable { name, .. } => consts.get(name).cloned(),
         Expression::Binary(b) => {
-            let l = eval_const_expr(&b.left, consts)?;
-            let r = eval_const_expr(&b.right, consts)?;
+            let l = eval_const_expr_depth(&b.left, consts, next)?;
+            let r = eval_const_expr_depth(&b.right, consts, next)?;
             match (b.op, l, r) {
                 (BinaryOp::Add, ConstValue::Int(a), ConstValue::Int(b)) => {
                     Some(ConstValue::Int(const_wrap_i32(a.wrapping_add(b))))
@@ -133,14 +147,14 @@ pub fn eval_const_expr(
             }
         }
         Expression::Unary(u) => {
-            let v = eval_const_expr(&u.operand, consts)?;
+            let v = eval_const_expr_depth(&u.operand, consts, next)?;
             match (&u.op, v) {
                 (UnaryOp::Neg, ConstValue::Int(n)) => Some(ConstValue::Int(const_wrap_i32(-n))),
                 (UnaryOp::Not, ConstValue::Bool(b)) => Some(ConstValue::Bool(!b)),
                 _ => None,
             }
         }
-        Expression::Grouped(inner) => eval_const_expr(inner, consts),
+        Expression::Grouped(inner) => eval_const_expr_depth(inner, consts, next),
         _ => None,
     }
 }
@@ -392,7 +406,20 @@ fn fold_block_consts(block: &mut ast::Block, consts: &HashMap<String, ConstValue
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ast::{BinaryOp, Expression, Literal};
+    use ast::{BinaryOp, Expression, Literal, UnaryOp};
+
+    #[test]
+    fn eval_const_depth_limit_avoids_deep_unary_stack_overflow() {
+        let mut expr = Expression::Literal(Literal::Bool(true));
+        for _ in 0..512 {
+            expr = Expression::Unary(Box::new(ast::UnaryExpr {
+                op: UnaryOp::Not,
+                operand: expr,
+                span: Default::default(),
+            }));
+        }
+        assert_eq!(eval_const_expr(&expr, &HashMap::new()), None);
+    }
 
     #[test]
     fn eval_const_addition() {

@@ -829,6 +829,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(windows))]
     fn link_temp_path_non_windows_uses_extension() {
         let spec = TargetSpec::host();
         let bin = Path::new("out/async");

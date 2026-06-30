@@ -1,0 +1,25 @@
+---
+source: compiler/driver/tests/codegen_snapshots.rs
+assertion_line: 156
+expression: normalize_ir(& ir)
+---
+source_filename = "test.ny"
+target triple = "nyra-snapshot-host"
+
+@.str.N = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+
+declare i32 @printf(ptr, ...)
+declare void @abort()
+declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
+
+define i32 @id__i32(i32 %0) {
+entry:
+  ret i32 %0
+}
+define i32 @main() {
+entry:
+  %call.N = call i32 @id__i32(i32 7)
+  %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %call.N)
+  ret i32 0
+}

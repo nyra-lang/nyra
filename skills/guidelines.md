@@ -6,9 +6,11 @@
 
 Any modification or addition to the language, compiler, stdlib, CLI, or runtime must follow:
 
+**Cross-impact:** Any code change can break something elsewhere. Do not stop after the failing test passes — run broad enough suites (often `make test-all`) and check dependent paths so a fix in one place does not create a regression in another.
+
 1. **Tests** — Cover with all supported test types; run `make test-all` for full language verification when appropriate.
 2. **Examples** — Add or update an example under `examples/` for new or changed features.
-3. **No regressions** — Ensure the change does not break or negatively affect other features.
+3. **No regressions** — Ensure the change does not break or negatively affect other features (compiler stages, fail suites, snapshots, unrelated examples).
 4. **webDocs** — Update documentation; rebuild skill + search index when needed (see `agents/skill.md`).
 5. **Makefile** — New test gates must be wired into the root `Makefile` (`make test-all` dependencies).
 
