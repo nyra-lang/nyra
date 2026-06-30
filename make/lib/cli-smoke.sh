@@ -78,7 +78,21 @@ if [[ -z "$out" ]]; then
   fail "ide references produced no output"
 fi
 
-# --- pkg (build / prune / bind helpers; package install via nyrapkg) ---
+# --- pkg (nyra pkg ↔ nyrapkg aliases) ---
+NYRAPKG_BIN="${NYRAPKG:-$ROOT/../nyrapkg/target/release/nyrapkg}"
+if [[ -x "$NYRAPKG_BIN" ]]; then
+  export NYRAPKG="$NYRAPKG_BIN"
+  log "nyra pkg init (delegates to nyrapkg)"
+  PKG_INIT_TMP="$(mktemp -d)"
+  if ! "${NYRA[@]}" pkg init "$PKG_INIT_TMP" >/dev/null; then
+    fail "nyra pkg init"
+  fi
+  if [[ ! -f "$PKG_INIT_TMP/nyra.mod" ]]; then
+    fail "nyra pkg init missing nyra.mod"
+  fi
+  rm -rf "$PKG_INIT_TMP"
+fi
+
 scaffold_pkg_project() {
   local d="$1"
   mkdir -p "$d"

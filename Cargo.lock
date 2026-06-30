@@ -1196,7 +1196,6 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 name = "pkg"
 version = "1.38.0"
 dependencies = [
- "dirs",
  "nyra-bindgen",
  "serde",
  "serde_json",

@@ -400,6 +400,49 @@ pub(crate) enum BindCommands {
 
 #[derive(Subcommand)]
 pub(crate) enum PkgCommands {
+    /// Scaffold `nyra.mod` + `main.ny` (delegates to `nyrapkg`).
+    Init {
+        path: Option<PathBuf>,
+    },
+    /// Add a dependency (delegates to `nyrapkg`).
+    Add {
+        module: String,
+    },
+    /// Fetch package and update lock files (delegates to `nyrapkg`).
+    Install {
+        module: String,
+    },
+    /// Verify lock files and checksums (delegates to `nyrapkg`).
+    Verify {
+        path: Option<PathBuf>,
+    },
+    /// Print nyrapkg and nyra versions (delegates to `nyrapkg`).
+    Version,
+    /// Show install paths (delegates to `nyrapkg`).
+    Which,
+    /// Install this nyrapkg binary to `~/.nyra/bin` (delegates to `nyrapkg`).
+    Bootstrap,
+    /// Update nyrapkg from GitHub releases (delegates to `nyrapkg`).
+    #[command(name = "self-update")]
+    SelfUpdate {
+        version: Option<String>,
+    },
+    /// nyrapkg self-management (delegates to `nyrapkg`).
+    #[command(name = "self")]
+    SelfCmd {
+        #[command(subcommand)]
+        cmd: PkgSelfCommands,
+    },
+    /// Toolchain helpers (delegates to `nyrapkg`).
+    Toolchain {
+        #[command(subcommand)]
+        cmd: PkgToolchainCommands,
+    },
+    /// Update nyra or nyrapkg (delegates to `nyrapkg`).
+    Update {
+        target: String,
+        version: Option<String>,
+    },
     Build {
         path: Option<PathBuf>,
         #[command(flatten)]
@@ -422,6 +465,22 @@ pub(crate) enum PkgCommands {
         /// Report what would change without editing files.
         #[arg(long)]
         check: bool,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum PkgSelfCommands {
+    /// Update nyrapkg from GitHub releases.
+    Update {
+        version: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum PkgToolchainCommands {
+    /// Update the Nyra compiler under `~/.nyra`.
+    Update {
+        version: Option<String>,
     },
 }
 

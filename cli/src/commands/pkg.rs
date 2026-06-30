@@ -3,14 +3,73 @@ use std::path::PathBuf;
 use compiler::Compiler;
 use pkg::verify_project;
 
-use crate::app::args::{PkgBindCommands, PkgCCommands, PkgCommands, StabilityFlags};
+use crate::app::args::{
+    PkgBindCommands, PkgCCommands, PkgCommands, PkgSelfCommands, PkgToolchainCommands,
+    StabilityFlags,
+};
 use crate::app::session::build;
 use crate::bind::{bind_c, CBindOptions};
 use crate::c_lib;
+use crate::nyrapkg;
 use crate::ui::Ui;
+
+fn delegate_nyrapkg(args: Vec<String>) -> Result<(), String> {
+    nyrapkg::run_nyrapkg(&args)
+}
 
 pub(crate) fn pkg_command(cmd: PkgCommands) -> Result<(), String> {
     match cmd {
+        PkgCommands::Init { path } => {
+            let mut args = vec!["init".to_string()];
+            if let Some(p) = path {
+                args.push(p.display().to_string());
+            }
+            delegate_nyrapkg(args)
+        }
+        PkgCommands::Add { module } => delegate_nyrapkg(vec!["add".into(), module]),
+        PkgCommands::Install { module } => delegate_nyrapkg(vec!["install".into(), module]),
+        PkgCommands::Verify { path } => {
+            let mut args = vec!["verify".to_string()];
+            if let Some(p) = path {
+                args.push(p.display().to_string());
+            }
+            delegate_nyrapkg(args)
+        }
+        PkgCommands::Version => delegate_nyrapkg(vec!["version".into()]),
+        PkgCommands::Which => delegate_nyrapkg(vec!["which".into()]),
+        PkgCommands::Bootstrap => delegate_nyrapkg(vec!["bootstrap".into()]),
+        PkgCommands::SelfUpdate { version } => {
+            let mut args = vec!["self-update".to_string()];
+            if let Some(v) = version {
+                args.push(v);
+            }
+            delegate_nyrapkg(args)
+        }
+        PkgCommands::SelfCmd { cmd } => match cmd {
+            PkgSelfCommands::Update { version } => {
+                let mut args = vec!["self".into(), "update".into()];
+                if let Some(v) = version {
+                    args.push(v);
+                }
+                delegate_nyrapkg(args)
+            }
+        },
+        PkgCommands::Toolchain { cmd } => match cmd {
+            PkgToolchainCommands::Update { version } => {
+                let mut args = vec!["toolchain".into(), "update".into()];
+                if let Some(v) = version {
+                    args.push(v);
+                }
+                delegate_nyrapkg(args)
+            }
+        },
+        PkgCommands::Update { target, version } => {
+            let mut args = vec!["update".into(), target];
+            if let Some(v) = version {
+                args.push(v);
+            }
+            delegate_nyrapkg(args)
+        }
         PkgCommands::Build { path, opt, target_args } => {
             let dir = path.unwrap_or_else(|| PathBuf::from("."));
             verify_project(&dir)?;
