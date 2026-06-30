@@ -1,9 +1,9 @@
-extern fn strlen(s: string) -> i32
-extern fn strcat(a: string, b: string) -> string
-extern fn strcmp(a: string, b: string) -> i32
-extern fn char_at(s: string, i: i32) -> i32
-extern fn strstr_pos(hay: string, needle: string) -> i32
-extern fn substring(s: string, start: i32, len: i32) -> string
+extern fn strlen(s: &string) -> i32
+extern fn strcat(a: &string, b: &string) -> string
+extern fn strcmp(a: &string, b: &string) -> i32
+extern fn char_at(s: &string, i: i32) -> i32
+extern fn strstr_pos(hay: &string, needle: &string) -> i32
+extern fn substring(s: &string, start: i32, len: i32) -> string
 extern fn list_dir(path: string) -> string
 extern fn path_is_dir(path: string) -> i32
 extern fn file_exists(path: string) -> i32

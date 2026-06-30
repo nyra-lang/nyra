@@ -23,6 +23,8 @@ struct ModuleEntry {
     git_url: String,
     #[serde(default = "default_git_rev")]
     git_rev: String,
+    #[serde(default)]
+    deps: Vec<String>,
 }
 
 fn default_git_rev() -> String {
@@ -36,6 +38,8 @@ struct PublishBody {
     git_url: String,
     #[serde(default = "default_git_rev")]
     git_rev: String,
+    #[serde(default)]
+    deps: Vec<String>,
     token: Option<String>,
 }
 
@@ -59,7 +63,9 @@ async fn main() {
     };
     let app = Router::new()
         .route("/index", get(index_latest))
+        .route("/index.jsonl", get(index_latest_jsonl))
         .route("/index/:name", get(index_versions))
+        .route("/index/:name.jsonl", get(index_versions_jsonl))
         .route("/resolve/:name", get(resolve))
         .route("/publish", post(publish))
         .with_state(reg);
@@ -91,48 +97,56 @@ fn seed_builtin(map: &mut HashMap<String, Vec<ModuleEntry>>) {
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-serde".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-toml".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-crypto".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-websocket".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-redis".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-postgres".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
         ModuleEntry {
             name: "ny-mysql".into(),
             version: "0.1.0".into(),
             git_url: "https://github.com/nyra-lang/nyra".into(),
             git_rev: "main".into(),
+            deps: Vec::new(),
         },
     ];
     for entry in builtins {
@@ -147,7 +161,17 @@ fn persist(path: &PathBuf, map: &HashMap<String, Vec<ModuleEntry>>) -> std::io::
         std::fs::create_dir_all(parent)?;
     }
     let text = serde_json::to_string_pretty(map).unwrap();
-    std::fs::write(path, text)
+    std::fs::write(path, text)?;
+    let jsonl_path = path.with_extension("jsonl");
+    let mut lines = Vec::new();
+    for versions in map.values() {
+        for entry in versions {
+            lines.push(serde_json::to_string(entry).unwrap());
+        }
+    }
+    lines.sort();
+    std::fs::write(jsonl_path, lines.join("\n"))?;
+    Ok(())
 }
 
 fn read_token() -> Option<String> {
@@ -173,12 +197,32 @@ async fn index_latest(State(reg): State<Registry>) -> Json<Vec<ModuleEntry>> {
     Json(latest)
 }
 
+async fn index_latest_jsonl(State(reg): State<Registry>) -> String {
+    let entries = index_latest(State(reg)).await;
+    entries
+        .0
+        .iter()
+        .map(|e| serde_json::to_string(e).unwrap())
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 async fn index_versions(
     State(reg): State<Registry>,
     Path(name): Path<String>,
 ) -> Json<Vec<ModuleEntry>> {
     let map = reg.modules.lock().unwrap();
     Json(map.get(&name).cloned().unwrap_or_default())
+}
+
+async fn index_versions_jsonl(State(reg): State<Registry>, Path(name): Path<String>) -> String {
+    let entries = index_versions(State(reg), Path(name)).await;
+    entries
+        .0
+        .iter()
+        .map(|e| serde_json::to_string(e).unwrap())
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 async fn resolve(
@@ -223,6 +267,7 @@ async fn publish(
         version: body.version.clone(),
         git_url: body.git_url,
         git_rev: body.git_rev,
+        deps: body.deps,
     };
     let mut map = reg.modules.lock().unwrap();
     let versions = map.entry(body.name).or_default();

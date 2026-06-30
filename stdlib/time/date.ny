@@ -55,4 +55,4 @@ fn timezone_utc_offset_hours() -> i32 {
 
 extern fn instant_now() -> i64
 extern fn i32_to_string(n: i32) -> string
-extern fn strcat(a: string, b: string) -> string
+extern fn strcat(a: &string, b: &string) -> string

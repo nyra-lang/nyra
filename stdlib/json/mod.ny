@@ -14,8 +14,8 @@ extern fn json_decode_str_array(array_json: string) -> ptr
 extern fn json_split_array_elements(array_json: string) -> ptr
 extern fn json_encode_ptr_token(value: ptr) -> string
 extern fn json_decode_ptr_token(json: string, key: string) -> ptr
-extern fn strlen(s: string) -> i32
-extern fn strcat(a: string, b: string) -> string
+extern fn strlen(s: &string) -> i32
+extern fn strcat(a: &string, b: &string) -> string
 extern fn i32_to_string(n: i32) -> string
 
 fn decode_string(json: string, key: string) -> string {

@@ -183,7 +183,7 @@ impl Codegen {
                                             format!("%{reg}")
                                         }
                                     }
-                                    Binding::Param { index, .. } => index.to_string(),
+                                    Binding::Param { index, .. } => format!("%{index}"),
                                     Binding::Closure(_) => "0".to_string(),
                                     Binding::PromotedStruct {
                                         struct_name,

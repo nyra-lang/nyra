@@ -6,8 +6,8 @@ extern fn vec_str_get(v: ptr, index: i32) -> string
 extern fn vec_str_len(v: ptr) -> i32
 extern fn vec_str_free(v: ptr) -> void
 extern fn vec_str_from_argv(start_index: i32) -> ptr
-extern fn strlen(s: string) -> i32
-extern fn strcat(a: string, b: string) -> string
+extern fn strlen(s: &string) -> i32
+extern fn strcat(a: &string, b: &string) -> string
 
 fn Vec_str_new() -> ptr {
     return vec_str_new()

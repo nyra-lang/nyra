@@ -29,19 +29,30 @@ fn coerce_call_args(
         return;
     };
     for (arg, param) in args.iter_mut().zip(func.params.iter()) {
-        let Some(mut_ref) = param_is_ref(&param.ty) else {
-            continue;
-        };
-        if matches!(
-            &*arg,
-            Expression::Unary(u) if u.op == UnaryOp::Move || u.op == UnaryOp::Clone
-        ) {
+        if let Some(mut_ref) = param_is_ref(&param.ty) {
+            if matches!(
+                &*arg,
+                Expression::Unary(u) if u.op == UnaryOp::Move || u.op == UnaryOp::Clone
+                    || u.op == UnaryOp::Ref || u.op == UnaryOp::RefMut
+            ) {
+                continue;
+            }
+            if let Expression::Variable { name, span } = &*arg {
+                let name = name.clone();
+                let span = span.clone();
+                *arg = make_ref_expr(Expression::Variable { name, span }, mut_ref, expr_span(arg));
+            }
             continue;
         }
-        if let Expression::Variable { name, span } = &*arg {
-            let name = name.clone();
-            let span = span.clone();
-            *arg = make_ref_expr(Expression::Variable { name, span }, mut_ref, expr_span(arg));
+        if let Expression::Unary(u) = &*arg {
+            if matches!(u.op, UnaryOp::Ref | UnaryOp::RefMut) {
+                let operand = u.operand.clone();
+                *arg = Expression::Unary(Box::new(UnaryExpr {
+                    op: UnaryOp::Deref,
+                    operand,
+                    span: u.span.clone(),
+                }));
+            }
         }
     }
 }
@@ -196,6 +207,34 @@ fn build_sig_map(program: &Program) -> HashMap<String, Function> {
         for m in &ti.methods {
             map.insert(m.name.clone(), m.clone());
         }
+    }
+    for e in &program.externs {
+        map.insert(
+            e.name.clone(),
+            Function {
+                name: e.name.clone(),
+                doc: None,
+                is_test: false,
+                ignore_test: false,
+                should_fail_test: false,
+                is_async: false,
+                exported: false,
+                public: false,
+                span: Span::default(),
+                type_params: vec![],
+                type_param_bounds: HashMap::new(),
+                lifetime_params: vec![],
+                params: e.params.clone(),
+                return_type: e.return_type.clone(),
+                body: Block {
+                    statements: vec![],
+                },
+                inline: false,
+                hot: false,
+                cold: false,
+                comptime: false,
+            },
+        );
     }
     map
 }

@@ -1,4 +1,4 @@
-extern fn strcat(a: string, b: string) -> string
+extern fn strcat(a: &string, b: &string) -> string
 extern fn str_push_char(s: string, ch: i32) -> string
 
 struct StringBuilder {

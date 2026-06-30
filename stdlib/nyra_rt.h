@@ -342,9 +342,6 @@ void rt_udp_close(int fd);
 /* since Nyra 0.3.0 */
 char *http_get(const char *url);
 
-/* since Nyra 1.38.0 */
-int http_download_file(const char *url, const char *path);
-
 /* since Nyra 0.3.0 */
 int http_status(const char *response_header);
 
@@ -720,20 +717,8 @@ int remove_file(const char *path);
 /* since Nyra 1.1.0 */
 int create_dir(const char *path);
 
-/* since Nyra 1.38.0 */
-int create_dir_all(const char *path);
-
 /* since Nyra 1.1.0 */
 int remove_dir(const char *path);
-
-/* since Nyra 1.38.0 */
-int remove_dir_all(const char *path);
-
-/* since Nyra 1.38.0 */
-int copy_dir(const char *src, const char *dst);
-
-/* since Nyra 1.38.0 */
-int copy_dir_contents(const char *src, const char *dst);
 
 /* since Nyra 1.1.0 */
 char *str_to_upper(const char *s);

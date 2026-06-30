@@ -188,6 +188,12 @@ pub(super) fn types_assignable(from: &Type, to: &Type) -> bool {
     if matches!(to, Type::Ptr) && matches!(from, Type::Struct(_)) {
         return true;
     }
+    if matches!(from, Type::VecStr) && matches!(to, Type::Ptr) {
+        return true;
+    }
+    if matches!(from, Type::Ptr) && matches!(to, Type::VecStr) {
+        return true;
+    }
     if from == to || *from == Type::Unknown || *to == Type::Unknown {
         return true;
     }
@@ -238,6 +244,12 @@ pub(super) fn types_assignable(from: &Type, to: &Type) -> bool {
     }
     if let Type::Ref { inner, mutable: false, .. } = to {
         if !matches!(from, Type::Ref { .. }) && types_assignable(from, inner) {
+            return true;
+        }
+    }
+    // Immutable borrow coerces to owned value at call sites (`&string` → `string` for read-only ABI).
+    if let Type::Ref { inner, mutable: false, .. } = from {
+        if types_assignable(inner, to) {
             return true;
         }
     }

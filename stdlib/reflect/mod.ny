@@ -1,6 +1,7 @@
 // Reflection MVP — compile-time struct serde (`{Struct}_json_encode` / `_json_decode`).
 // The compiler synthesizes JSON helpers for eligible structs (scalars, strings,
 // nested serde structs, `Vec<i32>`, `Vec<string>`, and `Vec<Struct>`).
+// Registry indexes: use `stdlib/json/jsonl.ny` + `{Entry}_json_decode` per line or array element.
 
 enum TypeKind {
     I32,

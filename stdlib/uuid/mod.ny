@@ -1,7 +1,7 @@
 
 extern fn random_hex(byte_count: i32) -> string
-extern fn strcat(a: string, b: string) -> string
-extern fn substring(s: string, start: i32, len: i32) -> string
+extern fn strcat(a: &string, b: &string) -> string
+extern fn substring(s: &string, start: i32, len: i32) -> string
 
 // UUID_v4 — random RFC-4122-style string (MVP formatting; use NyraPkg for strict compliance).
 fn UUID_v4() -> string {

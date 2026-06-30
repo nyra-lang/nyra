@@ -6,6 +6,7 @@ use errors::{ErrorKind, NyraError, Span};
 
 use super::{TypeChecker, TypeEnv, VarInfo};
 use super::diagnostics;
+use super::helpers::types_assignable;
 use types::{self, float_assignable, integer_assignable, integer_literal_fits, int_literal_value, Type};
 
 impl TypeChecker {
@@ -172,9 +173,9 @@ impl TypeChecker {
                 if let Some(v) = &r.value {
                     let ty = self.check_expr(v, env);
                     if ty != Type::Unknown
-                        && ty != *expected_ret
                         && *expected_ret != Type::Void
                         && *expected_ret != Type::Generic("_".into())
+                        && !types_assignable(&ty, expected_ret)
                     {
                         self.errors.push(NyraError::new(
                             ErrorKind::Type,

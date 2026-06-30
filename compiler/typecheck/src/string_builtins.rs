@@ -5,6 +5,20 @@ use types::Type;
 use crate::TypeChecker;
 use crate::TypeEnv;
 
+fn is_string_like(ty: &Type) -> bool {
+    if ty == &Type::String || ty == &Type::Unknown {
+        return true;
+    }
+    matches!(
+        ty,
+        Type::Ref {
+            inner,
+            mutable: false,
+            ..
+        } if **inner == Type::String
+    )
+}
+
 pub fn string_method_borrows_receiver(method: &str) -> bool {
     matches!(
         method,
@@ -22,7 +36,7 @@ impl TypeChecker {
         sp: &Span,
     ) {
         let ty = self.check_expr(&mc.args[idx], env);
-        if ty != Type::String && ty != Type::Unknown {
+        if !is_string_like(&ty) {
             self.errors.push(NyraError::new(
                 ErrorKind::Type,
                 sp.clone(),

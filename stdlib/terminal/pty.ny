@@ -10,7 +10,7 @@ extern fn pty_poll(master: i32) -> i32
 extern fn pty_resize(master: i32, rows: i32, cols: i32) -> void
 extern fn pty_close(master: i32) -> void
 extern fn pty_wait(master: i32) -> i32
-extern fn strlen(s: string) -> i32
+extern fn strlen(s: &string) -> i32
 
 const PTY_ROWS = 36
 const PTY_COLS = 120
