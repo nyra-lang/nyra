@@ -14,6 +14,7 @@ include make/test.mk
 include make/smoke.mk
 include make/build.mk
 include make/install.mk
+include make/release.mk
 include make/generators.mk
 include make/test-all.mk
 include make/test-platform.mk
@@ -33,6 +34,8 @@ help:
 		'  make build-workspace   cargo build --workspace' \
 		'  make build-cli         Build target/debug/nyra only' \
 		'  make install-dev       Dev install (cargo install + stdlib sync)' \
+		'  make dist              Release tarball → dist/nyra-<arch>-<os>.tar.gz (GitHub upload)' \
+		'  make verify-dist       List dist/ tarball contents' \
 		'  make bench             Cross-language benchmarks' \
 		'  make gen-abi-header    Regenerate stdlib/nyra_rt.h' \
 		'  make gen-bindings-doc  Regenerate docs/bindings.md + webDocs/bindings.html' \
