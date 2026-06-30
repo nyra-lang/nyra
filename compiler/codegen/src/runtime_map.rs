@@ -207,6 +207,7 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("json_decode_i32_array", "rt_json.c"),
         ("json_encode_str_array", "rt_json.c"),
         ("json_decode_str_array", "rt_json.c"),
+        ("json_split_array_elements", "rt_json.c"),
         ("json_encode_ptr_token", "rt_json.c"),
         ("json_decode_ptr_token", "rt_json.c"),
         ("bin_buf_new", "rt_bin.c"),

@@ -11,6 +11,7 @@ extern fn json_encode_i32_array(values: ptr) -> string
 extern fn json_decode_i32_array(array_json: string) -> ptr
 extern fn json_encode_str_array(values: ptr) -> string
 extern fn json_decode_str_array(array_json: string) -> ptr
+extern fn json_split_array_elements(array_json: string) -> ptr
 extern fn json_encode_ptr_token(value: ptr) -> string
 extern fn json_decode_ptr_token(json: string, key: string) -> ptr
 extern fn strlen(s: string) -> i32

@@ -330,6 +330,73 @@ void *json_decode_str_array(const char *array_json) {
     return v;
 }
 
+void *json_split_array_elements(const char *array_json) {
+    void *v = vec_str_new();
+    if (!v || !array_json) {
+        return v;
+    }
+    const char *p = array_json;
+    while (*p && *p != '[') {
+        p++;
+    }
+    if (*p != '[') {
+        return v;
+    }
+    p++;
+    while (*p) {
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') {
+            p++;
+        }
+        if (*p == ']' || !*p) {
+            break;
+        }
+        const char *start = p;
+        int depth = 0;
+        int in_string = 0;
+        while (*p) {
+            char c = *p;
+            if (in_string) {
+                if (c == '"' && p > start && p[-1] != '\\') {
+                    in_string = 0;
+                }
+                p++;
+                continue;
+            }
+            if (c == '"') {
+                in_string = 1;
+                p++;
+                continue;
+            }
+            if (c == '{' || c == '[') {
+                depth++;
+            } else if (c == '}' || c == ']') {
+                if (depth == 0) {
+                    break;
+                }
+                depth--;
+            } else if (c == ',' && depth == 0) {
+                break;
+            }
+            p++;
+        }
+        size_t len = (size_t)(p - start);
+        while (len > 0 && (start[len - 1] == ' ' || start[len - 1] == '\t')) {
+            len--;
+        }
+        if (len > 0) {
+            char *slice = dup_slice(start, len);
+            if (slice) {
+                vec_str_push(v, slice);
+                free(slice);
+            }
+        }
+        if (*p == ',') {
+            p++;
+        }
+    }
+    return v;
+}
+
 void *json_decode_i32_array(const char *array_json) {
     void *v = vec_i32_new();
     if (!v || !array_json) {

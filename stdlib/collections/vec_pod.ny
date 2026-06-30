@@ -7,6 +7,6 @@ extern fn vec_bytes_free(v: ptr) -> void
 extern fn vec_bytes_push_ptr(v: ptr, elem: ptr) -> void
 extern fn vec_bytes_get_ptr(v: ptr, index: i32) -> ptr
 
-struct Vec<T> {
+pub struct Vec<T> {
     handle: ptr
 }

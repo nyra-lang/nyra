@@ -401,6 +401,18 @@ fn collect_applied_from_stmt(stmt: &Statement, out: &mut Vec<(String, Vec<TypeAn
 }
 
 fn collect_applied_from_program(program: &Program, out: &mut Vec<(String, Vec<TypeAnnotation>)>) {
+    for s in &program.structs {
+        for f in &s.fields {
+            collect_applied_from_type(&f.ty, out);
+        }
+    }
+    for e in &program.enums {
+        for v in &e.variants {
+            for f in &v.fields {
+                collect_applied_from_type(f, out);
+            }
+        }
+    }
     for f in &program.functions {
         for p in &f.params {
             collect_applied_from_type(&p.ty, out);
@@ -438,6 +450,20 @@ fn instantiate_struct(s: &StructDef, type_args: &[TypeAnnotation]) -> StructDef 
     }
 }
 
+fn synthesize_vec_handle_struct(inst_name: &str) -> StructDef {
+    StructDef {
+        name: inst_name.into(),
+        doc: None,
+        type_params: vec![],
+        attrs: StructAttrs::default(),
+        fields: vec![StructField {
+            name: "handle".into(),
+            ty: TypeAnnotation::Ptr,
+        }],
+        public: false,
+    }
+}
+
 fn monomorphize_structs(program: &mut Program) {
     let mut needed = Vec::new();
     collect_applied_from_program(program, &mut needed);
@@ -461,6 +487,13 @@ fn monomorphize_structs(program: &mut Program) {
         }
         seen.insert(key);
         let Some(orig) = originals.get(&name) else {
+            if name == "Vec"
+                && type_args.len() == 1
+                && matches!(&type_args[0], TypeAnnotation::Struct(_))
+            {
+                program.structs.push(synthesize_vec_handle_struct(&inst_name));
+                existing.insert(inst_name);
+            }
             continue;
         };
         program.structs.push(instantiate_struct(orig, &type_args));

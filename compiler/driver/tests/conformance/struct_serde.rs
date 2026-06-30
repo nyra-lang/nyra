@@ -1,6 +1,6 @@
 //! Conformance tests: struct JSON synthesis (CONF-SERDE-STRUCT-*).
 
-use crate::common::{assert_ir_patterns, compile};
+use crate::common::{assert_ir_patterns, compile, compile_file_rel};
 
 #[test]
 fn conf_serde_struct_001_encode_decode() {
@@ -92,4 +92,16 @@ fn main() {
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
     let ir = out.llvm_ir.expect("ir");
     assert_ir_patterns(&ir, &["json_encode_ptr_token", "json_decode_ptr_token"], &[]);
+}
+
+#[test]
+fn conf_serde_struct_004_vec_struct_field() {
+    let out = compile_file_rel("tests/nyra/struct_serde_vec_struct_test.ny");
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+    let ir = out.llvm_ir.expect("ir");
+    assert_ir_patterns(
+        &ir,
+        &["Bag_json_encode", "json_split_array_elements", "Item_json_decode"],
+        &["%Vec__%"],
+    );
 }
