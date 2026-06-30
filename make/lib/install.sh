@@ -106,7 +106,17 @@ ASSET="nyra-${ARCH}-${PLATFORM}.tar.gz"
 API="https://api.github.com/repos/${REPO}/releases"
 
 if [ "$VERSION" = "latest" ]; then
-  RELEASE_JSON="$(curl -fsSL "${API}/latest")"
+  RELEASE_JSON="$(curl -sSL "${API}/latest")"
+  if printf '%s' "$RELEASE_JSON" | grep -q '"message": "Not Found"'; then
+    RELEASE_LIST="$(curl -fsSL "${API}?per_page=1")"
+    RELEASE_JSON="$(printf '%s' "$RELEASE_LIST" | sed 's/^\[//;s/\]$//')"
+    if [ -z "$RELEASE_JSON" ] || [ "$RELEASE_JSON" = "null" ]; then
+      die "no GitHub releases found for ${REPO}
+
+Create a release and attach ${ASSET}, or pass --version matching an existing tag."
+    fi
+    info "note: no published 'latest' release — using newest tag (pre-release is OK)"
+  fi
 else
   TAG="v${VERSION#v}"
   RELEASE_JSON="$(curl -fsSL "${API}/tags/v${TAG}")"
