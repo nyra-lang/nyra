@@ -69,6 +69,7 @@ pub fn ownership_of(
 pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "read_file",
     "strcat",
+    "str_buf_build",
     "i32_to_string",
     "i64_to_string",
     "array_i32_debug_string",

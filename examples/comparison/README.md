@@ -92,7 +92,9 @@ Requires on `PATH`: `clang`/`clang++` (or `CC`/`CXX`), `rustc`, `go`, `node`, `p
 
 Release Nyra builds are the default. Set `BENCH_RELEASE=0` for debug builds (less RAM/CPU while compiling).
 
-**Report columns:** Language · **Time** (mean ms) · **Memory** (peak RSS) · **Binary size** (hello-world release / stripped / UPX).
+**Report columns:** Language · **Time** (median ms by default) · **Memory** (peak RSS) · **Binary size** (hello-world release / stripped / UPX).
+
+**Nyra Zero vs Explicit (clean parity):** each suite alternates Zero Types and Explicit Types every round; reported time is the **median** across timed runs (`BENCH_STAT=median`, override with `mean`). Hot-path parity in the HTML report excludes `hello` / `arithmetic` (spawn-dominated; LLVM is identical). Micro and concurrency suites use extra runs: `BENCH_MICRO_RUNS=9`, `BENCH_CONCURRENCY_RUNS=11`.
 
 Optional: `BENCH_PGO=1` builds **every** Nyra suite with `--pgo` (slow). By default, `./scripts/bench.sh` always runs **`cpu_bound_pgo`** for both **Nyra** and **Nyra-typed** (same hot path, `--release --pgo`). Skip with `BENCH_SKIP_PGO=1`. Requires LLVM `opt` + `llvm-profdata` on `PATH`.
 
@@ -100,7 +102,7 @@ Skip hello binary-size table: `BENCH_BINARY_SIZE=0`. Install [UPX](https://upx.g
 
 See also [`PERFORMANCE_ROADMAP.md`](../../PERFORMANCE_ROADMAP.md).
 
-By default each **language runs in isolation** (all suites for Nyra, then Nyra-typed, then cooldown, then C, …) so one runtime does not skew the next. Override: `BENCH_LANG_COOLDOWN=3` (seconds between languages, default `2`), or `BENCH_NO_ISOLATE=1` for the legacy order (every language per suite back-to-back).
+By default **Nyra variants run per suite** (interleaved Zero/Explicit pairs), then **other languages run in isolation** (all suites for C, cooldown, then C++, …) so cross-language comparison stays fair. Override: `BENCH_LANG_COOLDOWN=3` (seconds between languages, default `2`), or `BENCH_NO_ISOLATE=1` for every language per suite back-to-back.
 
 Full benchmark run can take **tens of minutes** (375M-iteration suites). Tune down for quick checks: `BENCH_RUNS=1 BENCH_WARMUP=0`.
 

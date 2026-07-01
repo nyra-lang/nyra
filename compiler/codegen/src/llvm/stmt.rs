@@ -257,6 +257,14 @@ impl Codegen {
                             },
                         );
                     } else {
+                        let mut val = val;
+                        if l.mutable
+                            && val.ty == "ptr"
+                            && matches!(&l.value, Expression::Literal(Literal::String(_)))
+                        {
+                            val = self.heap_clone_string(val);
+                            self.heap_string_bindings.insert(l.name.clone());
+                        }
                         let storage_ty = llvm_storage_ty(&val.ty).to_string();
                         let alloca = self.fresh("alloca");
                         self.emit(&format!("  %{alloca} = alloca {storage_ty}"));

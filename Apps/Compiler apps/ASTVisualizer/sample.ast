@@ -1,9 +1,0 @@
-Program
-> FnDecl main
->> Block
->>> Return
->>>> BinaryExpr +
->>>>> Literal 1
->>>>> BinaryExpr *
->>>>>> Literal 2
->>>>>> Literal 3

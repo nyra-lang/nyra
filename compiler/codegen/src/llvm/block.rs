@@ -30,6 +30,18 @@ impl Codegen {
         match target {
             Expression::Variable { name, .. } => {
                 if self.mut_ssa_locals.contains(name) {
+                    if self.heap_string_bindings.contains(name) {
+                        if let Some(binding) = env.get(name) {
+                            if Self::binding_ty(binding) == "ptr" {
+                                let ptr = Self::reg_operand_from_binding(binding);
+                                let ptr = self.materialize_ptr_reg(&ptr);
+                                self.emit_runtime_call(
+                                    "free",
+                                    &format!("  call void @free(ptr {ptr})"),
+                                );
+                            }
+                        }
+                    }
                     let reg = if val.reg.starts_with('%') {
                         val.reg.trim_start_matches('%').to_string()
                     } else {
@@ -46,6 +58,11 @@ impl Codegen {
                             ty,
                         },
                     );
+                    if self.rvalue_produces_heap_string(value) {
+                        self.heap_string_bindings.insert(name.clone());
+                    } else if matches!(value, Expression::Literal(Literal::String(_))) {
+                        self.heap_string_bindings.remove(name);
+                    }
                     if self.expr_is_non_negative_i32(value, env) {
                         self.mark_non_negative_i32(name);
                     }

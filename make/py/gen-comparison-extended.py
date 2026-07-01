@@ -158,8 +158,8 @@ def gen_strings() -> None:
     specs: list[tuple[str, str, str, str]] = [
         (
             "concat",
-            """extern fn strcat(a: string, b: string) -> string
-extern fn strlen(s: string) -> i32
+            """extern fn strcat(a: &string, b: &string) -> string
+extern fn strlen(s: &string) -> i32
 
 """,
             f"""let mut s = "a"

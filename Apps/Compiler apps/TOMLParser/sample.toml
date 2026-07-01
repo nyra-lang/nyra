@@ -1,6 +1,0 @@
-title = "Nyra"
-version = 1
-
-[package]
-name = "compiler-apps"
-authors = ["nyra"]
