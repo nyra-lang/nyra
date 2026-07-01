@@ -55,7 +55,7 @@ runs:
         $msysUcrt = 'C:\msys64\ucrt64'
         $pacman = 'C:\msys64\usr\bin\pacman.exe'
         if (Test-Path $pacman) {
-          & $pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-headers mingw-w64-ucrt-x86_64-zlib
+          & $pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-zlib
         }
 
         $zlibRoot = $null

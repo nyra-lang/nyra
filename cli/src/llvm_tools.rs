@@ -214,6 +214,31 @@ pub fn find_clang() -> String {
     find_llvm_tool("clang").unwrap_or_else(|| "clang".into())
 }
 
+/// MSYS2 ucrt64/mingw64 gcc for compiling rt `.c` on Windows (LLVM clang mishandles MinGW `-isystem` headers).
+pub fn find_mingw_gcc() -> Option<String> {
+    if !cfg!(target_os = "windows") {
+        return None;
+    }
+    let mut prefixes = Vec::new();
+    if let Ok(v) = std::env::var("NYRA_SYSROOT") {
+        if !v.is_empty() {
+            prefixes.push(PathBuf::from(v));
+        }
+    }
+    for p in [r"C:\msys64\ucrt64", r"C:\msys64\mingw64"] {
+        prefixes.push(PathBuf::from(p));
+    }
+    for prefix in prefixes {
+        for name in ["gcc.exe", "x86_64-w64-mingw32-gcc.exe"] {
+            let path = prefix.join("bin").join(name);
+            if path.is_file() {
+                return Some(path.to_string_lossy().into_owned());
+            }
+        }
+    }
+    None
+}
+
 pub fn toolchain_info() -> ToolchainInfo {
     let clang = find_clang();
     let clang_path = resolve_executable(&clang).unwrap_or_else(|| PathBuf::from(&clang));

@@ -335,7 +335,7 @@ fn detect_macos_sdk() -> Option<PathBuf> {
 }
 
 /// MinGW-w64 sysroot for `*-pc-windows-gnu` (MSYS2 ucrt64/mingw64 on CI runners).
-fn mingw_sysroot_prefixes() -> Vec<PathBuf> {
+pub fn mingw_sysroot_prefixes() -> Vec<PathBuf> {
     let mut out = Vec::new();
     if let Ok(v) = std::env::var("NYRA_SYSROOT") {
         if !v.is_empty() {
@@ -446,10 +446,13 @@ pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
 
     if spec.os == TargetOs::Windows {
         for prefix in mingw_sysroot_prefixes() {
-            let inc = prefix.join("include");
             if prefix.join("include/stdlib.h").is_file() {
                 cmd.arg(format!("--sysroot={}", prefix.display()));
-                cmd.arg(format!("-isystem{}", inc.display()));
+                let gcc = prefix.join("bin/gcc.exe");
+                let cross = prefix.join("bin/x86_64-w64-mingw32-gcc.exe");
+                if gcc.is_file() || cross.is_file() {
+                    cmd.arg(format!("--gcc-toolchain={}", prefix.display()));
+                }
                 break;
             }
         }
@@ -460,11 +463,18 @@ pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
     for prefix in zlib_prefixes() {
         let inc = prefix.join("include");
         if inc.is_dir() {
-            if spec.os == TargetOs::Windows {
-                cmd.arg(format!("-isystem{}", inc.display()));
-            } else {
-                cmd.arg(format!("-I{}", inc.display()));
-            }
+            cmd.arg(format!("-I{}", inc.display()));
+        }
+    }
+}
+
+/// Flags for MSYS2 MinGW gcc when compiling rt `.c` on a Windows host.
+pub fn apply_windows_gcc_compile_flags(cmd: &mut Command) {
+    cmd.arg("-D__USE_MINGW_ANSI_STDIO=0");
+    for prefix in zlib_prefixes() {
+        let inc = prefix.join("include");
+        if inc.is_dir() {
+            cmd.arg(format!("-I{}", inc.display()));
         }
     }
 }
