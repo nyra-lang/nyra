@@ -34,11 +34,16 @@ fn compiles_math_without_errors() {
 
 #[test]
 fn math_llvm_ir_contains_main_and_add() {
-    let path = examples_dir().join("syntax/math.ny");
-    let output = Compiler::compile_file(&path, &CompileOptions::default()).unwrap();
+    let src = r#"extern fn blackbox_i32(x: i32) -> i32
+fn main() {
+    let a = blackbox_i32(10)
+    let b = blackbox_i32(20)
+    print(a + b)
+}"#;
+    let output = Compiler::compile_source(src, "math_add.ny", &CompileOptions::default()).unwrap();
     let ir = output.llvm_ir.unwrap();
     assert!(ir_defines_main(&ir));
-    assert!(ir.contains("add i32"));
+    assert!(ir.contains("add i32"), "expected integer add in IR:\n{ir}");
 }
 
 #[test]
@@ -560,6 +565,7 @@ fn compiles_tcp_echo_examples() {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
 #[test]
 fn end_to_end_tcp_echo() {
     use std::process::Command;

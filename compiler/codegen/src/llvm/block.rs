@@ -272,6 +272,15 @@ impl Codegen {
                     self.register_call_moves(e, &mut child_env, drop_state);
                     last = Some(self.compile_expr(e, &mut child_env));
                 }
+                Statement::If(i) if i.else_block.is_some() => {
+                    let if_expr = IfExpr {
+                        condition: i.condition.clone(),
+                        then_block: i.then_block.clone(),
+                        else_block: i.else_block.clone().unwrap(),
+                        span: expr_span(&i.condition),
+                    };
+                    last = Some(self.compile_if_expr(&if_expr, &mut child_env));
+                }
                 _ => {
                     let _ = self.compile_statement(
                         stmt,
@@ -301,6 +310,9 @@ impl Codegen {
                     return "void".into();
                 }
                 Statement::Expression(e) => return self.infer_expr_llvm_ty(e, env),
+                Statement::If(i) if i.else_block.is_some() => {
+                    return self.infer_block_expr_llvm_ty(&i.then_block, env);
+                }
                 _ => {}
             }
         }

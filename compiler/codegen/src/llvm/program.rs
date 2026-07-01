@@ -347,10 +347,11 @@ impl Codegen {
 
         let linkage = if func.exported { "define " } else { "define " };
         let fn_attrs = self.fn_attr_ref(func);
+        let link_name = self.llvm_fn_link_name(&func.name);
         self.emit(&format!(
             "{linkage}{} @{}({}){fn_attrs} {{",
             ret_ty,
-            func.name,
+            link_name,
             params.join(", ")
         ));
         self.emit("entry:");

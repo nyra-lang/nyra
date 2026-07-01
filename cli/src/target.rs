@@ -315,6 +315,60 @@ pub struct LinkTargetFlags {
     pub needs_libm: bool,
 }
 
+/// macOS SDK path for Homebrew LLVM clang (no Apple sysroot by default).
+fn detect_macos_sdk() -> Option<PathBuf> {
+    if let Ok(sdk) = std::env::var("SDKROOT") {
+        if !sdk.is_empty() {
+            return Some(PathBuf::from(sdk));
+        }
+    }
+    let output = Command::new("xcrun").args(["--show-sdk-path"]).output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let sdk = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if sdk.is_empty() {
+        None
+    } else {
+        Some(PathBuf::from(sdk))
+    }
+}
+
+/// MinGW-w64 sysroot for `*-pc-windows-gnu` (MSYS2 ucrt64/mingw64 on CI runners).
+fn mingw_sysroot_prefixes() -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    if let Ok(v) = std::env::var("NYRA_SYSROOT") {
+        if !v.is_empty() {
+            out.push(PathBuf::from(v));
+        }
+    }
+    for p in [r"C:\msys64\ucrt64", r"C:\msys64\mingw64"] {
+        out.push(PathBuf::from(p));
+    }
+    out
+}
+
+fn zlib_prefixes() -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    if let Ok(v) = std::env::var("ZLIB_ROOT") {
+        if !v.is_empty() {
+            out.push(std::path::PathBuf::from(v));
+        }
+    }
+    for p in [
+        "/opt/homebrew/opt/zlib",
+        "/usr/local/opt/zlib",
+        r"C:\msys64\ucrt64",
+        r"C:\msys64\mingw64",
+        r"C:\ProgramData\chocolatey\lib\zlib\tools",
+        r"C:\vcpkg\installed\x64-windows",
+        r"C:\tools\zlib",
+    ] {
+        out.push(std::path::PathBuf::from(p));
+    }
+    out
+}
+
 fn openssl_prefixes() -> Vec<std::path::PathBuf> {
     let mut out = Vec::new();
     for var in ["OPENSSL_DIR", "OPENSSL_ROOT_DIR"] {
@@ -379,11 +433,30 @@ pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
     }
 
     if spec.os == TargetOs::MacOs {
+        if let Some(sdk) = detect_macos_sdk() {
+            cmd.arg(format!("-isysroot{}", sdk.display()));
+        }
         for prefix in openssl_prefixes() {
             let inc = prefix.join("include");
             if inc.is_dir() {
                 cmd.arg(format!("-I{}", inc.display()));
             }
+        }
+    }
+
+    if spec.os == TargetOs::Windows {
+        for prefix in mingw_sysroot_prefixes() {
+            if prefix.join("include/stdlib.h").is_file() {
+                cmd.arg(format!("--sysroot={}", prefix.display()));
+                break;
+            }
+        }
+    }
+
+    for prefix in zlib_prefixes() {
+        let inc = prefix.join("include");
+        if inc.is_dir() {
+            cmd.arg(format!("-I{}", inc.display()));
         }
     }
 }
@@ -459,6 +532,15 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             if rt.uses_rt_os_adv {
                 cmd.arg("-lbcrypt");
                 cmd.arg("-lsetupapi");
+            }
+            if rt.needs_zlib {
+                for prefix in zlib_prefixes() {
+                    let lib = prefix.join("lib");
+                    if lib.is_dir() {
+                        cmd.arg(format!("-L{}", lib.display()));
+                    }
+                }
+                cmd.arg("-lz");
             }
         }
         _ => {}

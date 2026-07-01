@@ -28,6 +28,30 @@ impl TypeChecker {
                 Statement::Expression(e) => {
                     last_ty = self.check_expr(e, &mut inner);
                 }
+                Statement::If(i) if i.else_block.is_some() => {
+                    let c = self.check_expr(&i.condition, &mut inner);
+                    if c != Type::Bool && c != Type::Unknown {
+                        self.errors.push(NyraError::new(
+                            ErrorKind::Type,
+                            span.clone(),
+                            "If expression condition must be bool",
+                        ));
+                    }
+                    let t = self.check_block_expr_value(&i.then_block, &mut inner, span);
+                    let e = self.check_block_expr_value(
+                        i.else_block.as_ref().unwrap(),
+                        &mut inner,
+                        span,
+                    );
+                    if t != e && t != Type::Unknown && e != Type::Unknown {
+                        self.errors.push(NyraError::new(
+                            ErrorKind::Type,
+                            span.clone(),
+                            "If expression branches must have the same type",
+                        ));
+                    }
+                    last_ty = if t != Type::Unknown { t } else { e };
+                }
                 Statement::Return(r) => {
                     return if let Some(v) = &r.value {
                         self.check_expr(v, &mut inner)

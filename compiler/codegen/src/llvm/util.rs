@@ -113,6 +113,20 @@ pub(super) fn llvm_value_operand(reg: &str) -> String {
     }
 }
 
+/// Nyra `fn` names that collide with MSVC UCRT globals when emitted as LLVM symbols.
+const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &["atoi", "atof", "atol", "atoll"];
+
+/// LLVM link symbol for a Nyra-defined function (may differ from the source name on Windows).
+pub(super) fn llvm_fn_link_name(name: &str, target_triple: &str) -> String {
+    if target_triple.to_ascii_lowercase().contains("windows")
+        && WINDOWS_CRT_FN_COLLISIONS.contains(&name)
+    {
+        format!("nyra_{name}")
+    } else {
+        name.to_string()
+    }
+}
+
 pub(super) fn host_target_triple() -> String {
     let arch = match std::env::consts::ARCH {
         "x86_64" | "amd64" => "x86_64",
@@ -130,6 +144,24 @@ pub(super) fn host_target_triple() -> String {
         "linux" => format!("{arch}-unknown-linux-gnu"),
         "windows" => format!("{arch}-pc-windows-gnu"),
         _ => format!("{arch}-unknown-linux-gnu"),
+    }
+}
+
+#[cfg(test)]
+mod llvm_fn_link_name_tests {
+    use super::llvm_fn_link_name;
+
+    #[test]
+    fn windows_crt_collision_gets_nyra_prefix() {
+        assert_eq!(
+            llvm_fn_link_name("atoi", "x86_64-pc-windows-gnu"),
+            "nyra_atoi"
+        );
+    }
+
+    #[test]
+    fn unix_triple_keeps_source_name() {
+        assert_eq!(llvm_fn_link_name("atoi", "aarch64-apple-darwin"), "atoi");
     }
 }
 

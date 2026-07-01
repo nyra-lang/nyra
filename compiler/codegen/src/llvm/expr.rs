@@ -454,7 +454,7 @@ impl Codegen {
                     }
                 }
                 let llvm_callee = if self.functions.contains_key(&call.callee) {
-                    call.callee.clone()
+                    self.llvm_fn_link_name(&call.callee)
                 } else {
                     self.runtime_callee(&call.callee)
                 };

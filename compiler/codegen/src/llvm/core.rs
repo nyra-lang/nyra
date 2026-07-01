@@ -413,6 +413,10 @@ impl Codegen {
         }
     }
 
+    pub(super) fn llvm_fn_link_name(&self, name: &str) -> String {
+        super::util::llvm_fn_link_name(name, &self.target_triple())
+    }
+
     pub(super) fn target_triple(&self) -> String {
         if !self.target.is_empty() {
             return self.target.clone();

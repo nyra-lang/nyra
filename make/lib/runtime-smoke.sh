@@ -41,18 +41,23 @@ run_expect() {
   nyra_stats_pass
 }
 
+normalize_text_out() {
+  printf '%s' "$1" | tr -d '\r'
+}
+
 run_expect_eq() {
   local label="$1"
   local expected="$2"
   shift 2
   local out="" err_file="" ec=0
   err_file="$(mktemp)"
-  out="$("$@" 2>"$err_file")" || ec=$?
+  out="$(normalize_text_out "$("$@" 2>"$err_file")")" || ec=$?
   if ((ec != 0)); then
     fail "$label" "$(cat "$err_file"; [[ -n "$out" ]] && printf '\n%s' "$out")"
     rm -f "$err_file"
     return 0
   fi
+  expected="$(normalize_text_out "$expected")"
   if [[ "$out" != "$expected" ]]; then
     fail "$label (expected $(printf %q "$expected"), got $(printf %q "$out"))" "$out"
     rm -f "$err_file"
