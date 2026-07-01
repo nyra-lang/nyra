@@ -239,6 +239,20 @@ pub fn find_mingw_gcc() -> Option<String> {
     None
 }
 
+/// MinGW `ld` for linking gnu objects on a Windows host (avoid LLVM `lld-link`/MSVC).
+pub fn find_mingw_ld() -> Option<String> {
+    let gcc = find_mingw_gcc()?;
+    let gcc_path = PathBuf::from(&gcc);
+    let bin = gcc_path.parent()?;
+    for name in ["ld.exe", "x86_64-w64-mingw32-ld.exe"] {
+        let path = bin.join(name);
+        if path.is_file() {
+            return Some(path.to_string_lossy().into_owned());
+        }
+    }
+    None
+}
+
 pub fn toolchain_info() -> ToolchainInfo {
     let clang = find_clang();
     let clang_path = resolve_executable(&clang).unwrap_or_else(|| PathBuf::from(&clang));

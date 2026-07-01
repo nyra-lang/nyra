@@ -163,9 +163,17 @@ pub fn validate_native_cpu(spec: &TargetSpec, native_cpu: bool) -> Result<(), St
 /// Host triple at runtime (for codegen when `--target` is empty).
 pub fn detect_host_triple() -> String {
     if let Some(t) = clang_dumpmachine() {
-        return normalize_triple(&t);
+        return nyra_normalize_host_triple(&normalize_triple(&t));
     }
     triple_from_env_consts()
+}
+
+/// Nyra links against MinGW-w64 on Windows; LLVM on GHA reports `windows-msvc`.
+fn nyra_normalize_host_triple(t: &str) -> String {
+    if t.contains("windows-msvc") {
+        return t.replace("windows-msvc", "windows-gnu");
+    }
+    t.to_string()
 }
 
 fn clang_dumpmachine() -> Option<String> {
@@ -383,6 +391,8 @@ fn openssl_prefixes() -> Vec<std::path::PathBuf> {
         "/opt/homebrew/opt/openssl",
         "/usr/local/opt/openssl@3",
         "/usr/local/opt/openssl",
+        r"C:\msys64\ucrt64",
+        r"C:\msys64\mingw64",
     ] {
         out.push(std::path::PathBuf::from(p));
     }
@@ -408,8 +418,9 @@ pub fn detect_wasi_sysroot() -> Option<PathBuf> {
 
 /// Flags for `clang -c` (target triple, sysroot, include paths — no linker args).
 pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
-    if !spec.triple.is_empty() {
-        cmd.arg("-target").arg(&spec.triple);
+    let triple = spec.triple_for_codegen();
+    if !triple.is_empty() {
+        cmd.arg("-target").arg(&triple);
     }
 
     if spec.is_wasm {
@@ -540,6 +551,12 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             }
         }
         TargetOs::Windows => {
+            for prefix in mingw_sysroot_prefixes() {
+                let lib = prefix.join("lib");
+                if lib.is_dir() {
+                    cmd.arg(format!("-L{}", lib.display()));
+                }
+            }
             // Windows rt modules use native CRITICAL_SECTION / Win32 threads, not pthread.
             if rt.uses_rt_net {
                 cmd.arg("-lws2_32");
@@ -550,6 +567,15 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             if rt.uses_rt_os_adv {
                 cmd.arg("-lbcrypt");
                 cmd.arg("-lsetupapi");
+            }
+            if rt.needs_openssl {
+                for prefix in openssl_prefixes() {
+                    let lib = prefix.join("lib");
+                    if lib.is_dir() {
+                        cmd.arg(format!("-L{}", lib.display()));
+                    }
+                }
+                cmd.arg("-lssl").arg("-lcrypto");
             }
             if rt.needs_zlib {
                 for prefix in zlib_prefixes() {
@@ -635,6 +661,14 @@ mod tests {
         let spec = TargetSpec::host();
         assert!(spec.triple.is_empty());
         assert!(!spec.is_cross);
+    }
+
+    #[test]
+    fn windows_msvc_triple_normalized_to_gnu() {
+        assert_eq!(
+            super::nyra_normalize_host_triple("x86_64-pc-windows-msvc"),
+            "x86_64-pc-windows-gnu"
+        );
     }
 
     #[test]

@@ -467,7 +467,15 @@ pub fn link_binary(
         needs_libm: runtime_profile.needs_libm(),
     };
     apply_target_link_flags(&mut cmd, &spec, &rt_flags);
-    if spec.is_windows() && llvm_tools::find_lld().is_some() {
+    if spec.is_windows() {
+        if cfg!(target_os = "windows") {
+            if let Some(ld) = llvm_tools::find_mingw_ld() {
+                cmd.arg(format!("-fuse-ld={ld}"));
+            }
+        } else if llvm_tools::find_lld().is_some() {
+            cmd.arg("-fuse-ld=lld");
+        }
+    } else if llvm_tools::find_lld().is_some() {
         cmd.arg("-fuse-ld=lld");
     }
 
