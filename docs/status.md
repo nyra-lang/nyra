@@ -52,7 +52,10 @@
 | Windows ConPTY | **Shipped** — `rt_pty_win.inc.c` (Windows 10 1809+) |
 | Windows shm | **Shipped** — `CreateFileMapping` in `rt_shm.c` |
 | Linux io_uring probe | **Shipped** — `stdlib/os/io_uring.ny` (falls back to epoll) |
+| Linux io_uring poll path | **Shipped** — `IORING_OP_POLL_ADD` + executor integration |
+| EventLoop + IoPool | **Shipped** — `EventLoop_with_pool`, `*_pooled` read helpers |
 | `TcpStream` / `PtySession` → `Fd` | **Shipped** — `*_borrow_fd`, `*_into_fd` helpers |
+| `UdpSocket` / `ShmRegion` → `Fd` | **Shipped** — `*_borrow_fd`, `*_into_fd` helpers |
 
 ## Conformance
 

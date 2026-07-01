@@ -1,5 +1,7 @@
 // POSIX shared memory — named regions for cross-process IPC.
 
+import "fd.ny"
+
 extern fn shm_create(name: string, nbytes: i64) -> i32
 extern fn shm_open_existing(name: string, nbytes: i64) -> i32
 extern fn shm_map(fd: i32, nbytes: i64) -> ptr
@@ -42,4 +44,12 @@ fn ShmRegion_unmap(region: ShmRegion) -> void {
 
 fn ShmRegion_unlink_name(name: string) -> i32 {
     return shm_unlink_region(name)
+}
+
+fn ShmRegion_borrow_fd(region: ShmRegion) -> Fd {
+    return Fd_borrow(region.fd)
+}
+
+fn ShmRegion_into_fd(region: ShmRegion) -> Fd {
+    return Fd_new(region.fd)
 }

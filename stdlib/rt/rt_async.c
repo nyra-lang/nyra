@@ -698,6 +698,14 @@ int io_wait_once(int timeout_ms) {
     async_promise_complete(task_id, (int)ev.ident);
     return 1;
 #elif defined(__linux__)
+    extern int io_uring_pending(void);
+    extern int io_uring_wait_once(int timeout_ms);
+    if (io_uring_pending() > 0) {
+        int uring_fired = io_uring_wait_once(timeout_ms);
+        if (uring_fired > 0) {
+            return uring_fired;
+        }
+    }
     if (g_epoll < 0) {
         return 0;
     }
