@@ -447,7 +447,7 @@ impl TypeChecker {
     ) {
         let expr = match &cfg.threads {
             ParallelThreads::Auto => return,
-            ParallelThreads::Max(e) => (e, "max_threads"),
+            ParallelThreads::Max(e) => (e, "max"),
             ParallelThreads::Exact(e) => (e, "threads"),
             ParallelThreads::CpuPercent(e) => (e, "cpu percent"),
         };

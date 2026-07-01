@@ -187,7 +187,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `nyra_diag_json_source` | `char *nyra_diag_json_source(const char *source, const char *file)` | `rt_compiler.c` | 1.19.0 | `stdlib/compiler.ny` |
 | `os_arg_at` | `char *os_arg_at(int index)` | `rt_args.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `os_arg_count` | `int os_arg_count(void)` | `rt_args.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `parallel_for_range` | `void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent)` | `rt_parallel.c` | 1.3.0 | — |
+| `parallel_for_range` | `void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)` | `rt_parallel.c` | 1.3.0 | — |
 | `path_is_dir` | `int path_is_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny`, `stdlib/gui/picker.ny` |
 | `println` | `int println(const char *msg)` | `rt_io.c` | 0.2.0 | — |
 | `process_exit` | `void process_exit(int code)` | `rt_args.c` | 1.3.0 | `stdlib/flag/mod.ny`, `stdlib/process/exit.ny` |
@@ -206,8 +206,15 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `pty_wait` | `int pty_wait(int master)` | `rt_pty.c` | 1.3.0 | `stdlib/terminal/pty.ny` |
 | `pty_write` | `int pty_write(int master, const char *data)` | `rt_pty.c` | 1.3.0 | `stdlib/terminal/pty.ny` |
 | `rand_f64` | `double rand_f64(void)` | `rt_random.c` | 1.16.0 | `stdlib/builtins_math.ny` |
+| `rand_f64_range` | `double rand_f64_range(double min_val, double max_val)` | `rt_random.c` | 1.39.0 | — |
 | `rand_i32` | `int rand_i32(void)` | `rt_random.c` | 1.1.0 | — |
+| `rand_i64` | `int64_t rand_i64(void)` | `rt_random.c` | 1.39.0 | — |
 | `rand_range` | `int rand_range(int min_val, int max_val)` | `rt_random.c` | 1.1.0 | `stdlib/random.ny` |
+| `rand_range_i64` | `int64_t rand_range_i64(int64_t min_val, int64_t max_val)` | `rt_random.c` | 1.39.0 | — |
+| `rand_range_u32` | `uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val)` | `rt_random.c` | 1.39.0 | — |
+| `rand_range_u64` | `uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val)` | `rt_random.c` | 1.39.0 | — |
+| `rand_u32` | `uint32_t rand_u32(void)` | `rt_random.c` | 1.39.0 | — |
+| `rand_u64` | `uint64_t rand_u64(void)` | `rt_random.c` | 1.39.0 | — |
 | `random_hex` | `char *random_hex(int byte_count)` | `rt_random.c` | 1.1.0 | `stdlib/crypto/random.ny`, `stdlib/uuid/mod.ny` |
 | `read_file` | `char *read_file(const char *path)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/fs.ny` |
 | `read_file_limit` | `char *read_file_limit(const char *path, int max_bytes)` | `rt_fs.c` | 1.13.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
@@ -276,8 +283,11 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `sleep_ms` | `void sleep_ms(int ms)` | `rt_time.c` | 1.1.0 | `stdlib/time/instant.ny` |
 | `spawn` | `void spawn(void)` | `rt_async.c` | 0.2.0 | — |
 | `spawn_capture` | `void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes)` | `rt_spawn.c` | 0.2.0 | — |
-| `spawn_join` | `int spawn_join(void *handle)` | `rt_spawn.c` | 1.39.0 | — |
 | `spawn_handle_drop` | `void spawn_handle_drop(void *handle)` | `rt_spawn.c` | 1.39.0 | — |
+| `spawn_join` | `int spawn_join(void *handle)` | `rt_spawn.c` | 1.39.0 | — |
+| `spawn_task_capture` | `void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes)` | `rt_task_pool.c` | 1.39.0 | — |
+| `spawn_task_handle_drop` | `void spawn_task_handle_drop(void *handle)` | `rt_task_pool.c` | 1.39.0 | — |
+| `spawn_task_join` | `int spawn_task_join(void *handle)` | `rt_task_pool.c` | 1.39.0 | — |
 | `sqlite_close` | `void sqlite_close(void *handle)` | `rt_sqlite.c` | 1.3.2 | `stdlib/db/sql.ny`, `stdlib/db/sqlite.ny` |
 | `sqlite_column_count` | `int sqlite_column_count(void *stmt)` | `rt_sqlite.c` | 1.21.0 | `stdlib/db/sqlite.ny` |
 | `sqlite_column_text` | `const char *sqlite_column_text(void *stmt, int col)` | `rt_sqlite.c` | 1.21.0 | `stdlib/db/sqlite.ny` |

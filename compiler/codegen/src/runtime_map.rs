@@ -598,6 +598,9 @@ impl RuntimeProfile {
         if mods.contains("rt_task_pool.c") {
             mods.insert("rt_parallel.c");
         }
+        if mods.contains("rt_parallel.c") {
+            mods.insert("rt_task_pool.c");
+        }
         if mods.contains("rt_progress.c") {
             mods.insert("rt_io.c");
         }

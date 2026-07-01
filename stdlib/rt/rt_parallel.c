@@ -10,6 +10,13 @@
 
 typedef void (*NyraParBody)(int32_t index, void *ctx);
 
+/* Task pool backend (rt_task_pool.c) */
+void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes);
+int spawn_task_join(void *handle);
+
+#define NYRA_PAR_BACKEND_TASK 0
+#define NYRA_PAR_BACKEND_THREAD 1
+
 static int32_t nyra_ncpus(void) {
 #if defined(_WIN32)
     SYSTEM_INFO si;
@@ -50,6 +57,13 @@ static void *nyra_par_worker(void *arg) {
     return NULL;
 }
 #endif
+
+static void nyra_par_chunk_task(void *arg) {
+    NyraParChunk *c = (NyraParChunk *)arg;
+    for (int32_t i = c->start; i < c->end; i++) {
+        c->body(i, c->ctx);
+    }
+}
 
 static int32_t clamp_workers(int32_t workers, int32_t count) {
     if (workers < 1) {
@@ -186,14 +200,70 @@ static void parallel_for_range_impl(int32_t start, int32_t end, NyraParBody body
     free(chunks);
 }
 
+static void parallel_for_range_task(int32_t start, int32_t end, NyraParBody body, void *ctx,
+                                    int32_t workers) {
+    if (!body || end <= start) {
+        return;
+    }
+    int32_t count = end - start;
+    workers = clamp_workers(workers, count);
+    if (workers <= 1) {
+        for (int32_t i = start; i < end; i++) {
+            body(i, ctx);
+        }
+        return;
+    }
+
+    int32_t chunk_sz = (count + workers - 1) / workers;
+    void **handles = (void **)calloc((size_t)workers, sizeof(void *));
+    if (!handles) {
+        for (int32_t i = start; i < end; i++) {
+            body(i, ctx);
+        }
+        return;
+    }
+
+    int32_t launched = 0;
+    int32_t pos = start;
+    while (pos < end && launched < workers) {
+        int32_t hi = pos + chunk_sz;
+        if (hi > end) {
+            hi = end;
+        }
+        NyraParChunk chunk = {pos, hi, body, ctx};
+        void *handle = spawn_task_capture(nyra_par_chunk_task, &chunk, (int64_t)sizeof(chunk));
+        if (!handle) {
+            for (int32_t j = 0; j < launched; j++) {
+                spawn_task_join(handles[j]);
+            }
+            for (int32_t i = pos; i < end; i++) {
+                body(i, ctx);
+            }
+            free(handles);
+            return;
+        }
+        handles[launched++] = handle;
+        pos = hi;
+    }
+
+    for (int32_t i = 0; i < launched; i++) {
+        spawn_task_join(handles[i]);
+    }
+    free(handles);
+}
+
 void parallel_for_range(int32_t start, int32_t end, NyraParBody body, void *ctx,
                         int32_t max_workers, int32_t exact_workers, int32_t mode,
-                        int32_t cpu_percent) {
+                        int32_t cpu_percent, int32_t backend) {
     int32_t count = end - start;
     if (count <= 0 || !body) {
         return;
     }
     int32_t workers =
         resolve_workers(count, max_workers, exact_workers, mode, cpu_percent);
-    parallel_for_range_impl(start, end, body, ctx, workers);
+    if (backend == NYRA_PAR_BACKEND_THREAD) {
+        parallel_for_range_impl(start, end, body, ctx, workers);
+    } else {
+        parallel_for_range_task(start, end, body, ctx, workers);
+    }
 }

@@ -248,9 +248,47 @@ fn main() {
     }
 
     #[test]
+    fn parses_parallel_for_max_key() {
+        let src = r#"fn main() {
+    parallel:task(max = 4) for i in 0..10 {
+        print(i)
+    }
+}"#;
+        let (tokens, _) = Lexer::new(src, "f.ny").tokenize();
+        let (program, errs) = Parser::new(tokens).parse();
+        assert!(errs.is_empty(), "{errs:?}");
+        let stmt = &program.functions[0].body.statements[0];
+        let Statement::For(f) = stmt else {
+            panic!("expected for");
+        };
+        let cfg = f.parallel.as_ref().expect("parallel");
+        assert_eq!(cfg.kind, SpawnKind::Task);
+        assert!(matches!(cfg.threads, ParallelThreads::Max(_)));
+    }
+
+    #[test]
+    fn parses_parallel_for_max_threads_legacy_emits_note() {
+        let src = r#"fn main() {
+    parallel(max_threads = 2) for i in 0..10 {
+        print(i)
+    }
+}"#;
+        let (tokens, _) = Lexer::new(src, "f.ny").tokenize();
+        let (mut parser) = Parser::new(tokens);
+        let (program, errs) = parser.parse();
+        assert!(program.functions[0].body.statements.iter().any(|s| {
+            matches!(s, Statement::For(f) if f.parallel.is_some())
+        }));
+        assert!(
+            errs.iter().any(|e| e.message.contains("prefer `max`")),
+            "{errs:?}"
+        );
+    }
+
+    #[test]
     fn parses_parallel_for_with_options() {
         let src = r#"fn main() {
-    parallel(max_threads = 4, mode = balanced) for i in 0..10 {
+    parallel(max = 4, mode = balanced) for i in 0..10 {
         print(i)
     }
 }"#;
@@ -264,6 +302,61 @@ fn main() {
         let cfg = f.parallel.as_ref().expect("parallel");
         assert!(matches!(cfg.threads, ParallelThreads::Max(_)));
         assert_eq!(cfg.mode, ParallelMode::Balanced);
+    }
+
+    #[test]
+    fn parses_parallel_for_thread_kind() {
+        let src = r#"fn main() {
+    parallel:thread(max = 4) for i in 0..10 {
+        print(i)
+    }
+}"#;
+        let (tokens, _) = Lexer::new(src, "f.ny").tokenize();
+        let (program, errs) = Parser::new(tokens).parse();
+        assert!(errs.is_empty(), "{errs:?}");
+        let stmt = &program.functions[0].body.statements[0];
+        let Statement::For(f) = stmt else {
+            panic!("expected for");
+        };
+        let cfg = f.parallel.as_ref().expect("parallel");
+        assert_eq!(cfg.kind, SpawnKind::Thread);
+        assert!(matches!(cfg.threads, ParallelThreads::Max(_)));
+    }
+
+    #[test]
+    fn parses_parallel_for_default_task_kind() {
+        let src = r#"fn main() {
+    parallel for i in 0..10 {
+        print(i)
+    }
+}"#;
+        let (tokens, _) = Lexer::new(src, "f.ny").tokenize();
+        let (program, errs) = Parser::new(tokens).parse();
+        assert!(errs.is_empty(), "{errs:?}");
+        let stmt = &program.functions[0].body.statements[0];
+        let Statement::For(f) = stmt else {
+            panic!("expected for");
+        };
+        let cfg = f.parallel.as_ref().expect("parallel");
+        assert_eq!(cfg.kind, SpawnKind::Task);
+    }
+
+    #[test]
+    fn parses_parallel_for_backend_option() {
+        let src = r#"fn main() {
+    parallel(backend = thread, threads = 2) for i in 0..10 {
+        print(i)
+    }
+}"#;
+        let (tokens, _) = Lexer::new(src, "f.ny").tokenize();
+        let (program, errs) = Parser::new(tokens).parse();
+        assert!(errs.is_empty(), "{errs:?}");
+        let stmt = &program.functions[0].body.statements[0];
+        let Statement::For(f) = stmt else {
+            panic!("expected for");
+        };
+        let cfg = f.parallel.as_ref().expect("parallel");
+        assert_eq!(cfg.kind, SpawnKind::Thread);
     }
 
     #[test]

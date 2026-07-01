@@ -398,10 +398,10 @@ const ENTRIES: &[ExplainEntry] = &[
     },
     ExplainEntry {
         code: "P015",
-        title: "prefer `max_threads` in `parallel(...)`",
-        explanation: "The `cores` key in `parallel(...)` is accepted but deprecated; use `max_threads` or `threads` instead.",
-        example_bad: Some("parallel for i in 0..10 parallel(cores = 4) { }"),
-        example_good: Some("parallel for i in 0..10 parallel(max_threads = 4) { }"),
+        title: "prefer `max` in `parallel(...)`",
+        explanation: "The `cores`, `max_threads`, and `max_workers` keys are accepted but deprecated; use `max = N` to cap workers.",
+        example_bad: Some("parallel(max_threads = 4) for i in 0..10 { }"),
+        example_good: Some("parallel(max = 4) for i in 0..10 { }"),
     },
     ExplainEntry {
         code: "P099",

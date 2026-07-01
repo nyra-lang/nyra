@@ -461,6 +461,9 @@ fn emit_for(f: &ForStmt, indent: usize, out: &mut String) {
     pad(indent, out);
     if let Some(cfg) = &f.parallel {
         out.push_str("parallel");
+        if cfg.kind == SpawnKind::Thread {
+            out.push_str(":thread");
+        }
         emit_parallel_config(cfg, out);
         out.push(' ');
     }
@@ -497,7 +500,7 @@ fn emit_parallel_config(cfg: &ParallelConfig, out: &mut String) {
     match &cfg.threads {
         ParallelThreads::Auto => {}
         ParallelThreads::Max(e) => {
-            let mut s = String::from("max_threads = ");
+            let mut s = String::from("max = ");
             emit_expr(e, &mut s);
             opts.push(s);
         }

@@ -282,7 +282,7 @@ pub enum ParallelMode {
 pub enum ParallelThreads {
     /// Runtime picks worker count from mode and CPU topology.
     Auto,
-    /// Cap workers (`max_threads = N`); may use fewer when iteration count is small.
+    /// Cap workers (`max = N`); may use fewer when iteration count is small.
     Max(Expression),
     /// Exact worker count (`threads = N`).
     Exact(Expression),
@@ -298,6 +298,8 @@ impl Default for ParallelThreads {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParallelConfig {
+    /// Task pool (default) or dedicated OS threads per chunk (`parallel:thread`).
+    pub kind: SpawnKind,
     pub mode: ParallelMode,
     pub threads: ParallelThreads,
 }
@@ -305,6 +307,7 @@ pub struct ParallelConfig {
 impl Default for ParallelConfig {
     fn default() -> Self {
         Self {
+            kind: SpawnKind::Task,
             mode: ParallelMode::Auto,
             threads: ParallelThreads::Auto,
         }

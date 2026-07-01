@@ -366,7 +366,7 @@ impl Codegen {
             ("spawn_task_handle_drop", "declare void @spawn_task_handle_drop(ptr)"),
             (
                 "parallel_for_range",
-                "declare void @parallel_for_range(i32, i32, ptr, ptr, i32, i32, i32, i32)",
+                "declare void @parallel_for_range(i32, i32, ptr, ptr, i32, i32, i32, i32, i32)",
             ),
             ("cpu_count", "declare i32 @cpu_count()"),
             ("progress_update", "declare void @progress_update(i32, i32, ptr)"),

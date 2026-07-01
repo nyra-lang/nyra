@@ -220,7 +220,7 @@ int spawn_task_join(void *handle);
 void spawn_task_handle_drop(void *handle);
 
 /* since Nyra 1.3.0 */
-void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent);
+void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
 
 /* since Nyra 1.3.0 */
 int32_t cpu_count(void);

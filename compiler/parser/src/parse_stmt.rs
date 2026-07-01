@@ -337,8 +337,13 @@ impl Parser {
     }
 
     pub(super) fn parse_spawn_kind(&mut self) -> SpawnKind {
+        self.parse_optional_spawn_kind().unwrap_or(SpawnKind::Task)
+    }
+
+    /// `spawn:task` / `parallel:thread` suffix — `None` when no `:kind` is present.
+    pub(super) fn parse_optional_spawn_kind(&mut self) -> Option<SpawnKind> {
         if !check(&self.tokens, self.position, &TokenKind::Colon) {
-            return SpawnKind::Task;
+            return None;
         }
         self.advance();
         match self.current_kind() {
@@ -348,17 +353,17 @@ impl Parser {
                     "thread" => SpawnKind::Thread,
                     other => {
                         self.parse_error_here(format!(
-                            "expected `task` or `thread` after `spawn:`, found `{other}`"
+                            "expected `task` or `thread` after `:`, found `{other}`"
                         ));
                         SpawnKind::Task
                     }
                 };
                 self.advance();
-                kind
+                Some(kind)
             }
             _ => {
-                self.parse_error_here("expected `task` or `thread` after `spawn:`");
-                SpawnKind::Task
+                self.parse_error_here("expected `task` or `thread` after `:`");
+                Some(SpawnKind::Task)
             }
         }
     }
@@ -406,11 +411,15 @@ impl Parser {
 
     pub(super) fn parse_parallel_for(&mut self) -> Statement {
         self.advance(); // parallel
-        let config = if matches!(self.current_kind(), TokenKind::LParen) {
+        let suffix_kind = self.parse_optional_spawn_kind();
+        let mut config = if matches!(self.current_kind(), TokenKind::LParen) {
             self.parse_parallel_config()
         } else {
             ParallelConfig::default()
         };
+        if let Some(kind) = suffix_kind {
+            config.kind = kind;
+        }
         consume(
             &self.tokens,
             &mut self.position,
@@ -522,7 +531,7 @@ impl Parser {
                     n
                 }
                 _ => {
-                    self.parse_error_here("Expected parallel option name (e.g. threads, mode)");
+                    self.parse_error_here("Expected parallel option name (e.g. max, mode)");
                     break;
                 }
             };
@@ -534,6 +543,31 @@ impl Parser {
                 &mut self.errors,
             );
             match key.as_str() {
+                "backend" | "kind" => {
+                    let backend_name = match self.current_kind() {
+                        TokenKind::Identifier(n) => {
+                            let n = n.clone();
+                            self.advance();
+                            n
+                        }
+                        _ => {
+                            self.parse_error_here(
+                                "Expected backend: task, tasks, thread, or threads",
+                            );
+                            "task".into()
+                        }
+                    };
+                    config.kind = match backend_name.as_str() {
+                        "task" | "tasks" => SpawnKind::Task,
+                        "thread" | "threads" => SpawnKind::Thread,
+                        other => {
+                            self.parse_error_here(&format!(
+                                "Unknown parallel backend '{other}' (use task, tasks, thread, or threads)"
+                            ));
+                            SpawnKind::Task
+                        }
+                    };
+                }
                 "mode" => {
                     let mode_name = match self.current_kind() {
                         TokenKind::Identifier(n) => {
@@ -561,12 +595,13 @@ impl Parser {
                         }
                     };
                 }
-                "max_threads" | "max_workers" | "cores" => {
+                "max" | "max_threads" | "max_workers" | "cores" => {
                     let expr = self.parse_expression();
                     config.threads = ParallelThreads::Max(expr);
-                    if key == "cores" {
-                        self.errors.push(errors::parallel_prefer_max_threads(
+                    if key != "max" {
+                        self.errors.push(errors::parallel_prefer_max(
                             self.current_span(),
+                            &key,
                         ));
                     }
                 }
@@ -584,7 +619,7 @@ impl Parser {
                 }
                 other => {
                     self.parse_error_here(&format!(
-                        "Unknown parallel option '{other}' (mode, max_threads, threads, cpu)"
+                        "Unknown parallel option '{other}' (backend, mode, max, threads, cpu)"
                     ));
                     let _ = self.parse_expression();
                 }

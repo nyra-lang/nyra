@@ -134,7 +134,7 @@ impl Codegen {
         };
 
         let cfg = f.parallel.as_ref().expect("parallel for");
-        let (max_w, exact_w, mode, cpu_pct) = self.compile_parallel_opts(cfg, env);
+        let (max_w, exact_w, mode, cpu_pct, backend) = self.compile_parallel_opts(cfg, env);
 
         let llvm_fields: Vec<String> = fields.iter().map(|(_, ty)| ty.clone()).collect();
         if !llvm_fields.is_empty() {
@@ -168,7 +168,7 @@ impl Codegen {
             self.emit_runtime_call(
                 "parallel_for_range",
                 &format!(
-                    "  call void @parallel_for_range(i32 {start_op}, i32 {end_op}, ptr @{body_symbol}, ptr null, i32 {max_w}, i32 {exact_w}, i32 {mode}, i32 {cpu_pct})"
+                    "  call void @parallel_for_range(i32 {start_op}, i32 {end_op}, ptr @{body_symbol}, ptr null, i32 {max_w}, i32 {exact_w}, i32 {mode}, i32 {cpu_pct}, i32 {backend})"
                 ),
             );
             return;
@@ -234,7 +234,7 @@ impl Codegen {
         self.emit_runtime_call(
             "parallel_for_range",
             &format!(
-                "  call void @parallel_for_range(i32 {start_op}, i32 {end_op}, ptr @{body_symbol}, ptr %{ctx_ptr}, i32 {max_w}, i32 {exact_w}, i32 {mode}, i32 {cpu_pct})"
+                "  call void @parallel_for_range(i32 {start_op}, i32 {end_op}, ptr @{body_symbol}, ptr %{ctx_ptr}, i32 {max_w}, i32 {exact_w}, i32 {mode}, i32 {cpu_pct}, i32 {backend})"
             ),
         );
     }
@@ -243,12 +243,16 @@ impl Codegen {
         &mut self,
         cfg: &ParallelConfig,
         env: &Env,
-    ) -> (String, String, String, String) {
+    ) -> (String, String, String, String, String) {
         let mode = match cfg.mode {
             ParallelMode::Auto => "0".to_string(),
             ParallelMode::Balanced => "1".to_string(),
             ParallelMode::MaxPerformance => "2".to_string(),
             ParallelMode::Background => "3".to_string(),
+        };
+        let backend = match cfg.kind {
+            SpawnKind::Task => "0".to_string(),
+            SpawnKind::Thread => "1".to_string(),
         };
         let mut max_w = "0".to_string();
         let mut exact_w = "0".to_string();
@@ -261,7 +265,7 @@ impl Codegen {
                 cpu_pct = Self::i32_operand(&self.compile_expr(e, env).reg);
             }
         }
-        (max_w, exact_w, mode, cpu_pct)
+        (max_w, exact_w, mode, cpu_pct, backend)
     }
 
     fn i32_operand(reg: &str) -> String {

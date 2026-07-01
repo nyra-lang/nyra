@@ -22,7 +22,7 @@ pub use const_eval_diag::coded_comptime_error;
 pub use lexer_diag::coded_lexer_error;
 pub use parser_diag::{
     coded_parser_error, finalize_lexer_diagnostics, finalize_parser_diagnostics,
-    is_parser_cascade, parallel_prefer_max_threads,
+    is_parser_cascade, parallel_prefer_max, parallel_prefer_max_threads,
 };
 pub use paths::{clear_diagnostic_root, display_path, set_diagnostic_root};
 pub use sources::{clear_sources, read_source, register_source};

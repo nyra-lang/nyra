@@ -1238,70 +1238,37 @@ spawn {
 
 Channels: `stdlib/sync/channel.ny`
 
-### `parallel for` (Extended)
+### `parallel for` / `parallel:task` / `parallel:thread` (Extended)
 
-Independent iterations across worker threads — no manual thread pool. Compiler lowers to `parallel_for_range` (`stdlib/rt/rt_parallel.c`).
+Gallery: [methods.html#ex-parallel](https://nyra-lang.github.io/docs/methods.html#ex-parallel) · Runnable: `examples/builtins/parallel/`
 
-```ny
-parallel for i in 0..1000 { work(i) }
-parallel(max_threads = 4) for i in 0..1000 { work(i) }
-parallel(threads = 4) for i in 0..1000 { work(i) }
-parallel(cpu = 80%) for i in 0..n { work(i) }
-parallel(threads = cpu_count() - 1) for i in 0..n { work(i) }
-parallel(mode = balanced) for i in 0..n { work(i) }
-```
+Each entry: **name → explanation → example → output** (see webDocs gallery for full list).
 
-| Option | Meaning |
-|--------|---------|
-| *(none)* | `mode = auto`, workers from CPU count |
-| `max_threads = N` | At most N workers |
-| `threads = N` | Exactly N workers |
-| `cpu = P%` | `P` percent of logical CPUs |
-| `mode` | `auto`, `balanced`, `max_performance`, `background` |
+| Feature | Gallery |
+|---------|---------|
+| `parallel for` (task pool default) | `#ex-parallel` |
+| `parallel:task(max = N)` | `#ex-parallel-task-max` |
+| `parallel:thread(max = N)` | `#ex-parallel-thread` |
+| `parallel(cpu = P%)` | `#ex-parallel-cpu` |
+| `parallel(mode = …)` | `#ex-parallel-mode` |
+| `parallel(threads = N)` | `#ex-parallel-exact` |
+| `cpu_count()` | `#ex-cpu-count` |
+| `progress for` | `#ex-progress` |
+| `benchmark { }` | `#ex-benchmark` |
 
-`cpu_count()` — built-in logical CPU count.
+**Rules:** no `break`; no outer mutation; captures **Send**; range/array/string/`vec_str`. On `wasm32-wasi`, sequential.
 
-Rules: no `break`; no mutation of outer variables; captures must be **Send**; iterable must be range, fixed array, `string`, or `vec_str`. On `wasm32-wasi`, runs sequentially.
+### `progress for` / `benchmark { }` / `defer` / `async` (Extended)
 
+| Feature | Gallery |
+|---------|---------|
+| `progress for` | `#ex-progress` |
+| `benchmark { }` | `#ex-benchmark` |
+| `defer` | `#ex-defer` · `#ex-defer-lifo` |
+| `async fn` + `await` | `#ex-async-fn` · `#ex-await` |
+| `Future<T>` | `#ex-async-future` |
 
-
-### `progress for` (Extended)
-
-Built-in progress bar for sequential loops (`stdlib/rt/rt_progress.c`).
-
-```ny
-progress(label = "parser tests") for item in tests {
-    run(item)
-}
-
-progress for i in 0..100 {
-    step(i)
-}
-```
-
-Output each iteration: `[#####-------] 43%` plus `Running parser tests...`. Optional `label = "..."`; default derives from iterable name. Cannot combine with `parallel for`.
-
-
-
-### `benchmark { }` (Extended)
-
-Measure wall time, RSS delta, and process CPU usage — no manual timers.
-
-```ny
-benchmark {
-    run()
-}
-```
-
-Prints:
-
-```
-Time: 14.2 ms
-Memory: 1.8 MB
-CPU: 38%
-```
-
-Lowers to `benchmark_begin()` / `benchmark_end()` in `stdlib/rt/rt_bench.c`. For iteration loops use `stdlib/bench/mod.ny`; for labeled timers use `time_start` / `mem_start`.
+Runnable: `examples/builtins/{parallel,benchmark,defer,async}/`
 
 
 

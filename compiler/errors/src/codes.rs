@@ -71,7 +71,7 @@ pub const P012_EXPECTED_ARROW_FAT_ARROW: &str = "P012";
 pub const P013_EXPECTED_CLOSE_PAREN: &str = "P013";
 /// Parser: missing `]` after array / index.
 pub const P014_EXPECTED_CLOSE_BRACKET: &str = "P014";
-/// Parser: prefer `max_threads` over deprecated `cores` in `parallel(...)`.
+/// Parser: prefer `max` over deprecated `max_threads` / `cores` in `parallel(...)`.
 pub const P015_PARALLEL_PREFER_THREADS: &str = "P015";
 /// Parser: other / unclassified syntax error.
 pub const P099_UNEXPECTED: &str = "P099";
