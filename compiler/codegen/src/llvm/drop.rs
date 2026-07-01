@@ -119,16 +119,98 @@ impl Codegen {
             Binding::Reg { reg, .. } => format!("%{reg}"),
             _ => return,
         };
+        let heap_tags: Vec<i64> = self
+            .enum_variant_payload_llvm
+            .get(enum_name)
+            .map(|m| {
+                m.iter()
+                    .filter_map(|(variant, llvm_ty)| {
+                        if llvm_ty == "ptr" {
+                            Some(self.variant_tag(enum_name, variant))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        if heap_tags.is_empty() {
+            return;
+        }
+        let tag_gep = self.fresh("enum_drop_tag_gep");
+        self.emit(&format!(
+            "  %{tag_gep} = getelementptr inbounds {enum_ty}, {enum_ty}* {enum_ptr}, i32 0, i32 0"
+        ));
+        let tag_reg = self.fresh("enum_drop_tag");
+        self.emit(&format!(
+            "  %{tag_reg} = load i32, ptr %{tag_gep}"
+        ));
         let pay_gep = self.fresh("enum_drop_gep");
         self.emit(&format!(
             "  %{pay_gep} = getelementptr inbounds {enum_ty}, {enum_ty}* {enum_ptr}, i32 0, i32 1"
         ));
+        let skip_l = self.fresh_label("enum_drop.skip");
+        let free_l = self.fresh_label("enum_drop.free");
+        let end_l = self.fresh_label("enum_drop.end");
+        if heap_tags.len() == 1 && self.enum_variant_payload_llvm.get(enum_name).is_none_or(|m| {
+            m.values().all(|t| t == "ptr")
+        }) {
+            let loaded = self.fresh("enum_drop_load");
+            self.emit(&format!("  %{loaded} = load ptr, ptr %{pay_gep}"));
+            self.emit_runtime_call(
+                "free",
+                &format!("  call void @free(ptr %{loaded})"),
+            );
+            return;
+        }
+        let mut checks = heap_tags.clone();
+        let first = checks.remove(0);
+        let cmp = self.fresh("enum_drop_cmp");
+        self.emit(&format!(
+            "  %{cmp} = icmp eq i32 %{tag_reg}, {first}"
+        ));
+        if checks.is_empty() {
+            self.emit(&format!(
+                "  br i1 %{cmp}, label %{free_l}, label %{skip_l}"
+            ));
+        } else {
+            let next_l = self.fresh_label("enum_drop.next");
+            self.emit(&format!(
+                "  br i1 %{cmp}, label %{free_l}, label %{next_l}"
+            ));
+            self.emit(&format!("{next_l}:"));
+            let mut prev_cmp = cmp;
+            for (i, tag) in checks.iter().enumerate() {
+                let c = self.fresh("enum_drop_cmp");
+                self.emit(&format!(
+                    "  %{c} = icmp eq i32 %{tag_reg}, {tag}"
+                ));
+                if i + 1 == checks.len() {
+                    self.emit(&format!(
+                        "  br i1 %{c}, label %{free_l}, label %{skip_l}"
+                    ));
+                } else {
+                    let n = self.fresh_label("enum_drop.next");
+                    self.emit(&format!(
+                        "  br i1 %{c}, label %{free_l}, label %{n}"
+                    ));
+                    self.emit(&format!("{n}:"));
+                }
+                prev_cmp = c;
+            }
+            let _ = prev_cmp;
+        }
+        self.emit(&format!("{free_l}:"));
         let loaded = self.fresh("enum_drop_load");
         self.emit(&format!("  %{loaded} = load ptr, ptr %{pay_gep}"));
         self.emit_runtime_call(
             "free",
             &format!("  call void @free(ptr %{loaded})"),
         );
+        self.emit(&format!("  br label %{end_l}"));
+        self.emit(&format!("{skip_l}:"));
+        self.emit(&format!("  br label %{end_l}"));
+        self.emit(&format!("{end_l}:"));
     }
 
     /// Drop heap-owned fields of a struct without a custom `Drop` impl (reverse field order).

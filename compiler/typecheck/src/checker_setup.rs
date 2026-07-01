@@ -19,6 +19,7 @@ impl TypeChecker {
         Self {
             env: Self::default_env(),
             structs: HashMap::new(),
+            unions: HashMap::new(),
             enums: HashMap::new(),
             errors: vec![],
             inferred_bindings: vec![],

@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use ast::*;
 use ast::expr_span;
 use lexer::{Token, TokenKind};
+use types;
 use crate::recovery::{check, consume, is_at_end, merge_spans, skip_chain_newlines, skip_newlines};
 use crate::Parser;
 
@@ -386,6 +387,10 @@ impl Parser {
                 self.advance();
                 TypeAnnotation::String
             }
+            TokenKind::TypeBytes => {
+                self.advance();
+                TypeAnnotation::Bytes
+            }
             TokenKind::TypePtr => {
                 self.advance();
                 TypeAnnotation::Ptr
@@ -397,6 +402,9 @@ impl Parser {
             TokenKind::Identifier(n) => {
                 let name = n.clone();
                 self.advance();
+                if let Some(simd) = types::parse_simd_type_name(&name) {
+                    return simd;
+                }
                 if name == "VecStr" {
                     return TypeAnnotation::VecStr;
                 }

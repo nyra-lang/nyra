@@ -53,16 +53,73 @@ impl Codegen {
             let has_payload = e.variants.iter().any(|v| !v.fields.is_empty());
             self.enum_has_payload.insert(e.name.clone(), has_payload);
             if has_payload {
-                if let Some(payload_ann) = e.variants.iter().find_map(|v| v.fields.first()) {
-                    let payload_llvm = self.llvm_type_of(payload_ann);
-                    self.enum_payload_llvm
-                        .insert(e.name.clone(), payload_llvm.clone());
-                    self.emit(&format!(
-                        "%{} = type {{ i32, {} }}",
-                        e.name, payload_llvm
-                    ));
+                let mut variant_payloads: HashMap<String, String> = HashMap::new();
+                let mut max_size = 4i64;
+                for v in &e.variants {
+                    if let Some(payload_ann) = v.fields.first() {
+                        let payload_llvm = self.llvm_type_of(payload_ann);
+                        variant_payloads.insert(v.name.clone(), payload_llvm.clone());
+                        let sz = super::util::llvm_type_size_bytes(&payload_llvm);
+                        max_size = max_size.max(sz);
+                    }
                 }
+                let slot_ty = format!("[{} x i8]", max_size);
+                self.enum_payload_llvm
+                    .insert(e.name.clone(), slot_ty.clone());
+                self.enum_variant_payload_llvm
+                    .insert(e.name.clone(), variant_payloads);
+                self.emit(&format!(
+                    "%{} = type {{ i32, {} }}",
+                    e.name, slot_ty
+                ));
             }
+        }
+        let mut unions: Vec<_> = program.unions.iter().collect();
+        unions.sort_by(|a, b| a.name.cmp(&b.name));
+        for u in unions {
+            if !u.type_params.is_empty() {
+                continue;
+            }
+            let fields: Vec<(String, TypeAnnotation)> = u
+                .fields
+                .iter()
+                .map(|f| (f.name.clone(), f.ty.clone()))
+                .collect();
+            self.union_fields.insert(u.name.clone(), fields.clone());
+            let mut field_anns = HashMap::new();
+            let mut field_order = Vec::new();
+            let mut union_fields_map = HashMap::new();
+            for (name, ann) in &fields {
+                field_anns.insert(name.clone(), ann.clone());
+                field_order.push(name.clone());
+                union_fields_map.insert(name.clone(), types::Type::Unknown);
+            }
+            self.union_layout_infos.insert(
+                u.name.clone(),
+                types::UnionInfo {
+                    fields: union_fields_map,
+                    field_anns,
+                    field_order,
+                    repr_c: u.attrs.repr_c,
+                    align: u.attrs.align,
+                    packed: u.attrs.packed,
+                },
+            );
+            if u.attrs.repr_c {
+                self.repr_c_unions.insert(u.name.clone());
+            }
+            let mut max_size = 1i64;
+            let mut max_align = 1i64;
+            for (_, ty) in &fields {
+                let llvm_ty = self.llvm_type_of(ty);
+                max_size = max_size.max(super::util::llvm_type_size_bytes(&llvm_ty));
+                max_align = max_align.max(super::util::llvm_type_align_bytes(&llvm_ty));
+            }
+            if let Some(a) = u.attrs.align {
+                max_align = max_align.max(a as i64);
+            }
+            let slot_ty = format!("[{} x i8]", max_size);
+            self.emit(&format!("%{} = type {{ {} }}", u.name, slot_ty));
         }
         let mut structs: Vec<_> = program.structs.iter().collect();
         structs.sort_by(|a, b| a.name.cmp(&b.name));
@@ -73,6 +130,25 @@ impl Codegen {
                 .map(|f| (f.name.clone(), f.ty.clone()))
                 .collect();
             self.struct_fields.insert(s.name.clone(), fields.clone());
+            let mut field_anns = HashMap::new();
+            let mut field_order = Vec::new();
+            let mut struct_fields_map = HashMap::new();
+            for (name, ann) in &fields {
+                field_anns.insert(name.clone(), ann.clone());
+                field_order.push(name.clone());
+                struct_fields_map.insert(name.clone(), types::Type::Unknown);
+            }
+            self.struct_layout_infos.insert(
+                s.name.clone(),
+                types::StructInfo {
+                    fields: struct_fields_map,
+                    field_anns,
+                    field_order,
+                    repr_c: s.attrs.repr_c,
+                    align: s.attrs.align,
+                    packed: s.attrs.packed,
+                },
+            );
             if s.attrs.repr_c {
                 self.repr_c_structs.insert(s.name.clone());
             }
@@ -97,7 +173,7 @@ impl Codegen {
             let ret = ext
                 .return_type
                 .clone()
-                .map(|t| self.llvm_return_type_of(&t))
+                .map(|t| self.logical_call_ret_ty(&t))
                 .unwrap_or_else(|| "void".to_string());
             self.call_returns.insert(ext.name.clone(), ret);
         }
@@ -106,7 +182,7 @@ impl Codegen {
             let ret = f
                 .return_type
                 .clone()
-                .map(|t| self.llvm_return_type_of(&t))
+                .map(|t| self.logical_call_ret_ty(&t))
                 .unwrap_or_else(|| "i32".to_string());
             self.call_returns.insert(f.name.clone(), ret);
         }
@@ -222,7 +298,11 @@ impl Codegen {
         let mut compile_order: Vec<&Function> = program
             .functions
             .iter()
-            .filter(|f| !types::is_math_intrinsic_fn(&f.name))
+            .filter(|f| {
+                !types::is_math_intrinsic_fn(&f.name)
+                    && !types::is_simd_intrinsic_fn(&f.name)
+                    && !types::is_layout_intrinsic_fn(&f.name)
+            })
             .collect();
         compile_order.sort_by(|a, b| a.name.cmp(&b.name));
         for func in compile_order {

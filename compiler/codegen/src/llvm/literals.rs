@@ -30,6 +30,9 @@ impl Codegen {
         if let Some(fields) = self.tuple_fields.get(struct_name) {
             return field.parse::<usize>().ok().filter(|i| *i < fields.len());
         }
+        if let Some(fields) = self.union_fields.get(struct_name) {
+            return fields.iter().position(|(n, _)| n == field);
+        }
         self.struct_fields
             .get(struct_name)?
             .iter()
@@ -152,23 +155,47 @@ impl Codegen {
         let ty = format!("%{}", sl.name);
         let alloca = self.fresh("alloca");
         self.emit(&format!("  %{alloca} = alloca {ty}"));
-        let spread_vals: Vec<(String, ExprValue)> = sl
-            .spreads
-            .iter()
-            .filter_map(|b| {
-                let val = self.compile_expr(b, env);
-                self.expr_receiver_struct_name(b, env)
-                    .map(|name| (name, val))
-            })
-            .collect();
+        let is_union = self.union_fields.contains_key(&sl.name);
+        let field_defs = if is_union {
+            self.union_fields[&sl.name].clone()
+        } else {
+            self.struct_fields[&sl.name].clone()
+        };
+        let spread_vals: Vec<(String, ExprValue)> = if is_union {
+            Vec::new()
+        } else {
+            sl.spreads
+                .iter()
+                .filter_map(|b| {
+                    let val = self.compile_expr(b, env);
+                    self.expr_receiver_struct_name(b, env)
+                        .map(|name| (name, val))
+                })
+                .collect()
+        };
         let explicit: HashMap<&str, &Expression> = sl
             .fields
             .iter()
             .map(|(n, e)| (n.as_str(), e))
             .collect();
-        let field_defs = self.struct_fields[&sl.name].clone();
         for (idx, (fname, field_ann)) in field_defs.iter().enumerate() {
             let llvm_ft = self.llvm_type_of(field_ann);
+            if is_union {
+                if explicit.contains_key(fname.as_str()) {
+                    let fexpr = explicit[fname.as_str()];
+                    let mut val = self.compile_expr(fexpr, env);
+                    if matches!(field_ann, TypeAnnotation::String)
+                        && !no_escape
+                        && !self.expr_string_is_heap_owned(fexpr)
+                    {
+                        val = self.heap_clone_string(val);
+                    }
+                    let bc = self.fresh("bc");
+                    self.emit(&format!("  %{bc} = bitcast ptr %{alloca} to ptr"));
+                    self.emit_store_to_gep(&val, &bc, &llvm_ft);
+                }
+                continue;
+            }
             let gep = self.fresh("gep");
             self.emit(&format!(
                 "  %{gep} = getelementptr inbounds {ty}, {ty}* %{alloca}, i32 0, i32 {idx}"
@@ -384,6 +411,8 @@ impl Codegen {
                 .get(field_idx)
                 .map(|a| self.llvm_type_of(a))
                 .unwrap_or_else(|| "i32".into())
+        } else if self.union_fields.contains_key(&struct_name) {
+            self.llvm_type_of(&self.union_fields[&struct_name][field_idx].1)
         } else {
             self.llvm_type_of(&self.struct_fields[&struct_name][field_idx].1)
         };
@@ -405,6 +434,16 @@ impl Codegen {
         } else {
             format!("%{}", obj.reg)
         };
+        if self.union_fields.contains_key(&struct_name) {
+            let bc = self.fresh("bc");
+            self.emit(&format!("  %{bc} = bitcast ptr {base_ptr} to ptr"));
+            let reg = self.fresh("load");
+            self.emit(&format!("  %{reg} = load {field_ty}, ptr %{bc}"));
+            return ExprValue {
+                reg: format!("%{reg}"),
+                ty: field_ty,
+            };
+        }
         self.emit(&format!(
             "  %{gep} = getelementptr inbounds {llvm_struct}, {llvm_struct}* {base_ptr}, i32 0, i32 {field_idx}"
         ));

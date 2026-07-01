@@ -55,7 +55,11 @@ impl<'a> Checker<'a> {
                 send: false,
                 sync: false,
             },
-            Type::String => ThreadSafety {
+            Type::String | Type::Bytes => ThreadSafety {
+                send: true,
+                sync: true,
+            },
+            Type::Simd { .. } | Type::Union(_) => ThreadSafety {
                 send: true,
                 sync: true,
             },

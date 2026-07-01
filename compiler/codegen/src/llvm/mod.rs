@@ -29,6 +29,7 @@ mod parallel;
 mod program;
 mod progress;
 mod spawn;
+mod simd;
 mod stmt;
 mod store;
 mod strings;
@@ -107,6 +108,14 @@ pub struct Codegen {
     fn_attr_sets: Vec<String>,
     /// Struct types declared with `repr(C)` (C ABI at FFI boundaries).
     repr_c_structs: HashSet<String>,
+    /// Union field layouts by name.
+    union_fields: HashMap<String, Vec<(String, TypeAnnotation)>>,
+    /// Struct layout metadata for `size_of` / `align_of` intrinsics.
+    struct_layout_infos: HashMap<String, types::StructInfo>,
+    union_layout_infos: HashMap<String, types::UnionInfo>,
+    repr_c_unions: HashSet<String>,
+    /// Per-enum variant payload LLVM types (heterogeneous enums).
+    enum_variant_payload_llvm: HashMap<String, HashMap<String, String>>,
     /// Names of `extern fn` symbols (calls into native C libraries).
     extern_fn_names: HashSet<String>,
     /// Nyra `extern fn` name → linked C runtime symbol (e.g. `strlen` → `strlen`).

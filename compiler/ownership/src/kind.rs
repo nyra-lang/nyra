@@ -34,8 +34,10 @@ pub fn ownership_of(
         | Type::Handle
         | Type::VecStr
         | Type::Ptr
-        | Type::RawPtr { .. } => OwnershipKind::Copy,
-        Type::String => OwnershipKind::Move,
+        | Type::RawPtr { .. }
+        | Type::Simd { .. } => OwnershipKind::Copy,
+        Type::String | Type::Bytes => OwnershipKind::Move,
+        Type::Union(_) => OwnershipKind::Copy,
         Type::Ref { .. } | Type::Generic(_) | Type::ForAll { .. } | Type::FnPtr { .. } => {
             OwnershipKind::Copy
         }

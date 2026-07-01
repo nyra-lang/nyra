@@ -102,6 +102,7 @@ fn mangle_type(t: &TypeAnnotation) -> String {
         TypeAnnotation::Char => "char".into(),
         TypeAnnotation::Bool => "bool".into(),
         TypeAnnotation::String => "string".into(),
+        TypeAnnotation::Bytes => "bytes".into(),
         TypeAnnotation::VecStr => "vec_str".into(),
         TypeAnnotation::Ptr => "ptr".into(),
         TypeAnnotation::RawPtr { inner } => format!("raw_{}", mangle_type(inner)),
@@ -136,6 +137,9 @@ fn mangle_type(t: &TypeAnnotation) -> String {
         TypeAnnotation::ForAll { inner, .. } => mangle_type(inner),
         TypeAnnotation::FnPtr { .. } => "fnptr".into(),
         TypeAnnotation::DynTrait { trait_name, .. } => format!("dyn_{trait_name}"),
+        TypeAnnotation::Simd { elem, lanes } => {
+            format!("simd_{}_{}", mangle_type(elem), lanes)
+        }
     }
 }
 
@@ -1741,7 +1745,9 @@ pub fn monomorphize_program(program: &mut Program) -> Vec<errors::NyraError> {
 fn rewrite_expr(expr: &mut Expression) {
     match expr {
         Expression::Call(c) => {
-            if !c.type_args.is_empty() {
+            if !c.type_args.is_empty()
+                && !matches!(c.callee.as_str(), "size_of" | "align_of")
+            {
                 c.callee = mangle_inst(&c.callee, &c.type_args);
                 c.type_args.clear();
             }

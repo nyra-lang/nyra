@@ -8,6 +8,20 @@ use super::{FunctionSignature, TypeChecker, TypeEnv, VarInfo};
 use types::{self, Type};
 
 impl TypeChecker {
+    fn is_stack_buffer_type(ty: &Type) -> bool {
+        match ty {
+            Type::Struct(n) if n.starts_with("StackBuffer_") => true,
+            _ => false,
+        }
+    }
+
+    fn is_stack_buffer_ref(ty: &Type) -> bool {
+        match ty {
+            Type::Ref { inner, .. } => Self::is_stack_buffer_type(inner),
+            _ => false,
+        }
+    }
+
     pub(super) fn function_return_type(&mut self, func: &Function) -> Type {
         let param_anns = self.resolve_inferred_param_anns(func);
         let param_types: Vec<Type> = param_anns.iter().map(|a| self.type_from_ann(a)).collect();
@@ -766,6 +780,16 @@ impl TypeChecker {
             ));
         }
         self.check_export_fn_abi(func);
+        if let Some(ann) = &func.return_type {
+            let ret_ty = self.type_from_ann(ann);
+            if Self::is_stack_buffer_ref(&ret_ty) {
+                self.errors.push(NyraError::new(
+                    ErrorKind::Type,
+                    func.span.clone(),
+                    "references to StackBuffer cannot be returned from functions (stack-only allocation)",
+                ));
+            }
+        }
         let mut local = TypeEnv {
             variables: self.env.variables.clone(),
             functions: self.env.functions.clone(),

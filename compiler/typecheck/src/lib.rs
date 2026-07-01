@@ -14,6 +14,8 @@ mod checker_stmt;
 mod checker_expr;
 mod checker_io;
 mod math_builtins;
+mod layout_builtins;
+mod bytes_builtins;
 mod param_inference;
 mod send_sync;
 mod trait_dispatch;
@@ -24,7 +26,7 @@ pub use date_builtins::{DATE_STRUCT, date_field_alias};
 
 use std::collections::HashMap;
 
-pub use types::{EnumInfo, StructInfo, Type, integer_assignable, is_integer, unify_numeric};
+pub use types::{EnumInfo, StructInfo, UnionInfo, Type, integer_assignable, is_integer, unify_numeric};
 pub use ownership::{ownership_of, OwnershipKind};
 
 use errors::NyraError;
@@ -58,6 +60,7 @@ pub struct InferredBinding {
 pub struct TypeChecker {
     pub env: TypeEnv,
     pub structs: HashMap<String, StructInfo>,
+    pub unions: HashMap<String, UnionInfo>,
     pub enums: HashMap<String, EnumInfo>,
     pub errors: Vec<NyraError>,
     /// `let x = ...` bindings without explicit type (for IDE inlay hints).

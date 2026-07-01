@@ -194,6 +194,12 @@ pub(super) fn types_assignable(from: &Type, to: &Type) -> bool {
     if matches!(from, Type::Ptr) && matches!(to, Type::VecStr) {
         return true;
     }
+    if matches!(from, Type::String) && matches!(to, Type::Bytes) {
+        return false;
+    }
+    if matches!(from, Type::Bytes) && matches!(to, Type::String) {
+        return false;
+    }
     if from == to || *from == Type::Unknown || *to == Type::Unknown {
         return true;
     }

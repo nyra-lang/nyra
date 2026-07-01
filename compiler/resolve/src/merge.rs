@@ -31,6 +31,17 @@ pub(crate) fn merge_program(target: &mut Program, other: Program, import_alias: 
             target.structs.push(item);
         }
     }
+    for u in other.unions {
+        if !u.public {
+            continue;
+        }
+        let name = mangle_name(import_alias, &u.name);
+        if !target.unions.iter().any(|x| x.name == name) {
+            let mut item = u;
+            item.name = name;
+            target.unions.push(item);
+        }
+    }
     for e in other.enums {
         if !e.public {
             continue;
@@ -135,6 +146,7 @@ mod tests {
             imports: vec![],
             consts: vec![],
             structs: vec![],
+            unions: vec![],
             enums: vec![],
             traits: vec![],
             trait_impls: vec![],

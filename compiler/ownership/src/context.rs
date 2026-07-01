@@ -32,13 +32,20 @@ impl OwnershipCtx {
                 fields.insert(f.name.clone(), Type::from(f.ty.clone()));
                 field_order.push(f.name.clone());
             }
+            let mut field_anns = HashMap::new();
+            for f in &s.fields {
+                field_anns.insert(f.name.clone(), f.ty.clone());
+            }
             structs.insert(
                 s.name.clone(),
                 StructMeta {
                     info: StructInfo {
                         fields,
+                        field_anns,
                         field_order,
                         repr_c: s.attrs.repr_c,
+                        align: s.attrs.align,
+                        packed: s.attrs.packed,
                     },
                     explicit_send: s.attrs.send,
                     explicit_sync: s.attrs.sync,

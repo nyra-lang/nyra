@@ -30,6 +30,38 @@ pub(super) fn array_elem_from_ty(ty: &str) -> Option<String> {
     Some(rest.trim_end_matches(']').to_string())
 }
 
+pub(super) fn llvm_type_size_bytes(ty: &str) -> i64 {
+    if let (Some(len), Some(elem)) = (array_len_from_ty(ty), array_elem_from_ty(ty)) {
+        return (len as i64) * llvm_type_size_bytes(&elem);
+    }
+    if ty.starts_with('<') && ty.contains(" x ") {
+        if let Some(inner) = ty
+            .trim_start_matches('<')
+            .split(" x ")
+            .nth(1)
+            .map(|s| s.trim_end_matches('>'))
+        {
+            if let Ok(lanes) = ty
+                .trim_start_matches('<')
+                .split(" x ")
+                .next()
+                .unwrap_or("")
+                .parse::<i64>()
+            {
+                return lanes * llvm_type_size_bytes(inner);
+            }
+        }
+    }
+    llvm_field_size_align(ty).1
+}
+
+pub(super) fn llvm_type_align_bytes(ty: &str) -> i64 {
+    if ty.starts_with('<') {
+        return 16;
+    }
+    llvm_field_size_align(ty).0
+}
+
 /// Size and alignment of one LLVM field type for spawn/closure capture layout.
 fn llvm_field_size_align(ty: &str) -> (i64, i64) {
     if let (Some(len), Some(elem)) = (array_len_from_ty(ty), array_elem_from_ty(ty)) {
@@ -40,7 +72,9 @@ fn llvm_field_size_align(ty: &str) -> (i64, i64) {
     }
     if ty == "ptr" || ty.ends_with('*') {
         (8, 8)
-    } else if ty == "i1" {
+    } else     if ty == "i1" {
+        (1, 1)
+    } else if ty == "i8" {
         (1, 1)
     } else if ty == "double" || ty == "f64" {
         (8, 8)
@@ -201,7 +235,7 @@ pub(super) fn is_array_ty(ty: &str) -> bool {
 pub(super) fn llvm_storage_ty(ty: &str) -> &str {
     match ty {
         "char" => "i32",
-        "vec_str" => "ptr",
+        "string" | "vec_str" | "bytes" => "ptr",
         _ => ty,
     }
 }
@@ -291,6 +325,7 @@ pub(super) fn llvm_type_ann_resolved(
         TypeAnnotation::Char => "i32".into(),
         TypeAnnotation::Bool => "i1".into(),
         TypeAnnotation::String => "ptr".into(),
+        TypeAnnotation::Bytes => "bytes".into(),
         TypeAnnotation::VecStr => "ptr".into(),
         TypeAnnotation::Ptr | TypeAnnotation::RawPtr { .. } => "ptr".into(),
         TypeAnnotation::Void => "void".into(),
@@ -322,6 +357,10 @@ pub(super) fn llvm_type_ann_resolved(
         TypeAnnotation::DynTrait { trait_name, .. } => format!("%Dyn_{trait_name}"),
         TypeAnnotation::Applied { base, args } => {
             format!("%{}", monomorph_inst_name(base, args))
+        }
+        TypeAnnotation::Simd { elem, lanes } => {
+            let inner = llvm_type_ann_resolved(elem, structs, enum_names);
+            format!("<{lanes} x {inner}>")
         }
     }
 }

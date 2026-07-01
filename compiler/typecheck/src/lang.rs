@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use ast::*;
 use ast::expr_span;
 use errors::{ErrorKind, NyraError};
-use types::{enum_pattern_matches, EnumInfo, EnumVariantInfo, Type};
+use types::{enum_pattern_matches, EnumInfo, EnumVariantInfo, Type, UnionInfo};
 
 use crate::{TypeChecker, TypeEnv, VarInfo};
 
@@ -46,6 +46,7 @@ impl TypeChecker {
             TypeAnnotation::Char => Type::Char,
             TypeAnnotation::Bool => Type::Bool,
             TypeAnnotation::String => Type::String,
+            TypeAnnotation::Bytes => Type::Bytes,
             TypeAnnotation::VecStr => Type::VecStr,
             TypeAnnotation::Ptr => Type::Ptr,
             TypeAnnotation::RawPtr { inner } => Type::RawPtr {
@@ -55,10 +56,16 @@ impl TypeChecker {
             TypeAnnotation::Struct(n) => {
                 if self.enums.contains_key(n) {
                     Type::Enum(n.clone())
+                } else if self.unions.contains_key(n) {
+                    Type::Union(n.clone())
                 } else {
                     Type::Struct(n.clone())
                 }
             }
+            TypeAnnotation::Simd { elem, lanes } => Type::Simd {
+                elem: Box::new(self.type_from_ann(elem)),
+                lanes: *lanes,
+            },
             TypeAnnotation::Enum(n) => Type::Enum(n.clone()),
             TypeAnnotation::Array { elem, len } => Type::Array {
                 elem: Box::new(self.type_from_ann(elem)),

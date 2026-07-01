@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.39.0 (2026-07-01)
+
+**Systems-level language features**
+
+- **Added** — C-style `union` with `repr(C)`, `align(N)`, and `packed` layout attributes
+- **Added** — compile-time `size_of<T>()` and `align_of<T>()` intrinsics (`stdlib/mem/layout.ny`)
+- **Fixed** — heterogeneous enum payloads (`Ok(string)` + `Err(i32)`) with union slot layout and tag-discriminated drop
+- **Added** — first-class `bytes` type (distinct from `string`); indexing and `.to_string()`
+- **Added** — `StackBuffer` stack-only buffers (`stdlib/buf/stack.ny`) with return-type escape rejection
+- **Added** — portable SIMD vectors (`i32x4`, `f32x4`, `f64x2`) and platform intrinsics (`stdlib/simd/`)
+- **Added** — arena bump allocator (`stdlib/alloc/arena.ny`, `rt_arena.c`)
+- **Tests** — `union_test`, `layout_align_test`, `enum_hetero_payload_test`, `bytes_type_test`, `stack_buffer_test`, `simd_test`, `arena_test`, `systems_features_test`
+- **Conformance** — `CONF-LANG-010` … `CONF-LANG-013`
+
 ## v1.38.0 (2026-06-28)
 
 **Comptime — Zig-style power (optional)**
@@ -295,7 +309,7 @@
 
 ### Note
 
-Enum variants with **different payload types** (e.g. `Ok(Option)` + `Err(i32)`) still share one LLVM payload slot — use homogeneous payloads or nested `match` until union layout lands.
+Enum variants with **different payload types** now use a max-size union payload slot with tag-discriminated drop (e.g. `Result<string, i32>`).
 
 ## v1.32.0 (2026-06-24)
 

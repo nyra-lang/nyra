@@ -253,6 +253,7 @@ impl TypeChecker {
         | TypeAnnotation::Char
             | TypeAnnotation::Bool
             | TypeAnnotation::String
+            | TypeAnnotation::Bytes
             | TypeAnnotation::VecStr
             |             TypeAnnotation::Ptr
             | TypeAnnotation::RawPtr { .. }
@@ -321,7 +322,8 @@ impl TypeChecker {
             TypeAnnotation::Ref { .. }
             | TypeAnnotation::Lifetime(_)
             | TypeAnnotation::ForAll { .. }
-            | TypeAnnotation::DynTrait { .. } => false,
+            |             TypeAnnotation::DynTrait { .. } => false,
+            TypeAnnotation::Simd { .. } => true,
             // RawPtr allowed at boundary (lowers to opaque ptr)
         }
     }
@@ -353,6 +355,7 @@ impl TypeChecker {
             | Type::Char
             | Type::Bool
             | Type::String
+            | Type::Bytes
             | Type::Ptr
             | Type::RawPtr { .. }
             | Type::Void => true,
@@ -398,6 +401,19 @@ impl TypeChecker {
             Type::Generic(name) if allow_generic && type_params.iter().any(|p| p == name) => true,
             Type::Generic(_) if allow_generic => true,
             Type::Generic(_) => false,
+            Type::Simd { .. } => true,
+            Type::Union(name) => self
+                .unions
+                .get(name)
+                .map(|u| {
+                    u.repr_c
+                        && u.field_order.iter().all(|f| {
+                            u.fields.get(f).is_some_and(|t| {
+                                self.abi_type_allowed(t, allow_generic, type_params)
+                            })
+                        })
+                })
+                .unwrap_or(false),
             Type::Ref { inner, mutable: false, .. } => {
                 self.abi_type_allowed(inner, allow_generic, type_params)
             }

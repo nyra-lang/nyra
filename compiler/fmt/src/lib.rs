@@ -878,6 +878,7 @@ pub fn format_type(ty: &TypeAnnotation) -> String {
         TypeAnnotation::Char => "char".into(),
         TypeAnnotation::Bool => "bool".into(),
         TypeAnnotation::String => "string".into(),
+        TypeAnnotation::Bytes => "bytes".into(),
         TypeAnnotation::VecStr => "VecStr".into(),
         TypeAnnotation::Ptr => "ptr".into(),
         TypeAnnotation::RawPtr { inner } => format!("*{}", format_type(inner)),
@@ -936,6 +937,10 @@ pub fn format_type(ty: &TypeAnnotation) -> String {
                 .map(|t| format!(" -> {}", format_type(t)))
                 .unwrap_or_default();
             format!("{lts}fn({}){ret}", ps.join(", "))
+        }
+        TypeAnnotation::Simd { elem, lanes } => {
+            let base = format_type(elem);
+            format!("{base}x{lanes}")
         }
         TypeAnnotation::DynTrait { trait_name, bounds } => {
             if bounds.is_empty() {

@@ -134,17 +134,22 @@ impl TypeChecker {
         self.anon_shape_index.insert(shape.clone(), name.clone());
 
         let mut field_map = HashMap::new();
+        let mut field_anns = HashMap::new();
         let mut field_order = Vec::new();
         for (fname, fty) in fields {
             field_map.insert(fname.clone(), fty.clone());
+            field_anns.insert(fname.clone(), Self::type_to_ann(fty));
             field_order.push(fname.clone());
         }
         self.structs.insert(
             name.clone(),
             StructInfo {
                 fields: field_map,
+                field_anns,
                 field_order,
                 repr_c: false,
+                align: None,
+                packed: false,
             },
         );
 

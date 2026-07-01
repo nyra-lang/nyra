@@ -193,6 +193,28 @@ impl Codegen {
         }
     }
 
+    pub(super) fn compile_layout_intrinsic_call(
+        &mut self,
+        call: &CallExpr,
+        _env: &Env,
+    ) -> Option<ExprValue> {
+        let value = match call.callee.as_str() {
+            "size_of" => {
+                let ann = call.type_args.first()?;
+                types::size_of_ann(ann, &self.struct_layout_infos, &self.union_layout_infos)
+            }
+            "align_of" => {
+                let ann = call.type_args.first()?;
+                types::align_of_ann(ann, &self.struct_layout_infos, &self.union_layout_infos)
+            }
+            _ => return None,
+        };
+        Some(ExprValue {
+            reg: value.to_string(),
+            ty: "i32".into(),
+        })
+    }
+
     fn ensure_intrinsic_decl(&mut self, name: &str, decl: &str) {
         if self.intrinsic_decls.insert(name.to_string()) {
             self.intrinsic_decl_lines.push(decl.to_string());

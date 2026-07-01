@@ -318,24 +318,38 @@ impl Codegen {
                     .get(&en)
                     .cloned()
                     .unwrap_or_else(|| payload.ty.clone());
+                let variant_payload_ty = self
+                    .enum_variant_payload_llvm
+                    .get(&en)
+                    .and_then(|m| m.get(&ev.variant))
+                    .cloned()
+                    .unwrap_or_else(|| payload.ty.clone());
                 let pay_gep = self.fresh("gep");
                 self.emit(&format!(
                     "  %{pay_gep} = getelementptr inbounds %{en}, %{en}* %{alloca}, i32 0, i32 1"
                 ));
-                let store_val = if payload.ty.ends_with('*') && payload_ty.starts_with('%') {
+                let store_val = if payload.ty.ends_with('*') && variant_payload_ty.starts_with('%') {
                     let loaded = self.fresh("load");
                     self.emit(&format!(
-                        "  %{loaded} = load {payload_ty}, {payload_ty}* {}",
+                        "  %{loaded} = load {variant_payload_ty}, {variant_payload_ty}* {}",
                         self.reg_op(&payload)
                     ));
                     format!("%{loaded}")
                 } else {
                     self.reg_op(&payload)
                 };
-                self.emit(&format!(
-                    "  store {payload_ty} {store_val}, {} %{pay_gep}",
-                    llvm_ptr(&payload_ty)
-                ));
+                if variant_payload_ty != payload_ty {
+                    let bc = self.fresh("bc");
+                    self.emit(&format!("  %{bc} = bitcast ptr %{pay_gep} to ptr"));
+                    self.emit(&format!(
+                        "  store {variant_payload_ty} {store_val}, ptr %{bc}"
+                    ));
+                } else {
+                    self.emit(&format!(
+                        "  store {payload_ty} {store_val}, {} %{pay_gep}",
+                        super::util::llvm_ptr(&payload_ty)
+                    ));
+                }
             }
             return ExprValue {
                 reg: alloca,
@@ -584,23 +598,45 @@ impl Codegen {
         &mut self,
         scrutinee: &ExprValue,
         enum_name: &str,
+        variant: Option<&str>,
     ) -> ExprValue {
         if !self.enum_has_payload.get(enum_name).copied().unwrap_or(false) {
             return scrutinee.clone();
         }
-        let payload_ty = self
+        let slot_ty = self
             .enum_payload_llvm
             .get(enum_name)
             .cloned()
             .unwrap_or_else(|| "i32".into());
+        let payload_ty = variant
+            .and_then(|v| {
+                self.enum_variant_payload_llvm
+                    .get(enum_name)
+                    .and_then(|m| m.get(v))
+                    .cloned()
+            })
+            .unwrap_or_else(|| slot_ty.clone());
         let ptr = self.enum_scrutinee_ptr(scrutinee);
         let pay_gep = self.fresh("gep");
         self.emit(&format!(
             "  %{pay_gep} = getelementptr inbounds %{enum_name}, %{enum_name}* {ptr}, i32 0, i32 1"
         ));
+        if payload_ty != slot_ty {
+            let bc = self.fresh("bc");
+            self.emit(&format!("  %{bc} = bitcast ptr %{pay_gep} to ptr"));
+            let out = self.fresh("load");
+            self.emit(&format!(
+                "  %{out} = load {payload_ty}, ptr %{bc}"
+            ));
+            return ExprValue {
+                reg: format!("%{out}"),
+                ty: payload_ty,
+            };
+        }
         let loaded = self.fresh("load");
         self.emit(&format!(
-            "  %{loaded} = load {payload_ty}, {payload_ty}* %{pay_gep}"
+            "  %{loaded} = load {slot_ty}, {} %{pay_gep}",
+            super::util::llvm_ptr(&slot_ty)
         ));
         ExprValue {
             reg: format!("%{loaded}"),
@@ -637,7 +673,7 @@ impl Codegen {
     ) {
         match payload {
             MatchPayloadPattern::Bind(name) => {
-                let val = self.load_variant_payload_value(scrutinee, enum_name);
+                let val = self.load_variant_payload_value(scrutinee, enum_name, Some(_variant));
                 arm_env.insert(
                     name.clone(),
                     Binding::Reg {
@@ -651,7 +687,7 @@ impl Codegen {
                 self.emit(&format!("  br label %{ok_l}"));
             }
             MatchPayloadPattern::Nested(pat) => {
-                let val = self.load_variant_payload_value(scrutinee, enum_name);
+                let val = self.load_variant_payload_value(scrutinee, enum_name, Some(_variant));
                 self.compile_pattern_on_enum_value(pat, &val, ok_l, fail_l, arm_env);
             }
         }
@@ -669,7 +705,7 @@ impl Codegen {
     ) {
         match payload {
             MatchPayloadPattern::Bind(name) => {
-                let inner = self.load_variant_payload_value(val, enum_name);
+                let inner = self.load_variant_payload_value(val, enum_name, Some(_variant));
                 arm_env.insert(
                     name.clone(),
                     Binding::Reg {
@@ -683,7 +719,7 @@ impl Codegen {
                 self.emit(&format!("  br label %{ok_l}"));
             }
             MatchPayloadPattern::Nested(pat) => {
-                let inner = self.load_variant_payload_value(val, enum_name);
+                let inner = self.load_variant_payload_value(val, enum_name, Some(_variant));
                 self.compile_pattern_on_enum_value(pat, &inner, ok_l, fail_l, arm_env);
             }
         }

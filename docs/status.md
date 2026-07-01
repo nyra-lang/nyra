@@ -35,6 +35,14 @@
 | **`Serialize` / `Deserialize` traits** | **Stable Extended** — `to_json`/`to_bytes`/`from_json`; NBF v1 binary for scalar/nested structs |
 | `Vec<string>` generic syntax | **Stable Extended** — aliases to `StrVec` |
 | `Matrix2D` / `RowVec` | **Shipped** — dynamic 2D grid + Move-safe string rows |
+| C-style `union` | **Shipped** — `union U repr(C) { ... }`, field access in `unsafe` |
+| Layout / alignment | **Shipped** — `repr(C)`, `align(N)`, `packed`, `size_of<T>()` / `align_of<T>()` |
+| Heterogeneous enum payloads | **Shipped** — per-variant payload union slot + tag-discriminated drop |
+| `bytes` type | **Shipped** — distinct from `string`; `.len()`, `[i32]`, `.to_string()` |
+| `StackBuffer[T; N]` | **Shipped** — stack-only wrapper (`stdlib/buf/stack.ny`); return rejected |
+| Portable SIMD | **Shipped** — `i32x4` / `f32x4` / `f64x2` + `simd_*` intrinsics |
+| Platform SIMD | **Shipped** — `stdlib/simd/x86.ny`, `arm.ny` behind `unsafe` + CPU checks |
+| Arena allocator | **Shipped** — `stdlib/alloc/arena.ny` + `rt_arena.c` bump allocator |
 
 ## Conformance
 

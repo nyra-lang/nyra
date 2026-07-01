@@ -19,6 +19,10 @@ pub struct StructAttrs {
     pub repr_c: bool,
     /// Explicit `#[derive(Copy)]` / `struct S Copy { }` — validates all fields are Copy.
     pub copy: bool,
+    /// `repr(align(N))` or `align(N)` — minimum alignment in bytes.
+    pub align: Option<u32>,
+    /// `packed` — no padding between fields.
+    pub packed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -41,6 +45,7 @@ pub struct Program {
     pub imports: Vec<ImportDecl>,
     pub consts: Vec<ConstDef>,
     pub structs: Vec<StructDef>,
+    pub unions: Vec<UnionDef>,
     pub enums: Vec<EnumDef>,
     pub traits: Vec<TraitDef>,
     pub trait_impls: Vec<TraitImpl>,
@@ -122,6 +127,17 @@ pub struct StructDef {
 pub struct StructField {
     pub name: String,
     pub ty: TypeAnnotation,
+}
+
+/// C-style `union` — fields overlap at offset 0; access requires `unsafe`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnionDef {
+    pub name: String,
+    pub type_params: Vec<String>,
+    pub attrs: StructAttrs,
+    pub fields: Vec<StructField>,
+    pub doc: Option<String>,
+    pub public: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -718,6 +734,13 @@ pub enum TypeAnnotation {
     Char,
     Bool,
     String,
+    /// Binary blob handle — distinct from UTF-8 `string`.
+    Bytes,
+    /// Portable SIMD vector (`i32x4` → elem=i32, lanes=4).
+    Simd {
+        elem: Box<TypeAnnotation>,
+        lanes: usize,
+    },
     /// Split result: `let parts: VecStr = s.split(",")`
     VecStr,
     Ptr,

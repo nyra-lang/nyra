@@ -70,12 +70,15 @@ pub fn type_label(ty: &Type) -> String {
         Type::Char => "char".into(),
         Type::Bool => "bool".into(),
         Type::String => "string".into(),
+        Type::Bytes => "bytes".into(),
         Type::Void => "void".into(),
         Type::Ptr => "ptr".into(),
         Type::Handle => "handle".into(),
         Type::VecStr => "vec_str".into(),
         Type::Struct(n) => n.clone(),
+        Type::Union(n) => format!("union {n}"),
         Type::Enum(n) => n.clone(),
+        Type::Simd { elem, lanes } => format!("{}x{lanes}", type_label(elem)),
         Type::Ref { inner, mutable, .. } => {
             if *mutable {
                 format!("&mut {}", type_label(inner))
@@ -108,7 +111,7 @@ fn param_expects_ref(ty: &Type) -> bool {
 
 fn type_is_clone(ty: &Type, diag: &DiagCtx) -> bool {
     match ty {
-        Type::String => true,
+        Type::String | Type::Bytes => true,
         Type::Struct(n) => diag.clone_structs.contains(n),
         _ => false,
     }

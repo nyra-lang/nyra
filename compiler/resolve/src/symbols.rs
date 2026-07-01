@@ -141,9 +141,11 @@ fn collect_type_uses(ty: &TypeAnnotation, uses: &mut HashSet<String>) {
         | TypeAnnotation::Char
         | TypeAnnotation::Bool
         | TypeAnnotation::String
+        | TypeAnnotation::Bytes
         | TypeAnnotation::VecStr
         | TypeAnnotation::Ptr
         | TypeAnnotation::DynTrait { .. } => {}
+        TypeAnnotation::Simd { elem, .. } => collect_type_uses(elem, uses),
     }
 }
 

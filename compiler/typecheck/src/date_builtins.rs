@@ -41,17 +41,22 @@ impl TypeChecker {
             return;
         }
         let mut fields = HashMap::new();
+        let mut field_anns = HashMap::new();
         let mut field_order = Vec::new();
         for (name, ann) in date_struct_fields() {
             fields.insert(name.to_string(), Type::from(ann.clone()));
+            field_anns.insert(name.to_string(), ann.clone());
             field_order.push(name.to_string());
         }
         self.structs.insert(
             DATE_STRUCT.to_string(),
             StructInfo {
                 fields,
+                field_anns,
                 field_order,
                 repr_c: true,
+                align: None,
+                packed: false,
             },
         );
     }

@@ -236,6 +236,15 @@ impl TypeChecker {
                 if let Some(ret) = self.check_math_intrinsic_call(call, env, sp.clone()) {
                     return ret;
                 }
+                if let Some(ret) = self.check_layout_intrinsic(
+                    &call.callee,
+                    &call.args,
+                    Some(&call.type_args),
+                    &sp,
+                    env,
+                ) {
+                    return ret;
+                }
                 if matches!(
                     call.callee.as_str(),
                     "time_start" | "time_end" | "mem_start" | "mem_end"
@@ -370,6 +379,32 @@ impl TypeChecker {
                                     ErrorKind::Type,
                                     sp.clone(),
                                     format!("Struct '{name}' has no field '{}'", fa.field),
+                                ));
+                                Type::Unknown
+                            }
+                        } else {
+                            Type::Unknown
+                        }
+                    }
+                    Type::Union(name) => {
+                        if !self.in_unsafe() {
+                            self.errors.push(NyraError::new(
+                                ErrorKind::Type,
+                                sp.clone(),
+                                format!(
+                                    "Reading union field '{}' requires an unsafe block",
+                                    fa.field
+                                ),
+                            ));
+                        }
+                        if let Some(info) = self.unions.get(&name) {
+                            if let Some(ft) = info.fields.get(&fa.field) {
+                                ft.clone()
+                            } else {
+                                self.errors.push(NyraError::new(
+                                    ErrorKind::Type,
+                                    sp.clone(),
+                                    format!("Union '{name}' has no field '{}'", fa.field),
                                 ));
                                 Type::Unknown
                             }
@@ -515,6 +550,45 @@ impl TypeChecker {
                         }
                     }
                     Type::Struct(sl.name.clone())
+                } else if self.unions.contains_key(&sl.name) {
+                    if !self.in_unsafe() {
+                        self.errors.push(NyraError::new(
+                            ErrorKind::Type,
+                            sp.clone(),
+                            format!("Constructing union '{}' requires an unsafe block", sl.name),
+                        ));
+                    }
+                    for (fname, fexpr) in &sl.fields {
+                        let expected = self
+                            .unions
+                            .get(&sl.name)
+                            .and_then(|u| u.fields.get(fname))
+                            .cloned();
+                        let got = self.check_expr(fexpr, env);
+                        if let Some(exp) = expected {
+                            if got != exp
+                                && got != Type::Unknown
+                                && !integer_assignable(&exp, &got)
+                                && !types::float_assignable(&exp, &got)
+                            {
+                                self.errors.push(NyraError::new(
+                                    ErrorKind::Type,
+                                    sp.clone(),
+                                    format!(
+                                        "Field '{fname}' in union '{}' expected {:?}, got {:?}",
+                                        sl.name, exp, got
+                                    ),
+                                ));
+                            }
+                        } else {
+                            self.errors.push(NyraError::new(
+                                ErrorKind::Type,
+                                sp.clone(),
+                                format!("Unknown field '{fname}' on union '{}'", sl.name),
+                            ));
+                        }
+                    }
+                    Type::Union(sl.name.clone())
                 } else {
                     diagnostics::unknown_struct(self, &sl.name, sp.clone(), env);
                     Type::Unknown
@@ -557,11 +631,12 @@ impl TypeChecker {
                 }
                 match obj {
                     Type::Array { elem, .. } => (*elem).clone(),
+                    Type::Bytes => TypeChecker::check_bytes_index(self, &obj, &sp),
                     _ => {
                         self.errors.push(NyraError::new(
                             ErrorKind::Type,
                             sp.clone(),
-                            "Index requires array value",
+                            "Index requires array or bytes value",
                         ));
                         Type::Unknown
                     }
@@ -737,6 +812,7 @@ impl TypeChecker {
                     }
                     if !matches!(obj_ty, Type::Struct(_)) {
                         return match obj_ty {
+                            Type::Bytes => Type::Integer(ast::IntKind::I64),
                             Type::String | Type::VecStr => Type::Integer(ast::IntKind::I32),
                             Type::Array { .. } => {
                                 if let Some(ret) = self.check_array_method(mc, &obj_ty, env, &sp) {
@@ -765,6 +841,18 @@ impl TypeChecker {
                     self.check_string_method(mc, &obj_ty, env, &sp)
                 {
                     return ret;
+                }
+                if obj_ty == Type::Bytes {
+                    if let Some(ret) = TypeChecker::bytes_method_return_type(&mc.method) {
+                        if !mc.args.is_empty() {
+                            self.errors.push(NyraError::new(
+                                ErrorKind::Type,
+                                sp.clone(),
+                                format!("'.{}' on bytes expects no arguments", mc.method),
+                            ));
+                        }
+                        return ret;
+                    }
                 }
                 if let Some(param) = match &obj_ty {
                     Type::Generic(p) => Some(p.as_str()),

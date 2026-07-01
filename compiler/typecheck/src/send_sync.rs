@@ -25,7 +25,10 @@ impl TypeChecker {
             | Type::Handle
             | Type::VecStr
             | Type::Ptr
-            | Type::String => (true, true),
+            | Type::String
+            | Type::Bytes
+            | Type::Simd { .. }
+            | Type::Union(_) => (true, true),
             Type::RawPtr { .. } => (false, false),
             Type::Struct(name) => self.struct_thread_safety(name),
             Type::Array { elem, .. } => self.thread_safety_of(elem),
