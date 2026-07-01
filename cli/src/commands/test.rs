@@ -237,5 +237,6 @@ pub(crate) fn walkdir_ny_files(root: &Path) -> Result<Vec<PathBuf>, String> {
             files.push(p);
         }
     }
+    files.sort_by(|a, b| a.as_os_str().cmp(b.as_os_str()));
     Ok(files)
 }

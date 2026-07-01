@@ -47,7 +47,7 @@ Monolithic local targets: `make test-all-linux`, `make test-all-macos`, `make te
 `cargo build --workspace` compiles `nyra-c-bindgen`, which links against **libclang**. On Ubuntu/Debian install development headers, not only the `clang` compiler:
 
 ```bash
-sudo apt-get install -y clang lld libclang-dev llvm-dev
+sudo apt-get install -y clang lld libclang-dev llvm-dev libsqlite3-dev zlib1g-dev libssl-dev
 ```
 
 CI uses the same packages in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).

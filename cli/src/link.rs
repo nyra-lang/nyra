@@ -549,7 +549,7 @@ pub fn link_binary(
                 .to_string()
         })?;
         cmd.arg(format!("-L{}", dir.display()));
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
         cmd.arg(format!("-Wl,-rpath,{}", dir.display()));
         cmd.arg("-lnyra_compiler");
     }

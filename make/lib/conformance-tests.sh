@@ -10,6 +10,11 @@ source "$ROOT/make/lib/test-stats.sh"
 log() { echo "conformance-tests: $*" >&2; }
 fail() { log "FAILED: $*"; exit 1; }
 
+normalize_text_out() {
+  # Windows runners emit CRLF from print(); normalize before comparing expected output.
+  printf '%s' "$1" | tr -d '\r'
+}
+
 # shellcheck source=nyra-bin.sh
 source "$ROOT/make/lib/nyra-bin.sh"
 nyra_export_cli
@@ -20,9 +25,11 @@ FAIL_ROOT="$ROOT/tests/conformance/fail"
 
 # --- Pass: runtime feature tests ---
 log "CONF-LANG pass: nyra test $PASS_ROOT"
-if ! out="$("$NYRA" test "$PASS_ROOT" 2>&1)"; then
+ec=0
+out="$(normalize_text_out "$("$NYRA" test "$PASS_ROOT" 2>&1)")" || ec=$?
+if ((ec != 0)); then
   printf '%s\n' "$out" >&2
-  fail "nyra test $PASS_ROOT"
+  fail "nyra test $PASS_ROOT (exit $ec)"
 fi
 printf '%s\n' "$out" >&2
 if ! printf '%s\n' "$out" | grep -q 'tests passed'; then
@@ -59,6 +66,7 @@ log "CONF-LANG fixture: nyra run $IMPORT_FIX"
 if ! run_out="$("$NYRA" run "$IMPORT_FIX" 2>/dev/null)"; then
   fail "nyra run $IMPORT_FIX"
 fi
+run_out="$(normalize_text_out "$run_out")"
 if [[ "$run_out" != $'hello-import\n42' ]]; then
   printf '%s\n' "$run_out" >&2
   fail "import_smoke expected hello-import + 42, got: $(printf %q "$run_out")"
