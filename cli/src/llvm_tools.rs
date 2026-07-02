@@ -214,6 +214,24 @@ pub fn find_clang() -> String {
     find_llvm_tool("clang").unwrap_or_else(|| "clang".into())
 }
 
+fn sanitize_env_path(raw: &str) -> String {
+    let mut s = raw.trim().trim_end_matches('\r').to_string();
+    if s.starts_with('\u{feff}') {
+        s = s.trim_start_matches('\u{feff}').to_string();
+    }
+    s
+}
+
+fn find_mingw_gcc_in_prefix(prefix: &Path) -> Option<String> {
+    for name in ["gcc.exe", "x86_64-w64-mingw32-gcc.exe"] {
+        let path = prefix.join("bin").join(name);
+        if path.is_file() {
+            return Some(path.to_string_lossy().into_owned());
+        }
+    }
+    None
+}
+
 /// MSYS2 ucrt64/mingw64 gcc for compiling rt `.c` on Windows (LLVM clang mishandles MinGW `-isystem` headers).
 pub fn find_mingw_gcc() -> Option<String> {
     if !cfg!(target_os = "windows") {
@@ -221,6 +239,7 @@ pub fn find_mingw_gcc() -> Option<String> {
     }
     let mut prefixes = Vec::new();
     if let Ok(v) = std::env::var("NYRA_SYSROOT") {
+        let v = sanitize_env_path(&v);
         if !v.is_empty() {
             prefixes.push(PathBuf::from(v));
         }
@@ -229,10 +248,23 @@ pub fn find_mingw_gcc() -> Option<String> {
         prefixes.push(PathBuf::from(p));
     }
     for prefix in prefixes {
-        for name in ["gcc.exe", "x86_64-w64-mingw32-gcc.exe"] {
-            let path = prefix.join("bin").join(name);
-            if path.is_file() {
-                return Some(path.to_string_lossy().into_owned());
+        if let Some(gcc) = find_mingw_gcc_in_prefix(&prefix) {
+            return Some(gcc);
+        }
+    }
+    // Fallback: gcc may be on PATH (CI adds ucrt64/bin) even when sysroot layout differs.
+    if let Ok(output) = Command::new("where").arg("gcc.exe").output() {
+        if output.status.success() {
+            let first = String::from_utf8_lossy(&output.stdout)
+                .lines()
+                .next()
+                .map(sanitize_env_path)
+                .filter(|s| !s.is_empty());
+            if let Some(path) = first {
+                let p = PathBuf::from(&path);
+                if p.is_file() {
+                    return Some(path);
+                }
             }
         }
     }
@@ -386,6 +418,12 @@ mod tests {
         let cleaned = sanitize_ir_for_clang(raw);
         assert!(cleaned.contains("store i32 %1,"));
         assert!(!cleaned.contains("%%"));
+    }
+
+    #[test]
+    fn sanitize_env_path_strips_bom_and_cr() {
+        assert_eq!(sanitize_env_path("\u{feff}C:\\msys64\\ucrt64\r"), "C:\\msys64\\ucrt64");
+        assert_eq!(sanitize_env_path("  C:\\foo  "), "C:\\foo");
     }
 
     #[test]

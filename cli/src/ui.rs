@@ -2,6 +2,7 @@
 
 use std::io::IsTerminal;
 use std::sync::OnceLock;
+use std::time::Duration;
 
 use compiler::ColorChoice;
 
@@ -119,6 +120,47 @@ impl Ui {
 
     pub fn count(&self, n: usize, noun: &str) -> String {
         self.dim(&format!("{n} {noun}"))
+    }
+
+    /// Cargo-style `   Compiling foo.ny (/path/to/project)`.
+    pub fn compiling(&self, label: &str, root: &str) -> String {
+        format!(
+            "   {} {} ({})",
+            self.green("Compiling"),
+            self.bold(label),
+            self.blue(root)
+        )
+    }
+
+    /// Cargo-style `    Finished `dev` profile […] target(s) in 1.23s`.
+    pub fn finished(&self, profile: &str, profile_detail: &str, elapsed: &str) -> String {
+        format!(
+            "    {} `{}` profile{} target(s) in {}",
+            self.green("Finished"),
+            profile,
+            profile_detail,
+            self.bold(elapsed)
+        )
+    }
+}
+
+/// Human-readable build duration (matches Cargo's `in 1.23s` style).
+pub fn format_build_elapsed(d: Duration) -> String {
+    let secs = d.as_secs_f64();
+    if secs >= 0.005 {
+        format!("{secs:.2}s")
+    } else {
+        format!("{}ms", d.as_millis())
+    }
+}
+
+/// Profile bracket suffix for `Finished` lines (` [optimized]`, etc.).
+pub fn build_profile_detail(release: bool, debug_symbols: bool) -> &'static str {
+    match (release, debug_symbols) {
+        (true, true) => " [optimized + debuginfo]",
+        (true, false) => " [optimized]",
+        (false, true) => " [unoptimized + debuginfo]",
+        (false, false) => " [unoptimized]",
     }
 }
 

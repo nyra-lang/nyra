@@ -83,20 +83,10 @@ pub fn compile_link_sources(
         let key = source_object_key(source, &flags_key)?;
         let obj = object_path(&cache_dir, source, key);
         if obj.is_file() {
-            eprintln!(
-                "incremental: c-obj cache hit {} → {}",
-                source.display(),
-                obj.display()
-            );
             out.push(obj);
             continue;
         }
 
-        eprintln!(
-            "incremental: compiling link-source {} → {}",
-            source.display(),
-            obj.display()
-        );
         compile_one_source(source, &obj, profile, spec)?;
         out.push(obj);
     }

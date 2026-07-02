@@ -1167,7 +1167,12 @@ def run_nyra_checksums() -> dict[str, str]:
         if r.returncode != 0:
             print(f"FAIL {cat}/{name}: {r.stderr}", file=sys.stderr)
             continue
-        lines = [ln for ln in r.stdout.splitlines() if not ln.startswith("incremental:")]
+        lines = [
+            ln
+            for ln in r.stdout.splitlines()
+            if not ln.startswith("incremental:")
+            and not ln.lstrip().startswith(("Compiling ", "Finished "))
+        ]
         out[f"{cat}_{name}"] = lines[-1] if lines else "?"
         print(f"  {cat}_{name}: {out[f'{cat}_{name}']}")
     return out

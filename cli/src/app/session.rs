@@ -2,7 +2,7 @@
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use compiler::{
     can_skip_codegen, compute_source_fingerprint, is_incremental_hit, link_cache_key,
@@ -12,10 +12,11 @@ use compiler::{
 use pkg::{build_link_crate, resolve_project_native_link};
 
 use crate::app::args::{OptFlags, StabilityFlags, TargetArgs};
-use crate::artifacts;
+use crate::artifacts::{self, profile_name};
 use crate::link::{self, LinkProfile};
 use crate::pgo;
 use crate::target::{TargetSpec, validate_native_cpu};
+use crate::ui::{format_build_elapsed, build_profile_detail, Ui};
 
 pub(crate) fn apply_lto_full(mut profile: LinkProfile, lto_full: bool) -> LinkProfile {
     if lto_full {
@@ -510,20 +511,10 @@ pub(crate) fn compile_and_link(
         current_crates.combined_hash(),
     );
     let previous_crates = load_manifest(&layout.profile_dir, &entry_id);
-    if let Some(prev) = &previous_crates {
-        let dirty = current_crates.dirty_since(prev);
-        if !dirty.is_empty() {
-            eprintln!(
-                "incremental: {} crate(s) changed: {}",
-                dirty.len(),
-                dirty
-                    .iter()
-                    .map(|p| Path::new(p).file_name().unwrap_or_default().to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            );
-        }
-    }
+    let dirty_paths: Vec<String> = previous_crates
+        .as_ref()
+        .map(|prev| current_crates.dirty_since(prev))
+        .unwrap_or_default();
     let (link_libs, link_search_paths, link_args, link_sources) = resolve_native_link(path, opt)?;
     let link_hash = link_cache_key(
         &options_key,
@@ -544,27 +535,45 @@ pub(crate) fn compile_and_link(
             link_hash,
         )
     {
-        eprintln!(
-            "incremental: cache hit ({} source files)",
-            source_fp.source_count
-        );
         if cdylib {
             link::ensure_macos_cdylib_install_name(&bin_path, spec)?;
         }
         return Ok(bin_path);
     }
 
-    let runtime_profile = if can_skip_codegen(
+    let skipped_codegen = can_skip_codegen(
         &layout.profile_dir,
         &entry_id,
         &layout.ll_path,
         &source_fp,
         link_hash,
-    ) {
-        eprintln!(
-            "incremental: codegen skipped, relinking ({} source files)",
-            source_fp.source_count
-        );
+    );
+
+    let build_started = Instant::now();
+    let ui = Ui::new();
+    let profile_label = profile_name(release);
+    let profile_detail = build_profile_detail(release, debug_symbols);
+
+    if !skipped_codegen {
+        if dirty_paths.is_empty() {
+            let label = artifacts::entry_stem(path);
+            let root = project_root(path);
+            eprintln!(
+                "{}",
+                ui.compiling(&label, &root.display().to_string())
+            );
+        } else {
+            for dirty in &dirty_paths {
+                let label = Path::new(dirty)
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy();
+                eprintln!("{}", ui.compiling(&label, dirty));
+            }
+        }
+    }
+
+    let runtime_profile = if skipped_codegen {
         read_runtime_cache(&layout.profile_dir, &entry_id).unwrap_or_default()
     } else {
         let (ir, runtime_profile) =
@@ -598,6 +607,12 @@ pub(crate) fn compile_and_link(
     )?;
     write_cached_fingerprint(&layout.profile_dir, &entry_id, source_fp.hash, link_hash)?;
     save_manifest(&layout.profile_dir, &entry_id, &current_crates)?;
+
+    let elapsed = format_build_elapsed(build_started.elapsed());
+    eprintln!(
+        "{}",
+        ui.finished(profile_label, profile_detail, &elapsed)
+    );
     Ok(bin_path)
 }
 
