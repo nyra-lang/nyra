@@ -228,27 +228,19 @@ static void executor_yield_ms(int timeout_ms) {
         Sleep((DWORD)timeout_ms);
     }
 }
-#else
-static void executor_yield_ms(int timeout_ms) {
-    if (timeout_ms <= 0) {
-        return;
-    }
-    struct timespec ts;
-    ts.tv_sec = timeout_ms / 1000;
-    ts.tv_nsec = (long)(timeout_ms % 1000) * 1000000L;
-    nanosleep(&ts, NULL);
-}
 #endif
 
 int runtime_executor_tick(int timeout_ms) {
     int io = io_wait_once(timeout_ms);
     int timers = process_timers();
     int work = io + timers;
+#if defined(_WIN32)
     /* Cooperative poll loops call tick with no registered I/O; yield so spawn
-     * threads and other waiters can run (Windows CI could spin forever otherwise). */
+     * threads can run (Windows CI busy-spins forever otherwise). */
     if (work == 0 && timeout_ms > 0) {
         executor_yield_ms(timeout_ms);
     }
+#endif
     return work;
 }
 
