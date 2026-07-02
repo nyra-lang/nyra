@@ -1146,7 +1146,13 @@ mod tests {
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();
         assert!(bin.is_file());
         let run = std::process::Command::new(&bin).output().unwrap();
-        assert!(run.status.success(), "stderr: {}", String::from_utf8_lossy(&run.stderr));
+        assert!(
+            run.status.success(),
+            "exit={:?} stdout={:?} stderr={:?}",
+            run.status.code(),
+            String::from_utf8_lossy(&run.stdout),
+            String::from_utf8_lossy(&run.stderr)
+        );
         let _ = std::fs::remove_dir_all(&work);
     }
 }

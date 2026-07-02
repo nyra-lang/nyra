@@ -5,7 +5,7 @@ import "stdlib/async/future.ny"
 
 async fn greet() -> string {
     let h = async_promise_new()
-    spawn {
+    spawn:thread {
         async_promise_complete_ptr(h, "nyra")
     }
     let f = Future_from_handle_string(h)
