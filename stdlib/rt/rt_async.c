@@ -225,6 +225,7 @@ static int register_timer(int task_id, int delay_ms) {
 #if defined(_WIN32)
 static void executor_yield_ms(int timeout_ms) {
     if (timeout_ms > 0) {
+        SwitchToThread();
         Sleep((DWORD)timeout_ms);
     }
 }

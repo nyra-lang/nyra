@@ -3,6 +3,7 @@
 #include <string.h>
 
 #if defined(_WIN32)
+#include <process.h>
 #include <windows.h>
 #else
 #include <pthread.h>
@@ -25,7 +26,7 @@ typedef struct NyraJoinHandle {
 } NyraJoinHandle;
 
 #if defined(_WIN32)
-static DWORD WINAPI nyra_spawn_thread(LPVOID arg) {
+static unsigned __stdcall nyra_spawn_thread(void *arg) {
     NyraSpawnJob *job = (NyraSpawnJob *)arg;
     if (job && job->body) {
         job->body(job->data);
@@ -49,6 +50,16 @@ static void *nyra_spawn_thread(void *arg) {
     return NULL;
 }
 #endif
+
+static void spawn_run_job_inline(NyraSpawnJob *job) {
+    if (job && job->body) {
+        job->body(job->data);
+    }
+    if (job) {
+        free(job->data);
+        free(job);
+    }
+}
 
 void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes) {
     if (!body) {
@@ -76,12 +87,12 @@ void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes) {
         job->data = NULL;
     }
 #if defined(_WIN32)
-    handle->thread = CreateThread(NULL, 0, nyra_spawn_thread, job, 0, NULL);
+    handle->thread =
+        (HANDLE)_beginthreadex(NULL, 0, nyra_spawn_thread, job, 0, NULL);
     if (!handle->thread) {
-        free(job->data);
-        free(job);
-        free(handle);
-        return NULL;
+        spawn_run_job_inline(job);
+        handle->joined = 1;
+        return handle;
     }
 #else
     if (pthread_create(&handle->thread, NULL, nyra_spawn_thread, job) != 0) {
@@ -100,6 +111,11 @@ int spawn_join(void *handle) {
         return -1;
     }
 #if defined(_WIN32)
+    if (!jh->thread) {
+        jh->joined = 1;
+        free(jh);
+        return 0;
+    }
     WaitForSingleObject(jh->thread, INFINITE);
     CloseHandle(jh->thread);
 #else
@@ -116,7 +132,9 @@ void spawn_handle_drop(void *handle) {
         return;
     }
 #if defined(_WIN32)
-    CloseHandle(jh->thread);
+    if (jh->thread) {
+        CloseHandle(jh->thread);
+    }
 #else
     pthread_detach(jh->thread);
 #endif
