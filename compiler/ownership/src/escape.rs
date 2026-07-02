@@ -339,12 +339,12 @@ impl EscapeGraph {
             Statement::Expression(e) | Statement::Defer(e) => {
                 self.analyze_expr_escapes(e, scope);
             }
-            Statement::Spawn(body) => {
-                let caps = collect_captures(body, scope);
+            Statement::Spawn(sp) => {
+                let caps = collect_captures(&sp.body, scope);
                 for name in caps {
                     self.mark(&name, EscapeState::GlobalEscape);
                 }
-                self.analyze_block(body, scope);
+                self.analyze_block(&sp.body, scope);
             }
             Statement::Unsafe(body) => self.analyze_block(body, scope),
             Statement::Benchmark(body) => self.analyze_block(body, scope),
@@ -456,6 +456,11 @@ impl EscapeGraph {
                 }
             }
             Expression::ComptimeBlock { body, .. } => self.analyze_block(body, scope),
+            Expression::Spawn { body, .. } => self.analyze_block(body, scope),
+            Expression::ParallelSearch(ps) => {
+                ps.for_each_expr(|e| self.analyze_expr_escapes(e, scope));
+                self.analyze_block(&ps.body, scope);
+            }
             Expression::EnumVariant(v) => {
                 for a in &v.args {
                     self.analyze_expr_escapes(a, scope);
@@ -682,6 +687,17 @@ fn collect_vars(expr: &Expression, out: &mut Vec<String>) {
                 collect_vars_from_stmt(stmt, out);
             }
         }
+        Expression::Spawn { body, .. } => {
+            for stmt in &body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_vars(e, out));
+            for stmt in &ps.body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
         Expression::EnumVariant(v) => {
             for a in &v.args {
                 collect_vars(a, out);
@@ -735,7 +751,12 @@ fn collect_vars_from_stmt(stmt: &Statement, out: &mut Vec<String>) {
             }
         }
         Statement::Expression(e) | Statement::Defer(e) => collect_vars(e, out),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => {
+            for stmt in &s.body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             for s in &b.statements {
                 collect_vars_from_stmt(s, out);
             }

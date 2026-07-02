@@ -45,6 +45,38 @@ def nyra_stdlib_cell(name: str, stdlib_map: dict[str, list[str]]) -> str:
     return ", ".join(f"`stdlib/{p}`" for p in paths)
 
 
+def map_naming_section_html() -> str:
+    return """
+      <h2 id="hashmap-naming">HashMap runtime naming</h2>
+      <p>Hash-map symbols follow <code>map_&lt;key_type&gt;_&lt;value_type&gt;_&lt;operation&gt;</code>. The first type is the <strong>key</strong>, the second is the <strong>value</strong>, then the operation (<code>new</code>, <code>insert</code>, <code>get</code>, <code>contains</code>, <code>remove</code>, <code>keys</code>, <code>free</code>, <code>retain</code>).</p>
+      <table>
+        <thead><tr><th>Family</th><th>Example symbols</th><th>Use case</th></tr></thead>
+        <tbody>
+          <tr><td><code>map_str_i32_*</code></td><td><code>map_str_i32_insert</code>, <code>map_str_i32_get</code></td><td>String keys, integer values</td></tr>
+          <tr><td><code>map_str_str_*</code></td><td><code>map_str_str_insert</code>, <code>map_str_str_get</code></td><td>String keys, string values</td></tr>
+          <tr><td><code>map_i32_i32_*</code></td><td><code>map_i32_i32_insert</code>, <code>map_i32_i32_get</code></td><td>Integer keys and values (<code>map[int]int</code> parity)</td></tr>
+        </tbody>
+      </table>
+      <p>When key and value types match, both appear in the name (e.g. <code>map_i32_i32_get</code>) so each C entry point has an unambiguous signature. Tutorial and examples: <a href="learn-hashmap.html">Learn → HashMap</a>. Stdlib wrappers: <code>stdlib/map.ny</code> (<code>HashMap_str_i32</code>, <code>HashMap_str_str</code>).</p>
+"""
+
+
+def map_naming_section_md() -> str:
+    return """
+## HashMap runtime naming
+
+Hash-map symbols follow `map_<key_type>_<value_type>_<operation>`. The first type is the **key**, the second is the **value**, then the operation (`new`, `insert`, `get`, `contains`, `remove`, `keys`, `free`, `retain`).
+
+| Family | Example symbols | Use case |
+|--------|-----------------|----------|
+| `map_str_i32_*` | `map_str_i32_insert`, `map_str_i32_get` | String keys, integer values |
+| `map_str_str_*` | `map_str_str_insert`, `map_str_str_get` | String keys, string values |
+| `map_i32_i32_*` | `map_i32_i32_insert`, `map_i32_i32_get` | Integer keys and values (`map[int]int` parity) |
+
+When key and value types match, both appear in the name (e.g. `map_i32_i32_get`) so each C entry point has an unambiguous signature. Tutorial: [Learn → HashMap](../webDocs/learn-hashmap.html). Stdlib: `stdlib/map.ny` (`HashMap_str_i32`, `HashMap_str_str`).
+"""
+
+
 def generate_md(symbols: list[dict], stdlib_map: dict[str, list[str]]) -> str:
     stable = [s for s in symbols if s.get("tier") == "stable"]
     experimental = [s for s in symbols if s.get("tier") != "stable"]
@@ -62,11 +94,17 @@ def generate_md(symbols: list[dict], stdlib_map: dict[str, list[str]]) -> str:
         "make gen-bindings-doc",
         "```",
         "",
-        "## Stable bindings",
-        "",
-        "| Symbol | C signature | RT module | Since | Nyra stdlib |",
-        "|--------|-------------|-----------|-------|-------------|",
     ]
+    lines.extend(map_naming_section_md().strip().splitlines())
+    lines.extend(
+        [
+            "",
+            "## Stable bindings",
+            "",
+            "| Symbol | C signature | RT module | Since | Nyra stdlib |",
+            "|--------|-------------|-----------|-------|-------------|",
+        ]
+    )
     for sym in sorted(stable, key=lambda s: s["name"]):
         lines.append(
             f"| `{sym['name']}` | `{sym['c_sig']}` | `{sym.get('module', '?')}` | {sym.get('since', '?')} | {nyra_stdlib_cell(sym['name'], stdlib_map)} |"
@@ -182,7 +220,7 @@ def generate_html(symbols: list[dict], stdlib_map: dict[str, list[str]]) -> str:
       <h1>Runtime bindings</h1>
       <p class="lead">C runtime symbols mapped to Nyra <code>extern fn</code> in stdlib and NyraPkg packages.</p>
       <p>Generated from <code>docs/abi-manifest.toml</code> + stdlib scan. Regenerate: <code>make gen-bindings-doc</code>. C header: <code>stdlib/nyra_rt.h</code>.</p>
-
+{map_naming_section_html()}
       <h2>Stable bindings ({len(stable)})</h2>
       <table>
         <thead><tr><th>Symbol</th><th>C signature</th><th>RT module</th><th>Since</th><th>Nyra stdlib</th></tr></thead>

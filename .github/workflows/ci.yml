@@ -6,21 +6,31 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 3 * * 0"
+    - cron: "0 3 * * 5"  
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Staged CI: build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native/extras.
-# Within each tier, gates run in parallel (matrix). Later tiers still run if an earlier
-# tier failed (if: always) so every failure is visible in one run.
+
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # ── Stage 0: build (macOS ∥ Windows) ─────────────────────────────────────────
+  # ── Stage 0: build (Linux ∥ macOS ∥ Windows) ──────────────────────────────────
+  build-linux:
+    name: "build · Linux"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
+      - name: Build workspace + nyra
+        shell: bash
+        run: make test-platform-ci-build
+
   build-macos:
     name: "build · macOS"
     runs-on: macos-latest
@@ -46,6 +56,33 @@ jobs:
         run: make test-platform-ci-build
 
   # ── Tier 1: fast (~1–3 min per gate, parallel) ───────────────────────────────
+  tier1-linux:
+    name: "tier1 · Linux · ${{ matrix.label }}"
+    needs: build-linux
+    if: ${{ !cancelled() && needs.build-linux.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: test-optional-types
+            label: optional-types
+          - gate: test-conformance
+            label: conformance
+          - gate: test-cargo-workspace
+            label: cargo-workspace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier1
+
   tier1-macos:
     name: "tier1 · macOS · ${{ matrix.label }}"
     needs: build-macos
@@ -78,6 +115,7 @@ jobs:
     needs: build-windows
     if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
     runs-on: windows-latest
+    timeout-minutes: ${{ matrix.timeout || 60 }}
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -89,6 +127,7 @@ jobs:
             label: conformance
           - gate: test-cargo-workspace
             label: cargo-workspace
+            timeout: 90
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
@@ -101,6 +140,33 @@ jobs:
         run: make test-platform-ci-tier1
 
   # ── Tier 2: medium (~3–10 min, parallel) ─────────────────────────────────────
+  tier2-linux:
+    name: "tier2 · Linux · ${{ matrix.label }}"
+    needs: [build-linux, tier1-linux]
+    if: >-
+      ${{ !cancelled() && needs.build-linux.result == 'success' &&
+          (needs.tier1-linux.result == 'success' || needs.tier1-linux.result == 'failure') }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: test-nyra-lang
+            label: nyra-lang
+          - gate: smoke-stdlib-priority
+            label: stdlib-priority
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier2
+
   tier2-macos:
     name: "tier2 · macOS · ${{ matrix.label }}"
     needs: [build-macos, tier1-macos]
@@ -156,6 +222,35 @@ jobs:
         run: make test-platform-ci-tier2
 
   # ── Tier 3: heavy (~5–20 min, parallel) ──────────────────────────────────────
+  tier3-linux:
+    name: "tier3 · Linux · ${{ matrix.label }}"
+    needs: [build-linux, tier2-linux]
+    if: >-
+      ${{ !cancelled() && needs.build-linux.result == 'success' &&
+          (needs.tier2-linux.result == 'success' || needs.tier2-linux.result == 'failure') }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - gate: smoke-stdlib
+            label: stdlib
+          - gate: smoke-stdlib-runtime
+            label: stdlib-runtime
+          - gate: test-runtime-smoke
+            label: runtime-smoke
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
+      - name: "make ${{ matrix.gate }}"
+        shell: bash
+        env:
+          NYRA_CI_GATE: ${{ matrix.gate }}
+        run: make test-platform-ci-tier3
+
   tier3-macos:
     name: "tier3 · macOS · ${{ matrix.label }}"
     needs: [build-macos, tier2-macos]
@@ -215,6 +310,22 @@ jobs:
         run: make test-platform-ci-tier3
 
   # ── Stage 4: native / packaging (parallel after build) ─────────────────────────
+  native-linux:
+    name: "native · Linux"
+    needs: [build-linux, tier3-linux]
+    if: >-
+      ${{ !cancelled() && needs.build-linux.result == 'success' &&
+          (needs.tier3-linux.result == 'success' || needs.tier3-linux.result == 'failure') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: linux
+      - name: Native Linux build smoke
+        shell: bash
+        run: make test-all-linux-native
+
   native-macos:
     name: "native · macOS"
     needs: [build-macos, tier3-macos]
@@ -278,14 +389,19 @@ jobs:
   ci-summary:
     name: CI summary
     needs:
+      - build-linux
       - build-macos
       - build-windows
+      - tier1-linux
       - tier1-macos
       - tier1-windows
+      - tier2-linux
       - tier2-macos
       - tier2-windows
+      - tier3-linux
       - tier3-macos
       - tier3-windows
+      - native-linux
       - native-macos
       - native-windows
       - windows-package
@@ -296,14 +412,19 @@ jobs:
       - name: Write job summary
         shell: bash
         env:
+          BUILD_LINUX: ${{ needs.build-linux.result }}
           BUILD_MACOS: ${{ needs.build-macos.result }}
           BUILD_WINDOWS: ${{ needs.build-windows.result }}
+          TIER1_LINUX: ${{ needs.tier1-linux.result }}
           TIER1_MACOS: ${{ needs.tier1-macos.result }}
           TIER1_WINDOWS: ${{ needs.tier1-windows.result }}
+          TIER2_LINUX: ${{ needs.tier2-linux.result }}
           TIER2_MACOS: ${{ needs.tier2-macos.result }}
           TIER2_WINDOWS: ${{ needs.tier2-windows.result }}
+          TIER3_LINUX: ${{ needs.tier3-linux.result }}
           TIER3_MACOS: ${{ needs.tier3-macos.result }}
           TIER3_WINDOWS: ${{ needs.tier3-windows.result }}
+          NATIVE_LINUX: ${{ needs.native-linux.result }}
           NATIVE_MACOS: ${{ needs.native-macos.result }}
           NATIVE_WINDOWS: ${{ needs.native-windows.result }}
           WIN_PACKAGE: ${{ needs.windows-package.result }}
@@ -323,20 +444,23 @@ jobs:
           {
             echo "## CI stages"
             echo ""
-            echo "| Stage | macOS | Windows |"
-            echo "|-------|-------|---------|"
-            printf '| 0 build | %s | %s |\n' "$(icon "$BUILD_MACOS")" "$(icon "$BUILD_WINDOWS")"
-            printf '| 1 fast | %s | %s |\n' "$(icon "$TIER1_MACOS")" "$(icon "$TIER1_WINDOWS")"
-            printf '| 2 medium | %s | %s |\n' "$(icon "$TIER2_MACOS")" "$(icon "$TIER2_WINDOWS")"
-            printf '| 3 heavy | %s | %s |\n' "$(icon "$TIER3_MACOS")" "$(icon "$TIER3_WINDOWS")"
-            printf '| 4 native | %s | %s |\n' "$(icon "$NATIVE_MACOS")" "$(icon "$NATIVE_WINDOWS")"
-            printf '| extras | — | package %s · dap %s |\n' "$(icon "$WIN_PACKAGE")" "$(icon "$WIN_DAP")"
+            echo "| Stage | Linux | macOS | Windows |"
+            echo "|-------|-------|-------|---------|"
+            printf '| 0 build | %s | %s | %s |\n' "$(icon "$BUILD_LINUX")" "$(icon "$BUILD_MACOS")" "$(icon "$BUILD_WINDOWS")"
+            printf '| 1 fast | %s | %s | %s |\n' "$(icon "$TIER1_LINUX")" "$(icon "$TIER1_MACOS")" "$(icon "$TIER1_WINDOWS")"
+            printf '| 2 medium | %s | %s | %s |\n' "$(icon "$TIER2_LINUX")" "$(icon "$TIER2_MACOS")" "$(icon "$TIER2_WINDOWS")"
+            printf '| 3 heavy | %s | %s | %s |\n' "$(icon "$TIER3_LINUX")" "$(icon "$TIER3_MACOS")" "$(icon "$TIER3_WINDOWS")"
+            printf '| 4 native | %s | %s | %s |\n' "$(icon "$NATIVE_LINUX")" "$(icon "$NATIVE_MACOS")" "$(icon "$NATIVE_WINDOWS")"
+            printf '| extras | — | — | package %s · dap %s |\n' "$(icon "$WIN_PACKAGE")" "$(icon "$WIN_DAP")"
             echo ""
             echo "_Skipped stages usually mean an earlier stage on that OS failed (e.g. build)._"
           } >> "$GITHUB_STEP_SUMMARY"
-          for r in "$BUILD_MACOS" "$BUILD_WINDOWS" "$TIER1_MACOS" "$TIER1_WINDOWS" \
-                   "$TIER2_MACOS" "$TIER2_WINDOWS" "$TIER3_MACOS" "$TIER3_WINDOWS" \
-                   "$NATIVE_MACOS" "$NATIVE_WINDOWS" "$WIN_PACKAGE" "$WIN_DAP"; do
+          for r in "$BUILD_LINUX" "$BUILD_MACOS" "$BUILD_WINDOWS" \
+                   "$TIER1_LINUX" "$TIER1_MACOS" "$TIER1_WINDOWS" \
+                   "$TIER2_LINUX" "$TIER2_MACOS" "$TIER2_WINDOWS" \
+                   "$TIER3_LINUX" "$TIER3_MACOS" "$TIER3_WINDOWS" \
+                   "$NATIVE_LINUX" "$NATIVE_MACOS" "$NATIVE_WINDOWS" \
+                   "$WIN_PACKAGE" "$WIN_DAP"; do
             if [[ "$r" == "failure" ]]; then
               echo "::error::CI stage failed — see job logs and the summary table above."
             fi
@@ -346,19 +470,25 @@ jobs:
     name: make bench (quick)
     runs-on: ubuntu-latest
     needs:
+      - build-linux
       - build-macos
       - build-windows
+      - tier3-linux
       - tier3-macos
       - tier3-windows
+      - native-linux
       - native-macos
       - native-windows
     if: >-
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
+      needs.build-linux.result == 'success' &&
       needs.build-macos.result == 'success' &&
       needs.build-windows.result == 'success' &&
+      needs.tier3-linux.result == 'success' &&
       needs.tier3-macos.result == 'success' &&
       needs.tier3-windows.result == 'success' &&
+      needs.native-linux.result == 'success' &&
       needs.native-macos.result == 'success' &&
       needs.native-windows.result == 'success'
     steps:

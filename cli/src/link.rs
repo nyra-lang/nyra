@@ -461,13 +461,22 @@ pub fn link_binary(
         uses_rt_os: runtime_profile.modules().contains("rt_os.c"),
         uses_rt_hw: runtime_profile.modules().contains("rt_hw.c"),
         uses_rt_os_adv: runtime_profile.modules().contains("rt_os_adv.c"),
-        uses_rt_net: runtime_profile.modules().contains("rt_net.c"),
+        uses_rt_random: runtime_profile.modules().contains("rt_random.c"),
+        uses_rt_net: runtime_profile.uses_ws2_32(&spec.triple),
         needs_openssl: runtime_profile.needs_openssl(),
         needs_zlib: runtime_profile.needs_zlib(),
         needs_libm: runtime_profile.needs_libm(),
     };
     apply_target_link_flags(&mut cmd, &spec, &rt_flags);
-    if spec.is_windows() && llvm_tools::find_lld().is_some() {
+    if spec.is_windows() {
+        if cfg!(target_os = "windows") {
+            if let Some(ld) = llvm_tools::find_mingw_ld() {
+                cmd.arg(format!("-fuse-ld={ld}"));
+            }
+        } else if llvm_tools::find_lld().is_some() {
+            cmd.arg("-fuse-ld=lld");
+        }
+    } else if llvm_tools::find_lld().is_some() {
         cmd.arg("-fuse-ld=lld");
     }
 
@@ -535,12 +544,15 @@ pub fn link_binary(
     }
 
     if runtime_profile_needs_compiler_ffi(runtime_profile) {
-        if let Some(dir) = compiler_ffi_lib_dir() {
-            cmd.arg(format!("-L{}", dir.display()));
-            #[cfg(target_os = "macos")]
-            cmd.arg(format!("-Wl,-rpath,{}", dir.display()));
-            cmd.arg("-lnyra_compiler");
-        }
+        let dir = compiler_ffi_link_dir().ok_or_else(|| {
+            "compiler FFI required but libnyra_compiler was not found \
+             (run `cargo build -p compiler-ffi` or `cargo build --workspace`)"
+                .to_string()
+        })?;
+        cmd.arg(format!("-L{}", dir.display()));
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        cmd.arg(format!("-Wl,-rpath,{}", dir.display()));
+        cmd.arg("-lnyra_compiler");
     }
 
     let link_tmp = link_temp_path(bin_path, &spec);
@@ -598,6 +610,11 @@ pub fn link_binary(
         let _ = fs::remove_file(&linked);
         format!("failed to install {}: {e}", bin_path.display())
     })?;
+    if runtime_profile_needs_compiler_ffi(runtime_profile) {
+        if let Some(dir) = compiler_ffi_link_dir() {
+            let _ = stage_compiler_ffi_runtime(&dir, bin_path);
+        }
+    }
     if profile.cdylib {
         ensure_macos_cdylib_install_name(bin_path, &spec)?;
     }
@@ -738,28 +755,128 @@ fn runtime_profile_needs_compiler_ffi(profile: &RuntimeProfile) -> bool {
     })
 }
 
-fn compiler_ffi_lib_dir() -> Option<PathBuf> {
+fn compiler_ffi_search_dirs() -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
+    let mut push_dir = |d: PathBuf| {
+        if d.is_dir() && !dirs.iter().any(|x| x == &d) {
+            dirs.push(d);
+        }
+    };
+    let mut push_profile = |root: PathBuf, profile: &str| {
+        let base = root.join("target").join(profile);
+        push_dir(base.join("deps"));
+        push_dir(base);
+    };
     if let Ok(root) = std::env::var("NYRA_ROOT") {
-        let dir = PathBuf::from(root).join("target/debug");
-        if dir.join(compiler_ffi_lib_name()).is_file() {
-            return Some(dir);
+        let root = PathBuf::from(root);
+        push_profile(root.clone(), "debug");
+        push_profile(root, "release");
+    }
+    if let Ok(target) = std::env::var("CARGO_TARGET_DIR") {
+        let target = PathBuf::from(target);
+        push_profile(target.clone(), "debug");
+        push_profile(target, "release");
+    }
+    let ws = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+    push_profile(ws.clone(), "debug");
+    push_profile(ws, "release");
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            push_dir(parent.join("deps"));
+            push_dir(parent.to_path_buf());
         }
     }
-    let exe_dir = std::env::current_exe().ok()?.parent()?.to_path_buf();
-    if exe_dir.join(compiler_ffi_lib_name()).is_file() {
-        return Some(exe_dir);
+    dirs
+}
+
+fn compiler_ffi_artifact_names() -> Vec<String> {
+    let mut names: Vec<String> = compiler_ffi_dll_names()
+        .iter()
+        .map(|s| (*s).to_string())
+        .collect();
+    if cfg!(target_os = "windows") {
+        names.push("libnyra_compiler.dll.a".into());
+        names.push("nyra_compiler.dll.lib".into());
+    }
+    names
+}
+
+fn compiler_ffi_link_dir() -> Option<PathBuf> {
+    for dir in compiler_ffi_search_dirs() {
+        for name in compiler_ffi_artifact_names() {
+            if dir.join(&name).is_file() {
+                return Some(dir);
+            }
+        }
+        if let Ok(entries) = fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let name = entry.file_name().to_string_lossy().to_string();
+                if name.starts_with("libnyra_compiler")
+                    && (name.ends_with(".dylib")
+                        || name.ends_with(".dll")
+                        || name.ends_with(".so")
+                        || name.ends_with(".dll.a")
+                        || name.ends_with(".dll.lib"))
+                {
+                    return Some(dir);
+                }
+            }
+        }
     }
     None
 }
 
-fn compiler_ffi_lib_name() -> &'static str {
-    if cfg!(target_os = "macos") {
-        "libnyra_compiler.dylib"
-    } else if cfg!(target_os = "windows") {
-        "nyra_compiler.dll"
-    } else {
-        "libnyra_compiler.so"
+fn compiler_ffi_runtime_artifact(dir: &Path) -> Option<PathBuf> {
+    for name in compiler_ffi_dll_names() {
+        let path = dir.join(name);
+        if path.is_file() {
+            return Some(path);
+        }
     }
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let name = path.file_name()?.to_string_lossy();
+            if name.starts_with("libnyra_compiler")
+                && (name.ends_with(".dylib") || name.ends_with(".dll") || name.ends_with(".so"))
+            {
+                return Some(path);
+            }
+        }
+    }
+    None
+}
+
+fn compiler_ffi_dll_names() -> &'static [&'static str] {
+    if cfg!(target_os = "macos") {
+        &["libnyra_compiler.dylib"]
+    } else if cfg!(target_os = "windows") {
+        &["libnyra_compiler.dll", "nyra_compiler.dll"]
+    } else {
+        &["libnyra_compiler.so"]
+    }
+}
+
+fn stage_compiler_ffi_runtime(_lib_dir: &Path, bin_path: &Path) -> Result<(), String> {
+    let dest_dir = bin_path.parent().unwrap_or_else(|| Path::new("."));
+    for dir in compiler_ffi_search_dirs() {
+        let Some(src) = compiler_ffi_runtime_artifact(&dir) else {
+            continue;
+        };
+        let file_name = src.file_name().ok_or("compiler FFI path has no file name")?;
+        let dst = dest_dir.join(file_name);
+        if src != dst {
+            fs::copy(&src, &dst).map_err(|e| {
+                format!(
+                    "copy compiler FFI {} → {}: {e}",
+                    src.display(),
+                    dst.display()
+                )
+            })?;
+        }
+        return Ok(());
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -820,6 +937,82 @@ mod link_source_filter_tests {
 mod tests {
     use super::*;
     use crate::target::TargetSpec;
+    use std::process::Stdio;
+    #[cfg(windows)]
+    use std::time::Duration;
+
+    fn format_exit_status(status: &std::process::ExitStatus) -> String {
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::ExitStatusExt;
+            if let Some(code) = status.code() {
+                return format!("exit={code}");
+            }
+            if let Some(sig) = status.signal() {
+                return format!("signal={sig}");
+            }
+        }
+        #[cfg(not(unix))]
+        {
+            if let Some(code) = status.code() {
+                return format!("exit={code}");
+            }
+        }
+        "exit=unknown".into()
+    }
+
+    fn run_linked_test_binary(program: &Path) -> std::process::Output {
+        let mut cmd = std::process::Command::new(program);
+        cmd.stdin(Stdio::null());
+        #[cfg(not(windows))]
+        {
+            return cmd
+                .output()
+                .unwrap_or_else(|e| panic!("failed to run {}: {e}", program.display()));
+        }
+        #[cfg(windows)]
+        {
+            cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+            let timeout = Duration::from_secs(60);
+            let mut child = cmd
+                .spawn()
+                .unwrap_or_else(|e| panic!("failed to spawn {}: {e}", program.display()));
+            let start = std::time::Instant::now();
+            let status = loop {
+                match child.try_wait() {
+                    Ok(Some(status)) => break status,
+                    Ok(None) => {
+                        if start.elapsed() >= timeout {
+                            let _ = child.kill();
+                            let _ = child.wait();
+                            panic!(
+                                "process {} timed out after {:?}",
+                                program.display(),
+                                timeout
+                            );
+                        }
+                        std::thread::sleep(Duration::from_millis(50));
+                    }
+                    Err(e) => panic!("failed to wait on {}: {e}", program.display()),
+                }
+            };
+            let mut stdout = Vec::new();
+            let mut stderr = Vec::new();
+            if let Some(mut out) = child.stdout.take() {
+                use std::io::Read;
+                out.read_to_end(&mut stdout).ok();
+            }
+            if let Some(mut err) = child.stderr.take() {
+                use std::io::Read;
+                err.read_to_end(&mut stderr).ok();
+            }
+            std::process::Output {
+                status,
+                stdout,
+                stderr,
+            }
+        }
+    }
 
     #[test]
     fn link_temp_path_keeps_exe_suffix_on_windows() {
@@ -1028,8 +1221,14 @@ mod tests {
         let profile = LinkProfile::default();
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();
         assert!(bin.is_file());
-        let run = std::process::Command::new(&bin).output().unwrap();
-        assert!(run.status.success(), "stderr: {}", String::from_utf8_lossy(&run.stderr));
+        let run = run_linked_test_binary(&bin);
+        assert!(
+            run.status.success(),
+            "{} stdout={:?} stderr={:?}",
+            format_exit_status(&run.status),
+            String::from_utf8_lossy(&run.stdout),
+            String::from_utf8_lossy(&run.stderr)
+        );
         let _ = std::fs::remove_dir_all(&work);
     }
 }

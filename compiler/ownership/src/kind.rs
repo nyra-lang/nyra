@@ -32,10 +32,13 @@ pub fn ownership_of(
         | Type::Void
         | Type::Unknown
         | Type::Handle
+        | Type::JoinHandle
         | Type::VecStr
         | Type::Ptr
-        | Type::RawPtr { .. } => OwnershipKind::Copy,
-        Type::String => OwnershipKind::Move,
+        | Type::RawPtr { .. }
+        | Type::Simd { .. } => OwnershipKind::Copy,
+        Type::String | Type::Bytes => OwnershipKind::Move,
+        Type::Union(_) => OwnershipKind::Copy,
         Type::Ref { .. } | Type::Generic(_) | Type::ForAll { .. } | Type::FnPtr { .. } => {
             OwnershipKind::Copy
         }
@@ -69,6 +72,7 @@ pub fn ownership_of(
 pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "read_file",
     "strcat",
+    "str_buf_build",
     "i32_to_string",
     "i64_to_string",
     "array_i32_debug_string",

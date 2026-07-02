@@ -1,37 +1,80 @@
 #![allow(unused_imports)]
 //! `spawn` async tasks and nested function codegen scopes.
 use std::collections::{BTreeSet, HashMap, HashSet};
-use std::fmt::Write;
 
 use ast::*;
-use ownership::{
-    arrow_has_captures, arrow_to_block, callee_returns_owned, collect_arrow_captures,
-    collect_captures, DropPlan, EscapePlan, EscapeState,
-};
-
-use crate::ansi_color::color_spec_to_ansi;
-use crate::runtime_map::RuntimeProfile;
+use ownership::{collect_captures, DropPlan, EscapePlan, EscapeState};
 
 use super::{
-    Binding, ClosureMeta, Codegen, DropState, Env, EnvKind, ExprValue, FnPtrSig, LoopPhiContext,
-    NestedFnCodegenScope, LOCAL_CHANNEL_CAP, LOCAL_CHANNEL_TYPE,
+    Binding, ClosureMeta, Codegen, DropState, Env, EnvKind, ExprValue, NestedFnCodegenScope,
 };
 use super::util::{
-    array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
-    escape_string, host_target_triple, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
-    llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, llvm_value_operand,
-    resolve_struct_field_name,
-    struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
+    is_struct_pointer_type, llvm_ptr, llvm_storage_ty, llvm_struct_size_bytes,
+    llvm_value_operand, struct_ptr_type,
 };
 
 impl Codegen {
     pub(super) fn compile_spawn(
         &mut self,
+        kind: ast::SpawnKind,
         body: &Block,
         env: &Env,
         drop_state: &mut DropState,
-    ) {
+    ) -> ExprValue {
+        self.compile_spawn_inner(kind, body, env, drop_state)
+    }
+
+    pub(super) fn emit_spawn_handle_drop(&mut self, reg: &str, kind: ast::SpawnKind) {
+        let ptr = if reg.starts_with('%') {
+            reg.to_string()
+        } else {
+            format!("%{reg}")
+        };
+        let (rt_fn, decl) = match kind {
+            ast::SpawnKind::Task => (
+                "spawn_task_handle_drop",
+                "declare void @spawn_task_handle_drop(ptr)",
+            ),
+            ast::SpawnKind::Thread => (
+                "spawn_handle_drop",
+                "declare void @spawn_handle_drop(ptr)",
+            ),
+        };
+        self.ensure_runtime_fn_decl(rt_fn, decl);
+        self.emit_runtime_call(
+            rt_fn,
+            &format!("  call void @{rt_fn}(ptr {ptr})"),
+        );
+    }
+
+    pub(super) fn emit_spawn_join(&mut self, reg: &str, kind: ast::SpawnKind) {
+        let ptr = if reg.starts_with('%') {
+            reg.to_string()
+        } else {
+            format!("%{reg}")
+        };
+        let (rt_fn, decl) = match kind {
+            ast::SpawnKind::Task => (
+                "spawn_task_join",
+                "declare i32 @spawn_task_join(ptr)",
+            ),
+            ast::SpawnKind::Thread => ("spawn_join", "declare i32 @spawn_join(ptr)"),
+        };
+        self.ensure_runtime_fn_decl(rt_fn, decl);
+        let tmp = self.fresh("spawn.join");
+        self.emit_runtime_call(
+            rt_fn,
+            &format!("  %{tmp} = call i32 @{rt_fn}(ptr {ptr})"),
+        );
+    }
+
+    fn compile_spawn_inner(
+        &mut self,
+        kind: ast::SpawnKind,
+        body: &Block,
+        env: &Env,
+        drop_state: &mut DropState,
+    ) -> ExprValue {
         let outer: HashSet<String> = env.keys().cloned().collect();
         let capture_names = collect_captures(body, &outer);
         let spawn_fn = drop_state.next_spawn_key();
@@ -48,62 +91,80 @@ impl Codegen {
         let body_symbol = format!("__spawn_{safe_func}_{spawn_idx}");
         let cap_ty_name = format!("SpawnCap.{safe_func}.{spawn_idx}");
 
+        let (capture_fn, capture_decl) = match kind {
+            ast::SpawnKind::Task => (
+                "spawn_task_capture",
+                "declare ptr @spawn_task_capture(ptr, ptr, i64)",
+            ),
+            ast::SpawnKind::Thread => (
+                "spawn_capture",
+                "declare ptr @spawn_capture(ptr, ptr, i64)",
+            ),
+        };
+        self.ensure_runtime_fn_decl(capture_fn, capture_decl);
+
+        let reg = self.fresh("spawn.handle");
+
         if fields.is_empty() {
             self.emit_spawn_body_fn(&body_symbol, &spawn_fn, body, &cap_ty_name, &[]);
             self.emit_runtime_call(
-                "spawn_capture",
+                capture_fn,
                 &format!(
-                    "  call i32 @spawn_capture(ptr @{body_symbol}, ptr null, i64 0)"
+                    "  %{reg} = call ptr @{capture_fn}(ptr @{body_symbol}, ptr null, i64 0)"
                 ),
             );
-            return;
-        }
-
-        let llvm_fields: Vec<String> = fields.iter().map(|(_, ty)| ty.clone()).collect();
-        self.emit_module(&format!(
-            "%{cap_ty_name} = type {{ {} }}",
-            llvm_fields.join(", ")
-        ));
-
-        self.emit_spawn_body_fn(
-            &body_symbol,
-            &spawn_fn,
-            body,
-            &cap_ty_name,
-            &fields,
-        );
-
-        let cap_alloca = self.fresh("spawn.cap");
-        self.emit(&format!("  %{cap_alloca} = alloca %{cap_ty_name}"));
-        for (i, (name, ty)) in fields.iter().enumerate() {
-            let val_reg = self.load_binding_for_spawn(name, ty, env);
-            let gep = self.fresh("spawn.gep");
-            self.emit(&format!(
-                "  %{gep} = getelementptr inbounds %{cap_ty_name}, %{cap_ty_name}* %{cap_alloca}, i64 0, i32 {i}"
+        } else {
+            let llvm_fields: Vec<String> = fields.iter().map(|(_, ty)| ty.clone()).collect();
+            self.emit_module(&format!(
+                "%{cap_ty_name} = type {{ {} }}",
+                llvm_fields.join(", ")
             ));
-            self.emit(&format!(
-                "  store {ty} {}, {} %{gep}",
-                llvm_value_operand(&val_reg),
-                llvm_ptr(ty)
-            ));
-            if self.drop_plan.is_owned_in(&drop_state.func, name) {
-                drop_state.mark_moved(name);
+
+            self.emit_spawn_body_fn(
+                &body_symbol,
+                &spawn_fn,
+                body,
+                &cap_ty_name,
+                &fields,
+            );
+
+            let cap_alloca = self.fresh("spawn.cap");
+            self.emit(&format!("  %{cap_alloca} = alloca %{cap_ty_name}"));
+            for (i, (name, ty)) in fields.iter().enumerate() {
+                let val_reg = self.load_binding_for_spawn(name, ty, env);
+                let gep = self.fresh("spawn.gep");
+                self.emit(&format!(
+                    "  %{gep} = getelementptr inbounds %{cap_ty_name}, %{cap_ty_name}* %{cap_alloca}, i64 0, i32 {i}"
+                ));
+                self.emit(&format!(
+                    "  store {ty} {}, {} %{gep}",
+                    llvm_value_operand(&val_reg),
+                    llvm_ptr(ty)
+                ));
+                if self.drop_plan.is_owned_in(&drop_state.func, name) {
+                    drop_state.mark_moved(name);
+                }
             }
+
+            let size = llvm_struct_size_bytes(&llvm_fields);
+            let heap = self.fresh("spawn.heap");
+            self.needs_malloc_decl = true;
+            self.emit(&format!("  %{heap} = call ptr @malloc(i64 {size})"));
+            self.emit(&format!(
+                "  call void @llvm.memcpy.p0.p0.i64(ptr %{heap}, ptr %{cap_alloca}, i64 {size}, i1 false)"
+            ));
+            self.emit_runtime_call(
+                capture_fn,
+                &format!(
+                    "  %{reg} = call ptr @{capture_fn}(ptr @{body_symbol}, ptr %{heap}, i64 {size})"
+                ),
+            );
         }
 
-        let size = llvm_struct_size_bytes(&llvm_fields);
-        let heap = self.fresh("spawn.heap");
-        self.needs_malloc_decl = true;
-        self.emit(&format!("  %{heap} = call ptr @malloc(i64 {size})"));
-        self.emit(&format!(
-            "  call void @llvm.memcpy.p0.p0.i64(ptr %{heap}, ptr %{cap_alloca}, i64 {size}, i1 false)"
-        ));
-        self.emit_runtime_call(
-            "spawn_capture",
-            &format!(
-                "  call i32 @spawn_capture(ptr @{body_symbol}, ptr %{heap}, i64 {size})"
-            ),
-        );
+        ExprValue {
+            reg: format!("%{reg}"),
+            ty: "join_handle".into(),
+        }
     }
 
     pub(super) fn push_nested_fn_codegen_scope(&mut self) -> NestedFnCodegenScope {
@@ -128,8 +189,6 @@ impl Codegen {
         cap_ty_name: &str,
         captures: &[(String, String)],
     ) {
-        // Nested spawn (e.g. async state-machine poll loop with inner `spawn { await … }`)
-        // must not clobber the outer spawn body's emit buffer.
         let saved_emit_buf = self.emit_buf.take();
         self.emit_buf = Some(Vec::new());
         let nested_scope = self.push_nested_fn_codegen_scope();
@@ -246,4 +305,3 @@ impl Codegen {
         }
     }
 }
-

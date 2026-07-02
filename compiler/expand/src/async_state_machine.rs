@@ -84,9 +84,17 @@ fn stmt_has_await(stmt: &Statement) -> bool {
                 ForKind::Iterable { iterable } => expr_has_await(iterable),
             }) || block_has_await(&f.body)
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => block_has_await(b),
+        Statement::Spawn(s) => block_has_await(&s.body),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => block_has_await(b),
         _ => false,
     }
+}
+
+fn wrap_spawn_block(body: Block) -> Statement {
+    Statement::Spawn(SpawnStmt {
+        kind: SpawnKind::Thread,
+        body,
+    })
 }
 
 fn lower_nested_async_block(
@@ -435,11 +443,16 @@ impl CfgBuilder {
                     );
                     cur = after;
                 }
-                Statement::Spawn(b) if block_has_await(b) => {
+                Statement::Spawn(sp) if block_has_await(&sp.body) => {
                     self.push_state(cur, flush(&mut prefix));
                     let after = self.alloc_state();
-                    let wrapped =
-                        lower_nested_async_block(self, b, COMPLETE_EXIT, Statement::Spawn, checker)?;
+                    let wrapped = lower_nested_async_block(
+                        self,
+                        &sp.body,
+                        COMPLETE_EXIT,
+                        wrap_spawn_block,
+                        checker,
+                    )?;
                     self.push_state(cur, vec![wrapped, self.goto_state(after)]);
                     cur = after;
                 }
@@ -783,7 +796,10 @@ pub fn try_desugar_state_machine(func: &mut Function, checker: &TypeChecker) -> 
                 expr_call("async_promise_new", vec![], span.clone()),
                 span.clone(),
             ),
-            Statement::Spawn(inner),
+            Statement::Spawn(SpawnStmt {
+                kind: SpawnKind::Thread,
+                body: inner,
+            }),
             Statement::Return(ReturnStmt {
                 value: Some(return_value),
             }),

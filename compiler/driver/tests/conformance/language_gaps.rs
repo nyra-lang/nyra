@@ -199,3 +199,77 @@ priv fn secret() {
         .expect("secret");
     assert!(!secret.public, "priv fn must parse as non-public");
 }
+
+#[test]
+fn conf_lang_010_c_union_repr_c() {
+    let out = compile(
+        r#"union IpAddr repr(C) {
+    v4: i32
+    v6: [u8; 16]
+}
+fn main() {
+    unsafe {
+        let u = IpAddr { v4: 0x7F000001 }
+        print(u.v4)
+    }
+}"#,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+    let ir = out.llvm_ir.expect("ir");
+    assert!(ir.contains("%IpAddr = type"), "expected union type in IR:\n{ir}");
+}
+
+#[test]
+fn conf_lang_011_size_of_intrinsic() {
+    let out = compile(
+        r#"fn main() {
+    print(size_of<i32>())
+}"#,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+    let ir = out.llvm_ir.expect("ir");
+    assert!(ir.contains("i32 4"), "expected size_of<i32>() = 4 in IR:\n{ir}");
+}
+
+#[test]
+fn conf_lang_012_heterogeneous_enum_payload() {
+    let out = compile(
+        r#"enum Result_str_i32 {
+    Ok(string)
+    Err(i32)
+}
+fn main() {
+    let err = Result_str_i32.Err(42)
+    let v = match err {
+        Result_str_i32.Ok(s) => s.len(),
+        Result_str_i32.Err(e) => e,
+    }
+    print(v)
+}"#,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+    assert!(out.llvm_ir.is_some());
+}
+
+#[test]
+fn conf_lang_013_stack_buffer_return_rejected() {
+    let out = compile(
+        r#"struct StackBuffer_i32_64 {
+    data: [i32; 64]
+}
+fn leak() -> &StackBuffer_i32_64 {
+    let buf = StackBuffer_i32_64 { data: [0; 64] }
+    return &buf
+}
+fn main() {
+    print(0)
+}"#,
+    );
+    assert!(
+        out.type_errors
+            .iter()
+            .any(|e| e.message.contains("StackBuffer")),
+        "expected StackBuffer escape error: {:?}",
+        out.type_errors
+    );
+}

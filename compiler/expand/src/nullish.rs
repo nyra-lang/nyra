@@ -403,7 +403,8 @@ fn infer_nullish_option_types_block(stmts: &mut [Statement]) {
             }
             Statement::While(w) => infer_nullish_option_types_block(&mut w.body.statements),
             Statement::For(f) => infer_nullish_option_types_block(&mut f.body.statements),
-            Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => infer_nullish_option_types_block(&mut s.body.statements),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 infer_nullish_option_types_block(&mut b.statements);
             }
             _ => {}

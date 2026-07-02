@@ -3,6 +3,10 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 warning[W003]: unused variable `s`
-  --> test.ny:1:1
+  --> diag_lifetime_elision_ok_no_errors.ny:1:1
+   |
+  1 | fn len(s: &string) -> i32 { return 0 }
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = label: declared here but never read
    = help: prefix with `_` if intentional: `let _s = ...`
    = help: or remove the binding if `s` is not needed

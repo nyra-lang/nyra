@@ -39,6 +39,8 @@ pub fn expr_span(expr: &Expression) -> Span {
         Expression::Cast(c) => c.span.clone(),
         Expression::ArrowFn(a) => a.span.clone(),
         Expression::ComptimeBlock { span, .. } => span.clone(),
+        Expression::Spawn { span, .. } => span.clone(),
+        Expression::ParallelSearch(ps) => ps.span.clone(),
         Expression::ArrayLiteral(al) => al
             .all_exprs()
             .next()
@@ -76,7 +78,13 @@ pub fn stmt_span(stmt: &Statement) -> Span {
             .or_else(|| p.color.as_ref().map(expr_span))
             .unwrap_or_default(),
         Statement::Expression(e) | Statement::Defer(e) => expr_span(e),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => b
+        Statement::Spawn(s) => s
+            .body
+            .statements
+            .first()
+            .map(stmt_span)
+            .unwrap_or_default(),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => b
             .statements
             .first()
             .map(stmt_span)

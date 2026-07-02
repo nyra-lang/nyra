@@ -364,7 +364,8 @@ fn collect_stmt_symbols(stmt: &Statement, out: &mut Vec<Symbol>) {
                 collect_expr_refs(c, out);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_symbols(b, out),
+        Statement::Spawn(s) => collect_block_symbols(&s.body, out),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_symbols(b, out),
         _ => {}
     }
 }
@@ -483,6 +484,11 @@ fn collect_expr_refs(expr: &Expression, out: &mut Vec<Symbol>) {
             ast::ArrowBody::Block(b) => collect_block_symbols(b, out),
         },
         Expression::ComptimeBlock { body, .. } => collect_block_symbols(body, out),
+        Expression::Spawn { body, .. } => collect_block_symbols(body, out),
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_expr_refs(e, out));
+            collect_block_symbols(&ps.body, out);
+        }
         Expression::Literal(_) | Expression::Invalid => {}
     }
     let _ = expr_span(expr);

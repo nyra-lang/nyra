@@ -2,7 +2,6 @@
 
 use ast::*;
 use ast::expr_span;
-use errors::{ErrorKind, NyraError};
 
 use super::helpers::{logic_op_name, types_assignable};
 use super::{TypeChecker, TypeEnv, VarInfo};
@@ -39,11 +38,7 @@ impl TypeChecker {
                             && (types::is_integer(&right) || right == Type::Unknown)
                         {
                             if !self.in_unsafe() {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    sp.clone(),
-                                    "Pointer arithmetic requires unsafe",
-                                ));
+                                diagnostics::unsafe_required(self, "pointer arithmetic", sp.clone());
                             }
                             return left;
                         }
@@ -53,11 +48,7 @@ impl TypeChecker {
                             && bin.op == BinaryOp::Add
                         {
                             if !self.in_unsafe() {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    sp.clone(),
-                                    "Pointer arithmetic requires unsafe",
-                                ));
+                                diagnostics::unsafe_required(self, "pointer arithmetic", sp.clone());
                             }
                             return right;
                         }
@@ -65,21 +56,13 @@ impl TypeChecker {
                             if bin.op == BinaryOp::Add {
                                 Type::String
                             } else {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    sp.clone(),
-                                    "Invalid operation on string",
-                                ));
+                                diagnostics::string_op_invalid(self, "subtraction", sp.clone());
                                 Type::Unknown
                             }
                         } else if !Self::is_numeric_type(&left)
                             || !Self::is_numeric_type(&right)
                         {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Type mismatch in arithmetic operation",
-                            ));
+                            diagnostics::arithmetic_mismatch(self, sp.clone());
                             Type::Unknown
                         } else {
                             Self::unify_numeric_type(left, right)
@@ -87,11 +70,7 @@ impl TypeChecker {
                     }
                     BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod => {
                         if !Self::is_numeric_type(&left) || !Self::is_numeric_type(&right) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Type mismatch in arithmetic operation",
-                            ));
+                            diagnostics::arithmetic_mismatch(self, sp.clone());
                             return Type::Unknown;
                         }
                         Self::unify_numeric_type(left, right)
@@ -112,28 +91,24 @@ impl TypeChecker {
                             && right != Type::Unknown
                             && (!Self::is_numeric_type(&left) || !Self::is_numeric_type(&right))
                         {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Type mismatch in comparison",
-                            ));
+                            diagnostics::comparison_mismatch(self, sp.clone());
                         }
                         Type::Bool
                     }
                     BinaryOp::And | BinaryOp::Or => {
                         if left != Type::Bool && left != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
+                            diagnostics::bool_operand_required(
+                                self,
+                                logic_op_name(bin.op),
                                 sp.clone(),
-                                format!("'{}' requires bool operands", logic_op_name(bin.op)),
-                            ));
+                            );
                         }
                         if right != Type::Bool && right != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
+                            diagnostics::bool_operand_required(
+                                self,
+                                logic_op_name(bin.op),
                                 sp.clone(),
-                                format!("'{}' requires bool operands", logic_op_name(bin.op)),
-                            ));
+                            );
                         }
                         Type::Bool
                     }
@@ -143,11 +118,7 @@ impl TypeChecker {
                     | BinaryOp::BitOr
                     | BinaryOp::BitXor => {
                         if !types::is_integer(&left) || !types::is_integer(&right) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Bitwise operators require integer operands",
-                            ));
+                            diagnostics::bitwise_requires_integer(self, sp.clone());
                             return Type::Unknown;
                         }
                         types::integer::unify_integer_types(left, right)
@@ -158,21 +129,10 @@ impl TypeChecker {
             Expression::Call(call) => {
                 if matches!(call.callee.as_str(), "print" | "write" | "println") {
                     if self.no_std {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            format!(
-                                "'{}' is not available in no_std programs (use extern I/O or UART)",
-                                call.callee
-                            ),
-                        ));
+                        diagnostics::no_std_unavailable(self, &call.callee, sp.clone());
                     }
                     if call.args.is_empty() {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            format!("'{}' expects at least 1 argument", call.callee),
-                        ));
+                        diagnostics::builtin_wrong_arity(self, &call.callee, 1, 0, sp.clone());
                     }
                     for arg in &call.args {
                         self.check_io_arg(arg, env, sp.clone(), &call.callee);
@@ -193,47 +153,52 @@ impl TypeChecker {
                 }
                 if call.callee == "input" {
                     if self.no_std {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            "'input' is not available in no_std programs (use extern I/O or UART)",
-                        ));
+                        diagnostics::no_std_unavailable(self, "input", sp.clone());
                     }
                     if call.args.len() > 1 {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
+                        diagnostics::builtin_wrong_arity_range(
+                            self,
+                            "input",
+                            0,
+                            1,
+                            call.args.len(),
                             sp.clone(),
-                            format!(
-                                "'input' expects 0 or 1 arguments, got {}",
-                                call.args.len()
-                            ),
-                        ));
+                        );
                     } else if call.args.len() == 1 {
                         let arg_ty = self.check_expr(&call.args[0], env);
                         if arg_ty != Type::String && arg_ty != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
+                            diagnostics::builtin_arg_type(
+                                self,
+                                "input",
+                                format!(
+                                    "prompt must be `string`, found {}",
+                                    diagnostics::type_pretty(&arg_ty),
+                                ),
                                 sp.clone(),
-                                format!("'input' prompt must be a string, got {:?}", arg_ty),
-                            ));
+                            );
                         }
                     }
                     return Type::String;
                 }
                 if call.callee == "date" {
                     if !call.args.is_empty() {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            format!(
-                                "'date' expects 0 arguments, got {}",
-                                call.args.len()
-                            ),
-                        ));
+                        diagnostics::wrong_arity(self, "date", 0, call.args.len(), sp.clone());
                     }
                     return Type::Struct(DATE_STRUCT.to_string());
                 }
                 if let Some(ret) = self.check_math_intrinsic_call(call, env, sp.clone()) {
+                    return ret;
+                }
+                if let Some(ret) = self.check_random_builtin_call(call, env, sp.clone()) {
+                    return ret;
+                }
+                if let Some(ret) = self.check_layout_intrinsic(
+                    &call.callee,
+                    &call.args,
+                    Some(&call.type_args),
+                    &sp,
+                    env,
+                ) {
                     return ret;
                 }
                 if matches!(
@@ -301,37 +266,23 @@ impl TypeChecker {
                         let fp_params = params.clone();
                         let fp_ret = return_type.as_ref().map(|t| (**t).clone()).unwrap_or(Type::Void);
                         if call.args.len() != fp_params.len() {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
+                            diagnostics::fn_ptr_wrong_arity(
+                                self,
+                                &call.callee,
+                                fp_params.len(),
+                                call.args.len(),
                                 sp.clone(),
-                                format!(
-                                    "Function pointer '{}' expects {} arguments, got {}",
-                                    call.callee,
-                                    fp_params.len(),
-                                    call.args.len()
-                                ),
-                            ));
+                            );
                         }
                         for (arg, expected) in call.args.iter().zip(fp_params.iter()) {
                             let at = self.check_expr(arg, env);
                             if !types_assignable(&at, expected) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    sp.clone(),
-                                    format!(
-                                        "Argument type mismatch calling function pointer '{}'",
-                                        call.callee
-                                    ),
-                                ));
+                                diagnostics::fn_ptr_arg_mismatch(self, &call.callee, sp.clone());
                             }
                         }
                         fp_ret
                     } else {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            format!("'{}' is not callable", call.callee),
-                        ));
+                        diagnostics::not_callable(self, &call.callee, sp.clone());
                         Type::Unknown
                     }
                 } else {
@@ -340,11 +291,7 @@ impl TypeChecker {
                             .infer_expr_type_hint(expr, env)
                             .unwrap_or(Type::Unknown);
                     }
-                    self.errors.push(NyraError::new(
-                        ErrorKind::NameResolution,
-                        sp.clone(),
-                        format!("Undefined function '{}'", call.callee),
-                    ));
+                    diagnostics::undefined_function(self, &call.callee, sp.clone(), env);
                     Type::Unknown
                 }
             }
@@ -366,11 +313,39 @@ impl TypeChecker {
                             if let Some(ft) = info.fields.get(field) {
                                 ft.clone()
                             } else {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
+                                let known: Vec<String> =
+                                    info.fields.keys().cloned().collect();
+                                diagnostics::unknown_struct_field(
+                                    self,
+                                    &name,
+                                    &fa.field,
+                                    &known,
                                     sp.clone(),
-                                    format!("Struct '{name}' has no field '{}'", fa.field),
-                                ));
+                                );
+                                Type::Unknown
+                            }
+                        } else {
+                            Type::Unknown
+                        }
+                    }
+                    Type::Union(name) => {
+                        if !self.in_unsafe() {
+                            diagnostics::unsafe_required(
+                                self,
+                                &format!("reading union field `{}`", fa.field),
+                                sp.clone(),
+                            );
+                        }
+                        if let Some(info) = self.unions.get(&name) {
+                            if let Some(ft) = info.fields.get(&fa.field) {
+                                ft.clone()
+                            } else {
+                                diagnostics::unknown_union_field(
+                                    self,
+                                    &name,
+                                    &fa.field,
+                                    sp.clone(),
+                                );
                                 Type::Unknown
                             }
                         } else {
@@ -380,28 +355,16 @@ impl TypeChecker {
                     Type::Tuple { elems } => {
                         if let Ok(idx) = fa.field.parse::<usize>() {
                             elems.get(idx).cloned().unwrap_or_else(|| {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    sp.clone(),
-                                    format!("Tuple has no field index {idx}"),
-                                ));
+                                diagnostics::tuple_missing_index(self, idx, sp.clone());
                                 Type::Unknown
                             })
                         } else {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Tuple field index must be a number",
-                            ));
+                            diagnostics::tuple_index_not_number(self, sp.clone());
                             Type::Unknown
                         }
                     }
                     _ => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            "Field access requires struct or tuple value",
-                        ));
+                        diagnostics::field_access_invalid_receiver(self, sp.clone());
                         Type::Unknown
                     }
                 }
@@ -423,14 +386,12 @@ impl TypeChecker {
                         match &spread_ty {
                             Type::Struct(_) | Type::Unknown => {}
                             other => {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
+                                diagnostics::struct_spread_requires_struct(
+                                    self,
+                                    &sl.name,
+                                    other,
                                     sp.clone(),
-                                    format!(
-                                        "Struct spread '..expr' on '{}' requires a struct value, got {:?}",
-                                        sl.name, other
-                                    ),
-                                ));
+                                );
                             }
                         }
                         spread_types.push(spread_ty);
@@ -442,49 +403,52 @@ impl TypeChecker {
                             }
                             let mut found = false;
                             for spread_ty in &spread_types {
-                                if let Type::Struct(src_name) = spread_ty {
-                                    if let Some(src_def) = self.structs.get(src_name) {
-                                        if let Some(src_field_ty) = src_def.fields.get(fname) {
-                                            if *src_field_ty != *expected
-                                                && *src_field_ty != Type::Unknown
-                                                && *expected != Type::Unknown
-                                                && !integer_assignable(expected, src_field_ty)
-                                            {
-                                                self.errors.push(NyraError::new(
-                                                    ErrorKind::Type,
-                                                    sp.clone(),
-                                                    format!(
-                                                        "Field '{fname}' spread from '{src_name}' has type {:?}, expected {:?} on '{}'",
-                                                        src_field_ty, expected, sl.name
-                                                    ),
-                                                ));
-                                            }
-                                            found = true;
-                                            break;
-                                        }
+                                let spread_field = match spread_ty {
+                                    Type::Struct(src_name) => self
+                                        .structs
+                                        .get(src_name)
+                                        .and_then(|src_def| {
+                                            src_def
+                                                .fields
+                                                .get(fname)
+                                                .map(|ty| (src_name.clone(), ty.clone()))
+                                        }),
+                                    _ => None,
+                                };
+                                if let Some((src_name, src_field_ty)) = spread_field {
+                                    if src_field_ty != *expected
+                                        && src_field_ty != Type::Unknown
+                                        && *expected != Type::Unknown
+                                        && !integer_assignable(expected, &src_field_ty)
+                                    {
+                                        diagnostics::struct_field_spread_mismatch(
+                                            self,
+                                            fname,
+                                            &src_name,
+                                            &sl.name,
+                                            &src_field_ty,
+                                            expected,
+                                            sp.clone(),
+                                        );
                                     }
+                                    found = true;
+                                    break;
                                 }
                             }
                             if !found && spread_types.iter().all(|t| *t != Type::Unknown) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
+                                diagnostics::struct_field_not_set(
+                                    self,
+                                    fname,
+                                    &sl.name,
                                     sp.clone(),
-                                    format!(
-                                        "Field '{fname}' on '{}' not set explicitly or via struct spread",
-                                        sl.name
-                                    ),
-                                ));
+                                );
                             }
                         }
                     }
                     let mut seen = std::collections::HashSet::new();
                     for (fname, fexpr) in &sl.fields {
                         if !seen.insert(fname.clone()) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                format!("Duplicate field '{fname}' in struct literal"),
-                            ));
+                            diagnostics::duplicate_struct_field(self, fname, sp.clone());
                         }
                         let expected = struct_fields
                             .as_ref()
@@ -497,24 +461,49 @@ impl TypeChecker {
                                 && !integer_assignable(&exp, &got)
                                 && !types::float_assignable(&exp, &got)
                             {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
+                                diagnostics::type_mismatch(
+                                    self,
+                                    &format!("for field `{fname}` in struct `{}`", sl.name),
+                                    &exp,
+                                    &got,
                                     sp.clone(),
-                                    format!(
-                                        "Field '{fname}' in struct '{}' expected {:?}, got {:?}",
-                                        sl.name, exp, got
-                                    ),
-                                ));
+                                );
                             }
                         } else {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                format!("Unknown field '{fname}' on struct '{}'", sl.name),
-                            ));
+                            diagnostics::unknown_literal_field(self, &sl.name, fname, sp.clone());
                         }
                     }
                     Type::Struct(sl.name.clone())
+                } else if self.unions.contains_key(&sl.name) {
+                    if !self.in_unsafe() {
+                        diagnostics::union_construct_requires_unsafe(self, &sl.name, sp.clone());
+                    }
+                    for (fname, fexpr) in &sl.fields {
+                        let expected = self
+                            .unions
+                            .get(&sl.name)
+                            .and_then(|u| u.fields.get(fname))
+                            .cloned();
+                        let got = self.check_expr(fexpr, env);
+                        if let Some(exp) = expected {
+                            if got != exp
+                                && got != Type::Unknown
+                                && !integer_assignable(&exp, &got)
+                                && !types::float_assignable(&exp, &got)
+                            {
+                                diagnostics::type_mismatch(
+                                    self,
+                                    &format!("for field `{fname}` in union `{}`", sl.name),
+                                    &exp,
+                                    &got,
+                                    sp.clone(),
+                                );
+                            }
+                        } else {
+                            diagnostics::unknown_union_field(self, &sl.name, fname, sp.clone());
+                        }
+                    }
+                    Type::Union(sl.name.clone())
                 } else {
                     diagnostics::unknown_struct(self, &sl.name, sp.clone(), env);
                     Type::Unknown
@@ -524,20 +513,12 @@ impl TypeChecker {
             Expression::If(i) => {
                 let c = self.check_expr(&i.condition, env);
                 if c != Type::Bool && c != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        "If expression condition must be bool",
-                    ));
+                    diagnostics::bool_condition_required(self, "if expression", sp.clone());
                 }
                 let t = self.check_block_expr_value(&i.then_block, env, &sp);
                 let e = self.check_block_expr_value(&i.else_block, env, &sp);
                 if t != e && t != Type::Unknown && e != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        "If expression branches must have the same type",
-                    ));
+                    diagnostics::branch_type_mismatch(self, sp.clone());
                 }
                 if t != Type::Unknown {
                     t
@@ -549,20 +530,13 @@ impl TypeChecker {
                 let obj = self.check_expr(&ix.object, env);
                 let idx = self.check_expr(&ix.index, env);
                 if !types::is_integer(&idx) && idx != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        "Array index must be i32",
-                    ));
+                    diagnostics::array_index_must_be_i32(self, sp.clone());
                 }
                 match obj {
                     Type::Array { elem, .. } => (*elem).clone(),
+                    Type::Bytes => TypeChecker::check_bytes_index(self, &obj, &sp),
                     _ => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            "Index requires array value",
-                        ));
+                        diagnostics::index_requires_array_or_bytes(self, sp.clone());
                         Type::Unknown
                     }
                 }
@@ -589,52 +563,47 @@ impl TypeChecker {
                                 && !integer_assignable(&elem_ty, elem)
                                 && !float_assignable(&elem_ty, elem)
                             {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    sp.clone(),
-                                    "Array spread elements must have the same type",
-                                ));
+                                diagnostics::array_spread_homogeneous(self, sp.clone());
                             }
                         }
                         Type::Struct(name) => {
-                            if let Some(def) = self.structs.get(name) {
-                                total_len += def.field_order.len();
-                                for fname in &def.field_order {
-                                    let fty = def
-                                        .fields
-                                        .get(fname)
-                                        .cloned()
-                                        .unwrap_or(Type::Unknown);
-                                    if elem_ty == Type::Unknown {
-                                        elem_ty = fty;
-                                    } else if fty != elem_ty
-                                        && fty != Type::Unknown
-                                        && elem_ty != Type::Unknown
-                                        && !integer_assignable(&elem_ty, &fty)
-                                        && !float_assignable(&elem_ty, &fty)
-                                    {
-                                        self.errors.push(NyraError::new(
-                                            ErrorKind::Type,
-                                            sp.clone(),
-                                            format!(
-                                                "Object spread into array: field '{fname}' has type {:?}, expected {:?}",
-                                                fty, elem_ty
-                                            ),
-                                        ));
-                                    }
+                            let spread_fields: Vec<(String, Type)> = self
+                                .structs
+                                .get(name)
+                                .map(|def| {
+                                    def.field_order
+                                        .iter()
+                                        .filter_map(|fname| {
+                                            def.fields
+                                                .get(fname)
+                                                .map(|fty| (fname.clone(), fty.clone()))
+                                        })
+                                        .collect()
+                                })
+                                .unwrap_or_default();
+                            total_len += spread_fields.len();
+                            for (fname, fty) in spread_fields {
+                                if elem_ty == Type::Unknown {
+                                    elem_ty = fty;
+                                } else if fty != elem_ty
+                                    && fty != Type::Unknown
+                                    && elem_ty != Type::Unknown
+                                    && !integer_assignable(&elem_ty, &fty)
+                                    && !float_assignable(&elem_ty, &fty)
+                                {
+                                    diagnostics::type_mismatch(
+                                        self,
+                                        &format!("for spread field `{fname}` into array"),
+                                        &elem_ty,
+                                        &fty,
+                                        sp.clone(),
+                                    );
                                 }
                             }
                         }
                         Type::Unknown => {}
                         other => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                format!(
-                                    "Array spread `...expr` requires an array or struct value, got {:?}",
-                                    other
-                                ),
-                            ));
+                            diagnostics::array_spread_invalid_source(self, other, sp.clone());
                         }
                     }
                 }
@@ -645,11 +614,7 @@ impl TypeChecker {
                         elem_ty = t;
                     } else if t != elem_ty && t != Type::Unknown {
                         if !integer_assignable(&elem_ty, &t) && !float_assignable(&elem_ty, &t) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Array elements must have the same type",
-                            ));
+                            diagnostics::array_homogeneous_elements(self, sp.clone());
                         }
                     }
                 }
@@ -671,30 +636,25 @@ impl TypeChecker {
                         if let Some(vinfo) = info.variants.iter().find(|v| v.name == ev.variant) {
                             let expected_fields = vinfo.fields.clone();
                             if expected_fields.len() != ev.args.len() {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
+                                diagnostics::enum_variant_wrong_arity(
+                                    self,
+                                    &en,
+                                    &ev.variant,
+                                    expected_fields.len(),
+                                    ev.args.len(),
                                     sp.clone(),
-                                    format!(
-                                        "Variant '{}.{}' expects {} args, got {}",
-                                        en,
-                                        ev.variant,
-                                        expected_fields.len(),
-                                        ev.args.len()
-                                    ),
-                                ));
+                                );
                             }
                             for (expected, arg) in expected_fields.iter().zip(ev.args.iter()) {
                                 let got = self.check_expr(arg, env);
                                 if got != *expected && got != Type::Unknown && *expected != Type::Unknown
                                 {
-                                    self.errors.push(NyraError::new(
-                                        ErrorKind::Type,
+                                    diagnostics::enum_variant_payload_mismatch(
+                                        self,
+                                        &en,
+                                        &ev.variant,
                                         sp.clone(),
-                                        format!(
-                                            "Variant payload type mismatch for '{}.{}'",
-                                            en, ev.variant
-                                        ),
-                                    ));
+                                    );
                                 }
                             }
                         }
@@ -710,6 +670,21 @@ impl TypeChecker {
                     Type::Ref { inner, .. } => (*inner).clone(),
                     other => other,
                 };
+                if mc.method == "join" {
+                    if !mc.args.is_empty() {
+                        diagnostics::method_expects_no_args(self, "join", sp.clone());
+                    }
+                    if obj_ty != Type::JoinHandle && obj_ty != Type::Unknown {
+                        diagnostics::unsupported_method_on_type(
+                            self,
+                            "join",
+                            &obj_ty,
+                            sp.clone(),
+                        );
+                        return Type::Unknown;
+                    }
+                    return Type::Void;
+                }
                 if mc.method == "clone" {
                     return match obj_ty {
                         Type::String => Type::String,
@@ -718,25 +693,18 @@ impl TypeChecker {
                             if self.signature_inference {
                                 return Type::Unknown;
                             }
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                format!("Type {:?} does not support .clone()", obj_ty),
-                            ));
+                            diagnostics::unsupported_method_on_type(self, "clone", &obj_ty, sp.clone());
                             Type::Unknown
                         }
                     };
                 }
                 if mc.method == "length" || mc.method == "len" {
                     if !mc.args.is_empty() {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            format!("'.{}' expects no arguments", mc.method),
-                        ));
+                        diagnostics::method_expects_no_args(self, &mc.method, sp.clone());
                     }
                     if !matches!(obj_ty, Type::Struct(_)) {
                         return match obj_ty {
+                            Type::Bytes => Type::Integer(ast::IntKind::I64),
                             Type::String | Type::VecStr => Type::Integer(ast::IntKind::I32),
                             Type::Array { .. } => {
                                 if let Some(ret) = self.check_array_method(mc, &obj_ty, env, &sp) {
@@ -748,11 +716,12 @@ impl TypeChecker {
                                 if self.signature_inference {
                                     return Type::Unknown;
                                 }
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
+                                diagnostics::unsupported_method_on_type(
+                                    self,
+                                    "length",
+                                    &obj_ty,
                                     sp.clone(),
-                                    format!("Type {:?} does not support .length()", obj_ty),
-                                ));
+                                );
                                 Type::Unknown
                             }
                         };
@@ -765,6 +734,14 @@ impl TypeChecker {
                     self.check_string_method(mc, &obj_ty, env, &sp)
                 {
                     return ret;
+                }
+                if obj_ty == Type::Bytes {
+                    if let Some(ret) = TypeChecker::bytes_method_return_type(&mc.method) {
+                        if !mc.args.is_empty() {
+                            diagnostics::method_expects_no_args(self, &mc.method, sp.clone());
+                        }
+                        return ret;
+                    }
                 }
                 if let Some(param) = match &obj_ty {
                     Type::Generic(p) => Some(p.as_str()),
@@ -780,21 +757,13 @@ impl TypeChecker {
                 let type_name = match obj_ty {
                     Type::Struct(n) => n,
                     _ => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            "Method call requires struct receiver",
-                        ));
+                        diagnostics::method_receiver_requires_struct(self, sp.clone());
                         return Type::Unknown;
                     }
                 };
                 if let Some(trait_name) = TypeChecker::dyn_trait_name(&type_name) {
                     if !self.trait_has_method(trait_name, &mc.method) {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            format!("Trait '{trait_name}' has no method '{}'", mc.method),
-                        ));
+                        diagnostics::trait_method_not_found(self, trait_name, &mc.method, sp.clone());
                         return Type::Unknown;
                     }
                 }
@@ -805,20 +774,12 @@ impl TypeChecker {
                     for (arg, expected) in args.iter().zip(sig.params.iter()) {
                         let at = self.check_expr(arg, env);
                         if at != *expected && at != Type::Unknown && *expected != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                format!("Method '{}' argument mismatch", mc.method),
-                            ));
+                            diagnostics::method_arg_mismatch(self, &mc.method, sp.clone());
                         }
                     }
                     sig.return_type
                 } else {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::NameResolution,
-                        sp.clone(),
-                        format!("Unknown method '{}'", mc.method),
-                    ));
+                    diagnostics::unknown_method(self, &mc.method, sp.clone());
                     Type::Unknown
                 }
             }
@@ -835,39 +796,23 @@ impl TypeChecker {
                         Type::RawPtr { inner } if self.in_unsafe() => (*inner).clone(),
                         Type::Ptr if self.in_unsafe() => Type::Integer(ast::IntKind::I32),
                         Type::RawPtr { .. } | Type::Ptr => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Deref of raw pointer requires unsafe",
-                            ));
+                            diagnostics::unsafe_required(self, "deref of raw pointer", sp.clone());
                             Type::Unknown
                         }
                         _ => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Deref requires reference or raw pointer",
-                            ));
+                            diagnostics::deref_requires_ref_or_ptr(self, sp.clone());
                             Type::Unknown
                         }
                     },
                     UnaryOp::Neg => {
                         if !types::is_integer(&inner) && inner != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Unary '-' requires i32",
-                            ));
+                            diagnostics::unary_requires_i32(self, sp.clone());
                         }
                         Type::Integer(ast::IntKind::I32)
                     }
                     UnaryOp::Not => {
                         if inner != Type::Bool && inner != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                sp.clone(),
-                                "Unary '!' requires bool",
-                            ));
+                            diagnostics::unary_requires_bool(self, sp.clone());
                         }
                         Type::Bool
                     }
@@ -876,22 +821,14 @@ impl TypeChecker {
             }
             Expression::Await(inner) => {
                 if self.target_is_wasm() {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        "await is not available on wasm32 targets".to_string(),
-                    ));
+                    diagnostics::platform_unavailable(self, "await", "wasm32", sp.clone());
                 }
                 let t = self.check_expr(inner, env);
                 if let Some(result) = super::future_types::future_await_result_type(&t) {
                     return result;
                 }
                 if !super::future_types::is_future_handle_type(&t) && t != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        expr_span(inner),
-                        format!("await expects Future handle (i32) or Future<T>, got {t:?}"),
-                    ));
+                    diagnostics::await_wrong_type(self, &t, expr_span(inner));
                 }
                 Type::Integer(ast::IntKind::I32)
             }
@@ -900,13 +837,7 @@ impl TypeChecker {
                     if let TemplatePart::Interpolation(expr) = part {
                         let ty = self.check_expr(expr, env);
                         if !types::is_print_scalar(&ty) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                t.span.clone(),
-                                format!(
-                                    "Template interpolation must be string, i32, f32, f64, char, or bool, got {ty:?}"
-                                ),
-                            ));
+                            diagnostics::template_interpolation_invalid(self, &ty, t.span.clone());
                         }
                     }
                 }
@@ -919,11 +850,7 @@ impl TypeChecker {
                 if (Self::is_raw_pointer_type(&to) || Self::is_raw_pointer_type(&from))
                     && !ptr_to_fn
                     && !self.in_unsafe() {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            c.span.clone(),
-                            "Raw pointer cast requires unsafe",
-                        ));
+                        diagnostics::unsafe_required(self, "raw pointer cast", c.span.clone());
                     }
                 if from != Type::Unknown && to != Type::Unknown && from == to {
                     return to;
@@ -951,73 +878,56 @@ impl TypeChecker {
                             for b in bounds {
                                 match b.as_str() {
                                     "Send" if !self.type_is_send(&from) => {
-                                        self.errors.push(
-                                            errors::NyraError::new(
-                                                ErrorKind::Type,
-                                                c.span.clone(),
-                                                format!(
-                                                    "Type '{concrete}' is not Send; cannot cast to dyn {trait_name} + Send"
-                                                ),
-                                            )
-                                            .note(
-                                                "Raw pointers and types with non-Send fields cannot cross thread boundaries",
-                                            ),
+                                        diagnostics::send_bound_required(
+                                            self,
+                                            concrete,
+                                            trait_name,
+                                            c.span.clone(),
                                         );
                                     }
                                     "Sync" if !self.type_is_sync(&from) => {
-                                        self.errors.push(
-                                            errors::NyraError::new(
-                                                ErrorKind::Type,
-                                                c.span.clone(),
-                                                format!(
-                                                    "Type '{concrete}' is not Sync; cannot cast to dyn {trait_name} + Sync"
-                                                ),
-                                            )
-                                            .note(
-                                                "Shared references across threads require all fields to be Sync",
-                                            ),
+                                        diagnostics::sync_bound_required(
+                                            self,
+                                            concrete,
+                                            trait_name,
+                                            c.span.clone(),
                                         );
                                     }
                                     "Send" | "Sync" => {}
                                     other => {
-                                        self.errors.push(NyraError::new(
-                                            ErrorKind::Type,
+                                        diagnostics::unknown_dyn_auto_trait(
+                                            self,
+                                            other,
+                                            trait_name,
                                             c.span.clone(),
-                                            format!(
-                                                "Unknown auto trait bound '{other}' on dyn {trait_name} (supported: Send, Sync)"
-                                            ),
-                                        ));
+                                        );
                                     }
                                 }
                             }
                             return Type::Struct(format!("Dyn_{trait_name}"));
                         }
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            c.span.clone(),
-                            format!(
-                                "Type '{concrete}' does not implement trait '{trait_name}'"
-                            ),
-                        ));
+                        diagnostics::trait_not_implemented(self, concrete, trait_name, c.span.clone());
                     } else if from != Type::Unknown {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            c.span.clone(),
-                            "Trait object cast requires a concrete struct value",
-                        ));
+                        diagnostics::trait_object_cast_requires_struct(self, c.span.clone());
                     }
                     return Type::Struct(format!("Dyn_{trait_name}"));
                 }
                 if from != Type::Unknown && to != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        c.span.clone(),
-                        format!("Invalid cast from {:?} to {:?}", from, to),
-                    ));
+                    diagnostics::invalid_cast(self, &from, &to, c.span.clone());
                 }
                 to
             }
-            Expression::Invalid => Type::Unknown,
+            Expression::Spawn { body, .. } => {
+                if self.no_std {
+                    diagnostics::no_std_unavailable(self, "spawn", sp.clone());
+                }
+                if self.target_is_wasm() {
+                    diagnostics::platform_unavailable(self, "spawn", "wasm32", sp.clone());
+                }
+                self.check_block(body, env, &Type::Void);
+                Type::JoinHandle
+            }
+            Expression::ParallelSearch(ps) => self.check_parallel_search(ps, env),
             Expression::ComptimeBlock { body, span } => {
                 let mut inner = TypeEnv {
                     variables: env.variables.clone(),
@@ -1038,11 +948,7 @@ impl TypeChecker {
                     }
                 }
                 if last_ty == Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        span.clone(),
-                        "comptime block must produce a value at compile time",
-                    ));
+                    diagnostics::comptime_must_produce_value(self, span.clone());
                 }
                 last_ty
             }
@@ -1139,6 +1045,7 @@ impl TypeChecker {
                     return_type: Some(Box::new(ret_ty)),
                 }
             }
+            Expression::Invalid => Type::Unknown,
         }
     }
 }

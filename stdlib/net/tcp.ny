@@ -1,4 +1,5 @@
 import "syscall.ny"
+import "../os/fd.ny"
 
 struct TcpListener Send {
     fd: i32
@@ -68,4 +69,16 @@ fn tcp_close_listener(listener: TcpListener) -> void {
 
 fn tcp_set_nonblock(stream: TcpStream) -> i32 {
     return sys_set_nonblock(stream.fd)
+}
+
+fn TcpStream_borrow_fd(stream: TcpStream) -> Fd {
+    return Fd_borrow(stream.fd)
+}
+
+fn TcpStream_into_fd(stream: TcpStream) -> Fd {
+    return Fd_new(stream.fd)
+}
+
+fn TcpListener_borrow_fd(listener: TcpListener) -> Fd {
+    return Fd_borrow(listener.fd)
 }

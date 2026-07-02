@@ -74,11 +74,18 @@ fn rewrite_stmt_returns(stmt: &Statement, handle: &str, complete_fn: &str) -> St
             rewrite_block_returns(&mut nf.body, handle, complete_fn);
             Statement::For(nf)
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => {
+            let mut inner = s.body.clone();
+            rewrite_block_returns(&mut inner, handle, complete_fn);
+            Statement::Spawn(SpawnStmt {
+                kind: s.kind,
+                body: inner,
+            })
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             let mut inner = b.clone();
             rewrite_block_returns(&mut inner, handle, complete_fn);
             match stmt {
-                Statement::Spawn(_) => Statement::Spawn(inner),
                 Statement::Unsafe(_) => Statement::Unsafe(inner),
                 _ => Statement::Benchmark(inner),
             }
@@ -124,7 +131,10 @@ fn desugar_one_async(func: &mut Function) {
                 ty: None,
                 value: expr_call("async_promise_new", vec![], span.clone()),
             }),
-            Statement::Spawn(inner),
+            Statement::Spawn(SpawnStmt {
+                kind: SpawnKind::Thread,
+                body: inner,
+            }),
             Statement::Return(ReturnStmt {
                 value: Some(return_value),
             }),

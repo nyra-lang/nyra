@@ -3,7 +3,10 @@ mod common;
 use std::thread;
 use std::time::Duration;
 
-use common::{examples_dir, ir_defines_main, nyra_bin, run_nyra, run_nyra_file, tests_dir};
+use common::{
+    built_debug_artifact, examples_dir, ir_defines_main, normalize_process_stdout,
+    normalize_process_stdout_trimmed, nyra_bin, run_nyra, run_nyra_file, tests_dir,
+};
 use compiler::{CompileOptions, Compiler};
 
 #[test]
@@ -482,7 +485,7 @@ fn end_to_end_spawn_channel_sync() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(String::from_utf8_lossy(&output.stdout), "42\n");
+    assert_eq!(normalize_process_stdout(&output.stdout), "42\n");
 }
 
 #[test]
@@ -494,7 +497,7 @@ fn end_to_end_async_hello() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(String::from_utf8_lossy(&output.stdout), "42\n");
+    assert_eq!(normalize_process_stdout(&output.stdout), "42\n");
 }
 
 #[test]
@@ -507,7 +510,7 @@ fn end_to_end_buffered_io_output() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert_eq!(
-        String::from_utf8_lossy(&output.stdout),
+        normalize_process_stdout(&output.stdout),
         "lines:\n1\n2\n3\n"
     );
 }
@@ -548,7 +551,7 @@ fn end_to_end_template_strings_output() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert_eq!(
-        String::from_utf8_lossy(&output.stdout),
+        normalize_process_stdout(&output.stdout),
         "Hello, hamdy\nHello hamdy\nHello hamdy, age 25\n"
     );
 }
@@ -638,7 +641,7 @@ fn end_to_end_vectors_output() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "2\n10");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "2\n10");
 }
 
 #[test]
@@ -658,7 +661,7 @@ fn end_to_end_unicode_print() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "█");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "█");
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -824,7 +827,7 @@ fn nyra_cli_builds_input_example() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    let bin = dir.join("target/debug/prompt");
+    let bin = built_debug_artifact(&dir, "prompt");
     let mut child = Command::new(&bin)
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::piped())
@@ -852,7 +855,7 @@ fn end_to_end_hashmap_output() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "100\n1");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "100\n1");
 }
 
 #[test]
@@ -867,7 +870,7 @@ fn end_to_end_hashmap_chain_output() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "1\n2\n1");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "1\n2\n1");
 }
 
 #[test]
@@ -897,7 +900,7 @@ fn end_to_end_break_and_clone() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "3\nok");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "3\nok");
     let _ = std::fs::remove_dir_all(&dir);
 }
 

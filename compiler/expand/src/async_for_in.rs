@@ -183,9 +183,8 @@ fn desugar_stmt(stmt: &mut Statement, env: &mut HashMap<String, Type>, params: &
             }
         }
         Statement::While(w) => desugar_block(&mut w.body, env, params, checker),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
-            desugar_block(b, env, params, checker);
-        }
+        Statement::Spawn(s) => desugar_block(&mut s.body, env, params, checker),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => desugar_block(b, env, params, checker),
         _ => {}
     }
 }

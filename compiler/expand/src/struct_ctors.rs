@@ -177,9 +177,9 @@ fn rewrite_stmt(
                 rewrite_expr(c, structs, functions);
             }
         }
-        Statement::Spawn(b) => {
-            for s in &mut b.statements {
-                rewrite_stmt(s, structs, functions);
+        Statement::Spawn(s) => {
+            for stmt in &mut s.body.statements {
+                rewrite_stmt(stmt, structs, functions);
             }
         }
         Statement::Benchmark(b) => {

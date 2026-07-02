@@ -1,4 +1,4 @@
-use errors::{ErrorKind, NyraError, Position, Span};
+use errors::{coded_lexer_error, NyraError, Position, Span};
 
 use ast::{FloatKind, IntKind};
 
@@ -26,6 +26,7 @@ pub enum TokenKind {
     Import,
     Module,
     Struct,
+    Union,
     Impl,
     SelfKw,
     For,
@@ -80,6 +81,7 @@ pub enum TokenKind {
     TypeChar,
     TypeBool,
     TypeString,
+    TypeBytes,
     TypePtr,
     TypeVoid,
 
@@ -172,6 +174,7 @@ fn word_to_token_kind(name: &str) -> TokenKind {
         "import" => TokenKind::Import,
         "module" => TokenKind::Module,
         "struct" => TokenKind::Struct,
+        "union" => TokenKind::Union,
         "impl" => TokenKind::Impl,
         "self" => TokenKind::SelfKw,
         "for" => TokenKind::For,
@@ -209,6 +212,7 @@ fn word_to_token_kind(name: &str) -> TokenKind {
         "char" => TokenKind::TypeChar,
         "bool" => TokenKind::TypeBool,
         "string" => TokenKind::TypeString,
+        "bytes" => TokenKind::TypeBytes,
         "ptr" => TokenKind::TypePtr,
         "void" => TokenKind::TypeVoid,
         _ => TokenKind::Identifier(name.to_string()),
@@ -461,8 +465,7 @@ impl Lexer {
                     c if c.is_ascii_alphabetic() || c == '_' => self.read_identifier_or_keyword(),
                     _ => {
                         let span = self.span_from(start);
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Lexer,
+                        self.errors.push(coded_lexer_error(
                             span,
                             format!("Invalid character '{c}'"),
                         ));
@@ -545,8 +548,7 @@ impl Lexer {
                             Some(v) => value = v,
                             None => {
                                 overflow = true;
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Lexer,
+                                self.errors.push(coded_lexer_error(
                                     self.span_from(start),
                                     "Integer literal overflow",
                                 ));
@@ -564,8 +566,7 @@ impl Lexer {
                             self.advance();
                         }
                         _ => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Lexer,
+                            self.errors.push(coded_lexer_error(
                                 self.span_from(start),
                                 "Numeric separators '_' must appear between digits (not at the end or doubled)",
                             ));
@@ -628,8 +629,7 @@ impl Lexer {
                             continue;
                         }
                         _ => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Lexer,
+                            self.errors.push(coded_lexer_error(
                                 self.span_from(start),
                                 "Numeric separators '_' must appear between hex digits (not at the end or doubled)",
                             ));
@@ -647,8 +647,7 @@ impl Lexer {
                             Some(v) => value = v,
                             None => {
                                 overflow = true;
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Lexer,
+                                self.errors.push(coded_lexer_error(
                                     self.span_from(start),
                                     "Integer literal overflow",
                                 ));
@@ -661,8 +660,7 @@ impl Lexer {
             }
         }
         if !has_digit {
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 self.span_from(start),
                 "Expected hex digits after 0x",
             ));
@@ -837,8 +835,7 @@ impl Lexer {
                     self.advance();
                     TokenKind::CharLit(cp)
                 } else {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Lexer,
+                    self.errors.push(coded_lexer_error(
                         self.span_from(start),
                         "Character literal must end with a single closing quote",
                     ));
@@ -846,8 +843,7 @@ impl Lexer {
                 }
             }
             _ => {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Lexer,
+                self.errors.push(coded_lexer_error(
                     self.span_from(start),
                     "Invalid character literal",
                 ));
@@ -1022,8 +1018,7 @@ impl Lexer {
     fn read_raw_identifier(&mut self, start: Position) -> TokenKind {
         self.advance(); // @
         if !matches!(self.peek(), Some(c) if c.is_ascii_alphabetic() || c == '_') {
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 self.span_from(start),
                 "Expected identifier after '@'",
             ));
@@ -1036,8 +1031,7 @@ impl Lexer {
         self.advance(); // #
         if self.peek() != Some('[') {
             let span = self.span_from(start);
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 span,
                 "Expected '[' after '#'",
             ));
@@ -1058,8 +1052,7 @@ impl Lexer {
             self.skip_whitespace_and_comments();
             if self.peek() != Some('(') {
                 let span = self.span_from(start);
-                self.errors.push(NyraError::new(
-                    ErrorKind::Lexer,
+                self.errors.push(coded_lexer_error(
                     span,
                     "Expected '(' after derive",
                 ));
@@ -1140,8 +1133,7 @@ impl Lexer {
         }
         {
             let span = self.span_from(start);
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 span,
                 format!("Unknown attribute '#[{name}]' (supported: derive, no_escape, inline, hot, cold, comptime)"),
             ));
@@ -1239,8 +1231,7 @@ impl Lexer {
         loop {
             match self.peek() {
                 None => {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Lexer,
+                    self.errors.push(coded_lexer_error(
                         Span::new(self.file.clone(), start, self.current_position()),
                         "unclosed block comment",
                     ));

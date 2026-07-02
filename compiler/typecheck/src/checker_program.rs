@@ -3,11 +3,10 @@ use std::collections::HashMap;
 
 use ast::*;
 use ast::expr_span;
-use errors::{ErrorKind, NyraError};
 
 use super::{FunctionSignature, TypeChecker, TypeEnv, VarInfo};
 use super::diagnostics;
-use types::{self, EnumInfo, StructInfo, Type};
+use types::{self, EnumInfo, StructInfo, UnionInfo, Type};
 
 impl TypeChecker {
     pub fn check_program(&mut self, program: &Program) {
@@ -52,17 +51,43 @@ impl TypeChecker {
         self.register_trait_dispatch_sigs(program);
         for s in &program.structs {
             let mut fields = HashMap::new();
+            let mut field_anns = HashMap::new();
             let mut field_order = Vec::new();
             for f in &s.fields {
                 fields.insert(f.name.clone(), self.type_from_ann(&f.ty));
+                field_anns.insert(f.name.clone(), f.ty.clone());
                 field_order.push(f.name.clone());
             }
             self.structs.insert(
                 s.name.clone(),
                 StructInfo {
                     fields,
+                    field_anns,
                     field_order,
                     repr_c: s.attrs.repr_c,
+                    align: s.attrs.align,
+                    packed: s.attrs.packed,
+                },
+            );
+        }
+        for u in &program.unions {
+            let mut fields = HashMap::new();
+            let mut field_anns = HashMap::new();
+            let mut field_order = Vec::new();
+            for f in &u.fields {
+                fields.insert(f.name.clone(), self.type_from_ann(&f.ty));
+                field_anns.insert(f.name.clone(), f.ty.clone());
+                field_order.push(f.name.clone());
+            }
+            self.unions.insert(
+                u.name.clone(),
+                UnionInfo {
+                    fields,
+                    field_anns,
+                    field_order,
+                    repr_c: u.attrs.repr_c,
+                    align: u.attrs.align,
+                    packed: u.attrs.packed,
                 },
             );
         }
@@ -126,14 +151,13 @@ impl TypeChecker {
             let declared = c.ty.clone().map(Type::from);
             if let Some(ref d) = declared {
                 if value_ty != *d && value_ty != Type::Unknown && *d != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
+                    diagnostics::const_type_mismatch(
+                        self,
+                        &c.name,
+                        d,
+                        &value_ty,
                         expr_span(&c.value),
-                        format!(
-                            "Const '{}' type mismatch: expected {:?}, got {:?}",
-                            c.name, d, value_ty
-                        ),
-                    ));
+                    );
                 }
             }
             let var_ty = declared.unwrap_or(value_ty);
@@ -149,7 +173,10 @@ impl TypeChecker {
         self.program_for_inference = Some(program as *const Program);
         self.register_all_fn_sigs(program);
         for func in &program.functions {
-            if types::is_math_intrinsic_fn(&func.name) {
+            if types::is_math_intrinsic_fn(&func.name)
+                || types::is_simd_intrinsic_fn(&func.name)
+                || types::is_layout_intrinsic_fn(&func.name)
+            {
                 continue;
             }
             self.check_function(func);

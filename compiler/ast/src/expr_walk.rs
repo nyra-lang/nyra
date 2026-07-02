@@ -56,7 +56,8 @@ fn for_each_expr_in_stmt<'a>(stmt: &'a Statement, f: &mut impl FnMut(&'a Express
                 f(c);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => for_each_expr_in_block(&s.body, f),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             for_each_expr_in_block(b, f);
         }
         Statement::Asm { .. } | Statement::Import(_) | Statement::Break { .. } | Statement::Continue { .. } => {}
@@ -105,7 +106,8 @@ fn for_each_expr_in_stmt_mut(stmt: &mut Statement, f: &mut impl FnMut(&mut Expre
                 f(c);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => for_each_expr_in_block_mut(&mut s.body, f),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             for_each_expr_in_block_mut(b, f);
         }
         Statement::Asm { .. } | Statement::Import(_) | Statement::Break { .. } | Statement::Continue { .. } => {}

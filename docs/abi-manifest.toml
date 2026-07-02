@@ -499,14 +499,49 @@ since = "1.3.3"
 
 [[symbol]]
 name = "spawn_capture"
-c_sig = "int spawn_capture(void (*body)(void *), void *data, int64_t nbytes)"
+c_sig = "void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes)"
 module = "rt_spawn.c"
 tier = "stable"
 since = "0.2.0"
 
 [[symbol]]
+name = "spawn_join"
+c_sig = "int spawn_join(void *handle)"
+module = "rt_spawn.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_handle_drop"
+c_sig = "void spawn_handle_drop(void *handle)"
+module = "rt_spawn.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_task_capture"
+c_sig = "void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes)"
+module = "rt_task_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_task_join"
+c_sig = "int spawn_task_join(void *handle)"
+module = "rt_task_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_task_handle_drop"
+c_sig = "void spawn_task_handle_drop(void *handle)"
+module = "rt_task_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
 name = "parallel_for_range"
-c_sig = "void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent)"
+c_sig = "void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
 module = "rt_parallel.c"
 tier = "stable"
 since = "1.3.0"
@@ -1359,6 +1394,13 @@ tier = "stable"
 since = "1.16.0"
 
 [[symbol]]
+name = "rand_f64_range"
+c_sig = "double rand_f64_range(double min_val, double max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
 name = "sin_f64"
 c_sig = "double sin_f64(double x)"
 module = "rt_math.c"
@@ -2022,6 +2064,48 @@ c_sig = "int rand_range(int min_val, int max_val)"
 module = "rt_random.c"
 tier = "stable"
 since = "1.1.0"
+
+[[symbol]]
+name = "rand_i64"
+c_sig = "int64_t rand_i64(void)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_range_i64"
+c_sig = "int64_t rand_range_i64(int64_t min_val, int64_t max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_u32"
+c_sig = "uint32_t rand_u32(void)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_range_u32"
+c_sig = "uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_u64"
+c_sig = "uint64_t rand_u64(void)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_range_u64"
+c_sig = "uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
 
 [[symbol]]
 name = "random_hex"
@@ -2998,3 +3082,262 @@ c_sig = "int rt_tls_validate_pem_files(const char *cert_pem_path, const char *ke
 module = "rt_tls.c"
 tier = "stable"
 since = "1.20.0"
+
+[[symbol]]
+name = "arena_new"
+c_sig = "void *arena_new(long long capacity)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "arena_alloc"
+c_sig = "void *arena_alloc(void *arena, long long nbytes)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "arena_reset"
+c_sig = "void arena_reset(void *arena)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "arena_free"
+c_sig = "void arena_free(void *arena)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_unregister"
+c_sig = "int io_unregister(int fd)"
+module = "rt_async.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_available"
+c_sig = "int32_t io_uring_available(void)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_pending"
+c_sig = "int io_uring_pending(void)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_wait_once"
+c_sig = "int io_uring_wait_once(int timeout_ms)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_register_read"
+c_sig = "int32_t io_uring_register_read(int32_t fd, int32_t promise)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_unregister_read"
+c_sig = "int32_t io_uring_unregister_read(int32_t fd)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_create"
+c_sig = "int32_t io_pool_create(int32_t workers)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_shutdown"
+c_sig = "void io_pool_shutdown(int32_t pool)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_submit_wait_readable"
+c_sig = "int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_submit_read"
+c_sig = "int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_queue_depth"
+c_sig = "int32_t io_pool_queue_depth(int32_t pool)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "parallel_any_range"
+c_sig = "int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
+module = "rt_parallel.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "parallel_find_range"
+c_sig = "int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
+module = "rt_parallel.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "parallel_all_range"
+c_sig = "int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
+module = "rt_parallel.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_new"
+c_sig = "void *map_i32_i32_new(void)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_insert"
+c_sig = "void map_i32_i32_insert(void *handle, int key, int value)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_get"
+c_sig = "int map_i32_i32_get(void *handle, int key)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_contains"
+c_sig = "int map_i32_i32_contains(void *handle, int key)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_free"
+c_sig = "void map_i32_i32_free(void *handle)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_retain"
+c_sig = "void map_i32_i32_retain(void *handle)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_new"
+c_sig = "void *str_buf_new(void)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_append"
+c_sig = "void str_buf_append(void *handle, const char *piece)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_append_char"
+c_sig = "void str_buf_append_char(void *handle, int ch)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_build"
+c_sig = "char *str_buf_build(void *handle)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_drop"
+c_sig = "void str_buf_drop(void *handle)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_create"
+c_sig = "int32_t shm_create(const char *name, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_open_existing"
+c_sig = "int32_t shm_open_existing(const char *name, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_map"
+c_sig = "void *shm_map(int32_t fd, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_unmap"
+c_sig = "int32_t shm_unmap(void *addr, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_close_fd"
+c_sig = "int32_t shm_close_fd(int32_t fd)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_unlink_region"
+c_sig = "int32_t shm_unlink_region(const char *name)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "hw_mem_map_file"
+c_sig = "void *hw_mem_map_file(const char *path, int64_t nbytes, int32_t writable)"
+module = "rt_hw.c"
+tier = "experimental"
+since = "1.39.0"
+
+[[symbol]]
+name = "hw_mem_sync"
+c_sig = "int32_t hw_mem_sync(void *addr, int64_t nbytes)"
+module = "rt_hw.c"
+tier = "experimental"
+since = "1.39.0"

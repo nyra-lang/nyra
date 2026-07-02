@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::ControlFlow;
 
 use ast::{for_each_expr_in_block, for_each_expr_in_block_mut, Block, Expression, ForKind, Function, MatchPayloadPattern, MatchPattern, Program, Statement, UnaryOp};
-use errors::{ErrorKind, NyraError, Span};
+use errors::{coded_comptime_error, NyraError, Span};
 
 use crate::{const_value_to_expr, const_value_to_expr_typed, eval_const_expr, ConstValue};
 
@@ -382,7 +382,7 @@ fn validate_comptime_function(f: &Function) -> Vec<NyraError> {
 }
 
 fn comptime_error(span: Span, message: impl Into<String>) -> NyraError {
-    NyraError::new(ErrorKind::ConstEval, span, message)
+    coded_comptime_error(span, message)
 }
 
 fn walk_block_forbidden(block: &Block, fn_name: &str, errors: &mut Vec<NyraError>) {
@@ -399,9 +399,10 @@ fn walk_stmt_forbidden(stmt: &Statement, fn_name: &str, errors: &mut Vec<NyraErr
                 format!("comptime function `{fn_name}` cannot use `print`"),
             ));
         }
-        Statement::Spawn(b) => {
+        Statement::Spawn(s) => {
             errors.push(comptime_error(
-                b.statements
+                s.body
+                    .statements
                     .first()
                     .map(stmt_span)
                     .unwrap_or_default(),
@@ -455,6 +456,16 @@ fn walk_stmt_forbidden(stmt: &Statement, fn_name: &str, errors: &mut Vec<NyraErr
 fn walk_expr_forbidden(expr: &Expression, fn_name: &str, errors: &mut Vec<NyraError>) {
     match expr {
         Expression::ComptimeBlock { body, .. } => walk_block_forbidden(body, fn_name, errors),
+        Expression::Spawn { body, .. } => walk_block_forbidden(body, fn_name, errors),
+        Expression::ParallelSearch(ps) => {
+            walk_block_forbidden(&ps.body, fn_name, errors);
+            errors.push(NyraError::coded(
+                errors::E037_PARALLEL,
+                errors::ErrorKind::Type,
+                ps.span.clone(),
+                format!("comptime function `{fn_name}` cannot use parallel search"),
+            ));
+        }
         Expression::Binary(b) => {
             walk_expr_forbidden(&b.left, fn_name, errors);
             walk_expr_forbidden(&b.right, fn_name, errors);
@@ -1454,7 +1465,8 @@ fn fold_comptime_in_stmt(
                 fold_comptime_in_expr(c, functions, env);
             }
         }
-        Statement::Spawn(b) | Statement::Benchmark(b) | Statement::Unsafe(b) => {
+        Statement::Spawn(s) => fold_comptime_in_block(&mut s.body, functions, env),
+        Statement::Benchmark(b) | Statement::Unsafe(b) => {
             fold_comptime_in_block(b, functions, env);
         }
         _ => {}
@@ -1615,6 +1627,13 @@ fn fold_comptime_in_expr(
         Expression::ComptimeBlock { body, .. } => {
             fold_comptime_in_block(body, functions, &mut env.clone());
         }
+        Expression::Spawn { body, .. } => {
+            fold_comptime_in_block(body, functions, &mut env.clone());
+        }
+        Expression::ParallelSearch(ps) => {
+            let mut body = ps.body.clone();
+            fold_comptime_in_block(&mut body, functions, &mut env.clone());
+        }
         Expression::StructLiteral(s) => {
             for (_, e) in &mut s.fields {
                 fold_comptime_in_expr(e, functions, env);
@@ -1695,7 +1714,8 @@ fn check_runtime_comptime_calls_in_stmt(
                 check_runtime_comptime_calls_in_expr(c, comptime_names, errors);
             }
         }
-        Statement::Spawn(b) | Statement::Benchmark(b) | Statement::Unsafe(b) => {
+        Statement::Spawn(s) => check_runtime_comptime_calls_in_block(&s.body, comptime_names, errors),
+        Statement::Benchmark(b) | Statement::Unsafe(b) => {
             check_runtime_comptime_calls_in_block(b, comptime_names, errors);
         }
         _ => {}

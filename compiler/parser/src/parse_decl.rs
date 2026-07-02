@@ -51,47 +51,7 @@ impl Parser {
         let (_, type_params, _) = self.parse_type_params();
         let mut attrs = StructAttrs::default();
         skip_newlines(&self.tokens, &mut self.position);
-        while let TokenKind::Identifier(n) = self.current_kind().clone() {
-            match n.as_str() {
-                "Send" => {
-                    attrs.send = true;
-                    self.advance();
-                }
-                "Sync" => {
-                    attrs.sync = true;
-                    self.advance();
-                }
-                "Copy" => {
-                    attrs.copy = true;
-                    self.advance();
-                }
-                "repr" => {
-                    self.advance();
-                    consume(
-                        &self.tokens,
-                        &mut self.position,
-                        TokenKind::LParen,
-                        "Expected '(' after repr",
-                        &mut self.errors,
-                    );
-                    if let TokenKind::Identifier(n) = self.current_kind().clone() {
-                        if n == "C" {
-                            attrs.repr_c = true;
-                        }
-                        self.advance();
-                    }
-                    consume(
-                        &self.tokens,
-                        &mut self.position,
-                        TokenKind::RParen,
-                        "Expected ')' after repr(C)",
-                        &mut self.errors,
-                    );
-                }
-                _ => break,
-            }
-            skip_newlines(&self.tokens, &mut self.position);
-        }
+        self.parse_layout_attrs(&mut attrs);
         let mut fields = Vec::new();
         consume(
             &self.tokens,
@@ -136,6 +96,169 @@ impl Parser {
             doc,
             public,
         })
+    }
+
+    pub(super) fn parse_union(&mut self) -> Option<UnionDef> {
+        let saved = self.position;
+        let doc = self.parse_leading_doc_comments();
+        let public = self.parse_item_visibility();
+        if !check(&self.tokens, self.position, &TokenKind::Union) {
+            self.position = saved;
+            return None;
+        }
+        self.advance();
+        let name = match self.current_kind() {
+            TokenKind::Identifier(n) => {
+                let n = n.clone();
+                self.advance();
+                n
+            }
+            _ => {
+                self.parse_error_here("Expected union name");
+                return None;
+            }
+        };
+        skip_newlines(&self.tokens, &mut self.position);
+        let (_, type_params, _) = self.parse_type_params();
+        let mut attrs = StructAttrs::default();
+        skip_newlines(&self.tokens, &mut self.position);
+        self.parse_layout_attrs(&mut attrs);
+        let mut fields = Vec::new();
+        consume(
+            &self.tokens,
+            &mut self.position,
+            TokenKind::LBrace,
+            "Expected '{' after union name",
+            &mut self.errors,
+        );
+        skip_newlines(&self.tokens, &mut self.position);
+        while !check(&self.tokens, self.position, &TokenKind::RBrace)
+            && !is_at_end(&self.tokens, self.position)
+        {
+            let fname = self.parse_binding_name("Expected field name");
+            if fname == "_invalid" {
+                break;
+            }
+            consume(
+                &self.tokens,
+                &mut self.position,
+                TokenKind::Colon,
+                "Expected ':' after field name",
+                &mut self.errors,
+            );
+            let ty = self.parse_type_annotation();
+            fields.push(StructField { name: fname, ty });
+            skip_newlines(&self.tokens, &mut self.position);
+        }
+        consume(
+            &self.tokens,
+            &mut self.position,
+            TokenKind::RBrace,
+            "Expected '}' after union fields",
+            &mut self.errors,
+        );
+        Some(UnionDef {
+            name,
+            type_params,
+            attrs,
+            fields,
+            doc,
+            public,
+        })
+    }
+
+    fn parse_layout_attrs(&mut self, attrs: &mut StructAttrs) {
+        while let TokenKind::Identifier(n) = self.current_kind().clone() {
+            match n.as_str() {
+                "Send" => {
+                    attrs.send = true;
+                    self.advance();
+                }
+                "Sync" => {
+                    attrs.sync = true;
+                    self.advance();
+                }
+                "Copy" => {
+                    attrs.copy = true;
+                    self.advance();
+                }
+                "packed" => {
+                    attrs.packed = true;
+                    self.advance();
+                }
+                "align" => {
+                    self.advance();
+                    consume(
+                        &self.tokens,
+                        &mut self.position,
+                        TokenKind::LParen,
+                        "Expected '(' after align",
+                        &mut self.errors,
+                    );
+                    if let TokenKind::Number(n) = self.current_kind().clone() {
+                        attrs.align = Some(n as u32);
+                        self.advance();
+                    }
+                    consume(
+                        &self.tokens,
+                        &mut self.position,
+                        TokenKind::RParen,
+                        "Expected ')' after align(N)",
+                        &mut self.errors,
+                    );
+                }
+                "repr" => {
+                    self.advance();
+                    consume(
+                        &self.tokens,
+                        &mut self.position,
+                        TokenKind::LParen,
+                        "Expected '(' after repr",
+                        &mut self.errors,
+                    );
+                    if let TokenKind::Identifier(n) = self.current_kind().clone() {
+                        if n == "C" {
+                            attrs.repr_c = true;
+                            self.advance();
+                        } else if n == "align" {
+                            self.advance();
+                            consume(
+                                &self.tokens,
+                                &mut self.position,
+                                TokenKind::LParen,
+                                "Expected '(' after repr(align",
+                                &mut self.errors,
+                            );
+                            if let TokenKind::Number(n) = self.current_kind().clone() {
+                                attrs.align = Some(n as u32);
+                                self.advance();
+                            }
+                            consume(
+                                &self.tokens,
+                                &mut self.position,
+                                TokenKind::RParen,
+                                "Expected ')' after repr(align(N))",
+                                &mut self.errors,
+                            );
+                        } else {
+                            self.advance();
+                        }
+                    } else if let TokenKind::Number(n) = self.current_kind().clone() {
+                        attrs.align = Some(n as u32);
+                        self.advance();
+                    }
+                    consume(
+                        &self.tokens,
+                        &mut self.position,
+                        TokenKind::RParen,
+                        "Expected ')' after repr(...)",
+                        &mut self.errors,
+                    );
+                }
+                _ => break,
+            }
+            skip_newlines(&self.tokens, &mut self.position);
+        }
     }
 
     pub(super) fn looks_like_arrow_fn(&self) -> bool {

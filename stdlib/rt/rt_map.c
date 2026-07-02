@@ -174,3 +174,130 @@ int map_str_i32_remove(void *handle, const char *key) {
     }
     return 0;
 }
+
+/* ── map[int]int (i32 keys — fair comparison with Go map[int]int) ─────────── */
+
+typedef struct {
+    int key;
+    int value;
+    int used;
+} MapEntryI32;
+
+typedef struct {
+    MapEntryI32 *entries;
+    int len;
+    int cap;
+} NyraMapI32I32;
+
+static unsigned hash_i32(int k) {
+    return (unsigned)k * 2654435761u;
+}
+
+static void map_i32_grow(NyraMapI32I32 *m) {
+    int nc = m->cap * 2;
+    MapEntryI32 *ne = (MapEntryI32 *)calloc((size_t)nc, sizeof(MapEntryI32));
+    if (!ne) {
+        return;
+    }
+    for (int i = 0; i < m->cap; i++) {
+        if (m->entries[i].used) {
+            unsigned h = hash_i32(m->entries[i].key) % (unsigned)nc;
+            while (ne[h].used) {
+                h = (h + 1) % (unsigned)nc;
+            }
+            ne[h] = m->entries[i];
+        }
+    }
+    free(m->entries);
+    m->entries = ne;
+    m->cap = nc;
+}
+
+static void map_i32_i32_free_inner(void *inner) {
+    NyraMapI32I32 *m = (NyraMapI32I32 *)inner;
+    if (!m) {
+        return;
+    }
+    free(m->entries);
+    free(m);
+}
+
+void *map_i32_i32_new(void) {
+    NyraMapI32I32 *m = (NyraMapI32I32 *)calloc(1, sizeof(NyraMapI32I32));
+    if (!m) {
+        return NULL;
+    }
+    m->cap = 16;
+    m->entries = (MapEntryI32 *)calloc((size_t)m->cap, sizeof(MapEntryI32));
+    if (!m->entries) {
+        free(m);
+        return NULL;
+    }
+    return map_handle_wrap(m);
+}
+
+void map_i32_i32_insert(void *handle, int key, int value) {
+    NyraMapI32I32 *m = (NyraMapI32I32 *)map_handle_inner(handle);
+    if (!m) {
+        return;
+    }
+    if (m->len >= m->cap / 2) {
+        map_i32_grow(m);
+    }
+    unsigned h = hash_i32(key) % (unsigned)m->cap;
+    while (m->entries[h].used) {
+        if (m->entries[h].key == key) {
+            m->entries[h].value = value;
+            return;
+        }
+        h = (h + 1) % (unsigned)m->cap;
+    }
+    m->entries[h].key = key;
+    m->entries[h].value = value;
+    m->entries[h].used = 1;
+    m->len = m->len + 1;
+}
+
+int map_i32_i32_get(void *handle, int key) {
+    NyraMapI32I32 *m = (NyraMapI32I32 *)map_handle_inner(handle);
+    if (!m) {
+        return 0;
+    }
+    unsigned h = hash_i32(key) % (unsigned)m->cap;
+    for (int i = 0; i < m->cap; i++) {
+        unsigned idx = (h + (unsigned)i) % (unsigned)m->cap;
+        if (!m->entries[idx].used) {
+            return 0;
+        }
+        if (m->entries[idx].key == key) {
+            return m->entries[idx].value;
+        }
+    }
+    return 0;
+}
+
+int map_i32_i32_contains(void *handle, int key) {
+    NyraMapI32I32 *m = (NyraMapI32I32 *)map_handle_inner(handle);
+    if (!m) {
+        return 0;
+    }
+    unsigned h = hash_i32(key) % (unsigned)m->cap;
+    for (int i = 0; i < m->cap; i++) {
+        unsigned idx = (h + (unsigned)i) % (unsigned)m->cap;
+        if (!m->entries[idx].used) {
+            return 0;
+        }
+        if (m->entries[idx].key == key) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void map_i32_i32_free(void *handle) {
+    map_handle_release(handle, map_i32_i32_free_inner);
+}
+
+void map_i32_i32_retain(void *handle) {
+    map_handle_retain(handle);
+}

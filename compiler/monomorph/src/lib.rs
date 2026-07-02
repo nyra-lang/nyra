@@ -102,6 +102,7 @@ fn mangle_type(t: &TypeAnnotation) -> String {
         TypeAnnotation::Char => "char".into(),
         TypeAnnotation::Bool => "bool".into(),
         TypeAnnotation::String => "string".into(),
+        TypeAnnotation::Bytes => "bytes".into(),
         TypeAnnotation::VecStr => "vec_str".into(),
         TypeAnnotation::Ptr => "ptr".into(),
         TypeAnnotation::RawPtr { inner } => format!("raw_{}", mangle_type(inner)),
@@ -136,6 +137,9 @@ fn mangle_type(t: &TypeAnnotation) -> String {
         TypeAnnotation::ForAll { inner, .. } => mangle_type(inner),
         TypeAnnotation::FnPtr { .. } => "fnptr".into(),
         TypeAnnotation::DynTrait { trait_name, .. } => format!("dyn_{trait_name}"),
+        TypeAnnotation::Simd { elem, lanes } => {
+            format!("simd_{}_{}", mangle_type(elem), lanes)
+        }
     }
 }
 
@@ -381,9 +385,9 @@ fn collect_applied_from_stmt(stmt: &Statement, out: &mut Vec<(String, Vec<TypeAn
                 collect_applied_from_expr(color, out);
             }
         }
-        Statement::Spawn(b) => {
-            for s in &b.statements {
-                collect_applied_from_stmt(s, out);
+        Statement::Spawn(s) => {
+            for stmt in &s.body.statements {
+                collect_applied_from_stmt(stmt, out);
             }
         }
         Statement::Benchmark(b) => {
@@ -722,7 +726,12 @@ fn collect_enum_instantiations_from_stmt(
                 collect_enum_instantiations_from_expr(c, generic, out);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => {
+            for stmt in &s.body.statements {
+                collect_enum_instantiations_from_stmt(stmt, generic, out);
+            }
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             for s in &b.statements {
                 collect_enum_instantiations_from_stmt(s, generic, out);
             }
@@ -968,7 +977,17 @@ fn rewrite_generic_enum_variants_stmt(
                 rewrite_generic_enum_variants_expr(c, generic_bases, var_types, func_params);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => {
+            let mut spawn_vars = var_types.clone();
+            rewrite_generic_enum_variants_block(
+                &mut s.body.statements,
+                generic_bases,
+                None,
+                func_params,
+                &mut spawn_vars,
+            );
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             let mut spawn_vars = var_types.clone();
             rewrite_generic_enum_variants_block(
                 &mut b.statements,
@@ -1465,7 +1484,10 @@ fn substitute_stmt(stmt: &Statement, map: &HashMap<String, TypeAnnotation>) -> S
         Statement::Expression(e) => Statement::Expression(substitute_expr(e, map)),
         Statement::Print(p) => Statement::Print(p.clone().map_expressions(|a| substitute_expr(&a, map))),
         Statement::Defer(e) => Statement::Defer(substitute_expr(e, map)),
-        Statement::Spawn(b) => Statement::Spawn(substitute_block(b, map)),
+        Statement::Spawn(s) => Statement::Spawn(SpawnStmt {
+            kind: s.kind,
+            body: substitute_block(&s.body, map),
+        }),
         Statement::Benchmark(b) => Statement::Benchmark(substitute_block(b, map)),
         Statement::Unsafe(b) => Statement::Unsafe(substitute_block(b, map)),
         Statement::Asm { template, span } => Statement::Asm {
@@ -1649,9 +1671,9 @@ fn collect_from_stmt(stmt: &Statement, out: &mut Vec<(String, Vec<TypeAnnotation
                 collect_calls(c, out);
             }
         }
-        Statement::Spawn(b) => {
-            for s in &b.statements {
-                collect_from_stmt(s, out);
+        Statement::Spawn(s) => {
+            for stmt in &s.body.statements {
+                collect_from_stmt(stmt, out);
             }
         }
         Statement::Benchmark(b) => {
@@ -1741,7 +1763,9 @@ pub fn monomorphize_program(program: &mut Program) -> Vec<errors::NyraError> {
 fn rewrite_expr(expr: &mut Expression) {
     match expr {
         Expression::Call(c) => {
-            if !c.type_args.is_empty() {
+            if !c.type_args.is_empty()
+                && !matches!(c.callee.as_str(), "size_of" | "align_of")
+            {
                 c.callee = mangle_inst(&c.callee, &c.type_args);
                 c.type_args.clear();
             }

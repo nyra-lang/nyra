@@ -135,9 +135,14 @@ fn desugar_stmt(stmt: &mut Statement) {
                 desugar_expr(c);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
-            for s in &mut b.statements {
-                desugar_stmt(s);
+        Statement::Spawn(s) => {
+            for stmt in &mut s.body.statements {
+                desugar_stmt(stmt);
+            }
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
+            for stmt in &mut b.statements {
+                desugar_stmt(stmt);
             }
         }
         _ => {}

@@ -154,7 +154,8 @@ fn check_stmt(stmt: &Statement, scopes: &mut Vec<HashMap<String, Binding>>, out:
             }
         }
         Statement::Defer(e) => mark_expr_uses(e, scopes),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => check_block(b, scopes, out),
+        Statement::Spawn(s) => check_block(&s.body, scopes, out),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => check_block(b, scopes, out),
         Statement::Asm { .. } | Statement::Import(_) | Statement::Break { .. } | Statement::Continue { .. } => {}
     }
 }
@@ -236,6 +237,11 @@ fn mark_expr_uses(expr: &Expression, scopes: &mut Vec<HashMap<String, Binding>>)
             ast::ArrowBody::Block(b) => check_block(b, scopes, &mut vec![]),
         },
         Expression::ComptimeBlock { body, .. } => check_block(body, scopes, &mut vec![]),
+        Expression::Spawn { body, .. } => check_block(body, scopes, &mut vec![]),
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| mark_expr_uses(e, scopes));
+            check_block(&ps.body, scopes, &mut vec![]);
+        }
         Expression::Literal(_) | Expression::Invalid => {}
     }
 }

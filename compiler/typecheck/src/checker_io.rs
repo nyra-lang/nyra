@@ -1,7 +1,7 @@
 //! Built-in I/O (`print`, buffered writes) argument checking.
 
 use ast::*;
-use errors::{ErrorKind, NyraError, Span};
+use errors::Span;
 
 use super::{TypeChecker, TypeEnv};
 use super::diagnostics;
@@ -21,13 +21,7 @@ impl TypeChecker {
                     if let TemplatePart::Interpolation(expr) = part {
                         let ty = self.check_expr(expr, env);
                         if !types::is_print_arg(&ty) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                t.span.clone(),
-                                format!(
-                                    "Template interpolation must be a printable scalar or fixed array, got {ty:?}"
-                                ),
-                            ));
+                            diagnostics::print_template_interpolation_invalid(self, &ty, t.span.clone());
                         }
                     }
                 }
@@ -38,13 +32,7 @@ impl TypeChecker {
                     if callee == "print" {
                         diagnostics::invalid_print_arg(self, &ty, sp);
                     } else {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp,
-                            format!(
-                                "'{callee}' argument must be a printable scalar or fixed array, got {ty:?}"
-                            ),
-                        ));
+                        diagnostics::io_arg_not_printable(self, callee, &ty, sp);
                     }
                 }
             }
@@ -58,11 +46,7 @@ impl TypeChecker {
             other => {
                 let ty = self.check_expr(other, env);
                 if ty != Type::String && ty != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp,
-                        format!("print color must be a string or color name, got {ty:?}"),
-                    ));
+                    diagnostics::print_color_must_be_string(self, &ty, sp);
                 }
             }
         }

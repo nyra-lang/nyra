@@ -21,6 +21,18 @@ fn mem_unmap(addr: ptr, nbytes: i64) -> i32 {
     return hw_mem_unmap(addr, nbytes)
 }
 
+extern fn hw_mem_map_file(path: string, nbytes: i64, writable: i32) -> ptr
+extern fn hw_mem_sync(addr: ptr, nbytes: i64) -> i32
+
+// File-backed mmap (MAP_SHARED). `writable=1` for read-write, `0` for read-only.
+fn mem_map_file(path: string, nbytes: i64, writable: i32) -> ptr {
+    return hw_mem_map_file(path, nbytes, writable)
+}
+
+fn mem_sync(addr: ptr, nbytes: i64) -> i32 {
+    return hw_mem_sync(addr, nbytes)
+}
+
 // True DMA needs kernel drivers; returns false in normal userspace.
 fn dma_available() -> bool {
     return hw_dma_available() == 1

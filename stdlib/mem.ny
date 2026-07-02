@@ -12,5 +12,5 @@
 extern fn mem_start(label: string) -> void
 extern fn mem_end(label: string) -> void
 extern fn alloc_track_start(label: string) -> void
-extern fn alloc_track_note(bytes: i32) -> void
+extern fn alloc_track_note(nbytes: i32) -> void
 extern fn alloc_track_end(label: string) -> void

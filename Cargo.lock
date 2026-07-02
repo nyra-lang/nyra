@@ -280,6 +280,7 @@ dependencies = [
  "assert_cmd",
  "ast",
  "borrowck",
+ "cli",
  "codegen",
  "compiletest",
  "const_eval",
@@ -1158,6 +1159,7 @@ dependencies = [
  "ast",
  "errors",
  "lexer",
+ "types",
 ]
 
 [[package]]

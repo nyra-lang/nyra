@@ -1,6 +1,6 @@
 //! Ownership-aware Rust type → C ABI / Nyra type mapping.
 
-use syn::{PathArguments, Type, TypePath, TypeReference};
+use syn::{PathArguments, Type, TypePath, TypeReference, TypeSlice};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NyraType {
     Void,
@@ -252,6 +252,14 @@ impl TypeMapper {
                 rust_use: "unsafe { std::ffi::CStr::from_ptr(ARG) }.to_str().unwrap_or(\"\")".into(),
             });
         }
+        if self.is_byte_slice(ty) {
+            return Ok(MappedInput {
+                rust_type: "&[u8]".into(),
+                c_type: "*const std::ffi::c_char".into(),
+                nyra_type: NyraType::String,
+                rust_use: "unsafe { std::ffi::CStr::from_ptr(ARG) }.to_bytes()".into(),
+            });
+        }
         if self.is_bool(ty) {
             return Ok(MappedInput {
                 rust_type: "bool".into(),
@@ -321,6 +329,15 @@ impl TypeMapper {
             return type_last_ident(&r.elem).is_some_and(|i| i == "str");
         }
         type_last_ident(ty).is_some_and(|i| i == "String")
+    }
+
+    fn is_byte_slice(&self, ty: &Type) -> bool {
+        if let Type::Reference(r) = ty {
+            if let Type::Slice(TypeSlice { elem, .. }) = &*r.elem {
+                return type_last_ident(elem).is_some_and(|i| i == "u8");
+            }
+        }
+        false
     }
 
     fn is_owned_type(&self, ty: &Type) -> bool {

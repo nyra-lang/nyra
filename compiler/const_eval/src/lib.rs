@@ -284,7 +284,7 @@ fn resolve_array_repeat_counts_stmt(stmt: &mut ast::Statement, consts: &HashMap<
             }
         }
         ast::Statement::Benchmark(b) => resolve_array_repeat_counts_block(b, consts),
-        ast::Statement::Spawn(b) => resolve_array_repeat_counts_block(b, consts),
+        ast::Statement::Spawn(s) => resolve_array_repeat_counts_block(&mut s.body, consts),
         ast::Statement::Unsafe(b) => resolve_array_repeat_counts_block(b, consts),
         _ => {}
     }

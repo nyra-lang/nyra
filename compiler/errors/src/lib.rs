@@ -1,11 +1,14 @@
 mod color;
 mod codes;
+mod const_eval_diag;
 mod display;
 mod explain;
 mod json;
+mod lexer_diag;
 mod paths;
 mod parser_diag;
 mod render;
+mod sources;
 mod suggest;
 
 use std::fmt;
@@ -15,11 +18,14 @@ pub use color::{set_color_choice, ColorChoice};
 pub use display::print_diagnostics;
 pub use explain::{explain, format_explain, list_codes, ExplainEntry};
 pub use json::{diagnostics_to_json, DiagnosticJson};
+pub use const_eval_diag::coded_comptime_error;
+pub use lexer_diag::coded_lexer_error;
 pub use parser_diag::{
     coded_parser_error, finalize_lexer_diagnostics, finalize_parser_diagnostics,
-    is_parser_cascade,
+    is_parser_cascade, parallel_prefer_max, parallel_prefer_max_threads,
 };
 pub use paths::{clear_diagnostic_root, display_path, set_diagnostic_root};
+pub use sources::{clear_sources, read_source, register_source};
 pub use suggest::did_you_mean;
 
 /// Returned when diagnostics were already printed to stderr.
@@ -59,6 +65,13 @@ pub enum Severity {
     Warning,
 }
 
+/// A labeled source range attached to a diagnostic (secondary location).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiagnosticLabel {
+    pub span: Span,
+    pub label: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ErrorKind {
     Lexer,
@@ -85,6 +98,8 @@ pub struct NyraError {
     pub notes: Vec<String>,
     /// Actionable fix suggestions (`help:` lines).
     pub helps: Vec<String>,
+    /// Additional labeled spans (e.g. move origin, borrow site).
+    pub labels: Vec<DiagnosticLabel>,
 }
 
 impl NyraError {
@@ -98,6 +113,7 @@ impl NyraError {
             label: None,
             notes: vec![],
             helps: vec![],
+            labels: vec![],
         }
     }
 
@@ -111,6 +127,7 @@ impl NyraError {
             label: None,
             notes: vec![],
             helps: vec![],
+            labels: vec![],
         }
     }
 
@@ -124,6 +141,7 @@ impl NyraError {
             label: None,
             notes: vec![],
             helps: vec![],
+            labels: vec![],
         }
     }
 
@@ -142,6 +160,7 @@ impl NyraError {
             label: None,
             notes: vec![],
             helps: vec![],
+            labels: vec![],
         }
     }
 
@@ -164,10 +183,20 @@ impl NyraError {
         self
     }
 
+    /// Attach a secondary labeled span (e.g. where a value was moved).
+    pub fn label_span(mut self, span: Span, label: impl Into<String>) -> Self {
+        self.labels.push(DiagnosticLabel {
+            span,
+            label: label.into(),
+        });
+        self
+    }
+
     pub fn format_colored(&self) -> String {
         let mut out = String::new();
         render::append_header(&mut out, self, true);
         render::append_source_context(&mut out, self, true);
+        render::append_secondary_labels(&mut out, self, true);
         render::append_notes_and_helps(&mut out, self, true);
         if out.ends_with('\n') {
             out.pop();
@@ -191,6 +220,7 @@ impl NyraError {
         let mut out = String::new();
         render::append_header(&mut out, self, false);
         render::append_source_context(&mut out, self, false);
+        render::append_secondary_labels(&mut out, self, false);
         render::append_notes_and_helps(&mut out, self, false);
         if out.ends_with('\n') {
             out.pop();

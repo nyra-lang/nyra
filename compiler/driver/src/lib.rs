@@ -128,6 +128,7 @@ impl Compiler {
         file: &str,
         options: &CompileOptions,
     ) -> Result<CompileOutput, String> {
+        errors::register_source(file, source);
         let (tokens, lexer_errors) = Lexer::new(source, file).tokenize();
         if options.stop_after == Some(CompileStage::Lex) {
             return Ok(CompileOutput {

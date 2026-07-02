@@ -70,8 +70,8 @@ fn record_stmt_uses(stmt: &Statement, idx: usize, last: &mut HashMap<String, usi
                 record_stmt_uses(s, idx + i, last);
             }
         }
-        Statement::Spawn(body) => {
-            for inner in &body.statements {
+        Statement::Spawn(sp) => {
+            for inner in &sp.body.statements {
                 record_stmt_uses(inner, idx, last);
             }
         }
@@ -157,7 +157,16 @@ fn record_expr_uses(expr: &Expression, idx: usize, last: &mut HashMap<String, us
         }
         Expression::Cast(c) => record_expr_uses(&c.expr, idx, last),
         Expression::ArrowFn(_) => {}
-        Expression::ComptimeBlock { .. } => {}
+        Expression::ComptimeBlock { body, .. } => {
+            for_each_expr_in_block(body, &mut |e| record_expr_uses(e, idx, last));
+        }
+        Expression::Spawn { body, .. } => {
+            for_each_expr_in_block(body, &mut |e| record_expr_uses(e, idx, last));
+        }
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| record_expr_uses(e, idx, last));
+            for_each_expr_in_block(&ps.body, &mut |e| record_expr_uses(e, idx, last));
+        }
         Expression::Literal(_) | Expression::EnumVariant(_) | Expression::Invalid => {}
     }
 }
@@ -245,8 +254,8 @@ fn collect_stmt_captures(
                 collect_stmt_captures(s, declared, seen, out);
             }
         }
-        Statement::Spawn(body) => {
-            for s in &body.statements {
+        Statement::Spawn(sp) => {
+            for s in &sp.body.statements {
                 collect_stmt_captures(s, declared, seen, out);
             }
         }
@@ -349,6 +358,17 @@ fn collect_expr_captures(
         }
         Expression::ComptimeBlock { body, .. } => {
             for stmt in &body.statements {
+                collect_stmt_captures(stmt, declared, seen, out);
+            }
+        }
+        Expression::Spawn { body, .. } => {
+            for stmt in &body.statements {
+                collect_stmt_captures(stmt, declared, seen, out);
+            }
+        }
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_expr_captures(e, declared, seen, out));
+            for stmt in &ps.body.statements {
                 collect_stmt_captures(stmt, declared, seen, out);
             }
         }
@@ -469,8 +489,8 @@ fn collect_free_vars_stmt(
                 collect_free_vars_stmt(s, bound, seen, out);
             }
         }
-        Statement::Spawn(body) => {
-            for s in &body.statements {
+        Statement::Spawn(sp) => {
+            for s in &sp.body.statements {
                 collect_free_vars_stmt(s, bound, seen, out);
             }
         }
@@ -575,6 +595,21 @@ fn collect_free_vars_expr(
         }
         Expression::ComptimeBlock { body, .. } => {
             for free in collect_free_vars_block(body, &mut bound.clone()) {
+                if seen.insert(free.clone()) {
+                    out.push(free);
+                }
+            }
+        }
+        Expression::Spawn { body, .. } => {
+            for free in collect_free_vars_block(body, &mut bound.clone()) {
+                if seen.insert(free.clone()) {
+                    out.push(free);
+                }
+            }
+        }
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_free_vars_expr(e, bound, seen, out));
+            for free in collect_free_vars_block(&ps.body, &mut bound.clone()) {
                 if seen.insert(free.clone()) {
                     out.push(free);
                 }

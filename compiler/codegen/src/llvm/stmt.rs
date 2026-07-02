@@ -104,6 +104,7 @@ impl Codegen {
                         self.enum_locals.insert(l.name.clone(), en.clone());
                     }
                 }
+                self.register_call_moves(&l.value, env, drop_state);
                 let mut val = if let Expression::StructLiteral(sl) = &l.value {
                     self.compile_struct_literal(sl, env, self.binding_no_escape(&l.name))
                 } else {
@@ -135,7 +136,8 @@ impl Codegen {
                 }
                 let needs_drop_stack = self.drop_plan.is_owned_in(&drop_state.func, &l.name)
                     || self.drop_plan.needs_struct_drop_in(&drop_state.func, &l.name)
-                    || self.drop_plan.is_enum_payload_in(&drop_state.func, &l.name);
+                    || self.drop_plan.is_enum_payload_in(&drop_state.func, &l.name)
+                    || self.drop_plan.is_join_handle_in(&drop_state.func, &l.name);
                 let storage_ty = if val.ty.starts_with('%') {
                     val.ty.clone()
                 } else {
@@ -257,6 +259,14 @@ impl Codegen {
                             },
                         );
                     } else {
+                        let mut val = val;
+                        if l.mutable
+                            && val.ty == "ptr"
+                            && matches!(&l.value, Expression::Literal(Literal::String(_)))
+                        {
+                            val = self.heap_clone_string(val);
+                            self.heap_string_bindings.insert(l.name.clone());
+                        }
                         let storage_ty = llvm_storage_ty(&val.ty).to_string();
                         let alloca = self.fresh("alloca");
                         self.emit(&format!("  %{alloca} = alloca {storage_ty}"));
@@ -319,11 +329,26 @@ impl Codegen {
                     self.mark_non_negative_i32(&l.name);
                 }
                 if let Some(ty_ann) = &l.ty {
+                    self.track_local_int_kind_ann(&l.name, ty_ann);
                     if let Some(en) = self.resolved_enum_name(ty_ann) {
                         self.enum_locals.insert(l.name.clone(), en);
                     }
                     if matches!(ty_ann, TypeAnnotation::FnPtr { .. }) {
                         self.register_fn_ptr_local(&l.name, ty_ann, env);
+                    }
+                } else if let Expression::Literal(Literal::IntKind(_, k)) = &l.value {
+                    self.track_local_int_kind(&l.name, *k);
+                } else if let Expression::Call(c) = &l.value {
+                    if c.callee == "random" {
+                        if let Some(TypeAnnotation::Integer(k)) = c.type_args.first() {
+                            self.track_local_int_kind(&l.name, *k);
+                        } else if c.args.len() == 2 {
+                            let k0 = self.infer_random_int_kind(&c.args[0], env);
+                            let k1 = self.infer_random_int_kind(&c.args[1], env);
+                            self.track_local_int_kind(&l.name, IntKind::unify(k0, k1));
+                        } else {
+                            self.track_local_int_kind(&l.name, IntKind::I32);
+                        }
                     }
                 } else if let Expression::ArrowFn(arrow) = &l.value {
                     if !arrow_has_captures(arrow) {
@@ -948,8 +973,9 @@ impl Codegen {
                 );
                 false
             }
-            Statement::Spawn(body) => {
-                self.compile_spawn(body, env, drop_state);
+            Statement::Spawn(sp) => {
+                let handle = self.compile_spawn(sp.kind, &sp.body, env, drop_state);
+                self.emit_spawn_handle_drop(&handle.reg, sp.kind);
                 false
             }
             Statement::Unsafe(body) => {

@@ -118,6 +118,7 @@ pub(crate) fn load_file_recursive(
             imports: vec![],
             consts: vec![],
             structs: vec![],
+            unions: vec![],
             enums: vec![],
             traits: vec![],
             trait_impls: vec![],

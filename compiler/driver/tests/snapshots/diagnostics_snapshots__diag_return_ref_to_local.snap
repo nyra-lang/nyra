@@ -2,5 +2,14 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: cannot return reference to local variable; value does not live long enough
-  --> test.ny:1:1
+error[E035]: cannot return reference to local variable; value does not live long enough
+  --> diag_return_ref_to_local.ny:1:1
+   |
+  1 | fn bad() -> &i32 {
+   | ^
+   |
+  2 |     let x = 1
+   |
+  3 |     return &x
+   |
+  4 | }

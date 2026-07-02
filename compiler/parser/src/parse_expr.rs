@@ -579,6 +579,36 @@ impl Parser {
                     self.parse_postfix(Expression::Variable { name, span })
                 }
             }
+            TokenKind::Parallel => {
+                let parsed = self.parse_parallel_loop();
+                if parsed.config.op == ParallelOp::Iterate {
+                    self.parse_error_here(
+                        "`parallel for` is a statement; use `parallel any for`, `parallel find for`, or `parallel all for` as an expression",
+                    );
+                    Expression::Invalid
+                } else {
+                    self.parse_postfix(Expression::ParallelSearch(Box::new(
+                        ParallelSearchExpr {
+                            config: parsed.config,
+                            var: parsed.var,
+                            kind: parsed.kind,
+                            body: parsed.body,
+                            span: parsed.span,
+                        },
+                    )))
+                }
+            }
+            TokenKind::Spawn => {
+                let start = self.current_span();
+                self.advance();
+                let kind = self.parse_spawn_kind();
+                let body = self.parse_block();
+                self.parse_postfix(Expression::Spawn {
+                    kind,
+                    body,
+                    span: merge_spans(&start, &self.prev_span()),
+                })
+            }
             TokenKind::LParen => {
                 let start = self.current_span();
                 self.advance();

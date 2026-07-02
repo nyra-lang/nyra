@@ -225,7 +225,10 @@ impl TypeChecker {
                 Statement::For(f) => {
                     self.collect_return_param_hints(&f.body, param, returns_param, literal_types);
                 }
-                Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+                Statement::Spawn(s) => {
+                    self.collect_return_param_hints(&s.body, param, returns_param, literal_types);
+                }
+                Statement::Unsafe(b) | Statement::Benchmark(b) => {
                     self.collect_return_param_hints(b, param, returns_param, literal_types);
                 }
                 _ => {}
@@ -294,7 +297,8 @@ impl TypeChecker {
                 .args
                 .iter()
                 .any(|e| self.expr_uses_struct_receiver(param, e)),
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => self.stmt_uses_struct_receiver_in_block(param, &s.body),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 self.stmt_uses_struct_receiver_in_block(param, b)
             }
             _ => false,
@@ -520,7 +524,10 @@ impl TypeChecker {
                 }
                 self.collect_fn_value_hints_in_block(&f.body, callee, param_index, hints);
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => {
+                self.collect_fn_value_hints_in_block(&s.body, callee, param_index, hints);
+            }
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 self.collect_fn_value_hints_in_block(b, callee, param_index, hints);
             }
             _ => {}
@@ -658,7 +665,10 @@ impl TypeChecker {
                 }
                 self.collect_call_site_hints_in_block(&f.body, callee, param_index, hints, locals);
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => {
+                self.collect_call_site_hints_in_block(&s.body, callee, param_index, hints, locals);
+            }
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 self.collect_call_site_hints_in_block(b, callee, param_index, hints, locals);
             }
             _ => {}
@@ -1066,7 +1076,8 @@ impl TypeChecker {
                     out.push(t);
                 }
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => out.extend(self.collect_param_type_hints(name, &s.body)),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 out.extend(self.collect_param_type_hints(name, b));
             }
             Statement::Defer(e) => {

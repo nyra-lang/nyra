@@ -22,6 +22,7 @@ include make/test-platform.mk
 include make/test-platform-ci.mk
 include make/test-macos.mk
 include make/test-windows.mk
+include make/test-linux.mk
 
 .PHONY: help test build check fmt clean
 
@@ -30,6 +31,7 @@ help:
 		'Nyra Makefile — common targets' \
 		'' \
 		'  make test-all          Full test suite (fast gates first, heavy last; runs all gates even on failure)' \
+		'  make test-all-linux    Linux CI core (platform core + native build smoke)' \
 		'  make test-all-macos    macOS CI core (platform core + native build smoke)' \
 		'  make test-all-windows  Windows CI core (platform core + native build smoke)' \
 		'  make test-preflight    Fast pre-check before test-all' \

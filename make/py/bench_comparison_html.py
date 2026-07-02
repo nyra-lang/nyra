@@ -17,11 +17,8 @@ LANG_COLORS = {
     "C++": "#00599c",
     "Go": "#00a8cc",
     "Rust": "#dea584",
-    "Node": "#6bbd5b",
-    "Python": "#5b9bd5",
-    "Java": "#e76f00",
 }
-LANG_ORDER = ["Nyra", "Nyra-typed", "Nyra-comptime", "Nyra-comptime-typed", "C", "C++", "Go", "Rust", "Node", "Python", "Java"]
+LANG_ORDER = ["Nyra", "Nyra-typed", "Nyra-comptime", "Nyra-comptime-typed", "C", "C++", "Go", "Rust"]
 LANG_DISPLAY = {
     "Nyra": "Nyra (Zero Types)",
     "Nyra-typed": "Nyra (Explicit Types)",
@@ -34,6 +31,14 @@ def lang_label(lang: str) -> str:
     return LANG_DISPLAY.get(lang, lang)
 
 
+# Startup-dominated suites: identical LLVM for zero/typed; wall time is mostly dyld/spawn noise.
+NYRA_PARITY_EXCLUDE = frozenset({"hello", "arithmetic"})
+
+
+def nyra_is_parity_suite(suite: str) -> bool:
+    return suite not in NYRA_PARITY_EXCLUDE
+
+
 def nyra_dual_message_html() -> str:
     """Key publish message: Nyra zero-types vs explicit-types parity."""
     return (
@@ -44,8 +49,11 @@ def nyra_dual_message_html() -> str:
         "<li>Nyra (Explicit Types)</li>"
         "</ul>"
         "<p>Both generate native code.</p>"
-        "<p>The benchmark demonstrates that "
-        "<strong>Zero Types introduces no measurable runtime overhead</strong>.</p>"
+        "<p>Zero/Explicit pairs are measured <strong>interleaved per suite</strong> "
+        "(median wall time) so OS startup noise does not skew the comparison.</p>"
+        "<p>The table below uses <strong>hot-path suites only</strong> "
+        "(excludes <code>hello</code> / <code>arithmetic</code> where process spawn dominates). "
+        "Full matrix retains every suite.</p>"
         "</aside>"
     )
 
@@ -57,9 +65,8 @@ def nyra_dual_message_txt() -> str:
         "  • Nyra (Zero Types)\n"
         "  • Nyra (Explicit Types)\n"
         "\n"
-        "Both generate native code.\n"
-        "\n"
-        "The benchmark demonstrates that Zero Types introduces no measurable runtime overhead.\n"
+        "Both generate native code. Zero/Explicit pairs are measured interleaved per suite\n"
+        "(median wall time). Hot-path parity excludes hello/arithmetic (spawn-dominated).\n"
     )
 SUITE_ORDER = [
     "hello",
@@ -310,54 +317,70 @@ def build_text_appendix(rows: list[dict], binary: dict[str, dict[str, int | str]
         "",
         nyra_dual_message_txt().rstrip(),
         "",
+        "   Hot-path parity (excludes hello, arithmetic — spawn-dominated):",
+        "",
         f"   {'Benchmark':<18} {'Zero Types':>22} {'Explicit Types':>22} {'Δ time':>8}",
         "   " + "-" * 74,
     ]
-    nyra_pairs: list[tuple[str, dict, dict]] = []
-    time_diffs: list[float] = []
-    mem_diffs: list[float] = []
-    for suite in suites:
-        by_lang = {r["lang"]: r for r in by_suite[suite]}
-        zero = by_lang.get("Nyra")
-        typed = by_lang.get("Nyra-typed")
-        if not zero or not typed:
-            continue
-        nyra_pairs.append((suite, zero, typed))
+    nyra_pairs = collect_nyra_zero_typed_pairs(by_suite, suites)
+    parity_pairs = [(s, z, t) for s, z, t in nyra_pairs if nyra_is_parity_suite(s)]
+    excluded_pairs = [(s, z, t) for s, z, t in nyra_pairs if not nyra_is_parity_suite(s)]
+
+    for suite, zero, typed in parity_pairs:
         label = NYRA_BENCH_LABEL.get(suite, suite)
         lines.append(
             f"   {label:<18} {fmt_ms(zero['ms']):>17} ms"
             f" {fmt_ms(typed['ms']):>17} ms"
             f" {fmt_pct_diff(zero['ms'], typed['ms']):>8}"
         )
-        if zero["ms"] > 0:
-            time_diffs.append(abs((typed["ms"] - zero["ms"]) / zero["ms"] * 100))
-        if zero["mem_kb"] > 0:
-            mem_diffs.append(abs((typed["mem_kb"] - zero["mem_kb"]) / zero["mem_kb"] * 100))
 
-    if nyra_pairs:
-        med_time = sorted(time_diffs)[len(time_diffs) // 2] if time_diffs else 0.0
-        med_mem = sorted(mem_diffs)[len(mem_diffs) // 2] if mem_diffs else 0.0
+    if parity_pairs:
+        med_time, med_mem = nyra_parity_medians(parity_pairs)
         summary = (
-            f"   Median |Δ| across {len(nyra_pairs)} benchmarks: "
+            f"   Median |Δ| across {len(parity_pairs)} hot-path benchmarks: "
             f"{med_time:.2f}% time"
         )
-        if mem_diffs:
+        if med_mem > 0:
             summary += f", {med_mem:.2f}% memory"
         lines += [
             "",
             "   Same source algorithm in every row — only type annotations differ.",
             summary + ".",
-            "   Small non-zero deltas are run-to-run noise, not type overhead.",
+            "   Interleaved paired runs + median wall time (see report header).",
+        ]
+
+    if excluded_pairs:
+        lines += [
+            "",
+            "   Startup / I/O micro-benchmarks (informational — not used for parity median):",
+            "",
+            f"   {'Benchmark':<18} {'Zero Types':>22} {'Explicit Types':>22} {'Δ time':>8}",
+            "   " + "-" * 74,
+        ]
+        for suite, zero, typed in excluded_pairs:
+            label = NYRA_BENCH_LABEL.get(suite, suite)
+            lines.append(
+                f"   {label:<18} {fmt_ms(zero['ms']):>17} ms"
+                f" {fmt_ms(typed['ms']):>17} ms"
+                f" {fmt_pct_diff(zero['ms'], typed['ms']):>8}  ‡"
+            )
+        lines.append(
+            "   ‡ LLVM output identical; delta is process-spawn / OS noise, not type overhead."
+        )
+
+    if nyra_pairs:
+        lines += [
             "",
             f"   {'Benchmark':<18} {'Zero Types':>22} {'Explicit Types':>22} {'Δ memory':>10}",
             "   " + "-" * 76,
         ]
         for suite, zero, typed in nyra_pairs:
             label = NYRA_BENCH_LABEL.get(suite, suite)
+            mark = " ‡" if not nyra_is_parity_suite(suite) else ""
             lines.append(
                 f"   {label:<18} {fmt_mem(zero['mem_kb']):>22}"
                 f" {fmt_mem(typed['mem_kb']):>22}"
-                f" {fmt_pct_diff(float(zero['mem_kb']), float(typed['mem_kb'])):>10}"
+                f" {fmt_pct_diff(float(zero['mem_kb']), float(typed['mem_kb'])):>10}{mark}"
             )
 
     # ── Comparison matrix ─────────────────────────────────────────────────────
@@ -549,66 +572,106 @@ def fmt_pct_diff(baseline: float, other: float) -> str:
     return f"{sign}{pct:.1f}%"
 
 
-def build_nyra_zero_vs_typed_table(by_suite: dict[str, list[dict]], suites: list[str]) -> str:
-    """Nyra-only table: zero-types vs explicit types — same algorithm, same performance."""
-    rows_data: list[tuple[str, float, float, int, int]] = []
+def collect_nyra_zero_typed_pairs(
+    by_suite: dict[str, list[dict]], suites: list[str]
+) -> list[tuple[str, dict, dict]]:
+    pairs: list[tuple[str, dict, dict]] = []
     for suite in suites:
         by_lang = {r["lang"]: r for r in by_suite.get(suite, [])}
         zero = by_lang.get("Nyra")
         typed = by_lang.get("Nyra-typed")
-        if not zero or not typed:
-            continue
-        rows_data.append((suite, zero["ms"], typed["ms"], zero["mem_kb"], typed["mem_kb"]))
+        if zero and typed:
+            pairs.append((suite, zero, typed))
+    return pairs
 
-    if not rows_data:
+
+def nyra_parity_medians(pairs: list[tuple[str, dict, dict]]) -> tuple[float, float]:
+    time_diffs: list[float] = []
+    mem_diffs: list[float] = []
+    for _suite, zero, typed in pairs:
+        if zero["ms"] > 0:
+            time_diffs.append(abs((typed["ms"] - zero["ms"]) / zero["ms"] * 100))
+        if zero["mem_kb"] > 0:
+            mem_diffs.append(abs((typed["mem_kb"] - zero["mem_kb"]) / zero["mem_kb"] * 100))
+    med_time = sorted(time_diffs)[len(time_diffs) // 2] if time_diffs else 0.0
+    med_mem = sorted(mem_diffs)[len(mem_diffs) // 2] if mem_diffs else 0.0
+    return med_time, med_mem
+
+
+def build_nyra_zero_vs_typed_table(by_suite: dict[str, list[dict]], suites: list[str]) -> str:
+    """Nyra-only table: zero-types vs explicit types — same algorithm, same performance."""
+    nyra_pairs = collect_nyra_zero_typed_pairs(by_suite, suites)
+    if not nyra_pairs:
         return (
             nyra_dual_message_html()
             + '<p class="muted-note">No paired Nyra / Nyra-typed measurements in this run. '
             "Re-run <code>./scripts/bench.sh</code> with both entries enabled.</p>"
         )
 
-    body: list[str] = []
-    time_diffs: list[float] = []
-    mem_diffs: list[float] = []
-    for suite, z_ms, t_ms, z_mem, t_mem in rows_data:
+    parity_pairs = [(s, z, t) for s, z, t in nyra_pairs if nyra_is_parity_suite(s)]
+    excluded_pairs = [(s, z, t) for s, z, t in nyra_pairs if not nyra_is_parity_suite(s)]
+
+    def row_html(suite: str, z_ms: float, t_ms: float, foot: str = "") -> str:
         label = NYRA_BENCH_LABEL.get(suite, suite)
         t_diff = fmt_pct_diff(z_ms, t_ms)
-        m_diff = fmt_pct_diff(float(z_mem), float(t_mem))
-        if z_ms > 0:
-            time_diffs.append(abs((t_ms - z_ms) / z_ms * 100))
-        if z_mem > 0:
-            mem_diffs.append(abs((t_mem - z_mem) / z_mem * 100))
         diff_cls = "cell-best num" if t_diff == "0%" else "num"
-        body.append(
+        return (
             f"<tr>"
             f"<th scope=\"row\"><strong>{html.escape(label)}</strong>"
             f'<span class="suite-desc-inline">{html.escape(SUITE_INFO.get(suite, ""))}</span>'
-            f"</th>"
+            f"{foot}</th>"
             f'<td class="num">{fmt_ms(z_ms)} ms</td>'
             f'<td class="num">{fmt_ms(t_ms)} ms</td>'
             f'<td class="{diff_cls}">{html.escape(t_diff)}</td>'
             f"</tr>"
         )
 
-    med_time = sorted(time_diffs)[len(time_diffs) // 2] if time_diffs else 0.0
-    med_mem = sorted(mem_diffs)[len(mem_diffs) // 2] if mem_diffs else 0.0
+    body: list[str] = []
+    for suite, zero, typed in parity_pairs:
+        body.append(row_html(suite, zero["ms"], typed["ms"]))
+
+    med_time, med_mem = nyra_parity_medians(parity_pairs)
     summary = (
-        f"Median |Δ| across {len(rows_data)} benchmarks: "
+        f"Median |Δ| across {len(parity_pairs)} hot-path benchmarks: "
         f"<strong>{med_time:.2f}%</strong> time"
     )
-    if mem_diffs:
+    if med_mem > 0:
         summary += f", <strong>{med_mem:.2f}%</strong> memory"
 
+    excluded_html = ""
+    if excluded_pairs:
+        excluded_rows = [
+            row_html(
+                suite,
+                zero["ms"],
+                typed["ms"],
+                '<span class="suite-foot">‡ spawn-dominated</span>',
+            )
+            for suite, zero, typed in excluded_pairs
+        ]
+        excluded_html = (
+            '<details class="nyra-types-mem-details">'
+            "<summary>Startup micro-benchmarks (informational — excluded from parity median)</summary>"
+            '<div class="table-scroll"><table class="nyra-types-table">'
+            "<thead><tr>"
+            "<th>Benchmark</th><th>Nyra (Zero Types)</th><th>Nyra (Explicit Types)</th><th>Δ time</th>"
+            "</tr></thead>"
+            f"<tbody>{''.join(excluded_rows)}</tbody></table></div>"
+            '<p class="muted-note">‡ Identical LLVM; wall time reflects process spawn / dyld, not annotations.</p>'
+            "</details>"
+        )
+
     mem_table_body: list[str] = []
-    for suite, z_ms, t_ms, z_mem, t_mem in rows_data:
+    for suite, zero, typed in nyra_pairs:
         label = NYRA_BENCH_LABEL.get(suite, suite)
-        m_diff = fmt_pct_diff(float(z_mem), float(t_mem))
+        m_diff = fmt_pct_diff(float(zero["mem_kb"]), float(typed["mem_kb"]))
         diff_cls = "cell-best num" if m_diff == "0%" else "num"
+        foot = ' <span class="suite-foot">‡</span>' if not nyra_is_parity_suite(suite) else ""
         mem_table_body.append(
             f"<tr>"
-            f"<th scope=\"row\"><strong>{html.escape(label)}</strong></th>"
-            f'<td class="num">{fmt_mem(z_mem)}</td>'
-            f'<td class="num">{fmt_mem(t_mem)}</td>'
+            f"<th scope=\"row\"><strong>{html.escape(label)}</strong>{foot}</th>"
+            f'<td class="num">{fmt_mem(zero["mem_kb"])}</td>'
+            f'<td class="num">{fmt_mem(typed["mem_kb"])}</td>'
             f'<td class="{diff_cls}">{html.escape(m_diff)}</td>'
             f"</tr>"
         )
@@ -622,11 +685,12 @@ def build_nyra_zero_vs_typed_table(by_suite: dict[str, list[dict]], suites: list
         f"<tbody>{''.join(body)}</tbody></table></div>"
         '<p class="muted-note">'
         "Same source algorithm in every row — only type annotations differ. "
-        f"{summary}. "
-        "Small non-zero deltas are run-to-run noise (thermal, scheduler), not type overhead."
+        "Interleaved paired runs, median wall time. "
+        f"{summary}."
         "</p>"
-        '<details class="nyra-types-mem-details">'
-        "<summary>Peak memory comparison (same pairs)</summary>"
+        + excluded_html
+        + '<details class="nyra-types-mem-details">'
+        "<summary>Peak memory comparison (all pairs)</summary>"
         '<div class="table-scroll"><table class="nyra-types-table">'
         "<thead><tr>"
         "<th>Benchmark</th><th>Nyra (Zero Types)</th><th>Nyra (Explicit Types)</th><th>Δ memory</th>"
@@ -790,9 +854,7 @@ def build_binary_size_table(binary: dict[str, dict[str, int | str]]) -> str:
             '<p class="muted-note">Binary size data not found. Re-run '
             "<code>./scripts/bench.sh</code> (or set <code>BENCH_BINARY_SIZE=1</code>).</p>"
         )
-    langs = [l for l in LANG_ORDER if l in binary] + sorted(
-        set(binary.keys()) - set(LANG_ORDER)
-    )
+    langs = [l for l in LANG_ORDER if l in binary]
     body = []
     release_vals = [
         int(binary[l]["release"])
@@ -821,8 +883,7 @@ def build_binary_size_table(binary: dict[str, dict[str, int | str]]) -> str:
         f"<tbody>{''.join(body)}</tbody></table></div>"
         '<p class="muted-note">Hello-world artifact sizes. <strong>Release</strong> = optimized build; '
         "<strong>Stripped</strong> = after <code>strip</code>; <strong>UPX</strong> = "
-        "<code>upx --best</code> (— when UPX is missing or unsupported). "
-        "Java = <code>.class</code> total; Node/Python = source script bytes (runtime required).</p>"
+        "<code>upx --best</code> (— when UPX is missing or unsupported).</p>"
     )
 
 
@@ -1120,7 +1181,7 @@ def build_report(rows: list[dict], meta: dict, binary: dict[str, dict[str, int |
     <header class="hero" id="overview">
       <span class="hero-badge">Nyra comparison benchmark</span>
       <h1>Runtime, memory &amp; binary size</h1>
-      <p class="lead">Mean wall-clock <strong>time</strong>, peak <strong>memory</strong> (RSS), and hello-world <strong>binary size</strong> across Nyra, C, C++, Go, Rust, Node, Python, and Java. Lower is better.</p>
+      <p class="lead">Mean wall-clock <strong>time</strong>, peak <strong>memory</strong> (RSS), and hello-world <strong>binary size</strong> across Nyra, C, C++, Go, and Rust. Lower is better.</p>
     </header>
 
     <dl class="meta-grid">
@@ -1199,7 +1260,9 @@ def load_rows(tsv: Path) -> list[dict]:
             if not line or line.startswith("suite\t"):
                 continue
             suite, lang, ms_s, mem_s = line.split("\t")
-            rows.append({"suite": suite, "lang": lang, "ms": float(ms_s), "mem_kb": int(mem_s)})
+            if not ms_s.strip():
+                continue
+            rows.append({"suite": suite, "lang": lang, "ms": float(ms_s), "mem_kb": int(mem_s or 0)})
     return rows
 
 

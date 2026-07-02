@@ -2,11 +2,24 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error[E012]: `a` was moved at line 3
+error[E012]: `a` was moved
   --> b.ny:4:11
+   |
+  4 |     print(a)
+   |           ^
+  --> b.ny:3:14
+   |
+  3 |     let b = a
+   |              ^ `a` moved here
    = note: keep using `a`:
   let copy = clone a
 warning[W003]: unused variable `b`
   --> b.ny:3:9
+   |
+  3 |     let b = a
+   |         ^
+   = label: declared here but never read
+   |
+  4 |     print(a)
    = help: prefix with `_` if intentional: `let _b = ...`
    = help: or remove the binding if `b` is not needed

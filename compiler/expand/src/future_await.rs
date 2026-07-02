@@ -148,9 +148,8 @@ fn rewrite_stmt(stmt: &mut Statement, checker: &TypeChecker) {
             }
             rewrite_block(&mut f.body, checker);
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
-            rewrite_block(b, checker);
-        }
+        Statement::Spawn(s) => rewrite_block(&mut s.body, checker),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => rewrite_block(b, checker),
         _ => {}
     }
 }

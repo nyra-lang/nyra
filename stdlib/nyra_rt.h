@@ -202,10 +202,25 @@ void mem_start(const char *label);
 void mem_end(const char *label);
 
 /* since Nyra 0.2.0 */
-int spawn_capture(void (*body)(void *), void *data, int64_t nbytes);
+void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes);
+
+/* since Nyra 1.39.0 */
+int spawn_join(void *handle);
+
+/* since Nyra 1.39.0 */
+void spawn_handle_drop(void *handle);
+
+/* since Nyra 1.39.0 */
+void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes);
+
+/* since Nyra 1.39.0 */
+int spawn_task_join(void *handle);
+
+/* since Nyra 1.39.0 */
+void spawn_task_handle_drop(void *handle);
 
 /* since Nyra 1.3.0 */
-void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent);
+void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
 
 /* since Nyra 1.3.0 */
 int32_t cpu_count(void);
@@ -555,6 +570,9 @@ int map_str_str_remove(void *handle, const char *key);
 /* since Nyra 1.16.0 */
 double rand_f64(void);
 
+/* since Nyra 1.39.0 */
+double rand_f64_range(double min_val, double max_val);
+
 /* since Nyra 1.16.0 */
 double sin_f64(double x);
 
@@ -837,6 +855,24 @@ int rand_i32(void);
 /* since Nyra 1.1.0 */
 int rand_range(int min_val, int max_val);
 
+/* since Nyra 1.39.0 */
+int64_t rand_i64(void);
+
+/* since Nyra 1.39.0 */
+int64_t rand_range_i64(int64_t min_val, int64_t max_val);
+
+/* since Nyra 1.39.0 */
+uint32_t rand_u32(void);
+
+/* since Nyra 1.39.0 */
+uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val);
+
+/* since Nyra 1.39.0 */
+uint64_t rand_u64(void);
+
+/* since Nyra 1.39.0 */
+uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val);
+
 /* since Nyra 1.1.0 */
 char *random_hex(int byte_count);
 
@@ -1049,6 +1085,111 @@ int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_
 
 /* since Nyra 1.20.0 */
 int rt_tls_validate_pem_files(const char *cert_pem_path, const char *key_pem_path);
+
+/* since Nyra 1.39.0 */
+void *arena_new(long long capacity);
+
+/* since Nyra 1.39.0 */
+void *arena_alloc(void *arena, long long nbytes);
+
+/* since Nyra 1.39.0 */
+void arena_reset(void *arena);
+
+/* since Nyra 1.39.0 */
+void arena_free(void *arena);
+
+/* since Nyra 1.39.0 */
+int io_unregister(int fd);
+
+/* since Nyra 1.39.0 */
+int32_t io_uring_available(void);
+
+/* since Nyra 1.39.0 */
+int io_uring_pending(void);
+
+/* since Nyra 1.39.0 */
+int io_uring_wait_once(int timeout_ms);
+
+/* since Nyra 1.39.0 */
+int32_t io_uring_register_read(int32_t fd, int32_t promise);
+
+/* since Nyra 1.39.0 */
+int32_t io_uring_unregister_read(int32_t fd);
+
+/* since Nyra 1.39.0 */
+int32_t io_pool_create(int32_t workers);
+
+/* since Nyra 1.39.0 */
+void io_pool_shutdown(int32_t pool);
+
+/* since Nyra 1.39.0 */
+int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise);
+
+/* since Nyra 1.39.0 */
+int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise);
+
+/* since Nyra 1.39.0 */
+int32_t io_pool_queue_depth(int32_t pool);
+
+/* since Nyra 1.39.0 */
+int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
+
+/* since Nyra 1.39.0 */
+int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
+
+/* since Nyra 1.39.0 */
+int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
+
+/* since Nyra 1.39.0 */
+void *map_i32_i32_new(void);
+
+/* since Nyra 1.39.0 */
+void map_i32_i32_insert(void *handle, int key, int value);
+
+/* since Nyra 1.39.0 */
+int map_i32_i32_get(void *handle, int key);
+
+/* since Nyra 1.39.0 */
+int map_i32_i32_contains(void *handle, int key);
+
+/* since Nyra 1.39.0 */
+void map_i32_i32_free(void *handle);
+
+/* since Nyra 1.39.0 */
+void map_i32_i32_retain(void *handle);
+
+/* since Nyra 1.39.0 */
+void *str_buf_new(void);
+
+/* since Nyra 1.39.0 */
+void str_buf_append(void *handle, const char *piece);
+
+/* since Nyra 1.39.0 */
+void str_buf_append_char(void *handle, int ch);
+
+/* since Nyra 1.39.0 */
+char *str_buf_build(void *handle);
+
+/* since Nyra 1.39.0 */
+void str_buf_drop(void *handle);
+
+/* since Nyra 1.39.0 */
+int32_t shm_create(const char *name, int64_t nbytes);
+
+/* since Nyra 1.39.0 */
+int32_t shm_open_existing(const char *name, int64_t nbytes);
+
+/* since Nyra 1.39.0 */
+void *shm_map(int32_t fd, int64_t nbytes);
+
+/* since Nyra 1.39.0 */
+int32_t shm_unmap(void *addr, int64_t nbytes);
+
+/* since Nyra 1.39.0 */
+int32_t shm_close_fd(int32_t fd);
+
+/* since Nyra 1.39.0 */
+int32_t shm_unlink_region(const char *name);
 
 #ifdef __cplusplus
 }

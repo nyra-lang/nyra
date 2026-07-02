@@ -27,7 +27,7 @@
     },
     {
       "name": "storage.type.nyra",
-      "match": "\\b(i32|bool|string|void)\\b"
+      "match": "\\b(i32|i32x4|f32x4|f64x2|bool|string|bytes|void|union)\\b"
     },
     {
       "name": "keyword.other.nyra",
@@ -35,7 +35,7 @@
     },
     {
       "name": "keyword.control.nyra",
-      "match": "\\b(fn|let|mut|if|else|while|for|in|return|match|spawn|print|time_start|time_end|mem_start|mem_end|enum|struct)\\b"
+      "match": "\\b(fn|let|mut|if|else|while|for|in|return|match|spawn|print|time_start|time_end|mem_start|mem_end|enum|struct|union)\\b"
     },
     {
       "name": "keyword.operator.nyra",

@@ -323,6 +323,15 @@ impl Codegen {
                 if let Some(v) = self.compile_math_intrinsic_call(call, env) {
                     return v;
                 }
+                if let Some(v) = self.compile_random_builtin_call(call, env) {
+                    return v;
+                }
+                if let Some(v) = self.compile_layout_intrinsic_call(call, env) {
+                    return v;
+                }
+                if let Some(v) = self.compile_simd_intrinsic_call(call, env) {
+                    return v;
+                }
                 if let Some(Binding::Closure(meta)) = env.get(&call.callee).cloned() {
                     return self.compile_closure_call(&meta, &call.args, env);
                 }
@@ -445,7 +454,7 @@ impl Codegen {
                         let (reg, ty) = self.materialize_array_call_arg(&v);
                         arg_regs.push(reg);
                         arg_tys.push(ty);
-                    } else if v.ty == "ptr" {
+                    } else if v.ty == "ptr" || v.ty == "bytes" {
                         arg_regs.push(self.materialize_ptr_reg(&v.reg));
                         arg_tys.push("ptr".into());
                     } else {
@@ -619,6 +628,33 @@ impl Codegen {
             }
             Expression::TupleLiteral(elems) => self.compile_tuple_literal(elems, env),
             Expression::EnumVariant(ev) => self.compile_enum_variant(ev, env),
+            Expression::MethodCall(mc)
+                if mc.method == "to_string" && mc.args.is_empty() =>
+            {
+                let obj = self.compile_expr(&mc.object, env);
+                if obj.ty == "bytes" {
+                    let reg = self.fresh("bytes_to_str");
+                    let ptr = llvm_ptr_reg(&obj.reg);
+                    self.emit_runtime_call(
+                        "bytes_to_string",
+                        &format!("  %{reg} = call ptr @bytes_to_string(ptr {ptr})"),
+                    );
+                    return ExprValue {
+                        reg: format!("%{reg}"),
+                        ty: "ptr".into(),
+                    };
+                }
+                let callee = self.method_callee_name(&mc.object, &mc.method, env);
+                self.compile_expr(
+                    &Expression::Call(CallExpr {
+                        callee,
+                        type_args: vec![],
+                        args: vec![mc.object.clone()],
+                        span: mc.span.clone(),
+                    }),
+                    env,
+                )
+            }
             Expression::MethodCall(mc) if mc.method == "send" && mc.args.len() == 1 => {
                 if let Some(slot) = self.resolve_local_channel_slot(&mc.object, env) {
                     let val = self.compile_expr(&mc.args[0], env);
@@ -669,6 +705,18 @@ impl Codegen {
                     return ExprValue {
                         reg: n.to_string(),
                         ty: "i32".into(),
+                    };
+                }
+                if obj.ty == "bytes" {
+                    let reg = self.fresh("bytes_len");
+                    let ptr = llvm_ptr_reg(&obj.reg);
+                    self.emit_runtime_call(
+                        "bytes_len",
+                        &format!("  %{reg} = call i64 @bytes_len(ptr {ptr})"),
+                    );
+                    return ExprValue {
+                        reg: format!("%{reg}"),
+                        ty: "i64".into(),
                     };
                 }
                 if obj.ty == "ptr" {
@@ -744,6 +792,19 @@ impl Codegen {
             Expression::MethodCall(mc) if mc.method == "sort_by" => {
                 self.compile_array_sort_by(mc, env)
             }
+            Expression::MethodCall(mc) if mc.method == "join" && mc.args.is_empty() => {
+                let obj = self.compile_expr(&mc.object, env);
+                let kind = if let Expression::Variable { name, .. } = &mc.object {
+                    self.drop_plan.join_handle_kind(&self.current_func, name)
+                } else {
+                    ast::SpawnKind::Task
+                };
+                self.emit_spawn_join(&obj.reg, kind);
+                ExprValue {
+                    reg: "0".into(),
+                    ty: "void".into(),
+                }
+            }
             Expression::MethodCall(mc) => {
                 let callee = self.method_callee_name(&mc.object, &mc.method, env);
                 let mut args = vec![mc.object.clone()];
@@ -758,6 +819,11 @@ impl Codegen {
                     env,
                 )
             }
+            Expression::Spawn { kind, body, .. } => {
+                let mut spawn_drop = DropState::new(&self.current_func);
+                self.compile_spawn(*kind, body, env, &mut spawn_drop)
+            }
+            Expression::ParallelSearch(ps) => self.compile_parallel_search(ps, env),
             Expression::Grouped(inner) => self.compile_expr(inner, env),
             Expression::Await(inner) => {
                 let inner_v = self.compile_expr(inner, env);

@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.39.0 (2026-07-01)
+
+**Systems-level language features**
+
+- **Added** — C-style `union` with `repr(C)`, `align(N)`, and `packed` layout attributes
+- **Added** — compile-time `size_of<T>()` and `align_of<T>()` intrinsics (`stdlib/mem/layout.ny`)
+- **Fixed** — heterogeneous enum payloads (`Ok(string)` + `Err(i32)`) with union slot layout and tag-discriminated drop
+- **Added** — first-class `bytes` type (distinct from `string`); indexing and `.to_string()`
+- **Added** — `StackBuffer` stack-only buffers (`stdlib/buf/stack.ny`) with return-type escape rejection
+- **Added** — portable SIMD vectors (`i32x4`, `f32x4`, `f64x2`) and platform intrinsics (`stdlib/simd/`)
+- **Added** — arena bump allocator (`stdlib/alloc/arena.ny`, `rt_arena.c`)
+- **Tests** — `union_test`, `layout_align_test`, `enum_hetero_payload_test`, `bytes_type_test`, `stack_buffer_test`, `simd_test`, `arena_test`, `systems_features_test`
+- **Conformance** — `CONF-LANG-010` … `CONF-LANG-013`
+- **Added** — metaprogramming guide: comptime + macros + struct JSON synthesis (`examples/toolchain/metaprogramming.ny`, `stdlib/meta/mod.ny`)
+- **Changed** — `random()` / `random(min, max)` and `random_f64()` / `random_f64(min, max)` are compiler builtins; removed `Random()` and `random_range`; integer return type follows bounds or type args (`i32`, `i64`, `u64`, …)
+- **Added** — `JoinHandle` and `.join()` for `spawn` expression form; statement `spawn { }` remains fire-and-forget
+- **Added** — `spawn:task` (default `spawn`) lightweight task pool (`rt_task_pool.c`) and `spawn:thread` for dedicated OS threads (`pthread` / `CreateThread`)
+- **Tests** — `spawn_join_test.ny`; examples `spawn_join.ny`, `spawn_thread.ny`
+- **Runtime** — `spawn_capture` returns `void*` handle; `spawn_join` / `spawn_handle_drop`; `spawn_task_capture` / `spawn_task_join` / `spawn_task_handle_drop`
+
 ## v1.38.0 (2026-06-28)
 
 **Comptime — Zig-style power (optional)**
@@ -295,7 +315,7 @@
 
 ### Note
 
-Enum variants with **different payload types** (e.g. `Ok(Option)` + `Err(i32)`) still share one LLVM payload slot — use homogeneous payloads or nested `match` until union layout lands.
+Enum variants with **different payload types** now use a max-size union payload slot with tag-discriminated drop (e.g. `Result<string, i32>`).
 
 ## v1.32.0 (2026-06-24)
 

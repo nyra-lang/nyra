@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn load_program_with_options_loads_strvec_for_cat() {
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let entry = repo.join("Apps/FileSystem/cat/main.ny");
+        let entry = repo.join("examples/zero_types_cli.ny");
         let loaded = crate::load_program_with_options(
             &entry,
             crate::LoadOptions {
@@ -158,19 +158,15 @@ mod tests {
             "missing StrVec_new with auto_prelude"
         );
         assert!(
-            loaded
-                .program
-                .functions
-                .iter()
-                .any(|f| f.name == "Cli_strip_flags"),
-            "missing Cli_strip_flags after load"
+            loaded.program.functions.iter().any(|f| f.name == "strip_flags"),
+            "missing strip_flags in zero_types_cli example"
         );
     }
 
     #[test]
     fn lazy_prelude_loads_strvec_for_untyped_cat() {
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let entry = repo.join("Apps/FileSystem/cat/main.ny");
+        let entry = repo.join("examples/zero_types_cli.ny");
         assert!(entry.is_file());
 
         let mut visited = HashSet::new();

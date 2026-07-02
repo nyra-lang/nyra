@@ -4,6 +4,9 @@ Language coverage: **memory**, **strings**, **collections**, **algorithms**, **c
 
 Nyra runs twice per suite: zero-types (`bench.ny`) and typed (`bench_typed.ny`).
 
+**Fair parity:** every language runs the same algorithm per suite (e.g. `map[int]int` /
+`map_i32_i32`, same loop counts, same checksum). Regenerate with `make/py/gen-comparison-extended.py`.
+
 Scale up with `BENCH_SCALE=10` when running `./scripts/bench.sh` (future).
 
 | Suite | Description | Expected |

@@ -19,6 +19,10 @@ pub struct StructAttrs {
     pub repr_c: bool,
     /// Explicit `#[derive(Copy)]` / `struct S Copy { }` — validates all fields are Copy.
     pub copy: bool,
+    /// `repr(align(N))` or `align(N)` — minimum alignment in bytes.
+    pub align: Option<u32>,
+    /// `packed` — no padding between fields.
+    pub packed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -41,6 +45,7 @@ pub struct Program {
     pub imports: Vec<ImportDecl>,
     pub consts: Vec<ConstDef>,
     pub structs: Vec<StructDef>,
+    pub unions: Vec<UnionDef>,
     pub enums: Vec<EnumDef>,
     pub traits: Vec<TraitDef>,
     pub trait_impls: Vec<TraitImpl>,
@@ -122,6 +127,17 @@ pub struct StructDef {
 pub struct StructField {
     pub name: String,
     pub ty: TypeAnnotation,
+}
+
+/// C-style `union` — fields overlap at offset 0; access requires `unsafe`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnionDef {
+    pub name: String,
+    pub type_params: Vec<String>,
+    pub attrs: StructAttrs,
+    pub fields: Vec<StructField>,
+    pub doc: Option<String>,
+    pub public: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -218,12 +234,26 @@ pub enum Statement {
     Expression(Expression),
     Print(PrintStmt),
     Defer(Expression),
-    Spawn(Block),
+    Spawn(SpawnStmt),
     Benchmark(Block),
     Unsafe(Block),
     /// `asm "template"` — LLVM inline assembly; requires enclosing `unsafe`.
     Asm { template: String, span: Span },
     Import(String),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpawnKind {
+    /// Lightweight task on the global runtime pool (`spawn` / `spawn:task`).
+    Task,
+    /// Dedicated OS thread (`spawn:thread`).
+    Thread,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SpawnStmt {
+    pub kind: SpawnKind,
+    pub body: Block,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -252,7 +282,7 @@ pub enum ParallelMode {
 pub enum ParallelThreads {
     /// Runtime picks worker count from mode and CPU topology.
     Auto,
-    /// Cap workers (`max_threads = N`); may use fewer when iteration count is small.
+    /// Cap workers (`max = N`); may use fewer when iteration count is small.
     Max(Expression),
     /// Exact worker count (`threads = N`).
     Exact(Expression),
@@ -266,18 +296,71 @@ impl Default for ParallelThreads {
     }
 }
 
+/// `parallel for` vs early-exit search (`parallel any/find/all for`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ParallelOp {
+    /// `parallel for` — run every iteration (fork-join).
+    #[default]
+    Iterate,
+    /// `parallel any for` — true if any iteration matches the predicate.
+    Any,
+    /// `parallel find for` — first matching index, or `-1`.
+    Find,
+    /// `parallel all for` — true if every iteration matches the predicate.
+    All,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParallelConfig {
+    /// Task pool (default) or dedicated OS threads per chunk (`parallel:thread`).
+    pub kind: SpawnKind,
     pub mode: ParallelMode,
     pub threads: ParallelThreads,
+    pub op: ParallelOp,
 }
 
 impl Default for ParallelConfig {
     fn default() -> Self {
         Self {
+            kind: SpawnKind::Task,
             mode: ParallelMode::Auto,
             threads: ParallelThreads::Auto,
+            op: ParallelOp::Iterate,
         }
+    }
+}
+
+/// `parallel any/find/all for` — expression with bool predicate body.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ParallelSearchExpr {
+    pub config: ParallelConfig,
+    pub var: String,
+    pub kind: ForKind,
+    pub body: Block,
+    pub span: Span,
+}
+
+impl ParallelSearchExpr {
+    pub fn map_exprs_mut<F: FnMut(&mut Expression)>(&mut self, mut f: F) {
+        match &mut self.kind {
+            ForKind::Range { start, end } => {
+                f(start);
+                f(end);
+            }
+            ForKind::Iterable { iterable } => f(iterable),
+        }
+        self.config.map_exprs_mut(&mut f);
+    }
+
+    pub fn for_each_expr<F: FnMut(&Expression)>(&self, mut f: F) {
+        match &self.kind {
+            ForKind::Range { start, end } => {
+                f(start);
+                f(end);
+            }
+            ForKind::Iterable { iterable } => f(iterable),
+        }
+        self.config.for_each_expr(&mut f);
     }
 }
 
@@ -447,6 +530,14 @@ pub enum Expression {
     ArrowFn(Box<ArrowFnExpr>),
     /// `comptime { ... }` — compile-time block expression (folded when evaluable).
     ComptimeBlock { body: Block, span: Span },
+    /// `spawn { ... }` / `spawn:task` / `spawn:thread` — returns `JoinHandle` (Extended).
+    Spawn {
+        kind: SpawnKind,
+        body: Block,
+        span: Span,
+    },
+    /// `parallel any/find/all for` — parallel short-circuit search (Extended).
+    ParallelSearch(Box<ParallelSearchExpr>),
     Invalid,
 }
 
@@ -718,6 +809,13 @@ pub enum TypeAnnotation {
     Char,
     Bool,
     String,
+    /// Binary blob handle — distinct from UTF-8 `string`.
+    Bytes,
+    /// Portable SIMD vector (`i32x4` → elem=i32, lanes=4).
+    Simd {
+        elem: Box<TypeAnnotation>,
+        lanes: usize,
+    },
     /// Split result: `let parts: VecStr = s.split(",")`
     VecStr,
     Ptr,

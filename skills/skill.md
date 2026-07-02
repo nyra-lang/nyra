@@ -1,19 +1,12 @@
 # Nyra Programming Language
 
-> Canonical copy: `webDocs/nyra-skill.md`. Regenerate with `node webDocs/scripts/build-nyra-skill.mjs`.
-
-# Nyra Programming Language
-
-> Canonical copy: `webDocs/nyra-skill.md`. Regenerate with `node webDocs/scripts/build-nyra-skill.mjs`.
-
-# Nyra Programming Language
-
-> Canonical copy: `webDocs/nyra-skill.md`. Regenerate with `node webDocs/scripts/build-nyra-skill.mjs`.
+> **Standalone reference** — attach this file alone in Cursor/ChatGPT/Claude; no repo checkout required.
+> **Online docs (human-readable):** [nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/) · [Learn intro](https://nyra-lang.github.io/docs/learn-intro.html)
 
 Use this file as the **sole authoritative reference** for Nyra syntax, semantics, stdlib, toolchain, PGO, and escape analysis.
-Do not invent features not listed here. Full docs: `webDocs/` in the Nyra repository.
+Do not invent features not listed here. Supplementary guides live at **https://nyra-lang.github.io/docs/**.
 
-> **Project status — v1.36 production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, spawn, enum payloads) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · `docs/status.md`.
+> **Project status — v1.39.x production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, spawn, enum payloads) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · [roadmap](https://nyra-lang.github.io/docs/roadmap.html).
 
 ## Table of contents
 
@@ -23,24 +16,28 @@ Do not invent features not listed here. Full docs: `webDocs/` in the Nyra reposi
 4. [Syntax conventions & variables](#syntax-conventions)
 5. [Language reference — keywords, operators, statements](#language-reference)
 6. [Types & functions](#types)
-7. [Control flow, structs, enums & payloads, imports](#control-flow)
-8. [Built-in API & I/O (no import)](#io--builtins)
-9. [Ownership & memory](#ownership-summary)
-10. [Performance — monomorph, DCE, release, PGO, escape analysis](#performance--optimization)
-11. [Stdlib, NyraPkg, FFI & C interop](#stdlib-modular--see-stdlibreadmemd)
-12. [Unsafe, OS, tests, layout](#unsafe--no_std-v050)
-13. [Do NOT hallucinate](#do-not-hallucinate)
+7. [Control flow, match, structs, enums & payloads, imports](#control-flow)
+8. [Generics & monomorphization](#generics)
+9. [Built-in API, methods & I/O](#io--builtins) — strings, arrays, math, Vec, HashMap, helpers
+10. [Async & await](#async--await) · [Concurrency & sync](#concurrency--sync-primitives)
+11. [Ownership & memory](#ownership-summary)
+12. [Performance — monomorph, DCE, release, PGO, escape analysis](#performance--optimization)
+13. [Stdlib, NyraPkg, FFI & C interop](#stdlib-modular)
+14. [Macros](#macros-extended)
+15. [Unsafe, OS, tests, layout](#unsafe--no_std-v050)
+16. [Diagnostics](#diagnostics)
+17. [Do NOT hallucinate](#do-not-hallucinate)
 
 > **Enum payloads (read first):** Default enums are **tag-only** (`Color.Red`). **`Option.Some(42)` stores a real value** only when you `import "stdlib/option.ny"` (or define `enum Option_i32 { None, Some(i32) }`). Built-in `Option`/`Result` without import are tag **names** for `??`/`?.` — not storage. See [Enums & payloads](#enums--payloads).
 
-> **Collections naming:** Core stdlib uses **monomorph names** (`Vec_i32_push`, `HashMap_str_i32`). **Generic syntax** (`Vec<T>`, `Arc<T>`, `Box<T>`) is Extended — current for smart pointers, but vectors/maps in docs/examples use `Vec_i32` style. See [Naming: current vs legacy](#naming-current-style-vs-legacy-read-this).
+> **Collections naming:** Core stdlib uses **monomorph names** (`Vec_i32_push`, `HashMap_str_i32`). **Generic syntax** (`Vec<T>`, `Arc<T>`, `Box<T>`) is Extended — current for smart pointers, but tutorials and docs use `Vec_i32` style. See [Naming: current vs legacy](#naming-current-style-vs-legacy-read-this).
 
 ## Identity
 
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v1.36.x** — **Core tier semver-stable**; **Stable Extended** shipped ([`docs/stability-v1.md`](../docs/stability-v1.md) · [`docs/status.md`](../docs/status.md)).
+- Version baseline: **v1.39.x** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/docs/roadmap.html)).
 - **v1.2:** template strings, arrow functions, `net/http` handler dispatch, language bridge (Python/Node/Java workers), NyraPkg semver + registry, `link-source` auto-link, bindings reference, native C interop pattern.
 - **v2.1:** stack closures (loop-safe), arrow param inference, tuple destructure in arrow params, `??` nullish coalescing, `?.` optional chaining.
 - **v2.2:** heap closure promotion; `?.method()`; **`Option.Some(T)` payloads** when using `import "stdlib/option.ny"` (replaces tag-only built-in `Option` for that module).
@@ -48,13 +45,13 @@ Do not invent features not listed here. Full docs: `webDocs/` in the Nyra reposi
 - **v2.4:** generic `enum Option<T>` / `enum Result<T,E>` monomorph; enum payload drop; `struct Box<T>` + `Box_new(string)` (replaces `Box_string`).
 - **v2.5:** generic `struct Arc<T>` (`Arc<i32>`, `Arc<string>`); auto Drop for monomorph instances; `Arc_i32` kept as legacy alias in `stdlib/arc.ny`.
 - **v2.6:** async bootstrap patterns, HTTP health via stdlib `net/http`.
-- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance (`conformance/workspace.rs`), `webDocs/enterprise.html`. Tracing/service mesh = external.
+- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance. [Enterprise / workspaces](https://nyra-lang.github.io/docs/enterprise.html). Tracing/service mesh = external.
 - **v2.8:** return type inference (`void` default), generic call-site inference (`id(7)`), auto-borrow at calls (`T` → `&T`), `string.clone()` + synthesized struct `Clone`, struct ctor sugar `User("Ada")` / `Point()`.
 - **v2.9:** Swift-style use-after-move diagnostics (`was moved into save()` + fix-it notes), `move` / `clone` prefix at call sites (`save(move user)`, `save(clone user)`).
 - **v3.0:** auto Copy inference for all-Copy structs (`Point`, `Rect`); `#[derive(Copy)]` validation; no annotation needed for value types.
 - **v3.1:** `f64` IEEE-754 double — float literals (`3.14`), mixed `i32`/`f64` promotion, LLVM `double` codegen.
 - **v3.2:** `char` Unicode scalar — `'a'`, `'\n'`, `'\u{...}'`; LLVM `i32`; `print` via `%c`.
-- **v1.3:** **CONF-LANG** Nyra-source conformance (`tests/conformance/` — pass + fail + fixtures), `stdlib/testing.ny` assertions, `scripts/conformance-tests.sh` in `test-all.sh`.
+- **v1.3:** **CONF-LANG** Nyra-source conformance suite; `stdlib/testing.ny` assertion helpers.
 
 ## Design philosophy
 
@@ -77,7 +74,7 @@ Inference sources (combined across multi-pass signature registration):
 - **Return statements** (`return v` after `let v = StrVec_new()` → `StrVec`)
 - **`extern fn`** signatures in the merged program (prelude)
 
-**Multi-file projects:** in `main.ny`, import every module the app needs (e.g. `import "src/cli.ny"` **and** `import "src/cat.ny"`). Shared helpers like `cli.ny` should be imported from `main.ny`, not only from a sibling file — see `Apps/FileSystem/cat/`.
+**Multi-file projects:** in `main.ny`, import every module the app needs (e.g. `import "src/cli.ny"` **and** `import "src/cat.ny"`). Shared helpers like `cli.ny` should be imported from `main.ny`, not only from a sibling file — import shared modules from `main.ny`.
 
 ```ny
 // Zero-types (preferred for learning, scripts, CLI tools)
@@ -100,15 +97,19 @@ struct User {
 }   // only when you need a named shape
 ```
 
-**For AI assistants:** when generating Nyra for beginners or app code, **omit types unless the user asks for them** or inference would fail. Do not “Rust-ify” Nyra by sprinkling `: i32` everywhere. See `webDocs/stdlib.html#optional-types` · learn track (`learn-get-started.html`).
+**For AI assistants:** when generating Nyra for beginners or app code, **omit types unless the user asks for them** or inference would fail. Do not “Rust-ify” Nyra by sprinkling `: i32` everywhere. Optional types: [stdlib guide](https://nyra-lang.github.io/docs/stdlib.html#optional-types) · [learn track](https://nyra-lang.github.io/docs/learn-get-started.html).
 
 ## Stability (v1.0)
 
-- **Core (stable):** types, control flow, modules, **enum tags** (unit variants), `match`, `impl Type { }`, ownership, FFI, `unsafe`/`no_std` (documented MVP).
-- **Extended (experimental):** **enum payloads** (`Some(i32)`, `Ok(T)` / `Err(E)`), `async`/`await`, traits, macros, **`defer`** (see [defer vs Drop](#defer-vs-drop--when-to-use-which)), explicit lifetimes, `spawn { }`.
-- **Core-stable:** monomorph **generics** (`fn id<T>`, `Option<T>`, `Result<T,E>`, `Arc<T>`, `Box<T>`), optional type annotations, `module` declarations.
-- Compiler emits **`warning[W001]`** on Extended features.
-- **`nyra check --deny-extended`** — fail on Extended tier (Core-only CI).
+Nyra has **two shipped tiers** (see [roadmap & stability](https://nyra-lang.github.io/docs/roadmap.html)):
+
+| Tier | Status | Examples | CI flag |
+|------|--------|----------|---------|
+| **Core** | Semver-stable | types, control flow, `match`, tag-only enums, `impl`, ownership, FFI, `unsafe`/`no_std`, monomorph generics (`fn id<T>`, `Vec_i32`), optional annotations | `nyra check --deny-extended` |
+| **Stable Extended** | Shipped in v1.39+ **without W001** in default builds | enum payloads, `async`/`await`, traits, `dyn`, macros, `defer`, explicit lifetimes, `spawn`, arrow fns, spread | default `nyra build` |
+
+- **Legacy note:** older docs called Extended "experimental" with **`warning[W001]`**. Current production tier (v1.39.x) ships Extended features in prebuilt releases; use `--deny-extended` only for Core-only CI gates.
+- **Core-stable generics:** `fn id<T>`, `Option<T>`, `Result<T,E>`, `Arc<T>`, `Box<T>` monomorph at compile time.
 
 ## Toolchain
 
@@ -166,9 +167,16 @@ myapp/
 
 Ship the executable from `target/release/` (or `target/{triple}/release/`) for production; run `./target/debug/main` while developing.
 
-Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--for`, `--os`, `--arch`, `--target`.
+Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` (ThreadSanitizer for async/concurrency debug), `--for`, `--os`, `--arch`, `--target`.
 
 Systems / freestanding: `--no-std` (skip `nyra_rt` link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`.
+
+**Environment variables:**
+
+| Variable | Purpose |
+|----------|---------|
+| `NYRA_SYSROOT` | MinGW/sysroot path for Windows cross-compile from macOS/Linux |
+| `NYRA_HOME` / `~/.nyra/config` | NyraPkg registry URL and cache defaults |
 
 ## Syntax conventions
 
@@ -185,7 +193,7 @@ let x = 1 /* inline block */ + 1
  */
 ```
 
-Unclosed `/*` is a lexer error. Tests: `tests/nyra/block_comments_test.ny` · `CONF-COMMENT-*`.
+Unclosed `/*` is a lexer error.  `CONF-COMMENT-*`.
 - **Entry:** `fn main()` in `main.ny` for projects.
 - **Naming:** `snake_case` for functions/variables; `PascalCase` for types/enums.
 
@@ -277,7 +285,7 @@ fn main() {
 }
 ```
 
-Check a comptime module: `nyra check examples/toolchain/comptime_tables.ny` (no codegen / no `main` required). Examples: `examples/toolchain/comptime_tables.ny`, `comptime_import_main.ny`, `comptime_fn_attr.ny`, `comptime_block_loops.ny`, `comptime_match.ny`, `comptime_struct_enum.ny`, `comptime_power.ny` (zero-types + `.typed.ny` pairs).
+Check a comptime module with `nyra check path/to/tables.ny` (no `main` required). Patterns: file-level `comptime`, `#[comptime]` fn, `comptime { }` block.
 
 **Philosophy (Zig-like, optional):** Nyra does not force comptime — use normal runtime code by default. When you need lookup tables, string routing, or generated constants with **zero runtime cost**, opt in via `comptime` file, `#[comptime]`, or `comptime { }`. The interpreter folds values before codegen so hot paths stay lean (like Zig `comptime`, but always optional).
 
@@ -301,6 +309,26 @@ Use `priv const` for internal comptime helpers (Nyra defaults to `pub` when visi
 - `let mut` of Copy types (`i32`, `bool`, enums) is not moved on function call.
 
 Integer separators: `1_000_000`
+
+### Metaprogramming (compile-time code generation)
+
+Nyra metaprogramming inspects or generates code **during compilation** — zero runtime reflection on hot paths:
+
+| Mechanism | When it runs | Example |
+|-----------|--------------|---------|
+| **Comptime** | const fold before codegen | `comptime` file, `#[comptime] fn`, `comptime { }` |
+| **Macros** | AST substitution before typecheck | `macro field_sum(a,b,c) { a + b + c }` |
+| **Generics** | Monomorph before LLVM IR | `fn id<T>(x: T) -> T` → `id__i32`, `id__string` |
+| **Struct JSON** | Compiler synthesis after typecheck | `{Struct}_json_encode` / `_json_decode` |
+
+**Struct → JSON (automatic):** declare an eligible struct; the compiler emits encode/decode helpers — no runtime serde registry:
+
+```ny
+struct User { name: string, age: i32 }
+let json = User_json_encode(User { name: "Ada", age: 30 })
+```
+
+See `examples/toolchain/metaprogramming.ny`, `examples/struct_serde.ny`, `stdlib/meta/mod.ny`, `stdlib/serde/mod.ny`.
 
 ## Language reference
 
@@ -427,10 +455,13 @@ Stop early without linking: `nyra check .` · JSON diagnostics: `nyra diag . --j
 | char | Copy | Unicode scalar; literals `'a'`, `'\n'`, `'\u{1F600}'` |
 | bool | Copy | true / false |
 | string | Move | UTF-8 pointer; literals are static |
+| bytes | Move | Binary blob handle; **not** implicitly convertible to `string` |
 | void | — | No return value (Rust `()` unit type) |
-| struct Name { fields } | Copy or Move | Move if any field is Move |
+| struct Name { fields } | Copy or Move | Move if any field is Move; `repr(C)`, `align(N)`, `packed` |
+| union Name { fields } | Copy | C-style union; field access only in `unsafe` |
 | enum Name { A, B } | Copy | **Tag-only** by default — unit variants, no stored data |
-| enum Name { Some(T) } | Copy or Move | **With payload** (Extended) — one field per variant; see [Enums & payloads](#enums--payloads) |
+| enum Name { Some(T) } | Copy or Move | **With payload** — heterogeneous payloads per variant supported |
+| i32x4 / f32x4 / f64x2 | Copy | Portable SIMD vector types |
 | option / Option | Copy | Built-in **tag names** for `??` / `?.` desugar; **payloads only after** `import "stdlib/option.ny"` |
 | result / Result | Copy | Same split as `Option` — tags built-in; `Ok(v)` / `Err(e)` need stdlib import or monomorph enum |
 | [T; N] | depends | Fixed array; type syntax `[i32; N]` or `[i32: N]` |
@@ -461,8 +492,12 @@ Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` �
 | `Mutex<T>` / `RwLock<T>` | `stdlib/sync/mutex.ny`, `rwlock.ny` | Stdlib |
 | `AtomicI32` / `AtomicBool` | `Atomic_i32`, `AtomicBool` in `stdlib/sync/atomic.ny` | Stdlib |
 | `Rc`, `Cell`, `RefCell`, `Pin`, `PhantomData`, `Cow`, `!` | — | Not in Nyra MVP |
+| `size_of` / `align_of` | `size_of<T>()`, `align_of<T>()` | Compiler intrinsics (`stdlib/mem/layout.ny`) |
+| Stack buffer | `StackBuffer_i32_64` (`stdlib/buf/stack.ny`) | Stack-only; cannot be returned |
+| Arena | `Arena_new` / `Arena_alloc` (`stdlib/alloc/arena.ny`) | Bump allocator, O(1) reset |
+| SIMD | `simd_add_i32x4`, `stdlib/simd/mod.ny` | Portable + platform (`x86.ny`, `arm.ny`) |
 
-Example: `examples/syntax/systems_types.ny` (zero types) and `.typed.ny`.
+ (zero types) and `.typed.ny`.
 
 **Integer literals** default to `i32`, but bind to any integer type when the target is known — e.g. `let c = Color { r: 18, g: 52, b: 86, a: 255 }` with `r: u8` fields accepts `255` without `: u8` on each literal.
 
@@ -521,8 +556,7 @@ nyra pkg c add raylib --no-install --path ./myapp
 
 Default: all bindable functions in `vendor/bindings/{stem}.ny`. C keyword params → `in_`, `type_`. Optional `--export` to shrink. `--shim` experimental.
 
-Docs: `webDocs/c-bindgen.html` · `examples/c_raylib/` · `examples/c_bindgen/`
-
+Docs: [c-bindgen](https://nyra-lang.github.io/docs/c-bindgen.html)
 ### Template strings (v1.2 — Core)
 
 Backtick strings with JS-style `${expr}` interpolation (static text + `i32` / `string` values):
@@ -534,7 +568,7 @@ print(`Hello, ${name}!`)
 print(`Hello ${name}, age ${age}`)
 ```
 
-See `examples/syntax/template_strings.ny` · learn track: `learn-strings.html`.
+ · [learn strings](https://nyra-lang.github.io/docs/learn-strings.html).
 
 ### Arrow functions (v2.1+ — Extended)
 
@@ -566,7 +600,7 @@ fn make_adder(n: i32) -> fn(i32) -> i32 {
 }
 ```
 
-Pass as `fn(...)` parameters: `iter_filter(v, pred)` or `listen_and_serve_handlers(host, port, router, health_slot)`.
+Pass as `fn(...)` parameters: `iter_filter(v, pred)` or `serve_handlers(host, port, max, router, health_slot)`.
 
 ### Nullish coalescing & optional chaining (v2.1+)
 
@@ -588,6 +622,35 @@ let m = opt?.method()        // optional method chain (v2.2)
 ```
 
 Without `import "stdlib/option.ny"`, `Option.Some(99)` is a **type error** (built-in `Some` expects zero args). Use the import for any code that constructs or matches payload values.
+
+## Generics
+
+Monomorph generics specialize at compile time — no runtime type info on hot paths.
+
+```ny
+fn id<T>(x: T) -> T {
+    return x
+}
+
+fn main() {
+    print(id(7))           // T = i32 → id__i32
+    print(id("hi"))      // T = string → id__string
+}
+```
+
+| Syntax | Meaning |
+|--------|---------|
+| `fn f<T>(x: T) -> T` | Type parameter `T` on function |
+| `struct Box<T> { … }` / `enum Option<T>` | Generic types — monomorph to `Box__string`, `Option__i32`, … |
+| `fn g<T: Trait>(x: T)` | Trait bound — requires `impl Trait for T` at monomorph site |
+| `T: A + B` | Multiple bounds |
+| `for<'a> fn(&'a T) -> i32` | HRTB function pointer type |
+
+**Naming after monomorph:** `Foo__T` or `Foo_T` (underscore style in stdlib: `Vec_i32`, `HashMap_str_i32`). Prefer explicit monomorph names in Core CI; generic syntax `Vec<T>` is Extended but compiles.
+
+**Inference:** `id(7)` infers `T` from the argument; ambiguous sites error with **E004** — add `: Type` manually.
+
+
 
 ## Control flow
 
@@ -611,7 +674,96 @@ while i < 10 {
 for j in 0..5 {
     print(j)    // 0, 1, 2, 3, 4
 }
+
+// break / continue
+let mut i = 0
+while i < 10 {
+    i = i + 1
+    if i == 5 { continue }   // skip rest of iteration
+    if i == 8 { break }      // exit loop
+    print(i)
+}
 ```
+
+## Match expressions
+
+`match` is **exhaustive** — cover all variants or use `_` wildcard. Works on enums, `bool`, integer literals, **strings** (v1.17+), structs, tuples.
+
+```ny
+enum Color { Red, Green, Blue }
+let n = match color {
+    Color.Red => 1
+    Color.Green => 2
+    Color.Blue => 3
+}
+
+// if expression (not match)
+let sign = if x >= 0 { 1 } else { -1 }
+```
+
+### Or-patterns, guards, wildcards
+
+```ny
+match c {
+    Color.Red | Color.Blue => 1    // single | not ||
+    Color.Green => 2
+}
+
+match method {
+    "GET" | "HEAD" => 200
+    "POST" | "PUT" => 201
+    _ => 404
+}
+
+match r {
+    Result.Ok(v) if v > 0 => v     // guard after pattern
+    Result.Ok(_v) => 0
+    Result.Err(e) => e
+}
+```
+
+### Payload binds & nested enums (v1.33+)
+
+```ny
+enum Option_i32 { None, Some(i32) }
+enum Result_Opt { Ok(Option_i32), Fail(Option_i32) }
+
+match r {
+    Result_Opt.Ok(Some(x)) => x
+    Result_Opt.Ok(Option_i32.None) => 0
+    Result_Opt.Fail(_) => -1
+}
+```
+
+**Limit:** all payload-bearing variants in one enum must share the **same** payload type — no `Ok(Option)` + `Err(i32)` mix.
+
+### Struct & tuple patterns (v1.37+)
+
+```ny
+match p {
+    Point { x, y } => x + y      // field bind shorthand
+}
+match pair {
+    (a, b) => a + b
+}
+```
+
+Field-value patterns (`Point { x: 0, y }`) are **not** supported — bind fields only.
+
+### Match rules summary
+
+| Feature | Supported |
+|---------|-----------|
+| Enum unit / payload arms | ✅ |
+| `bool`, integer literal arms | ✅ |
+| String literal arms on `string` scrutinee | ✅ |
+| `_` wildcard, `_ if guard` | ✅ |
+| Or-patterns `A \| B` | ✅ |
+| Struct / tuple destructure | ✅ |
+| Trailing comma after arm body | ✅ |
+| Field-value struct patterns | ❌ |
+
+Further reading: [match](https://nyra-lang.github.io/docs/match.html)
 
 ## Structs (objects)
 
@@ -656,6 +808,19 @@ impl Calculator {
 }
 // call: c.add(10)  →  Calculator_add(c, 10)
 ```
+
+**`impl` rules:**
+
+| Form | Purpose |
+|------|---------|
+| `impl Type { fn method(self, …) }` | Instance methods — `self` is owned receiver |
+| `impl Drop for Type { fn drop(self) }` | RAII cleanup at scope exit (preferred over `defer`) |
+| `impl Trait for Type { fn trait_method(self, …) }` | Static trait dispatch (Extended) |
+| `impl Type { fn new() -> Type }` | Constructor pattern (convention, not keyword) |
+
+Method calls borrow or move `self` per signature. Chaining works when methods return `self` (e.g. `HashMap_str_i32.insert`).
+
+**Tuples:** `(a, b)` — access `.0`, `.1`, …; destructure `let (x, y) = pair`; match arms `(a, b) => …`.
 
 ## Enums & payloads
 
@@ -780,11 +945,11 @@ fn pipeline_verbose() -> i32 {
 | Explicit `match` per step | Unwrap to a scalar return type (`i32`, `string`, …) |
 | `unwrap_*` helpers | `stdlib/result.ny` — e.g. `unwrap_i32_result(r, default)` |
 
-Tests: `tests/nyra/result_propagate_test.ny` · Examples: `examples/result_propagate_question.ny`, `examples/try_operator_smoke.ny` · Conformance: `CONF-ADT-004`
+ , Conformance: `CONF-ADT-004`
 
 Generic `Result<T,E>` / `Option<T>` (auto-prelude or `import "stdlib/option.ny"`) supports `?` the same way after monomorphization.
 
-See: `stdlib/option.ny` · `stdlib/result.ny` · `examples/option_payload_smoke.ny` · `CONF-ADT-*` conformance tests.
+See: `stdlib/option.ny` · `stdlib/result.ny`.
 
 ## Imports & modules
 
@@ -803,12 +968,66 @@ fn main() {
 
 - Project root: `main.ny` + optional `nyra.mod`.
 - Paths relative to importing file: `import "src/engine.ny"`.
-- Import brings **public** functions, structs, enums, consts into scope (`pub` default; `priv` hides from importers).
+- Import brings **public** symbols into scope; `priv` hides from importers.
 - `import "path" as alias` + `alias::symbol` qualified calls (v1.37+).
+
+### Visibility (`pub` / `priv`)
+
+| Modifier | Meaning |
+|----------|---------|
+| *(omit)* | **`pub` by default** — exported to importers |
+| `priv fn` / `priv struct` / `priv const` | Hidden from other files that import this module |
+| `pub const` | Explicit export (required in comptime modules) |
+
+```ny
+priv fn helper() { … }          // internal only
+fn public_api() { … }           // visible to importers
+```
+
+### Workspace (`nyra.mod`)
+
+Declare module identity, stdlib requires, and native link metadata:
+
+```text
+module my.api
+version 1.0.0
+require ny-sqlite ^0.1.0
+require stdlib.net.http
+link sqlite3
+link-source vendor/shim.c
+```
+
+Typical layout:
+
+```text
+my_api/
+  nyra.mod
+  main.ny
+  lib/common/
+  handlers/
+  workers/
+```
+
+Workspaces: [enterprise guide](https://nyra-lang.github.io/docs/enterprise.html)
 
 ## I/O & builtins
 
-See full runnable gallery: `examples/builtins/` · `webDocs/methods.html` · `webDocs/stdlib.html#builtins`
+Further builtins reference: [https://nyra-lang.github.io/docs/methods.html](https://nyra-lang.github.io/docs/methods.html) · [https://nyra-lang.github.io/docs/stdlib.html#builtins](https://nyra-lang.github.io/docs/stdlib.html#builtins)
+
+**Quick lookup — what needs an import?**
+
+| Category | Import? | Receiver / type |
+|----------|---------|-----------------|
+| I/O, `date()`, timing, `spawn`, `parallel for`, math intrinsics | **No** | Global functions |
+| String `.split()` / `.trim()` / … | **No** | `string` — borrows receiver |
+| Fixed array `.len()` / `.sort()` / `.sort_by()` | **No** | `[T; N]` |
+| Split list `.len()` / `for s in parts` | **No** | result of `.split()` |
+| `Vec_i32_*` / `vec_*` | auto-prelude or `import "stdlib/vec.ny"` | `ptr` handle |
+| `StrVec` methods | auto-prelude or `import "stdlib/vec_str.ny"` | `StrVec` struct |
+| `HashMap_str_*` methods | auto-prelude or `import "stdlib/map.ny"` | `HashMap_str_i32`, `HashMap_str_str` |
+| `Array_*` / `String_*` / `Math_*` / `JSON_*` | `import "stdlib/builtins_*.ny"` | Function-style wrappers |
+
+**User-defined methods:** declare with `impl TypeName { fn method(self, …) -> TypeName { … } }` — call as `obj.method(arg)` (lowers to `TypeName_method(obj, arg)`). `impl Drop for T` runs at scope exit. `impl Trait for T` for static dispatch; `dyn Trait` for trait objects (Extended).
 
 ### I/O (no import)
 
@@ -865,15 +1084,33 @@ for p in parts { print(p) }
 print("hello".trim().to_upper())
 ```
 
+### Number & math intrinsics (no import)
+
+Compiler builtins — lowered to LLVM, zero call overhead. Work with `--no-prelude`.
+
+| Call | Args | Returns | Notes |
+|------|------|---------|-------|
+| `abs(x)` | `i32` or `f64` | same as arg | Type overload |
+| `abs_i32(x)` / `abs_f64(x)` | 1 numeric | `i32` / `f64` | Explicit typed variants |
+| `min_i32(a, b)` / `max_i32(a, b)` | 2 × `i32` | `i32` | Min / max |
+| `min_f64(a, b)` / `max_f64(a, b)` | 2 × `f64` | `f64` | Min / max |
+| `clamp_i32(x, lo, hi)` | 3 × `i32` | `i32` | Clamp to `[lo, hi]` |
+| `sin(x)` / `cos(x)` / `tan(x)` | `f64` | `f64` | Trig (libm) |
+| `atan2(y, x)` | 2 × `f64` | `f64` | Two-arg atan |
+| `cpu_count()` | — | `i32` | Logical CPUs (for `parallel for`) |
+
+ For `pow_i32`, `sqrt_i32`, etc. use `stdlib/math.ny` or `import "stdlib/builtins_math.ny"` (`Math_max`, `Math_random`, …).
+
 ### Fixed arrays & `for … in` (no import)
 
 | Syntax / method | On | Returns |
 |-----------------|-----|---------|
+| `arr[i]` | fixed array | `T` — zero-based index |
 | `for i in 0..n` | half-open range | — |
 | `for x in arr` | `[T; N]` array | element `T` |
 | `for c in str` | `string` | `char` per byte |
 | `arr.length()` / `arr.len()` | fixed array | `i32` |
-| `arr.sort()` | `i32` / `f64` array | new sorted copy |
+| `arr.sort()` | `i32` / `f32` / `f64` array | new sorted copy |
 | `arr.sort_by(cmp)` | `fn(T, T) -> i32` | new sorted copy (any element type) |
 
 ```ny
@@ -890,6 +1127,93 @@ print(nums[0])   // original unchanged
 |--------|---------|
 | `parts.length()` / `parts.len()` | `i32` part count |
 | `for s in parts` | each `string` part |
+
+### `Vec_i32` — growable `i32` vector
+
+`import "stdlib/vec.ny"` (or auto-prelude). Handle type is `ptr` — **no** `.push()` method sugar; use free functions.
+
+| Function | Args | Returns | Notes |
+|----------|------|---------|-------|
+| `Vec_i32_new()` | — | `ptr` | Empty vector |
+| `Vec_i32_push(v, x)` / `vec_push(v, x)` | `ptr`, `i32` | `void` / `ptr` | Append; `vec_push` returns handle for chaining |
+| `Vec_i32_get(v, i)` / `vec_get(v, i)` | `ptr`, `i32` | `i32` | Index (0-based) |
+| `Vec_i32_set(v, i, value)` | `ptr`, `i32`, `i32` | `void` | In-place update |
+| `Vec_i32_len(v)` / `vec_len(v)` | `ptr` | `i32` | Element count |
+| `Vec_i32_pop(v)` | `ptr` | `i32` | Pop last |
+| `Vec_i32_from_range(start, end)` | 2 × `i32` | `ptr` | Half-open range fill |
+| `Vec_i32_free(v)` | `ptr` | `void` | Manual free (or auto-drop if owned) |
+
+```ny
+import "stdlib/vec.ny"
+
+let v = Vec_i32_new()
+Vec_i32_push(v, 10)
+Vec_i32_push(v, 20)
+print(Vec_i32_len(v))       // 2
+print(Vec_i32_get(v, 0))    // 10
+Vec_i32_set(v, 1, 99)
+```
+
+### `StrVec` — string vector with method syntax
+
+`import "stdlib/vec_str.ny"` (or auto-prelude). Struct with `impl` methods — **supports** `.push()` / `.get()` / `.len()`.
+
+| Method / function | Args | Returns | Notes |
+|-------------------|------|---------|-------|
+| `StrVec_new()` | — | `StrVec` | Empty list |
+| `.push(value)` | `string` | `StrVec` | Append (method chaining) |
+| `.get(index)` | `i32` | `string` | Indexed access |
+| `.len()` | — | `i32` | Element count |
+| `StrVec_from_lines(text)` | `string` | `StrVec` | Split on `\n` |
+| `StrVec_from_argv(start_index)` | `i32` | `StrVec` | CLI args from index |
+| `argv()` | — | `StrVec` | Shorthand: `StrVec_from_argv(1)` |
+| `StrVec_join_lines(vec)` | `StrVec` | `string` | Join with `\n` |
+| `Vec_string_*` aliases | — | — | Generic `Vec<string>` syntax maps here |
+
+```ny
+let lines = StrVec_from_lines("a\nb\nc")
+print(lines.get(0))
+let mut v = StrVec_new()
+v = v.push("hello").push("world")
+for s in v { print(s) }   // iterate when used as iterable in loops
+```
+
+### `HashMap` — string-keyed maps with method syntax
+
+`import "stdlib/map.ny"` (or auto-prelude). Two monomorph types ship today:
+
+| Type | Value type | Constructor |
+|------|------------|-------------|
+| `HashMap_str_i32` | `i32` | `HashMap_str_i32_new()` |
+| `HashMap_str_str` | `string` | `HashMap_str_str_new()` |
+
+| Method | Args | Returns | Notes |
+|--------|------|---------|-------|
+| `.insert(key, value)` | `string`, value | same map type | **Chains** — returns `self` |
+| `.get(key)` | `string` | `i32` / `string` | Lookup (0 / `""` if missing — check with `.contains`) |
+| `.contains(key)` | `string` | `i32` | `1` if key exists, else `0` |
+| `.keys()` | — | `StrVec` | All keys |
+| `.remove(key)` | `string` | same map type | Remove key; chains |
+
+Low-level `ptr` API (FFI style): `map_str_i32_new`, `map_str_i32_insert`, `map_str_i32_get`, `map_str_i32_contains`, `map_str_i32_keys`, `map_str_i32_remove`, `map_str_i32_free`. Struct wrappers auto-call `Drop`.
+
+```ny
+import "stdlib/map.ny"
+
+let scores = HashMap_str_i32_new()
+    .insert("alice", 95)
+    .insert("bob", 87)
+
+print(scores.get("alice"))       // 95
+print(scores.contains("bob"))    // 1
+
+let keys = scores.keys()
+for k in keys { print(k) }
+
+let updated = scores.remove("bob")
+```
+
+Generic syntax `HashMap<K, V>` is Extended tier — monomorph names above are Core-stable.
 
 ### Timing & memory (no import)
 
@@ -912,98 +1236,205 @@ spawn {
 }
 ```
 
-Channels: `stdlib/sync/channel.ny` · see `examples/syntax/spawn_channel.ny`
+Channels: `stdlib/sync/channel.ny`
 
-### `parallel for` (Extended)
+### `parallel for` / `parallel:task` / `parallel:thread` (Extended)
 
-Independent iterations across worker threads — no manual thread pool. Compiler lowers to `parallel_for_range` (`stdlib/rt/rt_parallel.c`).
+Gallery: [methods.html#ex-parallel](https://nyra-lang.github.io/docs/methods.html#ex-parallel) · Runnable: `examples/builtins/parallel/`
+
+Each entry: **name → explanation → example → output** (see webDocs gallery for full list).
+
+| Feature | Gallery |
+|---------|---------|
+| `parallel for` (task pool default) | `#ex-parallel` |
+| `parallel:task(max = N)` | `#ex-parallel-task-max` |
+| `parallel:thread(max = N)` | `#ex-parallel-thread` |
+| `parallel(cpu = P%)` | `#ex-parallel-cpu` |
+| `parallel(mode = …)` | `#ex-parallel-mode` |
+| `parallel(threads = N)` | `#ex-parallel-exact` |
+| `cpu_count()` | `#ex-cpu-count` |
+| `progress for` | `#ex-progress` |
+| `benchmark { }` | `#ex-benchmark` |
+
+**Rules:** no `break`; no outer mutation; captures **Send**; range/array/string/`vec_str`. On `wasm32-wasi`, sequential.
+
+### `progress for` / `benchmark { }` / `defer` / `async` (Extended)
+
+| Feature | Gallery |
+|---------|---------|
+| `progress for` | `#ex-progress` |
+| `benchmark { }` | `#ex-benchmark` |
+| `defer` | `#ex-defer` · `#ex-defer-lifo` |
+| `async fn` + `await` | `#ex-async-fn` · `#ex-await` |
+| `Future<T>` | `#ex-async-future` |
+
+Runnable: `examples/builtins/{parallel,benchmark,defer,async}/`
+
+
+
+## Async & await (Stable Extended)
+
+`async`/`await` compile to promise handles + cooperative poll loops. **Not available on `wasm32-wasi`.**
 
 ```ny
-parallel for i in 0..1000 { work(i) }
-parallel(max_threads = 4) for i in 0..1000 { work(i) }
-parallel(threads = 4) for i in 0..1000 { work(i) }
-parallel(cpu = 80%) for i in 0..n { work(i) }
-parallel(threads = cpu_count() - 1) for i in 0..n { work(i) }
-parallel(mode = balanced) for i in 0..n { work(i) }
-```
-
-| Option | Meaning |
-|--------|---------|
-| *(none)* | `mode = auto`, workers from CPU count |
-| `max_threads = N` | At most N workers |
-| `threads = N` | Exactly N workers |
-| `cpu = P%` | `P` percent of logical CPUs |
-| `mode` | `auto`, `balanced`, `max_performance`, `background` |
-
-`cpu_count()` — built-in logical CPU count.
-
-Rules: no `break`; no mutation of outer variables; captures must be **Send**; iterable must be range, fixed array, `string`, or `vec_str`. On `wasm32-wasi`, runs sequentially.
-
-See `examples/parallel_for.ny`.
-
-### `progress for` (Extended)
-
-Built-in progress bar for sequential loops (`stdlib/rt/rt_progress.c`).
-
-```ny
-progress(label = "parser tests") for item in tests {
-    run(item)
+async fn fetch() -> i32 {
+    let h = async_promise_new()
+    // … complete promise …
+    return await h
 }
 
-progress for i in 0..100 {
-    step(i)
-}
-```
-
-Output each iteration: `[#####-------] 43%` plus `Running parser tests...`. Optional `label = "..."`; default derives from iterable name. Cannot combine with `parallel for`.
-
-See `examples/progress_for.ny`.
-
-### `benchmark { }` (Extended)
-
-Measure wall time, RSS delta, and process CPU usage — no manual timers.
-
-```ny
-benchmark {
-    run()
+fn main() {
+    let f = fetch()        // returns promise handle immediately (non-blocking call site)
+    let v = await f        // yields i32 when complete
 }
 ```
 
-Prints:
+| Topic | Behavior |
+|-------|----------|
+| **`async fn` desugar (v1.5)** | Body runs in `spawn`; call site gets promise handle immediately |
+| **State machine (v1.6–v1.7)** | Top-level `await` in `async fn`; **`await` inside `if` / `while` / range `for`** (CFG lowering) |
+| **`await` in `spawn` / `unsafe`** | Uses blocking `async_await` — not cooperative |
+| **Runtime symbols** | `async_promise_new`, `async_promise_complete`, `async_poll`, `async_await`, `runtime_executor_tick` |
+| **Executor (v1.4)** | `Executor_sleep_ms`, `Executor_run_until` |
+| **Futures (v1.26)** | `import "stdlib/async/future.ny"` — `Future_i32`, `Future_select2_i32(a, b)` |
+| **Race detection** | `nyra build --race` → ThreadSanitizer (`-fsanitize=thread`) |
 
+
+
+## Concurrency & sync primitives
+
+Beyond `spawn { }` and `parallel for` (see [I/O & builtins](#io--builtins)):
+
+### Send / Sync (spawn captures)
+
+| Rule | Detail |
+|------|--------|
+| **`spawn` captures** | Must be **Send**; **no `&` / `&mut` captures** |
+| **Shared refs across threads** | Inner type must be **Sync** |
+| **Active borrows** | Rejected in closure env |
+
+Full rules: [Send/Sync](https://nyra-lang.github.io/docs/memory.html#send-sync) · [concurrency](https://nyra-lang.github.io/docs/concurrency.html)
+
+### Channels — `import "stdlib/sync/channel.ny"`
+
+| Type | Methods | Payload |
+|------|---------|---------|
+| `Channel_i32` | `.send(i32)`, `.recv() -> i32` | `i32` |
+| `Channel_str` | `.send(string)`, `.recv() -> string` | `string` |
+
+Low-level: `channel_new`, `channel_send`, `channel_recv`, `channel_free` (C runtime `stdlib/rt/rt_channel.c`).
+
+### Mutex / RwLock / WaitGroup / Atomic
+
+```ny
+import "stdlib/sync/mutex.ny"
+import "stdlib/sync/rwlock.ny"
+import "stdlib/sync/waitgroup.ny"
+import "stdlib/sync/atomic.ny"
 ```
-Time: 14.2 ms
-Memory: 1.8 MB
-CPU: 38%
-```
 
-Lowers to `benchmark_begin()` / `benchmark_end()` in `stdlib/rt/rt_bench.c`. For iteration loops use `stdlib/bench/mod.ny`; for labeled timers use `time_start` / `mem_start`.
+| Type | API |
+|------|-----|
+| `Mutex` | `.lock()`, `.unlock()` |
+| `Mutex_i32` | legacy wrapper around `Mutex` |
+| `RwLock` / `RwLock_i32` | read/write lock wrappers |
+| `WaitGroup` | `.add(delta)`, `.done()`, `.wait()` |
+| `Atomic_i32` | `.load()`, `.store(v)`, `.fetch_add(n)` |
+| `AtomicBool` | `.load()`, `.store(bool)` |
 
-See `examples/benchmark_block.ny`.
+### Runtime concurrency symbols (C)
+
+| Symbol | Role |
+|--------|------|
+| `spawn_capture` | Thread spawn with heap capture copy |
+| `parallel_for_range` | Fork-join `parallel for` |
+| `progress_update` / `progress_finish` | Progress bar |
+
+Not on `wasm32-wasi` (sequential stub).
 
 ## Stdlib-style helpers (import required)
 
-These are **not** built-ins — import when needed:
+Ergonomic **function-style** wrappers — use when you prefer JS-like names over `ptr` handles or method syntax.
+
+### `stdlib/builtins_array.ny` — `Vec_i32` helpers
 
 ```ny
 import "stdlib/builtins_array.ny"
-import "stdlib/vec.ny"
 ```
 
 | Function | Description |
 |----------|-------------|
-| `Array_push(v, x)` | Append `i32` to `Vec_i32` |
+| `Array_push(v, x)` | Append `i32` |
 | `Array_pop(v)` | Pop last `i32` |
 | `Array_map(v, f)` | Map with `fn(i32) -> i32` |
-| `Array_filter(v, pred)` | Filter (`pred` returns 1/0) |
+| `Array_filter(v, pred)` | Filter (`pred` returns `1`/`0`) |
 | `Array_reduce(v, init, f)` | Fold left |
 | `Array_find(v, pred, fallback)` | First match or fallback |
 
-Example: `examples/builtins/array/main.ny`
+### `stdlib/builtins_string.ny` — string helpers
+
+```ny
+import "stdlib/builtins_string.ny"
+```
+
+| Function | Description |
+|----------|-------------|
+| `String_toUpperCase(s)` / `String_toLowerCase(s)` | ASCII case |
+| `String_includes(s, needle)` | Substring test → `i32` `1`/`0` |
+| `String_split(s, sep)` | Split → `ptr` string vector |
+| `String_replace(s, from, to)` | Replace all matches |
+| `String_replacen(s, from, to, count)` | Replace at most `count` matches |
+| `trim(s)` | Strip whitespace |
+
+Prefer built-in `.split()` / `.trim()` on `string` when you do not need the import.
+
+### `stdlib/random.ny` — ChaCha20 CSPRNG (hardware-seeded)
+
+```ny
+import "stdlib/random.ny"
+```
+
+| Function | Description |
+|----------|-------------|
+| `random()` | Random `i32` by default — ChaCha20 stream seeded from OS/hardware entropy |
+| `random(min, max)` | Inclusive integer range; **return type follows bounds** (`i32`, `i64`, `u64`, …) with rejection sampling (no modulo bias) |
+| `random<T>()` / `random<T>(min, max)` | Explicit integer type when inference is ambiguous |
+| `random_f64()` | Random `f64` in `[0, 1)` — 53-bit precision |
+| `random_f64(min, max)` | Random `f64` in `[min, max)` |
+| `shuffle_pick(vec)` | Random element from an `i32` vector handle (**import required**) |
+
+Seeding uses `getentropy` / `arc4random_buf` / `BCryptGenRandom` / Intel `RDRAND` (when available), mixed into ChaCha20. For raw OS TRNG bytes use `stdlib/os/hw_crypto.ny` → `hw_random_bytes`.
+
+### `stdlib/builtins_math.ny` — JS-style math
+
+```ny
+import "stdlib/builtins_math.ny"
+```
+
+| Function | Description |
+|----------|-------------|
+| `Math_max(a, b)` / `Math_min(a, b)` | Min / max (`i32`) — wraps `max_i32` / `min_i32` |
+| `Math_round(x)` / `Math_floor(x)` / `Math_ceil(x)` | Rounding (MVP on `i32`) |
+| `Math_random()` | Random `f64` in `[0, 1)` — ChaCha20 via `rand_f64()` |
+
+### `stdlib/builtins_json.ny` — MVP JSON helpers
+
+```ny
+import "stdlib/builtins_json.ny"
+```
+
+| Function | Description |
+|----------|-------------|
+| `JSON_stringify(key, value)` | Single-field JSON object string |
+| `JSON_parse(json, key)` | Read string field from JSON |
+
+For full JSON/serde use `stdlib/json/mod.ny`, `stdlib/serialize/mod.ny`, or NyraPkg `ny-serde`.
+
+
 
 ## Ownership (summary)
 
-Nyra has **no GC**. The compiler builds a **DropPlan** per function and emits `free` / custom `Drop_*_drop` at scope exit. Docs: `webDocs/memory.html`, lessons `learn-ownership.html` / `learn-borrowing.html`.
+Nyra has **no GC**. The compiler builds a **DropPlan** per function and emits `free` / custom `Drop_*_drop` at scope exit. [Memory guide](https://nyra-lang.github.io/docs/memory.html) · [learn ownership](https://nyra-lang.github.io/docs/learn-ownership.html) · [learn borrowing](https://nyra-lang.github.io/docs/learn-borrowing.html).
 
 ### Copy vs Move
 
@@ -1032,6 +1463,34 @@ print(b)
 9. **Clone** — explicit (`clone user` / `.clone()`); synthesized for `string` and cloneable structs.
 10. **`defer`** — optional scope-exit hook (Extended). **For memory cleanup, use auto-drop or `impl Drop` instead** — see [defer vs Drop](#defer-vs-drop--when-to-use-which).
 11. **`spawn` / closures** — no `&` captures; move types must be **Send**; parent binding marked moved.
+
+### Borrowing examples
+
+```ny
+fn read_len(s: &string) -> i32 {
+    return s.length()
+}
+
+fn main() {
+    let name = "Ada"
+    print(read_len(name))     // auto-borrow &name
+    print(name.length())    // method borrows — name still valid
+
+    let mut count = 0
+    let r = &mut count
+    print(*r)               // read through mut ref
+    count = count + 1       // mutate binding directly
+
+    let a = "hello"
+    let b = a                 // move — a invalid after
+    print(b)
+    // print(a)              // E012 use after move
+}
+```
+
+**String concat:** runtime uses `strcat(a, b)` (moves args unless borrowed). Comptime allows `+` on string literals. Before `strcat(a, …)` reuse `a` with `clone a` or `a.clone()`.
+
+**Float literals:** `3.14` → `f64`; `1.5f32` or `: f32` annotation for `f32`.
 
 ### defer vs Drop — when to use which
 
@@ -1079,7 +1538,7 @@ Reusable resources, predictable order, no `warning[W001]` from `defer` — **pre
 
 **Roadmap note:** If Core users need FFI teardown without Extended `impl Drop`, promoting **`defer` to Core** could be reconsidered. Today both are Extended; **Drop-first documentation avoids needing `defer` in Core-only codebases.**
 
-See: `webDocs/memory.html#defer` · `webDocs/memory.html#custom-drop` · `CONF-*` ownership tests
+See [defer vs Drop](https://nyra-lang.github.io/docs/memory.html#defer) · [custom Drop](https://nyra-lang.github.io/docs/memory.html#custom-drop)
 
 ### Copy vs Move (RFC 0008)
 
@@ -1135,7 +1594,7 @@ struct Profile { name: string, role: string, theme: string }
 let merged = Profile { ...user, theme: "dark" }
 ```
 
-See `examples/syntax/spread_operator.ny` (zero-types) and `spread_operator.typed.ny`. Object spread into arrays requires **compatible scalar field types** (same element type as the rest of the array). Object spread in `{ ...obj }` requires a **struct** value.
+ (zero-types) and `spread_operator.typed.ny`. Object spread into arrays requires **compatible scalar field types** (same element type as the rest of the array). Object spread in `{ ...obj }` requires a **struct** value.
 
 ### Struct spread (Extended)
 
@@ -1166,7 +1625,7 @@ let p = Pair { a: 1, b: 2 }
 let q = Pair { ...p, b: 9 }
 ```
 
-See `examples/syntax/struct_spread_merge.ny`. Named struct targets use `Type { ...spread }`. Anonymous `{ ...spread, key: value }` also works when fields are inferred (see above).
+ Named struct targets use `Type { ...spread }`. Anonymous `{ ...spread, key: value }` also works when fields are inferred (see above).
 
 ### Auto-borrow example
 
@@ -1212,9 +1671,9 @@ Use-after-move errors name the callee and line, show the function signature, and
 | `cannot return reference to local` | Return owned value or `&'a` from parameter |
 | `cannot capture reference in closure` | Capture owned Copy/Move value |
 
-## Stdlib (modular — see stdlib/README.md)
+## Stdlib (modular — see https://nyra-lang.github.io/docs/stdlib.html)
 
-> **Batteries-included by design:** Nyra’s stdlib is **strong** — crypto, databases, serialization, WebSocket, compression, and encoding belong **in-tree** with the compiler. Some modules are still **stubs or MVP** while native implementations land in `stdlib/rt/`; import paths stay stable. **NyraPkg** complements stdlib for community and optional packages — it does not replace core domains. Status inventory: `stdlib/README.md` · `webDocs/stdlib.html#status`.
+> **Batteries-included by design:** Nyra’s stdlib is **strong** — crypto, databases, serialization, WebSocket, compression, and encoding belong **in-tree** with the compiler. Some modules are still **stubs or MVP** while native implementations land in `stdlib/rt/`; import paths stay stable. **NyraPkg** complements stdlib for community and optional packages — it does not replace core domains. Status inventory: [stdlib](https://nyra-lang.github.io/docs/stdlib.html) · [status](https://nyra-lang.github.io/docs/stdlib.html#status).
 
 ### What ships vs what is in progress
 
@@ -1226,7 +1685,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 | **Shipped (v1.1)** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
 | **Stub → in progress** | `compress/bzip2.ny` (link `bz2`) | Native driver when linked |
 
-Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Language vs Ecosystem](../webDocs/language-vs-ecosystem.html).
+Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Language vs Ecosystem](https://nyra-lang.github.io/docs/language-vs-ecosystem.html).
 
 ### Naming: current style vs legacy (read this)
 
@@ -1235,7 +1694,7 @@ Nyra uses **monomorph names** in Core stdlib and **generic syntax** in Extended 
 | API | Current (use this) | Legacy / alternate | Notes |
 |-----|-------------------|-------------------|-------|
 | Growable `i32` vector | `Vec_i32_new()`, `Vec_i32_push(v, x)`, `Vec_i32_len(v)` | `Vec<T>` generic syntax (Extended) | Handle type is `ptr`; free with `Vec_i32_free(v)` or scope end if owned |
-| String-key map | `HashMap_str_i32_*`, `HashMap_str_str_*`, `Map_str_i32_*` in `map.ny` | `HashMap<K,V>` (Extended) | **Method chaining works:** `HashMap_str_i32_new().insert("a", 1).insert("b", 2)` · or low-level `ptr` + `nyra_map_*` externs |
+| String-key map | `HashMap_str_i32_*`, `HashMap_str_str_*`, `Map_str_i32_*` in `map.ny` | `HashMap<K,V>` (Extended) | **Method chaining:** `.insert().insert()` · `.get` · `.contains` · `.keys()` · `.remove()` |
 | String vector | `StrVec`, `StrVec_from_argv`, `StrVec_from_lines` in `vec_str.ny` | `Vec_str_*` low-level `ptr` API | CLI args, JSON keys, line lists |
 | Heap single owner | `import "stdlib/box.ny"` → `Box<string>`, `Box_new(value)` | `Box_string` (v2.3 changelog name) | `Box<T>` monomorph; today `Box_new` ships for `string` |
 | Shared ownership | `import "stdlib/arc.ny"` → `Arc<i32>`, `Arc<string>`, `Arc_from_i32`, `Arc_from_string`, `Arc_get_applied_i32` | `Arc_i32`, `Arc_new_i32`, `Arc_clone_i32` (v2.3 struct + manual `impl Drop`) | Legacy `Arc_i32` API remains in `arc.ny` for backward compat |
@@ -1259,7 +1718,27 @@ fn main() {
 }
 ```
 
-Do **not** write `v.push(1)` — `Vec_i32` is a `ptr` handle, not a method-chaining object. Use `Vec_i32_push(v, x)` or `import "stdlib/builtins_array.ny"` helpers (`Array_push`, `Array_map`, …).
+Do **not** write `v.push(1)` on `Vec_i32` — `ptr` handle, not method-chaining object. Use `Vec_i32_push(v, x)` or `import "stdlib/builtins_array.ny"` helpers (`Array_push`, `Array_map`, …). For string lists use `StrVec` which **does** support `.push()`.
+
+### HashMap example (method chaining)
+
+```ny
+import "stdlib/map.ny"
+
+fn main() {
+    let cache = HashMap_str_str_new()
+        .insert("theme", "dark")
+        .insert("lang", "en")
+
+    print(cache.get("theme"))
+    print(cache.contains("lang"))
+
+    let keys = cache.keys()
+    for k in keys { print(k) }
+
+    cache = cache.remove("lang")
+}
+```
 
 ### Arc / Box examples (Extended — generic syntax)
 
@@ -1277,7 +1756,7 @@ fn main() {
 }
 ```
 
-See: `examples/graph_arc_smoke.ny` · `examples/monolith_struct_smoke.ny` · `stdlib/README.md`
+See [stdlib](https://nyra-lang.github.io/docs/stdlib.html)
 
 ```ny
 import "stdlib/vec.ny"
@@ -1285,11 +1764,22 @@ import "stdlib/map.ny"
 import "stdlib/strings/ops.ny"
 ```
 
-**Stdlib auto-prelude (lazy):** Referenced stdlib symbols resolve on demand via a virtual symbol table — use `read_file`, `Vec_i32_new`, `StrVec`, `os_arg_count`, `os_arg_at`, `list_dir`, `is_dir`, etc. without imports; only used modules are merged into the build. Opt out with `# no_std` or `--no-prelude`. Explicit `import "stdlib/vec.ny"` still works.
+**Stdlib auto-prelude (lazy):** Referenced stdlib symbols resolve on demand via a virtual symbol table — use `read_file`, `Vec_i32_new`, `StrVec`, `HashMap_str_i32_new`, `os_arg_count`, `os_arg_at`, `list_dir`, `is_dir`, `env_get`, etc. without imports; only used modules are merged into the build. Opt out with `# no_std` or `--no-prelude`. Explicit `import "stdlib/vec.ny"` still works.
 
-**Compiler math intrinsics (always on):** `abs_i32`, `abs_f64`, `min_i32`, `max_i32`, `clamp_i32`, `min_f64`, `max_f64`, and typed `abs(x)` lower to LLVM intrinsics — no stdlib merge required. See `examples/builtins/math_intrinsics.ny` with `--no-prelude`.
+**Common auto-prelude symbols (no import when prelude enabled):**
 
-**Core modules (usable):** `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `strings/regex.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `time/instant.ny`, `time/date.ny`, `json/mod.ny`, `serialize/mod.ny`, `iter/mod.ny`, `env/mod.ny`, `config/mod.ny`, **`net/http/mod.ny`**, `net/tcp.ny`, `net/udp.ny`, `net/websocket.ny`, `tls.ny`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny`, `bridge/mod.ny`, `db/sqlite.ny`, `db/lsm.ny`, `db/sql_parse.ny`, `db/sstable.ny`, `collections/btree_pages.ny`, `bench/mod.ny`, `profile/mod.ny`, `testing.ny`, `async.ny` (Extended). Docs: `webDocs/stdlib.html` (`#cli-parsing`, `#database`, `#process`, `#crypto`).
+| Domain | Functions |
+|--------|-----------|
+| **FS** | `read_file`, `read_file_limit`, `write_file`, `append_file`, `file_exists`, `exists`, `is_dir`, `list_dir`, `list_dir_entries`, `create_dir`, `create_dir_all`, `remove_file`, `remove_dir`, `copy_file`, `file_size` |
+| **CLI / env** | `os_arg_count`, `os_arg_at`, `argv`, `env_get`, `env_set`, `env_has` |
+| **Collections** | `Vec_i32_*`, `vec_*`, `StrVec_*`, `HashMap_str_i32_*`, `HashMap_str_str_*` |
+| **Strings** | `strcat`, `strlen`, `substring`, `strstr_pos` (via `stdlib/strings.ny` chain) |
+| **Crypto** | `sha256`, `hmac_sha256`, … (`stdlib/crypto/mod.ny`) |
+| **Net** | `tcp_listen`, `tcp_accept`, … (`stdlib/net/tcp.ny`) |
+
+**Compiler math intrinsics (always on):** `abs`, `abs_i32`, `abs_f64`, `min_i32`, `max_i32`, `clamp_i32`, `min_f64`, `max_f64`, `sin`, `cos`, `tan`, `atan2`, and typed `abs(x)` lower to LLVM — no stdlib merge required.  with `--no-prelude`.
+
+**Core modules (usable):** `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `strings/regex.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `time/instant.ny`, `time/date.ny`, `json/mod.ny`, `serialize/mod.ny`, `iter/mod.ny`, `env/mod.ny`, `config/mod.ny`, **`net/http/mod.ny`**, `net/tcp.ny`, `net/udp.ny`, `net/websocket.ny`, `tls.ny`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny`, `bridge/mod.ny`, `db/sqlite.ny`, `db/lsm.ny`, `db/sql_parse.ny`, `db/sstable.ny`, `collections/btree_pages.ny`, `bench/mod.ny`, `profile/mod.ny`, `testing.ny`, `async.ny` (Extended). [Stdlib reference](https://nyra-lang.github.io/docs/stdlib.html) (`#cli-parsing`, `#database`, `#process`, `#crypto`).
 
 ### Database quick start (v1.21)
 
@@ -1328,23 +1818,34 @@ fn main() {
 
 Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure Nyra stdlib.
 
-**Shipped (v1.1):** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. See `stdlib/README.md`.
+**Shipped (v1.1):** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/docs/stdlib.html).
 
-### net/http quick start (v1.2)
+### net/http API reference (v1.2+)
 
-Static response bodies:
+`import "stdlib/net/http/mod.ny"` — **canonical names:** `HttpRouter`, `HttpRouter_*`, `serve_handlers` (older docs may say `Router_*` / `listen_and_serve_*` — prefer `HttpRouter_*` in new code).
 
-```ny
-import "stdlib/net/http/mod.ny"
+**Method constants:** `METHOD_GET`, `METHOD_POST`, `METHOD_PUT`, `METHOD_DELETE`, `METHOD_PATCH`, `METHOD_HEAD`, `METHOD_OPTIONS`.
 
-fn main() {
-    let router = Router_new()
-    let r = Router_add_get(router, "/health", "{\"status\":\"ok\"}")
-    listen_and_serve("127.0.0.1", 8080, r)
-}
-```
+#### Router & server
 
-Handler dispatch (Nyra functions per route slot):
+| Function | Description |
+|----------|-------------|
+| `HttpRouter_new()` | Empty router |
+| `HttpRouter_register(router, method, path, tag)` | Static response tag string |
+| `HttpRouter_register_slot(router, method, path, slot)` | Handler slot id |
+| `HttpRouter_match_slot(router, ctx)` | Resolve slot (`-1` missing) |
+| `serve_handlers(host, port, max_requests, router, handler)` | `handler(slot, ctx) -> HttpResponse` |
+| `serve_loop(host, port, max_requests)` | Builtin loop |
+| `serve_once(host, port, body)` | Single request |
+
+#### Responses & client
+
+| Function | Role |
+|----------|------|
+| `response_ok_json(body)` | 200 JSON |
+| `response_created_json`, `response_not_found`, … | Status helpers |
+| `get(url)` / `fetch(url)` | HTTP GET |
+| `post`, `put`, `patch`, `delete` | Verbs → `HttpResponse` |
 
 ```ny
 import "stdlib/net/http/mod.ny"
@@ -1354,13 +1855,28 @@ fn health_slot(slot: i32, ctx: RequestContext) -> HttpResponse {
 }
 
 fn main() {
-    let router = Router_new()
-    let r = Router_add_slot_get(router, "/health", 0)
-    listen_and_serve_handlers("127.0.0.1", 8080, r, health_slot)
+    let mut router = HttpRouter_new()
+    router = HttpRouter_register_slot(router, METHOD_GET, "/health", 0)
+    serve_handlers("127.0.0.1", 8080, 100, router, health_slot)
 }
 ```
 
-Full API: `webDocs/net-http.html` · `examples/net_http_smoke.ny`. Compose with `stdlib/db/*` and NyraPkg drivers for production services.
+[net/http reference](https://nyra-lang.github.io/docs/net-http.html)
+
+### TCP, WebSocket, crypto, serde (quick API)
+
+| Module | Key APIs |
+|--------|----------|
+| `stdlib/net/tcp.ny` | `tcp_listen`, `tcp_accept`, `tcp_connect`, `tcp_read`, `tcp_write` |
+| `stdlib/net/websocket.ny` | `WebSocket_connect`, `ws_listen_on`, `.send`, `.recv` |
+| `stdlib/crypto/mod.ny` | `sha256`, `hmac_sha256`, `sha512` (submodules) |
+| `stdlib/serde/mod.ny` | `trait Serialize` / `Deserialize`; `{Struct}_json_encode/decode` |
+| `stdlib/flag/mod.ny` | `FlagSet_new`, `Flag_parse`, `.verbose()`, `.help()` |
+| `stdlib/strconv/mod.ny` | `atoi`, `itoa`, `parse_f64`, `format_f64` |
+| `stdlib/bufio/mod.ny` | `Scanner_new`, `Scanner_scan`, `ReadLine` |
+| `stdlib/iter/mod.ny` | `iter_filter`, `iter_map`, `vec_reduce_sum` |
+| `stdlib/process.ny` | `exec(program, args)`, `Command` |
+| `stdlib/collections/set.ny` | `HashSet_str` — `.insert`, `.contains` |
 
 **Low-level runtime** (still valid): `read_file`, `vec_i32_*`, `map_str_i32_*`, `channel_*`, `bridge_exec`, `spawn { }`.
 
@@ -1390,12 +1906,12 @@ link-source vendor/shim.c
 |--------|-----|
 | Registry name | `nyra pkg install ny-sqlite@^0.1.0` — default `http://127.0.0.1:9470` (`~/.nyra/config`) |
 | Git URL | `require https://github.com/you/ny-lib` |
-| Bundled dev copy | `examples/packages/ny-sqlite`, `ny-serde`, `ny-toml` when in Nyra repo |
+| Bundled dev copy | NyraPkg registry / `nyra pkg install` |
 
 - **`link`** / **`link-arg`** merge into project `nyra.mod` on install.
 - **`link-source`** compiles package `.c` files at `nyra build` (no manual `clang`).
 - Lock: `nyra.lock` + `nyra.sum` pin exact versions; `nyra pkg verify` checks constraints.
-- **`nyra pkg prune`** — auto-fix unused code (like `cargo fix` for lint warnings). See [packages.html](packages.html#prune).
+- **`nyra pkg prune`** — auto-fix unused code (like `cargo fix` for lint warnings). See [NyraPkg prune](https://nyra-lang.github.io/docs/packages.html#prune).
 - Native C libraries (e.g. `-lsqlite3`) must exist on the system; NyraPkg ships bindings + shims, not OS packages.
 
 ### `nyra pkg prune` (unused code cleanup)
@@ -1434,7 +1950,7 @@ fn main() {
 }
 ```
 
-Implementation: `compiler/lint/src/prune.rs` · driver: `Compiler::prune_project()` · tests: `cargo test -p lint`, `cargo test -p compiler --test pkg_prune`.
+Implementation: `nyra pkg prune` / `nyra pkg prune --check` (see [NyraPkg](https://nyra-lang.github.io/docs/packages.html#prune)).
 
 ## Native code & C interop
 
@@ -1443,7 +1959,7 @@ Nyra **compiles to native LLVM code** — it is not interpreted. C appears in th
 | Layer | Role | Example |
 |-------|------|---------|
 | **Nyra runtime** | Bootstrap I/O, strings, spawn, channels | `stdlib/rt/*.c` → stable C ABI |
-| **FFI shims** | Thin wrappers around existing C APIs | `link-source rt/hiredis_shim.c`, `examples/packages/ny-redis/rt/` |
+| **FFI shims** | Thin wrappers around existing C APIs | `link-source` `.c` files in your package |
 | **Your app logic** | Business code, routing, validation | `.ny` files — **preferred** |
 
 Nyra is **not** “too weak” for these tasks — C is used for mature libraries (OpenSSL, libpq, hiredis) and low-level runtime, same pattern as Rust + libc. Application code stays in Nyra; do not rewrite Redis/Postgres wire protocols in Nyra.
@@ -1454,10 +1970,10 @@ Nyra does **not** require libraries to be written in Nyra. Pick the pattern:
 
 | Need | Pattern | Example |
 |------|---------|---------|
-| C API (raylib, zlib, sqlite3) | `nyra pkg c add NAME` — one command | `examples/c_raylib/` · `webDocs/c-bindgen.html#pkg-c` |
+| C API (raylib, zlib, sqlite3) | `nyra pkg c add NAME` — one command | [c-bindgen](https://nyra-lang.github.io/docs/c-bindgen.html#pkg-c) |
 | pip / npm / Maven ecosystem | **Language bridge** — subprocess JSON workers | `stdlib/bridge/mod.ny` |
 | Run system command (exit code) | **Command** — fork/exec MVP | `stdlib/process.ny` |
-| Host calls Nyra | `export fn` + `--cdylib` | `examples/ffi/export_greet/` |
+| Host calls Nyra | `export fn` + `--cdylib` | NyraPkg registry / `nyra pkg install` |
 
 ### Subprocess — `Command` (stdlib/process.ny)
 
@@ -1476,8 +1992,8 @@ fn main() {
 - POSIX only today (macOS/Linux); Windows returns `-1`.
 - Blocks until child exits; up to 30 args; no `cwd`/env/piped `output()` on `Command` yet.
 - **Capture stdout:** `bridge_exec` / `bridge_exec_arg` in `stdlib/bridge/mod.ny`.
-- **Interactive PTY shell:** `stdlib/terminal/pty.ny` · GhostTerm.
-- Docs: `webDocs/stdlib.html#process` · example: `examples/process_command.ny`.
+- **Interactive PTY shell:** `stdlib/terminal/pty.ny` (terminal apps).
+- Docs: [stdlib → process](https://nyra-lang.github.io/docs/stdlib.html#process)
 
 ### Language bridge (Nyra → Python / Node / Java)
 
@@ -1494,7 +2010,7 @@ fn main() {
 - Protocol: one JSON line stdin → one JSON line stdout (`{"ok":true,"result":"42"}`).
 - Extend workers to `pip install numpy`, `npm install lodash`, Maven jars.
 - POSIX only today (macOS/Linux); not Wasm/Windows subprocess bridge yet.
-- Demo: `examples/bridge/` · docs: [`docs/bridge.md`](../docs/bridge.md).
+- Docs: [integration / bridge](https://nyra-lang.github.io/docs/integration.html).
 
 ### Host → Nyra (cdylib)
 
@@ -1504,7 +2020,7 @@ python3 host/call.py    # ctypes + free on returned strings
 node host/call.mjs      # koffi (npm install)
 ```
 
-See [`docs/abi-policy.md`](../docs/abi-policy.md). Runtime symbol map: [`docs/bindings.md`](../docs/bindings.md) / `webDocs/bindings.html`.
+See [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html) · [https://nyra-lang.github.io/docs/bindings.html](https://nyra-lang.github.io/docs/bindings.html).
 
 ## Tests
 
@@ -1522,16 +2038,15 @@ test fn adds() {
 
 **IDE discovery (v1.32+):** `nyra test . --list-json` prints `[{ "file", "name", "line" }, …]`. Filter: `nyra test . --filter substring`. VS Code extension Test Explorer uses these flags.
 
-**Language conformance (CONF-LANG):** `tests/conformance/` — `pass/` (`nyra test`), `fail/` (`nyra check` must reject), `fixtures/` (import smoke). Run: `bash scripts/conformance-tests.sh` or `./target/debug/nyra test tests/conformance/pass`. Use `./target/debug/nyra` (not stale `~/.cargo/bin/nyra`) so `import "stdlib/testing.ny"` resolves.
+**Language conformance (CONF-LANG):** Nyra compiler ships pass/fail conformance fixtures for language features. Run `nyra test` / `nyra check` in your project; see [tooling → conformance](https://nyra-lang.github.io/docs/tooling.html#conformance).
 
 | Suite | Purpose |
 |-------|---------|
-| `tests/conformance/` | Feature-by-feature Nyra pass + fail (CONF-LANG) |
-| `compiler/driver/tests/conformance/` | Rust `CONF-*` compile/IR contracts |
-| `tests/suite/` | File-based compiletest (~1.6k fast; `--profile full` ~10k) |
-| `tests/nyra/` | Legacy native smoke |
+| CONF-LANG | Nyra-source pass + fail fixtures |
+| CONF-* (compiler) | Compile-time IR/ownership contracts |
+| `nyra test` | User `test fn` blocks + `stdlib/testing.ny` |
 
-Spec: `tests/conformance/README.md` · docs: `webDocs/tooling.html#conformance`.
+Spec: [tooling → conformance](https://nyra-lang.github.io/docs/tooling.html#conformance).
 
 ## Project layout
 
@@ -1584,8 +2099,7 @@ fn main() {
 
 - `os_syscall6(num, a0..a5)` — raw syscall; constants in `stdlib/os/syscall_linux.ny` / `syscall_darwin.ny`
 - `cpu_nop()` / `cpu_pause()` via `stdlib/os/asm.ny`
-- Docs: `libraries/os/README.md`
-
+- Docs: [OS & hardware](https://nyra-lang.github.io/docs/os-hardware.html)
 ## Performance & optimization
 
 ### Release builds
@@ -1617,7 +2131,7 @@ Nyra targets **batteries-included APIs** with **pay-for-what-you-use** binaries.
 
 **Authoring rules:** one focused file per concern in stdlib; `extern fn` per C runtime entry so `runtime_map` can link granularly; `--no-prelude` / `# no_std` for freestanding builds.
 
-Examples: `examples/toolchain/lazy_prelude.ny`, `examples/toolchain/monomorph_static_dispatch.ny`. Full page: `webDocs/performance.html`.
+Full page: [performance](https://nyra-lang.github.io/docs/performance.html).
 
 ### Profile-Guided Optimization (PGO)
 
@@ -1663,7 +2177,7 @@ nyra build . --release --pgo-use nyra.profdata
 
 `nyra run --pgo` is rejected — build first, then run `target/release/main`.
 
-Full docs: `webDocs/pgo.html`
+Full docs: [PGO](https://nyra-lang.github.io/docs/pgo.html)
 
 ### Escape analysis
 
@@ -1706,7 +2220,7 @@ nyra build --verbose .
 
 **Limitations:** SROA for all-Copy structs without spread; LocalChannel sequential only; dynamic heap strings still allocate when they escape.
 
-Full docs: `webDocs/escape-analysis.html` · design: `Escape_Analysis.md`
+Full docs: [escape analysis](https://nyra-lang.github.io/docs/escape-analysis.html)
 
 ### C FFI out-parameters (`&mut` + `as ptr`)
 
@@ -1732,7 +2246,30 @@ fn main() {
 - **`extern fn` with `string` param:** Nyra passes C string pointer automatically.
 - **`unsafe` required** for `*ptr` deref, raw casts, pointer arithmetic.
 
-See `webDocs/c-bindgen.html` · `webDocs/ffi-abi.html`
+[C bindgen](https://nyra-lang.github.io/docs/c-bindgen.html) · [FFI & ABI](https://nyra-lang.github.io/docs/ffi-abi.html)
+
+## Macros (Extended)
+
+Compile-time **hygienic text substitution** — expanded before typecheck.
+
+```ny
+macro double(x) {
+    $x + $x
+}
+
+fn main() {
+    print(double(3))    // → 3 + 3 → 6
+}
+```
+
+| Rule | Detail |
+|------|--------|
+| Syntax | `macro name(param, …) { body }` |
+| Param refs | `$param` in body |
+| Expansion | `name(expr)` → body with args substituted |
+| Tier | Extended — `--deny-extended` rejects |
+
+
 
 ## Traits & dynamic dispatch (Stable Extended)
 
@@ -1801,7 +2338,7 @@ fn call_greet<T: Greet>(x: T) -> i32 {
 - Checked at monomorph: missing `impl Trait for Type` is a compile error
 - Works with inferred call sites (`call_greet(u)` without explicit type args)
 
-Example: `examples/trait_bounds.ny` · tests: `tests/nyra/trait_bounds_test.ny`
+See [generics](https://nyra-lang.github.io/docs/generics.html).
 
 ### Limitations (MVP)
 
@@ -1811,9 +2348,9 @@ Example: `examples/trait_bounds.ny` · tests: `tests/nyra/trait_bounds_test.ny`
 - Explicit **`return`** required in impl bodies (no implicit tail return).
 - Extended tier: `nyra check --deny-extended` rejects `trait` / `dyn` in Core-only CI.
 
-Example: `examples/trait_dyn.ny` · `examples/trait_dyn_multi.ny` · `examples/trait_dyn_send.ny` · tests: `tests/nyra/trait_dispatch_test.ny`, `trait_dyn_multi_test.ny`, `dyn_send_test.ny`
+See [traits & macros](https://nyra-lang.github.io/docs/traits-macros.html).
 
-## Real-world pitfalls (apps like GhostTerm)
+## Real-world pitfalls (systems apps)
 
 Nyra is strong for **domain logic** (structs, enums, `match`, modules, FFI). Full terminals, GPU, PTY, and subprocesses need **C shims + vendor bindings** — same pattern as Rust + libc, not pure Nyra stdlib.
 
@@ -1821,18 +2358,18 @@ Nyra is strong for **domain logic** (structs, enums, `match`, modules, FFI). Ful
 |---------|----------------|-----|
 | **String move** | `` `x` was moved into `strcat()` `` | `clone x` or `x.clone()` before the call |
 | **Import paths** | `import "vendor/foo.ny"` fails from `src/gpu/` | Paths are relative to the **importing file**: `import "../../vendor/foo.ny"` |
-| **HashMap wrappers** | Chained `.insert()` on `HashMap_str_*` structs | Supported in v1.2.x+; or use `ptr` + `nyra_map_*` externs (GhostTerm style) |
+| **HashMap wrappers** | Chained `.insert()` on `HashMap_str_*` structs | Supported in v1.2.x+; or use `ptr` + `map_str_*` externs |
 | **FFI `u8` fields** | `255` inferred as `i32` in some contexts | Annotate field type `u8` on struct; literals in struct literals coerce |
 | **REPL vs shell** | `input()` is line-based, not a PTY | Use `forkpty` / C shim (`link-source`) for real terminals |
 | **`nyra run .` showcase** | Default may be demo, not interactive shell | Document env flags (e.g. `GHOSTTERM_REPL=1`) in your app README |
 
-**GhostTerm pattern (recommended for systems apps):**
+**Systems app pattern (recommended):**
 
 ```text
-Nyra (tabs, sessions, CLI dispatch) + rt/*.c (PTY) + vendor/bindings (raylib) + nyra.mod link-source
+Nyra (domain logic) + rt/*.c (PTY/FFI) + vendor/bindings (raylib, etc.) + nyra.mod link-source
 ```
 
-Tests: `tests/nyra/break_clone_test.ny` · `tests/nyra/hashmap_chain_test.ny` · `Apps/GhostTerm/` in repo.
+in repo.
 
 ## Do NOT hallucinate
 
@@ -1846,10 +2383,49 @@ Tests: `tests/nyra/break_clone_test.ny` · `tests/nyra/hashmap_chain_test.ny` ·
 - **`?` operator** — `Result`/`Option` propagate on `let`/`const`/`return`/expr stmt, nested expressions (`print(f()?)`, call args), `return match` arm bodies, and `let n = match { Ok(v) => f(v)?, … }`. Enclosing function must return the same enum for propagation; in `void` test fns the inner `Err` payload becomes the `i32` binding. `??` nullish coalesce and `?.` optional chain are separate.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
 - No `extern export fn` — use `extern fn` or `export fn` separately.
-- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `spawn`/`unsafe` with `await` still blocking. **`nyra build --race`** enables TSan. See `async.html`.
+- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `spawn`/`unsafe` with `await` still blocking. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/docs/async.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
 - **`Serialize` trait (v1.38+)** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
 - Arrow functions are **Extended** tier — use `nyra check --deny-extended` in Core-only CI if you avoid them.
+
+## Diagnostics
+
+Stable codes — explain with `nyra explain E003` or `nyra explain --list`. JSON: `nyra diag . --json`.
+
+### Errors (E00x)
+
+| Code | Title | Meaning |
+|------|-------|---------|
+| **E001** | import not found | `import "path"` does not resolve |
+| **E002** | undefined name | Variable/function/type not in scope |
+| **E003** | type mismatch | Expression type ≠ expected context |
+| **E004** | cannot infer type | Add explicit `: Type` annotation |
+| **E005** | unknown struct | Struct name/literal not defined |
+| **E006** | immutable assignment | Reassign `let` without `mut` |
+| **E007** | wrong arity | Call argument count mismatch |
+| **E008** | wrong argument type | Arg position type mismatch |
+| **E009** | invalid assignment target | LHS not an l-value |
+| **E010** | borrow while assigned | `&mut` conflicts with assignment |
+| **E011** | use while borrowed | Value used during active borrow |
+| **E012** | use after move | Move-type used after transfer |
+| **E0601** | no_escape violation | `#[no_escape]` param escaped callee |
+
+### Warnings (W00x)
+
+| Code | Title | Fix |
+|------|-------|-----|
+| **W001** | extended tier feature | Remove feature or drop `--deny-extended` |
+| **W002** | unused import | Remove import or `nyra pkg prune` |
+| **W003** | unused variable | Prefix `_` or remove |
+
+### Parser (P00x)
+
+| Code | Title |
+|------|-------|
+| **P001** | anonymous object literal (old) — use struct or `{ field: value }` literal |
+| **P006** | missing comma in object literal fields |
+
+Page: [diagnostics](https://nyra-lang.github.io/docs/diagnostics.html)
 
 ## Common errors
 
@@ -1864,33 +2440,35 @@ Tests: `tests/nyra/break_clone_test.ny` · `tests/nyra/hashmap_chain_test.ny` ·
 | cannot return reference to local | Dangling reference return |
 | Expected 'fn' after extern | Invalid extern syntax |
 
-## Doc map (webDocs)
+## Online documentation map
 
-| Topic | Page |
-|-------|------|
-| Learn Nyra (W3Schools-style track) | learn-intro.html |
-| Language reference (keywords, operators) | reference.html |
-| Data structures (arrays, vec, tuples, hashmap) | learn-data-structures.html |
-| Language basics + examples | language-basics.html |
-| Syntax cheat sheet | language.html |
-| Types detail | types.html |
-| Imports | imports.html |
-| Memory & ownership (full guide) | memory.html |
-| Learn ownership / borrowing | learn-ownership.html · learn-borrowing.html |
-| Unsafe / no_std | memory.html#unsafe |
-| **PGO** | pgo.html |
-| **Escape analysis** | escape-analysis.html |
-| Performance toolchain | performance.html |
-| OS APIs (battery, syscalls) | stdlib.html#os |
-| Stdlib API & all builtins | stdlib.html#builtins |
-| Backend (TCP/HTTP/JSON) | backend.html |
-| net/http API reference | net-http.html |
-| C Bindgen & `nyra pkg c` | c-bindgen.html |
-| FFI & ABI policy | ffi-abi.html |
-| NyraPkg (semver, registry, link-source) | packages.html |
-| Runtime bindings (C ↔ stdlib) | bindings.html |
-| Integration (bridge, sidecar, FFI) | integration.html |
-| Example apps | examples.html |
-| **This AI skill file** | ai-skill.html · nyra-skill.md |
+**Home:** [https://nyra-lang.github.io/docs/](https://nyra-lang.github.io/docs/)
 
-Repo docs: [`docs/bindings.md`](../docs/bindings.md) · [`stdlib/README.md`](../stdlib/README.md) · [`webDocs/c-bindgen.html`](../webDocs/c-bindgen.html)
+| Topic | URL |
+|-------|-----|
+| Learn Nyra (tutorial track) | [https://nyra-lang.github.io/docs/learn-intro.html](https://nyra-lang.github.io/docs/learn-intro.html) |
+| Get started | [https://nyra-lang.github.io/docs/learn-get-started.html](https://nyra-lang.github.io/docs/learn-get-started.html) |
+| Language reference | [https://nyra-lang.github.io/docs/reference.html](https://nyra-lang.github.io/docs/reference.html) |
+| Built-in methods | [https://nyra-lang.github.io/docs/methods.html](https://nyra-lang.github.io/docs/methods.html) |
+| Standard library | [https://nyra-lang.github.io/docs/stdlib.html](https://nyra-lang.github.io/docs/stdlib.html) |
+| Data structures (learn) | [https://nyra-lang.github.io/docs/learn-data-structures.html](https://nyra-lang.github.io/docs/learn-data-structures.html) |
+| Match | [https://nyra-lang.github.io/docs/match.html](https://nyra-lang.github.io/docs/match.html) |
+| Async | [https://nyra-lang.github.io/docs/async.html](https://nyra-lang.github.io/docs/async.html) |
+| Traits & macros | [https://nyra-lang.github.io/docs/traits-macros.html](https://nyra-lang.github.io/docs/traits-macros.html) |
+| Concurrency | [https://nyra-lang.github.io/docs/concurrency.html](https://nyra-lang.github.io/docs/concurrency.html) |
+| Memory & ownership | [https://nyra-lang.github.io/docs/memory.html](https://nyra-lang.github.io/docs/memory.html) |
+| Ownership (learn) | [https://nyra-lang.github.io/docs/learn-ownership.html](https://nyra-lang.github.io/docs/learn-ownership.html) |
+| Borrowing (learn) | [https://nyra-lang.github.io/docs/learn-borrowing.html](https://nyra-lang.github.io/docs/learn-borrowing.html) |
+| PGO | [https://nyra-lang.github.io/docs/pgo.html](https://nyra-lang.github.io/docs/pgo.html) |
+| Escape analysis | [https://nyra-lang.github.io/docs/escape-analysis.html](https://nyra-lang.github.io/docs/escape-analysis.html) |
+| Performance | [https://nyra-lang.github.io/docs/performance.html](https://nyra-lang.github.io/docs/performance.html) |
+| net/http | [https://nyra-lang.github.io/docs/net-http.html](https://nyra-lang.github.io/docs/net-http.html) |
+| C bindgen | [https://nyra-lang.github.io/docs/c-bindgen.html](https://nyra-lang.github.io/docs/c-bindgen.html) |
+| FFI & ABI | [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html) |
+| NyraPkg | [https://nyra-lang.github.io/docs/packages.html](https://nyra-lang.github.io/docs/packages.html) |
+| Diagnostics | [https://nyra-lang.github.io/docs/diagnostics.html](https://nyra-lang.github.io/docs/diagnostics.html) |
+| Integration / bridge | [https://nyra-lang.github.io/docs/integration.html](https://nyra-lang.github.io/docs/integration.html) |
+| AI skill download page | [https://nyra-lang.github.io/docs/ai-skill.html](https://nyra-lang.github.io/docs/ai-skill.html) |
+| Roadmap & status | [https://nyra-lang.github.io/docs/roadmap.html](https://nyra-lang.github.io/docs/roadmap.html) |
+| Changelog | [https://nyra-lang.github.io/docs/changelog.html](https://nyra-lang.github.io/docs/changelog.html) |
+

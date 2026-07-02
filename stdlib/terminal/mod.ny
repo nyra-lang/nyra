@@ -2,6 +2,8 @@ import "../io.ny"
 import "../strings.ny"
 
 extern fn stdin_read_line(prompt: string) -> string
+extern fn stdout_write_str(s: string) -> void
+extern fn stdout_writeln_str(s: string) -> void
 
 fn stdin_read(_max_bytes: i32) -> string {
     return stdin_read_line("")

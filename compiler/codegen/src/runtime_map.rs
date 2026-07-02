@@ -29,6 +29,11 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("str_push_char", "rt_strings.c"),
         ("str_pop", "rt_strings.c"),
         ("str_strip_ansi", "rt_strings.c"),
+        ("str_buf_new", "rt_str_buf.c"),
+        ("str_buf_drop", "rt_str_buf.c"),
+        ("str_buf_append", "rt_str_buf.c"),
+        ("str_buf_append_char", "rt_str_buf.c"),
+        ("str_buf_build", "rt_str_buf.c"),
         ("pty_spawn", "rt_pty.c"),
         ("pty_write", "rt_pty.c"),
         ("pty_read", "rt_pty.c"),
@@ -93,6 +98,10 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("bytes_free", "rt_bytes.c"),
         ("stdin_read_bytes", "rt_bytes.c"),
         ("stdout_write_bytes", "rt_bytes.c"),
+        ("arena_new", "rt_arena.c"),
+        ("arena_alloc", "rt_arena.c"),
+        ("arena_reset", "rt_arena.c"),
+        ("arena_free", "rt_arena.c"),
         ("regex_compile", "rt_regex.c"),
         ("regex_is_match", "rt_regex.c"),
         ("regex_free", "rt_regex.c"),
@@ -132,7 +141,15 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("mem_end", "rt_mem.c"),
         ("_sqlite_null_handle", "rt_db.c"),
         ("spawn_capture", "rt_spawn.c"),
+        ("spawn_join", "rt_spawn.c"),
+        ("spawn_handle_drop", "rt_spawn.c"),
+        ("spawn_task_capture", "rt_task_pool.c"),
+        ("spawn_task_join", "rt_task_pool.c"),
+        ("spawn_task_handle_drop", "rt_task_pool.c"),
         ("parallel_for_range", "rt_parallel.c"),
+        ("parallel_any_range", "rt_parallel.c"),
+        ("parallel_find_range", "rt_parallel.c"),
+        ("parallel_all_range", "rt_parallel.c"),
         ("cpu_count", "rt_parallel.c"),
         ("progress_update", "rt_progress.c"),
         ("progress_finish", "rt_progress.c"),
@@ -161,6 +178,7 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("runtime_executor_run_until", "rt_async.c"),
         ("async_sleep_ms", "rt_async.c"),
         ("io_register", "rt_async.c"),
+        ("io_unregister", "rt_async.c"),
         ("io_wait_once", "rt_async.c"),
         ("rt_tcp_listen", "rt_net.c"),
         ("rt_tcp_accept", "rt_net.c"),
@@ -331,6 +349,12 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("map_str_i32_remove", "rt_map.c"),
         ("map_str_i32_free", "rt_map.c"),
         ("map_str_i32_retain", "rt_map.c"),
+        ("map_i32_i32_new", "rt_map.c"),
+        ("map_i32_i32_insert", "rt_map.c"),
+        ("map_i32_i32_get", "rt_map.c"),
+        ("map_i32_i32_contains", "rt_map.c"),
+        ("map_i32_i32_free", "rt_map.c"),
+        ("map_i32_i32_retain", "rt_map.c"),
         ("map_str_str_new", "rt_map_str_str.c"),
         ("map_str_str_insert", "rt_map_str_str.c"),
         ("map_str_str_get", "rt_map_str_str.c"),
@@ -341,8 +365,15 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("map_str_str_retain", "rt_map_str_str.c"),
         ("rand_i32", "rt_random.c"),
         ("rand_range", "rt_random.c"),
+        ("rand_i64", "rt_random.c"),
+        ("rand_range_i64", "rt_random.c"),
+        ("rand_u32", "rt_random.c"),
+        ("rand_range_u32", "rt_random.c"),
+        ("rand_u64", "rt_random.c"),
+        ("rand_range_u64", "rt_random.c"),
         ("random_hex", "rt_random.c"),
         ("rand_f64", "rt_random.c"),
+        ("rand_f64_range", "rt_random.c"),
         ("sin_f64", "rt_math.c"),
         ("cos_f64", "rt_math.c"),
         ("atan2_f64", "rt_math.c"),
@@ -377,8 +408,26 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("hw_cpu_brand", "rt_hw.c"),
         ("hw_mem_page_size", "rt_hw.c"),
         ("hw_mem_map_anonymous", "rt_hw.c"),
+        ("hw_mem_map_file", "rt_hw.c"),
+        ("hw_mem_sync", "rt_hw.c"),
         ("hw_mem_unmap", "rt_hw.c"),
         ("hw_dma_available", "rt_hw.c"),
+        ("shm_create", "rt_shm.c"),
+        ("shm_open_existing", "rt_shm.c"),
+        ("shm_map", "rt_shm.c"),
+        ("shm_unmap", "rt_shm.c"),
+        ("shm_close_fd", "rt_shm.c"),
+        ("shm_unlink_region", "rt_shm.c"),
+        ("io_pool_create", "rt_io_pool.c"),
+        ("io_pool_shutdown", "rt_io_pool.c"),
+        ("io_pool_submit_wait_readable", "rt_io_pool.c"),
+        ("io_pool_submit_read", "rt_io_pool.c"),
+        ("io_pool_queue_depth", "rt_io_pool.c"),
+        ("io_uring_available", "rt_io_uring.c"),
+        ("io_uring_register_read", "rt_io_uring.c"),
+        ("io_uring_unregister_read", "rt_io_uring.c"),
+        ("io_uring_pending", "rt_io_uring.c"),
+        ("io_uring_wait_once", "rt_io_uring.c"),
         ("hw_disk_total_bytes", "rt_hw.c"),
         ("hw_disk_free_bytes", "rt_hw.c"),
         ("hw_disk_fs_type", "rt_hw.c"),
@@ -482,7 +531,7 @@ impl RuntimeProfile {
             matches!(
                 *m,
                 "rt_spawn.c" | "rt_channel.c" | "rt_sync.c" | "rt_async.c" | "rt_net.c" | "rt_os_adv.c"
-                    | "rt_parallel.c" | "rt_race.c"
+                    | "rt_parallel.c" | "rt_race.c" | "rt_io_pool.c" | "rt_shm.c"
             )
         })
     }
@@ -527,9 +576,15 @@ impl RuntimeProfile {
         }
         if mods.contains("rt_async.c") {
             mods.insert("rt_spawn.c");
+            // rt_async.c calls io_uring_* on Linux via extern; link the implementation unit.
+            mods.insert("rt_io_uring.c");
         }
         if mods.contains("rt_http.c") {
             mods.insert("rt_net.c");
+        }
+        if mods.contains("rt_net.c") {
+            // rt_net.c calls instant_now for ping helpers (whole .c unit is linked).
+            mods.insert("rt_time.c");
         }
         if mods.contains("rt_tls.c") {
             mods.insert("rt_net.c");
@@ -549,6 +604,12 @@ impl RuntimeProfile {
         if mods.contains("rt_array.c") {
             mods.insert("rt_strings.c");
         }
+        if mods.contains("rt_task_pool.c") {
+            mods.insert("rt_parallel.c");
+        }
+        if mods.contains("rt_parallel.c") {
+            mods.insert("rt_task_pool.c");
+        }
         if mods.contains("rt_progress.c") {
             mods.insert("rt_io.c");
         }
@@ -565,6 +626,30 @@ impl RuntimeProfile {
         }
         mods
     }
+
+    /// Platform-aware runtime modules (e.g. Windows `rt_async.c` needs `rt_net.c` for Winsock).
+    pub fn modules_for_target(&self, target: &str) -> BTreeSet<&'static str> {
+        let mut mods = self.modules();
+        if link_target_is_windows(target) && mods.contains("rt_async.c") {
+            mods.insert("rt_net.c");
+        }
+        if mods.contains("rt_net.c") {
+            mods.insert("rt_time.c");
+        }
+        mods
+    }
+
+    pub fn uses_ws2_32(&self, target: &str) -> bool {
+        self.modules_for_target(target).contains("rt_net.c")
+    }
+}
+
+/// True when linking for Windows (`--target` empty uses the host OS at link time).
+fn link_target_is_windows(target: &str) -> bool {
+    if target.to_ascii_lowercase().contains("windows") {
+        return true;
+    }
+    target.is_empty() && std::env::consts::OS == "windows"
 }
 
 pub fn stdlib_rt_dir() -> PathBuf {
@@ -596,7 +681,7 @@ pub fn resolve_runtime_modules(profile: &RuntimeProfile, target: &str) -> Result
     }
     let rt_dir = stdlib_rt_dir();
     let mut paths = Vec::new();
-    for mod_name in profile.modules() {
+    for mod_name in profile.modules_for_target(target) {
         let p = rt_dir.join(mod_name);
         if !p.is_file() {
             return Err(format!("Runtime module not found: {}", p.display()));
@@ -739,7 +824,7 @@ pub fn resolve_runtime_modules_installed(
 
         let mut paths = Vec::new();
         let mut stale = installed_rt_common_is_stale(&rt_dir);
-        for mod_name in profile.modules() {
+        for mod_name in profile.modules_for_target(target) {
             let p = rt_dir.join(mod_name);
             if !p.is_file() {
                 stale = true;
@@ -808,12 +893,55 @@ mod tests {
     }
 
     #[test]
+    fn async_on_windows_pulls_rt_net() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("async_promise_new".into());
+        let mods = p.modules_for_target("x86_64-pc-windows-gnu");
+        assert!(mods.contains("rt_async.c"));
+        assert!(mods.contains("rt_net.c"));
+        assert!(
+            mods.contains("rt_time.c"),
+            "rt_net must pull rt_time for instant_now"
+        );
+        let mods_linux = p.modules_for_target("x86_64-unknown-linux-gnu");
+        assert!(mods_linux.contains("rt_async.c"));
+        assert!(!mods_linux.contains("rt_net.c"));
+    }
+
+    #[test]
+    fn async_empty_target_uses_host_os_for_windows_modules() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("async_promise_new".into());
+        let mods = p.modules_for_target("");
+        if std::env::consts::OS == "windows" {
+            assert!(
+                mods.contains("rt_net.c"),
+                "empty target on Windows host must link rt_net.c for async"
+            );
+        } else {
+            assert!(!mods.contains("rt_net.c"));
+        }
+    }
+
+    #[test]
+    fn link_target_is_windows_empty_means_host() {
+        if std::env::consts::OS == "windows" {
+            assert!(super::link_target_is_windows(""));
+        } else {
+            assert!(!super::link_target_is_windows(""));
+        }
+        assert!(super::link_target_is_windows("x86_64-pc-windows-gnu"));
+        assert!(!super::link_target_is_windows("x86_64-unknown-linux-gnu"));
+    }
+
+    #[test]
     fn async_module_pulls_spawn_for_capture_helper() {
         let mut p = RuntimeProfile::default();
         p.symbols.insert("async_promise_new".into());
         let mods = p.modules();
         assert!(mods.contains("rt_async.c"));
         assert!(mods.contains("rt_spawn.c"));
+        assert!(mods.contains("rt_io_uring.c"));
     }
 
     #[test]

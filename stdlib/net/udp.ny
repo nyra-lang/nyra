@@ -1,4 +1,5 @@
 import "syscall.ny"
+import "stdlib/os/fd.ny"
 
 extern fn rt_udp_bind(host: string, port: i32) -> i32
 extern fn rt_udp_recv(fd: i32, max_bytes: i32) -> string
@@ -30,4 +31,12 @@ impl UdpSocket {
     fn close(self) -> void {
         rt_udp_close(self.fd)
     }
+}
+
+fn UdpSocket_borrow_fd(sock: UdpSocket) -> Fd {
+    return Fd_borrow(sock.fd)
+}
+
+fn UdpSocket_into_fd(sock: UdpSocket) -> Fd {
+    return Fd_new(sock.fd)
 }

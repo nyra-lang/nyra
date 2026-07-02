@@ -10,7 +10,7 @@ use ast::{
     ArrowBody, BinaryOp, Block, ConstDef, EnumDef, EnumVariantDef, Expression, ExternFn,
     ForKind, ForStmt, Function, IfStmt, ImplDef, LetStmt, Literal, MatchArm, MatchPayloadPattern,
     MatchPattern,
-    Param, ParallelConfig, ParallelMode, ParallelThreads, ProgressConfig, Program, Statement, StructDef,
+    Param, ParallelConfig, ParallelMode, ParallelOp, ParallelThreads, ProgressConfig, Program, SpawnKind, Statement, StructDef,
     StructField, TraitDef, TraitImpl, TypeAnnotation, UnaryOp, WhileStmt,
 };
 use lexer::Lexer;
@@ -380,10 +380,13 @@ fn emit_stmt(stmt: &Statement, indent: usize, out: &mut String) {
             out.push_str("benchmark ");
             emit_block(b, indent, out);
         }
-        Statement::Spawn(b) => {
+        Statement::Spawn(s) => {
             pad(indent, out);
-            out.push_str("spawn ");
-            emit_block(b, indent, out);
+            match s.kind {
+                SpawnKind::Task => out.push_str("spawn "),
+                SpawnKind::Thread => out.push_str("spawn:thread "),
+            }
+            emit_block(&s.body, indent, out);
         }
         Statement::Unsafe(b) => {
             pad(indent, out);
@@ -458,7 +461,11 @@ fn emit_for(f: &ForStmt, indent: usize, out: &mut String) {
     pad(indent, out);
     if let Some(cfg) = &f.parallel {
         out.push_str("parallel");
+        if cfg.kind == SpawnKind::Thread {
+            out.push_str(":thread");
+        }
         emit_parallel_config(cfg, out);
+        emit_parallel_op(cfg.op, out);
         out.push(' ');
     }
     if f.progress.is_some() {
@@ -494,7 +501,7 @@ fn emit_parallel_config(cfg: &ParallelConfig, out: &mut String) {
     match &cfg.threads {
         ParallelThreads::Auto => {}
         ParallelThreads::Max(e) => {
-            let mut s = String::from("max_threads = ");
+            let mut s = String::from("max = ");
             emit_expr(e, &mut s);
             opts.push(s);
         }
@@ -521,6 +528,24 @@ fn emit_parallel_config(cfg: &ParallelConfig, out: &mut String) {
         out.push_str(opt);
     }
     out.push(')');
+}
+
+fn emit_parallel_op(op: ParallelOp, out: &mut String) {
+    match op {
+        ParallelOp::Iterate => {}
+        ParallelOp::Any => {
+            out.push(' ');
+            out.push_str("any");
+        }
+        ParallelOp::Find => {
+            out.push(' ');
+            out.push_str("find");
+        }
+        ParallelOp::All => {
+            out.push(' ');
+            out.push_str("all");
+        }
+    }
 }
 
 fn emit_progress_config(cfg: &ProgressConfig, out: &mut String) {
@@ -754,6 +779,34 @@ fn emit_expr(expr: &Expression, out: &mut String) {
             out.push_str("comptime ");
             emit_block(body, 0, out);
         }
+        Expression::Spawn { kind, body, .. } => {
+            match kind {
+                SpawnKind::Task => out.push_str("spawn "),
+                SpawnKind::Thread => out.push_str("spawn:thread "),
+            }
+            emit_block(body, 0, out);
+        }
+        Expression::ParallelSearch(ps) => {
+            out.push_str("parallel");
+            if ps.config.kind == SpawnKind::Thread {
+                out.push_str(":thread");
+            }
+            emit_parallel_config(&ps.config, out);
+            emit_parallel_op(ps.config.op, out);
+            out.push_str("for ");
+            out.push_str(&ps.var);
+            out.push_str(" in ");
+            match &ps.kind {
+                ForKind::Range { start, end } => {
+                    emit_expr(start, out);
+                    out.push_str("..");
+                    emit_expr(end, out);
+                }
+                ForKind::Iterable { iterable } => emit_expr(iterable, out),
+            }
+            out.push(' ');
+            emit_block(&ps.body, 0, out);
+        }
         Expression::Invalid => out.push_str("/* invalid */"),
     }
 }
@@ -878,6 +931,7 @@ pub fn format_type(ty: &TypeAnnotation) -> String {
         TypeAnnotation::Char => "char".into(),
         TypeAnnotation::Bool => "bool".into(),
         TypeAnnotation::String => "string".into(),
+        TypeAnnotation::Bytes => "bytes".into(),
         TypeAnnotation::VecStr => "VecStr".into(),
         TypeAnnotation::Ptr => "ptr".into(),
         TypeAnnotation::RawPtr { inner } => format!("*{}", format_type(inner)),
@@ -936,6 +990,10 @@ pub fn format_type(ty: &TypeAnnotation) -> String {
                 .map(|t| format!(" -> {}", format_type(t)))
                 .unwrap_or_default();
             format!("{lts}fn({}){ret}", ps.join(", "))
+        }
+        TypeAnnotation::Simd { elem, lanes } => {
+            let base = format_type(elem);
+            format!("{base}x{lanes}")
         }
         TypeAnnotation::DynTrait { trait_name, bounds } => {
             if bounds.is_empty() {

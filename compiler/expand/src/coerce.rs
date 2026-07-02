@@ -172,9 +172,9 @@ fn coerce_stmt(stmt: &mut Statement, sigs: &HashMap<String, Function>) {
                 coerce_expr_tree(c, sigs);
             }
         }
-        Statement::Spawn(b) => {
-            for s in &mut b.statements {
-                coerce_stmt(s, sigs);
+        Statement::Spawn(s) => {
+            for stmt in &mut s.body.statements {
+                coerce_stmt(stmt, sigs);
             }
         }
         Statement::Benchmark(b) => {

@@ -1,9 +1,10 @@
 use ast::*;
-use errors::{ErrorKind, NyraError, Span};
+use errors::Span;
 use types::Type;
 
 use crate::TypeChecker;
 use crate::TypeEnv;
+use crate::diagnostics;
 
 fn is_string_like(ty: &Type) -> bool {
     if ty == &Type::String || ty == &Type::Unknown {
@@ -37,11 +38,7 @@ impl TypeChecker {
     ) {
         let ty = self.check_expr(&mc.args[idx], env);
         if !is_string_like(&ty) {
-            self.errors.push(NyraError::new(
-                ErrorKind::Type,
-                sp.clone(),
-                format!("'.{}' argument must be string", mc.method),
-            ));
+            diagnostics::string_method_arg_must_be_string(self, &mc.method, sp.clone());
         }
     }
 
@@ -60,11 +57,7 @@ impl TypeChecker {
         let ret = match method {
             "split" => {
                 if mc.args.len() != 1 {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.split' expects 1 argument, got {}", mc.args.len()),
-                    ));
+                    diagnostics::wrong_arity(self, ".split", 1, mc.args.len(), sp.clone());
                 } else {
                     self.check_string_arg(mc, 0, env, sp);
                 }
@@ -72,21 +65,13 @@ impl TypeChecker {
             }
             "trim" | "to_upper" | "to_lower" => {
                 if !mc.args.is_empty() {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.{method}' expects no arguments"),
-                    ));
+                    diagnostics::wrong_arity(self, &format!(".{method}"), 0, mc.args.len(), sp.clone());
                 }
                 Type::String
             }
             "contains" | "starts_with" | "ends_with" => {
                 if mc.args.len() != 1 {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.{method}' expects 1 argument, got {}", mc.args.len()),
-                    ));
+                    diagnostics::wrong_arity(self, &format!(".{method}"), 1, mc.args.len(), sp.clone());
                 } else {
                     self.check_string_arg(mc, 0, env, sp);
                 }
@@ -94,11 +79,7 @@ impl TypeChecker {
             }
             "replace" => {
                 if mc.args.len() != 2 {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.replace' expects 2 arguments, got {}", mc.args.len()),
-                    ));
+                    diagnostics::wrong_arity(self, ".replace", 2, mc.args.len(), sp.clone());
                 } else {
                     self.check_string_arg(mc, 0, env, sp);
                     self.check_string_arg(mc, 1, env, sp);
@@ -107,21 +88,13 @@ impl TypeChecker {
             }
             "replacen" => {
                 if mc.args.len() != 3 {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.replacen' expects 3 arguments, got {}", mc.args.len()),
-                    ));
+                    diagnostics::wrong_arity(self, ".replacen", 3, mc.args.len(), sp.clone());
                 } else {
                     self.check_string_arg(mc, 0, env, sp);
                     self.check_string_arg(mc, 1, env, sp);
                     let count_ty = self.check_expr(&mc.args[2], env);
                     if count_ty != Type::Integer(ast::IntKind::I32) && count_ty != Type::Unknown {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            sp.clone(),
-                            "'.replacen' count argument must be i32",
-                        ));
+                        diagnostics::string_replacen_count_must_be_i32(self, sp.clone());
                     }
                 }
                 Type::String

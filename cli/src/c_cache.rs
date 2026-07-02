@@ -8,15 +8,23 @@ use std::process::Command;
 
 use crate::link::{LinkProfile, LtoMode};
 use crate::llvm_tools;
-use crate::target::{apply_target_compile_flags, TargetSpec};
+use crate::target::{apply_target_compile_flags, apply_windows_gcc_compile_flags, TargetSpec};
 
 pub fn c_objects_cache_dir(work_dir: &Path) -> PathBuf {
     work_dir.join(".nyra-cache").join("c-objs")
 }
 
 fn compile_flags_key(profile: &LinkProfile, spec: &TargetSpec) -> String {
+    let cc = if spec.os == crate::target::TargetOs::Windows
+        && cfg!(target_os = "windows")
+        && llvm_tools::find_mingw_gcc().is_some()
+    {
+        "gcc"
+    } else {
+        "clang"
+    };
     format!(
-        "triple={}|opt={:?}|lto={:?}|dbg={}|native={}|free={}|cdylib={}|pgo_gen={}|pgo_use={}|race={}|race_native={}",
+        "cc={cc}|triple={}|opt={:?}|lto={:?}|dbg={}|native={}|free={}|cdylib={}|pgo_gen={}|pgo_use={}|race={}|race_native={}",
         spec.triple_for_codegen(),
         profile.opt_level,
         profile.lto,
@@ -102,9 +110,20 @@ fn compile_one_source(
     profile: &LinkProfile,
     spec: &TargetSpec,
 ) -> Result<(), String> {
-    let clang = llvm_tools::find_clang();
-    let mut cmd = Command::new(&clang);
-    apply_target_compile_flags(&mut cmd, spec);
+    let use_mingw_gcc = spec.os == crate::target::TargetOs::Windows
+        && cfg!(target_os = "windows")
+        && llvm_tools::find_mingw_gcc().is_some();
+    let compiler = if use_mingw_gcc {
+        llvm_tools::find_mingw_gcc().unwrap()
+    } else {
+        llvm_tools::find_clang()
+    };
+    let mut cmd = Command::new(&compiler);
+    if use_mingw_gcc {
+        apply_windows_gcc_compile_flags(&mut cmd);
+    } else {
+        apply_target_compile_flags(&mut cmd, spec);
+    }
     cmd.arg("-c").arg(source).arg("-o").arg(obj);
     cmd.arg(profile.opt_level.clang_flag());
 
@@ -158,7 +177,9 @@ fn compile_one_source(
         cmd.arg(format!("-I{}", path.display()));
     }
 
-    cmd.arg("-Wno-override-module");
+    if !use_mingw_gcc {
+        cmd.arg("-Wno-override-module");
+    }
 
     let output = cmd
         .output()

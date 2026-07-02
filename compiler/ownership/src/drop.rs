@@ -15,6 +15,10 @@ pub struct DropPlan {
     pub composite_struct_bindings: HashMap<String, HashSet<String>>,
     /// Per-function: enum locals with heap payload (e.g. Option<string>).
     pub enum_payload_bindings: HashMap<String, HashSet<String>>,
+    /// Per-function: `JoinHandle` locals needing `spawn_handle_drop` if not joined.
+    pub join_handle_bindings: HashMap<String, HashSet<String>>,
+    /// Per-function: task vs OS thread for each join handle binding.
+    pub join_handle_kinds: HashMap<String, HashMap<String, SpawnKind>>,
     /// Bindings explicitly freed via `defer free(x)` or `free(x)` call.
     pub manually_freed: HashMap<String, HashSet<String>>,
     /// Struct type name → `Drop_Type_drop` LLVM symbol.
@@ -59,6 +63,20 @@ impl DropPlan {
             .get(func)
             .map(|s| s.contains(name))
             .unwrap_or(false)
+    }
+
+    pub fn is_join_handle_in(&self, func: &str, name: &str) -> bool {
+        self.join_handle_bindings
+            .get(func)
+            .map(|s| s.contains(name))
+            .unwrap_or(false)
+    }
+
+    pub fn join_handle_kind(&self, func: &str, name: &str) -> SpawnKind {
+        self.join_handle_kinds
+            .get(func)
+            .and_then(|m| m.get(name).copied())
+            .unwrap_or(SpawnKind::Task)
     }
 
     pub fn custom_drop_fn_for_struct(&self, struct_name: &str) -> Option<&str> {
@@ -237,6 +255,18 @@ fn scan_statement(
                 .map(Type::from)
                 .unwrap_or_else(|| ctx.infer_expr_type(&l.value));
             types.insert(l.name.clone(), ty.clone());
+            if ty == Type::JoinHandle || matches!(&l.value, Expression::Spawn { .. }) {
+                plan.join_handle_bindings
+                    .entry(func.to_string())
+                    .or_default()
+                    .insert(l.name.clone());
+                if let Expression::Spawn { kind, .. } = &l.value {
+                    plan.join_handle_kinds
+                        .entry(func.to_string())
+                        .or_default()
+                        .insert(l.name.clone(), *kind);
+                }
+            }
             if needs_heap_drop_binding(&l.value, &ty, ctx) {
                 owned.insert(l.name.clone());
             }
@@ -366,7 +396,7 @@ fn scan_statement(
             types,
             spawn_id,
         ),
-        Statement::Spawn(body) => {
+        Statement::Spawn(sp) => {
             let spawn_fn = format!("{func}__spawn_{spawn_id}");
             *spawn_id += 1;
             let mut s_owned = HashSet::new();
@@ -376,7 +406,7 @@ fn scan_statement(
             let mut s_types = HashMap::new();
             let mut inner_spawn = 0usize;
             scan_block(
-                body,
+                &sp.body,
                 &spawn_fn,
                 ctx,
                 custom_drop_fns,

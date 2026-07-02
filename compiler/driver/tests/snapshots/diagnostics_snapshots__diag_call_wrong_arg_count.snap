@@ -3,4 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E007]: function `add` expects 2 arguments, found 1
-  --> test.ny:2:24
+  --> diag_call_wrong_arg_count.ny:2:24
+   |
+  2 | fn main() { print(add(1)) }
+   |                        ^
+   = label: wrong number of arguments

@@ -10,11 +10,12 @@ target triple = "nyra-snapshot-host"
 %SpawnCap.main.N = type { i32 }
 
 declare i32 @printf(ptr, ...)
-declare i32 @spawn_capture(ptr, ptr, i64)
 declare ptr @malloc(i64)
+declare ptr @spawn_task_capture(ptr, ptr, i64)
 declare void @abort()
 declare void @free(ptr)
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
+declare void @spawn_task_handle_drop(ptr)
 
 define i32 @main() {
 entry:
@@ -23,7 +24,8 @@ entry:
   store i32 100, i32* %spawn.gep.N
   %spawn.heap.N = call ptr @malloc(i64 8)
   call void @llvm.memcpy.p0.p0.i64(ptr %spawn.heap.N, ptr %spawn.cap.N, i64 8, i1 false)
-  call i32 @spawn_capture(ptr @__spawn_main_0, ptr %spawn.heap.N, i64 8)
+  %spawn.handle.N = call ptr @spawn_task_capture(ptr @__spawn_main_0, ptr %spawn.heap.N, i64 8)
+  call void @spawn_task_handle_drop(ptr %spawn.handle.N)
   ret i32 0
 }
 define void @__spawn_main_0(ptr %raw) {

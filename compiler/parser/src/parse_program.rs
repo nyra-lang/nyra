@@ -41,6 +41,7 @@ impl Parser {
         let mut imports = Vec::new();
         let mut consts = Vec::new();
         let mut structs = Vec::new();
+        let mut unions = Vec::new();
         let mut enums = Vec::new();
         let mut traits = Vec::new();
         let mut trait_impls = Vec::new();
@@ -121,6 +122,12 @@ impl Parser {
                             structs.push(s);
                         }
                     }
+                    Some(Token { kind: TokenKind::Union, .. }) => {
+                        if let Some(u) = self.parse_union() {
+                            self.parsed_struct_names.push(u.name.clone());
+                            unions.push(u);
+                        }
+                    }
                     Some(Token { kind: TokenKind::Enum, .. }) => {
                         if let Some(e) = self.parse_enum() {
                             self.parsed_enum_names.push(e.name.clone());
@@ -134,7 +141,7 @@ impl Parser {
                     }
                     _ => {
                         self.parse_error_here(
-                            "Expected `fn`, `struct`, `enum`, or `const` after `pub`/`priv`",
+                            "Expected `fn`, `struct`, `union`, `enum`, or `const` after `pub`/`priv`",
                         );
                         synchronize(&self.tokens, &mut self.position);
                     }
@@ -175,6 +182,12 @@ impl Parser {
                     if let Some(s) = self.parse_struct() {
                         self.parsed_struct_names.push(s.name.clone());
                         structs.push(s);
+                    }
+                }
+                TokenKind::Union => {
+                    if let Some(u) = self.parse_union() {
+                        self.parsed_struct_names.push(u.name.clone());
+                        unions.push(u);
                     }
                 }
                 TokenKind::Enum => {
@@ -267,6 +280,7 @@ impl Parser {
                 imports,
                 consts,
                 structs,
+                unions,
                 enums,
                 traits,
                 trait_impls,

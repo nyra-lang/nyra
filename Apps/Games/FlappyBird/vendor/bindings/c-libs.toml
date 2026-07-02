@@ -1,7 +1,0 @@
-# Managed by `nyra pkg c add|remove` — tracks system C libraries in this project.
-
-[raylib]
-bindings = "vendor/bindings/raylib.ny"
-link = "raylib"
-header = "/opt/homebrew/opt/raylib/include/raylib.h"
-link_search = ["/opt/homebrew/opt/raylib/lib"]

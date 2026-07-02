@@ -1,5 +1,5 @@
 # CI stage tiers for .github/workflows/ci.yml (fast → slow, parallel within each tier).
-# Monolithic local/CI entry points (test-all-macos / test-all-windows) stay unchanged.
+# Monolithic local/CI entry points (test-all-linux / test-all-macos / test-all-windows) stay unchanged.
 
 .PHONY: test-platform-ci-build test-platform-ci-summary
 .PHONY: test-platform-ci-tier1 test-platform-ci-tier2 test-platform-ci-tier3

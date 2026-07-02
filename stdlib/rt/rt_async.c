@@ -110,7 +110,9 @@ static int64_t nyra_now_ms(void) {
 
 #endif
 
-int spawn_capture(void (*body)(void *), void *data, long long nbytes);
+void *spawn_capture(void (*body)(void *), void *data, long long nbytes);
+int spawn_join(void *handle);
+void spawn_handle_drop(void *handle);
 int io_wait_once(int timeout_ms);
 
 #define NYRA_MAX_TASKS 4096
@@ -220,10 +222,27 @@ static int register_timer(int task_id, int delay_ms) {
     return -1;
 }
 
+#if defined(_WIN32)
+static void executor_yield_ms(int timeout_ms) {
+    if (timeout_ms > 0) {
+        SwitchToThread();
+        Sleep((DWORD)timeout_ms);
+    }
+}
+#endif
+
 int runtime_executor_tick(int timeout_ms) {
     int io = io_wait_once(timeout_ms);
     int timers = process_timers();
-    return io + timers;
+    int work = io + timers;
+#if defined(_WIN32)
+    /* Cooperative poll loops call tick with no registered I/O; yield so spawn
+     * threads can run (Windows CI busy-spins forever otherwise). */
+    if (work == 0 && timeout_ms > 0) {
+        executor_yield_ms(timeout_ms);
+    }
+#endif
+    return work;
 }
 
 int runtime_executor_run_until(int handle, int timeout_ms) {
@@ -649,6 +668,38 @@ int io_register(int fd, int task_id) {
 #endif
 }
 
+int io_unregister(int fd) {
+#ifdef __APPLE__
+    if (g_kq < 0 || fd < 0) {
+        return -1;
+    }
+    struct kevent ev;
+    EV_SET(&ev, (uintptr_t)fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+    return kevent(g_kq, &ev, 1, NULL, 0, NULL) == 0 ? 0 : -1;
+#elif defined(__linux__)
+    if (g_epoll < 0 || fd < 0) {
+        return -1;
+    }
+    struct epoll_event ev;
+    return epoll_ctl(g_epoll, EPOLL_CTL_DEL, fd, &ev) == 0 ? 0 : -1;
+#elif defined(_WIN32)
+    io_lock_init();
+    IO_LOCK();
+    for (int i = 0; i < g_io_n; i++) {
+        if (g_io_tab[i].fd == fd) {
+            g_io_tab[i].active = 0;
+            IO_UNLOCK();
+            return 0;
+        }
+    }
+    IO_UNLOCK();
+    return -1;
+#else
+    (void)fd;
+    return -1;
+#endif
+}
+
 int io_wait_once(int timeout_ms) {
 #ifdef __APPLE__
     if (g_kq < 0) {
@@ -666,6 +717,14 @@ int io_wait_once(int timeout_ms) {
     async_promise_complete(task_id, (int)ev.ident);
     return 1;
 #elif defined(__linux__)
+    extern int io_uring_pending(void);
+    extern int io_uring_wait_once(int timeout_ms);
+    if (io_uring_pending() > 0) {
+        int uring_fired = io_uring_wait_once(timeout_ms);
+        if (uring_fired > 0) {
+            return uring_fired;
+        }
+    }
     if (g_epoll < 0) {
         return 0;
     }
@@ -732,5 +791,8 @@ static void nyra_spawn_noop(void *data) {
 }
 
 void spawn(void) {
-    spawn_capture(nyra_spawn_noop, NULL, 0);
+    void *h = spawn_capture(nyra_spawn_noop, NULL, 0);
+    if (h) {
+        spawn_handle_drop(h);
+    }
 }

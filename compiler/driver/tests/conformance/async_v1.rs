@@ -37,7 +37,7 @@ fn main() {
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
     assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);
     let ir = out.llvm_ir.expect("ir");
-    assert_ir_patterns(&ir, &["spawn_capture", "async_await"], &[]);
+    assert_ir_patterns(&ir, &["spawn_task_capture", "async_await"], &[]);
 }
 
 #[test]

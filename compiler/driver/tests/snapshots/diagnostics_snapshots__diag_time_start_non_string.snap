@@ -3,5 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(& out)
 ---
 error[E008]: argument type mismatch in call to `time_start`
-  --> test.ny:1:25
+  --> diag_time_start_non_string.ny:1:25
+   |
+  1 | fn main() { time_start(1) }
+   |                         ^
    = note: expected string label, found i32

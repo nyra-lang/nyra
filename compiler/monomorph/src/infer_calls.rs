@@ -255,10 +255,10 @@ fn rewrite_stmt_calls(
                 rewrite_expr_calls(c, env, generics);
             }
         }
-        Statement::Spawn(b) => {
+        Statement::Spawn(s) => {
             let mut body_env = env.clone();
-            for s in &mut b.statements {
-                rewrite_stmt_calls(s, &mut body_env, generics);
+            for stmt in &mut s.body.statements {
+                rewrite_stmt_calls(stmt, &mut body_env, generics);
             }
         }
         Statement::Benchmark(b) => {

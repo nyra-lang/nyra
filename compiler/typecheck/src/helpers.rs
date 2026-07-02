@@ -120,7 +120,8 @@ pub(super) fn collect_return_types_from_block(
                 }
                 collect_return_types_from_block(&f.body, checker, env, out);
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => collect_return_types_from_block(&s.body, checker, env, out),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 collect_return_types_from_block(b, checker, env, out);
             }
             _ => {}
@@ -193,6 +194,12 @@ pub(super) fn types_assignable(from: &Type, to: &Type) -> bool {
     }
     if matches!(from, Type::Ptr) && matches!(to, Type::VecStr) {
         return true;
+    }
+    if matches!(from, Type::String) && matches!(to, Type::Bytes) {
+        return false;
+    }
+    if matches!(from, Type::Bytes) && matches!(to, Type::String) {
+        return false;
     }
     if from == to || *from == Type::Unknown || *to == Type::Unknown {
         return true;

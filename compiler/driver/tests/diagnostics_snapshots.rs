@@ -2,14 +2,15 @@
 
 mod common;
 
-use common::{compile, format_all_errors};
+use common::{compile_named, format_all_errors};
 use compiler::{CompileOptions, CompileStage, Compiler};
 
 macro_rules! snap_diag {
     ($name:ident, $src:expr) => {
         #[test]
         fn $name() {
-            let out = compile($src);
+            let file = concat!(stringify!($name), ".ny");
+            let out = compile_named(file, $src);
             insta::assert_snapshot!(stringify!($name), format_all_errors(&out));
         }
     };
@@ -42,7 +43,7 @@ snap_diag!(diag_time_start_non_string, r#"fn main() { time_start(1) }"#);
 fn diag_extended_async_warning() {
     let src = r#"async fn work() -> i32 { return 1 }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_extended_async_warning.ny", src);
     let warnings: Vec<String> = out.warnings.iter().map(|e| format!("{e}")).collect();
     insta::assert_snapshot!("diag_extended_async_warning", warnings.join("\n"));
 }
@@ -50,7 +51,7 @@ fn main() { print(0) }"#;
 #[test]
 fn diag_extended_spawn_warning() {
     let src = r#"fn main() { spawn { print(1) } }"#;
-    let out = compile(src);
+    let out = compile_named("diag_extended_spawn_warning.ny", src);
     let warnings: Vec<String> = out.warnings.iter().map(|e| format!("{e}")).collect();
     insta::assert_snapshot!("diag_extended_spawn_warning", warnings.join("\n"));
 }
@@ -69,7 +70,7 @@ fn main() { print(0) }"#;
 
 #[test]
 fn diag_type_error_line_number() {
-    let out = compile(r#"fn main() {
+    let out = compile_named("diag_type_error_line_number.ny", r#"fn main() {
     let x = y
 }"#);
     let err = format!("{}", out.type_errors[0]);
@@ -125,7 +126,7 @@ fn diag_parser_invalid_expression() {
 fn diag_no_std_rejects_print() {
     let src = r#"# no_std
 fn main() { print(1) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_no_std_rejects_print.ny", src);
     insta::assert_snapshot!("diag_no_std_rejects_print", format_all_errors(&out));
 }
 
@@ -136,14 +137,14 @@ fn diag_return_ref_to_local() {
     return &x
 }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_return_ref_to_local.ny", src);
     insta::assert_snapshot!("diag_return_ref_to_local", format_all_errors(&out));
 }
 
 #[test]
 fn diag_asm_outside_unsafe() {
     let src = r#"fn main() { asm "nop" }"#;
-    let out = compile(src);
+    let out = compile_named("diag_asm_outside_unsafe.ny", src);
     insta::assert_snapshot!("diag_asm_outside_unsafe", format_all_errors(&out));
 }
 
@@ -154,7 +155,7 @@ fn diag_raw_ptr_outside_unsafe() {
     let v = *p
     print(v)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_raw_ptr_outside_unsafe.ny", src);
     insta::assert_snapshot!("diag_raw_ptr_outside_unsafe", format_all_errors(&out));
 }
 
@@ -162,7 +163,7 @@ fn diag_raw_ptr_outside_unsafe() {
 fn diag_trait_extended_warning() {
     let src = r#"trait Show { fn show(self) -> void }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_trait_extended_warning.ny", src);
     let warnings: Vec<String> = out.warnings.iter().map(|e| format!("{e}")).collect();
     insta::assert_snapshot!("diag_trait_extended_warning", warnings.join("\n"));
 }
@@ -171,7 +172,7 @@ fn main() { print(0) }"#;
 fn diag_macro_extended_warning() {
     let src = r#"macro m(x) { x }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_macro_extended_warning.ny", src);
     let warnings: Vec<String> = out.warnings.iter().map(|e| format!("{e}")).collect();
     insta::assert_snapshot!("diag_macro_extended_warning", warnings.join("\n"));
 }
@@ -182,7 +183,7 @@ fn diag_defer_extended_warning() {
     defer print(1)
     print(0)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_defer_extended_warning.ny", src);
     let warnings: Vec<String> = out.warnings.iter().map(|e| format!("{e}")).collect();
     insta::assert_snapshot!("diag_defer_extended_warning", warnings.join("\n"));
 }
@@ -193,7 +194,7 @@ fn diag_comparison_type_mismatch() {
     let s = "hi"
     if s == 1 { print(1) }
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_comparison_type_mismatch.ny", src);
     insta::assert_snapshot!("diag_comparison_type_mismatch", format_all_errors(&out));
 }
 
@@ -201,7 +202,7 @@ fn diag_comparison_type_mismatch() {
 fn diag_call_wrong_arg_count() {
     let src = r#"fn add(a: i32, b: i32) -> i32 { return a + b }
 fn main() { print(add(1)) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_call_wrong_arg_count.ny", src);
     insta::assert_snapshot!("diag_call_wrong_arg_count", format_all_errors(&out));
 }
 
@@ -211,7 +212,7 @@ fn diag_if_expr_type_mismatch() {
     let x = if true { 1 } else { "no" }
     print(x)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_if_expr_type_mismatch.ny", src);
     insta::assert_snapshot!("diag_if_expr_type_mismatch", format_all_errors(&out));
 }
 
@@ -219,13 +220,13 @@ fn diag_if_expr_type_mismatch() {
 fn diag_duplicate_fn_definition() {
     let src = r#"fn main() { print(0) }
 fn main() { print(1) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_duplicate_fn_definition.ny", src);
     insta::assert_snapshot!("diag_duplicate_fn_definition", format_all_errors(&out));
 }
 
 #[test]
 fn diag_empty_program() {
-    let out = compile("");
+    let out = compile_named("diag_empty_program.ny", "");
     insta::assert_snapshot!("diag_empty_program", format_all_errors(&out));
 }
 
@@ -233,7 +234,7 @@ fn diag_empty_program() {
 fn diag_lifetime_elision_ok_no_errors() {
     let src = r#"fn len(s: &string) -> i32 { return 0 }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_lifetime_elision_ok_no_errors.ny", src);
     insta::assert_snapshot!("diag_lifetime_elision_ok_no_errors", format_all_errors(&out));
 }
 
@@ -247,7 +248,7 @@ fn main() {
     let p = Pair { a: 1, b: 2 }
     print(p.a)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_repr_c_struct_ok.ny", src);
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
     insta::assert_snapshot!("diag_repr_c_struct_ok", format_all_errors(&out));
 }
@@ -255,7 +256,7 @@ fn main() {
 #[test]
 fn diag_spawn_capture_ok_with_warnings() {
     let src = r#"fn main() { spawn { print(1) } }"#;
-    let out = compile(src);
+    let out = compile_named("diag_spawn_capture_ok_with_warnings.ny", src);
     assert!(out.borrow_errors.is_empty());
     let w: Vec<String> = out.warnings.iter().map(|e| format!("{e}")).collect();
     insta::assert_snapshot!("diag_spawn_capture_ok_with_warnings", w.join("\n"));
@@ -267,14 +268,14 @@ fn diag_await_non_async() {
     let x = 1
     print(await x)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_await_non_async.ny", src);
     insta::assert_snapshot!("diag_await_non_async", format_all_errors(&out));
 }
 
 #[test]
 fn diag_self_outside_impl() {
     let src = r#"fn main() { print(self) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_self_outside_impl.ny", src);
     insta::assert_snapshot!("diag_self_outside_impl", format_all_errors(&out));
 }
 
@@ -283,14 +284,14 @@ fn diag_for_range_non_int() {
     let src = r#"fn main() {
     for i in "a".."b" { print(0) }
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_for_range_non_int.ny", src);
     insta::assert_snapshot!("diag_for_range_non_int", format_all_errors(&out));
 }
 
 #[test]
 fn diag_void_return_with_value() {
     let src = r#"fn main() -> void { return 1 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_void_return_with_value.ny", src);
     insta::assert_snapshot!("diag_void_return_with_value", format_all_errors(&out));
 }
 
@@ -301,7 +302,7 @@ fn main() {
     let s = S { x: 1, y: 2 }
     print(s.x)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_struct_unknown_field.ny", src);
     insta::assert_snapshot!("diag_struct_unknown_field", format_all_errors(&out));
 }
 
@@ -309,7 +310,7 @@ fn main() {
 fn diag_generic_arity_mismatch() {
     let src = r#"fn id<T>(x: T) -> T { return x }
 fn main() { print(id<i32, i32>(1)) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_generic_arity_mismatch.ny", src);
     insta::assert_snapshot!("diag_generic_arity_mismatch", format_all_errors(&out));
 }
 
@@ -320,7 +321,7 @@ impl Drop for Box {
     fn drop(mut self) -> void { print(self.n) }
 }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_custom_drop_extended.ny", src);
     insta::assert_snapshot!("diag_custom_drop_extended", format_all_errors(&out));
 }
 
@@ -330,7 +331,7 @@ fn diag_hrtb_fn_ptr_ok() {
     return f(&x)
 }
 fn main() { print(0) }"#;
-    let out = compile(src);
+    let out = compile_named("diag_hrtb_fn_ptr_ok.ny", src);
     insta::assert_snapshot!("diag_hrtb_fn_ptr_ok", format_all_errors(&out));
 }
 
@@ -341,7 +342,7 @@ fn main() {
     let b = Bad { s: "x" }
     spawn { print(b.s) }
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_send_bad_spawn.ny", src);
     insta::assert_snapshot!("diag_send_bad_spawn", format_all_errors(&out));
 }
 
@@ -353,14 +354,14 @@ fn main() {
     let n = match e { E.A => 1 }
     print(n)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_match_non_exhaustive.ny", src);
     insta::assert_snapshot!("diag_match_non_exhaustive", format_all_errors(&out));
 }
 
 #[test]
 fn diag_modulo_type_error() {
     let src = r#"fn main() { print(1 % "x") }"#;
-    let out = compile(src);
+    let out = compile_named("diag_modulo_type_error.ny", src);
     insta::assert_snapshot!("diag_modulo_type_error", format_all_errors(&out));
 }
 
@@ -371,7 +372,7 @@ fn diag_double_free_hint() {
     free(s)
     print(s)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_double_free_hint.ny", src);
     insta::assert_snapshot!("diag_double_free_hint", format_all_errors(&out));
 }
 
@@ -405,7 +406,7 @@ fn diag_channel_type_mismatch() {
     let ch = channel<i32>()
     send(ch, "not i32")
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_channel_type_mismatch.ny", src);
     insta::assert_snapshot!("diag_channel_type_mismatch", format_all_errors(&out));
 }
 
@@ -418,7 +419,7 @@ fn main() {
     let d = Derived { ..base, b: 2 }
     print(d.b)
 }"#;
-    let out = compile(src);
+    let out = compile_named("diag_struct_spread_extended.ny", src);
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
     assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);
 }

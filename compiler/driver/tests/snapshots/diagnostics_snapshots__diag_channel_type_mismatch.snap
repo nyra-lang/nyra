@@ -2,7 +2,15 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: Undefined function 'channel__i32'
-  --> test.ny:2:27
-error: Undefined function 'send'
-  --> test.ny:3:23
+error[E013]: undefined function `channel__i32`
+  --> diag_channel_type_mismatch.ny:2:27
+   |
+  2 |     let ch = channel<i32>()
+   |                           ^
+   = label: `channel__i32` is not declared in scope
+error[E013]: undefined function `send`
+  --> diag_channel_type_mismatch.ny:3:23
+   |
+  3 |     send(ch, "not i32")
+   |                       ^
+   = label: `send` is not declared in scope

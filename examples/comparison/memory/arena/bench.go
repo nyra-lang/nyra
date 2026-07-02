@@ -5,6 +5,7 @@ import (
 	"runtime"
 )
 
+
 func main() {
 
 	const n = 500000

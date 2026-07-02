@@ -162,10 +162,10 @@ fn expand_stmt(stmt: &Statement, macros: &HashMap<String, MacroDef>) -> Statemen
             nf.map_exprs_mut(|e| *e = expand_expr(e, macros));
             Statement::For(nf)
         }
-        Statement::Spawn(body) => {
-            let mut b = body.clone();
-            expand_block_stmts(&mut b.statements, macros);
-            Statement::Spawn(b)
+        Statement::Spawn(s) => {
+            let mut sp = s.clone();
+            expand_block_stmts(&mut sp.body.statements, macros);
+            Statement::Spawn(sp)
         }
         Statement::Benchmark(body) => {
             let mut b = body.clone();

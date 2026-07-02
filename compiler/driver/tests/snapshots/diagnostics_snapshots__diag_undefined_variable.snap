@@ -3,9 +3,17 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(& out)
 ---
 error[E002]: undefined variable `lie`
-  --> test.ny:3:11
+  --> diag_undefined_variable.ny:3:11
+   |
+  3 |     print(lie)
+   |           ^^^
+   = label: `lie` is not in scope
    = help: did you mean `life`?
 warning[W003]: unused variable `life`
-  --> test.ny:2:9
+  --> diag_undefined_variable.ny:2:9
+   |
+  2 |     let life = 1
+   |         ^
+   = label: declared here but never read
    = help: prefix with `_` if intentional: `let _life = ...`
    = help: or remove the binding if `life` is not needed

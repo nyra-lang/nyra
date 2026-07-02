@@ -465,11 +465,20 @@ fn expand_stmt_without_top_level_try(
             out.push(Statement::Defer(h.expr));
             out
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(sp) => vec![Statement::Spawn(SpawnStmt {
+            kind: sp.kind,
+            body: Block {
+                statements: desugar_try_stmts(
+                    &sp.body.statements,
+                    fn_returns,
+                    current_fn_return,
+                    counter,
+                ),
+            },
+        })],
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             let mut s = stmt.clone();
-            if let Statement::Spawn(ref mut blk)
-            | Statement::Unsafe(ref mut blk)
-            | Statement::Benchmark(ref mut blk) = s {
+            if let Statement::Unsafe(ref mut blk) | Statement::Benchmark(ref mut blk) = s {
                 blk.statements = desugar_try_stmts(
                     &b.statements,
                     fn_returns,

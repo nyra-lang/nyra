@@ -61,6 +61,9 @@ impl Codegen {
         if let Some(name) = self.resolved_enum_name(ty) {
             return self.enum_llvm_value_type(&name);
         }
+        if matches!(ty, TypeAnnotation::Bytes) {
+            return "ptr".into();
+        }
         self.llvm_type_of(ty)
     }
 
@@ -83,6 +86,7 @@ impl Codegen {
                 }
             }
             TypeAnnotation::Struct(n) => format!("%{n}*"),
+            TypeAnnotation::Bytes => "ptr".into(),
             _ => self.llvm_type_of(ty),
         }
     }
@@ -159,6 +163,7 @@ impl Codegen {
                 format!("%{n}* byval(%{n})")
             }
             TypeAnnotation::Struct(n) => format!("%{n}*"),
+            TypeAnnotation::Bytes => "ptr".into(),
             _ => self.llvm_type_of(ty),
         }
     }
@@ -176,6 +181,7 @@ impl Codegen {
             TypeAnnotation::Struct(n) if self.repr_c_struct_uses_arm64_indirect(n) => {
                 "void".into()
             }
+            TypeAnnotation::Bytes => "ptr".into(),
             _ => self.llvm_type_of(ty),
         }
     }
@@ -480,7 +486,18 @@ impl Codegen {
         }
     }
 
+    pub(super) fn logical_call_ret_ty(&self, ty: &TypeAnnotation) -> String {
+        if matches!(ty, TypeAnnotation::Bytes) {
+            "bytes".into()
+        } else {
+            self.llvm_return_type_of(ty)
+        }
+    }
+
     pub(super) fn llvm_extern_call_ret_ty(&self, callee: &str, logical_ret: &str) -> String {
+        if logical_ret == "bytes" {
+            return "ptr".into();
+        }
         if !self.is_extern_c_call(callee) || !logical_ret.starts_with('%') {
             return logical_ret.to_string();
         }
