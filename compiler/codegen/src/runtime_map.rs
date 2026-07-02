@@ -582,6 +582,10 @@ impl RuntimeProfile {
         if mods.contains("rt_http.c") {
             mods.insert("rt_net.c");
         }
+        if mods.contains("rt_net.c") {
+            // rt_net.c calls instant_now for ping helpers (whole .c unit is linked).
+            mods.insert("rt_time.c");
+        }
         if mods.contains("rt_tls.c") {
             mods.insert("rt_net.c");
         }
@@ -628,6 +632,9 @@ impl RuntimeProfile {
         let mut mods = self.modules();
         if link_target_is_windows(target) && mods.contains("rt_async.c") {
             mods.insert("rt_net.c");
+        }
+        if mods.contains("rt_net.c") {
+            mods.insert("rt_time.c");
         }
         mods
     }
@@ -892,6 +899,10 @@ mod tests {
         let mods = p.modules_for_target("x86_64-pc-windows-gnu");
         assert!(mods.contains("rt_async.c"));
         assert!(mods.contains("rt_net.c"));
+        assert!(
+            mods.contains("rt_time.c"),
+            "rt_net must pull rt_time for instant_now"
+        );
         let mods_linux = p.modules_for_target("x86_64-unknown-linux-gnu");
         assert!(mods_linux.contains("rt_async.c"));
         assert!(!mods_linux.contains("rt_net.c"));
