@@ -576,6 +576,8 @@ impl RuntimeProfile {
         }
         if mods.contains("rt_async.c") {
             mods.insert("rt_spawn.c");
+            // rt_async.c calls io_uring_* on Linux via extern; link the implementation unit.
+            mods.insert("rt_io_uring.c");
         }
         if mods.contains("rt_http.c") {
             mods.insert("rt_net.c");
@@ -869,6 +871,7 @@ mod tests {
         let mods = p.modules();
         assert!(mods.contains("rt_async.c"));
         assert!(mods.contains("rt_spawn.c"));
+        assert!(mods.contains("rt_io_uring.c"));
     }
 
     #[test]

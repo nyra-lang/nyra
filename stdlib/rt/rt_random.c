@@ -152,6 +152,7 @@ static int nyra_read_os_entropy(uint8_t *buf, size_t len) {
         return 0;
     }
 #endif
+#if !defined(_WIN32)
     int fd = open("/dev/urandom", O_RDONLY);
     if (fd >= 0) {
         size_t got = 0;
@@ -167,6 +168,7 @@ static int nyra_read_os_entropy(uint8_t *buf, size_t len) {
             return 0;
         }
     }
+#endif
     return -1;
 }
 

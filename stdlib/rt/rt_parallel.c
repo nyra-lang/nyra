@@ -284,16 +284,17 @@ typedef struct {
 } NyraParSearchChunk;
 
 #if defined(_WIN32)
-static LONG nyra_atomic_load(volatile LONG *p) {
-    return InterlockedCompareExchange(p, 0, 0);
+static int32_t nyra_atomic_load(volatile int32_t *p) {
+    return (int32_t)InterlockedCompareExchange((volatile LONG *)p, 0, 0);
 }
 
-static void nyra_atomic_store(volatile LONG *p, LONG v) {
-    InterlockedExchange(p, v);
+static void nyra_atomic_store(volatile int32_t *p, int32_t v) {
+    InterlockedExchange((volatile LONG *)p, (LONG)v);
 }
 
-static int nyra_atomic_cas_index(volatile LONG *p, LONG expected, LONG desired) {
-    return InterlockedCompareExchange(p, desired, expected) == expected;
+static int nyra_atomic_cas_index(volatile int32_t *p, int32_t expected, int32_t desired) {
+    return InterlockedCompareExchange((volatile LONG *)p, (LONG)desired, (LONG)expected) ==
+           (LONG)expected;
 }
 #else
 static int32_t nyra_atomic_load(volatile int32_t *p) {
@@ -323,11 +324,7 @@ static void nyra_par_search_chunk(NyraParSearchChunk *c) {
             }
         } else if (c->search_op == 1) {
             if (ok) {
-#if defined(_WIN32)
-                (void)nyra_atomic_cas_index((volatile LONG *)c->found_index, -1, (LONG)i);
-#else
                 (void)nyra_atomic_cas_index(c->found_index, -1, i);
-#endif
                 nyra_atomic_store(c->stop, 1);
                 break;
             }
@@ -370,13 +367,8 @@ static int32_t parallel_search_range(int32_t start, int32_t end, NyraParPred pre
         return 0;
     }
 
-#if defined(_WIN32)
-    volatile LONG stop = 0;
-    volatile LONG found_index = -1;
-#else
     volatile int32_t stop = 0;
     volatile int32_t found_index = -1;
-#endif
 
     int32_t workers =
         resolve_workers(count, max_workers, exact_workers, mode, cpu_percent);
@@ -428,7 +420,7 @@ static int32_t parallel_search_range(int32_t start, int32_t end, NyraParPred pre
                             break;
                         }
                         if (search_op == 1 && ok) {
-                            (void)nyra_atomic_cas_index(&found_index, -1, (LONG)i);
+                            (void)nyra_atomic_cas_index(&found_index, -1, i);
                             nyra_atomic_store(&stop, 1);
                             break;
                         }
