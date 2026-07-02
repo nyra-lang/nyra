@@ -937,6 +937,51 @@ mod link_source_filter_tests {
 mod tests {
     use super::*;
     use crate::target::TargetSpec;
+    use std::io::Read;
+    use std::time::Duration;
+
+    fn command_output_with_timeout(
+        program: &Path,
+        timeout: Duration,
+    ) -> std::process::Output {
+        let mut child = std::process::Command::new(program)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .unwrap_or_else(|e| panic!("failed to spawn {}: {e}", program.display()));
+        let start = std::time::Instant::now();
+        let status = loop {
+            match child.try_wait() {
+                Ok(Some(status)) => break status,
+                Ok(None) => {
+                    if start.elapsed() >= timeout {
+                        let _ = child.kill();
+                        let _ = child.wait();
+                        panic!(
+                            "process {} timed out after {:?}",
+                            program.display(),
+                            timeout
+                        );
+                    }
+                    std::thread::sleep(Duration::from_millis(50));
+                }
+                Err(e) => panic!("failed to wait on {}: {e}", program.display()),
+            }
+        };
+        let mut stdout = Vec::new();
+        let mut stderr = Vec::new();
+        if let Some(mut out) = child.stdout.take() {
+            out.read_to_end(&mut stdout).ok();
+        }
+        if let Some(mut err) = child.stderr.take() {
+            err.read_to_end(&mut stderr).ok();
+        }
+        std::process::Output {
+            status,
+            stdout,
+            stderr,
+        }
+    }
 
     #[test]
     fn link_temp_path_keeps_exe_suffix_on_windows() {
@@ -1145,7 +1190,7 @@ mod tests {
         let profile = LinkProfile::default();
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();
         assert!(bin.is_file());
-        let run = std::process::Command::new(&bin).output().unwrap();
+        let run = command_output_with_timeout(&bin, Duration::from_secs(60));
         assert!(
             run.status.success(),
             "exit={:?} stdout={:?} stderr={:?}",

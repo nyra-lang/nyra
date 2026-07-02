@@ -12,8 +12,7 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Staged CI: build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native/extras.
-# Linux, macOS, and Windows run the same tier gates in parallel per OS.
+
 
 env:
   CARGO_TERM_COLOR: always
@@ -116,6 +115,7 @@ jobs:
     needs: build-windows
     if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
     runs-on: windows-latest
+    timeout-minutes: ${{ matrix.timeout || 60 }}
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -127,6 +127,7 @@ jobs:
             label: conformance
           - gate: test-cargo-workspace
             label: cargo-workspace
+            timeout: 90
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
