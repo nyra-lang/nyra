@@ -148,6 +148,34 @@ pub fn run_nyra(args: &[&str]) -> Output {
     cmd.output().expect("run nyra")
 }
 
+/// Normalize process stdout for cross-platform comparison (Windows CRLF → LF).
+pub fn normalize_process_stdout(bytes: &[u8]) -> String {
+    String::from_utf8_lossy(bytes)
+        .replace("\r\n", "\n")
+        .replace('\r', "\n")
+        .to_string()
+}
+
+/// Like [`normalize_process_stdout`] but trims leading/trailing whitespace.
+pub fn normalize_process_stdout_trimmed(bytes: &[u8]) -> String {
+    normalize_process_stdout(bytes).trim().to_string()
+}
+
+/// Resolve `target/debug/<name>` from a Nyra project dir (adds `.exe` on Windows).
+pub fn built_debug_artifact(project_dir: &Path, name: &str) -> PathBuf {
+    let base = project_dir.join("target/debug").join(name);
+    if base.is_file() {
+        return base;
+    }
+    let with_exe = project_dir
+        .join("target/debug")
+        .join(format!("{name}{}", std::env::consts::EXE_SUFFIX));
+    if with_exe.is_file() {
+        return with_exe;
+    }
+    base
+}
+
 /// Run `nyra run` on a path and return stdout trimmed.
 pub fn run_nyra_file(path: &Path) -> String {
     let output = run_nyra(&["run", &path.to_string_lossy()]);
@@ -157,7 +185,7 @@ pub fn run_nyra_file(path: &Path) -> String {
         path.display(),
         String::from_utf8_lossy(&output.stderr)
     );
-    String::from_utf8_lossy(&output.stdout).trim().to_string()
+    normalize_process_stdout_trimmed(&output.stdout)
 }
 
 /// Format all errors from compile output for snapshot tests.

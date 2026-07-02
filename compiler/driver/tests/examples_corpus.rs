@@ -5,7 +5,7 @@ mod common;
 use std::process::Command;
 use std::path::{PathBuf};
 
-use common::{assert_ir_patterns, nyra_bin, workspace_root};
+use common::{assert_ir_patterns, normalize_process_stdout_trimmed, nyra_bin, workspace_root};
 use compiler::{CompileOptions, Compiler};
 use serde::Deserialize;
 
@@ -136,7 +136,7 @@ fn corpus_e2e_stdout() {
             String::from_utf8_lossy(&output.stderr)
         );
         if let Some(expected) = &case.expect_stdout {
-            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stdout = normalize_process_stdout_trimmed(&output.stdout);
             assert_eq!(
                 stdout, *expected,
                 "{}: stdout mismatch",
