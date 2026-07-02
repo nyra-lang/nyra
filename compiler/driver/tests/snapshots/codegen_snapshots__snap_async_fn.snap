@@ -1,6 +1,5 @@
 ---
 source: compiler/driver/tests/codegen_snapshots.rs
-assertion_line: 137
 expression: normalize_ir(& ir)
 ---
 source_filename = "test.ny"
@@ -9,6 +8,7 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [5 x i8] c" = \22\00", align 1
 @.str.N = private unnamed_addr constant [18 x i8] c" HTTP/1.N\0D\0AHost: \00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c": \00", align 1
+@.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:10,\22b\22:32}\00", align 1
 @.str.N = private unnamed_addr constant [28 x i8] c"{\22op\22:\22add\22,\22a\22:100,\22b\22:23}\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:19,\22b\22:23}\00", align 1
 @.str.N = private unnamed_addr constant [17 x i8] c"{\22op\22:\22add\22,\22a\22:\00", align 1
@@ -86,11 +86,12 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [7 x i8] c"minute\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"month\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"ok\00", align 1
+@.str.N = private unnamed_addr constant [5 x i8] c"owns\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"path\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"port\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"query\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c"raw\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"6*7\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c"raw\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"result\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"router\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"second\00", align 1
@@ -100,8 +101,8 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [25 x i8] c"text/html; charset=utf-8\00", align 1
 @.str.N = private unnamed_addr constant [26 x i8] c"text/plain; charset=utf-8\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"text/plain\00", align 1
-@.str.N = private unnamed_addr constant [11 x i8] c"timeout_ms\00", align 1
 @.str.N = private unnamed_addr constant [29 x i8] c": OpenSSL not available \E2\80\94 \00", align 1
+@.str.N = private unnamed_addr constant [11 x i8] c"timeout_ms\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"true\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"url\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"user_agent\00", align 1
@@ -111,12 +112,12 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [31 x i8] c"{\22error\22:\22method not allowed\22}\00", align 1
 @.str.N = private unnamed_addr constant [22 x i8] c"{\22error\22:\22not found\22}\00", align 1
 @.str.N = private unnamed_addr constant [25 x i8] c"{\22error\22:\22unauthorized\22}\00", align 1
-@.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:10,\22b\22:32}\00", align 1
 
 %CalendarDate = type { i32, i32, i32 }
 %Client = type { ptr, i32 }
 %DateTime = type { %CalendarDate, i32, i32, i32 }
 %Duration = type { i32 }
+%Fd = type { i32, i32 }
 %Future_bool = type { i32 }
 %Future_i32 = type { i32 }
 %Future_string = type { i32 }
@@ -147,6 +148,8 @@ declare i32 @char_at(ptr %0, i32 %1)
 declare i32 @instant_elapsed_ms(i64 %0)
 declare i32 @json_get_bool(ptr %0, ptr %1)
 declare i32 @json_get_i32(ptr %0, ptr %1)
+declare i32 @os_close_fd(i32 %0)
+declare i32 @os_getpid()
 declare i32 @printf(ptr, ...)
 declare i32 @puts(ptr)
 declare i32 @rt_tcp_accept_async(i32 %0)
@@ -161,7 +164,6 @@ declare i32 @rt_tls_upgrade_client_ex(i32 %0, ptr %1, ptr %2, i32 %3)
 declare i32 @rt_tls_upgrade_client_verify(i32 %0, ptr %1)
 declare i32 @rt_tls_validate_pem_files(ptr %0, ptr %1)
 declare i32 @rt_tls_write(i32 %0, ptr %1)
-declare i32 @spawn_capture(ptr, ptr, i64)
 declare i32 @str_cmp(ptr %0, ptr %1)
 declare i32 @str_contains(ptr %0, ptr %1)
 declare i32 @str_ends_with(ptr %0, ptr %1)
@@ -177,6 +179,9 @@ declare i32 @sys_set_nonblock(i32 %0)
 declare i32 @tls_available()
 declare i32 @vec_str_len(ptr %0)
 declare i64 @instant_now()
+declare i64 @os_read(i32 %0, ptr %1, i64 %2)
+declare i64 @os_syscall6(i64 %0, i64 %1, i64 %2, i64 %3, i64 %4, i64 %5, i64 %6)
+declare i64 @os_write(i32 %0, ptr %1, i64 %2)
 declare ptr @bin_buf_finish(ptr %0)
 declare ptr @bin_buf_new()
 declare ptr @bin_decode_blob_at(ptr %0, i32 %1)
@@ -201,6 +206,7 @@ declare ptr @rt_bridge_exec(ptr %0, ptr %1)
 declare ptr @rt_bridge_exec_arg(ptr %0, ptr %1, ptr %2)
 declare ptr @rt_tls_last_error()
 declare ptr @rt_tls_read(i32 %0, i32 %1)
+declare ptr @spawn_capture(ptr, ptr, i64)
 declare ptr @str_cat(ptr %0, ptr %1)
 declare ptr @str_clone(ptr)
 declare ptr @str_pop(ptr %0)
@@ -218,6 +224,8 @@ declare ptr @vec_str_from_argv(i32 %0)
 declare ptr @vec_str_get(ptr %0, i32 %1)
 declare ptr @vec_str_new()
 declare void @abort()
+declare void @asm_nop()
+declare void @asm_pause()
 declare void @async_promise_complete(i32, i32)
 declare void @bin_blob_free(ptr %0)
 declare void @bin_buf_append_blob(ptr %0, ptr %1)
@@ -228,9 +236,11 @@ declare void @bin_buf_write_string(ptr %0, ptr %1)
 declare void @free(ptr)
 declare void @heap_free(ptr)
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
+declare void @os_exit(i32 %0)
 declare void @rt_tls_close(i32 %0)
 declare void @rt_tls_listener_close(i32 %0)
 declare void @sleep_ms(i32 %0)
+declare void @spawn_handle_drop(ptr)
 declare void @sys_close(i32 %0)
 declare void @vec_str_free(ptr %0)
 declare void @vec_str_push(ptr %0, ptr %1)
@@ -439,6 +449,82 @@ entry:
   %load.N = load %Duration, %Duration* %alloca.N
   ret %Duration %load.N
 }
+define %Fd @Deserialize_Fd_from_json(ptr %0) {
+entry:
+  %call.N = call %Fd @Fd_json_decode(ptr %0)
+  ret %Fd %call.N
+}
+define %Fd @Fd_bin_decode(ptr %0) {
+entry:
+  %call.N = call i32 @bin_field_width_i32()
+  %bin.N = add i32 4, %call.N
+  %call.N = call i32 @bin_field_width_i32()
+  %bin.N = add i32 %bin.N, %call.N
+  %alloca.N = alloca %Fd
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 0
+  %call.N = call i32 @bin_decode_i32_at(ptr %0, i32 4)
+  store i32 %call.N, i32* %gep.N
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 1
+  %call.N = call i32 @bin_decode_i32_at(ptr %0, i32 %bin.N)
+  store i32 %call.N, i32* %gep.N
+  %load.N = load %Fd, %Fd* %alloca.N
+  ret %Fd %load.N
+}
+define %Fd @Fd_borrow(i32 %0) {
+entry:
+  %alloca.N = alloca %Fd
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 0
+  store i32 %0, i32* %gep.N
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 1
+  store i32 0, i32* %gep.N
+  %load.N = load %Fd, %Fd* %alloca.N
+  ret %Fd %load.N
+}
+define %Fd @Fd_json_decode(ptr %0) {
+entry:
+  %alloca.N = alloca %Fd
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 0
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call i32 @decode_i32(ptr %0, ptr %str.N)
+  store i32 %call.N, i32* %gep.N
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 1
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call i32 @decode_i32(ptr %0, ptr %str.N)
+  store i32 %call.N, i32* %gep.N
+  %load.N = load %Fd, %Fd* %alloca.N
+  ret %Fd %load.N
+}
+define %Fd @Fd_new(i32 %0) {
+entry:
+  %alloca.N = alloca %Fd
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 0
+  store i32 %0, i32* %gep.N
+  %gep.N = getelementptr inbounds %Fd, %Fd* %alloca.N, i32 0, i32 1
+  store i32 1, i32* %gep.N
+  %load.N = load %Fd, %Fd* %alloca.N
+  ret %Fd %load.N
+}
+define %Fd @TcpListener_borrow_fd(%TcpListener* %0) {
+entry:
+  %gep.N = getelementptr inbounds %TcpListener, %TcpListener* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %call.N = call %Fd @Fd_borrow(i32 %load.N)
+  ret %Fd %call.N
+}
+define %Fd @TcpStream_borrow_fd(%TcpStream* %0) {
+entry:
+  %gep.N = getelementptr inbounds %TcpStream, %TcpStream* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %call.N = call %Fd @Fd_borrow(i32 %load.N)
+  ret %Fd %call.N
+}
+define %Fd @TcpStream_into_fd(%TcpStream* %0) {
+entry:
+  %gep.N = getelementptr inbounds %TcpStream, %TcpStream* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %call.N = call %Fd @Fd_new(i32 %load.N)
+  ret %Fd %call.N
+}
 define %Future_bool @Deserialize_Future_bool_from_json(ptr %0) {
 entry:
   %call.N = call %Future_bool @Future_bool_json_decode(ptr %0)
@@ -519,7 +605,8 @@ entry:
   store i32 %call.N, i32* %spawn.gep.N
   %spawn.heap.N = call ptr @malloc(i64 8)
   call void @llvm.memcpy.p0.p0.i64(ptr %spawn.heap.N, ptr %spawn.cap.N, i64 8, i1 false)
-  call i32 @spawn_capture(ptr @__spawn_work_0, ptr %spawn.heap.N, i64 8)
+  %spawn.handle.N = call ptr @spawn_capture(ptr @__spawn_work_0, ptr %spawn.heap.N, i64 8)
+  call void @spawn_handle_drop(ptr %spawn.handle.N)
   %alloca.N = alloca %Future_i32
   %gep.N = getelementptr inbounds %Future_i32, %Future_i32* %alloca.N, i32 0, i32 0
   store i32 %call.N, i32* %gep.N
@@ -801,8 +888,6 @@ then.N:
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
-  %ld.N = load ptr, ptr %alloca.N
-  call void @heap_free(ptr %ld.N)
   ret %HttpResponse %call.N
 else.N:
   br label %endif.N
@@ -827,8 +912,6 @@ then.N:
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
-  %ld.N = load ptr, ptr %alloca.N
-  call void @heap_free(ptr %ld.N)
   %load.N = load %HttpResponse, %HttpResponse* %alloca.N
   ret %HttpResponse %load.N
 else.N:
@@ -844,8 +927,6 @@ endif.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %str_clone.N = call ptr @str_clone(ptr %str.N)
   store ptr %str_clone.N, ptr %gep.N
-  %ld.N = load ptr, ptr %alloca.N
-  call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
@@ -1052,8 +1133,9 @@ else.N:
 endif.N:
   %if.phi.N = phi i32 [%if.phi.N, %endif.N], [%if.phi.N, %else.N]
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
-  store ptr %str.N, ptr %alloca.N
+  store ptr %str_clone.N, ptr %alloca.N
   br i1 %if.phi.N, label %then.N, label %else.N
 then.N:
   br label %endif.N
@@ -1062,14 +1144,17 @@ else.N:
 endif.N:
   %if.phi.N = phi i32 [443, %then.N], [80, %else.N]
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
-  store ptr %str.N, ptr %alloca.N
+  store ptr %str_clone.N, ptr %alloca.N
   %call.N = call i32 @find_host_end(ptr %0, i32 %if.phi.N, i32 %call.N)
   %bin.N = icmp sgt i32 %call.N, %if.phi.N
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
   %bin.N = sub i32 %call.N, %if.phi.N
   %call.N = call ptr @substring(ptr %0, i32 %if.phi.N, i32 %bin.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
   br label %endif.N
 else.N:
@@ -1116,6 +1201,8 @@ endif.N:
 then.N:
   %bin.N = sub i32 %call.N, %if.phi.N
   %call.N = call ptr @substring(ptr %0, i32 %if.phi.N, i32 %bin.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
   br label %endif.N
 else.N:
@@ -1402,6 +1489,13 @@ entry:
   %call.N = call double @str_to_f64(ptr %0)
   ret double %call.N
 }
+define i1 @Fd_is_valid(%Fd* %0) {
+entry:
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %bin.N = icmp sge i32 %load.N, 0
+  ret i1 %bin.N
+}
 define i1 @tls_ready() {
 entry:
   %call.N = call i32 @tls_available()
@@ -1424,6 +1518,12 @@ endif.N:
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
   ret i1 0
+}
+define i32 @Fd_raw(%Fd* %0) {
+entry:
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  ret i32 %load.N
 }
 define i32 @Instant_elapsed_ms(%Instant* %0) {
 entry:
@@ -2052,6 +2152,39 @@ entry:
   call void @vec_str_free(ptr %call.N)
   ret ptr %call.N
 }
+define ptr @Fd_bin_encode(%Fd* %0) {
+entry:
+  %call.N = call ptr @bin_buf_new()
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  call void @bin_buf_write_i32(ptr %call.N, i32 %load.N)
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 1
+  %load.N = load i32, i32* %gep.N
+  call void @bin_buf_write_i32(ptr %call.N, i32 %load.N)
+  %call.N = call ptr @bin_buf_finish(ptr %call.N)
+  ret ptr %call.N
+}
+define ptr @Fd_json_encode(%Fd* %0) {
+entry:
+  %call.N = call ptr @vec_str_new()
+  %call.N = call ptr @vec_str_new()
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %call.N = call ptr @i32_to_string(i32 %load.N)
+  call void @vec_str_push(ptr %call.N, ptr %call.N)
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 1
+  %load.N = load i32, i32* %gep.N
+  %call.N = call ptr @i32_to_string(i32 %load.N)
+  call void @vec_str_push(ptr %call.N, ptr %call.N)
+  %call.N = call ptr @json_encode_object(ptr %call.N, ptr %call.N)
+  call void @vec_str_free(ptr %call.N)
+  call void @vec_str_free(ptr %call.N)
+  ret ptr %call.N
+}
 define ptr @Future_bool_bin_encode(%Future_bool* %0) {
 entry:
   %call.N = call ptr @bin_buf_new()
@@ -2270,6 +2403,16 @@ entry:
 define ptr @Serialize_Duration_to_json(%Duration* %0) {
 entry:
   %call.N = call ptr @Duration_json_encode(%Duration* %0)
+  ret ptr %call.N
+}
+define ptr @Serialize_Fd_to_bytes(%Fd* %0) {
+entry:
+  %call.N = call ptr @Fd_bin_encode(%Fd* %0)
+  ret ptr %call.N
+}
+define ptr @Serialize_Fd_to_json(%Fd* %0) {
+entry:
+  %call.N = call ptr @Fd_json_encode(%Fd* %0)
   ret ptr %call.N
 }
 define ptr @Serialize_Future_bool_to_bytes(%Future_bool* %0) {
@@ -2794,8 +2937,9 @@ entry:
 define ptr @decode_chunked_body(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
-  store ptr %str.N, ptr %alloca.N
+  store ptr %str_clone.N, ptr %alloca.N
   %alloca.N = alloca ptr
   store ptr %0, ptr %alloca.N
   br label %while.cond.N
@@ -2846,6 +2990,8 @@ endif.N:
   %call.N = call ptr @substring(ptr %ref.N, i32 %bin.N, i32 %call.N)
   %ref.N = load ptr, ptr %alloca.N
   %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
   %ref.N = load ptr, ptr %alloca.N
   %bin.N = add i32 %bin.N, %call.N
@@ -3493,8 +3639,9 @@ entry:
 define ptr @toml_encode_object(ptr %0, ptr %1) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
-  store ptr %str.N, ptr %alloca.N
+  store ptr %str_clone.N, ptr %alloca.N
   %call.N = call i32 @vec_str_len(ptr %0)
   br label %while.cond.N
 while.cond.N:
@@ -3507,6 +3654,8 @@ while.body.N:
   %call.N = call ptr @vec_str_get(ptr %1, i32 %loop.phi.N)
   %call.N = call ptr @toml_encode_field(ptr %call.N, ptr %call.N)
   %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
   %bin.N = add i32 %loop.phi.N, 1
   %loop.in.N = add i32 0, %bin.N
@@ -3663,8 +3812,9 @@ entry:
 define ptr @yaml_encode_object(ptr %0, ptr %1) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
-  store ptr %str.N, ptr %alloca.N
+  store ptr %str_clone.N, ptr %alloca.N
   %call.N = call i32 @vec_str_len(ptr %0)
   br label %while.cond.N
 while.cond.N:
@@ -3677,6 +3827,8 @@ while.body.N:
   %call.N = call ptr @vec_str_get(ptr %1, i32 %loop.phi.N)
   %call.N = call ptr @yaml_encode_field(ptr %call.N, ptr %call.N)
   %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
   %bin.N = add i32 %loop.phi.N, 1
   %loop.in.N = add i32 0, %bin.N
@@ -3686,11 +3838,36 @@ while.end.N:
   %ld.N = load ptr, ptr %alloca.N
   ret ptr %ld.N
 }
+define void @Drop_Fd_drop(%Fd* %0) {
+entry:
+  call void @Fd_drop_impl(%Fd* %0)
+  ret void
+}
 define void @Drop_StrVec_drop(%StrVec* %0) {
 entry:
   %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   call void @vec_str_free(ptr %load.N)
+  ret void
+}
+define void @Fd_drop_impl(%Fd* %0) {
+entry:
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 1
+  %load.N = load i32, i32* %gep.N
+  %bin.N = icmp eq i32 %load.N, 1
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %bin.N = icmp sge i32 %load.N, 0
+  %bin.N = and i1 %bin.N, %bin.N
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %gep.N = getelementptr inbounds %Fd, %Fd* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %call.N = call i32 @os_close_fd(i32 %load.N)
+  br label %endif.N
+else.N:
+  br label %endif.N
+endif.N:
   ret void
 }
 define void @Vec_str_free(ptr %0) {

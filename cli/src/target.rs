@@ -317,6 +317,7 @@ pub struct LinkTargetFlags {
     pub uses_rt_os: bool,
     pub uses_rt_hw: bool,
     pub uses_rt_os_adv: bool,
+    pub uses_rt_random: bool,
     pub uses_rt_net: bool,
     pub needs_openssl: bool,
     pub needs_zlib: bool,
@@ -565,8 +566,10 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 cmd.arg("-liphlpapi");
             }
             if rt.uses_rt_os_adv {
-                cmd.arg("-lbcrypt");
                 cmd.arg("-lsetupapi");
+            }
+            if rt.uses_rt_os_adv || rt.uses_rt_random {
+                cmd.arg("-lbcrypt");
             }
             if rt.needs_openssl {
                 for prefix in openssl_prefixes() {

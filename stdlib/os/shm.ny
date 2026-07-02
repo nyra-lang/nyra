@@ -18,7 +18,7 @@ struct ShmRegion {
 fn ShmRegion_create(name: string, nbytes: i64) -> ShmRegion {
     let fd = shm_create(name, nbytes)
     if fd < 0 {
-        return ShmRegion { fd: -1, addr: 0, size: nbytes }
+        return ShmRegion { fd: -1, addr: shm_map(-1, 0), size: nbytes }
     }
     let addr = shm_map(fd, nbytes)
     return ShmRegion { fd: fd, addr: addr, size: nbytes }
@@ -27,17 +27,17 @@ fn ShmRegion_create(name: string, nbytes: i64) -> ShmRegion {
 fn ShmRegion_open(name: string, nbytes: i64) -> ShmRegion {
     let fd = shm_open_existing(name, nbytes)
     if fd < 0 {
-        return ShmRegion { fd: -1, addr: 0, size: nbytes }
+        return ShmRegion { fd: -1, addr: shm_map(-1, 0), size: nbytes }
     }
     let addr = shm_map(fd, nbytes)
     return ShmRegion { fd: fd, addr: addr, size: nbytes }
 }
 
 fn ShmRegion_unmap(region: ShmRegion) -> void {
-    if region.addr != 0 && region.size > 0 {
-        shm_unmap(region.addr, region.size)
-    }
     if region.fd >= 0 {
+        if region.size > 0 {
+            shm_unmap(region.addr, region.size)
+        }
         shm_close_fd(region.fd)
     }
 }

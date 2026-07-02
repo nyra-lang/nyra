@@ -24,13 +24,17 @@ fn Path_new(value: string) -> Path {
     return Path { value: value }
 }
 
+fn Path_join(path: Path, segment: string) -> Path {
+    let base = path.value
+    let sep = "/"
+    let with_sep = strcat(base, sep)
+    let joined = strcat(with_sep, segment)
+    return Path { value: joined }
+}
+
 impl Path {
     fn join(self, segment: string) -> Path {
-        let base = self.value
-        let sep = "/"
-        let with_sep = strcat(base, sep)
-        let joined = strcat(with_sep, segment)
-        return Path { value: joined }
+        return Path_join(self, segment)
     }
 
     fn extension(self) -> string {
@@ -77,7 +81,7 @@ fn PathBuf_new(value: string) -> PathBuf {
 
 impl PathBuf {
     fn join(self, segment: string) -> PathBuf {
-        return PathBuf { inner: self.inner.join(segment) }
+        return PathBuf { inner: Path_join(self.inner, segment) }
     }
 
     fn as_string(self) -> string {

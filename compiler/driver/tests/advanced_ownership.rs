@@ -10,7 +10,7 @@ fn spawn_emits_capture_and_spawn_capture_call() {
         r#"fn main() {
     let mut n = 99
     n = 100
-    spawn {
+    spawn:thread {
         print(n)
     }
 }"#,

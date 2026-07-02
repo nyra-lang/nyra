@@ -14,7 +14,7 @@ fn compile_windows(src: &str) -> compiler::CompileOutput {
 fn conf_win_001_spawn_compiles() {
     let out = compile_windows(
         r#"fn main() {
-    spawn {
+    spawn:thread {
         print(1)
     }
 }"#,
