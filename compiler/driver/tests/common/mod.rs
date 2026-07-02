@@ -94,14 +94,30 @@ pub fn assert_ir_patterns(ir: &str, must: &[&str], must_not: &[&str]) {
     }
 }
 
+fn workspace_debug_nyra_bin() -> PathBuf {
+    let root = workspace_root();
+    let base = root.join("target/debug/nyra");
+    if base.is_file() {
+        return base;
+    }
+    let with_exe = root.join(format!("target/debug/nyra{}", std::env::consts::EXE_SUFFIX));
+    if with_exe.is_file() {
+        return with_exe;
+    }
+    if std::env::consts::EXE_SUFFIX.is_empty() {
+        base
+    } else {
+        with_exe
+    }
+}
+
 fn nyra_bin_once() -> &'static PathBuf {
     static NYRA: OnceLock<PathBuf> = OnceLock::new();
     NYRA.get_or_init(|| {
         if let Ok(path) = std::env::var("CARGO_BIN_EXE_nyra") {
             return PathBuf::from(path);
         }
-        let path = workspace_root().join("target/debug/nyra");
-        if !path.exists() {
+        if !workspace_debug_nyra_bin().is_file() {
             let status = Command::new("cargo")
                 .args(["build", "-p", "cli", "--quiet"])
                 .current_dir(workspace_root())
@@ -109,8 +125,9 @@ fn nyra_bin_once() -> &'static PathBuf {
                 .expect("cargo build -p cli");
             assert!(status.success(), "failed to build nyra CLI");
         }
+        let path = workspace_debug_nyra_bin();
         assert!(
-            path.exists(),
+            path.is_file(),
             "nyra binary missing at {} — run `cargo build -p cli`",
             path.display()
         );

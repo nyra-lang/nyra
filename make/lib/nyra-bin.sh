@@ -12,8 +12,14 @@ _nyra_bin_repo_root() {
 nyra_export_cli() {
   local root="${NYRA_ROOT:-$(_nyra_bin_repo_root)}"
   local bin="${NYRA_BIN:-$root/target/debug/nyra}"
+  if [[ ! -x "$bin" && -x "$root/target/debug/nyra.exe" ]]; then
+    bin="$root/target/debug/nyra.exe"
+  fi
   if [[ ! -x "$bin" ]]; then
     (cd "$root" && cargo build -q -p cli -p compiler-ffi)
+  fi
+  if [[ ! -x "$bin" && -x "$root/target/debug/nyra.exe" ]]; then
+    bin="$root/target/debug/nyra.exe"
   fi
   if [[ ! -x "$bin" ]]; then
     echo "nyra-bin: missing executable: $bin" >&2
