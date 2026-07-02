@@ -3,9 +3,9 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E016]: `inline asm` requires unsafe
-  --> test.ny:1:13
+  --> diag_asm_outside_unsafe.ny:1:13
    |
-  1 | fn add(a: i32, b: i32) -> i32 { return a + b }
+  1 | fn main() { asm "nop" }
    |             ^^^
    = label: this operation can violate memory safety
    = help: wrap the operation in an `unsafe` block or function

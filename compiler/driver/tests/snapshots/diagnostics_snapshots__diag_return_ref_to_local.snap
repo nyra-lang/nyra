@@ -3,13 +3,13 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E035]: cannot return reference to local variable; value does not live long enough
-  --> test.ny:1:1
+  --> diag_return_ref_to_local.ny:1:1
    |
-  1 | struct Bad { s: string }
+  1 | fn bad() -> &i32 {
    | ^
    |
-  2 | fn main() {
+  2 |     let x = 1
    |
-  3 |     let b = Bad { s: "x" }
+  3 |     return &x
    |
-  4 |     spawn { print(b.s) }
+  4 | }

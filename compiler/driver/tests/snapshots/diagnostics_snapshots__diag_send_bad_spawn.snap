@@ -3,6 +3,9 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E012]: `b` was moved
-  --> test.ny:4:19
+  --> diag_send_bad_spawn.ny:4:19
+   |
+  4 |     spawn { print(b.s) }
+   |                   ^
    = note: keep using `b`:
   let copy = clone b

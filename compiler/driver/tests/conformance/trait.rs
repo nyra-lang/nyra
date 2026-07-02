@@ -113,7 +113,7 @@ fn main() {
         !out.type_errors.is_empty(),
         "expected Send error for raw pointer field"
     );
-    assert!(out.type_errors.iter().any(|e| e.message.contains("not Send")));
+    assert!(out.type_errors.iter().any(|e| e.message.contains("is not `Send`")));
 }
 
 #[test]

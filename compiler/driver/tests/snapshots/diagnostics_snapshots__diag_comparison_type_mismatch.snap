@@ -3,8 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E015]: type mismatch in `comparison` operation
-  --> test.ny:3:8
+  --> diag_comparison_type_mismatch.ny:3:8
    |
-  3 |     print(0)
+  3 |     if s == 1 { print(1) }
    |        ^
    = note: comparison operators require operands of the same comparable type

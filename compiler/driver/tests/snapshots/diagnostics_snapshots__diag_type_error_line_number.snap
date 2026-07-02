@@ -3,7 +3,7 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: err
 ---
 error[E002]: undefined variable `y`
-  --> test.ny:2:14
+  --> diag_type_error_line_number.ny:2:14
    |
   2 |     let x = y
    |              ^

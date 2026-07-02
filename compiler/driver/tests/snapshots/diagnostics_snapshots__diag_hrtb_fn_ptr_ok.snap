@@ -3,5 +3,9 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E017]: `f` is not callable
-  --> test.ny:2:16
+  --> diag_hrtb_fn_ptr_ok.ny:2:16
+   |
+  2 |     return f(&x)
+   |                ^
+   = label: only functions and function pointers can be called
    = help: check that the callee name is correct and refers to a function

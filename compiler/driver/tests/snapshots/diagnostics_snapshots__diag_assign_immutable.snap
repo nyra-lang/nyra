@@ -3,5 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(& out)
 ---
 error[E006]: cannot assign to immutable variable `x`
-  --> test.ny:3:5
+  --> diag_assign_immutable.ny:3:5
+   |
+  3 |     x = 2
+   |     ^
    = help: use `let mut x = ...` to make it mutable

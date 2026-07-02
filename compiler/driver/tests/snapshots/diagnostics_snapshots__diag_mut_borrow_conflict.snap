@@ -3,9 +3,9 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(& out)
 ---
 error[E010]: cannot assign to `v` because it is borrowed
-  --> test.ny:4:5
+  --> diag_mut_borrow_conflict.ny:4:5
    |
-  4 | }
+  4 |     v = 2
    |     ^
    = label: `v` is immutably borrowed here
    = help: drop the borrow before assigning, or clone the value: `let copy = clone v`

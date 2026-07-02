@@ -34,9 +34,13 @@ pub fn corpus_dir() -> PathBuf {
 
 /// Compile inline source with default options.
 pub fn compile(src: &str) -> CompileOutput {
+    compile_named("test.ny", src)
+}
+
+/// Compile inline source under a stable virtual path (safe for parallel snapshot tests).
+pub fn compile_named(file: &str, src: &str) -> CompileOutput {
     ensure_plain_diagnostics();
-    errors::register_source("test.ny", src);
-    Compiler::compile_source(src, "test.ny", &CompileOptions::default()).unwrap()
+    Compiler::compile_source(src, file, &CompileOptions::default()).unwrap()
 }
 
 /// Compile inline source with custom options.

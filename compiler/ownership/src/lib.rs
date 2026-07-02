@@ -103,7 +103,7 @@ fn main() {}"#,
         let mut errors = Vec::new();
         check_send_sync(&program, &ctx, &mut errors);
         assert!(
-            errors.iter().any(|e| e.message.contains("marked Send")),
+            errors.iter().any(|e| e.message.contains("marked `Send`")),
             "expected Send marker validation error, got: {errors:?}"
         );
     }

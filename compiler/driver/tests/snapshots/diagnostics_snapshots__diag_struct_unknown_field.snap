@@ -3,8 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E014]: unknown field `y` on `S`
-  --> test.ny:3:28
+  --> diag_struct_unknown_field.ny:3:28
    |
-  3 | }
+  3 |     let s = S { x: 1, y: 2 }
    |                            ^
    = help: check the field name against the struct or union definition

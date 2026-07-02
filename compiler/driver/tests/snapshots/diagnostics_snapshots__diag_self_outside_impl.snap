@@ -3,8 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E002]: undefined variable `self`
-  --> test.ny:1:19
+  --> diag_self_outside_impl.ny:1:19
    |
-  1 | struct S { x: i32 }
+  1 | fn main() { print(self) }
    |                   ^^^^
    = label: `self` is not in scope

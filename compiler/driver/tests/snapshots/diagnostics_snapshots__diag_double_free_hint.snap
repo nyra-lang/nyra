@@ -3,11 +3,24 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E013]: undefined function `free`
-  --> test.ny:3:11
+  --> diag_double_free_hint.ny:3:11
+   |
+  3 |     free(s)
+   |           ^
+   = label: `free` is not declared in scope
    = help: did you mean `date`?
 error[E030]: manual `free(s)` on owned value; Nyra auto-drops at scope end (double-free risk)
-  --> test.ny:3:11
+  --> diag_double_free_hint.ny:3:11
+   |
+  3 |     free(s)
+   |           ^
    = note: remove `free` unless this is FFI escape hatch code
 error[E012]: `s` was moved into `free()`
-  --> test.ny:4:11
-  --> test.ny:3:11
+  --> diag_double_free_hint.ny:4:11
+   |
+  4 |     print(s)
+   |           ^
+  --> diag_double_free_hint.ny:3:11
+   |
+  3 |     free(s)
+   |           ^ `s` moved into `free()` here

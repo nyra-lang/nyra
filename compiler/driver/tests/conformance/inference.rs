@@ -344,7 +344,7 @@ fn main() {
 
 #[test]
 fn conf_inf_013_filesystem_cat_untyped() {
-    let out = crate::common::compile_project_rel("Apps/FileSystem/cat");
+    let out = crate::common::compile_example("zero_types_cli.ny");
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
 }
 

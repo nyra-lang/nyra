@@ -3,7 +3,7 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[L004]: Expected '[' after '#'
-  --> test.ny:1:1
+  --> diag_no_std_rejects_print.ny:1:1
    |
   1 | # no_std
    | ^
