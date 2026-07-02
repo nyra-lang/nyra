@@ -462,7 +462,7 @@ pub fn link_binary(
         uses_rt_hw: runtime_profile.modules().contains("rt_hw.c"),
         uses_rt_os_adv: runtime_profile.modules().contains("rt_os_adv.c"),
         uses_rt_random: runtime_profile.modules().contains("rt_random.c"),
-        uses_rt_net: runtime_profile.modules().contains("rt_net.c"),
+        uses_rt_net: runtime_profile.uses_ws2_32(&spec.triple),
         needs_openssl: runtime_profile.needs_openssl(),
         needs_zlib: runtime_profile.needs_zlib(),
         needs_libm: runtime_profile.needs_libm(),

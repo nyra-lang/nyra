@@ -622,6 +622,19 @@ impl RuntimeProfile {
         }
         mods
     }
+
+    /// Platform-aware runtime modules (e.g. Windows `rt_async.c` needs `rt_net.c` for Winsock).
+    pub fn modules_for_target(&self, target: &str) -> BTreeSet<&'static str> {
+        let mut mods = self.modules();
+        if target.to_ascii_lowercase().contains("windows") && mods.contains("rt_async.c") {
+            mods.insert("rt_net.c");
+        }
+        mods
+    }
+
+    pub fn uses_ws2_32(&self, target: &str) -> bool {
+        self.modules_for_target(target).contains("rt_net.c")
+    }
 }
 
 pub fn stdlib_rt_dir() -> PathBuf {
@@ -653,7 +666,7 @@ pub fn resolve_runtime_modules(profile: &RuntimeProfile, target: &str) -> Result
     }
     let rt_dir = stdlib_rt_dir();
     let mut paths = Vec::new();
-    for mod_name in profile.modules() {
+    for mod_name in profile.modules_for_target(target) {
         let p = rt_dir.join(mod_name);
         if !p.is_file() {
             return Err(format!("Runtime module not found: {}", p.display()));
@@ -796,7 +809,7 @@ pub fn resolve_runtime_modules_installed(
 
         let mut paths = Vec::new();
         let mut stale = installed_rt_common_is_stale(&rt_dir);
-        for mod_name in profile.modules() {
+        for mod_name in profile.modules_for_target(target) {
             let p = rt_dir.join(mod_name);
             if !p.is_file() {
                 stale = true;
@@ -862,6 +875,18 @@ mod tests {
         assert_eq!(c_symbol_for("exists"), "file_exists");
         assert_eq!(c_symbol_for("free"), "heap_free");
         assert_eq!(c_symbol_for("ClearBackground"), "ClearBackground");
+    }
+
+    #[test]
+    fn async_on_windows_pulls_rt_net() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("async_promise_new".into());
+        let mods = p.modules_for_target("x86_64-pc-windows-gnu");
+        assert!(mods.contains("rt_async.c"));
+        assert!(mods.contains("rt_net.c"));
+        let mods_linux = p.modules_for_target("x86_64-unknown-linux-gnu");
+        assert!(mods_linux.contains("rt_async.c"));
+        assert!(!mods_linux.contains("rt_net.c"));
     }
 
     #[test]
