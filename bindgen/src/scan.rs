@@ -45,8 +45,8 @@ pub fn scan_crate_api(
     };
 
     for path in &source_files {
-        let path_str = path.to_string_lossy();
-        if path_str.ends_with("/bytes.rs") || path_str.contains("/bytes/") {
+        let path_norm = path.to_string_lossy().replace('\\', "/");
+        if path_norm.ends_with("/bytes.rs") || path_norm.contains("/bytes/") {
             continue;
         }
         let src = std::fs::read_to_string(path).map_err(|e| format!("read {}: {e}", path.display()))?;
