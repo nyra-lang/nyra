@@ -626,7 +626,7 @@ impl RuntimeProfile {
     /// Platform-aware runtime modules (e.g. Windows `rt_async.c` needs `rt_net.c` for Winsock).
     pub fn modules_for_target(&self, target: &str) -> BTreeSet<&'static str> {
         let mut mods = self.modules();
-        if target.to_ascii_lowercase().contains("windows") && mods.contains("rt_async.c") {
+        if link_target_is_windows(target) && mods.contains("rt_async.c") {
             mods.insert("rt_net.c");
         }
         mods
@@ -635,6 +635,14 @@ impl RuntimeProfile {
     pub fn uses_ws2_32(&self, target: &str) -> bool {
         self.modules_for_target(target).contains("rt_net.c")
     }
+}
+
+/// True when linking for Windows (`--target` empty uses the host OS at link time).
+fn link_target_is_windows(target: &str) -> bool {
+    if target.to_ascii_lowercase().contains("windows") {
+        return true;
+    }
+    target.is_empty() && std::env::consts::OS == "windows"
 }
 
 pub fn stdlib_rt_dir() -> PathBuf {
@@ -887,6 +895,32 @@ mod tests {
         let mods_linux = p.modules_for_target("x86_64-unknown-linux-gnu");
         assert!(mods_linux.contains("rt_async.c"));
         assert!(!mods_linux.contains("rt_net.c"));
+    }
+
+    #[test]
+    fn async_empty_target_uses_host_os_for_windows_modules() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("async_promise_new".into());
+        let mods = p.modules_for_target("");
+        if std::env::consts::OS == "windows" {
+            assert!(
+                mods.contains("rt_net.c"),
+                "empty target on Windows host must link rt_net.c for async"
+            );
+        } else {
+            assert!(!mods.contains("rt_net.c"));
+        }
+    }
+
+    #[test]
+    fn link_target_is_windows_empty_means_host() {
+        if std::env::consts::OS == "windows" {
+            assert!(super::link_target_is_windows(""));
+        } else {
+            assert!(!super::link_target_is_windows(""));
+        }
+        assert!(super::link_target_is_windows("x86_64-pc-windows-gnu"));
+        assert!(!super::link_target_is_windows("x86_64-unknown-linux-gnu"));
     }
 
     #[test]
