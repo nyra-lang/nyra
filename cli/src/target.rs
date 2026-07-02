@@ -483,6 +483,8 @@ pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
 /// Flags for MSYS2 MinGW gcc when compiling rt `.c` on a Windows host.
 pub fn apply_windows_gcc_compile_flags(cmd: &mut Command) {
     cmd.arg("-D__USE_MINGW_ANSI_STDIO=0");
+    cmd.arg("-DWINVER=0x0600");
+    cmd.arg("-D_WIN32_WINNT=0x0600");
     for prefix in zlib_prefixes() {
         let inc = prefix.join("include");
         if inc.is_dir() {

@@ -187,8 +187,18 @@ pub fn normalize_ir(ir: &str) -> String {
         .collect();
 
     let stripped = strip_stdlib_serde_functions(&filtered.join("\n"));
-    let ssa_norm = normalize_ssa_names(&stripped);
+    let crt_norm = normalize_windows_crt_link_names(&stripped);
+    let ssa_norm = normalize_ssa_names(&crt_norm);
     sort_ir_sections(&normalize_string_constants(&ssa_norm))
+}
+
+/// Windows emits `nyra_atoi` etc. to avoid MSVC CRT collisions; canonicalize for snapshots.
+fn normalize_windows_crt_link_names(ir: &str) -> String {
+    let mut out = ir.to_string();
+    for name in ["atoi", "atof", "atol", "atoll"] {
+        out = out.replace(&format!("@nyra_{name}"), &format!("@{name}"));
+    }
+    out
 }
 
 fn normalize_ir_line(line: &str) -> String {

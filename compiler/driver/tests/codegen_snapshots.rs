@@ -206,3 +206,15 @@ define i32 @main() {
     assert!(norm.contains("target triple = \"nyra-snapshot-host\""));
     assert!(!norm.contains("x86_64-unknown-linux-gnu"));
 }
+
+#[test]
+fn normalize_ir_canonicalizes_windows_crt_link_names() {
+    let ir = r#"define i32 @nyra_atoi(ptr %0) {
+  %call.N = call i32 @str_to_i32(ptr %0)
+  ret i32 %call.N
+}
+"#;
+    let norm = normalize_ir(ir);
+    assert!(norm.contains("define i32 @atoi("));
+    assert!(!norm.contains("@nyra_atoi"));
+}
