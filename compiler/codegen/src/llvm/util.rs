@@ -299,7 +299,11 @@ pub(super) fn is_struct_pointer_type(ty: &str) -> bool {
 }
 
 pub(super) fn struct_ptr_type(struct_ty: &str) -> String {
-    format!("{struct_ty}*")
+    if struct_ty.starts_with('%') {
+        format!("{struct_ty}*")
+    } else {
+        format!("%{struct_ty}*")
+    }
 }
 
 pub(super) fn struct_name_from_llvm_ty(ty: &str) -> Option<String> {

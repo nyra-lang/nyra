@@ -32,6 +32,46 @@ static const char *find_key_colon(const char *json, const char *key) {
     return strchr(k + strlen(pattern), ':');
 }
 
+static const char *json_value_start(const char *json, const char *key) {
+    const char *colon = find_key_colon(json, key);
+    if (!colon) {
+        return NULL;
+    }
+    const char *p = colon + 1;
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+        p++;
+    }
+    return p;
+}
+
+int json_has_key(const char *json, const char *key) {
+    return find_key_colon(json, key) ? 1 : 0;
+}
+
+int json_has_string(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    return (p && *p == '"') ? 1 : 0;
+}
+
+int json_has_i32(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    if (!p) {
+        return 0;
+    }
+    if (*p == '-') {
+        p++;
+    }
+    return (*p >= '0' && *p <= '9') ? 1 : 0;
+}
+
+int json_has_bool(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    if (!p) {
+        return 0;
+    }
+    return (strncmp(p, "true", 4) == 0 || strncmp(p, "false", 5) == 0) ? 1 : 0;
+}
+
 /* Minimal JSON string field extractor for {"key":"value"} objects. */
 char *json_get_string(const char *json, const char *key) {
     const char *colon = find_key_colon(json, key);

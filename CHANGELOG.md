@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.40.0 (2026-07-03)
+
+**Batteries-included errors and async**
+
+- **Added** — official application error path in `stdlib/error.ny`: `Error`, context/cause formatting, stack trace hook, and `Result<T, Error>` helpers for common fallible pipelines.
+- **Added** — fallible stdlib wrappers for file and JSON work (`read_text`, `write_text`, `append_text`, `json_string`, `json_i32`, `json_bool`) so apps can compose I/O + parsing with `?` without third-party packages.
+- **Added** — official async runtime facade in `stdlib/async/mod.ny` (`NyraRuntime_default`, `NyraRuntime_run_until`, `sleep_ms_async`, `await_i32`) over Nyra's in-tree executor.
+- **Fixed** — `?` and LLVM lowering for `Result<string, Error>` / struct error payloads, including string payload ownership when unwrapping with `?`.
+- **Runtime** — `rt_error.c` adds `error_stack_trace`; `rt_json.c` adds JSON field-type probes for safe fallible wrappers.
+- **Tests/examples** — `error_stdlib_test*`, `async_runtime_facade_test*`, `examples/errors_official*`, and `examples/async_runtime_official*`.
+
 ## v1.39.0 (2026-07-01)
 
 **Systems-level language features**

@@ -42,6 +42,16 @@ These constraints come from the Nyra project guidelines and apply to every stdli
 
 Framework stacks (HTTP routers, Socket.io hubs, etc.) belong in **NyraPkg** or your own modules — stdlib provides primitives; apps compose them.
 
+## Official errors and async runtime
+
+Nyra applications should not need community packages just to compose fallible I/O, JSON parsing, or async tasks.
+
+- `stdlib/error.ny` provides the official application error type: `Error`, `Error_context`, `Error_format`, `Error_print`, and specialized `Result_*_context` helpers for common `Result<T, Error>` pipelines.
+- `stdlib/fs/result.ny` and `stdlib/json/mod.ny` expose fallible wrappers such as `read_text`, `write_text`, `json_string`, and `json_i32`, all returning `Result<T, Error>`.
+- `stdlib/async/mod.ny` is the official async facade over Nyra's in-tree runtime: `NyraRuntime_default`, `NyraRuntime_run_until`, `async_sleep`, `sleep_ms_async`, and `await_i32`.
+
+The low-level runtime symbols remain available for systems work, but application code should prefer these official stdlib paths.
+
 ## NyraPkg role
 
 **NyraPkg** complements stdlib — it does **not** replace core domains:
