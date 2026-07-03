@@ -1,6 +1,8 @@
 mod app;
 mod c_cache;
 mod c_lib;
+mod llvm_obj;
+mod prebuilt_rt;
 mod ui;
 mod cc;
 mod llvm_tools;
@@ -16,6 +18,8 @@ mod pgo;
 mod target;
 mod toolchain;
 mod watch;
+mod timings;
+mod daemon;
 
 use clap::Parser as ClapParser;
 

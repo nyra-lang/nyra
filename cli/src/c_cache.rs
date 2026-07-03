@@ -94,6 +94,49 @@ pub fn compile_link_sources(
     Ok(out)
 }
 
+/// Like [`compile_link_sources`], but skips sources that fail to compile (fat prebuilt archives).
+pub fn compile_link_sources_best_effort(
+    sources: &[PathBuf],
+    work_dir: &Path,
+    profile: &LinkProfile,
+    spec: &TargetSpec,
+) -> Result<Vec<PathBuf>, String> {
+    if sources.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let cache_dir = c_objects_cache_dir(work_dir);
+    fs::create_dir_all(&cache_dir).map_err(|e| e.to_string())?;
+    let flags_key = compile_flags_key(profile, spec);
+    let mut out = Vec::with_capacity(sources.len());
+
+    for source in sources {
+        if !source.is_file() {
+            continue;
+        }
+        let key = source_object_key(source, &flags_key)?;
+        let obj = object_path(&cache_dir, source, key);
+        if obj.is_file() {
+            out.push(obj);
+            continue;
+        }
+
+        match compile_one_source(source, &obj, profile, spec) {
+            Ok(()) => out.push(obj),
+            Err(err) => eprintln!(
+                "note: skipping {} in prebuilt runtime: {}",
+                source.display(),
+                err.lines().next().unwrap_or(&err)
+            ),
+        }
+    }
+
+    if out.is_empty() {
+        return Err("no runtime objects compiled for prebuilt archive".into());
+    }
+    Ok(out)
+}
+
 fn compile_one_source(
     source: &Path,
     obj: &Path,

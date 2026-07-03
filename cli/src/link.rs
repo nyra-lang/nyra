@@ -181,6 +181,22 @@ impl LinkProfile {
         self
     }
 
+    /// Dev fast path: host O0 link can use the prebuilt runtime archive.
+    pub fn can_use_prebuilt_runtime(&self, spec: &TargetSpec) -> bool {
+        !self.freestanding
+            && self.lto == LtoMode::Off
+            && self.opt_level == OptLevel::O0
+            && !self.pgo_generate
+            && self.pgo_use.is_none()
+            && !self.race
+            && !self.sanitize
+            && !self.race_native
+            && !self.cdylib
+            && !self.native_cpu
+            && !spec.is_cross
+            && !spec.is_wasm
+    }
+
     pub fn with_debug(mut self, debug: bool) -> Self {
         self.debug_symbols = debug;
         self
@@ -409,6 +425,35 @@ pub fn link_binary(
     target: &str,
     runtime_profile: &RuntimeProfile,
 ) -> Result<(), String> {
+    link_binary_with_options(
+        ll_path,
+        bin_path,
+        profile,
+        work_dir,
+        target,
+        runtime_profile,
+        false,
+    )
+}
+
+pub fn link_binary_with_options(
+    ll_path: &Path,
+    bin_path: &Path,
+    profile: &LinkProfile,
+    work_dir: &Path,
+    target: &str,
+    runtime_profile: &RuntimeProfile,
+    timings: bool,
+) -> Result<(), String> {
+    use std::time::Instant;
+    let trace = timings && std::env::var_os("NYRA_LINK_TRACE").is_some();
+    let step = || Instant::now();
+    let lap = |label: &str, start: Instant| {
+        if trace {
+            eprintln!("    link {label}: {:.2}s", start.elapsed().as_secs_f64());
+        }
+    };
+    let t0 = if trace { Some(step()) } else { None };
     let spec = link_target_spec(target);
     let triple_for_opt = if target.is_empty() {
         String::new()
@@ -421,6 +466,10 @@ pub fn link_binary(
     }
     sanitize_ir_file(&ll_work)?;
     let ll_link = optimize_llvm_ir(&ll_work, work_dir, profile, &triple_for_opt)?;
+    if let Some(t) = t0 {
+        lap("ir-prep", t);
+    }
+    let t1 = if trace { Some(step()) } else { None };
     let mut rt_modules = resolve_runtime_modules_installed(runtime_profile, target)?;
 
     if profile.cdylib {
@@ -443,16 +492,64 @@ pub fn link_binary(
         profile,
         &spec,
     )?;
-    rt_modules = filter_runtime_modules_superseded_by_link_objects(rt_modules, &link_objects)?;
-    let rt_objects =
-        crate::c_cache::compile_link_sources(&rt_modules, work_dir, profile, &spec)?;
+    if let Some(t) = t1 {
+        lap("resolve-rt", t);
+    }
+    let t2 = if trace { Some(step()) } else { None };
+
+    let use_prebuilt = profile.can_use_prebuilt_runtime(&spec) && !runtime_profile.is_empty();
+    let prebuilt_rt = if use_prebuilt {
+        match crate::prebuilt_rt::ensure_prebuilt_runtime(&spec) {
+            Ok(path) => Some(path),
+            Err(err) => {
+                eprintln!("note: prebuilt runtime unavailable ({err}); compiling rt modules");
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    let rt_objects = if prebuilt_rt.is_some() {
+        Vec::new()
+    } else {
+        rt_modules = filter_runtime_modules_superseded_by_link_objects(rt_modules, &link_objects)?;
+        crate::c_cache::compile_link_sources(&rt_modules, work_dir, profile, &spec)?
+    };
+    if let Some(t) = t2 {
+        if trace {
+            eprintln!(
+                "    link rt-modules: {:.2}s (prebuilt={}, rt_mods={}, rt_objs={})",
+                t.elapsed().as_secs_f64(),
+                prebuilt_rt.is_some(),
+                rt_modules.len(),
+                rt_objects.len()
+            );
+        }
+    }
+    let t3 = if trace { Some(step()) } else { None };
 
     let clang = llvm_tools::find_clang();
     let mut cmd = Command::new(&clang);
-    cmd.arg(&ll_link);
-    for obj in &rt_objects {
-        cmd.arg(obj);
+    let mut t_clang_prep = t3;
+    if let Some(ref prebuilt) = prebuilt_rt {
+        let user_obj =
+            crate::llvm_obj::compile_cached_user_object(&ll_link, work_dir, profile, &spec)?;
+        if let Some(t) = t_clang_prep.take() {
+            lap("user-obj", t);
+        }
+        cmd.arg(&user_obj);
+        cmd.arg(prebuilt);
+    } else {
+        cmd.arg(&ll_link);
+        for obj in &rt_objects {
+            cmd.arg(obj);
+        }
+        if let Some(t) = t_clang_prep.take() {
+            lap("user-ir", t);
+        }
     }
+    let t_cmd = if trace { Some(step()) } else { None };
     for obj in &link_objects {
         cmd.arg(obj);
     }
@@ -468,15 +565,17 @@ pub fn link_binary(
         needs_libm: runtime_profile.needs_libm(),
     };
     apply_target_link_flags(&mut cmd, &spec, &rt_flags);
+    // Dev O0: skip lld discovery (~4s cold on macOS when Homebrew llvm isn't linked yet).
+    let use_lld = profile.opt_level != OptLevel::O0 && llvm_tools::find_lld().is_some();
     if spec.is_windows() {
         if cfg!(target_os = "windows") {
             if let Some(ld) = llvm_tools::find_mingw_ld() {
                 cmd.arg(format!("-fuse-ld={ld}"));
             }
-        } else if llvm_tools::find_lld().is_some() {
+        } else if use_lld {
             cmd.arg("-fuse-ld=lld");
         }
-    } else if llvm_tools::find_lld().is_some() {
+    } else if use_lld {
         cmd.arg("-fuse-ld=lld");
     }
 
@@ -576,9 +675,17 @@ pub fn link_binary(
         cmd.arg(arg);
     }
 
+    if let Some(t) = t_cmd {
+        lap("cmd-setup", t);
+    }
+
+    let t4 = if trace { Some(step()) } else { None };
     let status = cmd
         .output()
         .map_err(|e| format!("Failed to invoke clang: {e}"))?;
+    if let Some(t) = t4 {
+        lap("clang", t);
+    }
 
     if !status.status.success() {
         let _ = fs::remove_file(&link_tmp);

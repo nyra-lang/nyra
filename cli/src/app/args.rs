@@ -66,6 +66,15 @@ pub(crate) struct OptFlags {
     /// Print compiler diagnostics including escape analysis (`Variable x → NoEscape`).
     #[arg(long, short = 'v')]
     pub(crate) verbose: bool,
+    /// Print analysis / codegen / link timings after build or run.
+    #[arg(long)]
+    pub(crate) timings: bool,
+    /// Prefer a running `nyra internal daemon` when its socket is present.
+    #[arg(long)]
+    pub(crate) use_daemon: bool,
+    /// Do not connect to a running compiler daemon.
+    #[arg(long, conflicts_with = "use_daemon")]
+    pub(crate) no_daemon: bool,
     /// Link native library `-lfoo` (repeatable).
     #[arg(long = "link-lib", value_name = "LIB")]
     pub(crate) link_lib: Vec<String>,
@@ -302,6 +311,24 @@ pub(crate) enum Commands {
         /// Arguments forwarded to clang (use `--` if an arg starts with `-`).
         #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
         clang_args: Vec<String>,
+    },
+    /// Internal toolchain hooks (not stable).
+    #[command(hide = true)]
+    Internal {
+        #[command(subcommand)]
+        cmd: InternalCommands,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum InternalCommands {
+    /// Build O0 prebuilt runtime archive for fast debug links.
+    BuildPrebuiltRt,
+    /// Keep compiler warm on a Unix socket (dev speed).
+    Daemon {
+        /// Run in foreground (default). Use `--background` to detach.
+        #[arg(long)]
+        background: bool,
     },
 }
 
