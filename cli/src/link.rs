@@ -500,7 +500,19 @@ pub fn link_binary_with_options(
     let use_prebuilt = profile.can_use_prebuilt_runtime(&spec) && !runtime_profile.is_empty();
     let prebuilt_rt = if use_prebuilt {
         match crate::prebuilt_rt::ensure_prebuilt_runtime(&spec) {
-            Ok(path) => Some(path),
+            Ok(path) => match prebuilt_runtime_satisfies_profile(&path, runtime_profile) {
+                Ok(true) => Some(path),
+                Ok(false) => {
+                    eprintln!(
+                        "note: prebuilt runtime missing required symbols; compiling rt modules"
+                    );
+                    None
+                }
+                Err(err) => {
+                    eprintln!("note: prebuilt runtime could not be verified ({err}); compiling rt modules");
+                    None
+                }
+            },
             Err(err) => {
                 eprintln!("note: prebuilt runtime unavailable ({err}); compiling rt modules");
                 None
@@ -822,6 +834,24 @@ fn object_exported_symbols(path: &Path) -> Result<HashSet<String>, String> {
         }
     }
     Ok(out)
+}
+
+fn prebuilt_runtime_satisfies_profile(
+    archive: &Path,
+    profile: &RuntimeProfile,
+) -> Result<bool, String> {
+    let map = compiler::runtime_map::symbol_module_map();
+    let required: Vec<&str> = profile
+        .symbols
+        .iter()
+        .map(String::as_str)
+        .filter(|sym| map.contains_key(sym))
+        .collect();
+    if required.is_empty() {
+        return Ok(true);
+    }
+    let exported = object_exported_symbols(archive)?;
+    Ok(required.iter().all(|sym| exported.contains(*sym)))
 }
 
 fn c_source_exported_symbols(path: &Path) -> Result<HashSet<String>, String> {
@@ -1167,6 +1197,41 @@ mod tests {
         assert_eq!(p.opt_level, OptLevel::O2);
         assert_eq!(p.lto, LtoMode::Off);
         assert!(p.llvm_ir_opt);
+    }
+
+    #[test]
+    fn prebuilt_runtime_validation_requires_profile_symbols() {
+        let work = std::env::temp_dir().join(format!("nyra_prebuilt_syms_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&work);
+        fs::create_dir_all(&work).unwrap();
+        let src = work.join("rt_stub.c");
+        let obj = work.join("rt_stub.o");
+        let archive = work.join("libnyra_rt_dev.a");
+        fs::write(&src, "int hw_mem_page_size(void) { return 4096; }\n").unwrap();
+
+        let clang = llvm_tools::find_clang();
+        assert!(std::process::Command::new(&clang)
+            .args(["-c", src.to_str().unwrap(), "-o", obj.to_str().unwrap()])
+            .status()
+            .unwrap()
+            .success());
+        let ar = llvm_tools::find_ar();
+        assert!(std::process::Command::new(&ar)
+            .arg("rcs")
+            .arg(&archive)
+            .arg(&obj)
+            .status()
+            .unwrap()
+            .success());
+
+        let mut profile = RuntimeProfile::default();
+        profile.symbols.insert("hw_mem_page_size".into());
+        assert!(prebuilt_runtime_satisfies_profile(&archive, &profile).unwrap());
+
+        profile.symbols.insert("io_pool_create".into());
+        assert!(!prebuilt_runtime_satisfies_profile(&archive, &profile).unwrap());
+
+        let _ = fs::remove_dir_all(&work);
     }
 
     #[test]
