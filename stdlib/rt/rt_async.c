@@ -10,6 +10,12 @@ int async_future_done(int handle);
 void *async_future_ptr_value(int handle);
 
 #if defined(_WIN32)
+#ifndef WINVER
+#define WINVER 0x0600
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -26,13 +32,18 @@ typedef struct {
 } NyraTask;
 
 static CRITICAL_SECTION g_table_cs;
-static int g_table_init = 0;
+static INIT_ONCE g_table_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK table_lock_init_once(PINIT_ONCE once, PVOID param, PVOID *ctx) {
+    (void)once;
+    (void)param;
+    (void)ctx;
+    InitializeCriticalSection(&g_table_cs);
+    return TRUE;
+}
 
 static void table_lock_init(void) {
-    if (!g_table_init) {
-        InitializeCriticalSection(&g_table_cs);
-        g_table_init = 1;
-    }
+    InitOnceExecuteOnce(&g_table_once, table_lock_init_once, NULL, NULL);
 }
 
 #define TASK_LOCK(t) EnterCriticalSection(&(t)->cs)
@@ -50,13 +61,18 @@ static void table_lock_init(void) {
 #define IO_UNLOCK() LeaveCriticalSection(&g_io_cs)
 
 static CRITICAL_SECTION g_io_cs;
-static int g_io_cs_init = 0;
+static INIT_ONCE g_io_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK io_lock_init_once(PINIT_ONCE once, PVOID param, PVOID *ctx) {
+    (void)once;
+    (void)param;
+    (void)ctx;
+    InitializeCriticalSection(&g_io_cs);
+    return TRUE;
+}
 
 static void io_lock_init(void) {
-    if (!g_io_cs_init) {
-        InitializeCriticalSection(&g_io_cs);
-        g_io_cs_init = 1;
-    }
+    InitOnceExecuteOnce(&g_io_once, io_lock_init_once, NULL, NULL);
 }
 
 static int64_t nyra_now_ms(void) {
