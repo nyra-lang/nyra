@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
+use std::time::{Duration, Instant};
 
 use compiler::{load_program_with_options, parse_file, paths, set_diagnostic_root, Compiler, LoadOptions, parse_source};
 
@@ -86,6 +87,12 @@ fn run_tests(
             spec.triple_for_codegen()
         ));
     }
+    let timeout = test_timeout();
+    eprintln!(
+        "nyra test: root={} timeout={}s",
+        path.display(),
+        timeout.as_secs()
+    );
     let mut ran = 0;
     let mut failed = 0;
     let base_profile = LinkProfile::from_cli(false, None, false, false, false, false, None, false)?;
@@ -113,6 +120,8 @@ fn run_tests(
             }
             ran += 1;
             let label = format!("{}::{}", entry.display(), test_name);
+            let test_started = Instant::now();
+            eprintln!("COMPILE {label}");
             let output = compile_test_case(&entry, &src, &test_name, &compile_opts)?;
             if Compiler::report_errors(&output) {
                 failed += 1;
@@ -137,14 +146,34 @@ fn run_tests(
             profile.link_search_paths.extend(link_search_paths);
             profile.link_args.extend(link_args);
             profile.link_sources.extend(link_sources);
+            eprintln!("LINK {label} -> {}", bin.display());
             link::link_binary(&ll, &bin, &profile, &out_dir, "", &output.runtime_profile)?;
-            let status = Command::new(&bin).status().map_err(|e| e.to_string())?;
+            eprintln!(
+                "RUN {label} pid=pending timeout={}s bin={}",
+                timeout.as_secs(),
+                bin.display()
+            );
+            let run = run_test_binary(&bin, timeout)?;
             let _ = std::fs::remove_dir_all(&out_dir);
-            if status.success() {
-                println!("PASS {label}");
+            if run.timed_out {
+                failed += 1;
+                eprintln!(
+                    "TIMEOUT {label} after {:.2}s bin={}",
+                    run.elapsed.as_secs_f64(),
+                    bin.display()
+                );
+            } else if run.success {
+                println!("PASS {label} ({:.2}s)", test_started.elapsed().as_secs_f64());
             } else {
                 failed += 1;
-                eprintln!("FAIL run: {label}");
+                eprintln!(
+                    "FAIL run: {label} exit={} elapsed={:.2}s bin={}",
+                    run.exit_code
+                        .map(|c| c.to_string())
+                        .unwrap_or_else(|| "signal".into()),
+                    run.elapsed.as_secs_f64(),
+                    bin.display()
+                );
             }
         }
     }
@@ -159,6 +188,61 @@ fn run_tests(
     }
     println!("{ran} tests passed");
     Ok(())
+}
+
+#[derive(Debug)]
+struct TestRun {
+    success: bool,
+    timed_out: bool,
+    exit_code: Option<i32>,
+    elapsed: Duration,
+}
+
+fn test_timeout() -> Duration {
+    let secs = std::env::var("NYRA_TEST_TIMEOUT_SECS")
+        .ok()
+        .and_then(|s| s.parse::<u64>().ok())
+        .filter(|s| *s > 0)
+        .unwrap_or(60);
+    Duration::from_secs(secs)
+}
+
+fn run_test_binary(bin: &Path, timeout: Duration) -> Result<TestRun, String> {
+    let started = Instant::now();
+    let mut child = Command::new(bin)
+        .stdin(Stdio::null())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .map_err(|e| format!("failed to run {}: {e}", bin.display()))?;
+    let pid = child.id();
+    eprintln!("RUNNING pid={pid} bin={}", bin.display());
+    loop {
+        if let Some(status) = child.try_wait().map_err(|e| e.to_string())? {
+            return Ok(TestRun {
+                success: status.success(),
+                timed_out: false,
+                exit_code: status.code(),
+                elapsed: started.elapsed(),
+            });
+        }
+        if started.elapsed() >= timeout {
+            eprintln!(
+                "KILL pid={pid} reason=timeout elapsed={:.2}s bin={}",
+                started.elapsed().as_secs_f64(),
+                bin.display()
+            );
+            let _ = child.kill();
+            let _ = child.wait();
+            return Ok(TestRun {
+                success: false,
+                timed_out: true,
+                exit_code: None,
+                elapsed: started.elapsed(),
+            });
+        }
+        std::thread::sleep(Duration::from_millis(25));
+    }
 }
 
 fn compile_test_case(
