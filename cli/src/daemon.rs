@@ -1,15 +1,20 @@
 //! Persistent compiler daemon (Unix socket) for warm parse caches between edits.
 
+#[cfg(unix)]
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::process::Command;
 
 use serde::{Deserialize, Serialize};
 
 use crate::app::args::{OptFlags, StabilityFlags, TargetArgs};
+#[cfg(unix)]
 use crate::app::session::{build, compile_and_link};
+#[cfg(unix)]
 use crate::commands::check;
-use crate::target::{TargetSpec, validate_native_cpu};
+#[cfg(unix)]
+use crate::target::validate_native_cpu;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct DaemonRequest {
@@ -145,7 +150,9 @@ fn send_request(req: DaemonRequest) -> Result<DaemonResponse, String> {
         use std::os::unix::net::UnixStream;
         let mut stream = UnixStream::connect(socket_path()).map_err(|e| e.to_string())?;
         let line = serde_json::to_string(&req).map_err(|e| e.to_string())?;
-        stream.write_all(line.as_bytes()).map_err(|e| e.to_string())?;
+        stream
+            .write_all(line.as_bytes())
+            .map_err(|e| e.to_string())?;
         stream.write_all(b"\n").map_err(|e| e.to_string())?;
         let mut reader = BufReader::new(stream);
         let mut out = String::new();
@@ -159,56 +166,49 @@ fn send_request(req: DaemonRequest) -> Result<DaemonResponse, String> {
     }
 }
 
+#[cfg(unix)]
 pub fn serve(background: bool) -> Result<(), String> {
-    #[cfg(unix)]
-    {
-        let sock = socket_path();
-        if let Some(parent) = sock.parent() {
-            std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    let sock = socket_path();
+    if let Some(parent) = sock.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    if sock.exists() {
+        let _ = std::fs::remove_file(&sock);
+    }
+    if background {
+        return spawn_background();
+    }
+    use std::os::unix::net::UnixListener;
+    let listener = UnixListener::bind(&sock).map_err(|e| e.to_string())?;
+    eprintln!(
+        "nyra daemon: listening on {} (Ctrl+C to stop)",
+        sock.display()
+    );
+    for stream in listener.incoming() {
+        let mut stream = stream.map_err(|e| e.to_string())?;
+        let mut reader = BufReader::new(stream.try_clone().map_err(|e| e.to_string())?);
+        let mut line = String::new();
+        if reader.read_line(&mut line).is_err() {
+            continue;
         }
-        if sock.exists() {
-            let _ = std::fs::remove_file(&sock);
-        }
-        if background {
-            return spawn_background();
-        }
-        use std::os::unix::net::UnixListener;
-        let listener = UnixListener::bind(&sock).map_err(|e| e.to_string())?;
-        eprintln!(
-            "nyra daemon: listening on {} (Ctrl+C to stop)",
-            sock.display()
-        );
-        for stream in listener.incoming() {
-            let mut stream = stream.map_err(|e| e.to_string())?;
-            let mut reader = BufReader::new(stream.try_clone().map_err(|e| e.to_string())?);
-            let mut line = String::new();
-            if reader.read_line(&mut line).is_err() {
+        let req: DaemonRequest = match serde_json::from_str(line.trim()) {
+            Ok(r) => r,
+            Err(e) => {
+                let resp = DaemonResponse {
+                    ok: false,
+                    exit_code: None,
+                    stderr: String::new(),
+                    stdout: String::new(),
+                    error: Some(format!("bad request: {e}")),
+                };
+                write_response(&mut stream, &resp);
                 continue;
             }
-            let req: DaemonRequest = match serde_json::from_str(line.trim()) {
-                Ok(r) => r,
-                Err(e) => {
-                    let resp = DaemonResponse {
-                        ok: false,
-                        exit_code: None,
-                        stderr: String::new(),
-                        stdout: String::new(),
-                        error: Some(format!("bad request: {e}")),
-                    };
-                    write_response(&mut stream, &resp);
-                    continue;
-                }
-            };
-            let resp = handle_request(&req);
-            write_response(&mut stream, &resp);
-        }
-        Ok(())
+        };
+        let resp = handle_request(&req);
+        write_response(&mut stream, &resp);
     }
-    #[cfg(not(unix))]
-    {
-        let _ = background;
-        Err("compiler daemon requires Unix".into())
-    }
+    Ok(())
 }
 
 #[cfg(unix)]
@@ -339,18 +339,7 @@ fn daemon_run(
     }
     let (compile_result, stderr) = capture_stderr(|| {
         compile_and_link(
-            path,
-            opt,
-            false,
-            false,
-            false,
-            &spec,
-            None,
-            stability,
-            false,
-            false,
-            false,
-            None,
+            path, opt, false, false, false, &spec, None, stability, false, false, false, None,
         )
     });
     let bin_path = match compile_result {
@@ -392,11 +381,7 @@ fn daemon_run(
 }
 
 #[cfg(unix)]
-fn daemon_result(
-    result: Result<(), String>,
-    stderr: String,
-    stdout: String,
-) -> DaemonResponse {
+fn daemon_result(result: Result<(), String>, stderr: String, stdout: String) -> DaemonResponse {
     match result {
         Ok(()) => DaemonResponse {
             ok: true,
