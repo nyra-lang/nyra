@@ -1,12 +1,14 @@
-//! Watch `.ny` files and re-run check or build on change.
+//! Watch `.ny` files and re-run check or build on change (in-process for fast dev loop).
 
 use std::path::Path;
-use std::process::Command;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
+use crate::app::args::{OptFlags, StabilityFlags, TargetArgs};
+use crate::app::session::{build, run_file};
+use crate::commands::check;
 #[derive(Debug, Clone, Copy)]
 pub enum WatchMode {
     Check,
@@ -72,20 +74,30 @@ pub fn watch(path: &Path, mode: WatchMode) -> Result<(), String> {
 }
 
 fn run_once(path: &Path, mode: WatchMode) -> Result<(), String> {
-    let nyra = std::env::current_exe().map_err(|e| e.to_string())?;
-    let (sub, extra): (&str, Vec<&str>) = match mode {
-        WatchMode::Check => ("check", vec![]),
-        WatchMode::Build => ("build", vec![]),
-        WatchMode::Run => ("run", vec![]),
-    };
-    let mut cmd = Command::new(nyra);
-    cmd.arg(sub).arg(path);
-    for a in extra {
-        cmd.arg(a);
+    let stability = StabilityFlags::default();
+    match mode {
+        WatchMode::Check => check::check(path, &stability),
+        WatchMode::Build => build(
+            path,
+            None,
+            &OptFlags::default(),
+            false,
+            false,
+            false,
+            &TargetArgs::default(),
+            &stability,
+            false,
+            false,
+            false,
+        ),
+        WatchMode::Run => run_file(
+            path,
+            &OptFlags::default(),
+            &TargetArgs::default(),
+            &stability,
+            false,
+            false,
+            false,
+        ),
     }
-    let status = cmd.status().map_err(|e| e.to_string())?;
-    if !status.success() {
-        return Err(format!("{sub} failed"));
-    }
-    Ok(())
 }

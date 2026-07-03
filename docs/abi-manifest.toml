@@ -575,6 +575,13 @@ tier = "stable"
 since = "0.2.0"
 
 [[symbol]]
+name = "error_stack_trace"
+c_sig = "char *error_stack_trace(void)"
+module = "rt_error.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
 name = "async_await"
 c_sig = "int async_await(int handle)"
 module = "rt_async.c"
@@ -874,6 +881,34 @@ c_sig = "int http_download_file(const char *url, const char *path)"
 module = "rt_http.c"
 tier = "stable"
 since = "1.38.0"
+
+[[symbol]]
+name = "json_has_key"
+c_sig = "int json_has_key(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
+name = "json_has_string"
+c_sig = "int json_has_string(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
+name = "json_has_i32"
+c_sig = "int json_has_i32(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
+name = "json_has_bool"
+c_sig = "int json_has_bool(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
 
 [[symbol]]
 name = "json_get_string"

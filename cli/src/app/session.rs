@@ -2,20 +2,24 @@
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use compiler::{
-    can_skip_codegen, compute_source_fingerprint, is_incremental_hit, link_cache_key,
-    load_manifest, mix_crate_manifest, options_cache_key, read_runtime_cache, save_manifest,
-    write_cached_fingerprint, write_runtime_cache, CompileOptions, Compiler, CrateManifest,
+    build_signature_manifest, can_skip_typecheck_for_dirty, can_skip_codegen,
+    compute_source_fingerprint, entry_path_for_compile, is_incremental_hit, link_cache_key,
+    load_manifest, load_signatures, mix_crate_manifest, options_cache_key, read_runtime_cache,
+    save_manifest, save_signatures, write_cached_fingerprint, write_runtime_cache, CompileOptions,
+    Compiler, CrateManifest, IncrementalContext,
 };
 use pkg::{build_link_crate, resolve_project_native_link};
 
 use crate::app::args::{OptFlags, StabilityFlags, TargetArgs};
-use crate::artifacts;
+use crate::artifacts::{self, profile_name};
 use crate::link::{self, LinkProfile};
 use crate::pgo;
 use crate::target::{TargetSpec, validate_native_cpu};
+use crate::ui::{format_build_elapsed, build_profile_detail, Ui};
+use crate::timings::{BuildTimings, TimedStage};
 
 pub(crate) fn apply_lto_full(mut profile: LinkProfile, lto_full: bool) -> LinkProfile {
     if lto_full {
@@ -165,6 +169,17 @@ pub(crate) fn run_file(
     )?;
     if opt.pgo {
         return Err("nyra run does not support --pgo (use nyra build --pgo, then run the binary)".into());
+    }
+    if let Some(result) = crate::daemon::try_dispatch_run(
+        path,
+        opt,
+        target_args,
+        stability,
+        no_std,
+        freestanding,
+        no_prelude,
+    )? {
+        return result;
     }
     let bin_path = compile_and_link(
         path,
@@ -510,20 +525,10 @@ pub(crate) fn compile_and_link(
         current_crates.combined_hash(),
     );
     let previous_crates = load_manifest(&layout.profile_dir, &entry_id);
-    if let Some(prev) = &previous_crates {
-        let dirty = current_crates.dirty_since(prev);
-        if !dirty.is_empty() {
-            eprintln!(
-                "incremental: {} crate(s) changed: {}",
-                dirty.len(),
-                dirty
-                    .iter()
-                    .map(|p| Path::new(p).file_name().unwrap_or_default().to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            );
-        }
-    }
+    let dirty_paths: Vec<String> = previous_crates
+        .as_ref()
+        .map(|prev| current_crates.dirty_since(prev))
+        .unwrap_or_default();
     let (link_libs, link_search_paths, link_args, link_sources) = resolve_native_link(path, opt)?;
     let link_hash = link_cache_key(
         &options_key,
@@ -544,31 +549,87 @@ pub(crate) fn compile_and_link(
             link_hash,
         )
     {
-        eprintln!(
-            "incremental: cache hit ({} source files)",
-            source_fp.source_count
-        );
         if cdylib {
             link::ensure_macos_cdylib_install_name(&bin_path, spec)?;
         }
         return Ok(bin_path);
     }
 
-    let runtime_profile = if can_skip_codegen(
+    let skipped_codegen = can_skip_codegen(
         &layout.profile_dir,
         &entry_id,
         &layout.ll_path,
         &source_fp,
         link_hash,
-    ) {
-        eprintln!(
-            "incremental: codegen skipped, relinking ({} source files)",
-            source_fp.source_count
-        );
+    );
+
+    let skip_typecheck = !release
+        && !dirty_paths.is_empty()
+        && load_signatures(&layout.profile_dir, &entry_id)
+            .map(|prev| can_skip_typecheck_for_dirty(&dirty_paths, &prev).unwrap_or(false))
+            .unwrap_or(false);
+
+    if skip_typecheck && !skipped_codegen {
+        eprintln!("    Finished `types` profile [cached signatures] target(s) in 0.00s");
+    }
+
+    let build_started = Instant::now();
+    let ui = Ui::new();
+    let profile_label = profile_name(release);
+    let profile_detail = build_profile_detail(release, debug_symbols);
+    let mut build_timings = BuildTimings::default();
+
+    if !skipped_codegen {
+        if dirty_paths.is_empty() {
+            let label = artifacts::entry_stem(path);
+            let root = project_root(path);
+            eprintln!(
+                "{}",
+                ui.compiling(&label, &root.display().to_string())
+            );
+        } else {
+            for dirty in &dirty_paths {
+                let label = Path::new(dirty)
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy();
+                eprintln!("{}", ui.compiling(&label, dirty));
+            }
+        }
+    }
+
+    let runtime_profile = if skipped_codegen {
         read_runtime_cache(&layout.profile_dir, &entry_id).unwrap_or_default()
     } else {
+        let compile_stage = if opt.timings {
+            Some(TimedStage::start())
+        } else {
+            None
+        };
         let (ir, runtime_profile) =
-            compile_to_ir(path, spec, stability, no_std, freestanding, no_prelude, opt.verbose)?;
+            compile_to_ir(
+                path,
+                spec,
+                stability,
+                no_std,
+                freestanding,
+                no_prelude,
+                opt.verbose,
+                !release,
+                skip_typecheck,
+                Some(IncrementalContext {
+                    profile_dir: layout.profile_dir.clone(),
+                    entry_id: entry_id.clone(),
+                    entry_path: entry_path_for_compile(path),
+                    dirty_paths: dirty_paths.clone(),
+                    manifest: current_crates.clone(),
+                }),
+            )?;
+        if let Some(stage) = compile_stage {
+            if opt.timings {
+                build_timings.analysis = stage.elapsed();
+            }
+        }
         std::fs::write(&layout.ll_path, &ir).map_err(|e| e.to_string())?;
         write_runtime_cache(&layout.profile_dir, &entry_id, &runtime_profile)?;
         runtime_profile
@@ -588,16 +649,37 @@ pub(crate) fn compile_and_link(
     };
     let link_work = artifacts::entry_link_work_dir(&layout);
     std::fs::create_dir_all(&link_work).map_err(|e| e.to_string())?;
-    link::link_binary(
+    let link_stage = if opt.timings {
+        Some(TimedStage::start())
+    } else {
+        None
+    };
+    link::link_binary_with_options(
         &layout.ll_path,
         &bin_path,
         &profile,
         &link_work,
         &link_target,
         &runtime_profile,
+        opt.timings,
     )?;
+    if let Some(stage) = link_stage {
+        build_timings.link = stage.elapsed();
+    }
     write_cached_fingerprint(&layout.profile_dir, &entry_id, source_fp.hash, link_hash)?;
     save_manifest(&layout.profile_dir, &entry_id, &current_crates)?;
+    if let Ok(sigs) = build_signature_manifest(&current_crates) {
+        let _ = save_signatures(&layout.profile_dir, &entry_id, &sigs);
+    }
+
+    let elapsed = format_build_elapsed(build_started.elapsed());
+    eprintln!(
+        "{}",
+        ui.finished(profile_label, profile_detail, &elapsed)
+    );
+    if opt.timings {
+        build_timings.report(&ui);
+    }
     Ok(bin_path)
 }
 
@@ -656,8 +738,11 @@ pub(crate) fn compile_to_output(
     freestanding: bool,
     no_prelude: bool,
     verbose_escape: bool,
+    dev_fast: bool,
+    skip_typecheck: bool,
+    incremental: Option<IncrementalContext>,
 ) -> Result<compiler::CompileOutput, String> {
-    let options = compile_options(
+    let mut options = compile_options(
         spec,
         no_std,
         freestanding,
@@ -665,6 +750,9 @@ pub(crate) fn compile_to_output(
         stability,
         verbose_escape,
     );
+    options.dev_fast = dev_fast;
+    options.skip_typecheck = skip_typecheck;
+    options.incremental = incremental;
     let output = if path.is_dir() {
         Compiler::compile_project(path, &options)?
     } else {
@@ -684,6 +772,9 @@ pub(crate) fn compile_to_ir(
     freestanding: bool,
     no_prelude: bool,
     verbose_escape: bool,
+    dev_fast: bool,
+    skip_typecheck: bool,
+    incremental: Option<IncrementalContext>,
 ) -> Result<(String, compiler::RuntimeProfile), String> {
     let output = compile_to_output(
         path,
@@ -693,6 +784,9 @@ pub(crate) fn compile_to_ir(
         freestanding,
         no_prelude,
         verbose_escape,
+        dev_fast,
+        skip_typecheck,
+        incremental,
     )?;
     let ir = output
         .llvm_ir

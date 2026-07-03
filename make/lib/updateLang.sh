@@ -56,6 +56,11 @@ for sub in os net core http; do
   fi
 done
 
+if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh" ]; then
+  info "==> Building dev runtime archive (fast debug links)..."
+  bash "$ROOT/make/lib/build-prebuilt-rt.sh" "$(command -v nyra)"
+fi
+
 if command -v nyra >/dev/null 2>&1; then
   info ""
   info "Done. Active binary:"

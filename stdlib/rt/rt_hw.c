@@ -98,7 +98,9 @@ int32_t hw_cpu_logical_cores(void) {
     long n = sysconf(_SC_NPROCESSORS_ONLN);
     return n > 0 ? (int32_t)n : -1;
 #elif defined(_WIN32)
-    return (int32_t)GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    return (int32_t)si.dwNumberOfProcessors;
 #else
     return -1;
 #endif

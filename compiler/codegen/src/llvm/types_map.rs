@@ -479,7 +479,12 @@ impl Codegen {
     pub(super) fn reg_op(&self, v: &ExprValue) -> String {
         if v.reg.starts_with('%') || v.reg.starts_with('@') {
             v.reg.clone()
-        } else if v.reg.chars().all(|c| c.is_ascii_digit() || c == '-') {
+        } else if v.reg.chars().all(|c| c.is_ascii_digit() || c == '-')
+            && matches!(
+                v.ty.as_str(),
+                "i1" | "i8" | "i16" | "i32" | "i64" | "i128" | "char" | "float" | "double"
+            )
+        {
             v.reg.clone()
         } else {
             format!("%{}", v.reg)

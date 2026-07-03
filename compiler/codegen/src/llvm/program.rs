@@ -27,6 +27,27 @@ use super::util::{
 
 impl Codegen {
     pub fn compile_program(&mut self, program: &Program) -> String {
+        self.compile_program_with_filter(program, None)
+    }
+
+    /// Emit type/extern infrastructure and only the functions listed in `filter` (if any).
+    pub fn compile_program_with_filter(
+        &mut self,
+        program: &Program,
+        function_filter: Option<&HashSet<String>>,
+    ) -> String {
+        self.compile_program_inner(program, function_filter)
+    }
+
+    fn should_emit_function(name: &str, filter: Option<&HashSet<String>>) -> bool {
+        filter.is_none_or(|set| set.contains(name))
+    }
+
+    fn compile_program_inner(
+        &mut self,
+        program: &Program,
+        function_filter: Option<&HashSet<String>>,
+    ) -> String {
         self.enum_names = program.enums.iter().map(|e| e.name.clone()).collect();
         for ti in &program.trait_impls {
             if ti.trait_name == "Drop" || ti.trait_name == "Clone" {
@@ -306,7 +327,9 @@ impl Codegen {
             .collect();
         compile_order.sort_by(|a, b| a.name.cmp(&b.name));
         for func in compile_order {
-            self.compile_function(func);
+            if Self::should_emit_function(&func.name, function_filter) {
+                self.compile_function(func);
+            }
         }
 
         let mut extra_methods: Vec<&Function> = Vec::new();
@@ -326,7 +349,9 @@ impl Codegen {
         }
         extra_methods.sort_by(|a, b| a.name.cmp(&b.name));
         for method in extra_methods {
-            self.compile_function(method);
+            if Self::should_emit_function(&method.name, function_filter) {
+                self.compile_function(method);
+            }
         }
 
         self.sync_runtime_symbols_from_ir();

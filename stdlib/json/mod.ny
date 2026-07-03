@@ -1,6 +1,11 @@
 import "../strings.ny"
 import "../vec_str.ny"
+import "../error.ny"
 
+extern fn json_has_key(json: string, key: string) -> i32
+extern fn json_has_string(json: string, key: string) -> i32
+extern fn json_has_i32(json: string, key: string) -> i32
+extern fn json_has_bool(json: string, key: string) -> i32
 extern fn json_get_string(json: string, key: string) -> string
 extern fn json_get_i32(json: string, key: string) -> i32
 extern fn json_get_bool(json: string, key: string) -> i32
@@ -29,6 +34,27 @@ fn decode_i32(json: string, key: string) -> i32 {
 
 fn decode_bool(json: string, key: string) -> i32 {
     return json_get_bool(json, key)
+}
+
+fn json_string(json: string, key: string) -> Result<string, Error> {
+    if json_has_string(json, key) == 0 {
+        return Result.Err(Error_json(strcat("missing string field: ", key)))
+    }
+    return Result.Ok(json_get_string(json, key))
+}
+
+fn json_i32(json: string, key: string) -> Result<i32, Error> {
+    if json_has_i32(json, key) == 0 {
+        return Result.Err(Error_json(strcat("missing integer field: ", key)))
+    }
+    return Result.Ok(json_get_i32(json, key))
+}
+
+fn json_bool(json: string, key: string) -> Result<i32, Error> {
+    if json_has_bool(json, key) == 0 {
+        return Result.Err(Error_json(strcat("missing boolean field: ", key)))
+    }
+    return Result.Ok(json_get_bool(json, key))
 }
 
 fn decode_object(json: string, key: string) -> string {

@@ -1,9 +1,11 @@
 pub mod paths;
 pub mod prelude;
 pub mod merge;
+pub mod parse_cache;
 pub mod sources;
 pub mod stdlib;
 pub mod symbols;
+pub mod unit_map;
 pub use paths::*;
 pub use sources::collect_source_files;
 pub use stdlib::{
@@ -11,6 +13,7 @@ pub use stdlib::{
     resolve_stdlib_import, resolve_stdlib_import_near, stdlib_roots, stdlib_roots_near,
 };
 pub use symbols::{collect_program_uses, top_level_export_names};
+pub use unit_map::{assign_functions_to_units, collect_source_units, SourceUnit};
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -90,6 +93,10 @@ pub fn parse_file_only(path: &Path) -> Result<Program, String> {
     let path = path.canonicalize().map_err(|e| e.to_string())?;
     let source = std::fs::read_to_string(&path)
         .map_err(|e| format!("Failed to read {}: {e}", path.display()))?;
+    let hash = parse_cache::content_hash(&source);
+    if let Some(cached) = parse_cache::get(&path, hash) {
+        return Ok(cached);
+    }
     let file = path.to_string_lossy().into_owned();
     let (tokens, lexer_errors) = Lexer::new(&source, &file).tokenize();
     if !lexer_errors.is_empty() {
@@ -99,6 +106,7 @@ pub fn parse_file_only(path: &Path) -> Result<Program, String> {
     if !parser_errors.is_empty() {
         return Err(format!("Parser errors in {}", path.display()));
     }
+    parse_cache::insert(&path, hash, program.clone());
     Ok(program)
 }
 
@@ -132,6 +140,44 @@ pub(crate) fn load_file_recursive(
 
     let source = std::fs::read_to_string(&path)
         .map_err(|e| format!("Failed to read {}: {e}", path.display()))?;
+    let hash = parse_cache::content_hash(&source);
+    if let Some(cached) = parse_cache::get(&path, hash) {
+        let mut merged = cached;
+        let base_dir = path.parent().unwrap_or(Path::new("."));
+        let imports: Vec<ImportDecl> = std::mem::take(&mut merged.imports);
+        for imp in imports {
+            match resolve_import_path(base_dir, &imp.path) {
+                Ok(resolved) => {
+                    let sub = load_file_recursive(&resolved, visited, errors)?;
+                    merge::merge_program(&mut merged, sub, imp.alias.as_deref());
+                }
+                Err(_msg) => {
+                    errors.push(
+                        NyraError::coded(
+                            "E001",
+                            ErrorKind::NameResolution,
+                            imp.span.clone(),
+                            format!("import not found: `{}`", imp.path),
+                        )
+                        .label("could not resolve this import path")
+                        .note(format!(
+                            "resolved relative to `{}`",
+                            base_dir.display()
+                        ))
+                        .help(format!(
+                            "check the path is correct relative to `{}`",
+                            base_dir.display()
+                        ))
+                        .help("stdlib is auto-loaded (auto-prelude); explicit `import \"stdlib/…\"` is optional"),
+                    );
+                }
+            }
+        }
+        if merged.comptime {
+            errors.extend(const_eval::finalize_comptime_module(&mut merged));
+        }
+        return Ok(merged);
+    }
     let file = path.to_string_lossy().into_owned();
     let (tokens, lexer_errors) = Lexer::new(&source, &file).tokenize();
     if !lexer_errors.is_empty() {
@@ -146,6 +192,7 @@ pub(crate) fn load_file_recursive(
         eprint_diagnostics_suppressed(&shown, suppressed);
         return Err(COMPILE_FAILED.into());
     }
+    parse_cache::insert(&path, hash, program.clone());
 
     let base_dir = path.parent().unwrap_or(Path::new("."));
     let imports: Vec<ImportDecl> = std::mem::take(&mut program.imports);

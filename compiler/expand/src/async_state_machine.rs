@@ -293,16 +293,29 @@ impl CfgBuilder {
         self.poll_counter += 1;
         let poll_kind = poll_kind_for_expr(&inner, checker, &self.local_types);
         let handle_expr = await_handle_expr(&inner, checker, &self.local_types, self.span.clone());
-        let mut stmts = vec![stmt_let(&hname, handle_expr, self.span.clone())];
-        stmts.extend(build_poll_state(
+        let poll_state = self.alloc_state();
+        self.hoisted.push(stmt_let_mut(
+            &hname,
+            expr_int(0, self.span.clone()),
+            self.span.clone(),
+            true,
+        ));
+        self.push_state(
             state_id,
+            vec![
+                stmt_assign(&hname, handle_expr, self.span.clone()),
+                self.goto_state(poll_state),
+            ],
+        );
+        let stmts = build_poll_state(
+            poll_state,
             next_state,
             &hname,
             bind,
             self.span.clone(),
             poll_kind,
-        ));
-        self.push_state(state_id, stmts);
+        );
+        self.push_state(poll_state, stmts);
     }
 
     fn lower_block(

@@ -2,7 +2,7 @@
 //!
 //! Nyra merges imports into one program before codegen, so unchanged files still
 //! require a full pipeline today. This module tracks **which crates changed** and
-//! caches metadata for future split compilation.
+//! stores per-unit artifact paths for split compilation (IR / object cache).
 
 use std::collections::hash_map::DefaultHasher;
 use std::fs;
@@ -100,6 +100,38 @@ pub fn save_manifest(
     }
     let json = serde_json::to_string_pretty(manifest).map_err(|e| e.to_string())?;
     fs::write(path, json).map_err(|e| e.to_string())
+}
+
+/// Per-entry directory for cached per-crate LLVM IR (split compilation).
+pub fn unit_cache_dir(profile_dir: &Path, entry_id: &str) -> PathBuf {
+    entry_cache_dir(profile_dir, entry_id)
+        .join("crates")
+        .join("units")
+}
+
+pub fn unit_ir_path(profile_dir: &Path, entry_id: &str, content_hash: u64) -> PathBuf {
+    unit_cache_dir(profile_dir, entry_id).join(format!("{content_hash:016x}.ll"))
+}
+
+pub fn unit_object_path(profile_dir: &Path, entry_id: &str, content_hash: u64) -> PathBuf {
+    unit_cache_dir(profile_dir, entry_id).join(format!("{content_hash:016x}.o"))
+}
+
+pub fn load_unit_ir(profile_dir: &Path, entry_id: &str, content_hash: u64) -> Option<String> {
+    fs::read_to_string(unit_ir_path(profile_dir, entry_id, content_hash)).ok()
+}
+
+pub fn save_unit_ir(
+    profile_dir: &Path,
+    entry_id: &str,
+    content_hash: u64,
+    ir: &str,
+) -> Result<(), String> {
+    let path = unit_ir_path(profile_dir, entry_id, content_hash);
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    fs::write(path, ir).map_err(|e| e.to_string())
 }
 
 fn hash_file(path: &Path) -> Result<u64, String> {

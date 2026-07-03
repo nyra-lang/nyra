@@ -2,8 +2,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #if defined(_WIN32)
+#include <io.h>
 #include <windows.h>
 #else
 #include <pthread.h>
@@ -137,8 +139,14 @@ static void run_job(IoJob *job) {
         }
 #endif
     } else if (job->kind == IO_JOB_READ && job->buf && job->nbytes > 0) {
+#if defined(_WIN32)
+        unsigned int count = job->nbytes > INT_MAX ? (unsigned int)INT_MAX : (unsigned int)job->nbytes;
+        int n = _read(job->fd, job->buf, count);
+        async_promise_complete(job->promise_id, n);
+#else
         ssize_t n = read(job->fd, job->buf, (size_t)job->nbytes);
         async_promise_complete(job->promise_id, (int)n);
+#endif
     }
 }
 

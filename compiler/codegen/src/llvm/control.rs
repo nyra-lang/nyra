@@ -413,12 +413,18 @@ impl Codegen {
         env: &Env,
     ) -> ExprValue {
         let scrutinee = self.compile_expr(&m.scrutinee, env);
-        let result_ty = m
+        let match_enum_name = self.match_scrutinee_enum(&m.scrutinee, &scrutinee, env);
+        let mut result_ty = m
             .arms
             .iter()
             .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
             .find(|ty| ty != "void")
             .unwrap_or_else(|| "i32".into());
+        if result_ty == "i32" {
+            if let Some(payload_ty) = self.infer_match_payload_result_ty(m, match_enum_name.as_deref()) {
+                result_ty = payload_ty;
+            }
+        }
         let result_ty = struct_value_type(&result_ty);
         let result_alloca = self.fresh("alloca");
         self.emit(&format!("  %{result_alloca} = alloca {result_ty}"));
@@ -436,7 +442,7 @@ impl Codegen {
             } else {
                 next_l.clone()
             };
-            let enum_name = self.match_scrutinee_enum(&m.scrutinee, &scrutinee, env);
+            let enum_name = match_enum_name.clone();
             let resolve_enum = |pattern: &str| -> String {
                 enum_name
                     .as_ref()
@@ -868,6 +874,43 @@ impl Codegen {
                 },
             );
         }
+    }
+
+    fn infer_match_payload_result_ty(
+        &self,
+        m: &MatchExpr,
+        scrutinee_enum: Option<&str>,
+    ) -> Option<String> {
+        for arm in &m.arms {
+            let MatchPattern::QualifiedBind(en, variant, payload) = &arm.pattern else {
+                continue;
+            };
+            let MatchPayloadPattern::Bind(bind) = payload else {
+                continue;
+            };
+            let Some(Statement::Expression(expr)) = arm.body.statements.last() else {
+                continue;
+            };
+            let returns_bound_payload = match expr {
+                Expression::Variable { name, .. } => name == bind,
+                Expression::MethodCall(call) if call.method == "clone" => {
+                    matches!(&call.object, Expression::Variable { name, .. } if name == bind)
+                }
+                _ => false,
+            };
+            if !returns_bound_payload {
+                continue;
+            }
+            let enum_name = scrutinee_enum
+                .filter(|scrutinee| enum_pattern_matches(en, scrutinee))
+                .unwrap_or_else(|| en.as_str());
+            if let Some(payloads) = self.enum_variant_payload_llvm.get(enum_name) {
+                if let Some(ty) = payloads.get(variant) {
+                    return Some(ty.clone());
+                }
+            }
+        }
+        None
     }
 
     fn match_scrutinee_enum(

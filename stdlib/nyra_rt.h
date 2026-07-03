@@ -234,6 +234,9 @@ void progress_finish(void);
 /* since Nyra 0.2.0 */
 void spawn(void);
 
+/* since Nyra 1.40.0 */
+char *error_stack_trace(void);
+
 /* since Nyra 0.2.0 */
 int async_await(int handle);
 
@@ -362,6 +365,18 @@ int http_status(const char *response_header);
 
 /* since Nyra 1.38.0 */
 int http_download_file(const char *url, const char *path);
+
+/* since Nyra 1.40.0 */
+int json_has_key(const char *json, const char *key);
+
+/* since Nyra 1.40.0 */
+int json_has_string(const char *json, const char *key);
+
+/* since Nyra 1.40.0 */
+int json_has_i32(const char *json, const char *key);
+
+/* since Nyra 1.40.0 */
+int json_has_bool(const char *json, const char *key);
 
 /* since Nyra 0.3.0 */
 char *json_get_string(const char *json, const char *key);

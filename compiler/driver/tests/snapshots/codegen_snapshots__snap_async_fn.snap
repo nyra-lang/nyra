@@ -8,15 +8,29 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [5 x i8] c" = \22\00", align 1
 @.str.N = private unnamed_addr constant [18 x i8] c" HTTP/1.N\0D\0AHost: \00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c": \00", align 1
+@.str.N = private unnamed_addr constant [25 x i8] c"text/html; charset=utf-8\00", align 1
+@.str.N = private unnamed_addr constant [26 x i8] c"text/plain; charset=utf-8\00", align 1
+@.str.N = private unnamed_addr constant [11 x i8] c"text/plain\00", align 1
+@.str.N = private unnamed_addr constant [11 x i8] c"timeout_ms\00", align 1
+@.str.N = private unnamed_addr constant [6 x i8] c"trace\00", align 1
+@.str.N = private unnamed_addr constant [5 x i8] c"true\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c"url\00", align 1
+@.str.N = private unnamed_addr constant [11 x i8] c"user_agent\00", align 1
+@.str.N = private unnamed_addr constant [5 x i8] c"year\00", align 1
+@.str.N = private unnamed_addr constant [24 x i8] c"{\22error\22:\22bad request\22}\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c": \22\00", align 1
+@.str.N = private unnamed_addr constant [34 x i8] c"{\22error\22:\22internal server error\22}\00", align 1
+@.str.N = private unnamed_addr constant [31 x i8] c"{\22error\22:\22method not allowed\22}\00", align 1
+@.str.N = private unnamed_addr constant [22 x i8] c"{\22error\22:\22not found\22}\00", align 1
+@.str.N = private unnamed_addr constant [25 x i8] c"{\22error\22:\22unauthorized\22}\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:10,\22b\22:32}\00", align 1
 @.str.N = private unnamed_addr constant [28 x i8] c"{\22op\22:\22add\22,\22a\22:100,\22b\22:23}\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:19,\22b\22:23}\00", align 1
 @.str.N = private unnamed_addr constant [17 x i8] c"{\22op\22:\22add\22,\22a\22:\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22eval\22,\22expr\22:\226*7\22}\00", align 1
 @.str.N = private unnamed_addr constant [22 x i8] c"{\22op\22:\22eval\22,\22expr\22:\22\00", align 1
-@.str.N = private unnamed_addr constant [2 x i8] c"}\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c": \22\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c":\00", align 1
+@.str.N = private unnamed_addr constant [2 x i8] c"}\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"?\00", align 1
 @.str.N = private unnamed_addr constant [12 x i8] c"Bad Request\00", align 1
 @.str.N = private unnamed_addr constant [20 x i8] c"Connection: close\0D\0A\00", align 1
@@ -53,44 +67,58 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [21 x i8] c"Unprocessable Entity\00", align 1
 @.str.N = private unnamed_addr constant [1 x i8] c"\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@.str.N = private unnamed_addr constant [13 x i8] c"\0Acaused by: \00", align 1
+@.str.N = private unnamed_addr constant [15 x i8] c"\0Astack trace:\0A\00", align 1
 @.str.N = private unnamed_addr constant [38 x i8] c"\0D\0AUser-Agent: Nyra/1.N\0D\0AAccept: */*\0D\0A\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"\0D\0A\00", align 1
+@.str.N = private unnamed_addr constant [6 x i8] c",\22b\22:\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"\0D\0A\0D\0A\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"\22\00", align 1
-@.str.N = private unnamed_addr constant [6 x i8] c",\22b\22:\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"\22\0A\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"\22}\00", align 1
 @.str.N = private unnamed_addr constant [32 x i8] c"application/json; charset=utf-8\00", align 1
 @.str.N = private unnamed_addr constant [17 x i8] c"application/json\00", align 1
+@.str.N = private unnamed_addr constant [6 x i8] c"async\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"body\00", align 1
+@.str.N = private unnamed_addr constant [6 x i8] c"cause\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"chunked\00", align 1
+@.str.N = private unnamed_addr constant [2 x i8] c"-\00", align 1
+@.str.N = private unnamed_addr constant [5 x i8] c"code\00", align 1
 @.str.N = private unnamed_addr constant [13 x i8] c"content_type\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"cors\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"date\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"day\00", align 1
-@.str.N = private unnamed_addr constant [2 x i8] c"-\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"false\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"fd\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"handle\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"host\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"hour\00", align 1
+@.str.N = private unnamed_addr constant [2 x i8] c"/\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"http://\00", align 1
 @.str.N = private unnamed_addr constant [9 x i8] c"https://\00", align 1
 @.str.N = private unnamed_addr constant [64 x i8] c"install OpenSSL (brew install openssl / apt install libssl-dev)\00", align 1
+@.str.N = private unnamed_addr constant [8 x i8] c"invalid\00", align 1
+@.str.N = private unnamed_addr constant [3 x i8] c"io\00", align 1
+@.str.N = private unnamed_addr constant [5 x i8] c"json\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"keep-alive\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"keep_alive\00", align 1
-@.str.N = private unnamed_addr constant [2 x i8] c"/\00", align 1
+@.str.N = private unnamed_addr constant [5 x i8] c"kind\00", align 1
 @.str.N = private unnamed_addr constant [10 x i8] c"localhost\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c"6*7\00", align 1
+@.str.N = private unnamed_addr constant [8 x i8] c"message\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"method\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"millis\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"minute\00", align 1
+@.str.N = private unnamed_addr constant [24 x i8] c"missing boolean field: \00", align 1
+@.str.N = private unnamed_addr constant [24 x i8] c"missing integer field: \00", align 1
+@.str.N = private unnamed_addr constant [23 x i8] c"missing string field: \00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"month\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"ok\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"owns\00", align 1
+@.str.N = private unnamed_addr constant [29 x i8] c": OpenSSL not available \E2\80\94 \00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"path\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"port\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"query\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c"6*7\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"raw\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"result\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"router\00", align 1
@@ -98,25 +126,12 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [7 x i8] c"secure\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"start\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"status\00", align 1
-@.str.N = private unnamed_addr constant [25 x i8] c"text/html; charset=utf-8\00", align 1
-@.str.N = private unnamed_addr constant [26 x i8] c"text/plain; charset=utf-8\00", align 1
-@.str.N = private unnamed_addr constant [11 x i8] c"text/plain\00", align 1
-@.str.N = private unnamed_addr constant [29 x i8] c": OpenSSL not available \E2\80\94 \00", align 1
-@.str.N = private unnamed_addr constant [11 x i8] c"timeout_ms\00", align 1
-@.str.N = private unnamed_addr constant [5 x i8] c"true\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c"url\00", align 1
-@.str.N = private unnamed_addr constant [11 x i8] c"user_agent\00", align 1
-@.str.N = private unnamed_addr constant [5 x i8] c"year\00", align 1
-@.str.N = private unnamed_addr constant [24 x i8] c"{\22error\22:\22bad request\22}\00", align 1
-@.str.N = private unnamed_addr constant [34 x i8] c"{\22error\22:\22internal server error\22}\00", align 1
-@.str.N = private unnamed_addr constant [31 x i8] c"{\22error\22:\22method not allowed\22}\00", align 1
-@.str.N = private unnamed_addr constant [22 x i8] c"{\22error\22:\22not found\22}\00", align 1
-@.str.N = private unnamed_addr constant [25 x i8] c"{\22error\22:\22unauthorized\22}\00", align 1
 
 %CalendarDate = type { i32, i32, i32 }
 %Client = type { ptr, i32 }
 %DateTime = type { %CalendarDate, i32, i32, i32 }
 %Duration = type { i32 }
+%Error = type { i32, ptr, ptr, ptr, ptr }
 %Fd = type { i32, i32 }
 %Future_bool = type { i32 }
 %Future_i32 = type { i32 }
@@ -126,6 +141,8 @@ target triple = "nyra-snapshot-host"
 %HttpUrl = type { ptr, i32, ptr, i1 }
 %Instant = type { i64 }
 %RequestContext = type { i32, ptr, ptr, ptr, ptr }
+%Result__i32_S_Error = type { i32, [8 x i8] }
+%Result__string_S_Error = type { i32, [8 x i8] }
 %Server = type { ptr, i32, ptr, i32, i32 }
 %SpawnCap.work.N = type { i32 }
 %StrVec = type { ptr }
@@ -148,6 +165,10 @@ declare i32 @char_at(ptr %0, i32 %1)
 declare i32 @instant_elapsed_ms(i64 %0)
 declare i32 @json_get_bool(ptr %0, ptr %1)
 declare i32 @json_get_i32(ptr %0, ptr %1)
+declare i32 @json_has_bool(ptr %0, ptr %1)
+declare i32 @json_has_i32(ptr %0, ptr %1)
+declare i32 @json_has_key(ptr %0, ptr %1)
+declare i32 @json_has_string(ptr %0, ptr %1)
 declare i32 @os_close_fd(i32 %0)
 declare i32 @os_getpid()
 declare i32 @printf(ptr, ...)
@@ -186,6 +207,7 @@ declare ptr @bin_buf_finish(ptr %0)
 declare ptr @bin_buf_new()
 declare ptr @bin_decode_blob_at(ptr %0, i32 %1)
 declare ptr @bin_decode_string_at(ptr %0, i32 %1)
+declare ptr @error_stack_trace()
 declare ptr @f64_to_string(double %0)
 declare ptr @i32_to_string(i32 %0)
 declare ptr @i64_to_string(i64 %0)
@@ -448,6 +470,153 @@ entry:
   store i32 %call.N, i32* %gep.N
   %load.N = load %Duration, %Duration* %alloca.N
   ret %Duration %load.N
+}
+define %Error @Deserialize_Error_from_json(ptr %0) {
+entry:
+  %call.N = call %Error @Error_json_decode(ptr %0)
+  ret %Error %call.N
+}
+define %Error @Error_async(ptr %0) {
+entry:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call %Error @Error_new(i32 3, ptr %str.N, ptr %0)
+  ret %Error %call.N
+}
+define %Error @Error_bin_decode(ptr %0) {
+entry:
+  %call.N = call i32 @bin_field_width_i32()
+  %bin.N = add i32 4, %call.N
+  %call.N = call i32 @bin_field_width_string_at(ptr %0, i32 %bin.N)
+  %bin.N = add i32 %bin.N, %call.N
+  %call.N = call i32 @bin_field_width_string_at(ptr %0, i32 %bin.N)
+  %bin.N = add i32 %bin.N, %call.N
+  %call.N = call i32 @bin_field_width_string_at(ptr %0, i32 %bin.N)
+  %bin.N = add i32 %bin.N, %call.N
+  %call.N = call i32 @bin_field_width_string_at(ptr %0, i32 %bin.N)
+  %bin.N = add i32 %bin.N, %call.N
+  %alloca.N = alloca %Error
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 0
+  %call.N = call i32 @bin_decode_i32_at(ptr %0, i32 4)
+  store i32 %call.N, i32* %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 1
+  %call.N = call ptr @bin_decode_string_at(ptr %0, i32 %bin.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 2
+  %call.N = call ptr @bin_decode_string_at(ptr %0, i32 %bin.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 3
+  %call.N = call ptr @bin_decode_string_at(ptr %0, i32 %bin.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 4
+  %call.N = call ptr @bin_decode_string_at(ptr %0, i32 %bin.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %Error, %Error* %alloca.N
+  ret %Error %load.N
+}
+define %Error @Error_context(%Error* %0, ptr %1) {
+entry:
+  %alloca.N = alloca %Error
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 0
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  store i32 %load.N, i32* %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 1
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 1
+  %load.N = load ptr, ptr %gep.N
+  %str_clone.N = call ptr @str_clone(ptr %load.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %1, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 2
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
+  store ptr %call.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 3
+  %call.N = call ptr @Error_headline(%Error* %0)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 4
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 4
+  %load.N = load ptr, ptr %gep.N
+  %str_clone.N = call ptr @str_clone(ptr %load.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %Error, %Error* %alloca.N
+  ret %Error %load.N
+}
+define %Error @Error_invalid(ptr %0) {
+entry:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call %Error @Error_new(i32 4, ptr %str.N, ptr %0)
+  ret %Error %call.N
+}
+define %Error @Error_io(ptr %0) {
+entry:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call %Error @Error_new(i32 1, ptr %str.N, ptr %0)
+  ret %Error %call.N
+}
+define %Error @Error_json(ptr %0) {
+entry:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call %Error @Error_new(i32 2, ptr %str.N, ptr %0)
+  ret %Error %call.N
+}
+define %Error @Error_json_decode(ptr %0) {
+entry:
+  %alloca.N = alloca %Error
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 0
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call i32 @decode_i32(ptr %0, ptr %str.N)
+  store i32 %call.N, i32* %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 1
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @decode_string(ptr %0, ptr %str.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @decode_string(ptr %0, ptr %str.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 3
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @decode_string(ptr %0, ptr %str.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 4
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @decode_string(ptr %0, ptr %str.N)
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %Error, %Error* %alloca.N
+  ret %Error %load.N
+}
+define %Error @Error_new(i32 %0, ptr %1, ptr %2) {
+entry:
+  %alloca.N = alloca %Error
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 0
+  store i32 %0, i32* %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 1
+  %str_clone.N = call ptr @str_clone(ptr %1)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 2
+  %str_clone.N = call ptr @str_clone(ptr %2)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 3
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %Error, %Error* %alloca.N, i32 0, i32 4
+  %call.N = call ptr @error_stack_trace()
+  %str_clone.N = call ptr @str_clone(ptr %call.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %load.N = load %Error, %Error* %alloca.N
+  ret %Error %load.N
 }
 define %Fd @Deserialize_Fd_from_json(ptr %0) {
 entry:
@@ -1326,6 +1495,199 @@ entry:
   %load.N = load %RequestContext, %RequestContext* %alloca.N
   ret %RequestContext %load.N
 }
+define %Result__i32_S_Error @Result_i32_context(%Result__i32_S_Error* %0, ptr %1) {
+entry:
+  %alloca.N = alloca %Result__i32_S_Error
+  br label %match.chain.N
+match.chain.N:
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %0, i32 0, i32 0
+  %tag.N = load i32, i32* %gep.N
+  %cmp.N = icmp eq i32 %tag.N, 0
+  br i1 %cmp.N, label %match.body.N, label %match.next.N
+match.body.N:
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %0, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  %load.N = load i32, ptr %bc.N
+  br label %match.payload.ok.N
+match.payload.ok.N:
+  %enum.N = alloca %Result__i32_S_Error
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store i32 %load.N, ptr %bc.N
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %enum.N
+  store %Result__i32_S_Error %load.N, %Result__i32_S_Error* %alloca.N
+  br label %match.end.N
+match.next.N:
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %0, i32 0, i32 0
+  %tag.N = load i32, i32* %gep.N
+  %cmp.N = icmp eq i32 %tag.N, 1
+  br i1 %cmp.N, label %match.body.N, label %match.end.N
+match.body.N:
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %0, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  %load.N = load %Error, ptr %bc.N
+  br label %match.payload.ok.N
+match.payload.ok.N:
+  %enum.N = alloca %Result__i32_S_Error
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 0
+  store i32 1, i32* %gep.N
+  %arg.tmp.N = alloca %Error
+  store %Error %load.N, %Error* %arg.tmp.N
+  %call.N = call %Error @Error_context(%Error* %arg.tmp.N, ptr %1)
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store %Error %call.N, ptr %bc.N
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %enum.N
+  store %Result__i32_S_Error %load.N, %Result__i32_S_Error* %alloca.N
+  br label %match.end.N
+match.end.N:
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %alloca.N
+  ret %Result__i32_S_Error %load.N
+}
+define %Result__i32_S_Error @json_bool(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @json_has_bool(ptr %0, ptr %1)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %enum.N = alloca %Result__i32_S_Error
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 0
+  store i32 1, i32* %gep.N
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %1)
+  %call.N = call %Error @Error_json(ptr %call.N)
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store %Error %call.N, ptr %bc.N
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %enum.N
+  ret %Result__i32_S_Error %load.N
+else.N:
+  br label %endif.N
+endif.N:
+  %enum.N = alloca %Result__i32_S_Error
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %call.N = call i32 @json_get_bool(ptr %0, ptr %1)
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store i32 %call.N, ptr %bc.N
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %enum.N
+  ret %Result__i32_S_Error %load.N
+}
+define %Result__i32_S_Error @json_i32(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @json_has_i32(ptr %0, ptr %1)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %enum.N = alloca %Result__i32_S_Error
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 0
+  store i32 1, i32* %gep.N
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %1)
+  %call.N = call %Error @Error_json(ptr %call.N)
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store %Error %call.N, ptr %bc.N
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %enum.N
+  ret %Result__i32_S_Error %load.N
+else.N:
+  br label %endif.N
+endif.N:
+  %enum.N = alloca %Result__i32_S_Error
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %call.N = call i32 @json_get_i32(ptr %0, ptr %1)
+  %gep.N = getelementptr inbounds %Result__i32_S_Error, %Result__i32_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store i32 %call.N, ptr %bc.N
+  %load.N = load %Result__i32_S_Error, %Result__i32_S_Error* %enum.N
+  ret %Result__i32_S_Error %load.N
+}
+define %Result__string_S_Error @Result_string_context(%Result__string_S_Error* %0, ptr %1) {
+entry:
+  %alloca.N = alloca %Result__string_S_Error
+  br label %match.chain.N
+match.chain.N:
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %0, i32 0, i32 0
+  %tag.N = load i32, i32* %gep.N
+  %cmp.N = icmp eq i32 %tag.N, 0
+  br i1 %cmp.N, label %match.body.N, label %match.next.N
+match.body.N:
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %0, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  %load.N = load ptr, ptr %bc.N
+  br label %match.payload.ok.N
+match.payload.ok.N:
+  %enum.N = alloca %Result__string_S_Error
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %str_clone.N = call ptr @str_clone(ptr %load.N)
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store ptr %str_clone.N, ptr %bc.N
+  %load.N = load %Result__string_S_Error, %Result__string_S_Error* %enum.N
+  store %Result__string_S_Error %load.N, %Result__string_S_Error* %alloca.N
+  br label %match.end.N
+match.next.N:
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %0, i32 0, i32 0
+  %tag.N = load i32, i32* %gep.N
+  %cmp.N = icmp eq i32 %tag.N, 1
+  br i1 %cmp.N, label %match.body.N, label %match.end.N
+match.body.N:
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %0, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  %load.N = load %Error, ptr %bc.N
+  br label %match.payload.ok.N
+match.payload.ok.N:
+  %enum.N = alloca %Result__string_S_Error
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 0
+  store i32 1, i32* %gep.N
+  %arg.tmp.N = alloca %Error
+  store %Error %load.N, %Error* %arg.tmp.N
+  %call.N = call %Error @Error_context(%Error* %arg.tmp.N, ptr %1)
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store %Error %call.N, ptr %bc.N
+  %load.N = load %Result__string_S_Error, %Result__string_S_Error* %enum.N
+  store %Result__string_S_Error %load.N, %Result__string_S_Error* %alloca.N
+  br label %match.end.N
+match.end.N:
+  %load.N = load %Result__string_S_Error, %Result__string_S_Error* %alloca.N
+  ret %Result__string_S_Error %load.N
+}
+define %Result__string_S_Error @json_string(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @json_has_string(ptr %0, ptr %1)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %enum.N = alloca %Result__string_S_Error
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 0
+  store i32 1, i32* %gep.N
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %1)
+  %call.N = call %Error @Error_json(ptr %call.N)
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store %Error %call.N, ptr %bc.N
+  %load.N = load %Result__string_S_Error, %Result__string_S_Error* %enum.N
+  ret %Result__string_S_Error %load.N
+else.N:
+  br label %endif.N
+endif.N:
+  %enum.N = alloca %Result__string_S_Error
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %call.N = call ptr @json_get_string(ptr %0, ptr %1)
+  %gep.N = getelementptr inbounds %Result__string_S_Error, %Result__string_S_Error* %enum.N, i32 0, i32 1
+  %bc.N = bitcast ptr %gep.N to ptr
+  store ptr %call.N, ptr %bc.N
+  %load.N = load %Result__string_S_Error, %Result__string_S_Error* %enum.N
+  ret %Result__string_S_Error %load.N
+}
 define %Server @Deserialize_Server_from_json(ptr %0) {
 entry:
   %call.N = call %Server @Server_json_decode(ptr %0)
@@ -2152,6 +2514,117 @@ entry:
   call void @vec_str_free(ptr %call.N)
   ret ptr %call.N
 }
+define ptr @Error_bin_encode(%Error* %0) {
+entry:
+  %call.N = call ptr @bin_buf_new()
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  call void @bin_buf_write_i32(ptr %call.N, i32 %load.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 1
+  %load.N = load ptr, ptr %gep.N
+  call void @bin_buf_write_string(ptr %call.N, ptr %load.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 2
+  %load.N = load ptr, ptr %gep.N
+  call void @bin_buf_write_string(ptr %call.N, ptr %load.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 3
+  %load.N = load ptr, ptr %gep.N
+  call void @bin_buf_write_string(ptr %call.N, ptr %load.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 4
+  %load.N = load ptr, ptr %gep.N
+  call void @bin_buf_write_string(ptr %call.N, ptr %load.N)
+  %call.N = call ptr @bin_buf_finish(ptr %call.N)
+  ret ptr %call.N
+}
+define ptr @Error_format(%Error* %0) {
+entry:
+  %call.N = call ptr @Error_headline(%Error* %0)
+  %alloca.N = alloca ptr
+  store ptr %call.N, ptr %alloca.N
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 3
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @str_len(ptr %load.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %ref.N = load ptr, ptr %alloca.N
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 3
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
+  store ptr %call.N, ptr %alloca.N
+  br label %endif.N
+else.N:
+  br label %endif.N
+endif.N:
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 4
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @str_len(ptr %load.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %ref.N = load ptr, ptr %alloca.N
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 4
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
+  store ptr %call.N, ptr %alloca.N
+  br label %endif.N
+else.N:
+  br label %endif.N
+endif.N:
+  %ld.N = load ptr, ptr %alloca.N
+  ret ptr %ld.N
+}
+define ptr @Error_headline(%Error* %0) {
+entry:
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 1
+  %load.N = load ptr, ptr %gep.N
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %load.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 2
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
+  ret ptr %call.N
+}
+define ptr @Error_json_encode(%Error* %0) {
+entry:
+  %call.N = call ptr @vec_str_new()
+  %call.N = call ptr @vec_str_new()
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 0
+  %load.N = load i32, i32* %gep.N
+  %call.N = call ptr @i32_to_string(i32 %load.N)
+  call void @vec_str_push(ptr %call.N, ptr %call.N)
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 1
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_push(ptr %call.N, ptr %load.N)
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 2
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_push(ptr %call.N, ptr %load.N)
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 3
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_push(ptr %call.N, ptr %load.N)
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %Error, %Error* %0, i32 0, i32 4
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_push(ptr %call.N, ptr %load.N)
+  %call.N = call ptr @json_encode_object(ptr %call.N, ptr %call.N)
+  call void @vec_str_free(ptr %call.N)
+  call void @vec_str_free(ptr %call.N)
+  ret ptr %call.N
+}
 define ptr @Fd_bin_encode(%Fd* %0) {
 entry:
   %call.N = call ptr @bin_buf_new()
@@ -2403,6 +2876,16 @@ entry:
 define ptr @Serialize_Duration_to_json(%Duration* %0) {
 entry:
   %call.N = call ptr @Duration_json_encode(%Duration* %0)
+  ret ptr %call.N
+}
+define ptr @Serialize_Error_to_bytes(%Error* %0) {
+entry:
+  %call.N = call ptr @Error_bin_encode(%Error* %0)
+  ret ptr %call.N
+}
+define ptr @Serialize_Error_to_json(%Error* %0) {
+entry:
+  %call.N = call ptr @Error_json_encode(%Error* %0)
   ret ptr %call.N
 }
 define ptr @Serialize_Fd_to_bytes(%Fd* %0) {
@@ -3848,6 +4331,13 @@ entry:
   %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   call void @vec_str_free(ptr %load.N)
+  ret void
+}
+define void @Error_print(%Error* %0) {
+entry:
+  %call.N = call ptr @Error_format(%Error* %0)
+  %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
   ret void
 }
 define void @Fd_drop_impl(%Fd* %0) {

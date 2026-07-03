@@ -33,7 +33,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `alloc_track_note` | `void alloc_track_note(size_t bytes)` | `rt_alloc_track.c` | 1.14.0 | `stdlib/mem.ny` |
 | `alloc_track_start` | `void alloc_track_start(const char *label)` | `rt_alloc_track.c` | 1.14.0 | `stdlib/mem.ny` |
 | `ansi_reset` | `const char *ansi_reset(void)` | `rt_io.c` | 1.2.0 | — |
-| `append_file` | `int append_file(const char *path, const char *content)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `append_file` | `int append_file(const char *path, const char *content)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny` |
 | `arc_alloc_i32` | `void *arc_alloc_i32(int value)` | `rt_arc.c` | 2.5.0 | `stdlib/arc.ny` |
 | `arc_alloc_string` | `void *arc_alloc_string(const char *value)` | `rt_arc.c` | 2.5.0 | `stdlib/arc.ny` |
 | `arc_dec` | `void arc_dec(void *handle)` | `rt_arc.c` | 2.5.0 | — |
@@ -42,6 +42,10 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `arc_get_i32` | `int arc_get_i32(void *handle)` | `rt_arc.c` | 2.5.0 | `stdlib/arc.ny` |
 | `arc_get_string` | `char *arc_get_string(void *handle)` | `rt_arc.c` | 2.5.0 | `stdlib/arc.ny` |
 | `arc_inc` | `void arc_inc(void *handle)` | `rt_arc.c` | 2.5.0 | `stdlib/arc.ny` |
+| `arena_alloc` | `void *arena_alloc(void *arena, long long nbytes)` | `rt_arena.c` | 1.39.0 | `stdlib/alloc/arena.ny` |
+| `arena_free` | `void arena_free(void *arena)` | `rt_arena.c` | 1.39.0 | `stdlib/alloc/arena.ny` |
+| `arena_new` | `void *arena_new(long long capacity)` | `rt_arena.c` | 1.39.0 | `stdlib/alloc/arena.ny` |
+| `arena_reset` | `void arena_reset(void *arena)` | `rt_arena.c` | 1.39.0 | `stdlib/alloc/arena.ny` |
 | `array_bool_debug_string` | `char *array_bool_debug_string(const unsigned char *arr, int n)` | `rt_array.c` | 1.8.0 | — |
 | `array_f32_debug_string` | `char *array_f32_debug_string(const float *arr, int n)` | `rt_array.c` | 1.8.0 | — |
 | `array_f64_debug_string` | `char *array_f64_debug_string(const double *arr, int n)` | `rt_array.c` | 1.8.0 | — |
@@ -111,20 +115,21 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `color_ansi` | `const char *color_ansi(const char *spec)` | `rt_io.c` | 1.2.0 | — |
 | `command_exec_capture` | `char *command_exec_capture(const char *program, void *args_handle)` | `rt_process.c` | 1.14.0 | — |
 | `command_run` | `int command_run(const char *program, void *args_handle)` | `rt_process.c` | 1.0.0 | — |
-| `copy_dir` | `int copy_dir(const char *src, const char *dst)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `copy_dir_contents` | `int copy_dir_contents(const char *src, const char *dst)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `copy_file` | `long long copy_file(const char *src, const char *dst)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `copy_dir` | `int copy_dir(const char *src, const char *dst)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny` |
+| `copy_dir_contents` | `int copy_dir_contents(const char *src, const char *dst)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny` |
+| `copy_file` | `long long copy_file(const char *src, const char *dst)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
 | `cos_f64` | `double cos_f64(double x)` | `rt_math.c` | 1.16.0 | `stdlib/math.ny` |
 | `cpu_count` | `int32_t cpu_count(void)` | `rt_parallel.c` | 1.3.0 | — |
-| `create_dir` | `int create_dir(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `create_dir_all` | `int create_dir_all(const char *path)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `create_dir` | `int create_dir(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny` |
+| `create_dir_all` | `int create_dir_all(const char *path)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny` |
 | `date_now` | `void date_now(int *out)` | `rt_time.c` | 1.3.0 | — |
+| `error_stack_trace` | `char *error_stack_trace(void)` | `rt_error.c` | 1.40.0 | `stdlib/error.ny` |
 | `f64_to_string` | `char *f64_to_string(double n)` | `rt_strings.c` | 1.3.3 | `stdlib/strconv/mod.ny` |
-| `file_exists` | `int file_exists(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/fs.ny`, `stdlib/gui/picker.ny` |
-| `file_size` | `long long file_size(const char *path)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `file_exists` | `int file_exists(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
+| `file_size` | `long long file_size(const char *path)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
 | `flate_compress_hex` | `char *flate_compress_hex(const char *data)` | `rt_gzip.c` | 1.3.3 | `stdlib/compress/flate.ny` |
 | `flate_decompress_hex` | `char *flate_decompress_hex(const char *hex)` | `rt_gzip.c` | 1.3.3 | `stdlib/compress/flate.ny` |
-| `fsync_file` | `int fsync_file(const char *path)` | `rt_fs.c` | 1.18.0 | `stdlib/db/sstable.ny`, `stdlib/fs.ny` |
+| `fsync_file` | `int fsync_file(const char *path)` | `rt_fs.c` | 1.18.0 | `stdlib/db/sstable.ny` |
 | `gpu_font_draw` | `void gpu_font_draw(const char *text, int x, int y, int font_size, unsigned char r, unsigned char g, unsigned char b, unsigned char a)` | `gpu/rt_gpu_font.c` | 1.3.0 | — |
 | `gpu_font_free` | `void gpu_font_free(void)` | `gpu/rt_gpu_font.c` | 1.3.0 | — |
 | `gpu_font_init` | `void gpu_font_init(void)` | `gpu/rt_gpu_font.c` | 1.3.0 | — |
@@ -141,7 +146,18 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `i64_to_string` | `char *i64_to_string(long long n)` | `rt_strings.c` | 1.17.0 | `stdlib/strings.ny` |
 | `instant_elapsed_ms` | `int instant_elapsed_ms(int64_t start)` | `rt_time.c` | 1.1.0 | `stdlib/time/instant.ny` |
 | `instant_now` | `int64_t instant_now(void)` | `rt_time.c` | 1.1.0 | `stdlib/time/date.ny`, `stdlib/time/instant.ny` |
+| `io_pool_create` | `int32_t io_pool_create(int32_t workers)` | `rt_io_pool.c` | 1.39.0 | `stdlib/io/pool.ny` |
+| `io_pool_queue_depth` | `int32_t io_pool_queue_depth(int32_t pool)` | `rt_io_pool.c` | 1.39.0 | `stdlib/io/pool.ny` |
+| `io_pool_shutdown` | `void io_pool_shutdown(int32_t pool)` | `rt_io_pool.c` | 1.39.0 | `stdlib/io/pool.ny` |
+| `io_pool_submit_read` | `int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise)` | `rt_io_pool.c` | 1.39.0 | `stdlib/io/pool.ny` |
+| `io_pool_submit_wait_readable` | `int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise)` | `rt_io_pool.c` | 1.39.0 | `stdlib/io/pool.ny` |
 | `io_register` | `int io_register(int fd, int task_id)` | `rt_async.c` | 0.2.0 | `stdlib/net/poll.ny`, `stdlib/os/event_loop.ny`, `stdlib/terminal/pty.ny` |
+| `io_unregister` | `int io_unregister(int fd)` | `rt_async.c` | 1.39.0 | `stdlib/os/event_loop.ny` |
+| `io_uring_available` | `int32_t io_uring_available(void)` | `rt_io_uring.c` | 1.39.0 | `stdlib/os/io_uring.ny` |
+| `io_uring_pending` | `int io_uring_pending(void)` | `rt_io_uring.c` | 1.39.0 | — |
+| `io_uring_register_read` | `int32_t io_uring_register_read(int32_t fd, int32_t promise)` | `rt_io_uring.c` | 1.39.0 | `stdlib/os/io_uring.ny` |
+| `io_uring_unregister_read` | `int32_t io_uring_unregister_read(int32_t fd)` | `rt_io_uring.c` | 1.39.0 | `stdlib/os/io_uring.ny` |
+| `io_uring_wait_once` | `int io_uring_wait_once(int timeout_ms)` | `rt_io_uring.c` | 1.39.0 | — |
 | `io_wait_once` | `int io_wait_once(int timeout_ms)` | `rt_async.c` | 0.2.0 | `stdlib/net/poll.ny` |
 | `json_decode_i32_array` | `void *json_decode_i32_array(const char *array_json)` | `rt_json.c` | 1.3.4 | `stdlib/json/mod.ny` |
 | `json_decode_ptr_token` | `void *json_decode_ptr_token(const char *json, const char *key)` | `rt_json.c` | 1.9.0 | `stdlib/json/mod.ny` |
@@ -152,12 +168,22 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `json_encode_str_array` | `char *json_encode_str_array(void *handle)` | `rt_json.c` | 2.5.0 | `stdlib/json/mod.ny` |
 | `json_get_array` | `char *json_get_array(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny` |
 | `json_get_bool` | `int json_get_bool(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny` |
-| `json_get_i32` | `int json_get_i32(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny`, `stdlib/json.ny`, `stdlib/process.ny` |
+| `json_get_i32` | `int json_get_i32(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny`, `stdlib/process.ny` |
 | `json_get_object` | `char *json_get_object(const char *json, const char *key)` | `rt_json.c` | 1.3.2 | `stdlib/json/mod.ny` |
-| `json_get_string` | `char *json_get_string(const char *json, const char *key)` | `rt_json.c` | 0.3.0 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/json.ny`, `stdlib/process.ny` |
+| `json_get_string` | `char *json_get_string(const char *json, const char *key)` | `rt_json.c` | 0.3.0 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/process.ny` |
+| `json_has_bool` | `int json_has_bool(const char *json, const char *key)` | `rt_json.c` | 1.40.0 | `stdlib/json/mod.ny` |
+| `json_has_i32` | `int json_has_i32(const char *json, const char *key)` | `rt_json.c` | 1.40.0 | `stdlib/json/mod.ny` |
+| `json_has_key` | `int json_has_key(const char *json, const char *key)` | `rt_json.c` | 1.40.0 | `stdlib/json/mod.ny` |
+| `json_has_string` | `int json_has_string(const char *json, const char *key)` | `rt_json.c` | 1.40.0 | `stdlib/json/mod.ny` |
 | `json_join_raw_array` | `char *json_join_raw_array(void *handle)` | `rt_json.c` | 1.38.0 | `stdlib/json/mod.ny` |
 | `json_split_array_elements` | `void *json_split_array_elements(const char *array_json)` | `rt_json.c` | 1.38.0 | `stdlib/json/jsonl.ny`, `stdlib/json/mod.ny` |
-| `list_dir` | `char *list_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny`, `stdlib/gui/picker.ny` |
+| `list_dir` | `char *list_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
+| `map_i32_i32_contains` | `int map_i32_i32_contains(void *handle, int key)` | `rt_map.c` | 1.39.0 | — |
+| `map_i32_i32_free` | `void map_i32_i32_free(void *handle)` | `rt_map.c` | 1.39.0 | — |
+| `map_i32_i32_get` | `int map_i32_i32_get(void *handle, int key)` | `rt_map.c` | 1.39.0 | — |
+| `map_i32_i32_insert` | `void map_i32_i32_insert(void *handle, int key, int value)` | `rt_map.c` | 1.39.0 | — |
+| `map_i32_i32_new` | `void *map_i32_i32_new(void)` | `rt_map.c` | 1.39.0 | — |
+| `map_i32_i32_retain` | `void map_i32_i32_retain(void *handle)` | `rt_map.c` | 1.39.0 | — |
 | `map_str_i32_contains` | `int map_str_i32_contains(void *handle, const char *key)` | `rt_map.c` | 0.4.0 | `stdlib/map.ny` |
 | `map_str_i32_free` | `void map_str_i32_free(void *handle)` | `rt_map.c` | 0.4.0 | `stdlib/map.ny` |
 | `map_str_i32_get` | `int map_str_i32_get(void *handle, const char *key)` | `rt_map.c` | 0.4.0 | `stdlib/map.ny` |
@@ -185,10 +211,13 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `nyra_compiler_free` | `void nyra_compiler_free(char *ptr)` | `rt_compiler.c` | 1.19.0 | `stdlib/compiler.ny` |
 | `nyra_diag_json_file` | `char *nyra_diag_json_file(const char *path)` | `rt_compiler.c` | 1.19.0 | `stdlib/compiler.ny` |
 | `nyra_diag_json_source` | `char *nyra_diag_json_source(const char *source, const char *file)` | `rt_compiler.c` | 1.19.0 | `stdlib/compiler.ny` |
-| `os_arg_at` | `char *os_arg_at(int index)` | `rt_args.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `os_arg_count` | `int os_arg_count(void)` | `rt_args.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `os_arg_at` | `char *os_arg_at(int index)` | `rt_args.c` | 1.3.0 | `stdlib/fs/file.ny` |
+| `os_arg_count` | `int os_arg_count(void)` | `rt_args.c` | 1.3.0 | `stdlib/fs/file.ny` |
+| `parallel_all_range` | `int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)` | `rt_parallel.c` | 1.39.0 | — |
+| `parallel_any_range` | `int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)` | `rt_parallel.c` | 1.39.0 | — |
+| `parallel_find_range` | `int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)` | `rt_parallel.c` | 1.39.0 | — |
 | `parallel_for_range` | `void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)` | `rt_parallel.c` | 1.3.0 | — |
-| `path_is_dir` | `int path_is_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny`, `stdlib/gui/picker.ny` |
+| `path_is_dir` | `int path_is_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
 | `println` | `int println(const char *msg)` | `rt_io.c` | 0.2.0 | — |
 | `process_exit` | `void process_exit(int code)` | `rt_args.c` | 1.3.0 | `stdlib/flag/mod.ny`, `stdlib/process/exit.ny` |
 | `progress_finish` | `void progress_finish(void)` | `rt_progress.c` | 1.3.0 | — |
@@ -216,14 +245,14 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `rand_u32` | `uint32_t rand_u32(void)` | `rt_random.c` | 1.39.0 | — |
 | `rand_u64` | `uint64_t rand_u64(void)` | `rt_random.c` | 1.39.0 | — |
 | `random_hex` | `char *random_hex(int byte_count)` | `rt_random.c` | 1.1.0 | `stdlib/crypto/random.ny`, `stdlib/uuid/mod.ny` |
-| `read_file` | `char *read_file(const char *path)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `read_file_limit` | `char *read_file_limit(const char *path, int max_bytes)` | `rt_fs.c` | 1.13.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `read_file` | `char *read_file(const char *path)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny` |
+| `read_file_limit` | `char *read_file_limit(const char *path, int max_bytes)` | `rt_fs.c` | 1.13.0 | `stdlib/fs/file.ny` |
 | `regex_compile` | `void *regex_compile(const char *pattern)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
 | `regex_free` | `void regex_free(void *handle)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
 | `regex_is_match` | `int regex_is_match(void *handle, const char *text)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
-| `remove_dir` | `int remove_dir(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `remove_dir_all` | `int remove_dir_all(const char *path)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
-| `remove_file` | `int remove_file(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `remove_dir` | `int remove_dir(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny` |
+| `remove_dir_all` | `int remove_dir_all(const char *path)` | `rt_fs.c` | 1.38.0 | `stdlib/fs/file.ny` |
+| `remove_file` | `int remove_file(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/fs/file.ny` |
 | `rsa_available` | `int rsa_available(void)` | `rt_crypto_openssl.c` | 1.3.3 | `stdlib/crypto/rsa.ny` |
 | `rsa_public_encrypt_pem` | `char *rsa_public_encrypt_pem(const char *pem_pub, const char *plaintext)` | `rt_crypto_openssl.c` | 1.3.3 | `stdlib/crypto/rsa.ny` |
 | `rsa_sha256_sign_pem` | `char *rsa_sha256_sign_pem(const char *pem_priv, const char *message)` | `rt_crypto_openssl.c` | 1.3.3 | `stdlib/crypto/rsa.ny` |
@@ -279,6 +308,12 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `rwlock_wlock` | `void rwlock_wlock(void *r)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/rwlock.ny` |
 | `sha256_hex` | `char *sha256_hex(const char *data)` | `rt_crypto.c` | 1.3.2 | `stdlib/crypto/sha256.ny` |
 | `sha512_hex` | `char *sha512_hex(const char *data)` | `rt_crypto_sha512.c` | 1.3.3 | `stdlib/crypto/sha512.ny` |
+| `shm_close_fd` | `int32_t shm_close_fd(int32_t fd)` | `rt_shm.c` | 1.39.0 | `stdlib/os/shm.ny` |
+| `shm_create` | `int32_t shm_create(const char *name, int64_t nbytes)` | `rt_shm.c` | 1.39.0 | `stdlib/os/shm.ny` |
+| `shm_map` | `void *shm_map(int32_t fd, int64_t nbytes)` | `rt_shm.c` | 1.39.0 | `stdlib/os/shm.ny` |
+| `shm_open_existing` | `int32_t shm_open_existing(const char *name, int64_t nbytes)` | `rt_shm.c` | 1.39.0 | `stdlib/os/shm.ny` |
+| `shm_unlink_region` | `int32_t shm_unlink_region(const char *name)` | `rt_shm.c` | 1.39.0 | `stdlib/os/shm.ny` |
+| `shm_unmap` | `int32_t shm_unmap(void *addr, int64_t nbytes)` | `rt_shm.c` | 1.39.0 | `stdlib/os/shm.ny` |
 | `sin_f64` | `double sin_f64(double x)` | `rt_math.c` | 1.16.0 | `stdlib/math.ny` |
 | `sleep_ms` | `void sleep_ms(int ms)` | `rt_time.c` | 1.1.0 | `stdlib/time/instant.ny` |
 | `spawn` | `void spawn(void)` | `rt_async.c` | 0.2.0 | — |
@@ -309,9 +344,14 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `stdout_flush` | `void stdout_flush(void)` | `rt_io.c` | 0.2.0 | — |
 | `stdout_write_bytes` | `void stdout_write_bytes(void *handle)` | `rt_bytes.c` | 1.3.0 | `stdlib/fs/bytes.ny` |
 | `stdout_write_i32` | `void stdout_write_i32(int n)` | `rt_io.c` | 0.2.0 | — |
-| `stdout_write_str` | `void stdout_write_str(const char *s)` | `rt_io.c` | 0.2.0 | — |
+| `stdout_write_str` | `void stdout_write_str(const char *s)` | `rt_io.c` | 0.2.0 | `stdlib/terminal/mod.ny` |
 | `stdout_writeln_i32` | `void stdout_writeln_i32(int n)` | `rt_io.c` | 0.2.0 | — |
-| `stdout_writeln_str` | `void stdout_writeln_str(const char *s)` | `rt_io.c` | 0.2.0 | `stdlib/log.ny` |
+| `stdout_writeln_str` | `void stdout_writeln_str(const char *s)` | `rt_io.c` | 0.2.0 | `stdlib/log.ny`, `stdlib/terminal/mod.ny` |
+| `str_buf_append` | `void str_buf_append(void *handle, const char *piece)` | `rt_str_buf.c` | 1.39.0 | `stdlib/strings/builder.ny` |
+| `str_buf_append_char` | `void str_buf_append_char(void *handle, int ch)` | `rt_str_buf.c` | 1.39.0 | `stdlib/strings/builder.ny` |
+| `str_buf_build` | `char *str_buf_build(void *handle)` | `rt_str_buf.c` | 1.39.0 | `stdlib/strings/builder.ny` |
+| `str_buf_drop` | `void str_buf_drop(void *handle)` | `rt_str_buf.c` | 1.39.0 | `stdlib/strings/builder.ny` |
+| `str_buf_new` | `void *str_buf_new(void)` | `rt_str_buf.c` | 1.39.0 | `stdlib/strings/builder.ny` |
 | `str_cat` | `char *str_cat(const char *a, const char *b)` | `rt_strings.c` | 0.2.0 | — |
 | `str_clone` | `char *str_clone(const char *s)` | `rt_alloc.c` | 3.0.0 | — |
 | `str_cmp` | `int str_cmp(const char *a, const char *b)` | `rt_strings.c` | 0.3.0 | — |
@@ -370,7 +410,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `waitgroup_free` | `void waitgroup_free(void *wg)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/waitgroup.ny` |
 | `waitgroup_new` | `void *waitgroup_new(void)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/waitgroup.ny` |
 | `waitgroup_wait` | `void waitgroup_wait(void *wg)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/waitgroup.ny` |
-| `write_file` | `int write_file(const char *path, const char *content)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/fs.ny` |
+| `write_file` | `int write_file(const char *path, const char *content)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny` |
 | `ws_accept_handshake` | `int ws_accept_handshake(int listener_fd)` | `rt_websocket.c` | 1.11.0 | `stdlib/net/websocket.ny` |
 | `ws_accept_tls_handshake` | `int ws_accept_tls_handshake(int tls_listener_handle)` | `rt_websocket.c` | 1.14.0 | `stdlib/net/websocket.ny` |
 | `ws_close` | `void ws_close(int fd)` | `rt_websocket.c` | 1.3.3 | `stdlib/net/websocket.ny` |
@@ -414,7 +454,9 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `hw_display_width` | `int32_t hw_display_width(void)` | `rt_hw.c` | 1.3.0 | `stdlib/os/display.ny` |
 | `hw_dma_available` | `int32_t hw_dma_available(void)` | `rt_hw.c` | 1.3.0 | `stdlib/os/memory.ny` |
 | `hw_mem_map_anonymous` | `void *hw_mem_map_anonymous(int64_t nbytes)` | `rt_hw.c` | 1.3.0 | `stdlib/os/memory.ny` |
+| `hw_mem_map_file` | `void *hw_mem_map_file(const char *path, int64_t nbytes, int32_t writable)` | `rt_hw.c` | 1.39.0 | `stdlib/os/memory.ny` |
 | `hw_mem_page_size` | `int32_t hw_mem_page_size(void)` | `rt_hw.c` | 1.3.0 | `stdlib/os/memory.ny` |
+| `hw_mem_sync` | `int32_t hw_mem_sync(void *addr, int64_t nbytes)` | `rt_hw.c` | 1.39.0 | `stdlib/os/memory.ny` |
 | `hw_mem_unmap` | `int32_t hw_mem_unmap(void *addr, int64_t nbytes)` | `rt_hw.c` | 1.3.0 | `stdlib/os/memory.ny` |
 | `hw_net_if_count` | `int32_t hw_net_if_count(void)` | `rt_hw.c` | 1.3.0 | `stdlib/os/netif.ny` |
 | `hw_net_if_is_up` | `int32_t hw_net_if_is_up(int32_t index)` | `rt_hw.c` | 1.3.0 | `stdlib/os/netif.ny` |

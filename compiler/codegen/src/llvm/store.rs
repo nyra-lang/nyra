@@ -69,7 +69,12 @@ impl Codegen {
                 self.coerce_value_reg_to_type(&val.reg, &val.ty, field_ty)
             } else if val.ty == "double" {
                 val.reg.clone()
-            } else if val.reg.chars().all(|c| c.is_ascii_digit() || c == '-') {
+            } else if val.reg.chars().all(|c| c.is_ascii_digit() || c == '-')
+                && matches!(
+                    val.ty.as_str(),
+                    "i1" | "i8" | "i16" | "i32" | "i64" | "i128" | "char" | "float" | "double"
+                )
+            {
                 val.reg.clone()
             } else {
                 let reg_op = format!("%{}", val.reg.trim_start_matches('%'));

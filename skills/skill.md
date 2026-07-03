@@ -6,7 +6,7 @@
 Use this file as the **sole authoritative reference** for Nyra syntax, semantics, stdlib, toolchain, PGO, and escape analysis.
 Do not invent features not listed here. Supplementary guides live at **https://nyra-lang.github.io/docs/**.
 
-> **Project status — v1.39.x production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, spawn, enum payloads) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · [roadmap](https://nyra-lang.github.io/docs/roadmap.html).
+> **Project status — v1.40.x production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · [roadmap](https://nyra-lang.github.io/docs/roadmap.html).
 
 ## Table of contents
 
@@ -37,7 +37,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v1.39.x** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/docs/roadmap.html)).
+- Version baseline: **v1.40.x** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/docs/roadmap.html)).
 - **v1.2:** template strings, arrow functions, `net/http` handler dispatch, language bridge (Python/Node/Java workers), NyraPkg semver + registry, `link-source` auto-link, bindings reference, native C interop pattern.
 - **v2.1:** stack closures (loop-safe), arrow param inference, tuple destructure in arrow params, `??` nullish coalescing, `?.` optional chaining.
 - **v2.2:** heap closure promotion; `?.method()`; **`Option.Some(T)` payloads** when using `import "stdlib/option.ny"` (replaces tag-only built-in `Option` for that module).
@@ -106,9 +106,9 @@ Nyra has **two shipped tiers** (see [roadmap & stability](https://nyra-lang.gith
 | Tier | Status | Examples | CI flag |
 |------|--------|----------|---------|
 | **Core** | Semver-stable | types, control flow, `match`, tag-only enums, `impl`, ownership, FFI, `unsafe`/`no_std`, monomorph generics (`fn id<T>`, `Vec_i32`), optional annotations | `nyra check --deny-extended` |
-| **Stable Extended** | Shipped in v1.39+ **without W001** in default builds | enum payloads, `async`/`await`, traits, `dyn`, macros, `defer`, explicit lifetimes, `spawn`, arrow fns, spread | default `nyra build` |
+| **Stable Extended** | Shipped in v1.39+ **without W001** in default builds | enum payloads, `async`/`await`, traits, `dyn`, macros, `defer`, explicit lifetimes, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, arrow fns, spread, compiler `random()` | default `nyra build` |
 
-- **Legacy note:** older docs called Extended "experimental" with **`warning[W001]`**. Current production tier (v1.39.x) ships Extended features in prebuilt releases; use `--deny-extended` only for Core-only CI gates.
+- **Legacy note:** older docs called Extended "experimental" with **`warning[W001]`**. Current production tier (v1.40.x) ships Extended features in prebuilt releases; use `--deny-extended` only for Core-only CI gates.
 - **Core-stable generics:** `fn id<T>`, `Option<T>`, `Result<T,E>`, `Arc<T>`, `Box<T>` monomorph at compile time.
 
 ## Toolchain
@@ -355,8 +355,9 @@ Quick lookup for syntax the lexer and parser accept today. Types are optional un
 | `extern` / `export` | FFI declare / export C symbol |
 | `test` | Test function |
 | `print` | Built-in stdout; optional `color:` |
-| `spawn` | Concurrent block (Extended) |
-| `parallel for` | Parallel loop over range or array (Extended) |
+| `spawn` / `spawn:task` / `spawn:thread` | Concurrent block — task pool (default) or OS thread (Extended) |
+| `allow_extended` | File directive — marks Extended-tier unit (see [spawn](#spawn--spawntask--spawnthread-extended--no-import-keyword)) |
+| `parallel for` / `parallel:task` / `parallel:thread` | Parallel loop — task pool (default) or OS thread chunks (Extended) |
 | `progress for` | Progress bar loop (Extended) |
 | `benchmark` | Timed block with Time/Memory/CPU report (Extended) |
 | `defer` | Scope-exit call (LIFO) — **Extended**; prefer auto-drop / `impl Drop` (see below) |
@@ -418,7 +419,9 @@ for c in "hi" { print(c) }       // char codes per byte
 return x
 print("ok", color: green)
 defer close_handle(h)          // Extended — prefer impl Drop RAII when possible
-spawn { print(1) }               // Extended
+allow_extended                   // optional file directive when using Extended APIs
+spawn { print(1) }               // Extended — default = task pool; use spawn:thread for OS thread
+let h = spawn { work() }         // returns JoinHandle; h.join() blocks until done
 unsafe { let p = &x as *i32; *p = 7 }
 import "stdlib/fs.ny"
 ```
@@ -949,7 +952,21 @@ fn pipeline_verbose() -> i32 {
 
 Generic `Result<T,E>` / `Option<T>` (auto-prelude or `import "stdlib/option.ny"`) supports `?` the same way after monomorphization.
 
-See: `stdlib/option.ny` · `stdlib/result.ny`.
+**Official application errors (v1.40+):** import `stdlib/error.ny` for Nyra's batteries-included error path. Use `Result<T, Error>` plus `?`, `Error_context`, `Error_format`, and specialized helpers (`Result_string_context`, `Result_i32_context`) to compose I/O + JSON + validation without third-party packages.
+
+```ny
+import "stdlib/error.ny"
+import "stdlib/json/mod.ny"
+
+fn config_port(json_text) -> Result<i32, Error> {
+    let port = Result_i32_context(json_i32(json_text, "port"), "reading config")?
+    return Result.Ok(port)
+}
+```
+
+Fallible stdlib wrappers: `read_text`, `write_text`, `append_text` (`stdlib/fs/result.ny`); `json_string`, `json_i32`, `json_bool` (`stdlib/json/mod.ny`). `Error_format(err)` prints kind/message, context/cause, and a runtime stack trace when available.
+
+See: `stdlib/option.ny` · `stdlib/result.ny` · `stdlib/error.ny`.
 
 ## Imports & modules
 
@@ -1018,7 +1035,7 @@ Further builtins reference: [https://nyra-lang.github.io/docs/methods.html](http
 
 | Category | Import? | Receiver / type |
 |----------|---------|-----------------|
-| I/O, `date()`, timing, `spawn`, `parallel for`, math intrinsics | **No** | Global functions |
+| I/O, `date()`, timing, `spawn`, `JoinHandle.join()`, `parallel for`, `random()` / `random_f64()` | **No** | Global functions / methods |
 | String `.split()` / `.trim()` / … | **No** | `string` — borrows receiver |
 | Fixed array `.len()` / `.sort()` / `.sort_by()` | **No** | `[T; N]` |
 | Split list `.len()` / `for s in parts` | **No** | result of `.split()` |
@@ -1226,90 +1243,281 @@ mem_start("label")
 mem_end("label")     // prints RSS delta (platform-dependent)
 ```
 
-### `spawn { }` (Extended — no import keyword)
+### `spawn { }` / `spawn:task` / `spawn:thread` (Extended — no import keyword)
 
-Runs block on new thread. Captures must be **Send**; no `&` captures.
+**Platform:** native Linux, macOS, Windows only — **`spawn` is a compile error on `wasm32-wasi`**. Requires runtime link (`nyra_rt`); rejected in `no_std`.
+
+#### File directive: `allow_extended`
+
+Put on the **first line** of a file (before `fn` / imports) when the unit uses Extended-tier APIs (`spawn`, `parallel for`, `async`, `defer`, …):
 
 ```ny
-spawn {
-    print(42)
+allow_extended
+```
+
+| What | Detail |
+|------|--------|
+| **Purpose** | Documents that this file intentionally uses **Stable Extended** features |
+| **Effect today (v1.40+)** | Extended ships **without `warning[W001]`** in default builds — `spawn` compiles with or without the directive |
+| **When skipped** | If `extended_tier_warnings` runs, files **without** `allow_extended` may get W001 for Extended syntax; files **with** it suppress W001 in that unit |
+| **CI** | Pair with `nyra check --deny-extended` for Core-only gates (converts W001 → error when preview warnings return) |
+| **Scope** | One line per **compilation unit** — not per-function |
+
+**Not a compile switch:** `allow_extended` does **not** enable `spawn`; it declares intent and integrates with stability warnings. Omit it in Core-only tutorials.
+
+#### Task pool vs OS thread
+
+| Syntax | Backend | When to use |
+|--------|---------|-------------|
+| `spawn { }` | **Task pool** (default) | Many concurrent jobs — queued on global workers (~`cpu_count()`); queue cap 65k; cheap (bytes–KB bookkeeping) |
+| `spawn:task { }` | **Task pool** (alias) | Same as bare `spawn` |
+| `spawn:thread { }` | **OS thread** | Blocking I/O, isolation, or true 1:1 thread (~MB stack); `pthread` / `CreateThread` |
+
+Captures must be **Send**; no `&` / `&mut` captures.
+
+#### `JoinHandle` and `.join()`
+
+| Form | Syntax | Waits? |
+|------|--------|--------|
+| **Statement** | `spawn { … }` | **No** — fire-and-forget; runtime detaches immediately |
+| **Expression** | `let h = spawn { … }` | Returns opaque **`JoinHandle`** (not printable) |
+| **Join** | `h.join()` | **Yes** — blocks caller until work finishes; **consumes** `h` (move; no second `.join()`) |
+| **Drop** | `h` goes out of scope unused | **No** — same as statement form (detach) |
+
+`.join()` — method on `JoinHandle`; signature `h.join() -> void`; **no arguments**. Codegen calls `spawn_task_join` or `spawn_join` depending on whether the handle came from `spawn`/`spawn:task` or `spawn:thread`.
+
+```ny
+allow_extended
+
+fn main() {
+    // Task pool (default) — output order: 99, then 0
+    let h = spawn {
+        print(99)
+    }
+    h.join()
+    print(0)
+
+    // Fire-and-forget — main does not wait
+    spawn {
+        print("background")
+    }
+
+    // OS thread when you need real thread isolation
+    let t = spawn:thread {
+        blocking_syscall()
+    }
+    t.join()
 }
 ```
+
+**Async note:** `async fn` desugar runs the state machine body on **`spawn:thread`** internally (blocking `async_await` inside spawn remains possible).
 
 Channels: `stdlib/sync/channel.ny`
 
 ### `parallel for` / `parallel:task` / `parallel:thread` (Extended)
 
-Gallery: [methods.html#ex-parallel](https://nyra-lang.github.io/docs/methods.html#ex-parallel) · Runnable: `examples/builtins/parallel/`
+Each entry: **name → explanation → example → output**. Runnable: `examples/builtins/parallel/` · gallery: [methods.html#ex-parallel](https://nyra-lang.github.io/docs/methods.html#ex-parallel).
 
-Each entry: **name → explanation → example → output** (see webDocs gallery for full list).
+#### `parallel for` (task pool — default)
 
-| Feature | Gallery |
-|---------|---------|
-| `parallel for` (task pool default) | `#ex-parallel` |
-| `parallel:task(max = N)` | `#ex-parallel-task-max` |
-| `parallel:thread(max = N)` | `#ex-parallel-thread` |
-| `parallel(cpu = P%)` | `#ex-parallel-cpu` |
-| `parallel(mode = …)` | `#ex-parallel-mode` |
-| `parallel(threads = N)` | `#ex-parallel-exact` |
-| `cpu_count()` | `#ex-cpu-count` |
-| `progress for` | `#ex-progress` |
-| `benchmark { }` | `#ex-benchmark` |
+**Explanation:** Independent iterations on the global task pool (same workers as `spawn`). Fork-join — code after the loop runs when all iterations finish. Requires `allow_extended`.
 
-**Rules:** no `break`; no outer mutation; captures **Send**; range/array/string/`vec_str`. On `wasm32-wasi`, sequential.
+```ny
+allow_extended
+fn main() {
+    parallel for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}
+```
 
-### `progress for` / `benchmark { }` / `defer` / `async` (Extended)
+**Output** (lines `0`–`3` may appear in any order; `999` always last):
 
-| Feature | Gallery |
-|---------|---------|
-| `progress for` | `#ex-progress` |
-| `benchmark { }` | `#ex-benchmark` |
-| `defer` | `#ex-defer` · `#ex-defer-lifo` |
-| `async fn` + `await` | `#ex-async-fn` · `#ex-await` |
-| `Future<T>` | `#ex-async-future` |
+```
+0
+1
+3
+2
+999
+```
 
-Runnable: `examples/builtins/{parallel,benchmark,defer,async}/`
+#### `parallel:task(max = N)`
+
+**Explanation:** Explicit task-pool alias; `max = N` caps worker chunks. Prefer `max` over `max_threads` to avoid confusion with `:thread`.
+
+```ny
+parallel:task(max = 4) for i in 0..1000 { work(i) }
+```
+
+**Output:** Depends on `work(i)`; loop is fork-join before the next statement runs.
+
+#### `parallel:thread(max = N)`
+
+**Explanation:** OS-thread fork-join per chunk. Backend is `:thread`, not the `max` key.
+
+```ny
+parallel:thread(max = 4) for i in 0..1000 { work(i) }
+```
+
+**Output** (with `print(i)` inside; order non-deterministic):
+
+```
+2
+3
+0
+1
+999
+```
+
+#### Worker options
+
+| Option | Meaning |
+|--------|---------|
+| *(none)* | Task pool, `mode = auto`, workers from CPU count |
+| `parallel:thread` / `backend = thread` | OS thread backend |
+| `max = N` | At most N workers |
+| `threads = N` | Exactly N workers |
+| `cpu = P%` | P percent of logical CPUs |
+| `mode` | `auto`, `balanced`, `max_performance`, `background` |
+
+**Rules:** no `break`; no outer mutation; captures must be **Send**; range, fixed array, `string`, or `vec_str`. On `wasm32-wasi`, runs sequentially.
+
+Gallery also covers: [`parallel(threads = N)`](methods.html#ex-parallel-exact) · [`parallel for n in array`](methods.html#ex-parallel-array) · [`progress for`](methods.html#ex-progress).
+
+
+
+### `progress for` (Extended)
+
+**Name:** `progress(label = "…") for x in items { … }`  
+**Explanation:** Sequential progress bar; cannot combine with `parallel for`.  
+**Example:** see [methods.html#ex-progress](https://nyra-lang.github.io/docs/methods.html#ex-progress)
+
+```ny
+allow_extended
+progress(label = "demo") for i in 0..3 {
+    print(i)
+}
+```
+
+**Output:**
+
+```
+[#####--------] 33%
+Running demo...
+…
+0
+1
+2
+```
+
+
+
+### `benchmark { }` (Extended)
+
+**Name:** `benchmark { … }`  
+**Explanation:** Wall time, RSS delta, and process CPU% for a block — no manual timers.  
+**Example:** [methods.html#ex-benchmark](https://nyra-lang.github.io/docs/methods.html#ex-benchmark) · `nyra run examples/builtins/benchmark/benchmark.ny`
+
+```ny
+allow_extended
+
+extern fn blackbox_i32(x: i32) -> i32
+
+fn main() {
+    benchmark {
+        let mut acc = 0
+        for i in 0..10000 {
+            acc = blackbox_i32(acc + i)
+        }
+        blackbox_i32(acc)
+    }
+}
+```
+
+**Output:**
+
+```
+Time: 0.1 ms
+Memory: 0.0 B
+CPU: 98%
+```
+
+(Varies by machine.)
 
 
 
 ## Async & await (Stable Extended)
 
-`async`/`await` compile to promise handles + cooperative poll loops. **Not available on `wasm32-wasi`.**
+Gallery: [methods.html#ex-async-fn](https://nyra-lang.github.io/docs/methods.html#ex-async-fn) · Runnable: `examples/builtins/async/`
+
+Prefer `import "stdlib/async/mod.ny"` for application code. It is Nyra's official in-tree runtime facade (`NyraRuntime_default`, `NyraRuntime_run_until`, `sleep_ms_async`, `await_i32`), so apps do not need a Tokio-like community executor for basic async tasks.
 
 ```ny
-async fn fetch() -> i32 {
-    let h = async_promise_new()
-    // … complete promise …
-    return await h
-}
+import "stdlib/async/mod.ny"
 
 fn main() {
-    let f = fetch()        // returns promise handle immediately (non-blocking call site)
-    let v = await f        // yields i32 when complete
+    let rt = NyraRuntime_default()
+    let f = sleep_ms_async(20)
+    let value = match NyraRuntime_run_until(rt, f.handle, 1000) {
+        Result.Ok(v) => v
+        Result.Err(err) => {
+            Error_print(err)
+            0
+        }
+    }
+    print(value)
 }
 ```
 
+#### `async fn` + `await`
+
+**Explanation:** Call returns handle immediately; body on `spawn:thread`. Import `stdlib/async_v1.ny` for executor.
+
+```ny
+allow_extended
+import "stdlib/async_v1.ny"
+
+async fn compute() -> i32 {
+    return 42
+}
+
+fn main() {
+    print(await compute())
+}
+```
+
+**Output:** `42`
+
+#### State machine (multiple `await`)
+
+**Output:** `100` — see `#ex-await` · `async_state_machine.ny`
+
+#### `Future<T>` (v1.26)
+
+**Output:** `Nyra async v2` — see `#ex-async-future`
+
 | Topic | Behavior |
 |-------|----------|
-| **`async fn` desugar (v1.5)** | Body runs in `spawn`; call site gets promise handle immediately |
-| **State machine (v1.6–v1.7)** | Top-level `await` in `async fn`; **`await` inside `if` / `while` / range `for`** (CFG lowering) |
+| **`async fn` desugar (v1.5)** | Body runs on **`spawn:thread`**; call site gets promise handle immediately |
+| **State machine (v1.6–v1.7)** | Top-level `await` in `async fn`; **`await` inside `if` / `while` / range `for`** |
 | **`await` in `spawn` / `unsafe`** | Uses blocking `async_await` — not cooperative |
-| **Runtime symbols** | `async_promise_new`, `async_promise_complete`, `async_poll`, `async_await`, `runtime_executor_tick` |
-| **Executor (v1.4)** | `Executor_sleep_ms`, `Executor_run_until` |
 | **Futures (v1.26)** | `import "stdlib/async/future.ny"` — `Future_i32`, `Future_select2_i32(a, b)` |
-| **Race detection** | `nyra build --race` → ThreadSanitizer (`-fsanitize=thread`) |
+
+Not on `wasm32-wasi`. Full guide: [async.html](https://nyra-lang.github.io/docs/async.html)
 
 
 
 ## Concurrency & sync primitives
 
-Beyond `spawn { }` and `parallel for` (see [I/O & builtins](#io--builtins)):
+Beyond `spawn { }` / `spawn:task` / `spawn:thread` and `parallel for` (see [I/O & builtins](#io--builtins)):
 
 ### Send / Sync (spawn captures)
 
 | Rule | Detail |
 |------|--------|
 | **`spawn` captures** | Must be **Send**; **no `&` / `&mut` captures** |
+| **`JoinHandle`** | **Send**, not **Sync** (move between threads; do not share by reference) |
 | **Shared refs across threads** | Inner type must be **Sync** |
 | **Active borrows** | Rejected in closure env |
 
@@ -1346,8 +1554,11 @@ import "stdlib/sync/atomic.ny"
 
 | Symbol | Role |
 |--------|------|
-| `spawn_capture` | Thread spawn with heap capture copy |
-| `parallel_for_range` | Fork-join `parallel for` |
+| `spawn_capture` | OS thread (`spawn:thread`); returns `JoinHandle` |
+| `spawn_join` / `spawn_handle_drop` | Join / detach OS thread handle |
+| `spawn_task_capture` | Task pool (`spawn` / `spawn:task`); returns `JoinHandle` |
+| `spawn_task_join` / `spawn_task_handle_drop` | Join / fire-and-forget task handle |
+| `parallel_for_range` | Fork-join `parallel for` — task pool (default) or OS thread chunks |
 | `progress_update` / `progress_finish` | Progress bar |
 
 Not on `wasm32-wasi` (sequential stub).
@@ -1388,7 +1599,23 @@ import "stdlib/builtins_string.ny"
 
 Prefer built-in `.split()` / `.trim()` on `string` when you do not need the import.
 
-### `stdlib/random.ny` — ChaCha20 CSPRNG (hardware-seeded)
+### Random — compiler builtins (no import)
+
+`random()` / `random(min, max)` and `random_f64()` / `random_f64(min, max)` are **compiler builtins** (ChaCha20 CSPRNG in `stdlib/rt/rt_random.c`). **No import required.**
+
+| Call | Returns | Notes |
+|------|---------|-------|
+| `random()` | `i32` by default | Full-range integer |
+| `random(min, max)` | **Generic integer** | Return type follows bounds (`i32`, `i64`, `u64`, …); inclusive range; rejection sampling (no modulo bias) |
+| `random<T>()` / `random<T>(min, max)` | `T` | Explicit type when inference is ambiguous |
+| `random_f64()` | `f64` | Unit interval `[0, 1)` — 53-bit precision |
+| `random_f64(min, max)` | `f64` | Half-open `[min, max)` |
+
+**Removed (v1.39):** `Random()` alias and `random_range()` as public API — use `random()` / `random(min, max)` instead.
+
+Seeding: OS/hardware entropy (`getentropy`, `arc4random`, `BCryptGenRandom`, `RDRAND` when available). Raw TRNG bytes: `stdlib/os/hw_crypto.ny` → `hw_random_bytes`.
+
+### `stdlib/random.ny` — shuffle helper (import required)
 
 ```ny
 import "stdlib/random.ny"
@@ -1396,14 +1623,9 @@ import "stdlib/random.ny"
 
 | Function | Description |
 |----------|-------------|
-| `random()` | Random `i32` by default — ChaCha20 stream seeded from OS/hardware entropy |
-| `random(min, max)` | Inclusive integer range; **return type follows bounds** (`i32`, `i64`, `u64`, …) with rejection sampling (no modulo bias) |
-| `random<T>()` / `random<T>(min, max)` | Explicit integer type when inference is ambiguous |
-| `random_f64()` | Random `f64` in `[0, 1)` — 53-bit precision |
-| `random_f64(min, max)` | Random `f64` in `[min, max)` |
-| `shuffle_pick(vec)` | Random element from an `i32` vector handle (**import required**) |
+| `shuffle_pick(vec)` | Random element from an `i32` vector handle |
 
-Seeding uses `getentropy` / `arc4random_buf` / `BCryptGenRandom` / Intel `RDRAND` (when available), mixed into ChaCha20. For raw OS TRNG bytes use `stdlib/os/hw_crypto.ny` → `hw_random_bytes`.
+The module re-exports the same ChaCha20 runtime; **`random()` itself is a builtin** — import only for `shuffle_pick`.
 
 ### `stdlib/builtins_math.ny` — JS-style math
 
@@ -1494,7 +1716,23 @@ fn main() {
 
 ### defer vs Drop — when to use which
 
-**Short answer:** **`Drop` (auto-drop + `impl Drop`) covers almost every cleanup case.** Keep `defer` in **Extended** tier — it is a niche escape hatch, not the default path. Do **not** move it to Core while RAII remains the recommended model.
+Gallery: [methods.html#ex-defer](https://nyra-lang.github.io/docs/methods.html#ex-defer) · `examples/builtins/defer/`
+
+**Name:** `defer cleanup()`  
+**Example:**
+
+```ny
+allow_extended
+fn cleanup() { print(1) }
+fn main() {
+    defer cleanup()
+    return
+}
+```
+
+**Output:** `1`
+
+**Short answer:** **`Drop` (auto-drop + `impl Drop`) covers almost every cleanup case.** Keep `defer` in **Extended** tier — niche escape hatch, not the default path.
 
 | Goal | Preferred (Core / ownership) | `defer` (Extended) |
 |------|------------------------------|---------------------|
@@ -1878,7 +2116,7 @@ fn main() {
 | `stdlib/process.ny` | `exec(program, args)`, `Command` |
 | `stdlib/collections/set.ny` | `HashSet_str` — `.insert`, `.contains` |
 
-**Low-level runtime** (still valid): `read_file`, `vec_i32_*`, `map_str_i32_*`, `channel_*`, `bridge_exec`, `spawn { }`.
+**Low-level runtime** (still valid): `read_file`, `vec_i32_*`, `map_str_i32_*`, `channel_*`, `bridge_exec`, `spawn { }`, `spawn:thread { }`, `h.join()`.
 
 Crypto, SQLite, WebSocket, gzip, and full serde are **stdlib domains** — native implementations in `stdlib/rt/`; NyraPkg remains for community extensions.
 
@@ -2383,7 +2621,7 @@ in repo.
 - **`?` operator** — `Result`/`Option` propagate on `let`/`const`/`return`/expr stmt, nested expressions (`print(f()?)`, call args), `return match` arm bodies, and `let n = match { Ok(v) => f(v)?, … }`. Enclosing function must return the same enum for propagation; in `void` test fns the inner `Err` payload becomes the `i32` binding. `??` nullish coalesce and `?.` optional chain are separate.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
 - No `extern export fn` — use `extern fn` or `export fn` separately.
-- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `spawn`/`unsafe` with `await` still blocking. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/docs/async.html).
+- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/docs/async.html) · [concurrency](https://nyra-lang.github.io/docs/concurrency.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
 - **`Serialize` trait (v1.38+)** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
 - Arrow functions are **Extended** tier — use `nyra check --deny-extended` in Core-only CI if you avoid them.
@@ -2414,7 +2652,7 @@ Stable codes — explain with `nyra explain E003` or `nyra explain --list`. JSON
 
 | Code | Title | Fix |
 |------|-------|-----|
-| **W001** | extended tier feature | Remove feature or drop `--deny-extended` |
+| **W001** | extended tier feature | Add `allow_extended` at file top, remove Extended syntax, or drop `--deny-extended` |
 | **W002** | unused import | Remove import or `nyra pkg prune` |
 | **W003** | unused variable | Prefix `_` or remove |
 

@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::OnceLock;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TargetSpec {
@@ -326,21 +327,25 @@ pub struct LinkTargetFlags {
 
 /// macOS SDK path for Homebrew LLVM clang (no Apple sysroot by default).
 fn detect_macos_sdk() -> Option<PathBuf> {
-    if let Ok(sdk) = std::env::var("SDKROOT") {
-        if !sdk.is_empty() {
-            return Some(PathBuf::from(sdk));
+    static SDK: OnceLock<Option<PathBuf>> = OnceLock::new();
+    SDK.get_or_init(|| {
+        if let Ok(sdk) = std::env::var("SDKROOT") {
+            if !sdk.is_empty() {
+                return Some(PathBuf::from(sdk));
+            }
         }
-    }
-    let output = Command::new("xcrun").args(["--show-sdk-path"]).output().ok()?;
-    if !output.status.success() {
-        return None;
-    }
-    let sdk = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if sdk.is_empty() {
-        None
-    } else {
-        Some(PathBuf::from(sdk))
-    }
+        let output = Command::new("xcrun").args(["--show-sdk-path"]).output().ok()?;
+        if !output.status.success() {
+            return None;
+        }
+        let sdk = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if sdk.is_empty() {
+            None
+        } else {
+            Some(PathBuf::from(sdk))
+        }
+    })
+    .clone()
 }
 
 /// MinGW-w64 sysroot for `*-pc-windows-gnu` (MSYS2 ucrt64/mingw64 on CI runners).

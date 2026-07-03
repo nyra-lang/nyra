@@ -66,7 +66,10 @@ impl Codegen {
             self.emit(&format!(
                 "  %{gep} = getelementptr inbounds {ty}, {ty}* %{alloca}, i32 0, i32 {idx}"
             ));
-            let reg_op = llvm_value_operand(reg);
+            let reg_op = self.reg_op(&ExprValue {
+                reg: reg.clone(),
+                ty: fty.clone(),
+            });
             let store_val = self.coerce_value_reg_to_type(&reg_op, fty, &llvm_ft);
             self.emit(&format!(
                 "  store {llvm_ft} {store_val}, {} %{gep}",

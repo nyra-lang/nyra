@@ -114,7 +114,8 @@ fn mangle_type_for_enum(t: &TypeAnnotation) -> String {
         TypeAnnotation::Char => "char".into(),
         TypeAnnotation::Bool => "bool".into(),
         TypeAnnotation::String => "string".into(),
-        TypeAnnotation::Enum(n) | TypeAnnotation::Struct(n) => n.clone(),
+        TypeAnnotation::Enum(n) => format!("E_{n}"),
+        TypeAnnotation::Struct(n) => format!("S_{n}"),
         TypeAnnotation::Applied { base, args } => {
             let suffix: String = args.iter().map(mangle_type_for_enum).collect::<Vec<_>>().join("_");
             format!("{base}__{suffix}")
@@ -131,10 +132,85 @@ fn ann_from_mangled_token(tok: &str) -> Option<TypeAnnotation> {
             "char" => Some(TypeAnnotation::Char),
             "bool" => Some(TypeAnnotation::Bool),
             "string" => Some(TypeAnnotation::String),
+            other if other.starts_with("S_") => {
+                Some(TypeAnnotation::Struct(other.trim_start_matches("S_").to_string()))
+            }
+            other if other.starts_with("E_") => {
+                Some(TypeAnnotation::Enum(other.trim_start_matches("E_").to_string()))
+            }
             other if !other.is_empty() => Some(TypeAnnotation::Enum(other.to_string())),
             _ => None,
         }
     })
+}
+
+fn ann_from_mangled_parts(parts: &[&str], start: usize) -> Option<(TypeAnnotation, usize)> {
+    let tok = *parts.get(start)?;
+    match tok {
+        "S" => {
+            let name = *parts.get(start + 1)?;
+            Some((TypeAnnotation::Struct(name.to_string()), start + 2))
+        }
+        "E" => {
+            let name = *parts.get(start + 1)?;
+            Some((TypeAnnotation::Enum(name.to_string()), start + 2))
+        }
+        _ => ann_from_mangled_token(tok).map(|ann| (ann, start + 1)),
+    }
+}
+
+fn result_payload_anns_from_mangled_suffix(
+    suffix: &str,
+) -> (Option<TypeAnnotation>, Option<TypeAnnotation>) {
+    let parts: Vec<&str> = suffix.split('_').filter(|p| !p.is_empty()).collect();
+    let Some((ok, next)) = ann_from_mangled_parts(&parts, 0) else {
+        return (None, None);
+    };
+    let Some((err, _)) = ann_from_mangled_parts(&parts, next) else {
+        return (Some(ok), None);
+    };
+    (Some(ok), Some(err))
+}
+
+fn ok_payload_ann_from_enum_name(enum_name: &str) -> Option<TypeAnnotation> {
+    if let Some(suffix) = enum_name.strip_prefix("Result__") {
+        let (ok, _) = result_payload_anns_from_mangled_suffix(suffix);
+        return ok;
+    }
+    if let Some(suffix) = enum_name.strip_prefix("Option__") {
+        let parts: Vec<&str> = suffix.split('_').filter(|p| !p.is_empty()).collect();
+        return ann_from_mangled_parts(&parts, 0).map(|(ann, _)| ann);
+    }
+    None
+}
+
+fn zero_expr_for_ann(ann: Option<TypeAnnotation>) -> Expression {
+    match ann {
+        Some(TypeAnnotation::String) => Expression::Literal(Literal::String(String::new())),
+        Some(TypeAnnotation::Bool) => Expression::Literal(Literal::Bool(false)),
+        Some(TypeAnnotation::F32) => Expression::Literal(Literal::Float(0.0, ast::FloatKind::F32)),
+        Some(TypeAnnotation::F64) => Expression::Literal(Literal::Float(0.0, ast::FloatKind::F64)),
+        Some(TypeAnnotation::Char) => Expression::Literal(Literal::Char(0)),
+        Some(TypeAnnotation::Integer(k)) => Expression::Literal(Literal::IntKind(0, k)),
+        _ => Expression::Literal(Literal::Int(0)),
+    }
+}
+
+fn success_payload_expr(bind: &str, ok_ann: Option<&TypeAnnotation>, span: &Span) -> Expression {
+    let var = Expression::Variable {
+        name: bind.to_string(),
+        span: span.clone(),
+    };
+    if matches!(ok_ann, Some(TypeAnnotation::String)) {
+        return Expression::MethodCall(Box::new(MethodCallExpr {
+            object: var,
+            method: "clone".into(),
+            args: vec![],
+            optional: false,
+            span: span.clone(),
+        }));
+    }
+    var
 }
 
 fn ok_err_payload_anns(
@@ -148,12 +224,7 @@ fn ok_err_payload_anns(
         }
         Some(TypeAnnotation::Enum(name)) if name.starts_with("Result__") => {
             if let Some(suffix) = name.strip_prefix("Result__") {
-                if let Some((ok, err)) = suffix.rsplit_once('_') {
-                    return (
-                        ann_from_mangled_token(ok),
-                        ann_from_mangled_token(err),
-                    );
-                }
+                return result_payload_anns_from_mangled_suffix(suffix);
             }
             (None, None)
         }
@@ -1346,21 +1417,21 @@ fn unwrap_ok_expr(value: &Expression, enum_name: &str, kind: TryKind, span: &Spa
     let (base, ok_v) = success_variant(kind);
     let (fail_base, fail_v) = failure_variant(kind);
     let bind = "__ok".to_string();
+    let ok_ann = ok_payload_ann_from_enum_name(enum_name);
+    let fallback = zero_expr_for_ann(ok_ann.clone());
+    let success = success_payload_expr(&bind, ok_ann.as_ref(), span);
     Expression::Match(Box::new(MatchExpr {
         scrutinee: Box::new(value.clone()),
         arms: vec![
             MatchArm {
                 pattern: qualified_pattern(enum_name, base, ok_v, Some(&bind)),
                 guard: None,
-                body: block_from_expr(Expression::Variable {
-                    name: bind,
-                    span: span.clone(),
-                }),
+                body: block_from_expr(success),
             },
             MatchArm {
                 pattern: qualified_pattern(enum_name, fail_base, fail_v, Some("_")),
                 guard: None,
-                body: block_from_expr(Expression::Literal(Literal::Int(0))),
+                body: block_from_expr(fallback),
             },
         ],
         span: span.clone(),
