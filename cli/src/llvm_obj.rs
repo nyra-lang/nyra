@@ -8,7 +8,7 @@ use std::process::Command;
 
 use crate::link::{LinkProfile, LtoMode};
 use crate::llvm_tools;
-use crate::target::{apply_target_compile_flags, apply_windows_gcc_compile_flags, TargetSpec};
+use crate::target::{apply_target_compile_flags, TargetSpec};
 
 pub fn user_objects_cache_dir(work_dir: &Path) -> PathBuf {
     work_dir.join(".nyra-cache").join("user-objs")
@@ -50,20 +50,9 @@ fn compile_ir_to_object(
     profile: &LinkProfile,
     spec: &TargetSpec,
 ) -> Result<(), String> {
-    let use_mingw_gcc = spec.os == crate::target::TargetOs::Windows
-        && cfg!(target_os = "windows")
-        && llvm_tools::find_mingw_gcc().is_some();
-    let compiler = if use_mingw_gcc {
-        llvm_tools::find_mingw_gcc().unwrap()
-    } else {
-        llvm_tools::find_clang()
-    };
+    let compiler = llvm_tools::find_clang();
     let mut cmd = Command::new(&compiler);
-    if use_mingw_gcc {
-        apply_windows_gcc_compile_flags(&mut cmd);
-    } else {
-        apply_target_compile_flags(&mut cmd, spec);
-    }
+    apply_target_compile_flags(&mut cmd, spec);
     cmd.arg("-c").arg(ll).arg("-o").arg(obj);
     cmd.arg(profile.opt_level.clang_flag());
     match profile.lto {
@@ -84,14 +73,32 @@ fn compile_ir_to_object(
     if profile.freestanding {
         cmd.arg("-ffreestanding");
     }
-    if !use_mingw_gcc {
-        cmd.arg("-Wno-override-module");
-    }
+    cmd.arg("-Wno-override-module");
     let output = cmd
         .output()
         .map_err(|e| format!("failed to compile {}: {e}", ll.display()))?;
     if output.status.success() {
-        Ok(())
+        if obj.is_file() {
+            Ok(())
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let detail = [stderr.trim(), stdout.trim()]
+                .into_iter()
+                .filter(|s| !s.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n");
+            Err(format!(
+                "compiled IR {} but object output is missing: {}{}",
+                ll.display(),
+                obj.display(),
+                if detail.is_empty() {
+                    String::new()
+                } else {
+                    format!("\n{detail}")
+                }
+            ))
+        }
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
         Err(format!(

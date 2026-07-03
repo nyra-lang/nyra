@@ -218,7 +218,27 @@ fn compile_one_source(
         .output()
         .map_err(|e| format!("failed to compile {}: {e}", source.display()))?;
     if output.status.success() {
-        Ok(())
+        if obj.is_file() {
+            Ok(())
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let detail = if stderr.trim().is_empty() {
+                stdout.trim()
+            } else {
+                stderr.trim()
+            };
+            Err(format!(
+                "nyra cc: compiled link-source {} but object output is missing: {}{}",
+                source.display(),
+                obj.display(),
+                if detail.is_empty() {
+                    String::new()
+                } else {
+                    format!("\n{detail}")
+                }
+            ))
+        }
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -239,8 +259,8 @@ fn compile_one_source(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::link::OptLevel;
     use crate::link::LinkProfile;
+    use crate::link::OptLevel;
     use crate::target::TargetSpec;
 
     #[test]
@@ -267,10 +287,7 @@ mod tests {
         p0.opt_level = OptLevel::O0;
         let mut p3 = LinkProfile::default();
         p3.opt_level = OptLevel::O3;
-        assert_ne!(
-            compile_flags_key(&p0, &spec),
-            compile_flags_key(&p3, &spec)
-        );
+        assert_ne!(compile_flags_key(&p0, &spec), compile_flags_key(&p3, &spec));
     }
 
     #[test]
@@ -287,13 +304,7 @@ mod tests {
         fs::create_dir_all(&tmp).unwrap();
         let spec = TargetSpec::host();
         let profile = LinkProfile::default();
-        let objs = compile_link_sources(
-            &[src],
-            &tmp,
-            &profile,
-            &spec,
-        )
-        .expect("compile");
+        let objs = compile_link_sources(&[src], &tmp, &profile, &spec).expect("compile");
         assert_eq!(objs.len(), 1);
         assert!(objs[0].is_file());
         let _ = fs::remove_dir_all(&tmp);
@@ -311,7 +322,12 @@ mod tests {
             return false;
         };
         use std::io::Write;
-        if child.stdin.take().and_then(|mut s| s.write_all(b"#include <sqlite3.h>\n").ok()).is_none() {
+        if child
+            .stdin
+            .take()
+            .and_then(|mut s| s.write_all(b"#include <sqlite3.h>\n").ok())
+            .is_none()
+        {
             return false;
         }
         child.wait().map(|s| s.success()).unwrap_or(false)
