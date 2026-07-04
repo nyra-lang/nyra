@@ -119,11 +119,12 @@ Create a release and attach ${ASSET}, or pass --version matching an existing tag
   fi
 else
   TAG="v${VERSION#v}"
-  RELEASE_JSON="$(curl -fsSL "${API}/tags/v${TAG}")"
+  RELEASE_JSON="$(curl -fsSL "${API}/tags/${TAG}")"
 fi
 
-ASSET_URL="$(printf '%s\n' "$RELEASE_JSON" | grep 'browser_download_url' | grep "/${ASSET}\"" \
-  | sed 's/.*"browser_download_url": *"\([^"]*\)".*/\1/' | head -n 1)"
+# تم تحسين الـ Regex هنا لالتقاط رابط الـ Asset بدقة بدون مشاكل الـ Parsing
+ASSET_URL="$(printf '%s\n' "$RELEASE_JSON" | grep 'browser_download_url' | grep "${ASSET}" \
+  | sed -E 's/.*"browser_download_url": *"(.*)"/\1/' | head -n 1)"
 
 if [ -z "$ASSET_URL" ]; then
   die "release asset not found: ${ASSET}
@@ -137,9 +138,10 @@ trap 'rm -rf "$TMP"' EXIT INT TERM
 info "Downloading ${ASSET} ..."
 curl -fsSL -o "$TMP/$ASSET" "$ASSET_URL"
 
-# Optional checksum verification
-SUMS_URL="$(printf '%s\n' "$RELEASE_JSON" | grep 'browser_download_url' | grep '/SHA256SUMS"' \
-  | sed 's/.*"browser_download_url": *"\([^"]*\)".*/\1/' | head -n 1)"
+# تم تحسين الـ Regex هنا أيضاً لالتقاط الـ SHA256SUMS
+SUMS_URL="$(printf '%s\n' "$RELEASE_JSON" | grep 'browser_download_url' | grep 'SHA256SUMS' \
+  | sed -E 's/.*"browser_download_url": *"(.*)"/\1/' | head -n 1)"
+
 if [ -n "$SUMS_URL" ]; then
   curl -fsSL -o "$TMP/SHA256SUMS" "$SUMS_URL"
   (cd "$TMP" && {
