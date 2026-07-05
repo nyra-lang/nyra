@@ -62,10 +62,19 @@ if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh"
 fi
 
 if command -v nyra >/dev/null 2>&1; then
+  NYRA_BIN="$(command -v nyra)"
+  NYRA_BIN_DIR="$NYRA_HOME/bin"
+  mkdir -p "$NYRA_BIN_DIR"
+  cp "$NYRA_BIN" "$NYRA_BIN_DIR/nyra"
+  installed_ver="$(nyra --version 2>/dev/null | sed 's/^nyra //')"
+  if [ -n "$installed_ver" ]; then
+    printf '%s\n' "$installed_ver" > "$NYRA_HOME/version"
+  fi
+  info "==> Linked dev binary into $NYRA_BIN_DIR/nyra"
   info ""
   info "Done. Active binary:"
-  info "  $(command -v nyra)"
-  nyra -V 2>/dev/null || nyra --version 2>/dev/null || true
+  info "  $NYRA_BIN_DIR/nyra"
+  "$NYRA_BIN_DIR/nyra" -V 2>/dev/null || "$NYRA_BIN_DIR/nyra" --version 2>/dev/null || true
 else
   die "nyra not on PATH after install. Ensure \$HOME/.cargo/bin is in PATH."
 fi

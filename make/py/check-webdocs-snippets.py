@@ -130,6 +130,19 @@ def nyra_bin() -> Path:
     return ROOT / "target" / "debug" / "nyra"
 
 
+def snippet_expects_fail(code: str, explicit: bool) -> bool:
+    """True when snippet is an intentional error demo (HTML marker or // ERROR on code)."""
+    if explicit:
+        return True
+    for line in code.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("//"):
+            continue
+        if re.search(r"//\s*ERROR\b", line):
+            return True
+    return False
+
+
 def run_snippet(snippet: Snippet, nyra: Path, timeout: int) -> tuple[Snippet, bool, str]:
     with tempfile.TemporaryDirectory(prefix="nyra-webdocs-") as td:
         path = Path(td) / "snippet.ny"
@@ -146,7 +159,8 @@ def run_snippet(snippet: Snippet, nyra: Path, timeout: int) -> tuple[Snippet, bo
         except subprocess.TimeoutExpired:
             return snippet, False, f"timeout after {timeout}s"
         ok = proc.returncode == 0
-        if snippet.expect_fail:
+        expect_fail = snippet_expects_fail(snippet.code, snippet.expect_fail)
+        if expect_fail:
             if not ok:
                 return snippet, True, ""
             tail = (proc.stdout or proc.stderr)[-400:]

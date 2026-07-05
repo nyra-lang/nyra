@@ -1,0 +1,4 @@
+OS: darwin
+PID: 88831
+HOME: /Users/hamdy
+User: Ada
