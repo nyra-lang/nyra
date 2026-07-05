@@ -67,6 +67,16 @@ impl Codegen {
                     TypeAnnotation::Integer(ast::IntKind::I32)
                 }
             }
+            Expression::StructLiteral(sl) => TypeAnnotation::Struct(sl.name.clone()),
+            Expression::EnumVariant(ev) => {
+                if let Some(ref name) = ev.enum_name {
+                    TypeAnnotation::Enum(name.clone())
+                } else {
+                    TypeAnnotation::Integer(ast::IntKind::I32)
+                }
+            }
+            Expression::Cast(c) => c.target_type.clone(),
+            Expression::Grouped(e) => self.infer_expr_return_ann(e),
             _ => TypeAnnotation::Integer(ast::IntKind::I32),
         }
     }
