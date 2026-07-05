@@ -459,6 +459,7 @@ impl Codegen {
                 "rand_f64_range",
                 "declare double @rand_f64_range(double, double)",
             ),
+            ("str_strip_suffix", "declare ptr @str_strip_suffix(ptr, ptr)"),
         ];
         for (name, line) in decls {
             if self.skip_runtime_decls.contains(name) || self.declared_c_syms.contains(name) {

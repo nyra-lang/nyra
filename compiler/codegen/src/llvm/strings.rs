@@ -377,7 +377,25 @@ impl Codegen {
                     ty: "ptr".into(),
                 }
             }
-            _ => ExprValue {
+            
+            // [builtin-dev:strip_suffix:string]
+            "strip_suffix" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("strip_suffix");
+                // arg 0: suffix
+                self.emit_runtime_call(
+                    "str_strip_suffix",
+                    &format!("  %{reg} = call ptr @str_strip_suffix(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:strip_suffix:string]
+            
+_ => ExprValue {
                 reg: "0".into(),
                 ty: "i32".into(),
             },
@@ -548,4 +566,3 @@ impl Codegen {
         }
     }
 }
-

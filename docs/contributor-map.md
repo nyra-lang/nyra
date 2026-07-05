@@ -4,6 +4,8 @@ Quick navigation for Nyra contributors. Use this when you know **what** you want
 
 For compile pipeline details see [`architecture.md`](architecture.md). For the full contributing checklist see [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
 
+**Also in CONTRIBUTING.md:** [test decision tree](../CONTRIBUTING.md#test-decision-tree) · [troubleshooting FAQ](../CONTRIBUTING.md#troubleshooting--faq) · [glossary](../CONTRIBUTING.md#glossary) · [docs sources](../CONTRIBUTING.md#documentation-where-to-edit-what) · [reading order for new contributors](../CONTRIBUTING.md#table-of-contents)
+
 ---
 
 ## Decision flowchart
@@ -59,6 +61,7 @@ For compile pipeline details see [`architecture.md`](architecture.md). For the f
 |--------------|------------|------------|
 | **Add syntax / keyword** | `compiler/lexer/` → `parser/` → `ast/` | `expand/` (if sugar), `typecheck/`, `codegen/`, `const_eval/` (comptime), `grammar/nyra.tmLanguage.json` |
 | **Add stdlib function** | `stdlib/<module>/` | `stdlib/rt/rt_*.c`, `runtime_map.rs`, `docs/abi-manifest.toml` (if new C symbol) |
+| **Add string method (`.foo()`)** | `make add-builtin` | See [`make-and-generators.md`](make-and-generators.md) · then C impl in `stdlib/rt/` |
 | **Add CLI flag / command** | `cli/src/app/args.rs` | `cli/src/commands/` or `cli/src/app/session.rs` |
 | **Change type rules** | `compiler/typecheck/` | `compiler/types/` |
 | **Fix borrow / move errors** | `compiler/ownership/` | `compiler/borrowck/` |
@@ -83,6 +86,17 @@ For compile pipeline details see [`architecture.md`](architecture.md). For the f
 | **Runnable demo** | `examples/<topic>/` | User-facing samples (`foo.ny` + `foo.typed.ny`) |
 
 **Rule of thumb:** new language features → `tests/nyra/` first. Only add conformance or suite entries when you need a stable contract or grid coverage.
+
+**Decision tree** (full version in [`../CONTRIBUTING.md`](../CONTRIBUTING.md#test-decision-tree)):
+
+```
+User-visible change?     → tests/nyra/*_test.ny + examples/
+Stable language contract → tests/conformance/
+Combinatorial compile grid → tests/suite/ (make gen-suite-tests)
+Rust helper only         → #[cfg(test)] or compiler/driver/tests/
+IR/diagnostic regression → snapshots/ (INSTA_UPDATE=1 — review diff!)
+New C ABI symbol         → abi_manifest.rs + make gen-abi-header
+```
 
 Run locally:
 
@@ -128,6 +142,23 @@ When adding syntax sugar, check whether an existing expand pass already handles 
 
 ---
 
+## Makefile & Python generators
+
+Build/test orchestration lives in **`make/*.mk`**; code generators live in **`make/py/`**. Invoke via `make <target>` (see `make help`).
+
+| You want to… | Start here |
+|--------------|------------|
+| Run full CI locally | `make test-all` |
+| Add `.strip_suffix()`-style method | `make add-builtin` |
+| Regenerate C ABI header | `make gen-abi-header` |
+| Regenerate bindings docs | `make gen-bindings-doc` |
+| Install CLI after compiler change | `make install-dev` |
+| Understand every script | [`make-and-generators.md`](make-and-generators.md) |
+| Fix wrong builtin wiring | `make patch-builtin` · [`make/py/builtin_dev/README.md`](../make/py/builtin_dev/README.md) |
+| Stale CLI / E018 after add-builtin | `make install-dev` · see [CONTRIBUTING FAQ](../CONTRIBUTING.md#troubleshooting--faq) |
+
+---
+
 ## Compiler pipeline (load + compile)
 
 **Load time** (before `compile_program`):
@@ -164,6 +195,10 @@ These files exceed the [800–1200 line guideline](architecture.md#file-size-gui
 
 | Topic | Document |
 |-------|----------|
+| **What to change → where to go** | [`contributor-map.md`](contributor-map.md) |
+| **Makefile & Python generators** | [`make-and-generators.md`](make-and-generators.md) |
+| **First contribution & troubleshooting** | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) |
+| **Builtin-dev wizard & monitor report** | [`../make/py/builtin_dev/README.md`](../make/py/builtin_dev/README.md) |
 | Architecture & file size rules | [`architecture.md`](architecture.md) |
 | Full contributing guide | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) |
 | Stdlib layout | [`../stdlib/README.md`](../stdlib/README.md) |

@@ -3,9 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern void mem_start(const char *label);
+extern void mem_end(const char *label);
+
 static int g_alloc_track_active = 0;
 static size_t g_alloc_track_bytes = 0;
 static size_t g_alloc_track_notes = 0;
+
 
 void alloc_track_start(const char *label) {
     g_alloc_track_active = 1;

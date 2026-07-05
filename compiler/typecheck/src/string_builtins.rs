@@ -24,8 +24,7 @@ pub fn string_method_borrows_receiver(method: &str) -> bool {
     matches!(
         method,
         "clone" | "length" | "len" | "split" | "trim" | "contains" | "starts_with"
-            | "ends_with" | "replace" | "replacen" | "to_upper" | "to_lower"
-    )
+            | "ends_with" | "replace" | "replacen" | "to_upper" | "to_lower" | "strip_suffix")
 }
 
 impl TypeChecker {
@@ -99,6 +98,16 @@ impl TypeChecker {
                 }
                 Type::String
             }
+            // [builtin-dev:strip_suffix:string]
+            "strip_suffix" => {
+                if mc.args.len() != 1 {
+                    diagnostics::wrong_arity(self, &format!(".strip_suffix"), 1, mc.args.len(), sp.clone());
+                } else {
+                    self.check_string_arg(mc, 0, env, sp);
+                }
+                Type::String
+            }
+            // [/builtin-dev:strip_suffix:string]
             _ => return None,
         };
         Some(ret)

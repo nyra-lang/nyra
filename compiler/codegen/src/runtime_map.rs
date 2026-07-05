@@ -486,6 +486,7 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("arc_dec_string", "rt_arc.c"),
         ("arc_get_i32", "rt_arc.c"),
         ("arc_get_string", "rt_arc.c"),
+        ("str_strip_suffix", "rt_strings.c"),
     ])
 }
 
@@ -506,6 +507,7 @@ pub fn c_symbol_for(nyra_fn: &str) -> String {
         ("Vec_str_get", "vec_str_get"),
         ("Vec_str_len", "vec_str_len"),
         ("tcp_accept_async", "rt_tcp_accept_async"),
+        ("strip_suffix", "str_strip_suffix"),
     ];
     for (name, sym) in ALIASES {
         if *name == nyra_fn {

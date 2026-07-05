@@ -116,8 +116,7 @@ pub(super) fn is_string_builtin_method(method: &str) -> bool {
         method,
         "split" | "trim" | "contains" | "starts_with" | "ends_with" | "replace"
             | "replacen"
-            | "to_upper" | "to_lower"
-    )
+            | "to_upper" | "to_lower" | "strip_suffix")
 }
 
 pub(super) fn llvm_ptr_reg(reg: &str) -> String {
@@ -269,6 +268,20 @@ pub(super) fn llvm_ptr(ty: &str) -> String {
     } else {
         format!("{storage}*")
     }
+}
+
+/// Element type when loading through a reference/pointer LLVM type (`i32*` → `i32`, `ptr` → `i32`).
+pub(super) fn llvm_pointee_ty(ty: &str) -> String {
+    let t = ty.trim_start_matches('%');
+    if t == "ptr" || t == "i8*" {
+        return "i32".into();
+    }
+    if let Some(base) = t.strip_suffix('*') {
+        if !base.is_empty() {
+            return base.to_string();
+        }
+    }
+    t.to_string()
 }
 
 pub(super) fn llvm_ty_to_ann(ty: &str) -> TypeAnnotation {

@@ -3,6 +3,7 @@
 MAKE_PY := $(ROOT)/make/py
 
 .PHONY: gen-abi-header gen-bindings-doc gen-suite-tests gen-typed-examples
+.PHONY: add-builtin remove-builtin patch-builtin
 .PHONY: sync-webdocs-code-tabs gen-comparison-extended sync-comparison-typed
 .PHONY: bump-comparison-hardness snippet-types strip-apps-types strip-nyra-symbol-prefix
 .PHONY: gen-ar-file-index bench-comparison-html update-readme-bench
@@ -49,3 +50,17 @@ bench-comparison-html:
 
 update-readme-bench:
 	@python3 $(MAKE_PY)/update-readme-bench.py
+
+# Usage: make add-builtin                    # interactive wizard (default)
+#        make add-builtin ARGS='--config make/py/builtin_dev/examples/strip_suffix.json'
+#        make remove-builtin ARGS='--method strip_suffix'
+#        make patch-builtin ARGS='-i'        # update existing builtin
+# Docs:  make/py/builtin_dev/README.md
+add-builtin:
+	@python3 $(MAKE_PY)/builtin-dev.py add $(if $(ARGS),$(ARGS),-i)
+
+remove-builtin:
+	@python3 $(MAKE_PY)/builtin-dev.py remove $(if $(ARGS),$(ARGS),-i)
+
+patch-builtin:
+	@python3 $(MAKE_PY)/builtin-dev.py patch $(if $(ARGS),$(ARGS),-i)

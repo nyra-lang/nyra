@@ -1206,6 +1206,9 @@ int32_t shm_close_fd(int32_t fd);
 /* since Nyra 1.39.0 */
 int32_t shm_unlink_region(const char *name);
 
+/* since Nyra 1.0.0 */
+char *str_strip_suffix(const char *s, const char *suffix);
+
 #ifdef __cplusplus
 }
 #endif

@@ -14,3 +14,4 @@ extern fn strip_ansi(input: &string) -> string
 fn char_from_code(ch: i32) -> string {
     return str_push_char("", ch)
 }
+extern fn str_strip_suffix(str: &string, suffix: &string) -> string
