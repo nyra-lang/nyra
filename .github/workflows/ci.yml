@@ -72,6 +72,10 @@ jobs:
             label: conformance
           - gate: test-cargo-workspace
             label: cargo-workspace
+          - gate: test-webdocs-tabs
+            label: webdocs-tabs
+          - gate: test-webdocs-snippets
+            label: webdocs-snippets
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
@@ -99,6 +103,10 @@ jobs:
             label: conformance
           - gate: test-cargo-workspace
             label: cargo-workspace
+          - gate: test-webdocs-tabs
+            label: webdocs-tabs
+          - gate: test-webdocs-snippets
+            label: webdocs-snippets
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
@@ -127,6 +135,10 @@ jobs:
             label: conformance
           - gate: test-cargo-workspace
             label: cargo-workspace
+          - gate: test-webdocs-tabs
+            label: webdocs-tabs
+          - gate: test-webdocs-snippets
+            label: webdocs-snippets
             timeout: 90
     steps:
       - uses: actions/checkout@v4

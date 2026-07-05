@@ -4,7 +4,7 @@
 .PHONY: test-nyra-lang test-conformance test-optional-types test-examples-corpus
 .PHONY: test-fuzz-smoke test-fuzz-nightly sync-fuzz-corpus test-fuzz-stress
 .PHONY: test-sanitizer test-race-tsan test-race-native test-perf
-.PHONY: test-comparison-parity test-webdocs-tabs test-abi-roundtrip test-preflight test-triage
+.PHONY: test-comparison-parity test-webdocs-tabs test-webdocs-snippets test-webdocs-snippets-full test-abi-roundtrip test-preflight test-triage
 .PHONY: update-suite-stderr
 
 build-workspace:
@@ -80,6 +80,12 @@ test-comparison-parity: ensure-nyra
 
 test-webdocs-tabs:
 	@$(MAKE_LIB)/check-webdocs-code-tabs.sh
+
+test-webdocs-snippets: ensure-nyra
+	@$(MAKE_LIB)/check-webdocs-snippets.sh
+
+test-webdocs-snippets-full: ensure-nyra
+	@NYRA_WEBDOCS_FULL=1 $(MAKE_LIB)/check-webdocs-snippets.sh
 
 test-abi-roundtrip: ensure-nyra
 	@$(MAKE_LIB)/abi-roundtrip.sh

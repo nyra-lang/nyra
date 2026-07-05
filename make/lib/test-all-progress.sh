@@ -64,6 +64,7 @@ build-workspace
 build-cli
 test-count
 test-webdocs-tabs
+test-webdocs-snippets
 smoke-vscode-extension
 test-optional-types
 test-comparison-parity

@@ -74,6 +74,8 @@ Local monolithic targets (`make test-all-macos`, `make test-all-windows`) are un
 | `gen-suite-tests` | `tests/suite/` compiletest corpus |
 | `gen-typed-examples` | `.typed.ny` siblings for examples |
 | `sync-webdocs-code-tabs` | Sync Without/With types tabs in webDocs |
+| `test-webdocs-snippets` | Run self-contained doc snippets (`tests/webdocs/pass-manifest.txt`) |
+| `test-webdocs-snippets-full` | Audit all runnable webDocs snippets (may report known failures) |
 | `gen-comparison-extended` | Extended comparison benchmark suites |
 | `sync-comparison-typed` | Typed comparison mirrors |
 | `bench-comparison-html` | Benchmark HTML report |

@@ -34,6 +34,8 @@ Monolithic local targets: `make test-all-linux`, `make test-all-macos`, `make te
 |-------|---------|
 | Per-crate unit tests | Single-pass bugs (lexer, parser, borrowck, …) |
 | Driver integration | End-to-end compile + IR substrings |
+| **webDocs snippets** (`make test-webdocs-snippets`) | Doc examples that compile in `check` but fail at link/run |
+| **Compiletest `run/`** | End-to-end stdout for language features (e.g. `print(*r)`) |
 | Example corpus | All `examples/` entry points |
 | insta snapshots | Unintended IR/diagnostic text changes |
 | Conformance (`CONF-*`) | Spec-like behavior contracts |

@@ -147,32 +147,30 @@ impl Codegen {
                             if let Some(binding) = env.get(name) {
                                 let ty = Self::binding_ty(binding);
                                 let ptr_ty = llvm_ptr(ty);
-                                // `let mut` scalars are SSA registers; C out-params need a stack slot.
-                                if self.mut_ssa_locals.contains(name) {
-                                    if let Binding::Reg { reg, .. } = binding {
-                                        let llvm_ty = llvm_storage_ty(ty);
-                                        let slot = self.fresh("refmut");
-                                        self.emit(&format!(
-                                            "  %{slot} = alloca {llvm_ty}, align 8"
-                                        ));
-                                        let reg_ref = if reg.starts_with('%') {
-                                            reg.clone()
-                                        } else if reg.chars().all(|c| {
-                                            c.is_ascii_digit() || c == '-' || c == '.'
-                                        }) {
-                                            reg.clone()
-                                        } else {
-                                            format!("%{reg}")
-                                        };
-                                        self.emit(&format!(
-                                            "  store {llvm_ty} {reg_ref}, {} %{slot}",
-                                            llvm_ptr(llvm_ty)
-                                        ));
-                                        return ExprValue {
-                                            reg: format!("%{slot}"),
-                                            ty: ptr_ty,
-                                        };
-                                    }
+                                // SSA scalars have no stable address; materialize a stack slot.
+                                if let Binding::Reg { reg, .. } = binding {
+                                    let llvm_ty = llvm_storage_ty(ty);
+                                    let slot = self.fresh("refslot");
+                                    self.emit(&format!(
+                                        "  %{slot} = alloca {llvm_ty}, align 8"
+                                    ));
+                                    let reg_ref = if reg.starts_with('%') {
+                                        reg.clone()
+                                    } else if reg.chars().all(|c| {
+                                        c.is_ascii_digit() || c == '-' || c == '.'
+                                    }) {
+                                        reg.clone()
+                                    } else {
+                                        format!("%{reg}")
+                                    };
+                                    self.emit(&format!(
+                                        "  store {llvm_ty} {reg_ref}, {} %{slot}",
+                                        llvm_ptr(llvm_ty)
+                                    ));
+                                    return ExprValue {
+                                        reg: format!("%{slot}"),
+                                        ty: ptr_ty,
+                                    };
                                 }
                                 let ptr_reg = match binding {
                                     Binding::Stack { slot, ty } if ty == "ptr" && u.op == UnaryOp::Ref => {
@@ -183,13 +181,7 @@ impl Codegen {
                                         format!("%{loaded}")
                                     }
                                     Binding::Stack { slot, .. } => format!("%{slot}"),
-                                    Binding::Reg { reg, .. } => {
-                                        if reg.starts_with('%') {
-                                            reg.clone()
-                                        } else {
-                                            format!("%{reg}")
-                                        }
-                                    }
+                                    Binding::Reg { .. } => unreachable!("Reg handled above"),
                                     Binding::Param { index, .. } => format!("%{index}"),
                                     Binding::Closure(_) => "0".to_string(),
                                     Binding::PromotedStruct {

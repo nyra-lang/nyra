@@ -45,7 +45,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **v2.4:** generic `enum Option<T>` / `enum Result<T,E>` monomorph; enum payload drop; `struct Box<T>` + `Box_new(string)` (replaces `Box_string`).
 - **v2.5:** generic `struct Arc<T>` (`Arc<i32>`, `Arc<string>`); auto Drop for monomorph instances; `Arc_i32` kept as legacy alias in `stdlib/arc.ny`.
 - **v2.6:** async bootstrap patterns, HTTP health via stdlib `net/http`.
-- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance. [Enterprise / workspaces](https://nyra-lang.github.io/docs/enterprise.html). Tracing/service mesh = external.
+- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance. See [Modules](https://nyra-lang.github.io/docs/modules.html). Tracing/service mesh = external.
 - **v2.8:** return type inference (`void` default), generic call-site inference (`id(7)`), auto-borrow at calls (`T` → `&T`), `string.clone()` + synthesized struct `Clone`, struct ctor sugar `User("Ada")` / `Point()`.
 - **v2.9:** Swift-style use-after-move diagnostics (`was moved into save()` + fix-it notes), `move` / `clone` prefix at call sites (`save(move user)`, `save(clone user)`).
 - **v3.0:** auto Copy inference for all-Copy structs (`Point`, `Rect`); `#[derive(Copy)]` validation; no annotation needed for value types.
@@ -1025,7 +1025,7 @@ my_api/
   workers/
 ```
 
-Workspaces: [enterprise guide](https://nyra-lang.github.io/docs/enterprise.html)
+Workspaces: [modules guide](https://nyra-lang.github.io/docs/modules.html)
 
 ## I/O & builtins
 
@@ -1923,7 +1923,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 | **Shipped (v1.1)** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
 | **Stub → in progress** | `compress/bzip2.ny` (link `bz2`) | Native driver when linked |
 
-Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Language vs Ecosystem](https://nyra-lang.github.io/docs/language-vs-ecosystem.html).
+Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Standard library](https://nyra-lang.github.io/docs/stdlib.html).
 
 ### Naming: current style vs legacy (read this)
 
@@ -2248,7 +2248,7 @@ fn main() {
 - Protocol: one JSON line stdin → one JSON line stdout (`{"ok":true,"result":"42"}`).
 - Extend workers to `pip install numpy`, `npm install lodash`, Maven jars.
 - POSIX only today (macOS/Linux); not Wasm/Windows subprocess bridge yet.
-- Docs: [integration / bridge](https://nyra-lang.github.io/docs/integration.html).
+- Docs: [stdlib bridge](https://nyra-lang.github.io/docs/stdlib.html) · `examples/bridge/`.
 
 ### Host → Nyra (cdylib)
 
@@ -2705,7 +2705,7 @@ Page: [diagnostics](https://nyra-lang.github.io/docs/diagnostics.html)
 | FFI & ABI | [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html) |
 | NyraPkg | [https://nyra-lang.github.io/docs/packages.html](https://nyra-lang.github.io/docs/packages.html) |
 | Diagnostics | [https://nyra-lang.github.io/docs/diagnostics.html](https://nyra-lang.github.io/docs/diagnostics.html) |
-| Integration / bridge | [https://nyra-lang.github.io/docs/integration.html](https://nyra-lang.github.io/docs/integration.html) |
+| Stdlib bridge | [https://nyra-lang.github.io/docs/stdlib.html](https://nyra-lang.github.io/docs/stdlib.html) |
 | AI skill download page | [https://nyra-lang.github.io/docs/ai-skill.html](https://nyra-lang.github.io/docs/ai-skill.html) |
 | Roadmap & status | [https://nyra-lang.github.io/docs/roadmap.html](https://nyra-lang.github.io/docs/roadmap.html) |
 | Changelog | [https://nyra-lang.github.io/docs/changelog.html](https://nyra-lang.github.io/docs/changelog.html) |
