@@ -25,8 +25,11 @@ Nyra is actively developed (current toolchain version: see `[workspace.package] 
 15. [Glossary](#glossary)
 16. [IDE & diagnostics](#ide--diagnostics-tooling)
 17. [CI overview](#ci-overview-what-runs-on-prs)
-18. [Development setup · CLI · PRs · Release](#development-setup)
-19. [Reporting issues · Performance · Naming](#reporting-issues)
+18. [NyraPkg workflow](#nyrapkg-workflow)
+19. [Removing a feature](#removing-a-feature)
+20. [Debugging the compiler](#debugging-the-compiler)
+21. [Development setup · CLI · PRs · Release](#development-setup)
+22. [Reporting issues · Performance · Naming · License](#reporting-issues)
 
 **Suggested reading order (new contributor):**
 
@@ -36,7 +39,8 @@ Nyra is actively developed (current toolchain version: see `[workspace.package] 
 4. [How to add a stdlib function](#how-to-add-a-stdlib-function) — patterns A–D + [strip_suffix case study](#case-study-strip_suffix-end-to-end)
 5. [Testing](#testing) + [test decision tree](#test-decision-tree)
 6. [Troubleshooting & FAQ](#troubleshooting--faq) — when `nyra test` fails but `nyra run` works
-7. [Glossary](#glossary) — terms you will see in PRs and docs
+7. [Debugging the compiler](#debugging-the-compiler) — snapshots, single-crate tests
+8. [Glossary](#glossary) — terms you will see in PRs and docs
 
 ---
 
@@ -131,50 +135,9 @@ High-level path from source to executable (details in [`docs/architecture.md`](d
 
 ## What to change → where to go
 
-**Canonical guide:** [`docs/contributor-map.md`](docs/contributor-map.md) (flowchart, test placement, `expand/` index, large-file split targets).
+**Canonical guide:** [`docs/contributor-map.md`](docs/contributor-map.md) — full decision flowchart, test placement, `expand/` module index, and large-file split targets.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              What do you want to add or change?           │
-└─────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Syntax / keyword     Stdlib function       CLI flag
-        │                   │                   │
-   lexer → parser       stdlib/**/*.ny        cli/src/commands/
-   → ast → expand?      (+ rt/*.c if C)       cli/src/app/args.rs
-   → typecheck          (+ runtime_map.rs)
-   → codegen?
-   → const_eval? (comptime)
-        │
-   tests/nyra/foo.ny + foo.typed.ny
-   examples/foo.ny + foo.typed.ny
-   grammar/nyra.tmLanguage.json
-
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Type rules          Ownership / borrow    Generics
-   typecheck/          ownership/             monomorph/
-   types/              borrowck/              expand/ (synthesis)
-
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Builtin (print)     Import / prelude      Package manager
-   typecheck +         resolve/              pkg/
-   codegen +           (prelude.rs)          cli/src/commands/pkg*
-   stdlib/rt/
-
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Comptime eval        Remove / deprecate    (see table below)
-   const_eval/          reverse the paths
-   (comptime.rs)        above; delete tests,
-   + parser/            examples, docs,
-   + typecheck/         grammar entries
-```
-
-**Removing a feature:** walk the same crates in reverse, then delete matching entries in `tests/nyra/`, `examples/`, `grammar/`, and docs.
+**Removing a feature:** walk the same crates in reverse, then delete matching entries in `tests/nyra/`, `examples/`, `grammar/`, and docs. See [Removing a feature](#removing-a-feature) for a checklist.
 
 ---
 
@@ -200,6 +163,7 @@ High-level path from source to executable (details in [`docs/architecture.md`](d
 - **Inference first** — the compiler infers types from usage; if it cannot, compilation stops with `E004` and asks for a manual annotation (rare).
 - **Both styles must work** — every user-visible feature must pass tests **without types** and **with explicit types** (`foo.ny` + `foo.typed.ny` examples).
 - **Performance & memory** — primary goals; stdlib uses small modules + demand-driven linking so LLVM can eliminate dead code.
+- **Batteries included** — crypto, serialization, networking, compression, and similar APIs belong **in-tree** in `stdlib/`, not NyraPkg-only redirects. Heavy native deps (e.g. DB drivers) may start in NyraPkg and graduate into stdlib when proven.
 
 ---
 
@@ -209,7 +173,7 @@ Complete this before merging any change that affects user-visible behavior:
 
 | # | Requirement |
 |---|-------------|
-| 1 | **Tests** — add or update coverage; run `make test-all` (or at minimum `cargo test --workspace` + affected Nyra tests). Test **zero-types and explicit types**. |
+| 1 | **Tests** — add or update coverage; run `make test-all` (or at minimum `cargo test --workspace` + affected Nyra tests). Test **zero-types and explicit types**. Re-run **`tests/suite/fail/`** when changing typecheck, comptime, or diagnostics. |
 | 2 | **Examples** — add or update under `examples/` (`feature.ny` + `feature.typed.ny` when applicable). |
 | 3 | **No regressions** — unrelated features still pass. |
 | 4 | **webDocs** — update the [docs repo](https://github.com/nyra-lang/docs) when syntax, stdlib, CLI, or ABI changes; rebuild skill + search index (see [Release workflow](#release-workflow-version--webdocs)). Published site: [nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/). |
@@ -317,6 +281,25 @@ make patch-builtin ARGS='-i'    # interactive fix for existing method
 make patch-builtin ARGS='--method strip_suffix --config make/py/builtin_dev/examples/strip_suffix.json'
 ```
 
+**Array / bytes receivers:** same workflow — pick `array` or `bytes` in the wizard. Wiring targets differ (`builtins_array.ny`, `rt_vec.c`, …). If the method is not in `method_catalog.py`, the wizard still works; add catalog entry later for better defaults.
+
+**JSON spec fields** (`--config path/to/spec.json`):
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `receiver` | yes | `string`, `array`, `bytes`, or `free` |
+| `method` | yes | Nyra method name (e.g. `strip_suffix`) |
+| `args` | no | `["name:type", …]` — types: `string`, `i32`, `i64`, `f64`, `bool`, `vec_str`, `bytes`, `array` |
+| `returns` | no | Return Nyra type (default `string`) |
+| `c_name` | no | C symbol (default `str_<method>` or `vec_<method>`) |
+| `rt_module` | no | C file (default `rt_strings.c`, `rt_vec.c`, …) |
+| `borrows_receiver` | no | Borrow receiver in typecheck (default `true`) |
+| `free_fn_alias` | no | Also wire top-level `fn` alias (default `true`) |
+| `stable_abi` | no | Add to `docs/abi-manifest.toml` (default `false`) |
+| `abi_since` | no | Version string when `stable_abi` is true |
+
+Example: [`make/py/builtin_dev/examples/strip_suffix.json`](make/py/builtin_dev/examples/strip_suffix.json).
+
 | Resource | Purpose |
 |----------|---------|
 | [`docs/make-and-generators.md`](docs/make-and-generators.md) | Full Makefile + `make/py/` catalog |
@@ -359,6 +342,77 @@ Files touched automatically: `compiler/typecheck/`, `compiler/codegen/`, `stdlib
 - **Types optional** — APIs must work with inference (strings, numbers, arrays, objects, booleans).
 - **Static dispatch** — prefer monomorph/generics over dynamic dispatch for LLVM inlining.
 - **NyraPkg** — community packages live in `examples/packages/`; proven modules may graduate into stdlib.
+
+### C runtime & prebuilt artifacts
+
+After changing `stdlib/rt/*.c`, rebuild and reinstall:
+
+```bash
+make install-dev    # rebuilds prebuilt runtime via make/lib/build-prebuilt-rt.sh
+```
+
+Prebuilt static libs live under `stdlib/prebuilt/<triple>/`. The stamp `stdlib/prebuilt/.../rt-sources.stamp` tracks which C sources were linked. Contributors rarely edit prebuilt paths by hand — `make install-dev` refreshes them.
+
+---
+
+## NyraPkg workflow
+
+Use **NyraPkg** for optional/community modules with native deps or semver boundaries. Core batteries-included APIs belong in `stdlib/` (see [Design philosophy](#start-here--documentation-map)).
+
+**Layout** (see [`examples/packages/ny-sqlite/`](examples/packages/ny-sqlite/)):
+
+```
+my-pkg/
+  nyra.mod          # name, version, link / link-source
+  nyra.lock         # pinned deps (generated)
+  *.ny              # module API (extern fn + wrappers)
+  rt/*.c            # optional C shim (auto-linked on nyra build)
+```
+
+**Typical flow:**
+
+```bash
+nyra pkg init
+# edit nyra.mod — add link sqlite3, link-source rt/sqlite.c
+nyra pkg verify
+nyra build
+nyra run main.ny
+```
+
+**In another project:**
+
+```bash
+nyra pkg install ny-sqlite@^0.1.0   # copies to .nyra/cache/, updates nyra.lock
+import "pkg/ny-sqlite/sqlite.ny"
+```
+
+| When | Use |
+|------|-----|
+| New stdlib-quality API, no heavy deps | `stdlib/**/*.ny` (Pattern A/B) |
+| Heavy native lib, experimental driver | NyraPkg under `examples/packages/` |
+| Proven package, wide use | Graduate into `stdlib/` |
+
+Compiler/package code: `pkg/` · CLI: `cli/src/commands/pkg.rs`.
+
+---
+
+## Removing a feature
+
+Walk the **add path in reverse**, then clean up tests and docs:
+
+| Step | Action |
+|------|--------|
+| 1 | **String/array method** → `make remove-builtin` (interactive or `ARGS='--method foo'`) |
+| 2 | **Compiler syntax** → revert lexer → parser → ast → expand → typecheck → codegen → ownership → borrowck → const_eval |
+| 3 | **Stdlib `extern fn`** → remove Nyra decl, C impl, `runtime_map.rs` entry, ABI manifest entry |
+| 4 | **Tests** → delete `tests/nyra/*`, conformance entries, suite files that only exist for the feature |
+| 5 | **Examples / Apps** → delete or rewrite demos |
+| 6 | **Grammar** → remove keyword from `grammar/nyra.tmLanguage.json` |
+| 7 | **Docs** → docs repo, `webDocs/`, `docs/status.md`, `CHANGELOG.md` if user-visible |
+| 8 | **Regenerate** → `make gen-abi-header` · `make gen-bindings-doc` · `make gen-suite-tests` if suite grid changed |
+| 9 | **Verify** → `make install-dev` · `make test-all` (include `tests/suite/fail/`) |
+
+**Do not** leave orphaned `[builtin-dev:…]` markers or half-removed match arms in Rust — `make remove-builtin` handles most string-method cleanup.
 
 ---
 
@@ -576,6 +630,22 @@ User-visible language/stdlib change?
 
 **Compiletest directives** (in `tests/suite/`): see `compiler/compiletest/src/directives.rs` — common ones are `// ignore-test`, `// tier:`, `// run-stdout:`.
 
+**Fail suite gate:** after changing **typecheck**, **comptime**, **parser**, or **diagnostic text**, run compiletest fail corpus — `make test-compiletest` or full `make test-all`. Do not merge if unrelated `tests/suite/fail/` cases start passing (broken test) or failing (regression).
+
+**Example corpus:** `tests/corpus/manifest.toml` lists every `examples/` entry CI compiles. If an example breaks, fix it or set `expect_compile = false` with a comment (see [`docs/testing-runbook.md`](docs/testing-runbook.md)).
+
+**Conformance:** map failing `CONF-*` tests to specs in `docs/conformance/*.md` — fix regression or update spec + test together.
+
+**Fuzz & sanitizer (optional gates):**
+
+```bash
+make test-fuzz-smoke              # short fuzz smoke (part of test-all on Linux CI weekly)
+TEST_FUZZ=1 make test-all         # extended fuzz gates locally
+TEST_SAN=1 make test-all          # ASan/UBSan-style gates (slow; Linux/macOS)
+```
+
+Fuzz targets live in `fuzz/`. If fuzz finds a compiler panic, add a minimal repro to `tests/nyra/` or `tests/suite/fail/`.
+
 ### Test layers
 
 | Layer | Location | How to run |
@@ -614,22 +684,75 @@ nyra test tests/nyra/my_feature_test.ny
 | `pkg` | `nyra.mod` / lock parsing |
 | `pkg-registry` | Dev registry on port 9470 |
 
+**Compiler pipeline crates** (inside `compiler/` — see [`docs/architecture.md`](docs/architecture.md#crate-map-contributor-quick-reference)):
+
+| Crate | You change this when… |
+|-------|---------------------|
+| `lexer` | Tokens, keywords, literals |
+| `parser` / `ast` | Grammar, syntax nodes |
+| `expand` | Desugaring (`??`, `?`, async, Vec, …) |
+| `resolve` | Imports, prelude, project graph |
+| `monomorph` | Generics → monomorphic AST |
+| `typecheck` / `types` | Type rules, builtins, inference |
+| `ownership` / `borrowck` | Moves, borrows, drop plan |
+| `const_eval` | Comptime evaluation |
+| `codegen` | LLVM IR, `runtime_map.rs` |
+| `compiletest` | Suite runner, directives |
+| `errors` | Diagnostic codes, `nyra explain` text |
+| `driver` | Orchestration, cache, integration tests |
+
 ```bash
 cargo build --workspace
 cargo test --workspace
+cargo test -p typecheck          # single pipeline stage
+cargo test -p compiler           # driver + integration
 ```
+
+---
+
+## Debugging the compiler
+
+| Goal | Command |
+|------|---------|
+| Single Rust test | `cargo test -p typecheck test_name -- --nocapture` |
+| Full compiler integration | `cargo test -p compiler` |
+| One Nyra file (no link) | `nyra check path/to/file.ny` |
+| JSON diagnostics | `nyra diag path/to/file.ny --json` |
+| Explain error code | `nyra explain E018` |
+| Fresh CLI (avoid stale PATH) | `./target/debug/nyra test …` or `make install-dev` |
+| Clear incremental cache | `rm -rf path/to/project/target .nyra-cache` |
+
+**Snapshot tests** (review every hunk before commit):
+
+```bash
+# IR output
+INSTA_UPDATE=1 cargo test -p compiler --test codegen_snapshots
+
+# Diagnostic text
+INSTA_UPDATE=1 cargo test -p compiler --test diagnostics_snapshots
+```
+
+**Compiletest one file:**
+
+```bash
+cargo test -p compiler suite_pass_my_test -- --nocapture
+```
+
+**Verbose build:** `nyra build --verbose path/` shows linker/toolchain details. Escape-analysis lines appear when ownership verbose mode is enabled in driver tests.
+
+When adding a diagnostic, update `compiler/errors/src/explain.rs` and matching `//~ ERROR` lines in `tests/suite/`.
 
 ---
 
 ## Development setup
 
 1. Install [Rust](https://rustup.rs/) (stable).
-2. Install **clang** and **libclang** (Xcode CLT on macOS; on Linux: `clang` + `libclang-dev` for `nyra bind c` / `nyra-c-bindgen`).
+2. Install **clang** and **libclang** (required for `nyra build`, `nyra bind c`, `nyra-c-bindgen`).
 3. Clone and build:
 
 ```bash
 git clone git@github.com:nyra-lang/nyra.git
-cd Nyra
+cd nyra
 cargo build --workspace
 ```
 
@@ -639,6 +762,17 @@ cargo build --workspace
 ./scripts/updateLang.sh   # or: make install-dev
 nyra --version
 ```
+
+### Platform-specific dependencies
+
+| Platform | Install |
+|----------|---------|
+| **macOS** | Xcode Command Line Tools (`xcode-select --install`); optional Homebrew `llvm` for `NYRA_LLVM_BIN` |
+| **Linux (Debian/Ubuntu)** | `sudo apt-get install -y clang lld libclang-dev llvm-dev libsqlite3-dev zlib1g-dev libssl-dev` |
+| **Windows** | [GitHub Release](https://github.com/nyra-lang/nyra/releases) + [`scripts/install.ps1`](scripts/install.ps1); or build from source with Rust + clang |
+| **WSL** | Same as Linux; use Linux prebuilt or local `make install-dev` |
+
+CI installs the same Linux packages — see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 The root [`run`](run) file lists handy one-liners (examples, bench, test).
 
@@ -694,22 +828,20 @@ When you add a keyword to the lexer (`compiler/lexer/src/lib.rs`), update in the
 
 ## Release workflow (version + webDocs)
 
-User-facing docs live in the **[docs repo](https://github.com/nyra-lang/docs)** and publish to **[nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/)**.
+User-facing docs publish to **[nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/)** from the [docs repo](https://github.com/nyra-lang/docs). In-repo **`webDocs/`** mirrors and skill sources ship with the nyra tag.
 
 For any user-visible language/stdlib/CLI/ABI change **that warrants a version bump** (see [Version bump policy](#version-bump-policy)):
 
 1. Bump **`[workspace.package] version`** in [`Cargo.toml`](Cargo.toml).
 2. Add section to [`CHANGELOG.md`](CHANGELOG.md).
-3. In the [docs repo](https://github.com/nyra-lang/docs), update relevant `*.html` and [`nyra-skill.md`](https://github.com/nyra-lang/docs/blob/main/nyra-skill.md).
-4. Rebuild derived docs in the docs repo:
-
-```bash
-git clone git@github.com:nyra-lang/docs.git
-cd docs
-node scripts/build-nyra-skill.mjs    # sync → nyra repo skills/skill.md when applicable
-node scripts/build-search-index.mjs
-```
-
+3. Update **in-repo** docs when applicable:
+   ```bash
+   # edit webDocs/*.html if needed, then:
+   node webDocs/scripts/build-nyra-skill.mjs    # → skills/skill.md
+   node webDocs/scripts/build-search-index.mjs
+   make build-webdocs                           # optional full HTML rebuild
+   ```
+4. Update the **[docs repo](https://github.com/nyra-lang/docs)** — relevant `*.html` and `nyra-skill.md` for the public site.
 5. Update [`docs/status.md`](docs/status.md) when feature depth changes.
 
 ---
@@ -732,23 +864,35 @@ DB drivers that need heavy native deps often start in **NyraPkg** (`examples/pac
 
 ## Documentation: where to edit what
 
-Nyra docs live in **two places**. Do not duplicate — know which to update:
+Nyra docs live in **three places**. Do not duplicate prose — know which to update:
 
 | Location | Contents | When to edit |
 |----------|----------|--------------|
 | **`docs/`** (this repo) | Architecture, contributor guides, ABI manifest, testing runbook, status | Toolchain/process/ABI changes |
-| **`webDocs/`** (this repo) | HTML mirrors, search index inputs, `nyra-skill.md` source | User-facing docs shipped with repo; run `make build-webdocs` |
+| **`webDocs/`** (this repo) | HTML mirrors, search index inputs, `nyra-skill.md` source | User-facing docs **in-repo**; rebuild with commands below |
 | **[github.com/nyra-lang/docs](https://github.com/nyra-lang/docs)** | Published site source ([nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/)) | Public HTML pages, tutorials, stdlib reference pages |
-| **`skills/skill.md`** | Language reference (synced from webDocs skill build) | Syntax/stdlib semantics for AI + humans |
+| **`skills/skill.md`** | Language reference (synced from skill build) | Syntax/stdlib semantics for AI + humans |
 | **`CHANGELOG.md`** | Release notes | User-visible fixes/features (with version bump) |
 | **`grammar/`** | VS Code/Cursor syntax (`nyra.tmLanguage.json`) | New keywords/tokens |
+
+### webDocs: in-repo vs docs repo
+
+| Task | Where | Commands |
+|------|-------|----------|
+| Edit HTML shipped with nyra repo | `webDocs/*.html` | `make build-webdocs` |
+| Rebuild AI skill + search index **in nyra repo** | `webDocs/scripts/` | `node webDocs/scripts/build-nyra-skill.mjs` · `node webDocs/scripts/build-search-index.mjs` |
+| Edit **published** site pages | [docs repo](https://github.com/nyra-lang/docs) | Same node scripts there; syncs to GitHub Pages |
+| Sync easy/typed code tabs in HTML | `webDocs/` | `make sync-webdocs-code-tabs` |
+
+**Rule:** language/stdlib/CLI changes usually need **both** an example in this repo **and** prose in the [docs repo](https://github.com/nyra-lang/docs) (stdlib.html, tooling.html, …). Patch releases: follow [`agents/skill.md`](agents/skill.md).
 
 **Typical doc PR for a new stdlib function:**
 
 1. Example in `examples/builtins/…`
 2. [`docs/bindings.md`](docs/bindings.md) (or `make gen-bindings-doc` if ABI entry added)
 3. [docs repo](https://github.com/nyra-lang/docs) stdlib.html section (human prose)
-4. Optional: `make sync-webdocs-code-tabs` if HTML has easy/typed code pairs
+4. Optional: `webDocs/` + skill rebuild if in-repo HTML/skill must ship with the tag
+5. Optional: `make sync-webdocs-code-tabs` if HTML has easy/typed code pairs
 
 ---
 
@@ -808,6 +952,8 @@ Full release workflow: [`agents/skill.md`](agents/skill.md) · webDocs rebuild s
 
 **Diagnostic codes** live in `compiler/errors/`. When adding or changing a code, update `compiler/errors/src/explain.rs` and any compiletest `//~ ERROR` lines.
 
+---
+
 ## IDE & diagnostics tooling
 
 | Component | Path | Notes |
@@ -825,15 +971,30 @@ When changing diagnostic text or codes, update explain entries and any compilete
 
 Full detail: [`docs/testing-runbook.md`](docs/testing-runbook.md) · workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
+**Pipeline stages:** build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native — on **Linux, macOS, and Windows**.
+
 | Local command | CI equivalent (approx.) |
 |---------------|-------------------------|
 | `make test-preflight` | Fast smoke before deep work |
 | `make test-triage` | Common failing gates with one report |
 | `make test-all` | Full core suite (build, cargo test, nyra-lang, conformance, compiletest, …) |
+| `make test-all-linux` / `-macos` / `-windows` | Platform-specific CI core |
+| `make test-all-linux-native` etc. | Native smoke per OS |
+| `NYRA_SUITE_PROFILE=fast make test-all` | Quicker compiletest subset for iteration |
 | `TEST_SAN=1 make test-all` | Optional sanitizer gates |
 | `TEST_PERF=1 make test-all` | Performance regression gate |
+| `TEST_FUZZ=1 make test-all` | Extended fuzz gates |
 
-`make test-all` runs gates **even after failure** and summarizes at the end — check `target/test-all.txt` for the full log.
+`make test-all` runs gates **even after failure** and summarizes at the end — check `target/test-all.txt` and `target/.nyra-test-all-failures` for the full log.
+
+**Tier quick map** (see runbook for full gate list):
+
+| Tier | Examples |
+|------|----------|
+| **1 fast** | `test-optional-types`, `test-conformance`, `test-cargo-workspace` |
+| **2 medium** | `test-nyra-lang`, `smoke-stdlib-priority` |
+| **3 heavy** | `smoke-stdlib`, compiletest corpus, runtime smoke |
+| **native** | Platform link/run smoke; Windows extras: package + DAP |
 
 ---
 
@@ -866,6 +1027,14 @@ Do not commit large generated bench artifacts unless the PR explicitly updates p
 
 ---
 
+## License & contributions
+
+By contributing to Nyra, you agree that your contributions are licensed under the same terms as the project — see [`LICENSE.md`](LICENSE.md) (BSD 3-Clause License).
+
+Report security-sensitive bugs privately via [GitHub Security Advisories](https://github.com/nyra-lang/nyra/security/advisories) or open a minimal issue without exploit details.
+
+---
+
 ## Further reading
 
 | Topic | Document |
@@ -873,6 +1042,8 @@ Do not commit large generated bench artifacts unless the PR explicitly updates p
 | **What to change → where to go** | [`docs/contributor-map.md`](docs/contributor-map.md) |
 | **Makefile & Python generators** | [`docs/make-and-generators.md`](docs/make-and-generators.md) |
 | **First contribution & troubleshooting** | This file — [Your first contribution](#your-first-contribution-10-minutes) · [FAQ](#troubleshooting--faq) |
+| **NyraPkg & removing features** | [NyraPkg workflow](#nyrapkg-workflow) · [Removing a feature](#removing-a-feature) |
+| **Debugging compiler / snapshots** | [Debugging the compiler](#debugging-the-compiler) |
 | Language reference (AI + humans) | [`skills/skill.md`](skills/skill.md) · [live docs](https://nyra-lang.github.io/docs/) |
 | Toolchain architecture | [`docs/architecture.md`](docs/architecture.md) |
 | Stdlib design & auto-prelude | [`stdlib/README.md`](stdlib/README.md) |

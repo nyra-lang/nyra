@@ -156,6 +156,8 @@ Build/test orchestration lives in **`make/*.mk`**; code generators live in **`ma
 | Understand every script | [`make-and-generators.md`](make-and-generators.md) |
 | Fix wrong builtin wiring | `make patch-builtin` · [`make/py/builtin_dev/README.md`](../make/py/builtin_dev/README.md) |
 | Stale CLI / E018 after add-builtin | `make install-dev` · see [CONTRIBUTING FAQ](../CONTRIBUTING.md#troubleshooting--faq) |
+| NyraPkg / remove feature | [NyraPkg workflow](../CONTRIBUTING.md#nyrapkg-workflow) · [Removing a feature](../CONTRIBUTING.md#removing-a-feature) |
+| Debug compiler / snapshots | [Debugging the compiler](../CONTRIBUTING.md#debugging-the-compiler) |
 
 ---
 
