@@ -14,8 +14,8 @@ Snippets with non-stdlib `import` paths are auto-skipped (need a project directo
 Env:
   NYRA_BIN              path to nyra (default: target/debug/nyra)
   NYRA_WEBDOCS_TYPED=1  also validate typed panels (default: easy only)
-  NYRA_WEBDOCS_JOBS=N   parallel workers (default: 8)
-  NYRA_WEBDOCS_TIMEOUT  seconds per snippet (default: 45)
+  NYRA_WEBDOCS_JOBS=N   parallel workers (default: 8 unix, 2 windows)
+  NYRA_WEBDOCS_TIMEOUT  seconds per snippet (default: 45 unix, 120 windows)
 """
 from __future__ import annotations
 
@@ -151,6 +151,17 @@ def nyra_bin() -> Path:
     return ROOT / "target" / "debug" / "nyra"
 
 
+def webdocs_runner_settings() -> tuple[int, int]:
+    """Return (parallel_jobs, timeout_seconds) with platform-tuned defaults."""
+    if sys.platform == "win32":
+        default_jobs, default_timeout = "2", "120"
+    else:
+        default_jobs, default_timeout = "8", "45"
+    jobs = max(1, int(os.environ.get("NYRA_WEBDOCS_JOBS", default_jobs)))
+    timeout = max(5, int(os.environ.get("NYRA_WEBDOCS_TIMEOUT", default_timeout)))
+    return jobs, timeout
+
+
 def snippet_expects_fail(code: str, explicit: bool) -> bool:
     """True when snippet is an intentional error demo (HTML marker or // ERROR on code)."""
     if explicit:
@@ -166,29 +177,38 @@ def snippet_expects_fail(code: str, explicit: bool) -> bool:
 
 def run_snippet(snippet: Snippet, nyra: Path, timeout: int) -> tuple[Snippet, bool, str]:
     with tempfile.TemporaryDirectory(prefix="nyra-webdocs-") as td:
-        path = Path(td) / "snippet.ny"
+        td_path = Path(td)
+        path = td_path / "snippet.ny"
+        err_path = td_path / "stderr.txt"
+        out_path = td_path / "stdout.txt"
         path.write_text(snippet.code + "\n", encoding="utf-8")
         try:
-            proc = subprocess.run(
-                [str(nyra), "run", str(path)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                errors="replace",
-                timeout=timeout,
-            )
+            # Write child output to files, not pipes — parallel capture_output=True can
+            # deadlock on Windows when compiler stderr fills the OS pipe buffer.
+            with err_path.open("w", encoding="utf-8", errors="replace") as errf, out_path.open(
+                "w", encoding="utf-8", errors="replace"
+            ) as outf:
+                proc = subprocess.run(
+                    [str(nyra), "run", str(path)],
+                    cwd=ROOT,
+                    stdout=outf,
+                    stderr=errf,
+                    timeout=timeout,
+                )
         except subprocess.TimeoutExpired:
             return snippet, False, f"timeout after {timeout}s"
+        stderr = err_path.read_text(encoding="utf-8", errors="replace")
+        stdout = out_path.read_text(encoding="utf-8", errors="replace")
         ok = proc.returncode == 0
         expect_fail = snippet_expects_fail(snippet.code, snippet.expect_fail)
         if expect_fail:
             if not ok:
                 return snippet, True, ""
-            tail = (proc.stdout or proc.stderr)[-400:]
+            tail = (stdout or stderr)[-400:]
             return snippet, False, f"expected compile/run failure, but succeeded:\n{tail}"
         if ok:
             return snippet, True, ""
-        err = proc.stderr or proc.stdout or "(no output)"
+        err = stderr or stdout or "(no output)"
         return snippet, False, err[-600:]
 
 
@@ -236,8 +256,7 @@ def main() -> int:
     args = parser.parse_args()
 
     include_typed = args.typed or os.environ.get("NYRA_WEBDOCS_TYPED") == "1"
-    jobs = max(1, int(os.environ.get("NYRA_WEBDOCS_JOBS", "8")))
-    timeout = max(5, int(os.environ.get("NYRA_WEBDOCS_TIMEOUT", "45")))
+    jobs, timeout = webdocs_runner_settings()
     nyra = nyra_bin()
     if not nyra.is_file():
         print(f"check-webdocs-snippets: missing nyra binary: {nyra}", file=sys.stderr)
