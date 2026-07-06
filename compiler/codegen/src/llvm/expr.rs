@@ -149,16 +149,20 @@ impl Codegen {
                                 let ptr_ty = llvm_ptr(ty);
                                 // SSA scalars have no stable address; materialize a stack slot.
                                 if let Binding::Reg { reg, .. } = binding {
+                                    let ty = Self::binding_ty(binding);
+                                    // String/ptr SSA values are already pointers; &s is the ptr itself.
+                                    if ty == "ptr" || ty == "string" || ty == "bytes" {
+                                        return ExprValue {
+                                            reg: llvm_ptr_reg(reg),
+                                            ty: llvm_ptr("ptr"),
+                                        };
+                                    }
                                     let llvm_ty = llvm_storage_ty(ty);
                                     let slot = self.fresh("refslot");
                                     self.emit(&format!(
                                         "  %{slot} = alloca {llvm_ty}, align 8"
                                     ));
                                     let reg_ref = if reg.starts_with('%') {
-                                        reg.clone()
-                                    } else if reg.chars().all(|c| {
-                                        c.is_ascii_digit() || c == '-' || c == '.'
-                                    }) {
                                         reg.clone()
                                     } else {
                                         format!("%{reg}")

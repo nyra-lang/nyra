@@ -994,10 +994,8 @@ define %HttpResponse @http_request(i32 %0, ptr %1, ptr %2, ptr %3) {
 entry:
   %call.N = call %HttpUrl @parse_http_url(ptr %1)
   %call.N = call ptr @method_name(i32 %0)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %refslot.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca %HttpUrl
   store %HttpUrl %call.N, %HttpUrl* %alloca.N
   %gep.N = getelementptr inbounds %HttpUrl, %HttpUrl* %alloca.N, i32 0, i32 2
@@ -1031,10 +1029,8 @@ then.N:
   %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %refslot.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
@@ -1053,9 +1049,7 @@ endif.N:
   store %HttpUrl %call.N, %HttpUrl* %arg.tmp.N
   %ld.N = load ptr, ptr %alloca.N
   %call.N = call ptr @transport_roundtrip(%HttpUrl* %arg.tmp.N, ptr %ld.N)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
-  %call.N = call i32 @str_len(ptr %refslot.N)
+  %call.N = call i32 @str_len(ptr %call.N)
   %bin.N = icmp eq i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -1265,15 +1259,11 @@ entry:
 }
 define %HttpUrl @parse_http_url(ptr %0) {
 entry:
-  %refslot.N = alloca ptr, align 8
-  store ptr 0, ptr %refslot.N
-  %call.N = call i32 @str_len(ptr %refslot.N)
+  %call.N = call i32 @str_len(ptr %0)
   %bin.N = icmp sge i32 %call.N, 8
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
-  %refslot.N = alloca ptr, align 8
-  store ptr 0, ptr %refslot.N
-  %call.N = call ptr @substring(ptr %refslot.N, i32 0, i32 8)
+  %call.N = call ptr @substring(ptr %0, i32 0, i32 8)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call i32 @str_cmp(ptr %call.N, ptr %str.N)
   %bin.N = icmp eq i32 %call.N, 0
@@ -1296,9 +1286,7 @@ endif.N:
   %bin.N = and i1 %unary.N, %bin.N
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
-  %refslot.N = alloca ptr, align 8
-  store ptr 0, ptr %refslot.N
-  %call.N = call ptr @substring(ptr %refslot.N, i32 0, i32 7)
+  %call.N = call ptr @substring(ptr %0, i32 0, i32 7)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call i32 @str_cmp(ptr %call.N, ptr %str.N)
   %bin.N = icmp eq i32 %call.N, 0
@@ -2117,10 +2105,8 @@ define i32 @is_chunked_transfer(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @header_value(ptr %0, ptr %str.N)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %refslot.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %call.N, ptr %str.N)
   %bin.N = icmp sge i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -2432,10 +2418,8 @@ define i32 @wants_keep_alive(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @header_value(ptr %0, ptr %str.N)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %refslot.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %call.N, ptr %str.N)
   %bin.N = icmp sge i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -2443,10 +2427,8 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call i32 @strstr_pos(ptr %refslot.N, ptr %str.N)
+  %call.N = call i32 @strstr_pos(ptr %call.N, ptr %str.N)
   %bin.N = icmp sge i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -3329,10 +3311,8 @@ entry:
   %call.N = call ptr @str_cat(ptr %str.N, ptr %ref.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %refslot.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
@@ -3370,9 +3350,7 @@ if.expr.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %ref.N, ptr %str.N)
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
-  %refslot.N = alloca ptr, align 8
-  store ptr %load.N, ptr %refslot.N
-  %call.N = call ptr @str_cat(ptr %call.N, ptr %refslot.N)
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %load.N)
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca ptr
@@ -3500,9 +3478,7 @@ endif.N:
   %ref.N = load ptr, ptr %alloca.N
   %call.N = call ptr @substring(ptr %ref.N, i32 %bin.N, i32 %call.N)
   %ref.N = load ptr, ptr %alloca.N
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
-  %call.N = call ptr @str_cat(ptr %ref.N, ptr %refslot.N)
+  %call.N = call ptr @str_cat(ptr %ref.N, ptr %call.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   store ptr %call.N, ptr %alloca.N
@@ -3913,10 +3889,8 @@ endif.N:
 define ptr @route_key(i32 %0, ptr %1) {
 entry:
   %call.N = call ptr @method_name(i32 %0)
-  %refslot.N = alloca ptr, align 8
-  store ptr %call.N, ptr %refslot.N
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %refslot.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
   %ref.N = load ptr, ptr %alloca.N
