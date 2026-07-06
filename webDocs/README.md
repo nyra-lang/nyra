@@ -209,11 +209,32 @@ After changing HTML content or `nyra-skill.md`, always run **`build-search-index
 
 ## Deployment (GitHub Pages)
 
-1. Push this repository to GitHub (`nyra-lang/docs` or equivalent).
-2. **Settings → Pages → Build and deployment → Source:** GitHub Actions (or *Deploy from branch* → `main` / `/` root).
-3. Site URL (example): `https://nyra-lang.github.io/docs/` or a custom domain.
+This folder lives inside the **[Nyra compiler repo](https://github.com/nyra-lang/nyra)** at `webDocs/` (not repo root). GitHub Pages serves **`webDocs/` contents as the site root** — not `Cargo.toml`, `compiler/`, etc.
 
-No server runtime — only static files and `search-index.json`.
+### Automatic (GitHub Actions)
+
+Workflow: [`.github/workflows/pages.yml`](../.github/workflows/pages.yml)
+
+| Trigger | Action |
+|---------|--------|
+| Push to `main` | Deploy when `webDocs/**` (or build scripts) change |
+| Manual | **Actions → Deploy webDocs to GitHub Pages → Run workflow** |
+
+**One-time repo setup:**
+
+1. **Settings → Pages → Build and deployment → Source:** **GitHub Actions**
+2. After first successful run, open the deployment URL from the workflow summary.
+
+`webDocs/.nojekyll` disables Jekyll so `_includes/`, `vendor/`, and static assets are served as-is.
+
+### Local preview
+
+```bash
+cd webDocs && python3 -m http.server 8080
+# open http://localhost:8080/index.html
+```
+
+No server runtime in production — only static HTML, CSS, JS, and `search-index.json`.
 
 ---
 

@@ -1,0 +1,54 @@
+# Deploy static docs from webDocs/ (not repo root) to GitHub Pages.
+#
+# Repo settings → Pages → Build and deployment → Source: GitHub Actions
+name: Deploy webDocs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "webDocs/**"
+      - "make/lib/build-webdocs.sh"
+      - "make/py/gen-typed-examples.py"
+      - "scripts/snippet-types.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy webDocs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build webDocs (search index, skill, code tabs)
+        shell: bash
+        run: make build-webdocs
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Site root = webDocs/ contents (language docs live here, not repo root).
+          path: webDocs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
