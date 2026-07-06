@@ -28,7 +28,7 @@ Bump `[workspace.package] version` in [`Cargo.toml`](../Cargo.toml) and add a [`
 5. **webDocs** — update HTML in [`webDocs/`](../webDocs/) when syntax, stdlib, CLI, or ABI changes:
 
 ```bash
-node webDocs/scripts/build-nyra-skill.mjs    # syncs skills/skill.md
+node webDocs/scripts/build-nyra-skill.mjs    
 node webDocs/scripts/build-search-index.mjs
 ```
 
