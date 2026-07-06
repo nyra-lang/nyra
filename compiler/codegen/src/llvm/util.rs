@@ -239,25 +239,39 @@ pub(super) fn llvm_storage_ty(ty: &str) -> &str {
     }
 }
 
+pub(super) fn is_float_llvm_ty(ty: &str) -> bool {
+    matches!(ty, "float" | "double" | "f32" | "f64")
+}
+
+pub(super) fn llvm_float_storage_ty(ty: &str) -> &str {
+    match ty {
+        "float" | "f32" => "float",
+        "double" | "f64" => "double",
+        _ => ty,
+    }
+}
+
 /// Typed zero for `add ty ZERO, val` materialization of literal SSA bindings.
 pub(super) fn llvm_typed_zero(storage_ty: &str) -> &'static str {
-    match storage_ty {
-        "float" | "double" => "0.0",
-        _ => "0",
+    if is_float_llvm_ty(storage_ty) {
+        "0.0"
+    } else {
+        "0"
     }
 }
 
 /// Integer `add` vs floating `fadd` when materializing literal SSA bindings.
 pub(super) fn llvm_scalar_materialize_op(storage_ty: &str) -> &'static str {
-    match storage_ty {
-        "float" | "double" => "fadd",
-        _ => "add",
+    if is_float_llvm_ty(storage_ty) {
+        "fadd"
+    } else {
+        "add"
     }
 }
 
-/// LLVM constant operand for materializing a scalar literal into SSA (`add ty 0, lit`).
+/// LLVM constant operand for materializing a scalar literal into SSA (`fadd ty 0.0, lit`).
 pub(super) fn llvm_materialize_scalar_literal(storage_ty: &str, raw: &str) -> String {
-    match storage_ty {
+    match llvm_float_storage_ty(storage_ty) {
         "double" => {
             if raw.contains('e') || raw.contains('E') {
                 raw.to_string()

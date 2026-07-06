@@ -20,7 +20,8 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_typed_zero, llvm_scalar_materialize_op, llvm_materialize_scalar_literal, llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_typed_zero, llvm_scalar_materialize_op, llvm_materialize_scalar_literal, llvm_float_storage_ty,
+    is_float_llvm_ty, llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -138,7 +139,9 @@ impl Codegen {
                     || self.drop_plan.needs_struct_drop_in(&drop_state.func, &l.name)
                     || self.drop_plan.is_enum_payload_in(&drop_state.func, &l.name)
                     || self.drop_plan.is_join_handle_in(&drop_state.func, &l.name);
-                let storage_ty = if val.ty.starts_with('%') {
+                let storage_ty = if is_float_llvm_ty(&val.ty) {
+                    llvm_float_storage_ty(&val.ty).to_string()
+                } else if val.ty.starts_with('%') {
                     val.ty.clone()
                 } else {
                     llvm_storage_ty(&val.ty).to_string()
@@ -305,7 +308,11 @@ impl Codegen {
                         },
                     );
                 } else {
-                    let storage_ty = llvm_storage_ty(&val.ty).to_string();
+                    let storage_ty = if is_float_llvm_ty(&val.ty) {
+                        llvm_float_storage_ty(&val.ty).to_string()
+                    } else {
+                        llvm_storage_ty(&val.ty).to_string()
+                    };
                     let reg = if val.reg.starts_with('%') {
                         val.reg.trim_start_matches('%').to_string()
                     } else if val.reg.chars().all(|c| {
