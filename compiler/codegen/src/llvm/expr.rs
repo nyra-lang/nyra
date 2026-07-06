@@ -20,7 +20,7 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_float_const, llvm_pointee_ty, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, llvm_value_operand, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -162,11 +162,7 @@ impl Codegen {
                                     self.emit(&format!(
                                         "  %{slot} = alloca {llvm_ty}, align 8"
                                     ));
-                                    let reg_ref = if reg.starts_with('%') {
-                                        reg.clone()
-                                    } else {
-                                        format!("%{reg}")
-                                    };
+                                    let reg_ref = llvm_value_operand(reg);
                                     self.emit(&format!(
                                         "  store {llvm_ty} {reg_ref}, {} %{slot}",
                                         llvm_ptr(llvm_ty)

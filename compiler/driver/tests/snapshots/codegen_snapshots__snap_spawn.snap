@@ -19,6 +19,7 @@ declare void @spawn_task_handle_drop(ptr)
 
 define i32 @main() {
 entry:
+  %ssa.N = add i32 0, 99
   %spawn.cap.N = alloca %SpawnCap.main.N
   %spawn.gep.N = getelementptr inbounds %SpawnCap.main.N, %SpawnCap.main.N* %spawn.cap.N, i64 0, i32 0
   store i32 100, i32* %spawn.gep.N

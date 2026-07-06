@@ -1161,7 +1161,9 @@ entry:
 }
 define %HttpUrl @parse_http_url(ptr %0) {
 entry:
+  %ssa.N = add i32 0, 0
   %call.N = call i32 @str_len(ptr %0)
+  %ssa.N = add i1 0, 0
   %bin.N = icmp sge i32 %call.N, 8
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -1175,14 +1177,14 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
-  %if.phi.N = phi i32 [8, %then.N], [0, %else.N]
-  %if.phi.N = phi i1 [1, %then.N], [0, %else.N]
+  %if.phi.N = phi i32 [8, %then.N], [%ssa.N, %else.N]
+  %if.phi.N = phi i1 [1, %then.N], [%ssa.N, %else.N]
   br label %endif.N
 else.N:
   br label %endif.N
 endif.N:
-  %if.phi.N = phi i32 [%if.phi.N, %endif.N], [0, %else.N]
-  %if.phi.N = phi i1 [%if.phi.N, %endif.N], [0, %else.N]
+  %if.phi.N = phi i32 [%if.phi.N, %endif.N], [%ssa.N, %else.N]
+  %if.phi.N = phi i1 [%if.phi.N, %endif.N], [%ssa.N, %else.N]
   %unary.N = xor i1 %if.phi.N, true
   %bin.N = icmp sge i32 %call.N, 7
   %bin.N = and i1 %unary.N, %bin.N
@@ -1208,13 +1210,14 @@ endif.N:
   %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
   store ptr %str_clone.N, ptr %alloca.N
+  %ssa.N = add i32 0, 80
   br i1 %if.phi.N, label %then.N, label %else.N
 then.N:
   br label %endif.N
 else.N:
   br label %endif.N
 endif.N:
-  %if.phi.N = phi i32 [443, %then.N], [80, %else.N]
+  %if.phi.N = phi i32 [443, %then.N], [%ssa.N, %else.N]
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %str_clone.N = call ptr @str_clone(ptr %str.N)
   %alloca.N = alloca ptr
@@ -1701,9 +1704,10 @@ entry:
 define %TcpStream @tcp_accept_wait(%TcpListener* %0, i32 %1) {
 entry:
   %call.N = call i32 @tcp_accept_task(%TcpListener* %0)
+  %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
   %bin.N = icmp slt i32 %loop.phi.N, %1
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
@@ -1979,10 +1983,11 @@ else.N:
 endif.N:
   %bin.N = add i32 %call.N, 1
   %ssa.N = add i32 0, %bin.N
+  %ssa.N = add i32 0, 0
   %call.N = call i32 @str_len(ptr %0)
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %endif.N], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %endif.N], [%loop.in.N, %endif.N]
   %loop.phi.N = phi i32 [%ssa.N, %endif.N], [%loop.in.N, %endif.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
@@ -2163,11 +2168,13 @@ entry:
 }
 define i32 @parse_i32_digits(ptr %0) {
 entry:
+  %ssa.N = add i32 0, 0
+  %ssa.N = add i32 0, 0
   %call.N = call i32 @str_len(ptr %0)
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %endif.N]
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
@@ -2219,10 +2226,12 @@ endif.N:
 define i32 @str_to_i32_hex(ptr %0) {
 entry:
   %call.N = call i32 @str_len(ptr %0)
+  %ssa.N = add i32 0, 0
+  %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %endif.N]
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
@@ -2940,9 +2949,10 @@ endif.N:
   %call.N = call ptr @vec_str_get(ptr %0, i32 0)
   %alloca.N = alloca ptr
   store ptr %call.N, ptr %alloca.N
+  %ssa.N = add i32 0, 1
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [1, %endif.N], [%loop.in.N, %while.body.N]
+  %loop.phi.N = phi i32 [%ssa.N, %endif.N], [%loop.in.N, %while.body.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
@@ -3978,9 +3988,10 @@ entry:
   %alloca.N = alloca ptr
   store ptr %str_clone.N, ptr %alloca.N
   %call.N = call i32 @vec_str_len(ptr %0)
+  %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %while.body.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %while.body.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
@@ -4151,9 +4162,10 @@ entry:
   %alloca.N = alloca ptr
   store ptr %str_clone.N, ptr %alloca.N
   %call.N = call i32 @vec_str_len(ptr %0)
+  %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %while.body.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %while.body.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:

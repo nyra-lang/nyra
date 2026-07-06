@@ -1,6 +1,5 @@
 ---
 source: compiler/driver/tests/codegen_snapshots.rs
-assertion_line: 112
 expression: normalize_ir(& ir)
 ---
 source_filename = "test.ny"
@@ -33,10 +32,12 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
+  %ssa.N = add i32 0, 1
+  %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %endif.N], [%loop.in.N, %while.body.N]
-  %loop.phi.N = phi i32 [1, %endif.N], [%loop.in.N, %while.body.N]
+  %loop.phi.N = phi i32 [%ssa.N, %endif.N], [%loop.in.N, %while.body.N]
+  %loop.phi.N = phi i32 [%ssa.N, %endif.N], [%loop.in.N, %while.body.N]
   %bin.N = icmp slt i32 %loop.phi.N, %1
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
