@@ -23,9 +23,11 @@ import argparse
 import html as html_mod
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
@@ -162,6 +164,79 @@ def webdocs_runner_settings() -> tuple[int, int]:
     return jobs, timeout
 
 
+_ACTIVE_PROCS: list[subprocess.Popen[bytes]] = []
+_ACTIVE_LOCK = threading.Lock()
+
+
+def _register_proc(proc: subprocess.Popen[bytes]) -> None:
+    with _ACTIVE_LOCK:
+        _ACTIVE_PROCS.append(proc)
+
+
+def _unregister_proc(proc: subprocess.Popen[bytes]) -> None:
+    with _ACTIVE_LOCK:
+        try:
+            _ACTIVE_PROCS.remove(proc)
+        except ValueError:
+            pass
+
+
+def _kill_proc_tree(proc: subprocess.Popen[bytes]) -> None:
+    """Kill nyra and any compiled snippet binary in the same process group."""
+    if proc.poll() is not None:
+        return
+    try:
+        if sys.platform == "win32":
+            subprocess.run(
+                ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+        else:
+            os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError, OSError):
+        try:
+            proc.kill()
+        except ProcessLookupError:
+            pass
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
+
+
+def _cleanup_all_procs(signum: int | None = None, _frame: object | None = None) -> None:
+    with _ACTIVE_LOCK:
+        procs = list(_ACTIVE_PROCS)
+    for proc in procs:
+        _kill_proc_tree(proc)
+    if signum is not None:
+        raise SystemExit(128 + signum)
+
+
+def _install_signal_handlers() -> None:
+    signal.signal(signal.SIGINT, _cleanup_all_procs)
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, _cleanup_all_procs)
+
+
+def _popen_run_nyra(
+    nyra: Path, path: Path, stdout: object, stderr: object
+) -> subprocess.Popen[bytes]:
+    popen_kwargs: dict[str, object] = {
+        "args": [str(nyra), "run", str(path)],
+        "cwd": ROOT,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    if sys.platform == "win32":
+        popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs["start_new_session"] = True
+    return subprocess.Popen(**popen_kwargs)
+
+
 def snippet_expects_fail(code: str, explicit: bool) -> bool:
     """True when snippet is an intentional error demo (HTML marker or // ERROR on code)."""
     if explicit:
@@ -182,21 +257,23 @@ def run_snippet(snippet: Snippet, nyra: Path, timeout: int) -> tuple[Snippet, bo
         err_path = td_path / "stderr.txt"
         out_path = td_path / "stdout.txt"
         path.write_text(snippet.code + "\n", encoding="utf-8")
+        proc: subprocess.Popen[bytes] | None = None
         try:
             # Write child output to files, not pipes — parallel capture_output=True can
             # deadlock on Windows when compiler stderr fills the OS pipe buffer.
             with err_path.open("w", encoding="utf-8", errors="replace") as errf, out_path.open(
                 "w", encoding="utf-8", errors="replace"
             ) as outf:
-                proc = subprocess.run(
-                    [str(nyra), "run", str(path)],
-                    cwd=ROOT,
-                    stdout=outf,
-                    stderr=errf,
-                    timeout=timeout,
-                )
-        except subprocess.TimeoutExpired:
-            return snippet, False, f"timeout after {timeout}s"
+                proc = _popen_run_nyra(nyra, path, outf, errf)
+                _register_proc(proc)
+                try:
+                    proc.wait(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    _kill_proc_tree(proc)
+                    return snippet, False, f"timeout after {timeout}s"
+        finally:
+            if proc is not None:
+                _unregister_proc(proc)
         stderr = err_path.read_text(encoding="utf-8", errors="replace")
         stdout = out_path.read_text(encoding="utf-8", errors="replace")
         ok = proc.returncode == 0
@@ -311,6 +388,8 @@ def main() -> int:
             skipped += 1
             continue
         runnable.append(s)
+
+    _install_signal_handlers()
 
     with ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = {
