@@ -15,32 +15,34 @@ Nyra is actively developed (current toolchain version: see `[workspace.package] 
 5. [Documentation map](#start-here--documentation-map)
 6. [Mandatory checklist](#mandatory-checklist-language--stdlib--cli--runtime-changes)
 7. [Where to edit](#where-to-edit-quick-reference)
-8. [How to add a stdlib function](#how-to-add-a-stdlib-function) (+ [case study: strip_suffix](#case-study-strip_suffix-end-to-end))
-9. [Makefile & Python generators](#makefile--python-generators-make)
-10. [Repository map](#repository-map)
-11. [Testing](#testing) (+ [decision tree](#test-decision-tree))
-12. [Documentation sources](#documentation-where-to-edit-what)
-13. [Version bump policy](#version-bump-policy)
-14. [Troubleshooting & FAQ](#troubleshooting--faq)
-15. [Glossary](#glossary)
-16. [IDE & diagnostics](#ide--diagnostics-tooling)
-17. [CI overview](#ci-overview-what-runs-on-prs)
-18. [NyraPkg workflow](#nyrapkg-workflow)
-19. [Removing a feature](#removing-a-feature)
-20. [Debugging the compiler](#debugging-the-compiler)
-21. [Development setup · CLI · PRs · Release](#development-setup)
-22. [Reporting issues · Performance · Naming · License](#reporting-issues)
+8. [How to add a stdlib function](#how-to-add-a-stdlib-function) — patterns A–D + [strip_suffix case study](#case-study-strip_suffix-end-to-end)
+9. [Contributor hub guide (`make contribute`)](#contributor-hub-guide-make-contribute) — menu, questions, full simulation
+10. [Makefile & Python generators](#makefile--python-generators-make)
+11. [Repository map](#repository-map)
+12. [Testing](#testing) (+ [decision tree](#test-decision-tree))
+13. [Documentation sources](#documentation-where-to-edit-what)
+14. [Version bump policy](#version-bump-policy)
+15. [Troubleshooting & FAQ](#troubleshooting--faq)
+16. [Glossary](#glossary)
+17. [IDE & diagnostics](#ide--diagnostics-tooling)
+18. [CI overview](#ci-overview-what-runs-on-prs)
+19. [NyraPkg workflow](#nyrapkg-workflow)
+20. [Removing a feature](#removing-a-feature)
+21. [Debugging the compiler](#debugging-the-compiler)
+22. [Development setup · CLI · PRs · Release](#development-setup)
+23. [Reporting issues · Performance · Naming · License](#reporting-issues)
 
 **Suggested reading order (new contributor):**
 
 1. [Your first contribution](#your-first-contribution-10-minutes) — clone, build, install-dev, smoke test
 2. [Contributor personas](#contributor-personas-who-edits-what) — pick your path (stdlib vs compiler vs docs)
-3. [`docs/contributor-map.md`](docs/contributor-map.md) — flowchart for “where do I edit?”
-4. [How to add a stdlib function](#how-to-add-a-stdlib-function) — patterns A–D + [strip_suffix case study](#case-study-strip_suffix-end-to-end)
-5. [Testing](#testing) + [test decision tree](#test-decision-tree)
-6. [Troubleshooting & FAQ](#troubleshooting--faq) — when `nyra test` fails but `nyra run` works
-7. [Debugging the compiler](#debugging-the-compiler) — snapshots, single-crate tests
-8. [Glossary](#glossary) — terms you will see in PRs and docs
+3. [Contributor hub guide](#contributor-hub-guide-make-contribute) — `make contribute` menu, questions, full simulation
+4. [`docs/contributor-map.md`](docs/contributor-map.md) — flowchart for “where do I edit?”
+5. [How to add a stdlib function](#how-to-add-a-stdlib-function) — patterns A–D + [strip_suffix case study](#case-study-strip_suffix-end-to-end)
+6. [Testing](#testing) + [test decision tree](#test-decision-tree)
+7. [Troubleshooting & FAQ](#troubleshooting--faq) — when `nyra test` fails but `nyra run` works
+8. [Debugging the compiler](#debugging-the-compiler) — snapshots, single-crate tests
+9. [Glossary](#glossary) — terms you will see in PRs and docs
 
 ---
 
@@ -303,38 +305,664 @@ Example: [`make/py/builtin_dev/examples/strip_suffix.json`](make/py/builtin_dev/
 
 ### E — **Contributor hub** (`make contribute`)
 
-For stdlib wrappers, extern+C APIs, test/example pairs, NyraPkg scaffolds, CLI stubs, conformance contracts, and syntax checklists — use the unified hub instead of copying files by hand:
+Short pointer — patterns A/B/D above. **Full walkthrough:** [Contributor hub guide](#contributor-hub-guide-make-contribute) (menu, every question, example answers, full simulation).
 
 ```bash
 make contribute                         # interactive menu (add)
 make contribute-list                    # show [contrib-dev:…] markers
 make contribute-remove ARGS='-i'        # remove scaffold
 make contribute-patch ARGS='--marker … --config …'
-
-make contribute ARGS='add --recipe test-example --config make/py/contrib_dev/examples/test_example.json'
 make test-contrib-py                    # CI smoke for Python tooling
 ```
 
-| Menu | Recipe | Use when |
-|------|--------|----------|
-| 1 | `stdlib-pure` | Pattern A — Nyra `fn` only |
-| 2 | `stdlib-extern` | Pattern B — `extern fn` + C + `runtime_map.rs` |
-| 3 | `builtin` | Delegates to `make add-builtin` |
-| 4 | `test-example` | `tests/nyra/*_test.ny` + `examples/` pair |
-| 5 | `pkg` | `examples/packages/<name>/` |
-| 6 | `cli` | Manual wire scaffold in `docs/contrib_scaffold/` |
-| 7 | `conformance` | `tests/conformance/pass/` or `fail/` |
-| 8 | `syntax-scaffold` | Checklist + stubs — **no auto lexer/parser edits** |
-
 Full details: [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md).
+
+After stable ABI: `make gen-abi-header` · `make gen-bindings-doc`.
+
+---
+
+## Contributor hub guide (`make contribute`)
+
+The contributor hub is a **step-by-step monitor** for new scaffolds. Every interactive question shows:
+
+| Label | Meaning |
+|-------|---------|
+| **WHY** | Why we ask this question |
+| **TOOL** | What `make contribute` writes automatically (wiring + stubs) |
+| **YOU** | What you implement afterward (logic, tests, manual CLI wire) |
+
+After the wizard you get a **PREVIEW** (files + confirm). After apply you get a **MONITOR** (TOOL DID / YOU DO / VERIFY / UNDO).
+
+### Commands
+
+| Command | Purpose |
+|---------|---------|
+| `make contribute` | Add scaffold — interactive menu (default) |
+| `make contribute-list` | List all `[contrib-dev:…]` markers in the repo |
+| `make contribute-remove ARGS='-i'` | Remove a scaffold by marker |
+| `make contribute-patch ARGS='--marker … --config …'` | Remove + re-add with updated JSON spec |
+| `make test-contrib-py` | Verify Python tooling (runs in `make test-preflight`) |
+
+Non-interactive add:
+
+```bash
+make contribute ARGS='add --recipe test-example --config make/py/contrib_dev/examples/test_example.json'
+```
+
+JSON examples: [`make/py/contrib_dev/examples/`](make/py/contrib_dev/examples/).
+
+### Monitor legend (after every add/remove/patch)
+
+| Section | Meaning |
+|---------|---------|
+| **TOOL DID** | Files created/updated automatically — do not hand-wire the same paths |
+| **YOU DO** | Your tasks — open these files, replace `TODO`, fix assertions |
+| **WHERE you edit** | Paths to open in the editor |
+| **VERIFY** | Commands to run before opening a PR |
+| **WHY this split** | Tool handles repetitive wiring; you own semantics |
+| **UNDO** | `make contribute-remove ARGS='--marker …'` |
+
+---
+
+### Main menu (what you see after `make contribute`)
+
+```
+┌─────────────────────────────────────────────┐
+│             make contribute                 │
+│  Step-by-step monitor — TOOL wires, YOU code│
+├─────────────────────────────────────────────┤
+│ 1. Stdlib Pure Function (Pattern A)         │
+│    Nyra fn in stdlib — no new C             │
+│ 2. Stdlib Extern + C (Pattern B)            │
+│    extern fn + rt/*.c + runtime_map         │
+│ 3. Built-in Method (.method)                │
+│    → make add-builtin wizard                │
+│ 4. Test + Example Pair                      │
+│    tests/nyra/* + examples/* (typed pair)   │
+│ 5. NyraPkg Package                          │
+│    examples/packages/<name>/                │
+│ 6. CLI Command / Flag                       │
+│    scaffold → manual wire in cli/           │
+│ 7. Conformance Test                         │
+│    pass/ or fail/ language contract         │
+│ 8. Syntax / Keyword Scaffold                │
+│    checklist — no auto lexer/parser         │
+└─────────────────────────────────────────────┘
+```
+
+**How to choose:** type `1`–`8` at `Select recipe [1-8]:`.
+
+| # | Pick when… |
+|---|------------|
+| 1 | Nyra-only stdlib helper (wrapper over existing `extern fn`) |
+| 2 | New C-backed stdlib API (`extern fn` + `stdlib/rt/`) |
+| 3 | String/array method `.foo()` (compiler + C — many files) |
+| 4 | Any feature needs tests + runnable demo |
+| 5 | Community package (NyraPkg) under `examples/packages/` |
+| 6 | New `nyra` subcommand or `--flag` |
+| 7 | Stable language contract test |
+| 8 | New keyword/syntax (checklist only) |
+
+---
+
+### Option 1 — Stdlib Pure (Pattern A)
+
+**When:** Nyra `fn` in stdlib without new C.
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Stdlib module path | `json/mod.ny` | Which file gets the new `fn` |
+| 2 | Function name | `decode_user_id` | Public API name |
+| 3 | Arguments | `json:string, key:string` | Parameter list |
+| 4 | Return type | `i32` | Return type |
+| 5 | Wrap existing extern fn | `json_get_i32` or empty | Auto-wrapper vs custom body |
+
+**TOOL creates:** `stdlib/<module>.ny`, `tests/nyra/<fn>_test.ny` (+ `.typed.ny`), `examples/<topic>/<fn>.ny` (+ `.typed.ny`).
+
+**YOU edit:** fn body in `stdlib/`, assertions in tests.
+
+**Verify:** `nyra test tests/nyra/<fn>_test.ny`
+
+---
+
+### Option 2 — Stdlib Extern + C (Pattern B)
+
+**When:** New C runtime symbol in core stdlib.
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Stdlib module path | `json/mod.ny` | `extern fn` declaration file |
+| 2 | Function name | `json_get_f64` | C symbol + Nyra name |
+| 3 | Arguments | `json:string, key:string` | C parameters |
+| 4 | Return type | `f64` | C return |
+| 5 | C runtime file | `rt_json.c` | Where C stub lives |
+| 6 | Stable ABI? | `n` | Public FFI manifest |
+
+**TOOL creates:** `stdlib/<module>.ny`, `stdlib/rt/<rt>.c`, `runtime_map.rs`, tests, examples; optionally `abi-manifest.toml`.
+
+**YOU edit:** C implementation in `stdlib/rt/`, test expectations.
+
+**Verify:** `make install-dev && nyra test tests/nyra/<fn>_test.ny`
+
+---
+
+### Option 3 — Built-in Method
+
+**When:** `.strip_suffix()`-style method on `string` / `array` / `bytes`.
+
+Delegates to `make add-builtin` (same WHY/TOOL/YOU style). See [Pattern D](#d--stringarray-method-builtin-method-) above.
+
+---
+
+### Option 4 — Test + Example Pair
+
+**When:** Every user-visible change needs coverage.
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Feature name | `borrow_ref_deref` | Base file name |
+| 2 | Example topic | `syntax` | Folder under `examples/` |
+| 3 | Optional import | `stdlib/testing.ny` or empty | Pre-import in generated files |
+
+**TOOL creates:** four files — `tests/nyra/<name>_test.ny`, `.typed.ny`, `examples/<topic>/<name>.ny`, `.typed.ny`.
+
+**YOU edit:** replace `assert_eq(1, 1)` and `TODO` demo text.
+
+**Verify:** `nyra test tests/nyra/<name>_test.ny && nyra run examples/<topic>/<name>.ny`
+
+---
+
+### Option 5 — NyraPkg Package
+
+**When:** Package for community (not core stdlib). Scaffold goes to **`nyra/examples/packages/`** (not the separate `nyrapkg` tool repo).
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Package name | `ny-redis` | Folder + import path |
+| 2 | Version | `0.1.0` | Semver in `nyra.mod` |
+| 3 | Native link library | `sqlite3` or empty | C shim + `link` line |
+
+**TOOL creates:** `examples/packages/<name>/` with `nyra.mod`, `<module>.ny`, `main.ny`, `README.md`, optional `rt/*.c`.
+
+**YOU edit:** API + C shims; install via `nyrapkg` / `NYRA_HOME` (see [NyraPkg workflow](#nyrapkg-workflow)).
+
+**Verify:** `cd examples/packages/<name> && nyra run main.ny`
+
+---
+
+### Option 6 — CLI Command / Flag
+
+**When:** New `nyra` subcommand or global flag.
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Kind | `1` = subcommand, `2` = flag | clap snippet shape |
+| 2 | Name | `fmt_check` | Module + CLI id |
+| 3 | Description | `Deep format validation` | `--help` text |
+
+**TOOL creates:** `docs/contrib_scaffold/cli_<name>/` (not `cli/src/` — avoids breaking build).
+
+**YOU manually:** copy `args_snippet.rs` → `cli/src/app/args.rs`; move `command.rs` → `cli/src/commands/<name>.rs`; wire `mod.rs` + `session.rs`.
+
+**Verify:** `cargo test -p cli && make smoke-cli`
+
+---
+
+### Option 7 — Conformance Test
+
+**When:** Stable language contract (must pass or must fail compile).
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Mode | `1` = pass, `2` = fail | `nyra test` vs `nyra check` |
+| 2 | Area | `strings` | Subfolder under pass/ or fail/ |
+| 3 | Test name | `string_concat` | File name |
+| 4 | Description | `Concat preserves both operands` | Contract comment |
+
+**TOOL creates:** `tests/conformance/pass/<area>/<name>.ny` or `fail/…`.
+
+**YOU edit:** real assertions or failing code.
+
+**Verify:** `make test-conformance`
+
+---
+
+### Option 8 — Syntax / Keyword Scaffold
+
+**When:** New keyword — **checklist only** (no auto lexer/parser edits).
+
+| Step | Question | Example answer | WHY (short) |
+|------|----------|----------------|-------------|
+| 1 | Keyword | `await` | Token name |
+| 2 | Feature slug | `async_select` | File/dir names |
+| 3 | Description | `Select among async branches` | Semantics |
+| 4 | Needs expand? | `y` | Desugar pass in `expand/` |
+| 5 | Needs comptime? | `n` | `const_eval/` |
+
+**TOOL creates:** `docs/contrib_scaffold/syntax_<slug>/CHECKLIST.md`, grammar hint, tests, examples.
+
+**YOU edit:** full compiler pipeline per checklist.
+
+**Verify:** `cargo test -p compiler && nyra test tests/nyra/<slug>_syntax_test.ny`
+
+---
+
+### Full simulation — Option 4 (Test + Example)
+
+What a new contributor sees from start to finish.
+
+> **Important:** No files are created until you confirm **“Apply scaffold now? (Y/n)”** with `Y`.
+> If you press **Ctrl+C** at any point before that (or answer `n`), nothing is written — commands like
+> `nyra test tests/nyra/greet_user_test.ny` will fail with “not found” because the scaffold was never applied.
+
+**1. Start**
+
+```bash
+cd nyra
+make contribute
+```
+
+**2. Menu** — type `4` and Enter.
+
+**3. Wizard** (each step shows WHY / TOOL / YOU):
+
+```
+── Step 1/3 ──
+Q: Feature name (snake_case)
+   WHY  → Base name for test and example files.
+   TOOL → Creates <name>_test.ny and examples/<topic>/<name>.ny.
+   YOU  → Write assertions and demo main().
+   e.g. borrow_ref_deref
+
+→ Feature name (snake_case) [my_feature]: greet_user
+
+── Step 2/3 ──
+Q: Example topic folder under examples/
+   ...
+→ Example topic folder under examples/ [syntax]: syntax
+
+── Step 3/3 ──
+Q: Optional stdlib import path
+   ...
+→ Optional stdlib import path []: 
+```
+
+**4. Preview + confirm**
+
+```
+  PREVIEW — confirm before writing files
+    name: greet_user
+    topic: syntax
+    import: (none)
+
+  TOOL will create/edit:
+    • tests/nyra/greet_user_test.ny (+ .typed.ny)
+    • examples/syntax/greet_user.ny (+ .typed.ny)
+
+→ Apply scaffold now? (Y/n): y
+```
+
+**5. Monitor (after apply)**
+
+```
+✅ TOOL DID (automatic):
+   • tests/nyra/greet_user_test.ny — created
+   • tests/nyra/greet_user_test.typed.ny — created
+   • examples/syntax/greet_user.ny — created
+   • examples/syntax/greet_user.typed.ny — created
+
+📋 YOU DO:
+   1. Implement tests in tests/nyra/greet_user_test.ny
+   2. Implement demo in examples/syntax/greet_user.ny
+   3. Run: nyra test tests/nyra/greet_user_test.ny
+   4. Run: nyra run examples/syntax/greet_user.ny
+
+▶ VERIFY:
+   1. nyra test … && nyra run …
+   2. make install-dev     # if compiler/stdlib wiring changed
+   3. make test-preflight
+   4. make test-all
+
+🔄 UNDO: make contribute-remove ARGS='--marker test_example:greet_user'
+```
+
+**6. Your work** — open `tests/nyra/greet_user_test.ny`, replace placeholder assertions; open `examples/syntax/greet_user.ny`, write a small demo.
+
+**7. Verify**
+
+```bash
+nyra test tests/nyra/greet_user_test.ny
+nyra run examples/syntax/greet_user.ny
+```
+
+**8. Undo (optional)**
+
+```bash
+make contribute-remove ARGS='--marker test_example:greet_user'
+```
+
+---
+
+### Full simulation — Option 5 (NyraPkg Package)
+
+**When:** Community package under `examples/packages/` (not the separate `nyrapkg` tool repo).
+
+**1. Start**
+
+```bash
+cd nyra
+make contribute
+```
+
+**2. Menu** — type `5` and Enter.
+
+**3. Wizard**
+
+```
+── Step 1/3 ──
+Q: Package name
+   WHY  → Folder name and pkg import path (ny-foo).
+   TOOL → Creates examples/packages/<name>/ layout.
+   YOU  → Implement API; publish or use via nyrapkg.
+   e.g. ny-redis
+
+→ Package name [ny-example]: ny-redis
+
+── Step 2/3 ──
+Q: Version
+   ...
+→ Version [0.1.0]: 0.1.0
+
+── Step 3/3 ──
+Q: Native link library (or empty)
+   WHY  → If set, adds link + rt/*.c shim.
+   TOOL → Creates rt/<module>.c stub when link_lib set.
+   YOU  → Implement C shims; document in README.
+   e.g. sqlite3
+
+→ Native link library (or empty) []: sqlite3
+```
+
+**4. Preview + confirm**
+
+```
+  PREVIEW — confirm before writing files
+    name: ny-redis
+    version: 0.1.0
+    link_lib: sqlite3
+
+  TOOL will create/edit:
+    • examples/packages/ny-redis/nyra.mod
+    • examples/packages/ny-redis/ny_redis.ny
+    • examples/packages/ny-redis/main.ny
+    • examples/packages/ny-redis/README.md
+    • examples/packages/ny-redis/rt/ny_redis.c
+
+→ Apply scaffold now? (Y/n): y
+```
+
+**5. Monitor (after apply)**
+
+```
+✅ TOOL DID (automatic):
+   • examples/packages/ny-redis/nyra.mod — created
+   • examples/packages/ny-redis/ny_redis.ny — created
+   • examples/packages/ny-redis/main.ny — created
+   • examples/packages/ny-redis/README.md — created
+   • examples/packages/ny-redis/rt/ny_redis.c — created
+
+📋 YOU DO:
+   1. Implement API in examples/packages/ny-redis/ny_redis.ny
+   2. Implement C shims in examples/packages/ny-redis/rt/ny_redis.c
+   3. Smoke: cd examples/packages/ny-redis && nyra run main.ny
+
+▶ VERIFY:
+   cd examples/packages/ny-redis && nyra run main.ny
+
+🔄 UNDO: make contribute-remove ARGS='--marker pkg:ny-redis'
+```
+
+**6. Your work**
+
+- Open `examples/packages/ny-redis/ny_redis.ny` — replace `TODO` extern stubs with real API.
+- Open `rt/ny_redis.c` — implement C calls to `sqlite3`.
+- Update `main.ny` smoke test and `README.md`.
+
+**7. Verify**
+
+```bash
+cd examples/packages/ny-redis
+nyra run main.ny
+```
+
+**8. Non-interactive shortcut**
+
+```bash
+# Edit name/link_lib in JSON first, or copy examples/pkg.json
+make contribute ARGS='add --recipe pkg --config make/py/contrib_dev/examples/pkg.json'
+```
+
+---
+
+### Full simulation — Option 6 (CLI Command / Flag)
+
+**When:** New `nyra` subcommand or global flag. TOOL writes a **scaffold only** — you wire into `cli/` manually.
+
+**1. Start**
+
+```bash
+cd nyra
+make contribute
+```
+
+**2. Menu** — type `6` and Enter.
+
+**3. Wizard**
+
+```
+── Step 1/3 ──
+Q: CLI kind (1=subcommand, 2=flag)
+   WHY  → Subcommand = nyra foo; flag = nyra build --foo.
+   TOOL → Generates matching args_snippet.rs template.
+   YOU  → Copy snippet into cli/src/app/args.rs manually.
+
+→ CLI kind (1=subcommand, 2=flag)
+    1. Subcommand (nyra my_cmd …)
+    2. Global flag (nyra build --my_flag)
+  Choice: 1
+
+── Step 2/3 ──
+Q: Name (snake_case)
+   ...
+→ Name (snake_case) [my_cmd]: fmt_check
+
+── Step 3/3 ──
+Q: Short description
+   ...
+→ Short description [TODO: describe this command]: Deep format validation for projects
+```
+
+**4. Preview + confirm**
+
+```
+  PREVIEW — confirm before writing files
+    kind: subcommand
+    name: fmt_check
+    description: Deep format validation for projects
+
+  TOOL will create/edit:
+    • docs/contrib_scaffold/cli_fmt_check/command.rs
+    • docs/contrib_scaffold/cli_fmt_check/args_snippet.rs
+    • docs/contrib_scaffold/cli_fmt_check/README.md
+
+  YOU will implement:
+    • cli/src/app/args.rs       — paste args_snippet
+    • cli/src/commands/fmt_check.rs — implement run()
+    • cli/src/commands/mod.rs   — pub mod
+    • cli/src/app/session.rs    — dispatch match arm
+
+→ Apply scaffold now? (Y/n): y
+```
+
+**5. Monitor (after apply)**
+
+```
+✅ TOOL DID (automatic):
+   • docs/contrib_scaffold/cli_fmt_check/command.rs — created
+   • docs/contrib_scaffold/cli_fmt_check/args_snippet.rs — created
+   • docs/contrib_scaffold/cli_fmt_check/README.md — created
+
+📋 YOU DO:
+   1. Read docs/contrib_scaffold/cli_fmt_check/README.md
+   2. Copy args_snippet.rs into cli/src/app/args.rs
+   3. Move command.rs → cli/src/commands/fmt_check.rs and implement
+   4. Wire mod + dispatch in cli/src/commands/mod.rs and cli/src/app/session.rs
+
+⚠ NOTES:
+   • CLI wiring is manual — scaffold avoids breaking the build.
+
+▶ VERIFY:
+   cargo test -p cli && make smoke-cli
+
+🔄 UNDO: make contribute-remove ARGS='--marker cli:fmt_check'
+```
+
+**6. Your work (manual wiring)**
+
+```bash
+# 1. Read the scaffold README
+cat docs/contrib_scaffold/cli_fmt_check/README.md
+
+# 2. Paste clap snippet from args_snippet.rs into cli/src/app/args.rs
+# 3. Move and implement:
+#    docs/contrib_scaffold/cli_fmt_check/command.rs
+#      → cli/src/commands/fmt_check.rs
+# 4. Add to cli/src/commands/mod.rs:
+#      pub mod fmt_check;
+# 5. Add dispatch arm in cli/src/app/session.rs
+```
+
+**7. Verify**
+
+```bash
+cargo test -p cli
+make smoke-cli
+nyra fmt_check --help    # after wiring
+```
+
+**8. Non-interactive shortcut**
+
+```bash
+make contribute ARGS='add --recipe cli --config make/py/contrib_dev/examples/cli.json'
+```
+
+---
+
+### Full simulation — Option 2 (Stdlib Extern) — abbreviated
+
+```bash
+make contribute
+# choose 2
+# answer: json/mod.ny, json_get_f64, json:string,key:string, f64, rt_json.c, stable_abi=n
+# confirm Y
+# TOOL wires: stdlib/json/mod.ny, stdlib/rt/rt_json.c, runtime_map.rs, tests, examples
+# YOU: implement C in rt_json.c, fix tests, make install-dev, nyra test …
+```
+
+---
+
+### Related resources
 
 | Resource | Purpose |
 |----------|---------|
-| [`docs/make-and-generators.md`](docs/make-and-generators.md) | Full Makefile + `make/py/` catalog |
-| [`make/py/builtin_dev/README.md`](make/py/builtin_dev/README.md) | File map, wizard behaviour, patch workflow |
-| [`make/py/builtin_dev/examples/`](make/py/builtin_dev/examples/) | JSON specs (copy or use with `--config`) |
+| [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md) | Hub file map + subcommands |
+| [`make/py/contrib_dev/examples/`](make/py/contrib_dev/examples/) | JSON specs for non-interactive runs |
+| [`make/py/builtin_dev/README.md`](make/py/builtin_dev/README.md) | Option 3 (builtin methods) |
+| [`docs/contributor-map.md`](docs/contributor-map.md) | Where to edit in the compiler/stdlib |
 
-After stable ABI: `make gen-abi-header` · `make gen-bindings-doc`.
+---
+
+### Subcommands — list, remove, patch
+
+#### `make contribute-list`
+
+Shows every scaffold tagged with `[contrib-dev:…]`:
+
+```
+══════════════════════════════════════════════════════════════
+  CONTRIBUTE — WIRED SCAFFOLDS
+══════════════════════════════════════════════════════════════
+  • test_example:greet_user
+      tests/nyra/greet_user_test.ny
+      examples/syntax/greet_user.ny
+  …
+
+  Remove: make contribute-remove ARGS='-i'
+  Patch:  make contribute-patch ARGS='--marker <m> --config …'
+```
+
+**WHY:** See what the tool wired before you edit or open a PR.
+
+#### `make contribute-remove ARGS='-i'`
+
+Interactive remove — same monitor style:
+
+```
+── Remove scaffold ──
+  WHY  → Undo a scaffold wired by make contribute (marked [contrib-dev:…]).
+  TOOL → Removes markers, deletes scaffold files, cleans runtime_map if needed.
+  YOU  → Search for leftover references; run make test-preflight.
+
+  1. test_example:greet_user  (greet_user_test.ny, greet_user.ny)
+
+→ Select number or paste marker: 1
+```
+
+**TOOL:** Deletes marked files and unwires `runtime_map.rs` / ABI entries when applicable.
+
+**YOU:** Grep for leftover imports; run `make test-preflight`.
+
+#### `make contribute-patch ARGS='--marker … --config …'`
+
+Remove + re-add with an updated JSON spec (rename args, add stable ABI, etc.):
+
+```bash
+make contribute-patch ARGS='--marker test_example:my_feature --config make/py/contrib_dev/examples/test_example.json'
+```
+
+**WHY:** Safer than hand-editing multiple wired files — tool re-applies the recipe from JSON.
+
+**Example JSON** (`make/py/contrib_dev/examples/test_example.json`):
+
+```json
+{
+  "name": "borrow_ref_deref",
+  "example_topic": "syntax",
+  "import_path": "stdlib/testing.ny"
+}
+```
+
+---
+
+### Troubleshooting — “not found” after `make contribute`
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `not found: tests/nyra/greet_user_test.ny` | Wizard cancelled (Ctrl+C) or answered `n` at confirm | Re-run `make contribute`, finish all steps, confirm **Y** |
+| Same, but you saw the menu only | Interrupted at `Select recipe [1-8]:` | No recipe chosen — start again |
+| Files exist but `nyra test` fails | Scaffold applied but TODO placeholders remain | Edit test file — replace `assert_eq(1, 1)` |
+| Unsure if scaffold exists | | `make contribute-list` |
+
+**Quick create without interactive wizard** (Option 4, `greet_user`):
+
+```bash
+printf '%s\n' '{"name":"greet_user","example_topic":"syntax"}' > /tmp/greet_user.json
+make contribute ARGS='add --recipe test-example --config /tmp/greet_user.json'
+```
+
+Or copy and edit [`make/py/contrib_dev/examples/test_example.json`](make/py/contrib_dev/examples/test_example.json).
+
+---
 
 ### Case study: `strip_suffix` end-to-end
 

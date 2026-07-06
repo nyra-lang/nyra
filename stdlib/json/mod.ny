@@ -107,3 +107,4 @@ fn encode_i32(key: string, value: i32) -> string {
     Vec_str_free(values)
     return out
 }
+

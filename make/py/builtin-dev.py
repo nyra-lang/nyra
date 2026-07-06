@@ -71,7 +71,11 @@ def cmd_add(ns: argparse.Namespace) -> int:
     spec = build_spec_from_args(ns)
     result = add_builtin(spec, force=ns.force)
     print_add_monitor(result)
-    return 0 if result.ok() else 1
+    if result.ok():
+        return 0
+    if any("already present" in p.message for p in result.patches):
+        return 0
+    return 1
 
 
 def cmd_remove(ns: argparse.Namespace) -> int:

@@ -87,8 +87,10 @@ def _ensure_add_subcommand(argv: list[str]) -> list[str]:
 
 def run_builtin_wizard() -> int:
     script = _MAKE_PY / "builtin-dev.py"
-    print("\n── Built-in Method (.method) ──")
-    print("Delegating to make add-builtin wizard…\n")
+    print("\n── Built-in Method (.method) — option 3 ──")
+    print("  WHY  → String/array methods need compiler + C wiring (10+ files).")
+    print("  TOOL → Delegates to make add-builtin (same monitor style).")
+    print("  YOU  → Implement C in stdlib/rt/; fix tests.\n")
     return subprocess.call([sys.executable, str(script), "add", "-i"])
 
 
@@ -130,7 +132,11 @@ def cmd_add(args: argparse.Namespace) -> int:
     spec = resolve_spec(choice, args.config, interactive)
     result = apply_fn(spec, force=args.force)
     print_recipe_monitor(result)
-    return 0 if result.ok() else 1
+    if result.ok():
+        return 0
+    if any(getattr(p, "message", "") == "already present" for p in result.patches):
+        return 0
+    return 1
 
 
 def cmd_remove(args: argparse.Namespace) -> int:
@@ -216,4 +222,14 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        print(
+            "\n\nCancelled — no files were created or changed.\n"
+            "  Files are written only after you answer all questions and confirm\n"
+            "  “Apply scaffold now? (Y/n)” with Y.\n"
+            "  Re-run: make contribute",
+            file=sys.stderr,
+        )
+        raise SystemExit(130)

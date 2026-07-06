@@ -4,7 +4,3 @@ import "net/http/response.ny"
 fn fetch(url: string) -> string {
     return get(url)
 }
-
-fn http_status(response_header: string) -> i32 {
-    return http_status_from_header(response_header)
-}
