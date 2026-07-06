@@ -153,9 +153,13 @@ def nyra_bin() -> Path:
     return ROOT / "target" / "debug" / "nyra"
 
 
+def _running_on_windows() -> bool:
+    return sys.platform == "win32" or os.name == "nt"
+
+
 def webdocs_runner_settings() -> tuple[int, int]:
     """Return (parallel_jobs, timeout_seconds) with platform-tuned defaults."""
-    if sys.platform == "win32":
+    if _running_on_windows():
         default_jobs, default_timeout = "2", "120"
     else:
         default_jobs, default_timeout = "8", "45"
