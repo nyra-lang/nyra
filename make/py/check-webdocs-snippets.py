@@ -123,10 +123,31 @@ def extract_snippets(html_path: Path, include_typed: bool) -> list[Snippet]:
     return out
 
 
+def resolve_nyra_executable(path: Path) -> Path | None:
+    """Return path when it is a real file; on Windows also try ``path`` + ``.exe``."""
+    if path.is_file():
+        return path
+    if not str(path).lower().endswith(".exe"):
+        exe = Path(f"{path}.exe")
+        if exe.is_file():
+            return exe
+    return None
+
+
 def nyra_bin() -> Path:
     env = os.environ.get("NYRA_BIN")
     if env:
+        resolved = resolve_nyra_executable(Path(env))
+        if resolved is not None:
+            return resolved
         return Path(env)
+    for candidate in (
+        ROOT / "target" / "debug" / "nyra.exe",
+        ROOT / "target" / "debug" / "nyra",
+    ):
+        resolved = resolve_nyra_executable(candidate)
+        if resolved is not None:
+            return resolved
     return ROOT / "target" / "debug" / "nyra"
 
 
