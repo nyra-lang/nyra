@@ -20,7 +20,7 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_typed_zero, llvm_scalar_materialize_op, llvm_materialize_scalar_literal, llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -165,8 +165,10 @@ impl Codegen {
                     let reg = if val.reg.starts_with('%') {
                         let tmp = self.fresh("ssa");
                         self.emit(&format!(
-                            "  %{tmp} = add {storage_ty} 0, {}",
-                            val.reg
+                            "  %{tmp} = {} {storage_ty} {}, {}",
+                            llvm_scalar_materialize_op(&storage_ty),
+                            llvm_typed_zero(&storage_ty),
+                            llvm_materialize_scalar_literal(&storage_ty, &val.reg)
                         ));
                         tmp
                     } else if val.reg.chars().all(|c| {
@@ -174,8 +176,10 @@ impl Codegen {
                     }) {
                         let tmp = self.fresh("ssa");
                         self.emit(&format!(
-                            "  %{tmp} = add {storage_ty} 0, {}",
-                            val.reg
+                            "  %{tmp} = {} {storage_ty} {}, {}",
+                            llvm_scalar_materialize_op(&storage_ty),
+                            llvm_typed_zero(&storage_ty),
+                            llvm_materialize_scalar_literal(&storage_ty, &val.reg)
                         ));
                         tmp
                     } else {
@@ -309,8 +313,10 @@ impl Codegen {
                     }) {
                         let tmp = self.fresh("ssa");
                         self.emit(&format!(
-                            "  %{tmp} = add {storage_ty} 0, {}",
-                            val.reg
+                            "  %{tmp} = {} {storage_ty} {}, {}",
+                            llvm_scalar_materialize_op(&storage_ty),
+                            llvm_typed_zero(&storage_ty),
+                            llvm_materialize_scalar_literal(&storage_ty, &val.reg)
                         ));
                         tmp
                     } else {

@@ -239,6 +239,43 @@ pub(super) fn llvm_storage_ty(ty: &str) -> &str {
     }
 }
 
+/// Typed zero for `add ty ZERO, val` materialization of literal SSA bindings.
+pub(super) fn llvm_typed_zero(storage_ty: &str) -> &'static str {
+    match storage_ty {
+        "float" | "double" => "0.0",
+        _ => "0",
+    }
+}
+
+/// Integer `add` vs floating `fadd` when materializing literal SSA bindings.
+pub(super) fn llvm_scalar_materialize_op(storage_ty: &str) -> &'static str {
+    match storage_ty {
+        "float" | "double" => "fadd",
+        _ => "add",
+    }
+}
+
+/// LLVM constant operand for materializing a scalar literal into SSA (`add ty 0, lit`).
+pub(super) fn llvm_materialize_scalar_literal(storage_ty: &str, raw: &str) -> String {
+    match storage_ty {
+        "double" => {
+            if raw.contains('e') || raw.contains('E') {
+                raw.to_string()
+            } else {
+                llvm_float_const(raw.parse().unwrap_or(0.0), FloatKind::F64)
+            }
+        }
+        "float" => {
+            if raw.contains('e') || raw.contains('E') {
+                raw.to_string()
+            } else {
+                llvm_float_const(raw.parse().unwrap_or(0.0), FloatKind::F32)
+            }
+        }
+        _ => raw.to_string(),
+    }
+}
+
 /// Operand for `icmp`/`fcmp`/`add`/etc.: `add i32 %a, 1` not `add i32 i32 %a, i32 1`.
 pub(super) fn llvm_binop_operand(reg: &str) -> String {
     if reg.starts_with('%') || reg.starts_with('@') {
