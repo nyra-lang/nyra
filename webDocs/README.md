@@ -220,10 +220,13 @@ Workflow: [`.github/workflows/pages.yml`](../.github/workflows/pages.yml)
 | Push to `main` | Deploy when `webDocs/**` (or build scripts) change |
 | Manual | **Actions → Deploy webDocs to GitHub Pages → Run workflow** |
 
-**One-time repo setup:**
+**One-time repo setup (required):**
 
-1. **Settings → Pages → Build and deployment → Source:** **GitHub Actions**
-2. After first successful run, open the deployment URL from the workflow summary.
+1. Open **Settings → Pages**: `https://github.com/<owner>/<repo>/settings/pages`
+2. **Build and deployment → Source:** select **GitHub Actions** (not “Deploy from branch”).
+3. Re-run **Actions → Deploy webDocs to GitHub Pages** if the first run failed with `404`.
+
+The workflow checks this before deploy; `deploy-pages` returns **404** when Pages is disabled or still set to branch deploy.
 
 `webDocs/.nojekyll` disables Jekyll so `_includes/`, `vendor/`, and static assets are served as-is.
 

@@ -1,6 +1,8 @@
 # Deploy static docs from webDocs/ (not repo root) to GitHub Pages.
 #
-# Repo settings → Pages → Build and deployment → Source: GitHub Actions
+# One-time setup (required — otherwise deploy-pages returns 404):
+#   Settings → Pages → Build and deployment → Source: GitHub Actions
+#   https://github.com/<owner>/<repo>/settings/pages
 name: Deploy webDocs to GitHub Pages
 
 on:
@@ -34,10 +36,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify GitHub Pages (Actions source)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pages_url="https://github.com/${{ github.repository }}/settings/pages"
+          if ! gh api "repos/${{ github.repository }}/pages" >/tmp/pages.json 2>/dev/null; then
+            echo "::error title=GitHub Pages not enabled::Enable Pages first, then re-run this workflow."
+            echo "Open: ${pages_url}"
+            echo "Set Build and deployment → Source → GitHub Actions"
+            exit 1
+          fi
+          build_type="$(jq -r '.build_type // empty' /tmp/pages.json)"
+          if [[ "${build_type}" != "workflow" ]]; then
+            echo "::error title=Wrong Pages source::Pages source must be GitHub Actions (currently: ${build_type:-unknown})."
+            echo "Open: ${pages_url}"
+            exit 1
+          fi
+          echo "GitHub Pages OK (source: GitHub Actions)"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Build webDocs (search index, skill, code tabs)
         shell: bash
