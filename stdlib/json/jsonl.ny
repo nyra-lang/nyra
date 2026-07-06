@@ -5,11 +5,11 @@ import "../vec_str.ny"
 extern fn json_split_array_elements(array_json: string) -> ptr
 
 fn Json_is_array_body(text: string) -> i32 {
-    let t = trim(text)
+    let t = trim(clone text)
     if strlen(t) == 0 {
         return 0
     }
-    return str_starts_with(t, "[")
+    return str_starts_with(clone t, "[")
 }
 
 fn Json_array_elements(array_json: string) -> StrVec {

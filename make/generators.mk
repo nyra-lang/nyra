@@ -3,7 +3,7 @@
 MAKE_PY := $(ROOT)/make/py
 
 .PHONY: gen-abi-header gen-bindings-doc gen-suite-tests gen-typed-examples
-.PHONY: add-builtin remove-builtin patch-builtin
+.PHONY: add-builtin remove-builtin patch-builtin contribute contribute-remove contribute-list contribute-patch test-contrib-py
 .PHONY: sync-webdocs-code-tabs gen-comparison-extended sync-comparison-typed
 .PHONY: bump-comparison-hardness snippet-types strip-apps-types strip-nyra-symbol-prefix
 .PHONY: gen-ar-file-index bench-comparison-html update-readme-bench
@@ -64,3 +64,21 @@ remove-builtin:
 
 patch-builtin:
 	@python3 $(MAKE_PY)/builtin-dev.py patch $(if $(ARGS),$(ARGS),-i)
+
+# Usage: make contribute                    # interactive hub (default)
+#        make contribute ARGS='--recipe stdlib-extern --config make/py/contrib_dev/examples/stdlib_extern.json'
+# Docs:  make/py/contrib_dev/README.md
+contribute:
+	@python3 $(MAKE_PY)/contribute.py $(if $(ARGS),$(ARGS),add -i)
+
+contribute-remove:
+	@python3 $(MAKE_PY)/contribute.py remove $(if $(ARGS),$(ARGS),-i)
+
+contribute-list:
+	@python3 $(MAKE_PY)/contribute.py list $(ARGS)
+
+contribute-patch:
+	@python3 $(MAKE_PY)/contribute.py patch $(ARGS)
+
+test-contrib-py:
+	@python3 $(MAKE_PY)/test_contrib_dev.py

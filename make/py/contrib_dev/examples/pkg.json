@@ -1,0 +1,7 @@
+{
+  "name": "ny-example",
+  "version": "0.1.0",
+  "module_name": "ny_example",
+  "link_lib": null,
+  "rt_file": "rt/ny_example.c"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "my_feature",
+  "example_topic": "syntax",
+  "import_path": null,
+  "with_typed": true,
+  "use_testing": true
+}

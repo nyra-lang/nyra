@@ -1,0 +1,7 @@
+{
+  "ny_module": "json/mod.ny",
+  "fn_name": "decode_example_i32",
+  "args": ["json:string", "key:string"],
+  "returns": "i32",
+  "wrap_extern": "json_get_i32"
+}

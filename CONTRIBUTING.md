@@ -122,7 +122,8 @@ High-level path from source to executable (details in [`docs/architecture.md`](d
 |------------|-----------------|------------|-----------|
 | **Fix a stdlib bug (Nyra only)** | `stdlib/**/*.ny` | [`stdlib/README.md`](stdlib/README.md) | `nyra test tests/nyra/…` |
 | **Add C-backed stdlib API** | `stdlib/`, `stdlib/rt/`, `runtime_map.rs` | [Pattern B](#b--extern-fn--c-runtime-typical-for-io-json-crypto) | `nyra test` + `make gen-abi-header` |
-| **Add string method `.foo()`** | via `make add-builtin` | [`make/py/builtin_dev/README.md`](make/py/builtin_dev/README.md) | `make install-dev` · `nyra test` |
+| **Add string method (`.foo()`)** | via `make add-builtin` or `make contribute` → 3 | [`make/py/builtin_dev/README.md`](make/py/builtin_dev/README.md) | `make install-dev` · `nyra test` |
+| **Scaffold stdlib / tests / pkg / syntax** | `make contribute` | [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md) | `nyra test` · `make test-contrib-py` |
 | **Change syntax / types** | `compiler/lexer` … `codegen` | [`docs/architecture.md`](docs/architecture.md) | `cargo test -p compiler` · `make install-dev` |
 | **Fix borrow / ownership error** | `ownership/`, `borrowck/` | contributor-map | `cargo test -p ownership` |
 | **Add CLI flag** | `cli/src/app/args.rs`, `cli/src/commands/` | [`docs/architecture.md`](docs/architecture.md#cli-layout) | `cargo test -p cli` |
@@ -300,6 +301,33 @@ make patch-builtin ARGS='--method strip_suffix --config make/py/builtin_dev/exam
 
 Example: [`make/py/builtin_dev/examples/strip_suffix.json`](make/py/builtin_dev/examples/strip_suffix.json).
 
+### E — **Contributor hub** (`make contribute`)
+
+For stdlib wrappers, extern+C APIs, test/example pairs, NyraPkg scaffolds, CLI stubs, conformance contracts, and syntax checklists — use the unified hub instead of copying files by hand:
+
+```bash
+make contribute                         # interactive menu (add)
+make contribute-list                    # show [contrib-dev:…] markers
+make contribute-remove ARGS='-i'        # remove scaffold
+make contribute-patch ARGS='--marker … --config …'
+
+make contribute ARGS='add --recipe test-example --config make/py/contrib_dev/examples/test_example.json'
+make test-contrib-py                    # CI smoke for Python tooling
+```
+
+| Menu | Recipe | Use when |
+|------|--------|----------|
+| 1 | `stdlib-pure` | Pattern A — Nyra `fn` only |
+| 2 | `stdlib-extern` | Pattern B — `extern fn` + C + `runtime_map.rs` |
+| 3 | `builtin` | Delegates to `make add-builtin` |
+| 4 | `test-example` | `tests/nyra/*_test.ny` + `examples/` pair |
+| 5 | `pkg` | `examples/packages/<name>/` |
+| 6 | `cli` | Manual wire scaffold in `docs/contrib_scaffold/` |
+| 7 | `conformance` | `tests/conformance/pass/` or `fail/` |
+| 8 | `syntax-scaffold` | Checklist + stubs — **no auto lexer/parser edits** |
+
+Full details: [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md).
+
 | Resource | Purpose |
 |----------|---------|
 | [`docs/make-and-generators.md`](docs/make-and-generators.md) | Full Makefile + `make/py/` catalog |
@@ -429,7 +457,7 @@ Walk the **add path in reverse**, then clean up tests and docs:
 | **Grammar** | Update [`grammar/nyra.tmLanguage.json`](grammar/nyra.tmLanguage.json) when keywords change |
 | **Benchmarks** | Fair cross-language benches in `examples/comparison/` |
 | **Runtime** | C runtime `stdlib/rt/`, headers `stdlib/nyra_rt.h`, Rust helpers `rt/` |
-| **Make / generators** | `make/py/` Python scripts, `make/*.mk` targets — see [`docs/make-and-generators.md`](docs/make-and-generators.md) |
+| **Make / generators** | `make/py/` Python scripts, `make/*.mk` targets — see [`docs/make-and-generators.md`](docs/make-and-generators.md) · **`make contribute`** hub |
 
 ---
 
@@ -446,6 +474,7 @@ Nyra uses **Make** for test orchestration and **Python** (`make/py/`) for code/d
 | Make modules | `make/*.mk` | `make help` · `make test-all` |
 | Generators | `make/py/*.py` | `make gen-abi-header` · `make gen-bindings-doc` |
 | Builtin tooling | `make/py/builtin_dev/` | `make add-builtin` · `make patch-builtin` |
+| Contributor hub | `make/py/contrib_dev/` | `make contribute` · `make contribute-list` · `make contribute-remove` |
 | Shell helpers | `make/lib/*.sh` | Used internally by test-all, install, bench |
 
 ### Generators contributors use most

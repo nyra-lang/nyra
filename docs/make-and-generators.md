@@ -110,6 +110,26 @@ Automations to **add**, **remove**, or **patch** stdlib methods (e.g. `.strip_su
 | [`builtin_dev/paths.py`](../make/py/builtin_dev/paths.py) | Repo path map (compiler/stdlib file locations) |
 | [`builtin_dev/examples/*.json`](../make/py/builtin_dev/examples/) | Ready-made specs (e.g. `strip_suffix.json`) |
 
+### Contributor hub (`make/py/contrib_dev/`)
+
+Unified **`make contribute`** menu for common contribution scaffolds (stdlib pure/extern, tests, NyraPkg, CLI, conformance). Built-in methods (option 3) delegate to `make add-builtin`.
+
+| Script / module | Role |
+|-----------------|------|
+| [`contribute.py`](../make/py/contribute.py) | Hub CLI — interactive menu or `--recipe` + `--config` |
+| [`contrib_dev/recipes/`](../make/py/contrib_dev/recipes/) | One recipe per menu item |
+| [`contrib_dev/examples/*.json`](../make/py/contrib_dev/examples/) | JSON specs for non-interactive runs |
+
+```bash
+make contribute
+make contribute ARGS='add --recipe test-example --config make/py/contrib_dev/examples/test_example.json'
+make contribute-list
+make contribute-remove ARGS='-i'
+make test-contrib-py
+```
+
+Full details: [`make/py/contrib_dev/README.md`](../make/py/contrib_dev/README.md).
+
 **Typical workflow — new string method:**
 
 ```bash
