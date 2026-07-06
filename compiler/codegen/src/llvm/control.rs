@@ -18,9 +18,10 @@ use super::{
 };
 use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
-    escape_string, host_target_triple, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
-    llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    escape_string, host_target_triple, is_float_llvm_ty, is_string_builtin_method, llvm_arith_rhs,
+    llvm_binop_operand, llvm_cmp_operand, llvm_float_storage_ty, llvm_ptr, llvm_ptr_reg,
+    llvm_scalar_materialize_op, llvm_storage_ty, llvm_string_len, llvm_struct_size_bytes,
+    llvm_typed_zero, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -53,7 +54,16 @@ impl Codegen {
                 continue;
             }
             let src = Self::reg_operand_from_binding(binding);
-            self.emit(&format!("  %{latch} = add {ty} 0, {src}"));
+            let storage_ty = if is_float_llvm_ty(ty) {
+                llvm_float_storage_ty(ty)
+            } else {
+                llvm_storage_ty(ty)
+            };
+            self.emit(&format!(
+                "  %{latch} = {} {storage_ty} {}, {src}",
+                llvm_scalar_materialize_op(storage_ty),
+                llvm_typed_zero(storage_ty),
+            ));
         }
     }
 
@@ -71,8 +81,17 @@ impl Codegen {
                 continue;
             };
             let src = Self::reg_operand_from_binding(binding);
+            let storage_ty = if is_float_llvm_ty(ty) {
+                llvm_float_storage_ty(ty)
+            } else {
+                llvm_storage_ty(ty)
+            };
             let incoming = self.fresh("loop.in");
-            self.emit(&format!("  %{incoming} = add {ty} 0, {src}"));
+            self.emit(&format!(
+                "  %{incoming} = {} {storage_ty} {}, {src}",
+                llvm_scalar_materialize_op(storage_ty),
+                llvm_typed_zero(storage_ty),
+            ));
             let edge = format!(", [%{incoming}, %{backedge_label}]");
             for line in self.ir_body_mut() {
                 if line.contains(&format!("%{phi_reg} = phi")) {
