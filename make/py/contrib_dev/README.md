@@ -19,7 +19,7 @@ After questions: **PREVIEW + confirm** → then **MONITOR** (TOOL DID / YOU DO /
 ## Quick start
 
 ```bash
-make contribute                    # interactive add (default)
+make contribute                    # interactive add — tiger logo + menu
 make contribute-list               # list wired scaffolds
 make contribute-remove ARGS='-i'   # remove by marker
 make contribute-patch ARGS='--marker test_example:foo --config make/py/contrib_dev/examples/test_example.json'
@@ -102,6 +102,7 @@ Wizard copy (WHY/TOOL/YOU per question) lives in `wizard_guide.py` — keep in s
 | `templates.py` | Nyra / C / Rust templates |
 | `patch.py` | `[contrib-dev:…]` file patching |
 | `monitor.py` | Terminal monitor output |
+| `tiger_banner.py` | Static ASCII tiger logo |
 | `recipes/*.py` | One module per menu item |
 
 ## CI

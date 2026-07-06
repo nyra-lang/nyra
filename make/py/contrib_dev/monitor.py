@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .paths import ROOT
 from .spec import RecipeResult
+from .tiger_banner import play_tiger_intro
 from .wizard_guide import GUIDES, monitor_sections
 
 
@@ -84,11 +85,11 @@ def print_recipe_monitor(result: RecipeResult) -> None:
 
 
 def print_hub_banner() -> None:
+    play_tiger_intro()
+    print("  make contribute — Nyra contributor hub")
+    print("  Step-by-step monitor — TOOL wires, YOU code")
     print()
     print("┌─────────────────────────────────────────────┐")
-    print("│             make contribute                 │")
-    print("│  Step-by-step monitor — TOOL wires, YOU code│")
-    print("├─────────────────────────────────────────────┤")
     print("│ 1. Stdlib Pure Function (Pattern A)         │")
     print("│    Nyra fn in stdlib — no new C             │")
     print("│ 2. Stdlib Extern + C (Pattern B)            │")
