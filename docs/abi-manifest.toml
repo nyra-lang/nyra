@@ -3376,3 +3376,13 @@ c_sig = "int32_t hw_mem_sync(void *addr, int64_t nbytes)"
 module = "rt_hw.c"
 tier = "experimental"
 since = "1.39.0"
+
+# [builtin-dev:strip_suffix:string]
+[[symbol]]
+name = "str_strip_suffix"
+c_sig = "char *str_strip_suffix(const char *s, const char *suffix)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.0.0"
+# [/builtin-dev:strip_suffix:string]
+

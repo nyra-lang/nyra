@@ -107,6 +107,7 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "pty_read_wait_raw",
     "stdin_read_line",
     "random_hex",
+    "str_strip_suffix",
 ];
 
 pub fn callee_returns_owned(callee: &str) -> bool {

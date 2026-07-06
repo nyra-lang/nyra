@@ -38,6 +38,7 @@ test-all-core-fast:
 	$(call log_phase,fast gates)
 	$(call run_gate,test-count,suite test count)
 	$(call run_gate,test-webdocs-tabs,webdocs code tabs)
+	$(call run_gate,test-webdocs-snippets,webdocs snippet run)
 	$(call run_gate,smoke-vscode-extension,vscode extension compile)
 	$(call run_gate,test-optional-types,optional types)
 	$(call run_gate,test-comparison-parity,comparison parity)

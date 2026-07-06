@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Toolchain — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="tooling">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a class="active" href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.tooling.h1">Toolchain</h1>
+      <p class="lead" data-i18n-html="pages.tooling.lead">The <code>nyra</code> CLI — every command with a <strong>job</strong> (what you are trying to do) and a copy-paste example. Project paths default to <code>.</code> when omitted.</p>
+
+      <h2>Quick reference</h2>
+      <table>
+        <thead><tr><th>Command</th><th>Job</th></tr></thead>
+        <tbody>
+          <tr><td><code>nyra run</code></td><td>Compile + execute (dev loop)</td></tr>
+          <tr><td><code>nyra build</code></td><td>Emit binary under <code>target/</code></td></tr>
+          <tr><td><code>nyra check</code></td><td>Type-check + borrow without codegen</td></tr>
+          <tr><td><code>nyra test</code></td><td>Run <code>test fn</code> / <code>*_test.ny</code></td></tr>
+          <tr><td><code>nyra fmt</code></td><td>Format sources (AST-based)</td></tr>
+          <tr><td><code>nyra diag</code></td><td>Print diagnostics (JSON for editors)</td></tr>
+          <tr><td><code>nyra explain</code></td><td>Explain stable diagnostic codes (E003, P001, …)</td></tr>
+          <tr><td><code>nyra watch</code></td><td>Re-check / rebuild on save</td></tr>
+          <tr><td><code>nyra debug</code></td><td>Build with symbols + launch lldb/gdb</td></tr>
+          <tr><td><code>nyra lsp</code></td><td>Language Server (stdio)</td></tr>
+          <tr><td><code>nyra dap</code></td><td>Debug Adapter Protocol (stdio)</td></tr>
+          <tr><td><code>nyra ide</code></td><td>Goto-definition / references (CLI)</td></tr>
+          <tr><td><code>nyrapkg …</code></td><td>Dependencies — <code>init</code>, <code>add</code>, <code>install</code>, <code>verify</code> — see <a href="packages.html">nyrapkg</a></td></tr>
+          <tr><td><code>nyra pkg …</code></td><td>Build helpers — <code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code> — see <a href="packages.html">packages</a></td></tr>
+          <tr><td><code>nyra pkg c add NAME</code></td><td>System C lib — install + bind + link (raylib, zlib, …)</td></tr>
+          <tr><td><code>nyra pkg c remove NAME</code></td><td>Remove C lib from project</td></tr>
+          <tr><td><code>nyra pkg c list</code></td><td>List installed C libs</td></tr>
+          <tr><td><code>nyra bind c</code></td><td>C header → <code>extern fn</code> — see <a href="c-bindgen.html">C Bindgen</a></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Comptime modules</h2>
+      <p><strong>Job:</strong> Validate a compile-time-only file (lookup tables, generated constants) without a <code>main</code> or runtime codegen.</p>
+      <pre><code>nyra check examples/toolchain/comptime_tables.ny
+nyra run examples/toolchain/comptime_import_main.ny</code></pre>
+      <p>Three forms: file-level <code>comptime</code>, function <code>#[comptime]</code>, and block <code>comptime { … }</code>. Full guide: <a href="comptime.html">Comptime evaluation</a>.</p>
+
+      <h2>Start a project</h2>
+      <p><strong>Job:</strong> Scaffold <code>main.ny</code>, <code>nyra.mod</code>, and lockfiles before your first build.</p>
+      <pre><code>mkdir myapp &amp;&amp; cd myapp
+nyrapkg init
+nyra run .</code></pre>
+      <p>Multi-file layout (imports resolved from project root):</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>myapp/
+  main.ny              # import &quot;src/helper.ny&quot;
+  src/helper.ny
+  nyra.mod
+  target/debug/main</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>myapp/
+  main.ny              # import &quot;src/helper.ny&quot;
+  src/helper.ny
+  nyra.mod
+  target/debug/main</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="run"><code>nyra run</code></h2>
+      <p><strong>Job:</strong> Fastest feedback — compile and run in one step while you edit code.</p>
+      <pre><code>nyra run .                          # project with main.ny
+nyra run examples/syntax/hello.ny   # single file
+nyra run . --release                # optimized run
+nyra run . -- --arg1 value          # pass args to your program (after --)</code></pre>
+
+      <h2 id="build"><code>nyra build</code></h2>
+      <p><strong>Job:</strong> Produce a binary you ship, profile, or debug — without executing it.</p>
+      <pre><code>nyra build .                        # target/debug/main
+nyra build . --release              # target/release/main
+nyra build . --pgo                  # release + automated PGO (see pgo.html)
+nyra build . --verbose              # escape analysis report (see escape-analysis.html)
+nyra build . -o mybin               # target/debug/mybin
+nyra build . --debug-symbols        # DWARF for lldb/gdb
+nyra build app.ny --release -o app  # single-file stem</code></pre>
+      <p><strong>Job (incremental):</strong> Second build skips codegen when sources and link flags are unchanged.</p>
+      <pre><code>nyra build .
+# incremental: cache hit (4 source files)
+
+# edit one file → reports dirty crates, then rebuilds
+nyra build .
+# incremental: 1 crate(s) changed: helper.ny</code></pre>
+      <p>Per-file manifest: <code>target/debug/.nyra-cache/crates/manifest.json</code> (Cargo-style dirty tracking).</p>
+
+      <h2 id="check"><code>nyra check</code></h2>
+      <p><strong>Job:</strong> Catch type and borrow errors quickly — no object files, no link.</p>
+      <pre><code>nyra check .
+nyra check src/module.ny
+nyra check . --deny-extended     # Core-only (reject async, traits, macros, …)</code></pre>
+
+      <h2 id="test"><code>nyra test</code></h2>
+      <p><strong>Job:</strong> Run unit tests in CI or before a commit.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/testing.ny&quot;
+
+test fn sum_works() {
+    assert_eq(1 + 2, 3)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/testing.ny&quot;
+
+test fn sum_works() {
+    assert_eq(1 + 2, 3)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <pre><code>nyra test .                              # all tests in project
+nyra test tests/conformance/pass         # language conformance (pass only)
+nyra test examples/smoke_test_test.ny    # one test file
+nyra test . --release                    # optimized test binary</code></pre>
+      <p>Assertions: <code>import "stdlib/testing.ny"</code> — <code>assert_eq</code>, <code>assert_ne</code>, <code>assert_true</code>, <code>assert</code>, <code>assert_bool</code>. See <a href="stdlib.html#testing">stdlib → testing</a>.</p>
+      <p>Legacy: <code>*_test.ny</code> files run <code>main</code> as a test harness. Use a freshly built CLI (<code>./target/debug/nyra</code>) when testing stdlib imports — a stale global install may not resolve project paths.</p>
+
+      <h2 id="conformance">Language conformance (CONF-LANG)</h2>
+      <p><strong>Job:</strong> Verify each language feature with Nyra-source pass <em>and</em> fail tests — separate from Rust <code>CONF-*</code> compile/IR contracts and the large <code>tests/suite/</code> compiletest grid.</p>
+      <table>
+        <thead><tr><th>Path</th><th>Runner</th><th>Expectation</th></tr></thead>
+        <tbody>
+          <tr><td><code>tests/conformance/pass/</code></td><td><code>nyra test</code></td><td>Compile, link, run; assertions pass</td></tr>
+          <tr><td><code>tests/conformance/fail/</code></td><td><code>nyra check</code></td><td><strong>Must not</strong> compile (type / borrow errors)</td></tr>
+          <tr><td><code>tests/conformance/fixtures/</code></td><td><code>nyra run</code></td><td>Multi-file import smoke</td></tr>
+        </tbody>
+      </table>
+      <p>Pass areas: variables, control, match, types, functions, arrays, enums, strings, generics, borrow, edge, imports. Fail areas: immutable assign, use-after-move, type mismatches.</p>
+      <pre><code>cargo build -p cli
+bash scripts/conformance-tests.sh
+# or pass-only:
+./target/debug/nyra test tests/conformance/pass</code></pre>
+      <p>Spec: <code>tests/conformance/README.md</code> in the repo. When adding a language feature, add ≥2 pass tests under <code>pass/&lt;area&gt;/</code> and ≥2 fail tests under <code>fail/&lt;area&gt;/</code>.</p>
+
+      <h3 id="test-layers">Testing layers (repository)</h3>
+      <table>
+        <thead><tr><th>Suite</th><th>Purpose</th><th>Gate</th></tr></thead>
+        <tbody>
+          <tr><td><code>tests/conformance/</code> (CONF-LANG)</td><td>Feature-by-feature Nyra pass + fail</td><td><code>scripts/conformance-tests.sh</code></td></tr>
+          <tr><td><code>compiler/driver/tests/conformance/</code></td><td>Rust <code>CONF-*</code> IR / borrow contracts</td><td><code>cargo test -p compiler --test conformance</code></td></tr>
+          <tr><td><code>tests/suite/</code></td><td>File-based compiletest (~1.6k fast profile; <code>--profile full</code> for ~10k)</td><td><code>cargo test -p driver suite_*</code></td></tr>
+          <tr><td><code>tests/nyra/</code></td><td>Legacy native syntax / ownership smoke</td><td><code>nyra test tests/nyra</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="fmt"><code>nyra fmt</code></h2>
+      <p><strong>Job:</strong> Normalize style before review; gate formatting in CI.</p>
+      <pre><code>nyra fmt .                    # print formatted stdout
+nyra fmt . --write            # rewrite files in place
+nyra fmt src/helper.ny --write
+nyra fmt . --check            # exit 1 if not formatted (CI)</code></pre>
+      <p>AST-based when the file parses; line-based fallback otherwise. Preserves <code>//</code> comments.</p>
+
+      <h2 id="diag"><code>nyra diag</code></h2>
+      <p><strong>Job:</strong> Pipe structured errors into editors or scripts.</p>
+      <pre><code>nyra diag .
+nyra diag src/broken.ny
+nyra diag . --json            # machine-readable for custom integrations
+nyra diag . --deny-extended</code></pre>
+      <p>See also <a href="diagnostics.html">Diagnostics</a>. The LSP uses the same compiler pipeline via <code>nyra lsp</code>. JSON output includes <code>code</code>, <code>label</code>, <code>notes</code>, <code>helps</code>, and end positions.</p>
+
+      <h2 id="explain"><code>nyra explain</code></h2>
+      <p><strong>Job:</strong> Explain stable diagnostic codes after a compile error.</p>
+      <pre><code>nyra explain E003
+nyra explain P001
+nyra explain --list</code></pre>
+
+      <h2 id="watch"><code>nyra watch</code></h2>
+      <p><strong>Job:</strong> Keep a terminal open while coding — re-run checks or builds on every save.</p>
+      <pre><code>nyra watch .                  # re-check on change (default)
+nyra watch . --on build       # rebuild binary
+nyra watch . --on run         # rebuild + run main</code></pre>
+
+      <h2 id="debug"><code>nyra debug</code></h2>
+      <p><strong>Job:</strong> Step through your program with lldb (macOS) or gdb (Linux).</p>
+      <pre><code>nyra debug .                           # build -g + lldb
+nyra debug . -- --port 8080            # program args after --
+nyra debug . --debugger gdb            # force gdb
+nyra debug . --init-vscode             # write .vscode/launch.json + tasks.json</code></pre>
+      <p>For VS Code / Cursor, prefer the official extension which uses <code>nyra dap</code> (DAP) instead of raw lldb. See <a href="editor-setup.html">Editor setup</a>.</p>
+
+      <h2 id="lsp"><code>nyra lsp</code></h2>
+      <p><strong>Job:</strong> Wire Nyra into any LSP-capable editor (diagnostics, completion, hover, go-to-definition, references, rename, format).</p>
+      <pre><code>nyra lsp    # stdio — configured by extensions/nyra or your editor</code></pre>
+      <p>Capabilities: cross-file <strong>go to definition</strong>, <strong>find references</strong>, workspace rename, document symbols, formatting. v1.23+: incremental sync + debounced diagnostics. v1.28+: semantic tokens, inlay hints, code actions, signature help, workspace symbols.</p>
+
+      <h2 id="dap"><code>nyra dap</code></h2>
+      <p><strong>Job:</strong> Debug from VS Code “Run and Debug” via the Debug Adapter Protocol (LLDB/GDB bridge).</p>
+      <pre><code>nyra dap    # stdio — launched by the Nyra VS Code extension</code></pre>
+      <p>Launch config type: <code>nyra</code>. Build with <code>--debug-symbols</code> first.</p>
+
+      <h2 id="ide"><code>nyra ide</code></h2>
+      <p><strong>Job:</strong> Script goto-definition and find-references in CI or terminal workflows (same index as LSP).</p>
+      <pre><code># cursor on helper_fn in main.ny line 0, column 20
+nyra ide goto-def myapp/main.ny 0 --character 20
+# → myapp/src/helper.ny:42:1
+
+nyra ide references myapp/main.ny 0 --character 20
+# → JSON array of { file, start, end, name }</code></pre>
+
+      <h2 id="pkg"><code>nyrapkg</code> &amp; <code>nyra pkg</code></h2>
+      <p><strong>Dependencies:</strong> use <strong>nyrapkg</strong> (<a href="packages.html">full guide</a>). <strong>Build / C libs / prune:</strong> use <code>nyra pkg</code>.</p>
+      <pre><code>nyrapkg init
+nyrapkg install ny-sqlite@^0.1.0
+nyrapkg verify
+
+nyra pkg build .
+nyra pkg prune --check
+nyra pkg c add raylib</code></pre>
+
+      <h2 id="pkg-c">System C libraries — <code>nyra pkg c</code></h2>
+      <p><strong>Job:</strong> Add or remove a system C library in one command. Full guide: <a href="c-bindgen.html#pkg-c">C Bindgen → nyra pkg c</a>.</p>
+      <table>
+        <thead><tr><th>Command</th><th>Job</th></tr></thead>
+        <tbody>
+          <tr><td><code>nyra pkg c add raylib</code></td><td>brew install + full bind + <code>nyra.mod</code> + manifest</td></tr>
+          <tr><td><code>nyra pkg c list</code></td><td>Show installed C libs in this project</td></tr>
+          <tr><td><code>nyra pkg c remove raylib</code></td><td>Delete bindings + unlink <code>nyra.mod</code></td></tr>
+        </tbody>
+      </table>
+      <pre><code>nyra pkg c add raylib
+nyra pkg c add zlib
+nyra pkg c add sqlite3
+nyra pkg c add sdl2
+
+import "vendor/bindings/raylib.ny"</code></pre>
+      <p>Manifest: <code>vendor/bindings/c-libs.toml</code> · Flags: <code>--path DIR</code>, <code>--no-install</code></p>
+
+      <h2 id="bind-c"><code>nyra bind c</code> / <code>nyra pkg bind c</code> (advanced)</h2>
+      <p><strong>Job:</strong> Generate Nyra FFI from a C header (libclang). Full guide: <a href="c-bindgen.html">C Bindgen</a> · copy-paste zlib walkthrough: <a href="c-bindgen.html#tutorial-zlib">zlib tutorial</a>.</p>
+      <pre><code># zlib on macOS (Homebrew keg-only paths)
+brew install zlib llvm
+SDK=$(xcrun --show-sdk-path)
+nyra pkg bind c /opt/homebrew/opt/zlib/include/zlib.h --lib z \
+  -I /opt/homebrew/opt/zlib/include -I "$SDK/usr/include" \
+  --export zlibVersion -o vendor/bindings/zlib.ny
+# nyra.mod: link z + link -L /opt/homebrew/opt/zlib/lib
+
+nyra bind c vendor/api.h --lib mylib -I vendor/include --update-mod
+nyra bind c vendor/api.h --stdout --prefix mylib_   # preview
+nyra bind c complex.h --no-shim                    # skip auto C shims</code></pre>
+      <p>Outputs <code>vendor/bindings/{header}.ny</code>, optional <code>vendor/bindings/shim.c</code>, and <code>link</code> / <code>link-source</code> lines in <code>nyra.mod</code>.</p>
+
+      <h2>Build output layout</h2>
+      <p>Like Rust/Cargo, artifacts live beside your project:</p>
+      <pre><code>myapp/
+  main.ny
+  target/
+    debug/main              # nyra build  (host)
+    release/main            # nyra build --release
+    x86_64-pc-windows-gnu/
+      release/main.exe      # nyra build --release --for windows</code></pre>
+      <ul>
+        <li><strong>Project</strong> (<code>nyra build</code>): binary name <code>main</code>.</li>
+        <li><strong>Single file</strong> (<code>nyra build app.ny</code>): binary stem <code>app</code>.</li>
+        <li><strong><code>-o mybin</code></strong>: custom name inside <code>target/{debug|release}/</code> (or <code>target/&lt;triple&gt;/{profile}/</code> when cross-compiling).</li>
+        <li>Add <code>target/</code> to <code>.gitignore</code>.</li>
+      </ul>
+
+      <h2>Cross-compilation</h2>
+      <p>Build for another OS from your dev machine. Use <code>--for</code> for a memorable command, or <code>--os</code> / <code>--arch</code> for precision:</p>
+      <pre><code>nyra build . --release --for windows
+nyra build . --release --for linux
+nyra build . --release --for macos
+nyra build . --release --os linux --arch aarch64
+nyra build . --release --target x86_64-unknown-linux-gnu</code></pre>
+      <table>
+        <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td><code>--for OS</code></td><td>Easy alias: <code>windows</code>, <code>linux</code>, <code>macos</code>, <code>wasm</code></td></tr>
+          <tr><td><code>--os OS</code></td><td>Same as <code>--for</code>; pair with <code>--arch</code></td></tr>
+          <tr><td><code>--arch ARCH</code></td><td><code>x86_64</code> or <code>aarch64</code> (default: host CPU)</td></tr>
+          <tr><td><code>--target TRIPLE</code></td><td>Full LLVM triple; overrides <code>--for</code> / <code>--os</code></td></tr>
+        </tbody>
+      </table>
+      <p>Cross builds land under <code>target/&lt;triple&gt;/{debug|release}/</code>. <code>nyra run</code> refuses foreign binaries (build only). <code>--native-cpu</code> is rejected when cross-compiling. See <a href="targets.html">Compilation targets</a> for toolchain prerequisites.</p>
+
+      <h2>Release / optimization</h2>
+      <p><strong>Job:</strong> Ship a faster binary or tune for your CPU.</p>
+      <pre><code>nyra build --release
+nyra run --release
+nyra build --release app.ny
+nyra build . --release --native-cpu    # explicit -march=native (host)
+nyra build . --release --no-native-cpu # portable release (disables default native tuning)
+nyra build . --release --no-prelude    # disable lazy stdlib auto-prelude
+nyra build . --release --lto-full    # full LTO (slower link)</code></pre>
+      <p><code>--release</code> enables LLVM IR <code>opt</code>, clang <code>-O3</code>, thin LTO, and <strong>-march=native</strong> on host builds (unless <code>--no-native-cpu</code>).</p>
+      <table>
+        <thead><tr><th>Flag</th><th>Job</th></tr></thead>
+        <tbody>
+          <tr><td><code>--opt 0..3</code></td><td>Override clang optimization level</td></tr>
+          <tr><td><code>--lto</code></td><td>Thin link-time optimization</td></tr>
+          <tr><td><code>--no-lto</code></td><td>Disable LTO even with <code>--release</code></td></tr>
+          <tr><td><code>--no-prelude</code></td><td>Disable lazy stdlib auto-prelude — require explicit <code>import "stdlib/…"</code> for every stdlib symbol. Compiler builtins (<code>print</code>, math intrinsics like <code>abs_i32</code>) still work.</td></tr>
+          <tr><td><code>--no-native-cpu</code></td><td>Disable default <code>-march=native</code> on host <code>--release</code> builds</td></tr>
+          <tr><td><code>--pgo-generate</code></td><td>Generate PGO profile data</td></tr>
+          <tr><td><code>--pgo-use &lt;file&gt;</code></td><td>Build using an existing profile</td></tr>
+          <tr><td><code>--link-lib foo</code></td><td>Link <code>-lfoo</code> (repeatable)</td></tr>
+          <tr><td><code>--link-search-path dir</code></td><td>Add <code>-Ldir</code></td></tr>
+          <tr><td><code>--cdylib</code></td><td>Emit shared library instead of executable</td></tr>
+          <tr><td><code>--race</code></td><td>ThreadSanitizer (<code>-fsanitize=thread</code>) for data-race detection</td></tr>
+          <tr><td><code>--sanitize</code></td><td>AddressSanitizer (<code>-fsanitize=address</code>) for heap corruption detection</td></tr>
+        </tbody>
+      </table>
+      <p>More: <a href="performance.html">Performance toolchain</a>.</p>
+
+      <h2 id="ci">CI cookbook</h2>
+      <p><strong>Job:</strong> Typical pipeline steps for GitHub Actions or any CI.</p>
+      <pre><code>nyra check .
+nyra fmt . --check
+nyra test .
+nyra build . --release</code></pre>
+      <p>Repository scripts: <code>make test-all</code> (includes <code>make test-conformance</code> for CONF-LANG), <code>make test-sanitizer</code>. Workflow: <a href="https://github.com/nyra-lang/nyra/blob/main/.github/workflows/ci.yml"><code>.github/workflows/ci.yml</code></a>.</p>
+
+      <h2 id="freestanding"><code>no_std</code> &amp; freestanding builds</h2>
+      <p><strong>Job:</strong> Bare-metal firmware or kernels without the Nyra runtime.</p>
+      <pre><code>no_std   // in main.ny, or CLI flag
+
+nyra build firmware.ny --no-std --freestanding -o firmware
+nyra build . --no-std</code></pre>
+      <table>
+        <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td><code>--no-std</code></td><td>Skip <code>nyra_rt</code> link; <code>print</code>/<code>spawn</code> rejected</td></tr>
+          <tr><td><code>--freestanding</code></td><td>Clang <code>-ffreestanding -nostdlib</code> (pair with <code>--no-std</code>)</td></tr>
+        </tbody>
+      </table>
+      <p>You supply entry point, linker script, and libc stubs for your target. Low-level helpers: <code>import "stdlib/core/mem.ny"</code>.</p>
+
+      <h2>Editor &amp; IDE</h2>
+      <p><strong>Job:</strong> Syntax, LSP, and debugging in VS Code / Cursor.</p>
+      <table>
+        <thead><tr><th>Tool</th><th>Command / path</th><th>Job</th></tr></thead>
+        <tbody>
+          <tr><td>VS Code extension</td><td><code>extensions/nyra</code></td><td>Grammar + LSP + DAP + Test Explorer + tasks</td></tr>
+          <tr><td>Test discovery</td><td><code>nyra test --list-json</code></td><td>IDE test explorer JSON</td></tr>
+          <tr><td>TextMate grammar</td><td><code>grammar/nyra.tmLanguage.json</code></td><td>Syntax highlighting only</td></tr>
+          <tr><td>Language server</td><td><code>nyra lsp</code></td><td>Completion, hover, goto-def, refs, rename</td></tr>
+          <tr><td>Debug adapter</td><td><code>nyra dap</code></td><td>VS Code debugger — breakpoints, stack, locals, stepping</td></tr>
+          <tr><td>CLI navigation</td><td><code>nyra ide goto-def</code></td><td>Terminal / CI symbol lookup</td></tr>
+        </tbody>
+      </table>
+      <pre><code># settings.json (extension defaults)
+{
+  "nyra.languageServerPath": "nyra",
+  "nyra.languageServerArgs": ["lsp"],
+  "nyra.debugAdapterPath": "nyra"
+}</code></pre>
+      <p>Setup guide: <a href="editor-setup.html">Editor setup</a> · Grammar: <a href="https://github.com/nyra-lang/nyra/blob/main/grammar/README.md"><code>grammar/README.md</code></a></p>
+
+      <footer class="site-footer"><a href="packages.html">nyrapkg →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

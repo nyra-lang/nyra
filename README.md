@@ -61,6 +61,7 @@ Optional: `cargo install --path cli` then `nyra run examples/syntax/math.ny`.
 | **Contributor map** | [`docs/contributor-map.md`](docs/contributor-map.md) — what to change → where to go |
 | **Stdlib layout** | [`stdlib/README.md`](stdlib/README.md) |
 | **Contributing** | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| **Contributor hub (`make contribute`)** | [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md) |
 
 **Examples:** [`examples/`](examples/) (small demos) · [`Apps/`](Apps/) (full reference apps) · calculator [`examples/projects/calculator/`](examples/projects/calculator/)
 
@@ -128,6 +129,7 @@ New contributor? Start with [`docs/contributor-map.md`](docs/contributor-map.md)
 
 | Task | Primary location |
 |------|------------------|
+| **Scaffold (quick start)** | `make contribute` — stdlib, tests, pkg, syntax checklist |
 | New syntax | `compiler/lexer/` → `parser/` → `ast/` → `expand?` → `typecheck/` → `codegen/` |
 | Stdlib API | `stdlib/` (+ `stdlib/rt/` + `runtime_map.rs` if C) |
 | CLI | `cli/src/app/args.rs` · `cli/src/commands/` |

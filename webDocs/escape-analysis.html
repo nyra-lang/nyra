@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Escape analysis — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="escape-analysis">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a class="active" href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.escapeAnalysis.h1">Escape analysis</h1>
+      <p class="lead" data-i18n-html="pages.escapeAnalysis.lead">Nyra proves which values stay local at compile time, then <strong>promotes them to the stack</strong>, inlines sequential channels without mutexes, and honors <code>#[no_escape]</code> on references.</p>
+
+      <h2>What is escape analysis?</h2>
+      <p>After typecheck and borrow checking, Nyra builds an <strong>AST-level escape graph</strong> for every function. Each binding is classified as <strong>NoEscape</strong> (stays in the function), <strong>ArgEscape</strong> (passed as <code>&amp;T</code> but not returned or spawned), or <strong>GlobalEscape</strong> (returned, sent on a channel, or captured by <code>spawn</code>).</p>
+      <p>The plan flows into LLVM codegen — you do not annotate ordinary locals. Optimizations apply on every build; use <code>--verbose</code> to see the report.</p>
+      <pre class="pipeline">parse → typecheck → borrow → escape graph → codegen (EscapePlan)</pre>
+
+      <h2>Escape states</h2>
+      <table>
+        <thead><tr><th>State</th><th>Meaning</th><th>Codegen effect</th></tr></thead>
+        <tbody>
+          <tr><td><strong>NoEscape</strong></td><td>Created and consumed in the same function</td><td>Stack promotion, SROA, skip redundant clone/free</td></tr>
+          <tr><td><strong>ArgEscape</strong></td><td>Passed by reference to a callee</td><td>Stays on caller stack</td></tr>
+          <tr><td><strong>GlobalEscape</strong></td><td><code>return</code>, <code>spawn</code>, or channel payload</td><td>Heap / runtime channel as usual</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Stack promotion &amp; SROA</h2>
+      <p>For <strong>NoEscape</strong> values, codegen avoids unnecessary heap work:</p>
+      <ul>
+        <li><strong>Struct literals</strong> — static string fields skip <code>str_clone</code>.</li>
+        <li><strong>Composite structs</strong> — NoEscape bindings skip field-wise <code>free</code> when stack-safe.</li>
+        <li><strong>SROA</strong> — all-copy scalar structs (e.g. <code>Point { x: i32 y: i32 }</code>) decompose into separate LLVM values instead of a struct <code>alloca</code>.</li>
+      </ul>
+      <p>Struct literals with spread (<code>..p</code>) are excluded from SROA — the compiler keeps a single struct binding.</p>
+
+      <h2>LocalChannel</h2>
+      <p>When a <code>Channel&lt;T&gt;</code> is <strong>NoEscape</strong> and never captured by <code>spawn</code>, Nyra emits a stack <strong>LocalChannel</strong>: a fixed-capacity ring buffer (16 slots) with inline send/recv IR — no <code>pthread_mutex</code>, no calls into <code>rt_channel.c</code>.</p>
+      <p>If the channel handle or its messages escape to another thread, the plan falls back to the normal runtime channel.</p>
+      <p>See also: <a href="concurrency.html">Concurrency</a> · <a href="memory.html">Memory &amp; ownership</a>.</p>
+
+      <h2><code>#[no_escape]</code> on parameters</h2>
+      <p>Advanced callers can promise that a reference parameter never escapes the callee:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn process(#[no_escape] data) {
+    print(data)
+}
+
+fn bad(#[no_escape] data){
+    return data   // compile error E0602
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn process(#[no_escape] data: i32) {
+    print(data)
+}
+
+fn bad(#[no_escape] data: i32){
+    return data   // compile error E0602
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
+        <li><strong>E0601</strong> — <code>#[no_escape]</code> is only allowed on <code>&amp;T</code> parameters.</li>
+        <li><strong>E0602</strong> — the parameter would escape (return, <code>spawn</code>, or channel send).</li>
+      </ul>
+      <p>When valid, codegen treats the parameter as NoEscape for stack optimizations in the caller’s frame.</p>
+
+      <h2>Verbose report</h2>
+      <pre><code>nyra build --verbose file.ny
+nyra build -v .</code></pre>
+      <p>Example output:</p>
+      <pre><code>   Checking  escape analysis
+  escape: main::user → NoEscape
+  escape: main::chan → NoEscape
+  local channel: main::chan → LocalChannel (stack ring buffer)
+  no_escape param: process::data (must not return/spawn/send)</code></pre>
+
+      <h2>Example</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/sync/channel.ny&quot;
+
+struct User {
+    id: i32
+    name: string
+}
+
+fn main() {
+    let user = User { id: 101, name: &quot;Hamdy&quot; }
+
+    let mut chan = Channel_i32_new()
+    chan = chan.send(user.id)
+    let active_id = chan.recv()
+
+    print(active_id)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/sync/channel.ny&quot;
+
+struct User {
+    id: i32
+    name: string
+}
+
+fn main() -&gt; void {
+    let user: User = User { id: 101, name: &quot;Hamdy&quot; }
+
+    let mut chan = Channel_i32_new()
+    chan = chan.send(user.id)
+    let active_id = chan.recv()
+
+    print(active_id)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>user</code> and <code>chan</code> are NoEscape; <code>chan</code> becomes LocalChannel.</p>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>SROA applies to all-copy scalar structs without spread — not arbitrary aggregates.</li>
+        <li>LocalChannel is sequential only, fixed capacity 16, no <code>spawn</code> sharing.</li>
+        <li>Dynamic heap strings still allocate when they GlobalEscape.</li>
+        <li><strong>FFI boundary</strong> — values passed to or returned from <code>extern fn</code> / <code>export fn</code> are treated as escaping; stack promotion and LocalChannel do not apply across the C ABI. See <a href="c-bindgen.html">C Bindgen</a> and <a href="ffi-abi.html">FFI &amp; ABI</a>.</li>
+        <li>Optimizations are silent unless you pass <code>--verbose</code>.</li>
+      </ul>
+
+      <h2>Related</h2>
+      <ul>
+        <li><a href="performance.html">Performance toolchain</a> — <code>--release</code>, LTO, PGO</li>
+        <li><a href="memory.html">Memory &amp; ownership</a> — move, drop, auto-free</li>
+        <li><a href="diagnostics.html">Diagnostics</a> — borrow errors and error codes</li>
+        <li>Design notes: <code>Escape_Analysis.md</code> in the repository root</li>
+      </ul>
+
+      <footer class="site-footer">
+        <a href="performance.html">← Performance toolchain</a> ·
+        <a href="pgo.html">PGO</a> ·
+        <a href="memory.html">Memory</a>
+      </footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

@@ -421,11 +421,16 @@ impl Codegen {
         };
         let mut ret_ty = if func.is_async {
             "i32".to_string()
+        } else if let Some(ref t) = func.return_type {
+            self.llvm_return_type_of(t)
         } else {
-            func.return_type
-                .clone()
-                .map(|t| self.llvm_return_type_of(&t))
-                .unwrap_or(default_ret)
+            let has_return = func.body.statements.iter().any(|s| matches!(s, Statement::Return(_)));
+            if has_return {
+                let ann = self.infer_block_return_ann(&func.body);
+                self.llvm_return_type_of(&ann)
+            } else {
+                default_ret
+            }
         };
         // C entry expects `int main()`; `void @main` leaves an undefined exit code on macOS.
         if func.name == "main" && ret_ty == "void" {

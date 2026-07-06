@@ -30,3 +30,19 @@ fn String_replacen(s: &string, from: &string, to: &string, count: i32) -> string
 fn trim(s: &string) -> string {
     return str_trim(s)
 }
+
+
+
+
+
+
+// [builtin-dev:strip_suffix:string]
+fn String_stripSuffix(s: &string, suffix: &string) -> string {
+    return str_strip_suffix(s, suffix)
+}
+
+fn strip_suffix(s: &string, suffix: &string) -> string {
+    return str_strip_suffix(s, suffix)
+}
+// [/builtin-dev:strip_suffix:string]
+

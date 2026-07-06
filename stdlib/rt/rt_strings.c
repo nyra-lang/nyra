@@ -182,7 +182,7 @@ int str_ends_with(const char *s, const char *suffix) {
     return strcmp(s + slen - suflen, suffix) == 0 ? 1 : 0;
 }
 
-static char *str_dup(const char *s) {
+char *str_dup(const char *s) {
     if (!s) {
         return NULL;
     }
@@ -390,3 +390,30 @@ void *str_split(const char *s, const char *sep) {
     vec_str_push(vec, start);
     return vec;
 }
+
+// [builtin-dev:strip_suffix:string]
+char *str_strip_suffix(const char *s, const char *suffix) {
+    if (!s) return NULL;
+    if (!suffix) return str_dup(s);
+
+    size_t slen = strlen(s);
+    size_t suflen = strlen(suffix);
+
+    if (suflen > slen) {
+        return str_dup(s);
+    }
+
+    const char *end_ptr = s + (slen - suflen);
+    if (strcmp(end_ptr, suffix) == 0) {
+        size_t new_len = slen - suflen;
+        char *out = (char *)malloc(new_len + 1);
+        if (!out) return NULL;
+        
+        memcpy(out, s, new_len);
+        out[new_len] = '\0';
+        return out;
+    }
+
+    return str_dup(s);
+}
+// [/builtin-dev:strip_suffix:string]

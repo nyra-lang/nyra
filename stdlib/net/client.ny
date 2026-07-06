@@ -1,5 +1,4 @@
-import "../http/client.ny"
-import "../net/tcp.ny"
+import "../net/http/client.ny"
 
 struct HttpClient {
     host: string
@@ -11,6 +10,6 @@ fn HttpClient_new(host: string) -> HttpClient {
 
 impl HttpClient {
     fn get(self, url: string) -> string {
-        return http_get(url)
+        return get(url)
     }
 }

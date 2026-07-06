@@ -365,6 +365,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `str_split` | `void *str_split(const char *s, const char *sep)` | `rt_strings.c` | 1.3.0 | `stdlib/builtins_string.ny` |
 | `str_starts_with` | `int str_starts_with(const char *s, const char *prefix)` | `rt_strings.c` | 1.3.0 | `stdlib/strings/ops.ny` |
 | `str_strip_ansi` | `char *str_strip_ansi(const char *input)` | `rt_strings.c` | 1.3.0 | — |
+| `str_strip_suffix` | `char *str_strip_suffix(const char *s, const char *suffix)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
 | `str_to_f64` | `double str_to_f64(const char *s)` | `rt_strings.c` | 1.3.3 | `stdlib/strconv/mod.ny` |
 | `str_to_i32` | `int str_to_i32(const char *s)` | `rt_strings.c` | 1.3.0 | `stdlib/strconv/mod.ny`, `stdlib/strings.ny` |
 | `str_to_lower` | `char *str_to_lower(const char *s)` | `rt_strings.c` | 1.1.0 | `stdlib/strings/ops.ny` |

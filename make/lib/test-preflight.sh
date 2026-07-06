@@ -22,6 +22,9 @@ log "nyra check hello.ny"
 log "parser regression (fuzz OOM guard)"
 cargo test -q -p parser fuzz_slow_unit_caps_parse_errors
 
+log "contrib-dev Python tooling"
+make -s test-contrib-py
+
 log "abi roundtrip (cdylib + rust host)"
 cargo run --quiet -p cli -- build \
   "$ROOT/examples/ffi/export_greet/main.ny" \

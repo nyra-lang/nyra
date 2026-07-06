@@ -13,9 +13,10 @@ declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
 define i32 @main() {
 entry:
+  %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [0, %entry], [%loop.in.N, %while.body.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %while.body.N]
   %bin.N = icmp slt i32 %loop.phi.N, 3
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:

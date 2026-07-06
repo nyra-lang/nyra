@@ -47,6 +47,8 @@ help:
 		'  make build-webdocs     Regenerate webDocs search index + skill' \
 		'  make sync-webdocs-code-tabs  Sync doc code-tab pairs' \
 		'  make gen-suite-tests   Regenerate compiletest suite (GEN_SUITE_ARGS=--profile ci|full)' \
+		'  make contribute        Contributor hub (add/list/remove/patch scaffolds)' \
+		'  make test-contrib-py   Verify make/py/contrib_dev Python tooling' \
 		'' \
 		'Test subsets (test-all runs fast → slow):' \
 		'  make test-all-core-fast    Count + webdocs + optional-types (~1 min)' \

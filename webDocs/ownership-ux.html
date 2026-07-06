@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Ownership UX — Nyra Docs</title>
+  <meta name="description" content="Nyra ownership developer experience: auto-borrow, auto-Copy, inference, move/clone prefixes, Swift-style diagnostics, and f64. RFCs 0006–0009.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="ownership-ux">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+      <nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1>Ownership UX</h1>
+      <p class="lead">Rust-level memory safety with far less friction. Nyra infers types, borrows, and Copy behaviour automatically — you only write <code>clone</code> or <code>move</code> when you mean it. Shipped in <strong>v2.8–v3.1</strong> (RFCs <a href="https://github.com/nyra-lang/nyra/blob/main/docs/rfcs/0006-ownership-ux-and-inference.md">0006</a>–<a href="https://github.com/nyra-lang/nyra/blob/main/docs/rfcs/0009-f64.md">0009</a>).</p>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#defaults">The three defaults</a></li>
+          <li><a href="#inference">Type inference</a></li>
+          <li><a href="#auto-borrow">Auto-borrow at calls</a></li>
+          <li><a href="#clone">Clone</a></li>
+          <li><a href="#move-clone">move / clone prefixes</a></li>
+          <li><a href="#auto-copy">Auto-Copy structs</a></li>
+          <li><a href="#struct-sugar">Struct constructor sugar</a></li>
+          <li><a href="#diagnostics">Swift-style diagnostics</a></li>
+          <li><a href="#f64">f64 floating-point</a></li>
+          <li><a href="#pipeline">Compiler pipeline</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="defaults">The three defaults</h2>
+      <table>
+        <thead><tr><th>Mechanism</th><th>When</th><th>You write</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Borrow</strong></td><td>Callee expects <code>&amp;T</code>, you pass owned <code>T</code></td><td>Nothing — compiler inserts <code>&amp;</code></td></tr>
+          <tr><td><strong>Copy</strong></td><td>All fields are Copy (scalars, nested Copy structs)</td><td>Nothing — assign freely</td></tr>
+          <tr><td><strong>Clone / Move</strong></td><td>Heap duplicate or explicit transfer</td><td><code>clone x</code>, <code>.clone()</code>, or <code>move x</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="inference">Type inference (RFC 0006)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn twice(x) {
+    return x + x                  // return type inferred as i32
+}
+
+fn id(x){ return x }
+fn main() {
+    let age = 25                    // i32
+    let price = 19.99               // f64 (v3.1)
+    print(id(7))                  // T = i32 at call site
+    print(twice(age))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn twice(x: i32) -&gt; i32 {
+    return x + x                  // return type inferred as i32
+}
+
+fn id(x: i32){ return x }
+fn main() -&gt; void {
+    let age: i32 = 25
+    let price: f64 = 19.99
+    print(id(7))                  // T = i32 at call site
+    print(twice(age))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
+        <li><code>fn f() { }</code> with no <code>return</code> → <code>void</code></li>
+        <li>Conflicting <code>return</code> types → error; add <code>-> T</code></li>
+        <li>Cannot infer <code>let</code> → <code>cannot infer type for 'x'; annotate: let x: User = ...</code></li>
+      </ul>
+
+      <h2 id="auto-borrow">Auto-borrow at calls (RFC 0006)</h2>
+      <p>Before typecheck, the expand pass rewrites call arguments when the callee borrows:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct User {
+    name: string
+    age: i32
+}
+
+fn save(u: &amp;User) {
+    print(u.name)
+}
+
+fn main() {
+    let user = User { name: &quot;Ada&quot;, age: 30 }
+    save(user)           // desugared to save(&amp;user)
+    print(user.name)     // OK — user was not moved
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct User {
+    name: string
+    age: i32
+}
+
+fn save(u: &amp;User) {
+    print(u.name)
+}
+
+fn main() -&gt; void {
+    let user: User = User { name: &quot;Ada&quot;, age: 30 }
+    save(user)           // desugared to save(&amp;user)
+    print(user.name)     // OK — user was not moved
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>Parameter</th><th>Argument</th><th>Rewrite</th></tr></thead>
+        <tbody>
+          <tr><td><code>&amp;T</code></td><td>owned <code>T</code></td><td><code>&amp;arg</code></td></tr>
+          <tr><td><code>&amp;mut T</code></td><td><code>mut</code> owned <code>T</code></td><td><code>&amp;mut arg</code></td></tr>
+          <tr><td><code>T</code> (owned)</td><td>owned <code>T</code></td><td>move (no rewrite)</td></tr>
+        </tbody>
+      </table>
+      <p>Conformance: <code>CONF-COERCE-*</code> in <code>docs/conformance/coercion.md</code>.</p>
+
+      <h2 id="clone">Clone (RFC 0006)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let a = &quot;hello&quot;
+let b = a.clone()        // heap duplicate; a still valid
+
+// All-Copy struct → synthesized Point_clone when needed</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let a: string = &quot;hello&quot;
+let b = a.clone()        // heap duplicate; a still valid
+
+// All-Copy struct → synthesized Point_clone when needed</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Structs with only Clone fields get a compiler-synthesized <code>.clone()</code>. <code>string.clone()</code> calls <code>str_clone</code>.</p>
+
+      <h2 id="move-clone">move / clone prefixes (RFC 0007)</h2>
+      <p>Unary <code>move</code> and <code>clone</code> at call sites control coercion:</p>
+      <pre><code>save(move user)    // explicit move; skips auto-borrow
+save(clone user)   // duplicate then pass; user stays valid</code></pre>
+      <p><code>move</code> / <code>clone</code> desugar before auto-borrow runs, so they override the default.</p>
+
+      <h2 id="auto-copy">Auto-Copy structs (RFC 0008)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let p1 = { x: 1, y: 2 }
+    let p2 = p1
+    print(p1.x)      // both bindings valid — no annotation needed
+    print(p2.y)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let p1 = { x: 1, y: 2 }
+    let p2 = p1
+    print(p1.x)      // both bindings valid — no annotation needed
+    print(p2.y)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Structs with any Move field (e.g. <code>string</code>) stay Move. Optional <code>#[derive(Copy)]</code> documents intent and validates fields — it does not force Copy on unsafe structs.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>#[derive(Copy)]
+struct Bad { label: string }   // ERROR — string is not Copy</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>#[derive(Copy)]
+struct Bad { label: string }   // ERROR — string is not Copy</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="struct-sugar">Struct constructor sugar (RFC 0006)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct User {
+    name: string
+    age: i32
+}
+
+struct Point {
+    x: i32
+    y: i32
+}
+
+fn main() {
+    let u = User(&quot;Ada&quot;)              // positional → User { name: &quot;Ada&quot;, age: 0 }
+    let origin = Point()             // all fields defaulted
+    print(u.name)
+    print(origin.x)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct User {
+    name: string
+    age: i32
+}
+
+struct Point {
+    x: i32
+    y: i32
+}
+
+fn main() -&gt; void {
+    let u: User = User(&quot;Ada&quot;)              // positional → User { name: &quot;Ada&quot;, age: 0 }
+    let origin: Point = Point()             // all fields defaulted
+    print(u.name)
+    print(origin.x)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Missing trailing fields use type defaults (<code>0</code>, <code>0.0</code>, <code>false</code>, <code>""</code>).</p>
+
+      <h2 id="diagnostics">Swift-style diagnostics (RFC 0007)</h2>
+      <pre><code>error: use of moved value 'user'
+  --> main.ny:8:11
+   |
+ 6 |     save(user)
+   |          ---- value moved here
+ 7 |     print(user.name)
+   |           ^^^^ value used after move
+   |
+   = note: `save` takes owned `User`; consider `save(&amp;user)` or `save(clone user)`</code></pre>
+      <p>Errors name the <strong>callee</strong>, show the function signature, and suggest <code>&amp;</code>, <code>clone</code>, or <code>move</code>. See <a href="diagnostics.html">Diagnostics</a>.</p>
+
+      <h2 id="f64">f64 floating-point (RFC 0009)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let price = 19.99
+let lat = 30.0444
+print(price)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let price: f64 = 19.99
+let lat: f64 = 30.0444
+print(price)</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="char">char Unicode scalar (RFC 0010)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let ch = 'A'
+let nl = '\n'
+if ch == 'A' {
+    print(ch)    // %c — prints the character
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let ch = 'A'
+let nl = '\n'
+if ch == 'A' {
+    print(ch)    // %c — prints the character
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Single-quoted literals are <strong>not</strong> lifetimes: <code>'a'</code> is a char, <code>'a</code> in <code>&amp;'a T</code> is a lifetime.</p>
+
+      <h2 id="pipeline">Compiler pipeline</h2>
+      <pre class="pipeline">Source (.ny)
+  → Lexer → Parser
+  → expand (??, ?., struct ctors, clone/move desugar)
+  → monomorph (+ generic call-site inference)
+  → coerce_auto_borrow
+  → typecheck
+  → ownership (Copy inference, Drop plan)
+  → borrowck (+ callee-aware diagnostics)
+  → lifetimes → Send/Sync
+  → LLVM codegen → opt → clang</pre>
+      <p><strong>88 conformance tests</strong> green including <code>CONF-INF-*</code>, <code>CONF-COERCE-*</code>, <code>CONF-DIAG-*</code>, <code>CONF-COPY-*</code>, <code>CONF-F64-*</code>.</p>
+
+      <nav class="lesson-nav">
+        <a class="lesson-nav-prev" href="memory.html">← Memory &amp; ownership</a>
+        <a class="lesson-nav-hub" href="learning-path.html">Learning path</a>
+        <a class="lesson-nav-next" href="diagnostics.html">Diagnostics →</a>
+      </nav>
+      <footer class="site-footer"><a href="reference.html">Language reference →</a></footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

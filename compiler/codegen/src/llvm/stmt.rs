@@ -172,7 +172,12 @@ impl Codegen {
                     } else if val.reg.chars().all(|c| {
                         c.is_ascii_digit() || c == '-' || c == '.'
                     }) {
-                        val.reg.clone()
+                        let tmp = self.fresh("ssa");
+                        self.emit(&format!(
+                            "  %{tmp} = add {storage_ty} 0, {}",
+                            val.reg
+                        ));
+                        tmp
                     } else {
                         val.reg.trim_start_matches('%').to_string()
                     };
@@ -296,10 +301,25 @@ impl Codegen {
                         },
                     );
                 } else {
+                    let storage_ty = llvm_storage_ty(&val.ty).to_string();
+                    let reg = if val.reg.starts_with('%') {
+                        val.reg.trim_start_matches('%').to_string()
+                    } else if val.reg.chars().all(|c| {
+                        c.is_ascii_digit() || c == '-' || c == '.'
+                    }) {
+                        let tmp = self.fresh("ssa");
+                        self.emit(&format!(
+                            "  %{tmp} = add {storage_ty} 0, {}",
+                            val.reg
+                        ));
+                        tmp
+                    } else {
+                        val.reg.trim_start_matches('%').to_string()
+                    };
                     env.insert(
                         l.name.clone(),
                         Binding::Reg {
-                            reg: val.reg.trim_start_matches('%').to_string(),
+                            reg,
                             ty: val.ty.clone(),
                         },
                     );

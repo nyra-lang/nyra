@@ -1,0 +1,7 @@
+{
+  "keyword": "yield",
+  "feature_name": "yield_expr",
+  "description": "Example syntax scaffold for a new keyword",
+  "needs_expand": true,
+  "needs_const_eval": false
+}

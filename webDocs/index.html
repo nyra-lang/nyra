@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Nyra — Programming Language Documentation</title>
+  <meta name="description" content="Nyra language documentation: Go-like simplicity, Rust-like safety, LLVM-native performance.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="index" class="overview-page">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a class="active" href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+
+    <main class="content overview-content">
+      <section class="hero-landing" aria-labelledby="hero-title">
+        <div class="hero-facet-bg" aria-hidden="true"></div>
+        <div class="hero-glow-orb" aria-hidden="true"></div>
+          <div class="hero-copy">
+            <span class="pill" data-i18n="pages.index.pill">Documentation v1.40.x</span>
+            <h1 id="hero-title">
+              <span class="hero-title-brand">Nyra</span>
+              <span class="hero-title-sub" data-i18n="pages.index.titleSub">Programming Language</span>
+            </h1>
+            <p class="hero-tagline" data-i18n="pages.index.tagline">Fast like a panther. Sharp by design.</p>
+            <p class="hero-lead" data-i18n="pages.index.lead">
+              Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.
+            </p>
+            <div class="hero-install" aria-label="Install commands">
+              <div class="hero-install-block">
+                <span class="hero-install-label" data-i18n="pages.index.installNyraLabel">Nyra</span>
+                <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></pre>
+              </div>
+              <div class="hero-install-block">
+                <span class="hero-install-label" data-i18n="pages.index.installPkgLabel">nyrapkg (package manager)</span>
+                <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh</code></pre>
+              </div>
+              <p class="hero-install-hint" data-i18n-html="pages.index.installHint">Then: <code>source ~/.zshrc</code> · <a href="install.html">full install guide</a></p>
+            </div>
+            <ul class="hero-chips" aria-label="Core traits">
+              <li data-i18n="pages.index.chipFast">Fast</li>
+              <li data-i18n="pages.index.chipSafe">Safe</li>
+              <li data-i18n="pages.index.chipMinimal">Minimal</li>
+              <li data-i18n="pages.index.chipLlvm">LLVM native</li>
+            </ul>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="getting-started.html" data-i18n="pages.index.btnStart">Get started</a>
+              <a class="btn btn-ghost" href="install.html" data-i18n="pages.index.btnInstall">Install</a>
+              <a class="btn btn-ghost" href="methods.html" data-i18n="pages.index.btnReference">Built-in methods</a>
+              <a class="btn btn-ghost btn-icon" href="https://github.com/nyra-lang/nyra" data-i18n-aria-label="pages.index.ariaGithub" aria-label="GitHub repository">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              </a>
+            </div>
+          </div>
+      </section>
+
+      <section class="overview-section" id="about">
+        <div class="section-head">
+          <h2 data-i18n="pages.index.aboutTitle">What is Nyra?</h2>
+          <p class="section-desc" data-i18n="pages.index.aboutDesc">Production-ready systems language — readable surface, strict core, LLVM-native speed.</p>
+        </div>
+        <div class="about-grid">
+          <article class="about-card">
+            <span class="about-icon" aria-hidden="true">.ny</span>
+            <h3 data-i18n="pages.index.aboutSourceH">Source</h3>
+            <p data-i18n-html="pages.index.aboutSourceP">Programs live in <code>.ny</code> files. A Nyra frontend emits <strong>LLVM IR</strong>, then <strong>clang</strong> links with <code>nyra_rt.c</code> for I/O and runtime helpers.</p>
+          </article>
+          <article class="about-card">
+            <span class="about-icon" aria-hidden="true">◇</span>
+            <h3 data-i18n="pages.index.aboutPhilH">Philosophy</h3>
+            <p data-i18n="pages.index.aboutPhilP">Go-like control flow and a small keyword set, Rust-like compile-time memory rules, and native speed from LLVM optimizations.</p>
+          </article>
+          <article class="about-card about-card-accent">
+            <span class="about-icon" aria-hidden="true">⚡</span>
+            <h3 data-i18n="pages.index.aboutCliH">One CLI</h3>
+            <p data-i18n-html="pages.index.aboutCliP"><code>nyra run</code>, <code>build</code>, <code>test</code>, <code>fmt</code>, and <code>pkg</code> — one toolchain from hello world to release binaries.</p>
+            <a class="about-link" href="tooling.html" data-i18n="pages.index.aboutCliLink">Toolchain docs →</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="overview-section" id="pillars">
+        <div class="section-head">
+          <h2 data-i18n="pages.index.pillarsTitle">Design pillars</h2>
+          <p class="section-desc" data-i18n="pages.index.pillarsDesc">What we borrow — and what ships today.</p>
+        </div>
+        <div class="pillar-grid">
+          <article class="pillar-card">
+            <span class="pillar-label" data-i18n="pages.index.pillarEase">Ease</span>
+            <h3>Go</h3>
+            <p data-i18n-html="pages.index.pillarEaseP">Flat syntax, <code>fn main</code>, minimal boilerplate</p>
+          </article>
+          <article class="pillar-card">
+            <span class="pillar-label" data-i18n="pages.index.pillarSafety">Safety</span>
+            <h3>Rust</h3>
+            <p data-i18n="pages.index.pillarSafetyP">Ownership, auto-drop, NLL borrows — no GC, no leaks in normal code</p>
+            <a class="about-link" href="ownership-ux.html">Ownership UX →</a>
+          </article>
+          <article class="pillar-card">
+            <span class="pillar-label" data-i18n="pages.index.pillarSpeed">Speed</span>
+            <h3>LLVM</h3>
+            <p data-i18n-html="pages.index.pillarSpeedP"><code>nyra build --release</code>, thin LTO, IR <code>opt</code></p>
+          </article>
+          <article class="pillar-card">
+            <span class="pillar-label" data-i18n="pages.index.pillarTooling">Tooling</span>
+            <h3 data-i18n="pages.index.pillarGoCli">Go-style CLI</h3>
+            <p data-i18n="pages.index.pillarToolingP">run, build, test, fmt, pkg in one binary</p>
+          </article>
+          <article class="pillar-card">
+            <span class="pillar-label" data-i18n="pages.index.pillarAsync">Async</span>
+            <h3>Go</h3>
+            <p data-i18n-html="pages.index.pillarAsyncP"><code>spawn</code> with captures, <code>Send</code>/<code>Sync</code>, pthread channels</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="overview-section" id="pipeline">
+        <div class="section-head">
+          <h2 data-i18n="pages.index.pipelineTitle">Compilation pipeline</h2>
+          <p class="section-desc" data-i18n="pages.index.pipelineDesc">From source to native executable.</p>
+        </div>
+        <div class="pipeline-steps">
+          <div class="pipeline-step">
+            <span class="pipeline-num">1</span>
+            <strong data-i18n="pages.index.pipeSource">Source</strong>
+            <span class="pipeline-detail"><code>.ny</code> files</span>
+          </div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-step">
+            <span class="pipeline-num">2</span>
+            <strong data-i18n="pages.index.pipeFrontend">Frontend</strong>
+            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailFrontend">Lexer · Parser · Types · Ownership · Borrow · Lifetimes · Send/Sync</span>
+          </div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-step">
+            <span class="pipeline-num">3</span>
+            <strong>LLVM IR</strong>
+            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailOpt">opt passes</span>
+          </div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-step pipeline-step-final">
+            <span class="pipeline-num">4</span>
+            <strong data-i18n="pages.index.pipeFinal">Native binary</strong>
+            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailFinal">clang + nyra_rt.c</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="overview-section" id="result-errors">
+        <div class="section-head">
+          <h2 data-i18n="pages.index.resultTitle">Result &amp; error handling</h2>
+          <p class="section-desc" data-i18n="pages.index.resultDesc">Stable Extended <code>Result</code> payloads with <code>?</code> propagation for fallible pipelines.</p>
+        </div>
+        <div class="about-grid">
+          <article class="about-card">
+            <span class="about-icon" aria-hidden="true">match</span>
+            <h3 data-i18n="pages.index.resultTodayH">Shipped (Stable Extended)</h3>
+            <p data-i18n-html="pages.index.resultTodayP">The <code>?</code> operator, generic <code>Result&lt;T,E&gt;</code> via <code>import "stdlib/option.ny"</code>, and tests such as <code>tests/nyra/result_propagate_test.ny</code>.</p>
+          </article>
+          <article class="about-card">
+            <span class="about-icon" aria-hidden="true">?</span>
+            <h3 data-i18n="pages.index.resultMissingH">Still maturing</h3>
+            <p data-i18n-html="pages.index.resultMissingP">Multi-trait <code>dyn A + B</code> objects and some exotic generic serde cases — see roadmap production gates.</p>
+          </article>
+          <article class="about-card about-card-accent">
+            <span class="about-icon" aria-hidden="true">!</span>
+            <h3 data-i18n="pages.index.resultProdH">Production readiness</h3>
+            <p data-i18n="pages.index.resultProdP">Ready for production error-handling in CLI tools and servers on Core + Stable Extended.</p>
+            <a class="about-link" href="ai-skill.html#result-errors" data-i18n="pages.index.resultExampleLink">Result reference &amp; example →</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="overview-section" id="ai-skill">
+        <div class="section-head">
+          <h2 data-i18n="pages.index.aiSkillTitle">For AI assistants</h2>
+          <p class="section-desc" data-i18n="pages.index.aiSkillDesc">Download the canonical Nyra reference for Cursor, ChatGPT, Claude, and other LLMs.</p>
+        </div>
+        <div class="callout">
+          <p data-i18n-html="pages.index.aiSkillBody">Single file <code>nyra-skill.md</code> — syntax, ownership, stdlib, PGO, escape analysis, stability tiers, and anti-hallucination guardrails (v1.36.x).</p>
+          <div class="hero-actions" style="margin-top:1rem">
+            <a class="btn btn-primary" href="nyra-skill.md" download data-i18n="pages.index.aiSkillDownload">Download nyra-skill.md</a>
+            <a class="btn btn-ghost" href="ai-skill.html" data-i18n="pages.index.aiSkillGuide">Usage guide</a>
+            <a class="btn btn-ghost" href="learning-path.html" data-i18n="nav.learningPath">Learning path</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="overview-section" id="explore">
+        <div class="section-head">
+          <h2 data-i18n="pages.index.exploreTitle">Explore the docs</h2>
+          <p class="section-desc" data-i18n="pages.index.exploreDesc">Pick a path — beginner to reference app.</p>
+        </div>
+        <div class="bento-grid">
+          <div class="card bento-featured">
+            <a class="stretched" href="beginner-track.html">
+              <span class="bento-kicker" data-i18n="pages.index.bentoBeginner">New to programming?</span>
+              <h3 data-i18n="nav.beginnerTrack">Beginner track</h3>
+              <p data-i18n="pages.index.cardBeginnerP">Eight step-by-step lessons — first program through a mini project</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="getting-started.html">
+              <span class="bento-kicker" data-i18n="pages.index.bentoStart">Start here</span>
+              <h3 data-i18n="nav.gettingStarted">Getting started</h3>
+              <p data-i18n-html="pages.index.cardGettingP">Create a project, run Hello World, understand <code>nyra run .</code></p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="methods.html">
+              <span class="bento-kicker" data-i18n="pages.index.bentoRef">Reference</span>
+              <h3 data-i18n="nav.methods">Built-in methods</h3>
+              <p>Every builtin and stdlib method — with a runnable example per row</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="install.html">
+              <h3 data-i18n="nav.install">Installation</h3>
+              <p data-i18n="pages.index.cardInstallP">macOS, Linux, Windows — releases &amp; tags</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="learn-intro.html">
+              <h3 data-i18n="nav.learnIntro">Learn Nyra</h3>
+              <p>Step-by-step tutorials — every topic with runnable code</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="imports.html">
+              <h3 data-i18n="nav.imports">Imports guide</h3>
+              <p data-i18n="pages.index.cardImportsP">Functions, structs, enums, consts</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="language.html">
+              <h3 data-i18n="nav.syntax">Language syntax</h3>
+              <p data-i18n="pages.index.cardLanguageP">Variables, loops, match, functions</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="tooling.html">
+              <h3 data-i18n="nav.tooling">Toolchain</h3>
+              <p data-i18n="pages.index.cardToolingP">build, test, fmt, release flags</p>
+            </a>
+          </div>
+          <div class="card bento-featured">
+            <a class="stretched" href="stdlib.html">
+              <span class="bento-kicker" data-i18n="pages.index.bentoApi">API reference</span>
+              <h3 data-i18n="nav.stdlib">Standard library</h3>
+              <p data-i18n-html="pages.index.cardStdlibP">Strong stdlib — collections, FS, HTTP/TCP, crypto, DB, serde, WebSocket <strong>in-tree</strong></p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="reference.html">
+              <h3 data-i18n="nav.reference">Language reference</h3>
+              <p data-i18n="pages.index.cardReferenceP">Keywords, operators, ownership quick ref</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="memory.html">
+              <h3 data-i18n="nav.memory">Memory &amp; ownership</h3>
+              <p data-i18n="pages.index.cardMemoryP">NLL, lifetimes, Drop, Send/Sync, auto-drop</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="spec.html">
+              <h3 data-i18n="nav.spec">Language spec</h3>
+              <p data-i18n="pages.index.cardSpecP">Normative Spec 1.0 (v0.2 freeze)</p>
+            </a>
+          </div>
+          <div class="card">
+            <a class="stretched" href="learning-path.html">
+              <h3 data-i18n="nav.learningPath">Learning path</h3>
+              <p data-i18n="pages.index.cardLearningPathP">Zero to full app — step by step</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div class="callout callout-status">
+        <strong data-i18n="pages.index.statusTitle">Project status</strong>
+        <span data-i18n-html="pages.index.statusBody">Nyra is <strong>production-ready</strong> on Core + Stable Extended (async, <code>?</code>, spawn, traits, serde). Prebuilt releases for Linux, macOS, and Windows. See <a href="roadmap.html">Roadmap</a>, <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a>, and <a href="https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md">stability policy</a>.</span>
+      </div>
+
+      <footer class="site-footer">
+        <span data-i18n="common.footerLicense">Nyra · Proprietary · All Rights Reserved ·</span>
+        <a href="https://github.com/nyra-lang/nyra">github.com/nyra-lang/nyra</a>
+      </footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

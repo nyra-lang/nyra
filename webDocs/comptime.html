@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Comptime — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="comptime">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a class="active" href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.comptime.h1">Comptime evaluation</h1>
+      <p class="lead" data-i18n-html="pages.comptime.lead">Optional compile-time evaluation — lookup tables, string routing, and generated constants with <strong>zero runtime cost</strong>. Nyra does not force comptime; use normal runtime code by default and opt in when you need Zig-style power.</p>
+
+      <h2>Philosophy</h2>
+      <p>The compiler folds pure expressions <strong>before codegen</strong>. Folded helpers are stripped from the binary; only the resulting constants (or imported <code>pub const</code> values) remain. Both <strong>zero-types</strong> and <strong>explicit types</strong> styles work — every example ships as <code>foo.ny</code> + <code>foo.typed.ny</code> under <code>examples/toolchain/</code>.</p>
+
+      <h2>Three forms</h2>
+
+      <h3>1 — File-level <code>comptime</code> module</h3>
+      <p>Put <code>comptime</code> on the <strong>first line</strong>. The entire file is evaluated at compile time. Export <code>pub const</code> (and optional <code>pub struct</code> / <code>pub enum</code>) for importers. No <code>main</code>, <code>print</code>, <code>spawn</code>, <code>async</code>, or <code>extern</code> in comptime modules.</p>
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>comptime
+
+fn hash_step(n) {
+    return (n * 2654435761) % 2147483647
+}
+
+pub const SEED = hash_step(42)
+pub const SUM_FOUR = sum_array([0, 1, 2, 3])</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>comptime
+
+fn hash_step(n: i32) -&gt; i32 {
+    return (n * 2654435761) % 2147483647
+}
+
+pub const SEED = hash_step(42)
+pub const SUM_FOUR = sum_array([0, 1, 2, 3])</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>Check without codegen: <code>nyra check examples/toolchain/comptime_tables.ny</code>. Import from runtime code:</p>
+      <pre><code>import "comptime_tables.ny" as tables
+
+fn main() {
+    let seed = tables::SEED
+}</code></pre>
+      <p>Example: <code>examples/toolchain/comptime_import_main.ny</code>.</p>
+
+      <h3>2 — Function attribute <code>#[comptime]</code></h3>
+      <p>Mark a single function in a <strong>normal</strong> file. Calls with known arguments fold at compile time; the function body is removed from the runtime binary.</p>
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>#[comptime]
+fn mix(n) {
+    return n * 3
+}
+
+const SEED = mix(14)
+
+fn main() {
+    print(&quot;SEED&quot;, SEED)   // 42 — mix() not in binary
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>#[comptime]
+fn mix(n: i32) -&gt; i32 {
+    return n * 3
+}
+
+const SEED = mix(14)
+
+fn main() -&gt; void {
+    print(&quot;SEED&quot;, SEED)   // 42 — mix() not in binary
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>Example: <code>examples/toolchain/comptime_fn_attr.ny</code>.</p>
+
+      <h3>3 — Block expression <code>comptime { … }</code></h3>
+      <p>Folds a compile-time block to a value (trailing expression or <code>return</code>). Supports loops, mutable locals, and <code>match</code>.</p>
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>const TOTAL = comptime {
+    let mut acc = 0
+    let mut i = 0
+    while i &lt; 4 {
+        acc = acc + i
+        i = i + 1
+    }
+    acc
+}
+
+enum Mode { Fast Slow }
+
+const SCORE = comptime {
+    match Mode.Fast {
+        Mode.Fast =&gt; 100
+        Mode.Slow =&gt; 10
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>const TOTAL = comptime {
+    let mut acc: i32 = 0
+    let mut i: i32 = 0
+    while i &lt; 4 {
+        acc = acc + i
+        i = i + 1
+    }
+    acc
+}
+
+enum Mode { Fast Slow }
+
+const SCORE = comptime {
+    match Mode.Fast {
+        Mode.Fast =&gt; 100
+        Mode.Slow =&gt; 10
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>Examples: <code>comptime_block_loops.ny</code>, <code>comptime_match.ny</code>, <code>comptime_struct_enum.ny</code>.</p>
+
+      <h2>Power example — tables, strings, match</h2>
+      <p><code>examples/toolchain/comptime_power.ny</code> builds a lookup table, routes HTTP verbs by string <code>match</code>, and concatenates labels — all at compile time:</p>
+      <pre><code>comptime
+
+fn build_lookup(size) {
+    let mut table = [0; size]
+    let mut i = 0
+    while i &lt; size {
+        table[i] = i * i
+        i = i + 1
+    }
+    return table
+}
+
+pub const LOOKUP = build_lookup(8)
+pub const GET_CODE = comptime {
+    match "GET" {
+        "GET" =&gt; 1
+        "POST" =&gt; 2
+        _ =&gt; 0
+    }
+}</code></pre>
+
+      <h2>What comptime supports</h2>
+      <ul>
+        <li>Integers, bools, <strong>strings</strong> (literals, <code>+</code>, <code>==</code> / <code>!=</code>)</li>
+        <li>Fixed arrays (<code>[1, 2, 3]</code>, <code>[x; N]</code>, spreads), <code>.len()</code> on arrays/strings</li>
+        <li><strong>Structs</strong> — literals, field access, spread, struct <code>match</code></li>
+        <li><strong>Enums</strong> — unit and payload variants</li>
+        <li><strong>Tuples</strong> and tuple <code>match</code></li>
+        <li><code>for i in 0..N</code>, <code>for x in arr</code>, <code>while</code>, <code>break</code>, <code>continue</code></li>
+        <li><code>match</code> on enums, bools, integer literals, string literals, guards, struct/tuple arms; or-patterns via desugar</li>
+        <li>Mutable updates: <code>table[i] = v</code>, <code>s.field = v</code> with <code>let mut</code></li>
+        <li>Generic calls (monomorphized before eval), pure function calls, <code>if</code> / <code>return</code></li>
+      </ul>
+
+      <h2>Forbidden in comptime</h2>
+      <ul>
+        <li><code>main</code>, <code>print</code>, <code>spawn</code>, <code>async</code>, <code>extern</code>, <code>unsafe</code>, <code>asm</code>, <code>parallel for</code></li>
+        <li>Runtime calls to <code>#[comptime]</code> functions (compile error)</li>
+        <li>Reassigning non-<code>mut</code> <code>let</code> bindings</li>
+      </ul>
+      <p>Use <code>priv const</code> for internal comptime helpers; export only what importers need as <code>pub const</code>.</p>
+
+      <h2><code>let</code> vs <code>const</code> vs comptime</h2>
+      <table>
+        <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th><th><code>comptime</code> file</th><th><code>#[comptime]</code></th></tr></thead>
+        <tbody>
+          <tr><td>When evaluated</td><td>Runtime</td><td>Runtime</td><td>Compile time (literal)</td><td>Compile time (whole file)</td><td>Compile time (call sites)</td></tr>
+          <tr><td>In binary</td><td>Yes</td><td>Yes</td><td>Constant only</td><td>Exported constants only</td><td>Folded away</td></tr>
+          <tr><td>Example</td><td><code>let n = 1</code></td><td><code>let mut i = 0</code></td><td><code>const MAX = 100</code></td><td><code>pub const TABLE = …</code></td><td><code>#[comptime] fn hash(n) …</code></td></tr>
+        </tbody>
+      </table>
+      <p>See also <a href="learn-constants.html">Nyra Constants</a> for everyday <code>const</code> usage.</p>
+
+      <h2>Toolchain</h2>
+      <table>
+        <thead><tr><th>Command</th><th>Job</th></tr></thead>
+        <tbody>
+          <tr><td><code>nyra check path/to/comptime_module.ny</code></td><td>Type-check a comptime-only file (no <code>main</code>, no codegen required)</td></tr>
+          <tr><td><code>nyra run importer.ny</code></td><td>Compile runtime code that imports folded constants</td></tr>
+          <tr><td><code>nyra test tests/nyra/comptime/</code></td><td>Run comptime regression suite (zero-types + typed pairs)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Examples &amp; tests</h2>
+      <table>
+        <thead><tr><th>Path</th><th>Demonstrates</th></tr></thead>
+        <tbody>
+          <tr><td><code>examples/toolchain/comptime_tables.ny</code></td><td>File-level module + hash helpers</td></tr>
+          <tr><td><code>examples/toolchain/comptime_import_main.ny</code></td><td>Import <code>pub const</code> from comptime file</td></tr>
+          <tr><td><code>examples/toolchain/comptime_fn_attr.ny</code></td><td><code>#[comptime]</code> function folding</td></tr>
+          <tr><td><code>examples/toolchain/comptime_block_loops.ny</code></td><td><code>comptime { }</code> + <code>while</code></td></tr>
+          <tr><td><code>examples/toolchain/comptime_match.ny</code></td><td>Enum / bool / integer <code>match</code></td></tr>
+          <tr><td><code>examples/toolchain/comptime_struct_enum.ny</code></td><td>Struct literals + struct <code>match</code></td></tr>
+          <tr><td><code>examples/toolchain/comptime_power.ny</code></td><td>Tables, string <code>match</code>, concat</td></tr>
+          <tr><td><code>examples/toolchain/metaprogramming.ny</code></td><td>Comptime + macros + struct JSON synthesis</td></tr>
+          <tr><td><code>tests/nyra/comptime/</code></td><td>Full test grid (<code>*_test.ny</code> runners)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Metaprogramming (overview)</h2>
+      <p>Nyra metaprogramming runs <strong>during compilation</strong> — no runtime reflection cost on hot paths:</p>
+      <ul>
+        <li><strong>Comptime</strong> — file modules, <code>#[comptime]</code> functions, and <code>comptime { }</code> blocks fold values before codegen</li>
+        <li><strong>Macros</strong> — hygienic expression substitution before typecheck (<a href="traits-macros.html">traits &amp; macros</a>)</li>
+        <li><strong>Generics</strong> — monomorph specialization (<a href="generics.html">generics</a>)</li>
+        <li><strong>Struct JSON</strong> — compiler synthesizes <code>{Struct}_json_encode</code> / <code>_json_decode</code> for eligible structs (<code>examples/struct_serde.ny</code>)</li>
+      </ul>
+      <p>See <code>examples/toolchain/metaprogramming.ny</code> and <code>stdlib/meta/mod.ny</code>.</p>
+
+      <footer class="site-footer"><a href="generics.html">← Generics</a> · <a href="modules.html">Modules →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

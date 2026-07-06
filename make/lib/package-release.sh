@@ -33,6 +33,30 @@ trap 'rm -rf "$STAGE"' EXIT INT TERM
 
 mkdir -p "$STAGE/bin" "$STAGE/share/stdlib"
 
+sync_workspace_version() {
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "error: python3 required to sync Cargo.toml version for releases" >&2
+    exit 1
+  fi
+  python3 - "$VERSION" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+version = sys.argv[1]
+path = Path("Cargo.toml")
+text = path.read_text()
+pattern = r'(\[workspace\.package\]\s*\n(?:[^\[]*\n)*?)version = "[^"]+"'
+new, n = re.subn(pattern, rf'\1version = "{version}"', text, count=1)
+if n != 1:
+    sys.exit("failed to update [workspace.package] version in Cargo.toml")
+path.write_text(new)
+PY
+}
+
+echo "Syncing workspace version to $VERSION ..."
+sync_workspace_version
+
 echo "Building cli for $TRIPLE ..."
 
 HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
@@ -59,6 +83,14 @@ cp -R stdlib/. "$STAGE/share/stdlib/"
 rm -rf "$STAGE/share/stdlib/target" 2>/dev/null || true
 
 printf '%s\n' "$VERSION" > "$STAGE/version"
+
+if [ "$IS_WINDOWS" -eq 0 ]; then
+  reported="$("$STAGE/bin/nyra" --version 2>/dev/null | sed 's/^nyra //')"
+  if [ "$reported" != "$VERSION" ]; then
+    echo "error: built nyra reports ${reported}, expected ${VERSION}" >&2
+    exit 1
+  fi
+fi
 
 # Shell env helper (Unix)
 cat > "$STAGE/env" <<EOF

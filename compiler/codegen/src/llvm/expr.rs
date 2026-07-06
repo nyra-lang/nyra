@@ -19,8 +19,8 @@ use super::{
 use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
-    llvm_cmp_operand, llvm_float_const, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_cmp_operand, llvm_float_const, llvm_pointee_ty, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
+    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, llvm_value_operand, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -147,32 +147,30 @@ impl Codegen {
                             if let Some(binding) = env.get(name) {
                                 let ty = Self::binding_ty(binding);
                                 let ptr_ty = llvm_ptr(ty);
-                                // `let mut` scalars are SSA registers; C out-params need a stack slot.
-                                if self.mut_ssa_locals.contains(name) {
-                                    if let Binding::Reg { reg, .. } = binding {
-                                        let llvm_ty = llvm_storage_ty(ty);
-                                        let slot = self.fresh("refmut");
-                                        self.emit(&format!(
-                                            "  %{slot} = alloca {llvm_ty}, align 8"
-                                        ));
-                                        let reg_ref = if reg.starts_with('%') {
-                                            reg.clone()
-                                        } else if reg.chars().all(|c| {
-                                            c.is_ascii_digit() || c == '-' || c == '.'
-                                        }) {
-                                            reg.clone()
-                                        } else {
-                                            format!("%{reg}")
-                                        };
-                                        self.emit(&format!(
-                                            "  store {llvm_ty} {reg_ref}, {} %{slot}",
-                                            llvm_ptr(llvm_ty)
-                                        ));
+                                // SSA scalars have no stable address; materialize a stack slot.
+                                if let Binding::Reg { reg, .. } = binding {
+                                    let ty = Self::binding_ty(binding);
+                                    // String/ptr SSA values are already pointers; &s is the ptr itself.
+                                    if ty == "ptr" || ty == "string" || ty == "bytes" {
                                         return ExprValue {
-                                            reg: format!("%{slot}"),
-                                            ty: ptr_ty,
+                                            reg: llvm_ptr_reg(reg),
+                                            ty: llvm_ptr("ptr"),
                                         };
                                     }
+                                    let llvm_ty = llvm_storage_ty(ty);
+                                    let slot = self.fresh("refslot");
+                                    self.emit(&format!(
+                                        "  %{slot} = alloca {llvm_ty}, align 8"
+                                    ));
+                                    let reg_ref = llvm_value_operand(reg);
+                                    self.emit(&format!(
+                                        "  store {llvm_ty} {reg_ref}, {} %{slot}",
+                                        llvm_ptr(llvm_ty)
+                                    ));
+                                    return ExprValue {
+                                        reg: format!("%{slot}"),
+                                        ty: ptr_ty,
+                                    };
                                 }
                                 let ptr_reg = match binding {
                                     Binding::Stack { slot, ty } if ty == "ptr" && u.op == UnaryOp::Ref => {
@@ -183,13 +181,7 @@ impl Codegen {
                                         format!("%{loaded}")
                                     }
                                     Binding::Stack { slot, .. } => format!("%{slot}"),
-                                    Binding::Reg { reg, .. } => {
-                                        if reg.starts_with('%') {
-                                            reg.clone()
-                                        } else {
-                                            format!("%{reg}")
-                                        }
-                                    }
+                                    Binding::Reg { .. } => unreachable!("Reg handled above"),
                                     Binding::Param { index, .. } => format!("%{index}"),
                                     Binding::Closure(_) => "0".to_string(),
                                     Binding::PromotedStruct {
@@ -218,13 +210,11 @@ impl Codegen {
                     UnaryOp::Deref => {
                         let inner = self.compile_expr(&u.operand, env);
                         let loaded = self.fresh("load");
-                        let (elem_ty, ptr_ty) = if inner.ty == "ptr" {
-                            ("i32".to_string(), "ptr".to_string())
+                        let elem_ty = llvm_pointee_ty(&inner.ty);
+                        let ptr_ty = if inner.ty == "ptr" {
+                            "ptr".to_string()
                         } else {
-                            (
-                                inner.ty.trim_start_matches('%').to_string(),
-                                llvm_ptr(&inner.ty),
-                            )
+                            llvm_ptr(&elem_ty)
                         };
                         let ptr_op = if inner.ty == "ptr" {
                             let p = self.materialize_ptr_reg(&inner.reg);

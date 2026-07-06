@@ -1,0 +1,1 @@
+"""Contributor recipe registry."""

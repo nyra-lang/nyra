@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Changelog — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="changelog">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a class="active" href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.changelog.h1">Changelog</h1>
+      <p class="lead" data-i18n-html="pages.changelog.lead">Spec freeze history and release notes.</p>
+
+<h2>v1.40.0 (errors &amp; async runtime — 2026-07-03)</h2>
+<ul>
+<li><strong>Official errors</strong> — <code>stdlib/error.ny</code> adds <code>Error</code>, context/cause formatting, stack trace hook, and <code>Result&lt;T, Error&gt;</code> helpers.</li>
+<li><strong>Fallible stdlib wrappers</strong> — <code>read_text</code>, <code>write_text</code>, <code>append_text</code>, <code>json_string</code>, <code>json_i32</code>, and <code>json_bool</code>.</li>
+<li><strong>Official async facade</strong> — <code>stdlib/async/mod.ny</code> exposes <code>NyraRuntime_default</code>, <code>NyraRuntime_run_until</code>, <code>sleep_ms_async</code>, and <code>await_i32</code>.</li>
+<li><strong>Compiler/runtime fixes</strong> — <code>?</code> and LLVM lowering now handle <code>Result&lt;string, Error&gt;</code> / struct error payloads.</li>
+</ul>
+
+<h2>v1.39.0 (systems &amp; stdlib — 2026-07-01)</h2>
+<ul>
+<li><strong><code>random()</code> / <code>random(min, max)</code></strong> — generic integer ChaCha20 CSPRNG builtins (type follows bounds); <code>random_f64(min, max)</code></li>
+<li><strong>Metaprogramming docs</strong> — comptime + macros + struct JSON synthesis; <code>examples/toolchain/metaprogramming.ny</code>, <code>stdlib/meta/mod.ny</code></li>
+<li><strong>Systems features</strong> — C <code>union</code>, <code>size_of</code>/<code>align_of</code>, <code>bytes</code> type, SIMD, arena allocator (see <code>CHANGELOG.md</code>)</li>
+</ul>
+
+<h2>v1.39.0 (nyrapkg split — 2026-06-30)</h2>
+<ul>
+<li><strong>nyrapkg</strong> — standalone package manager in <a href="https://github.com/nyra-lang/pkg">nyra-lang/pkg</a> (written in Nyra): <code>init</code>, <code>add</code>, <code>install</code>, <code>verify</code>, <code>--version</code>, <code>bootstrap</code>, <code>self update</code>, <code>toolchain update</code></li>
+<li><strong>Install layout</strong> — <code>~/.nyra/bin/nyrapkg</code> alongside <code>~/.nyra/bin/nyra</code></li>
+<li><strong><code>nyra pkg</code> trimmed</strong> — dependency commands removed from compiler CLI; kept <code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code></li>
+<li><strong>Removed from compiler repo</strong> — <code>pkg-registry</code>, <code>stdlib/pkg.ny</code>, in-tree PackageManager app</li>
+<li><strong>Docs</strong> — <a href="packages.html">packages.html</a>, install, getting started, tooling updated</li>
+</ul>
+
+<h2>v1.36.18 (2026-06-28)</h2>
+<ul>
+<li><strong>Production-ready status</strong> — home banner, footer, Result section, and roadmap callout aligned with compiler <code>docs/status.md</code> (Core + Stable Extended; async, <code>?</code>, spawn, traits, serde)</li>
+<li><strong>Removed MVP messaging</strong> — <code>ai-skill.html</code>, <code>learn-enums.html</code>, <code>async.html</code>, <code>reference.html</code></li>
+<li><strong>Locales</strong> — EN/AR strings for banner, status, Result, roadmap</li>
+<li><strong>nyra-skill.md</strong> — v1.36 stability tier; traits marked Stable Extended</li>
+<li><strong>Site</strong> — <code>CHANGELOG.md</code> (standalone docs repo changelog); search index regenerated</li>
+</ul>
+
+<h2>v1.36.12 (2026-06-27)</h2>
+<ul>
+<li><strong>net/http</strong> — stdlib <code>HttpRouter</code> and handler slots; workspace patterns as <code>CONF-WS-*</code></li>
+<li><strong>Examples</strong> — <code>examples/net_http_smoke.ny</code> uses stdlib HTTP only</li>
+</ul>
+
+<h2>v1.35.0 (2026-06-24)</h2>
+<ul>
+<li><strong>LSM flush fix</strong> — <code>LsmTree_put</code> memtable flush preserves <code>dir</code>; reads after SST flush via <code>LsmTree_lookup</code></li>
+<li><strong>String move safety</strong> — <code>clone</code> on <code>StrVec</code>/<code>HashMap</code> gets in <code>lsm.ny</code> and <code>sstable.ny</code></li>
+</ul>
+
+<h2>v1.24.0 (2026-06-24)</h2>
+<ul>
+<li><strong>SQL UPDATE/DELETE</strong> — <code>SqlParse_parse</code> for <code>UPDATE … SET … WHERE</code> and <code>DELETE FROM … WHERE</code></li>
+<li><strong>B-tree range scan</strong> — <code>BTreePaged_range</code>, <code>BTreePaged_keys</code></li>
+<li><strong>database-smoke.sh</strong> — targeted DB test script in <code>test-all.sh</code></li>
+</ul>
+
+<h2>v1.21.0 (2026-06-24)</h2>
+<ul>
+<li><strong>LSM compaction</strong> — <code>stdlib/db/lsm.ny</code> WAL, L0 flush, leveled merge, tombstones</li>
+<li><strong>Real B-tree</strong> — <code>btree_pages.ny</code> internal descent + internal splits</li>
+<li><strong>SQL parser</strong> — <code>stdlib/db/sql_parse.ny</code> SELECT/INSERT with WHERE expressions</li>
+<li><strong>SQLite streaming cursor</strong> — <code>SqliteStmt.step</code>, <code>prepare</code>, <code>last_error</code>; <code>SqlDb.query_rows</code></li>
+</ul>
+
+<h2>v1.20.0 (2026-06-24)</h2>
+<ul>
+<li><strong>TLS verify</strong> — <code>tls_connect_verify</code>, <code>tls_connect_ca</code>; HttpPool, HTTP client, SMTP verify certs by default</li>
+<li><strong>Production TLS workflow</strong> — <code>stdlib/net/tls_prod.ny</code> (<code>NYRA_TLS_CERT</code>, <code>NYRA_TLS_KEY</code>, <code>tls_listen_prod</code>, <code>ws_listen_prod_on</code>)</li>
+<li><strong>TLS diagnostics</strong> — <code>tls_validate_pem</code>, <code>tls_last_error</code></li>
+<li><strong>ICMP maturity</strong> — Linux unprivileged ICMP when allowed; <code>ping_icmp_system</code> OS fallback; <code>ping_icmp_capable</code></li>
+</ul>
+
+<h2>v1.18.0 (2026-06-24)</h2>
+<ul>
+<li><strong>SQLite row cursor</strong> — <code>query_rows()</code>, <code>SqliteRowset</code> (<code>rt_sqlite.c</code>)</li>
+<li><strong>RESP2</strong> — <code>stdlib/db/resp.ny</code> encode/decode for Redis-style wire</li>
+<li><strong>BTreeMap</strong> — sorted <code>BTreeMap_str_str</code> / <code>BTreeMap_str_i32</code> in <code>btree_map.ny</code></li>
+<li><strong>SSTable + fsync</strong> — <code>stdlib/db/sstable.ny</code>, <code>fsync_file()</code></li>
+<li><strong><code>stdlib/pkg.ny</code></strong> — <code>pkg_verify</code>, <code>pkg_publish</code> via subprocess</li>
+<li><strong><code>nyra build --sanitize</code></strong> — AddressSanitizer (<code>-fsanitize=address</code>)</li>
+<li><strong>raygui catalog</strong> — <code>nyra pkg c add raygui</code></li>
+<li><strong>JSON arrays</strong> — <code>Json_parse_array_summary</code> in Compiler apps JSONParser</li>
+</ul>
+
+<h2>v1.17.0 (2026-06-24)</h2>
+<ul>
+<li><strong><code>i64_to_string</code></strong> — format 64-bit integers (timestamps, offsets)</li>
+<li><strong><code>match</code> on strings</strong> — string literal arms (<code>"GET" =&gt; …</code>)</li>
+<li><strong>Struct inference</strong> — <code>StructLiteral</code> call-site hints across function boundaries</li>
+<li><strong>Struct return</strong> — deep-copy nested heap fields; owned string fields in struct literals</li>
+<li><strong><code>continue</code> + multi-<code>mut</code></strong> — SSA/PHI fix when 2+ loop-carried locals</li>
+</ul>
+
+<h2>v1.16.0 (2026-06-24)</h2>
+<ul>
+<li><strong>Trig stdlib</strong> — <code>sin</code>, <code>cos</code>, <code>atan2</code>, <code>tan</code> (<code>stdlib/math.ny</code>, compiler intrinsics + <code>rt_math.c</code>)</li>
+<li><strong><code>random_f64()</code></strong> — unit-interval random doubles</li>
+<li><strong>Terminal raw keys</strong> — <code>terminal_raw_on</code>, <code>terminal_read_key</code></li>
+<li><strong><code>FixedStep</code></strong> — fixed-Hz tick accumulator (<code>stdlib/time/fixed_step.ny</code>)</li>
+<li><strong>Array repeat</strong> — <code>[0; COLS * ROWS]</code> when count is const-folded</li>
+<li><strong>Array param inference</strong> — zero-type array args across functions (call-site <code>let</code> hints)</li>
+<li><strong><code>continue</code> in <code>while</code></strong> — PHI/latch codegen fix for nested <code>if</code></li>
+<li><strong>Mixed numeric</strong> — <code>i32</code> promotes to <code>f64</code> in arithmetic; <code>bool</code> vs <code>i32</code> compares</li>
+<li><strong>GUI stdlib</strong> — <code>stdlib/gui/</code>: <code>TextBuffer</code>, <code>ScrollState</code>, <code>FilePicker</code>, syntax colors</li>
+<li><strong>Prelude helpers</strong> — <code>argv()</code>, <code>char_from_code</code>, <code>list_dir_entries</code>, <code>read_file_limit</code>, <code>StringBuilder</code></li>
+<li><strong>C bindgen</strong> — nested <code>repr(C)</code> structs (<code>Sound</code>, <code>Music</code>) for raylib audio</li>
+</ul>
+
+<h2>v1.14.0 (2026-06-24)</h2>
+<ul>
+<li><strong><code>exec()</code></strong> — capture stdout/stderr (<code>ExecResult</code>) · <code>Command.output()</code></li>
+<li><strong><code>stdlib/compiler.ny</code></strong> — <code>check(path)</code>, <code>diag_json(path)</code> from Nyra programs</li>
+<li><strong><code>continue</code></strong> — skip to next loop iteration (<code>while</code> / <code>for</code>)</li>
+<li><strong><code>///</code> doc comments</strong> — attached to <code>fn</code> / <code>struct</code> in AST</li>
+<li><strong><code>alloc_track_*</code></strong> — RSS + estimated allocation notes (dev probes)</li>
+</ul>
+
+<h2>v1.12.0 (2026-06-24)</h2>
+<ul>
+<li><strong>ICMP</strong> — <code>ping_icmp</code>, <code>ping_auto</code> (<code>rt_icmp_ping_ms</code> when root)</li>
+<li><strong>SMTP STARTTLS</strong> — <code>Smtp_send_starttls</code>, <code>tls_upgrade_fd</code></li>
+<li><strong>HTTP handlers</strong> — <code>HttpRouter_register_slot</code>, <code>serve_handlers</code>, <code>Http_dispatch_slot</code></li>
+<li><strong>HTTP pool</strong> — <code>HttpPool</code> keep-alive reuse (plain HTTP)</li>
+<li><strong>FTP</strong> — <code>Ftp_retr</code>, <code>Ftp_stor</code></li>
+<li><strong>Concurrency</strong> — <code>Channel_str</code>, <code>TcpHub</code> broadcast</li>
+</ul>
+
+<h2>v1.7.0 (2026-06-24)</h2>
+<ul>
+<li><strong><code>nyra build --race</code></strong> — ThreadSanitizer for runtime data-race detection</li>
+<li><strong>Async CFG desugar</strong> — <code>await</code> in <code>if</code> / <code>while</code> / range <code>for</code></li>
+<li><strong>Collection JSON</strong> — <code>ptr</code> (Vec), fixed arrays, post-monomorph struct synthesis</li>
+</ul>
+
+<h2>v1.6.0 (2026-06-24)</h2>
+<ul>
+<li><strong>Async state-machine desugar</strong> — linear <code>async fn</code> with top-level <code>await</code> → cooperative <code>async_poll</code> loop; example <code>examples/async_state_machine.ny</code></li>
+<li><strong>Send / Sync on <code>dyn</code> casts</strong> — rejects non-thread-safe types for <code>dyn Trait + Send</code> / <code>+ Sync</code></li>
+<li><strong>Nested struct JSON</strong> — <code>{Struct}_json_encode/decode</code> for nested struct fields</li>
+<li><strong>LSP</strong> — goto-definition for synthesized JSON helpers; hover notes</li>
+</ul>
+
+<h2>v1.3.1 (toolchain performance — 2026-06-22)</h2>
+<ul>
+<li><strong><code>nyra pkg init</code></strong> — scaffolds <code>main.ny</code> only (Hello World); removed <code>src/ASCII.ny</code> logo scaffold</li>
+<li><strong><code>--no-prelude</code></strong> — skip auto-merged stdlib prelude; slimmer LLVM IR for single-file / benchmark builds (<code>nyra build --release --no-prelude</code>)</li>
+<li><strong>Release defaults</strong> — host <code>--release</code> enables <code>-march=native</code> unless <code>--no-native-cpu</code></li>
+<li><strong>Codegen</strong> — strength-reduced <code>%</code> for positive constants when operands are non-negative (<code>urem</code> / power-of-two <code>and</code>); static <code>print("…")</code> → <code>puts</code></li>
+<li><strong>PGO</strong> — comparison builds train <code>examples/comparison/pgo_training/*.ny</code> for branch/mod diversity</li>
+<li><strong>Runtime</strong> — lazy <code>rt_io</code> init (no constructor until first buffered write)</li>
+<li><strong>Incremental</strong> — codegen cache respects compile options (e.g. <code>--no-prelude</code>)</li>
+<li><strong>Docs</strong> — <a href="tooling.html">tooling</a>, <a href="performance.html">performance</a>, example <code>examples/toolchain/no_prelude.ny</code></li>
+</ul>
+
+<h2>v1.3.0 (language conformance — 2026-06-21)</h2>
+<ul>
+<li><strong>CONF-LANG</strong> — Nyra-source conformance suite under <code>tests/conformance/</code>: <strong>16 pass</strong> (<code>nyra test</code>), <strong>8 fail</strong> (<code>nyra check</code> must reject), plus import fixture</li>
+<li><strong>Pass areas</strong> — variables, control, match, types, functions, arrays, enums, strings, generics, borrow, edge, imports</li>
+<li><strong>Fail areas</strong> — immutable assign, use-after-move (string + struct), type mismatches</li>
+<li><strong><code>stdlib/testing.ny</code></strong> — <code>assert</code>, <code>assert_bool</code>, <code>assert_eq</code>, <code>assert_ne</code>, <code>assert_true</code> for <code>nyra test</code></li>
+<li><strong><code>nyra test</code></strong> — temp harness + project-root imports so <code>import "stdlib/testing.ny"</code> resolves in conformance tests</li>
+<li><strong>CI</strong> — <code>scripts/conformance-tests.sh</code> wired into <code>scripts/test-all.sh</code>; per-entry incremental cache + atomic link fixes for parallel suite runs</li>
+<li><strong>Docs</strong> — <a href="tooling.html#conformance">Toolchain → Language conformance</a> · <code>tests/conformance/README.md</code></li>
+</ul>
+
+<h2>v1.2.1 (I/O — 2026-06-19)</h2>
+<ul>
+<li><strong>Colored <code>print</code></strong> — <code>print("msg", color: red)</code>; named colors, <code>#RGB</code> / <code>#RRGGBB</code>, <code>rgb(r,g,b)</code>, or <code>string</code> variable</li>
+<li><strong>String escapes</strong> — <code>\033</code> (octal), <code>\x1b</code> (hex), <code>\u{…}</code> (Unicode) in double-quoted strings; fixes Unicode literal codegen (UTF-8 in LLVM IR)</li>
+<li><strong>Runtime</strong> — <code>color_ansi</code>, <code>ansi_reset</code> in <code>rt_io.c</code></li>
+<li><strong><code>nyra pkg init</code></strong> — scaffolds <code>src/ASCII.ny</code> (Nyra logo) imported from <code>main.ny</code></li>
+</ul>
+
+<h2>v3.2.0 (char — 2026-06-15)</h2>
+<ul>
+<li><strong>char type</strong> — Unicode scalar, literals <code>'a'</code>, <code>'\n'</code>, <code>'\u{...}'</code>; disambiguated from lifetime <code>'a</code></li>
+<li><strong>print(char)</strong> — <code>%c</code> formatting</li>
+<li><strong>RFC 0010</strong> — <code>CONF-CHAR-*</code> (6 tests); docs updated</li>
+<li><strong>Conformance</strong> — 94 tests green</li>
+</ul>
+
+<h2>v3.1.0 (f64 — 2026-06-15)</h2>
+<ul>
+<li><strong>f64 type</strong> — IEEE-754 double, LLVM <code>double</code>, float literals <code>3.14</code>, <code>1e-3</code></li>
+<li><strong>Mixed arithmetic</strong> — <code>i32</code> + <code>f64</code> promotes to <code>f64</code></li>
+<li><strong>print(f64)</strong> — <code>%g</code> formatting</li>
+<li><strong>RFC 0009</strong> — <code>docs/rfcs/0009-f64.md</code>, <code>CONF-F64-*</code>, <code>examples/syntax/f64_basics.ny</code></li>
+</ul>
+
+<h2>v3.0.0 (auto-Copy — 2026-06-15)</h2>
+<ul>
+<li><strong>Auto-Copy inference</strong> — all-Copy structs (<code>Point</code>, <code>Rect</code>) copy on assign without annotation</li>
+<li><strong>#[derive(Copy)]</strong> — optional validation; errors on non-Copy fields</li>
+<li><strong>RFC 0008</strong> — <code>CONF-COPY-*</code>; docs <a href="ownership-ux.html">ownership-ux.html</a></li>
+</ul>
+
+<h2>v2.9.0 (ownership diagnostics — 2026-06-15)</h2>
+<ul>
+<li><strong>Swift-style errors</strong> — <code>was moved into save()</code>, callee signature in notes, fix-it hints</li>
+<li><strong>move / clone prefixes</strong> — <code>save(move user)</code>, <code>save(clone user)</code> at call sites</li>
+<li><strong>RFC 0007</strong> — <code>CONF-DIAG-*</code>; <a href="diagnostics.html">diagnostics.html</a> updated</li>
+</ul>
+
+<h2>v2.8.0 (ownership UX — 2026-06-15)</h2>
+<ul>
+<li><strong>Return type inference</strong> — <code>void</code> default; unify <code>return</code> expressions</li>
+<li><strong>Generic call-site inference</strong> — <code>id(7)</code> without explicit type args</li>
+<li><strong>Auto-borrow coercion</strong> — <code>save(user)</code> → <code>save(&amp;user)</code> when param is <code>&amp;T</code></li>
+<li><strong>Clone</strong> — <code>string.clone()</code>, synthesized struct <code>.clone()</code></li>
+<li><strong>Struct ctor sugar</strong> — <code>User("Ada")</code>, <code>Point()</code></li>
+<li><strong>RFC 0006</strong> — <code>CONF-INF-*</code>, <code>CONF-COERCE-*</code>; guide <a href="ownership-ux.html">ownership-ux.html</a></li>
+<li><strong>Conformance</strong> — 88 tests green after ownership UX phase</li>
+</ul>
+
+<h2>v2.7.0 (workspaces — 2026-06-15)</h2>
+<ul>
+<li><strong>Workspaces</strong> — <code>nyra.mod</code> multi-module layout; <code>CONF-WS-*</code> conformance in <code>conformance/workspace.rs</code></li>
+<li><strong>Async ready probe</strong> — <code>Option&lt;i32&gt;</code> pattern for service bootstrap (CONF-WS-002)</li>
+</ul>
+
+<h2>v2.6.0 (async services — 2026-06-15)</h2>
+<ul>
+<li><strong>Async bootstrap</strong> — <code>spawn</code> + <code>await</code> for HTTP health/ready handlers</li>
+<li><strong>Fix</strong> — <code>??</code> Option type inference compile error in <code>expand/nullish.rs</code></li>
+</ul>
+
+<h2>v2.5.0 (shared ownership — 2026-06-15)</h2>
+<ul>
+<li><strong>Generic Arc&lt;T&gt;</strong> — <code>Arc&lt;i32&gt;</code>, <code>Arc&lt;string&gt;</code> via monomorph (<code>Arc__i32</code>, <code>Arc__string</code>)</li>
+<li><strong>Arc runtime</strong> — <code>stdlib/rt/rt_arc.c</code>: refcount cells for i32 and string payloads; <code>arc_dec_string</code> frees heap strings</li>
+<li><strong>Auto Drop for Arc__*</strong> — compiler synthesizes <code>impl Drop</code> for monomorphized <code>Arc</code> instances</li>
+<li><strong>?? + Option&lt;T&gt;</strong> — infers <code>Option&lt;i32&gt;</code> from <code>Option.None ?? 42</code> before monomorph</li>
+<li><strong>Example</strong> — <code>examples/graph_arc_smoke.ny</code> (shared <code>Arc&lt;string&gt;</code> in graph edges)</li>
+</ul>
+
+<h2>v2.4.0 (monolith ownership — 2026-06-15)</h2>
+<ul>
+<li><strong>Generic enum monomorph</strong> — <code>enum Option&lt;T&gt;</code>, <code>enum Result&lt;T, E&gt;</code> instantiate at compile time (<code>Option__string</code>, etc.)</li>
+<li><strong>Enum payload drop</strong> — automatic <code>free</code> for <code>Option&lt;string&gt;</code> and similar heap payloads</li>
+<li><strong>Partial field moves</strong> — <code>let x = struct.field</code> marks parent moved when field is Move type</li>
+<li><strong>Generic Box&lt;T&gt;</strong> — <code>stdlib/box.ny</code> with composite struct drop for heap fields</li>
+<li><strong>Example</strong> — <code>examples/monolith_struct_smoke.ny</code> (nested structs, partial moves, <code>Option&lt;string&gt;</code> match, <code>Box&lt;string&gt;</code>)</li>
+<li><strong>Typecheck</strong> — builtin <code>Option</code>/<code>Result</code> stubs removed when monomorphized instances are present</li>
+</ul>
+
+<h2>v2.3.0 (ownership hardening — 2026-06-15)</h2>
+<ul>
+<li><strong>Composite struct drop</strong> — automatic field-wise <code>free</code> for structs with heap <code>string</code> fields (no manual <code>impl Drop</code> required); nested structs supported; see <a href="memory.html">memory.html</a></li>
+<li><strong>Auto-owned extern returns</strong> — any <code>extern fn ... -&gt; string</code> is tracked for auto-drop (no compiler whitelist)</li>
+<li><strong>Generic templates skipped in borrow/lifetime</strong> — monomorphized instances only checked</li>
+<li><strong>stdlib/box.ny</strong> — <code>Box_string</code> / <code>Box_i32</code> heap wrappers with <code>impl Drop</code></li>
+<li><strong>stdlib/option.ny</strong> — <code>OptionStr</code> enum with <code>Some(string)</code> payload</li>
+<li><strong>stdlib/arc.ny</strong> — <code>impl Drop for Arc_i32</code></li>
+<li><strong>Example</strong> — <code>examples/struct_drop_smoke.ny</code></li>
+</ul>
+
+<h2>v2.2.0 (heap closures &amp; Option payloads — 2026-06-15)</h2>
+<ul>
+<li><strong>Heap closure promotion</strong> — capturing closures that escape (returned from functions, passed to <code>fn(...)</code> parameters) promote their env to <code>malloc</code> + persistent global; stack <code>alloca</code> + invoke slot kept for synchronous callbacks; see <a href="closures.html">Closures</a> and <code>examples/closure_escape_smoke.ny</code></li>
+<li><strong>Optional method chaining</strong> — <code>?.method()</code> desugars to <code>Option</code> <code>match</code> (like <code>?.</code> fields); <code>examples/optional_chain_smoke.ny</code></li>
+<li><strong>Option payloads</strong> — <code>stdlib/option.ny</code> with <code>Option.Some(i32)</code>; <code>??</code> binds <code>Option.Some(v)</code> payload; <code>examples/option_payload_smoke.ny</code></li>
+<li><strong>Examples</strong> — <code>closure_escape_smoke.ny</code>, <code>optional_chain_smoke.ny</code>, updated <code>nullish_smoke.ny</code></li>
+<li><strong>Docs</strong> — updated <a href="closures.html">closures.html</a>, <a href="reference.html">reference</a>, <a href="search-index.json">search-index</a>, <a href="nyra-skill.md">nyra-skill.md</a></li>
+<li><strong>Ownership docs</strong> — full guide <a href="memory.html">memory.html</a> (Drop plan, leak prevention, double-free); beginner lessons <a href="learn-ownership.html">learn-ownership</a> and <a href="learn-borrowing.html">learn-borrowing</a></li>
+</ul>
+
+<h2>v2.1.0 (closures &amp; operators — 2026-06-15)</h2>
+<ul>
+<li><strong>Stack closures</strong> — capturing lambdas use stack <code>alloca</code> env structs (no <code>malloc</code>); loop-safe via synchronous invoke slots when coerced to <code>fn(...)</code>; see <a href="closures.html">Closures</a></li>
+<li><strong>Arrow param inference</strong> — <code>(x) =&gt; x + 1</code> and <code>x =&gt; x + 1</code> infer parameter types from the body; explicit <code>x: i32</code> still supported</li>
+<li><strong>Tuple destructure in arrow params</strong> — <code>((a, b)) =&gt; a + b</code> unpacks a tuple parameter in the closure prologue</li>
+<li><strong>Nullish coalescing</strong> — <code>??</code> desugars to <code>match</code> on <code>Option</code> (<code>examples/nullish_smoke.ny</code>)</li>
+<li><strong>Optional chaining</strong> — <code>?.</code> field access on <code>Option</code> values (desugared to <code>match</code>)</li>
+<li><strong>Examples</strong> — <code>inferred_arrow_smoke.ny</code>, <code>closure_loop_smoke.ny</code>, <code>nullish_smoke.ny</code></li>
+<li><strong>Docs</strong> — <a href="closures.html">closures.html</a>, updated <a href="reference.html">reference</a> and <a href="nyra-skill.md">nyra-skill.md</a></li>
+</ul>
+
+<h2>v1.2.0 (language &amp; HTTP — 2026-06-15)</h2>
+<ul>
+<li><strong>Template strings</strong> — backtick literals with <code>{expr}</code> interpolation (<code>i32</code>, <code>string</code>); see <code>examples/syntax/template_strings.ny</code> and <a href="learn-strings.html">Learn → Strings</a></li>
+<li><strong>Arrow functions</strong> — <code>(x: i32) =&gt; expr</code> and block bodies (Extended tier, <code>warning[W001]</code>); <code>examples/arrow_fn_smoke.ny</code></li>
+<li><strong>net/http handler dispatch</strong> — <code>Router_add_slot_get</code>, <code>listen_and_serve_handlers</code>, <code>RequestContext</code> → custom Nyra handlers; <code>examples/net_http_smoke.ny</code></li>
+<li><strong>Modular net/http</strong> — primary import <code>stdlib/net/http/mod.ny</code>; client verbs GET–DELETE, router, CORS, keep-alive (<a href="net-http.html">net/http reference</a>)</li>
+<li><strong>Native interop docs</strong> — C runtime + FFI shims pattern for DB and network drivers (<a href="ffi-abi.html">FFI &amp; ABI</a>)</li>
+<li><strong>Reference packages</strong> — <code>ny-redis</code>, <code>ny-postgres</code>, <code>ny-mysql</code> under <code>examples/packages/</code> with <code>link-source</code> shims</li>
+<li><strong>AI skill</strong> — canonical <a href="nyra-skill.md">nyra-skill.md</a> updated to v1.2.x semantics</li>
+</ul>
+
+<h2>v1.1.0 (stdlib expansion — 2026-06-06)</h2>
+<ul>
+<li><strong>Short stdlib imports</strong> — <code>import "stdlib/vec.ny"</code> and <code>import "std/json/mod"</code> resolve from install tree or repo; <code>stdlib/prelude.ny</code> bundle</li>
+<li><strong>NyraPkg install</strong> — <code>nyra pkg install ny-sqlite@^0.1.0</code> fetches into <code>.nyra/cache/</code>, merges <code>link</code> lines; <code>import "pkg/ny-sqlite"</code></li>
+<li><strong>NyraPkg semver + registry</strong> — <code>require ny-sqlite ^0.1.0</code>, persistent <code>pkg-registry</code> (<code>~/.nyra/registry/index.json</code>), <code>nyra pkg verify</code> / <code>publish</code></li>
+<li><strong>Package C auto-link</strong> — <code>link-source rt/sqlite.c</code> in package <code>nyra.mod</code>; compiled automatically at <code>nyra build</code></li>
+<li><strong>Bindings reference</strong> — <a href="bindings.html">Runtime bindings</a> generated from <code>docs/abi-manifest.toml</code> + stdlib scan</li>
+<li><strong>Language bridge</strong> — <code>stdlib/bridge/mod.ny</code> · Python/Node/Java workers (<code>examples/bridge/</code>) · <a href="https://github.com/nyra-lang/nyra/blob/main/docs/bridge.md">docs/bridge.md</a></li>
+<li><strong>TLS / HTTPS stable</strong> — OpenSSL in <code>rt_tls.c</code>; <code>get("https://…")</code> · example <code>examples/projects/https_smoke/</code></li>
+<li><strong>Modular stdlib</strong> — collections, strings/ops, regex, fs/path, time/instant, json, iter, crypto stubs, uuid, env, terminal, config, bench, profile, and more under <code>stdlib/</code></li>
+<li><strong>Vec_i32 / HashMap_str_i32</strong> — method syntax <code>v.push(x)</code>; free helpers <code>vec_len</code> for stdlib internals</li>
+<li><strong>ABI 1.1</strong> — <code>file_exists</code>, <code>str_to_upper</code>, <code>instant_now</code>, <code>random_hex</code>, … (see <code>stdlib/nyra_rt.h</code>)</li>
+<li><strong>Examples</strong> — <code>examples/stdlib/demo/</code>, <code>examples/stdlib/extended/</code></li>
+<li><strong>Docs</strong> — <a href="stdlib.html">Standard library</a> reference expanded; NyraPkg path for crypto/SQLite/WebSocket</li>
+</ul>
+
+<h2>v1.0.0 (2026-06-06)</h2>
+<ul>
+<li><strong>Nyra 1.0</strong> — Core tier semver-stable; Extended tier experimental with <code>warning[W001]</code></li>
+<li><strong>Stability policy</strong> — <code>docs/stability-v1.md</code>; <code>nyra check --deny-extended</code> for Core-only CI</li>
+<li><strong>Cross-compilation</strong> — <code>--for windows|linux|macos|wasm</code>, <code>--os</code>, <code>--arch</code>, <code>--target</code></li>
+</ul>
+
+<h2>v0.5.0 (2026-06-05)</h2>
+<ul>
+<li><strong>Unsafe memory</strong> — <code>unsafe { }</code>, typed <code>*T</code> raw pointers, <code>expr as Type</code>, pointer arithmetic, deref/store</li>
+<li><strong><code>no_std</code></strong> — top-level directive or <code>--no-std</code>; skips <code>nyra_rt</code> link</li>
+<li><strong>Freestanding</strong> — <code>nyra build --freestanding</code> (<code>-ffreestanding -nostdlib</code>)</li>
+<li><strong>Stdlib</strong> — <code>stdlib/core/mem.ny</code> (<code>malloc</code>, <code>memcpy</code>, volatile MMIO)</li>
+<li>Example: <code>examples/unsafe/raw_memory/main.ny</code></li>
+<li><strong>Inline asm</strong> — <code>asm "template"</code> inside <code>unsafe</code></li>
+<li><strong>OS stdlib</strong> — <code>stdlib/os.ny</code> (platform, battery, <code>os_getenv</code>, syscalls)</li>
+<li>Examples: <code>examples/os/battery/</code>, <code>examples/os/platform/</code>, <code>examples/os/asm/</code></li>
+</ul>
+
+<h2>v0.4.0 (2026-06-05)</h2>
+<ul>
+<li><strong>Stable C ABI</strong> — manifest, <code>repr(C)</code>, boundary type expansion</li>
+<li>FFI: enum tags, <code>[T; N]</code>, tuples at <code>export fn</code> / <code>extern fn</code></li>
+<li><code>export async fn</code>, generic <code>export inst</code> for monomorph exports</li>
+</ul>
+
+<h2>v0.3.0</h2>
+<ul>
+<li>FFI (<code>ptr</code>, <code>repr(C)</code>, <code>--link-lib</code>, <code>--cdylib</code>)</li>
+<li>Nyra HTTP/TCP stdlib; NyraPkg native <code>link</code> lines</li>
+</ul>
+
+<h2>Spec 1.0 frozen (2026-06-04, v0.2.0)</h2><ul>
+<li>Spec header frozen; RFC for parser breaks</li>
+<li>Enum tag-only documented</li>
+<li>async, traits, macros, defer, lifetimes, wasm, NyraPkg registry</li>
+<li>Copy/Move ownership + auto-drop heap strings</li>
+<li><code>time_start</code> / <code>mem_start</code> builtins</li></ul>
+<p>See <a href="roadmap.html">Roadmap</a> for future phases.</p>
+      <footer class="site-footer"><a href="spec.html">Language spec →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>
