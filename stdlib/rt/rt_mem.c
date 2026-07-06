@@ -1,5 +1,17 @@
 #include "rt_common.h"
 
+#if defined(_WIN32)
+#include <io.h>
+#ifndef isatty
+#define isatty _isatty
+#endif
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO 1
+#endif
+#else
+#include <unistd.h>
+#endif
+
 typedef struct NyraMemMarker {
     char *label;
     size_t rss_start;

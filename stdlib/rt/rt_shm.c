@@ -14,11 +14,9 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#include <fcntl.h>
 #include <io.h>
+#include <fcntl.h>
 #endif
-
-static char g_win_shm_name[256];
 
 static char *shm_win_name(const char *name, char *buf, size_t bufsz) {
     if (!name || !buf || bufsz < 16) {
@@ -65,17 +63,22 @@ int32_t shm_create(const char *name, int64_t nbytes) {
     if (!shm_win_name(name, path, sizeof(path)) || nbytes <= 0) {
         return -1;
     }
-    HANDLE hm = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0,
-                                   (DWORD)nbytes, path);
+    uint64_t size = (uint64_t)nbytes;
+    HANDLE hm = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        (DWORD)(size >> 32),
+        (DWORD)(size & 0xffffffffu),
+        path);
     if (!hm) {
         return -1;
     }
-    int fd = _open_osfhandle((intptr_t)hm, _O_RDWR);
+    int fd = _open_osfhandle((intptr_t)hm, O_RDWR);
     if (fd < 0) {
         CloseHandle(hm);
         return -1;
     }
-    strncpy(g_win_shm_name, path, sizeof(g_win_shm_name) - 1);
     return (int32_t)fd;
 #else
     (void)name;
@@ -101,7 +104,7 @@ int32_t shm_open_existing(const char *name, int64_t nbytes) {
     if (!hm) {
         return -1;
     }
-    int fd = _open_osfhandle((intptr_t)hm, _O_RDWR);
+    int fd = _open_osfhandle((intptr_t)hm, O_RDWR);
     return fd < 0 ? -1 : (int32_t)fd;
 #else
     (void)name;

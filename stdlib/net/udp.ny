@@ -1,4 +1,3 @@
-import "syscall.ny"
 import "stdlib/os/fd.ny"
 
 extern fn rt_udp_bind(host: string, port: i32) -> i32
