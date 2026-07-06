@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Memory &amp; ownership — Nyra Docs</title>
+  <meta name="description" content="Complete guide to Nyra ownership, auto-drop, NLL borrows, leak prevention, and compile-time memory safety.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="memory">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+      <nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a class="active" href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1>Memory &amp; ownership</h1>
+      <p class="lead">How Nyra manages memory at compile time — no garbage collector, no manual <code>free</code> in normal code, and no leaks when you follow the rules the compiler enforces. For <strong>developer-friendly</strong> ownership (auto-borrow, auto-Copy, inference) see <a href="ownership-ux.html">Ownership UX</a>.</p>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#philosophy">Philosophy: safety without a GC</a></li>
+          <li><a href="#ownership-ux">Ownership UX (v2.8+)</a></li>
+          <li><a href="#copy-move">Copy vs Move types</a></li>
+          <li><a href="#rules">Ownership rules</a></li>
+          <li><a href="#auto-drop">Automatic cleanup (Drop plan)</a></li>
+          <li><a href="#nll">Non-lexical borrows (NLL)</a></li>
+          <li><a href="#lifetimes">Lifetimes</a></li>
+          <li><a href="#leaks">How Nyra prevents memory leaks</a></li>
+          <li><a href="#double-free">Double-free &amp; use-after-free</a></li>
+          <li><a href="#defer">defer (LIFO cleanup)</a></li>
+          <li><a href="#custom-drop">Custom Drop for structs</a></li>
+          <li><a href="#spawn-send">spawn, closures &amp; Send/Sync</a></li>
+          <li><a href="#ffi">FFI boundary</a></li>
+          <li><a href="#pipeline">Compiler pipeline</a></li>
+          <li><a href="#errors">Common errors &amp; fixes</a></li>
+          <li><a href="#cookbook">Examples cookbook</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="philosophy">Philosophy: safety without a GC</h2>
+      <p>Nyra uses <strong>compile-time ownership</strong> inspired by Rust, with Go-like syntax. Every value has a clear owner. When ownership ends, the compiler inserts cleanup code — you never call <code>free</code> on ordinary strings or owned return values.</p>
+      <ul>
+        <li><strong>No garbage collector</strong> — deterministic, low-latency native code.</li>
+        <li><strong>No reference counting</strong> in the language core — ownership is static.</li>
+        <li><strong>Zero cost</strong> for <code>i32</code>, <code>bool</code>, enums without payloads — stack only.</li>
+        <li><strong>Compile errors</strong> instead of runtime crashes for use-after-move, double-free, and dangling references.</li>
+        <li><strong>Escape analysis</strong> — Nyra proves local values at compile time and promotes them to the stack; sequential channels can become lock-free <code>LocalChannel</code>. See <a href="escape-analysis.html">Escape analysis</a>.</li>
+      </ul>
+
+      <h2 id="ownership-ux">Ownership UX (v2.8–v3.1)</h2>
+      <p>Nyra keeps Rust’s static ownership model but reduces day-to-day friction:</p>
+      <ul>
+        <li><strong>Auto-borrow</strong> — <code>save(user)</code> becomes <code>save(&amp;user)</code> when the callee expects <code>&amp;User</code>.</li>
+        <li><strong>Auto-Copy</strong> — structs like <code>Point { x: i32 y: i32 }</code> copy on assign without <code>#[derive(Copy)]</code>.</li>
+        <li><strong>Inference</strong> — return types, generic call sites (<code>id(7)</code>), and <code>let price = 3.14</code> → <code>f64</code>.</li>
+        <li><strong>Explicit control</strong> — <code>move user</code> / <code>clone user</code> at calls; Swift-style errors with fix-it notes.</li>
+      </ul>
+      <p>Full guide: <a href="ownership-ux.html">Ownership UX</a> · Conformance: <code>CONF-INF-*</code>, <code>CONF-COERCE-*</code>, <code>CONF-DIAG-*</code>, <code>CONF-COPY-*</code>, <code>CONF-F64-*</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct User {
+    name: string
+    age: i32
+}
+
+fn save(u: &amp;User) {
+    print(u.name)
+}
+
+fn main() {
+    let user = User { name: &quot;Ada&quot;, age: 30 }
+    save(user)
+    print(user.name)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct User {
+    name: string
+    age: i32
+}
+
+fn save(u: &amp;User) {
+    print(u.name)
+}
+
+fn main() -&gt; void {
+    let user: User = User { name: &quot;Ada&quot;, age: 30 }
+    save(user)
+    print(user.name)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="copy-move">Copy vs Move types</h2>
+      <p>The compiler classifies every type as <strong>Copy</strong> or <strong>Move</strong> (<code>ownership/kind.rs</code>).</p>
+      <table>
+        <thead><tr><th>Kind</th><th>Types</th><th>On assignment / pass</th><th>At scope end</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Copy</strong></td><td><code>i32</code>, <code>i64</code>, <code>u32</code>, <code>f64</code>, <code>bool</code>, enum tags, <code>ptr</code>, fn pointers, all-Copy structs</td><td>Bitwise copy — both names valid</td><td>Stack discarded — no heap call</td></tr>
+          <tr><td><strong>Move</strong></td><td><code>string</code> (heap C-string), structs with move fields, types with <code>impl Drop</code></td><td>Ownership transfers — old name invalid</td><td>Auto <code>free</code> or custom <code>Drop_*_drop</code></td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let a = 10
+    let b = a          // Copy — both usable
+    print(a)
+    print(b)
+
+    let s = &quot;hello&quot;
+    let t = s            // Move — s is now invalid
+    print(t)
+    // print(s)         // ERROR: use of moved value 's'
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let a: i32 = 10
+    let b = a          // Copy — both usable
+    print(a)
+    print(b)
+
+    let s: string = &quot;hello&quot;
+    let t = s            // Move — s is now invalid
+    print(t)
+    // print(s)         // ERROR: use of moved value 's'
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="rules">Ownership rules</h2>
+      <ol>
+        <li><strong>One owner</strong> — each heap-owned value has exactly one binding responsible for cleanup.</li>
+        <li><strong>Move by default</strong> — passing a <code>string</code> to a function or assigning it moves ownership unless the binding is <code>mut</code> and the callee borrows.</li>
+        <li><strong>Borrow, don’t steal</strong> — <code>&amp;T</code> and <code>&amp;mut T</code> temporarily share access without transferring ownership.</li>
+        <li><strong>No active borrows on move</strong> — you cannot move a value while an immutable or mutable reference to it is live (NLL tracks this).</li>
+        <li><strong>Returned owned values</strong> — functions like <code>read_file</code>, <code>strcat</code> return new heap <code>string</code>s; the caller owns the result.</li>
+      </ol>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn greet(name) {
+    return strcat(&quot;Hello, &quot;, name)
+}
+
+fn main() {
+    let msg = greet(&quot;Nyra&quot;)
+    print(msg)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn greet(name: string) -&gt; string {
+    return strcat(&quot;Hello, &quot;, name)
+}
+
+fn main() -&gt; void {
+    let msg = greet(&quot;Nyra&quot;)
+    print(msg)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="auto-drop">Automatic cleanup (Drop plan)</h2>
+      <p>After type-checking, the <strong>ownership analyzer</strong> builds a <code>DropPlan</code> per function (<code>ownership/drop.rs</code>):</p>
+      <ol>
+        <li>Scan every <code>let</code> binding and infer whether it owns heap memory.</li>
+        <li>Track moves — if a value is moved, mark it so it is <strong>not</strong> dropped twice.</li>
+        <li>At each scope exit (end of block, before <code>return</code>, on branch merge), codegen emits <code>emit_auto_drops</code>.</li>
+        <li>For <code>string</code> locals still owned → call <code>free(ptr)</code>.</li>
+        <li>For structs with <code>impl Drop</code> → call <code>Drop_TypeName_drop</code>.</li>
+      </ol>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn load_and_print() {
+    let data = read_file(&quot;config.txt&quot;)   // owned heap string
+    print(data)
+}                                             // compiler inserts: free(data)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn load_and_print() {
+    let data = read_file(&quot;config.txt&quot;)   // owned heap string
+    print(data)
+}                                             // compiler inserts: free(data)</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>You do not write</strong> <code>free(data)</code> in normal Nyra code. The compiler guarantees cleanup on every path that still owns the binding.</p>
+
+      <h3>Composite struct cleanup (v2.3)</h3>
+      <p>Structs with heap-owned fields (e.g. <code>string</code>) but <strong>no</strong> custom <code>impl Drop</code> get automatic <strong>field-wise</strong> cleanup — the compiler emits <code>free</code> for each owned field at scope end:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let p = { id: 1, body: read_file(&quot;data.txt&quot;) }
+    print(p.id)
+}                         // free(p.body) inserted automatically</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let p = { id: 1, body: read_file(&quot;data.txt&quot;) }
+    print(p.id)
+}                         // free(p.body) inserted automatically</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Nested structs without custom <code>Drop</code> are dropped recursively. Custom <code>impl Drop</code> still takes full control (no double field-free).</p>
+
+      <h3>Owned <code>extern fn</code> returns (v2.3)</h3>
+      <p>Any <code>extern fn foo(...) -&gt; string</code> in your program is automatically treated as returning heap-owned memory — no need to register symbols in a compiler whitelist:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn my_api_load(){
+    let s = my_api_load()   // auto-owned, auto-dropped
+    print(s)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn my_api_load(){
+    let s = my_api_load()   // auto-owned, auto-dropped
+    print(s)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Partial field moves (v2.4)</h3>
+      <p>Moving a single field out of a struct invalidates the parent binding (Rust-style), preventing use-after-partial-move bugs:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let p = { a: 1, body: &quot;hello&quot; }
+    let body = p.body        // move field — p is now invalid
+    print(body)
+    // print(p.a)           // ERROR: use of moved value 'p'
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let p = { a: 1, body: &quot;hello&quot; }
+    let body = p.body        // move field — p is now invalid
+    print(body)
+    // print(p.a)           // ERROR: use of moved value 'p'
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Generic Option / Result (v2.4)</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>enum Option&lt;T&gt; { None, Some(T) }
+let msg = Option.Some(&quot;hello&quot;)   // monomorph → Option__string
+let n = Option.Some(42)                          // literal → Option__i32</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>enum Option&lt;T&gt; { None, Some(T) }
+let msg = Option.Some(&quot;hello&quot;)   // monomorph → Option__string
+let n = Option.Some(42)                          // literal → Option__i32</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Heap payloads in generic enums (e.g. <code>Option&lt;string&gt;</code>) get automatic payload cleanup at scope end.</p>
+      <p>Import from stdlib: <code>import "stdlib/option.ny"</code>. Typed annotations and <code>match</code> patterns rewrite to monomorphized names (<code>Option__string</code>) at compile time.</p>
+
+      <h3>Monolith-friendly structs + strings (v2.4)</h3>
+      <p>Large single-file apps can combine multi-field structs, partial field moves, generic <code>Option&lt;string&gt;</code>, and <code>Box&lt;T&gt;</code> without manual <code>Drop</code> for string fields:</p>
+      <!-- NYRA_SNIPPET_SKIP -->
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/option.ny&quot;
+import &quot;stdlib/box.ny&quot;
+
+struct UserRecord Send { id: i32, name: string, email: string }
+
+fn lookup(id, label) {
+    if id &gt; 0 { return Option.Some(label) }
+    return Option.None
+}
+
+fn main() {
+    let u = UserRecord { id: 1, name: &quot;Ada&quot;, email: &quot;ada@nyra.dev&quot; }
+    let id = u.id
+    let name = u.name
+    let opt = Option.Some(name)
+    match opt {
+        Option.Some(n) =&gt; print(n),
+        Option.None =&gt; print(&quot;none&quot;),
+    }
+    let boxed = Box&lt;string&gt; { value: &quot;cache&quot; }
+    print(id)
+    print(boxed.value)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/option.ny&quot;
+import &quot;stdlib/box.ny&quot;
+
+struct UserRecord Send { id: i32, name: string, email: string }
+
+fn lookup(id: i32, label: i32) -&gt; i32 {
+    if id &gt; 0 { return Option.Some(label) }
+    return Option.None
+}
+
+fn main() -&gt; void {
+    let u: UserRecord = UserRecord { id: 1, name: &quot;Ada&quot;, email: &quot;ada@nyra.dev&quot; }
+    let id = u.id
+    let name = u.name
+    let opt = Option.Some(name)
+    match opt {
+        Option.Some(n) =&gt; print(n),
+        Option.None =&gt; print(&quot;none&quot;),
+    }
+    let boxed = Box&lt;string&gt; { value: &quot;cache&quot; }
+    print(id)
+    print(boxed.value)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>See <code>examples/monolith_struct_smoke.ny</code> for a full compile-ready sample.</p>
+
+      <h3>Shared ownership with Arc&lt;T&gt; (v2.5)</h3>
+      <p>Reference-counted sharing for graphs and cross-scope labels. Import <code>stdlib/arc.ny</code>:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/arc.ny&quot;
+
+struct GraphEdge Send {
+    from_id: i32
+    to_id: i32
+    shared_label: Arc&lt;string&gt;
+}
+
+fn share_label(name) {
+    let root = Arc_from_string(name)
+    return Arc_clone_string(root)
+}
+
+fn main() {
+    let shared = share_label(&quot;node-alpha&quot;)
+    let edge = GraphEdge { from_id: 1, to_id: 2, shared_label: shared }
+    print(Arc_get_string(edge.shared_label))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/arc.ny&quot;
+
+struct GraphEdge Send {
+    from_id: i32
+    to_id: i32
+    shared_label: Arc&lt;string&gt;
+}
+
+fn share_label(name: string) -&gt; i32 {
+    let root = Arc_from_string(name)
+    return Arc_clone_string(root)
+}
+
+fn main() -&gt; void {
+    let shared = share_label(&quot;node-alpha&quot;)
+    let edge: GraphEdge = GraphEdge { from_id: 1, to_id: 2, shared_label: shared }
+    print(Arc_get_string(edge.shared_label))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><code>Arc&lt;T&gt;</code> is <code>Send + Sync</code>; <code>Arc_clone_string</code> / <code>Arc_clone_i32</code> increment refcount; last <code>Drop</code> frees the payload (<code>arc_dec_i32</code> / <code>arc_dec_string</code>). See <code>examples/graph_arc_smoke.ny</code>.</p>
+
+      <h3>When auto-drop runs</h3>
+      <table>
+        <thead><tr><th>Event</th><th>What gets dropped</th></tr></thead>
+        <tbody>
+          <tr><td>End of <code>fn</code> / block</td><td>All owned bindings still in scope and not moved</td></tr>
+          <tr><td><code>return</code></td><td>Owned locals not returned as the value</td></tr>
+          <tr><td>Move to function arg</td><td>Source binding — callee or copy owns cleanup</td></tr>
+          <tr><td><code>defer expr</code></td><td>Deferred expressions run LIFO before scope exit</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="nll">Non-lexical borrows (NLL)</h2>
+      <p>Unlike lexical-only systems, Nyra ends borrows at the <strong>last use</strong> of the reference, not at the closing brace. This is <strong>Non-Lexical Lifetimes</strong> (<code>ownership/nll.rs</code> → <code>compute_last_uses</code>).</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let mut s = &quot;hello&quot;
+    let r = &amp;s              // immutable borrow starts
+    print(r)                 // last use of r — borrow ENDS here
+    s = &quot;world&quot;                // OK — no active borrow
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let mut s = &quot;hello&quot;
+    let r = &amp;s              // immutable borrow starts
+    print(r)                 // last use of r — borrow ENDS here
+    s = &quot;world&quot;                // OK — no active borrow
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn broken() {
+    let mut s = &quot;hello&quot;
+    let r = &amp;mut s          // mutable borrow
+    print(s)                 // ERROR: cannot use s while mutably borrowed
+    print(r)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn broken() {
+    let mut s = &quot;hello&quot;
+    let r = &amp;mut s          // mutable borrow
+    print(s)                 // ERROR: cannot use s while mutably borrowed
+    print(r)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>See also: <a href="learn-borrowing.html">Nyra Borrowing</a> for a guided lesson.</p>
+
+      <h2 id="lifetimes">Lifetimes</h2>
+      <p>References carry lifetimes so the compiler can reject <strong>dangling references</strong> (returning <code>&amp;local</code> after the local is destroyed).</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// ERROR: cannot return reference to local
+fn dangling(){
+    let s = &quot;tmp&quot;
+    return &amp;s
+}
+
+// OK: return value transfers ownership instead
+fn owned() {
+    let s = &quot;tmp&quot;
+    return s
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// ERROR: cannot return reference to local
+fn dangling(){
+    let s: string = &quot;tmp&quot;
+    return &amp;s
+}
+
+// OK: return value transfers ownership instead
+fn owned() -&gt; i32 {
+    let s: string = &quot;tmp&quot;
+    return s
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
+        <li>Explicit: <code>fn pick&lt;'a&gt;(x: &amp;'a string) -&gt; &amp;'a string</code></li>
+        <li>Elision: one input reference → output shares that lifetime</li>
+        <li>HRTB: <code>for&lt;'a&gt; fn(&amp;'a string) -&gt; &amp;'a string</code> for higher-order callbacks</li>
+      </ul>
+
+      <h2 id="leaks">How Nyra prevents memory leaks</h2>
+      <p>A <strong>memory leak</strong> is heap memory that is never freed. Nyra prevents leaks in normal code through:</p>
+
+      <h3>1. Drop plan covers every owned binding</h3>
+      <p>If you write <code>let s = read_file(...)</code> and never move <code>s</code>, the compiler <strong>always</strong> emits <code>free</code> at scope end — even if you forget the variable exists.</p>
+
+      <h3>2. Moves transfer cleanup responsibility</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn consume(s) {
+    print(s)
+}                           // consume's drop plan frees s here
+
+fn main() {
+    let path = &quot;data.txt&quot;
+    let content = read_file(path)
+    consume(content)        // ownership moved to consume — main won't double-free
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn consume(s: string) {
+    print(s)
+}                           // consume's drop plan frees s here
+
+fn main() -&gt; void {
+    let path: string = &quot;data.txt&quot;
+    let content = read_file(path)
+    consume(content)        // ownership moved to consume — main won't double-free
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>3. No silent heap allocation without ownership</h3>
+      <p>Functions that return heap memory (<code>strcat</code>, <code>read_file</code>, <code>sys_recv</code>, …) are registered in <code>OWNED_EXTERN_RETURNS</code>. The caller <strong>must</strong> bind the result — orphaning is impossible because unused expressions in <code>let</code> still get a binding or the value is moved/consumed.</p>
+
+      <h3>4. Closure &amp; spawn heap env freed at scope end</h3>
+      <p>Escaping closures (v2.2) that <code>malloc</code> capture envs register <code>heap_owned</code> metadata — freed when the <code>let</code> binding ends. Stack closures need no heap free.</p>
+
+      <h3>5. Custom Drop for resource types</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct FileHandle { fd: i32 }
+
+impl Drop for FileHandle {
+    fn drop(self) {
+        nyra_close(self.fd)    // always runs when FileHandle goes out of scope
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct FileHandle { fd: i32 }
+
+impl Drop for FileHandle {
+    fn drop(self) {
+        nyra_close(self.fd)    // always runs when FileHandle goes out of scope
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>What Nyra does <em>not</em> prevent automatically</h3>
+      <ul>
+        <li><strong>Intentional leak via FFI</strong> — returning a raw <code>ptr</code> to C without documenting ownership.</li>
+        <li><strong>Manual <code>free</code> on live bindings</strong> — compiler warns; double-free if you free then auto-drop runs.</li>
+        <li><strong>Cycles</strong> — no cycle collector; avoid reference cycles in raw pointers.</li>
+      </ul>
+
+      <h2 id="double-free">Double-free &amp; use-after-free</h2>
+      <p>Nyra blocks these at compile time:</p>
+      <table>
+        <thead><tr><th>Bug</th><th>Compile-time check</th><th>Example error</th></tr></thead>
+        <tbody>
+          <tr><td>Use after move</td><td>Move tracking in borrowck</td><td><code>Use of moved value 's'</code></td></tr>
+          <tr><td>Double free</td><td>Moved values skipped in DropPlan</td><td>Cannot happen if code compiles</td></tr>
+          <tr><td>Free then use</td><td><code>free</code> on owned binding → warning + moved mark</td><td>Manual <code>free</code> warning</td></tr>
+          <tr><td>Dangling <code>&amp;</code></td><td>Lifetime checker</td><td><code>cannot return reference to local</code></td></tr>
+          <tr><td>Data race (thread)</td><td>Send / Sync on <code>spawn</code> captures</td><td><code>captured value is not Send</code></td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let s = &quot;hello&quot;
+    let t = s                // move
+    print(s)                 // ERROR: use of moved value 's'
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let s: string = &quot;hello&quot;
+    let t = s                // move
+    print(s)                 // ERROR: use of moved value 's'
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="defer">defer vs Drop (Extended)</h2>
+      <p><strong>Name:</strong> <code>defer expr</code><br>
+      <strong>Explanation:</strong> Schedules a call at scope exit (LIFO). Prefer <code>impl Drop</code> for resources — do not <code>defer free</code> on owned strings.<br>
+      <strong>Example:</strong> <a href="methods.html#ex-defer">methods gallery</a> · <code>nyra run examples/builtins/defer/defer_return.ny</code></p>
+      <pre><code>allow_extended
+fn cleanup() { print(1) }
+fn main() {
+    defer cleanup()
+    return
+}</code></pre>
+      <p><strong>Output:</strong> <code>1</code> (before function returns). LIFO demo: <a href="methods.html#ex-defer-lifo"><code>#ex-defer-lifo</code></a> → <code>body</code>, <code>a</code>, <code>b</code>.</p>
+      <p><code>defer</code> schedules a <strong>call expression</strong> at scope exit (LIFO). It lives in the <strong>Extended</strong> tier. For most code, <strong>auto-drop and <code>impl Drop</code> replace <code>defer</code></strong> — do not use <code>defer free</code> on owned strings (double-free risk).</p>
+      <table>
+        <thead><tr><th>Need</th><th>Prefer</th><th><code>defer</code>?</th></tr></thead>
+        <tbody>
+          <tr><td>Heap <code>string</code> at <code>}</code></td><td>Auto-drop</td><td>No</td></tr>
+          <tr><td>FFI handle / file</td><td><code>impl Drop</code> wrapper (RAII)</td><td>Only one-off <code>defer extern_close(h)</code> if you skip a struct</td></tr>
+          <tr><td>Log at scope exit</td><td>Write before <code>return</code> or in <code>Drop</code></td><td>Optional <code>defer log_done()</code></td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_SKIP -->
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn gzclose(f){ handle: ptr }
+
+impl Drop for GzFile {
+    fn drop(self) {
+        unsafe { gzclose(self.handle) }
+    }
+}
+
+fn main() {
+    let f = GzFile { handle: open_gz(&quot;log.txt.gz&quot;) }
+    print(read_all(f.handle))
+}                            // gzclose via Drop — preferred over defer</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn gzclose(f){ handle: ptr }
+
+impl Drop for GzFile {
+    fn drop(self) {
+        unsafe { gzclose(self.handle) }
+    }
+}
+
+fn main() -&gt; void {
+    let f = GzFile { handle: open_gz(&quot;log.txt.gz&quot;) }
+    print(read_all(f.handle))
+}                            // gzclose via Drop — preferred over defer</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Why Extended, not Core:</strong> Drop covers cleanup semantics Core needs; <code>defer</code> overlaps and is mainly for niche FFI/side-effect hooks. Core-only CI uses <code>nyra check --deny-extended</code> with auto-drop only. See <a href="nyra-skill.md">nyra-skill.md</a> § defer vs Drop.</p>
+
+      <h2 id="custom-drop">Custom Drop for structs</h2>
+      <!-- NYRA_SNIPPET_SKIP -->
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Buffer { data: ptr, len: i32 }
+
+impl Drop for Buffer {
+    fn drop(self) {
+        free(self.data)
+    }
+}
+
+fn main() {
+    let b = Buffer { data: allocate(), len: 1024 }
+}                            // Drop_Buffer_drop called automatically</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Buffer { data: ptr, len: i32 }
+
+impl Drop for Buffer {
+    fn drop(self) {
+        free(self.data)
+    }
+}
+
+fn main() -&gt; void {
+    let b: Buffer = Buffer { data: allocate(), len: 1024 }
+}                            // Drop_Buffer_drop called automatically</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Structs with <code>impl Drop</code> are always <strong>Move</strong> types — they cannot be silently copied.</p>
+
+      <h2 id="spawn-send">spawn, closures &amp; Send/Sync</h2>
+      <h3>spawn</h3>
+      <p><code>spawn { ... }</code> packs captured variables into a struct, heap-copies it, and starts a <code>pthread</code>. Rules:</p>
+      <ul>
+        <li><strong>Copy</strong> captures (<code>i32</code>, <code>bool</code>) — copied into the thread struct.</li>
+        <li><strong>Move</strong> captures (<code>string</code>) — must be <code>Send</code>; marked moved in the parent.</li>
+        <li><strong>Active <code>&amp;</code> / <code>&amp;mut</code></strong> — compile error.</li>
+      </ul>
+      <h3>Closures</h3>
+      <p>Capturing lambdas follow the same rules — no reference captures; move types transfer ownership. See <a href="closures.html">Closures</a>.</p>
+
+      <h2 id="ffi">FFI boundary</h2>
+      <p>Inside Nyra: auto-drop. At the C boundary:</p>
+      <ul>
+        <li><code>export fn</code> returning <code>string</code> → caller outside Nyra must call <code>free</code>.</li>
+        <li><code>extern fn</code> returning <code>string</code> → Nyra caller auto-owns and auto-drops.</li>
+        <li>Do <strong>not</strong> call <code>free</code> on live Nyra bindings — the compiler warns.</li>
+      </ul>
+      <p>Full ABI: <a href="ffi-abi.html">FFI &amp; ABI</a>.</p>
+
+      <h2 id="pipeline">Compiler pipeline</h2>
+      <pre class="pipeline">Source (.ny)
+  → Lexer → Parser
+  → Macro expand (??, ?., struct ctors, move/clone desugar)
+  → Monomorph (+ generic call-site inference)
+  → Auto-borrow coercion
+  → Const fold → Typecheck
+  → Ownership analysis → DropPlan (+ auto-Copy inference)
+  → Borrow check (NLL moves/borrows, callee-aware diagnostics)
+  → Lifetime check
+  → Send / Sync check
+  → LLVM codegen (auto-drops, spawn, closures, f64/double)
+  → opt → clang + nyra_rt.c → binary</pre>
+      <p>Inspect without codegen: <code>nyra check .</code> · Structured errors: <code>nyra diag . --json</code></p>
+
+      <h2 id="errors">Common errors &amp; fixes</h2>
+      <table>
+        <thead><tr><th>Error</th><th>Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>Use of moved value 'x'</code></td><td>Used after move</td><td>Borrow with <code>&amp;</code>, use <code>clone x</code> / <code>.clone()</code>, or change callee to <code>&amp;T</code> (auto-borrow applies)</td></tr>
+          <tr><td><code>Cannot borrow as mutable</code></td><td>Two <code>&amp;mut</code> or <code>&amp;</code> + <code>&amp;mut</code></td><td>Shrink borrow scope; use NLL — end borrow before second use</td></tr>
+          <tr><td><code>cannot return reference to local</code></td><td>Dangling ref</td><td>Return owned <code>string</code> or take <code>&amp;'a</code> parameter</td></tr>
+          <tr><td><code>cannot capture reference in closure</code></td><td><code>&amp;</code> in lambda capture</td><td>Capture owned copy or use <code>Send</code> move value</td></tr>
+          <tr><td><code>free on live owned binding</code></td><td>Manual free + auto-drop</td><td>Remove manual free; let auto-drop handle it</td></tr>
+        </tbody>
+      </table>
+      <p>More: <a href="diagnostics.html">Diagnostics</a></p>
+
+      <h2 id="cookbook">Examples cookbook</h2>
+
+      <h3>Read file — zero manual free</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn read_file(path){
+    let text = read_file(&quot;README.md&quot;)
+    print(text)
+}                            // free(text) inserted by compiler</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn read_file(path){
+    let text = read_file(&quot;README.md&quot;)
+    print(text)
+}                            // free(text) inserted by compiler</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Concatenate strings — both operands moved unless borrowed</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn strcat(a, b){
+    let a = &quot;Hello, &quot;
+    let b = &quot;Nyra&quot;
+    let msg = strcat(a, b)   // a and b moved into strcat; new string returned
+    print(msg)
+}                                 // only msg freed — a,b already consumed</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn strcat(a, b){
+    let a: string = &quot;Hello, &quot;
+    let b: string = &quot;Nyra&quot;
+    let msg = strcat(a, b)   // a and b moved into strcat; new string returned
+    print(msg)
+}                                 // only msg freed — a,b already consumed</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Safe mutation with &amp;mut</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn bump(mut n) {
+    n = n + 1
+    print(n)
+}
+
+fn main() {
+    let mut count = 0
+    bump(count)               // i32 is Copy — count still valid
+    print(count)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn bump(mut n: i32) {
+    n = n + 1
+    print(n)
+}
+
+fn main() -&gt; void {
+    let mut count: i32 = 0
+    bump(count)               // i32 is Copy — count still valid
+    print(count)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Option ?? — no leak on either branch</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/option.ny&quot;
+
+fn main() {
+    let x = Option.None
+    let y = x ?? 42           // i32 Copy — no heap
+    print(y)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/option.ny&quot;
+
+fn main() -&gt; void {
+    let x = Option.None
+    let y = x ?? 42           // i32 Copy — no heap
+    print(y)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <nav class="lesson-nav" aria-label="Learn navigation">
+        <a class="lesson-nav-prev" href="learn-borrowing.html">← Nyra Borrowing</a>
+        <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
+        <a class="lesson-nav-next" href="concurrency.html">Concurrency →</a>
+      </nav>
+      <footer class="site-footer"><a href="reference.html">Language reference →</a></footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

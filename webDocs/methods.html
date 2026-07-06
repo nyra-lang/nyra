@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Built-in methods — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="methods">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a class="active" href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.methods.h1">Built-in methods</h1>
+      <p class="lead" data-i18n-html="pages.methods.lead">One-page lookup for <strong>compiler builtins</strong> and <strong>stdlib method syntax</strong> on strings, numbers, arrays, vectors, maps, and objects. Each row includes a <strong>quick example</strong>; full runnable programs are in the <a href="#builtin-examples-gallery">gallery below</a>.</p>
+
+      <div class="callout" role="note">
+        <strong>Quick tip</strong>
+        <p>Press <kbd>Ctrl+K</kbd> and type a method name (e.g. <code>split</code>, <code>push</code>, <code>abs</code>). For full module APIs (HTTP, crypto, FS), see <a href="stdlib.html">Standard library</a>.</p>
+      </div>
+
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#io">I/O</a></li>
+          <li><a href="#strings">String methods</a></li>
+          <li><a href="#numbers">Number &amp; math</a></li>
+          <li><a href="#booleans">Booleans</a></li>
+          <li><a href="#arrays">Fixed arrays</a></li>
+          <li><a href="#vectors">Vectors &amp; lists</a></li>
+          <li><a href="#maps">Maps (objects)</a></li>
+          <li><a href="#split-lists">Split lists</a></li>
+          <li><a href="#timing">Timing &amp; memory</a></li>
+          <li><a href="#other-builtins">Other builtins</a></li>
+          <li><a href="#js-helpers">JS-style helpers (import)</a></li>
+          <li><a href="#builtin-examples-gallery">Runnable examples</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="overview">Overview</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Import?</th><th>Receiver / type</th></tr></thead>
+        <tbody>
+          <tr><td><a href="#io">I/O</a>, <a href="#timing">timing</a>, <a href="#other-builtins">date</a>, <a href="#numbers">math intrinsics</a></td><td><strong>No</strong></td><td>Global functions</td></tr>
+          <tr><td><a href="#strings">String methods</a></td><td><strong>No</strong></td><td><code>string</code> — borrows receiver</td></tr>
+          <tr><td><a href="#arrays">Array methods</a></td><td><strong>No</strong></td><td><code>[T; N]</code> fixed arrays</td></tr>
+          <tr><td><a href="#vectors">Vec / StrVec</a></td><td><code>stdlib/vec.ny</code> or <code>stdlib/vec_str.ny</code></td><td><code>ptr</code> handles or <code>StrVec</code> struct</td></tr>
+          <tr><td><a href="#maps">HashMap</a></td><td><code>stdlib/map.ny</code></td><td><code>HashMap_str_i32</code>, <code>HashMap_str_str</code></td></tr>
+          <tr><td><a href="#js-helpers">Array_/String_/Math_/JSON_</a></td><td><code>stdlib/builtins_*.ny</code></td><td>Function-style wrappers</td></tr>
+        </tbody>
+      </table>
+      <p>Runnable gallery: <code>examples/builtins/</code> · detailed stdlib modules: <a href="stdlib.html#builtins">stdlib → Built-ins</a></p>
+
+      <h2 id="io">I/O <span class="badge">no import</span></h2>
+      <table>
+        <thead><tr><th>Call</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="print"><td><code>print(expr)</code></td><td>value</td><td><code>void</code></td><td>Stdout + newline</td><td><code>print(42)</code> · <code>print("hi")</code></td></tr>
+          <tr id="print-color"><td><code>print(expr, color: spec)</code></td><td>value + color</td><td><code>void</code></td><td>ANSI: <code>red</code>, <code>"#RGB"</code>, <code>rgb(r,g,b)</code></td><td><code>print("err", color: red)</code></td></tr>
+          <tr id="write"><td><code>write(expr)</code></td><td>value</td><td><code>void</code></td><td>Buffered stdout, no newline</td><td><code>write("&gt; ")</code></td></tr>
+          <tr id="println"><td><code>println(expr)</code></td><td>value</td><td><code>void</code></td><td>Buffered stdout + newline</td><td><code>println("done")</code></td></tr>
+          <tr id="flush"><td><code>flush()</code></td><td>—</td><td><code>void</code></td><td>Flush stdout buffer</td><td><code>write("…"); flush()</code></td></tr>
+          <tr id="input"><td><code>input()</code></td><td>—</td><td><code>string</code></td><td>Read one stdin line</td><td><code>let line = input()</code></td></tr>
+          <tr id="input-prompt"><td><code>input(prompt)</code></td><td><code>string</code></td><td><code>string</code></td><td>Print prompt, then read line</td><td><code>let name = input("Name? ")</code></td></tr>
+        </tbody>
+      </table>
+      <p>Examples: <a href="#ex-print"><code>print</code></a> · <a href="#ex-input"><code>input</code></a></p>
+
+      <h2 id="strings">String methods <span class="badge">no import</span></h2>
+      <p>Method syntax on <code>string</code> — borrows the receiver (does not move). Heap copy: <code>clone s</code> keyword.</p>
+      <table>
+        <thead><tr><th>Method</th><th>Args</th><th>Returns</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="str-length"><td><code>.length()</code> / <code>.len()</code></td><td>—</td><td><code>i32</code></td><td>Byte length</td><td><code>"hello".len()</code></td></tr>
+          <tr id="str-split"><td><code>.split(sep)</code></td><td><code>string</code></td><td>split list</td><td>Split on separator</td><td><code>"a,b,c".split(",")</code></td></tr>
+          <tr id="str-trim"><td><code>.trim()</code></td><td>—</td><td><code>string</code></td><td>Strip whitespace</td><td><code>"  hi  ".trim()</code></td></tr>
+          <tr id="str-contains"><td><code>.contains(needle)</code></td><td><code>string</code></td><td><code>i32</code></td><td><code>1</code> if found</td><td><code>"abc".contains("b")</code></td></tr>
+          <tr id="str-starts-with"><td><code>.starts_with(prefix)</code></td><td><code>string</code></td><td><code>i32</code></td><td>Prefix test</td><td><code>"hello".starts_with("he")</code></td></tr>
+          <tr id="str-ends-with"><td><code>.ends_with(suffix)</code></td><td><code>string</code></td><td><code>i32</code></td><td>Suffix test</td><td><code>"hello".ends_with("lo")</code></td></tr>
+          <tr id="str-replace"><td><code>.replace(from, to)</code></td><td>2 × <code>string</code></td><td><code>string</code></td><td>Replace all</td><td><code>"a-b".replace("-", "_")</code></td></tr>
+          <tr id="str-replacen"><td><code>.replacen(from, to, count)</code></td><td>2 × <code>string</code>, <code>i32</code></td><td><code>string</code></td><td>Replace at most <code>count</code></td><td><code>"aaa".replacen("a", "b", 2)</code></td></tr>
+          <tr id="str-to-upper"><td><code>.to_upper()</code></td><td>—</td><td><code>string</code></td><td>ASCII upper-case</td><td><code>"hi".to_upper()</code></td></tr>
+          <tr id="str-to-lower"><td><code>.to_lower()</code></td><td>—</td><td><code>string</code></td><td>ASCII lower-case</td><td><code>"HI".to_lower()</code></td></tr>
+          <tr id="str-clone"><td><code>clone s</code></td><td>—</td><td><code>string</code></td><td>Heap copy (keyword)</td><td><code>let copy = clone s</code></td></tr>
+        </tbody>
+      </table>
+      <p>Examples: <a href="#ex-split"><code>.split()</code></a> · <a href="#ex-trim"><code>.trim()</code></a> · <a href="#ex-string-chars"><code>for c in string</code></a></p>
+
+      <h2 id="numbers">Number &amp; math <span class="badge">no import</span></h2>
+      <p>Compiler math intrinsics — lowered to LLVM, no call overhead. Type overload on <code>abs</code>.</p>
+      <table>
+        <thead><tr><th>Call</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="abs"><td><code>abs(x)</code></td><td><code>i32</code> or <code>f64</code></td><td>same as arg</td><td>Absolute value</td><td><code>abs(-5)</code></td></tr>
+          <tr id="abs-i32"><td><code>abs_i32(x)</code> / <code>abs_f64(x)</code></td><td>1 numeric</td><td><code>i32</code> / <code>f64</code></td><td>Explicit typed variants</td><td><code>abs_i32(-42)</code></td></tr>
+          <tr id="min-max-i32"><td><code>min_i32(a, b)</code> / <code>max_i32(a, b)</code></td><td>2 × <code>i32</code></td><td><code>i32</code></td><td>Min / max</td><td><code>max_i32(3, 7)</code></td></tr>
+          <tr id="min-max-f64"><td><code>min_f64(a, b)</code> / <code>max_f64(a, b)</code></td><td>2 × <code>f64</code></td><td><code>f64</code></td><td>Min / max</td><td><code>min_f64(1.0, 2.0)</code></td></tr>
+          <tr id="clamp"><td><code>clamp_i32(x, lo, hi)</code></td><td>3 × <code>i32</code></td><td><code>i32</code></td><td>Clamp to range</td><td><code>clamp_i32(15, 0, 10)</code></td></tr>
+          <tr id="cpu-count"><td><code>cpu_count()</code></td><td>—</td><td><code>i32</code></td><td>Logical CPU count</td><td><a href="#ex-cpu-count"><code>cpu_count()</code></a></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-math-intrinsics"><code>abs / min / max</code></a> · See also <a href="#js-math">Math_* helpers</a></p>
+
+      <h2 id="booleans">Booleans <span class="badge">no import</span></h2>
+      <p>Booleans have <strong>no methods</strong> — use operators and <code>print</code>:</p>
+      <table>
+        <thead><tr><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>a &amp;&amp; b</code> / <code>a || b</code></td><td><code>bool</code></td><td>Logical and / or</td></tr>
+          <tr><td><code>!a</code></td><td><code>bool</code></td><td>Logical not</td></tr>
+          <tr><td><code>a == b</code>, <code>a != b</code></td><td><code>bool</code></td><td>Equality</td></tr>
+          <tr><td><code>print(flag)</code></td><td><code>void</code></td><td>Prints <code>true</code> / <code>false</code></td></tr>
+        </tbody>
+      </table>
+      <p>Lesson: <a href="learn-booleans.html">Nyra Booleans</a></p>
+
+      <h2 id="arrays">Fixed arrays <span class="badge">no import</span></h2>
+      <p>Syntax <code>[T; N]</code> — size known at compile time.</p>
+      <table>
+        <thead><tr><th>Syntax / method</th><th>On</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="arr-index"><td><code>arr[i]</code></td><td>fixed array</td><td><code>T</code></td><td>Zero-based index</td><td><code>let x = nums[0]</code></td></tr>
+          <tr id="arr-length"><td><code>.length()</code> / <code>.len()</code></td><td>fixed array</td><td><code>i32</code></td><td>Element count</td><td><code>nums.len()</code></td></tr>
+          <tr id="arr-sort"><td><code>.sort()</code></td><td><code>[i32; N]</code> or <code>[f64; N]</code></td><td>new sorted array</td><td>Original unchanged</td><td><code>[3, 1, 2].sort()</code></td></tr>
+          <tr id="arr-sort-by"><td><code>.sort_by(cmp)</code></td><td>fixed array</td><td>new sorted array</td><td>Comparator fn</td><td><code>items.sort_by(cmp)</code></td></tr>
+          <tr id="arr-for-in"><td><code>for x in arr</code></td><td>fixed array</td><td>—</td><td>Iterate elements</td><td><code>for x in nums { print(x) }</code></td></tr>
+          <tr id="range-for"><td><code>for i in 0..n</code></td><td>range</td><td>—</td><td>Half-open integer range</td><td><code>for i in 0..10 { … }</code></td></tr>
+        </tbody>
+      </table>
+      <p>Examples: <a href="#ex-sort"><code>sort</code></a> · <a href="#ex-range"><code>for i in 0..n</code></a></p>
+
+      <h2 id="vectors">Vectors &amp; dynamic lists</h2>
+      <h3 id="vec-i32"><code>Vec_i32</code> — <code>import "stdlib/vec.ny"</code></h3>
+      <p>Growable <code>i32</code> vector backed by a <code>ptr</code> handle.</p>
+      <table>
+        <thead><tr><th>Function</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="vec-new"><td><code>Vec_i32_new()</code></td><td>—</td><td><code>ptr</code></td><td>Create empty vector</td><td><code>let v = Vec_i32_new()</code></td></tr>
+          <tr id="vec-push"><td><code>Vec_i32_push(v, x)</code></td><td><code>ptr</code>, <code>i32</code></td><td><code>void</code></td><td>Append element</td><td><code>Vec_i32_push(v, 42)</code></td></tr>
+          <tr id="vec-get"><td><code>Vec_i32_get(v, i)</code></td><td><code>ptr</code>, <code>i32</code></td><td><code>i32</code></td><td>Index (0-based)</td><td><code>Vec_i32_get(v, 0)</code></td></tr>
+          <tr id="vec-len"><td><code>Vec_i32_len(v)</code></td><td><code>ptr</code></td><td><code>i32</code></td><td>Length</td><td><code>Vec_i32_len(v)</code></td></tr>
+          <tr id="vec-pop"><td><code>Vec_i32_pop(v)</code></td><td><code>ptr</code></td><td><code>i32</code></td><td>Pop last</td><td><code>Vec_i32_pop(v)</code></td></tr>
+          <tr id="vec-from-range"><td><code>Vec_i32_from_range(start, end)</code></td><td>2 × <code>i32</code></td><td><code>ptr</code></td><td>Half-open range fill</td><td><code>Vec_i32_from_range(0, 10)</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-vec"><code>Vec_i32</code></a></p>
+
+      <h3 id="str-vec"><code>StrVec</code> — <code>import "stdlib/vec_str.ny"</code></h3>
+      <p>String vector with <strong>method syntax</strong> on the struct.</p>
+      <table>
+        <thead><tr><th>Method / function</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="strvec-new"><td><code>StrVec_new()</code></td><td>—</td><td><code>StrVec</code></td><td>Empty string list</td><td><code>StrVec_new()</code></td></tr>
+          <tr id="strvec-push"><td><code>.push(value)</code></td><td><code>string</code></td><td><code>StrVec</code></td><td>Append string</td><td><code>v = v.push("line")</code></td></tr>
+          <tr id="strvec-get"><td><code>.get(index)</code></td><td><code>i32</code></td><td><code>string</code></td><td>Indexed access</td><td><code>v.get(0)</code></td></tr>
+          <tr id="strvec-len"><td><code>.len()</code></td><td>—</td><td><code>i32</code></td><td>Element count</td><td><code>v.len()</code></td></tr>
+          <tr id="strvec-from-lines"><td><code>StrVec_from_lines(text)</code></td><td><code>string</code></td><td><code>StrVec</code></td><td>Split on newlines</td><td><code>StrVec_from_lines(text)</code></td></tr>
+          <tr id="strvec-join"><td><code>StrVec_join_lines(vec)</code></td><td><code>StrVec</code></td><td><code>string</code></td><td>Join with <code>\n</code></td><td><code>StrVec_join_lines(v)</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-strvec"><code>StrVec</code></a></p>
+
+      <h2 id="maps">Maps (key-value objects) — <code>import "stdlib/map.ny"</code></h2>
+      <p>String-keyed hash maps with method syntax.</p>
+      <table>
+        <thead><tr><th>Method</th><th>Args</th><th>Returns</th><th>On type</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="map-insert"><td><code>.insert(key, value)</code></td><td><code>string</code>, value</td><td>same map type</td><td><code>HashMap_str_i32</code></td><td><code>m = m.insert("k", 1)</code></td></tr>
+          <tr id="map-get"><td><code>.get(key)</code></td><td><code>string</code></td><td><code>i32</code> / <code>string</code></td><td>Lookup value</td><td><code>m.get("score")</code></td></tr>
+          <tr id="map-contains"><td><code>.contains(key)</code></td><td><code>string</code></td><td><code>i32</code></td><td><code>1</code> / <code>0</code></td><td><code>m.contains("score")</code></td></tr>
+        </tbody>
+      </table>
+      <p>Constructors: <code>HashMap_str_i32_new()</code>, <code>HashMap_str_str_new()</code>. Example: <a href="#ex-map"><code>HashMap insert / get</code></a></p>
+
+      <h2 id="split-lists">Split lists <span class="badge">no import</span></h2>
+      <p>Result of <code>string.split(sep)</code> — iterable string parts.</p>
+      <table>
+        <thead><tr><th>Syntax / method</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="split-len"><td><code>.length()</code> / <code>.len()</code></td><td><code>i32</code></td><td>Part count</td><td><code>parts.len()</code></td></tr>
+          <tr id="split-for"><td><code>for s in parts</code></td><td>each <code>string</code></td><td>Iterate parts</td><td><code>for p in parts { print(p) }</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-for-in"><code>for s in split_list</code></a></p>
+
+      <h2 id="timing">Timing &amp; memory <span class="badge">no import</span></h2>
+      <table>
+        <thead><tr><th>Call</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="time-start"><td><code>time_start(label)</code> / <code>time_end(label)</code></td><td>Wall-clock timing</td><td><code>time_start("work"); …; time_end("work")</code></td></tr>
+          <tr id="mem-start"><td><code>mem_start(label)</code> / <code>mem_end(label)</code></td><td>RSS delta</td><td><code>mem_start("alloc"); …; mem_end("alloc")</code></td></tr>
+          <tr id="benchmark"><td><code>benchmark { ... }</code></td><td>Time + memory + CPU% for a block</td><td><a href="#ex-benchmark"><code>benchmark { heavy_work() }</code></a></td></tr>
+        </tbody>
+      </table>
+      <p>Examples: <a href="#ex-time"><code>time_start / time_end</code></a> · <a href="#ex-mem"><code>mem_start / mem_end</code></a> · <a href="#ex-benchmark"><code>benchmark { }</code></a></p>
+
+      <h2 id="other-builtins">Other builtins <span class="badge">no import</span></h2>
+      <table>
+        <thead><tr><th>Call</th><th>Returns / effect</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="random-int"><td><code>random()</code> / <code>random(min, max)</code></td><td>generic integer</td><td>ChaCha20 CSPRNG; return type follows bounds (<code>i32</code>, <code>i64</code>, <code>u64</code>, …). No-arg defaults to <code>i32</code>.</td><td><code>random(1, 6)</code> · <code>random&lt;i64&gt;(50, 100)</code></td></tr>
+          <tr id="random-f64-builtin"><td><code>random_f64()</code> / <code>random_f64(min, max)</code></td><td><code>f64</code></td><td>Unit interval <code>[0, 1)</code> or range <code>[min, max)</code></td><td><code>random_f64(0.0, 1.0)</code></td></tr>
+          <tr id="date"><td><code>date()</code></td><td><code>Date</code> struct</td><td>Local clock fields</td><td><code>let d = date(); print(d.year)</code></td></tr>
+          <tr id="spawn"><td><code>spawn { ... }</code> / <code>spawn:task { ... }</code></td><td><code>JoinHandle</code> (expr) / none (stmt)</td><td>Lightweight task pool; needs <code>allow_extended</code>; not on wasm32</td><td><code>spawn { print(1) }</code></td></tr>
+          <tr id="spawn-thread"><td><code>spawn:thread { ... }</code></td><td><code>JoinHandle</code> (expr)</td><td>Dedicated OS thread (~MB stack)</td><td><code>spawn:thread { heavy() }</code></td></tr>
+          <tr id="join-handle-method"><td><code>h.join()</code></td><td><code>void</code></td><td>On <code>JoinHandle</code>; blocks until spawn completes; consumes handle</td><td><code>let h = spawn { … }; h.join()</code></td></tr>
+          <tr id="parallel-for"><td><code>parallel for i in 0..n { ... }</code> / <code>parallel:task</code></td><td>parallel loop</td><td>Task pool (default); <code>max = N</code>, <code>cpu = N%</code></td><td><a href="#ex-parallel"><code>parallel for</code></a> · <a href="#ex-parallel-task-max"><code>parallel:task(max = 4)</code></a> · <a href="#ex-parallel-cpu"><code>cpu = N%</code></a> · <a href="#ex-parallel-mode"><code>mode = …</code></a></td></tr>
+          <tr id="parallel-thread"><td><code>parallel:thread(...) for ...</code></td><td>parallel loop</td><td>OS thread fork-join per chunk</td><td><a href="#ex-parallel-thread"><code>parallel:thread(max = 4)</code></a></td></tr>
+          <tr id="progress-for"><td><code>progress for x in items { ... }</code></td><td>loop + progress bar</td><td>Optional <code>label</code></td><td><a href="#ex-progress"><code>progress for</code></a></td></tr>
+          <tr id="defer-stmt"><td><code>defer expr</code></td><td>scope-exit call (LIFO)</td><td>Extended — prefer <code>impl Drop</code></td><td><a href="#ex-defer"><code>defer</code></a> · <a href="#ex-defer-lifo">LIFO</a></td></tr>
+          <tr id="async-fn"><td><code>async fn … { … }</code></td><td>promise / future handle</td><td>Body on <code>spawn:thread</code>; not on wasm32</td><td><a href="#ex-async-fn"><code>async fn</code></a></td></tr>
+          <tr id="await-expr"><td><code>await handle</code></td><td>blocks until complete</td><td>Inside <code>async fn</code> or at call site</td><td><a href="#ex-await"><code>await</code></a></td></tr>
+        </tbody>
+      </table>
+      <p>Examples: <a href="#allow-extended"><code>allow_extended</code></a> · <a href="#join-handle"><code>JoinHandle</code></a> · <a href="#ex-random"><code>random</code></a> · <a href="#ex-date"><code>date()</code></a> · <a href="#ex-spawn"><code>spawn</code></a> · <a href="#ex-spawn-join"><code>.join()</code></a> · <a href="#ex-parallel"><code>parallel for</code></a> · <a href="#ex-progress"><code>progress</code></a> · <a href="#ex-benchmark"><code>benchmark</code></a> · <a href="#ex-defer"><code>defer</code></a> · <a href="#ex-async-fn"><code>async/await</code></a></p>
+
+      <h3 id="allow-extended">File directive: <code>allow_extended</code></h3>
+      <p><code>spawn</code>, <code>parallel for</code>, <code>async</code>/<code>await</code>, <code>defer</code>, and related APIs live in Nyra’s <strong>Stable Extended</strong> tier. Put this line at the <strong>top of the file</strong> (before <code>fn main</code> or imports) when the unit intentionally uses those features:</p>
+      <pre><code>allow_extended</code></pre>
+      <table>
+        <thead><tr><th>What it does</th><th>Why use it</th></tr></thead>
+        <tbody>
+          <tr><td>Marks the file as an Extended-tier program</td><td>Documents intent for readers and reviewers</td></tr>
+          <tr><td>Suppresses <code>warning[W001]</code></td><td>Extended-feature warnings are silenced in this file (useful when CI runs with stricter flags)</td></tr>
+          <tr><td>One line per file</td><td>Not per-function — applies to the whole compilation unit</td></tr>
+        </tbody>
+      </table>
+      <p>You do <strong>not</strong> need <code>allow_extended</code> for Core-only code (plain <code>print</code>, structs, loops, etc.). All spawn and parallel examples below include it. See also <a href="concurrency.html#spawn">Concurrency → spawn</a> and <a href="roadmap.html">Roadmap</a> (Core vs Extended).</p>
+      <p><strong>Name:</strong> <code>allow_extended</code> (first line of file)<br>
+      <strong>Explanation:</strong> Declares that this compilation unit intentionally uses Stable Extended APIs. Does not enable features by itself — it documents intent and integrates with stability warnings.<br>
+      <strong>Example:</strong></p>
+      <pre><code>allow_extended
+fn main() {
+    parallel for i in 0..3 {
+        print(i)
+    }
+}</code></pre>
+      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
+      <p><strong>Platform:</strong> <code>spawn</code> is unavailable on <code>wasm32-wasi</code> (compile error). Native Linux, macOS, and Windows only.</p>
+
+      <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>
+      <p>When <code>spawn</code> appears as an <strong>expression</strong> (<code>let h = spawn { … }</code>), the type of <code>h</code> is <code>JoinHandle</code> — an opaque handle to a background task or thread. It is <strong>not</strong> a numeric ID; you cannot print it or compare it. You either wait on it or drop it.</p>
+      <table>
+        <thead><tr><th>Method</th><th>Signature</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr id="join-handle-join"><td><code>.join()</code></td><td><code>h.join() -&gt; void</code></td><td><strong>Blocks</strong> the current thread until the spawned work finishes. <strong>Consumes</strong> the handle (move) — you cannot call <code>.join()</code> twice on the same variable.</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead><tr><th>Form</th><th>Syntax</th><th>Wait for completion?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Statement</strong></td><td><code>spawn { … }</code></td><td>No — fire-and-forget; runtime detaches immediately</td></tr>
+          <tr><td><strong>Expression + join</strong></td><td><code>let h = spawn { … }; h.join()</code></td><td>Yes — <code>main</code> waits at <code>h.join()</code></td></tr>
+          <tr><td><strong>Drop without join</strong></td><td><code>let h = spawn { … }</code> then scope ends</td><td>No — handle dropped → detach (same as statement form)</td></tr>
+        </tbody>
+      </table>
+      <p><code>.join()</code> takes <strong>no arguments</strong>. Works the same for <code>spawn</code>, <code>spawn:task</code>, and <code>spawn:thread</code>; the compiler calls the correct runtime (<code>spawn_task_join</code> vs <code>spawn_join</code>) based on how the handle was created. See <a href="#ex-spawn-join">example</a>.</p>
+
+      <h3 id="spawn-examples">Spawn &amp; parallel examples</h3>
+      <p>Runnable gallery (name · explanation · example · output): <a href="#ex-spawn"><code>spawn</code></a> · <a href="#ex-parallel"><code>parallel</code></a> · <a href="#ex-progress"><code>progress</code></a> · <a href="#ex-benchmark"><code>benchmark</code></a> · <a href="#ex-defer"><code>defer</code></a> · <a href="#ex-async-fn"><code>async/await</code></a>. Source: <code>examples/builtins/{spawn,parallel,benchmark,defer,async}/</code>.</p>
+
+      <h2 id="js-helpers">JS-style helpers <span class="badge">import required</span></h2>
+      <p>Ergonomic wrappers with familiar names — import when you want function-style APIs over <code>ptr</code> handles.</p>
+
+      <h3 id="js-array"><code>stdlib/builtins_array.ny</code></h3>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="array-push"><td><code>Array_push(v, x)</code></td><td>Append <code>i32</code></td><td><code>Array_push(v, 42)</code></td></tr>
+          <tr id="array-pop"><td><code>Array_pop(v)</code></td><td>Pop last <code>i32</code></td><td><code>Array_pop(v)</code></td></tr>
+          <tr id="array-map"><td><code>Array_map(v, f)</code></td><td>Map with fn</td><td><code>Array_map(v, double)</code></td></tr>
+          <tr id="array-filter"><td><code>Array_filter(v, pred)</code></td><td>Filter (pred → 1/0)</td><td><code>Array_filter(v, is_even)</code></td></tr>
+          <tr id="array-reduce"><td><code>Array_reduce(v, init, f)</code></td><td>Fold left</td><td><code>Array_reduce(v, 0, sum)</code></td></tr>
+          <tr id="array-find"><td><code>Array_find(v, pred, fallback)</code></td><td>First match or fallback</td><td><code>Array_find(v, is_even, -1)</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-array"><code>Array_push / map / filter</code></a></p>
+
+      <h3 id="js-string"><code>stdlib/builtins_string.ny</code></h3>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="string-toupper"><td><code>String_toUpperCase(s)</code></td><td>Upper-case</td><td><code>String_toUpperCase("hi")</code></td></tr>
+          <tr id="string-tolower"><td><code>String_toLowerCase(s)</code></td><td>Lower-case</td><td><code>String_toLowerCase("HI")</code></td></tr>
+          <tr id="string-includes"><td><code>String_includes(s, needle)</code></td><td>Substring test</td><td><code>String_includes(s, "ab")</code></td></tr>
+          <tr id="string-split"><td><code>String_split(s, sep)</code></td><td>Split to string vector</td><td><code>String_split("a,b", ",")</code></td></tr>
+          <tr id="string-replace"><td><code>String_replace(s, from, to)</code></td><td>Replace all matches</td><td><code>String_replace(s, "-", "_")</code></td></tr>
+          <tr id="string-replacen"><td><code>String_replacen(s, from, to, count)</code></td><td>Replace at most <code>count</code></td><td><code>String_replacen(s, "a", "b", 2)</code></td></tr>
+          <tr id="string-trim"><td><code>trim(s)</code></td><td>Trim whitespace</td><td><code>trim("  x  ")</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-string-split"><code>String_split</code></a></p>
+
+      <h3 id="js-random"><code>stdlib/random.ny</code> <span class="badge">import for shuffle only</span></h3>
+      <p><code>random()</code>, <code>random(min, max)</code>, and <code>random_f64()</code> are <strong>compiler builtins</strong> — no import. Import this module for <code>shuffle_pick</code>.</p>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="random-i32"><td><code>random()</code> / <code>random(min, max)</code></td><td>Generic integer random (ChaCha20, HW-seeded) — type from bounds</td><td><code>random(1, 6)</code></td></tr>
+          <tr id="random-f64"><td><code>random_f64()</code> / <code>random_f64(min, max)</code></td><td>Random <code>f64</code> — unit or range</td><td><code>random_f64(0.0, 1.0)</code></td></tr>
+          <tr id="shuffle-pick"><td><code>shuffle_pick(vec)</code></td><td>Random <code>i32</code> from vector handle</td><td><a href="#ex-shuffle-pick"><code>shuffle_pick(v)</code></a></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-random"><code>random</code></a> · <a href="#ex-shuffle-pick"><code>shuffle_pick</code></a></p>
+
+      <h3 id="js-math"><code>stdlib/builtins_math.ny</code></h3>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="math-max"><td><code>Math_max(a, b)</code> / <code>Math_min(a, b)</code></td><td>Min / max (<code>i32</code>)</td><td><code>Math_max(3, 7)</code></td></tr>
+          <tr id="math-round"><td><code>Math_round(x)</code> / <code>Math_floor(x)</code> / <code>Math_ceil(x)</code></td><td>Rounding (MVP on <code>i32</code>)</td><td><code>Math_round(42)</code></td></tr>
+          <tr id="math-random"><td><code>Math_random()</code></td><td>Random <code>f64</code> in [0, 1)</td><td><code>Math_random()</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-math-random"><code>Math_random</code></a></p>
+
+      <h3 id="js-json"><code>stdlib/builtins_json.ny</code></h3>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="json-stringify"><td><code>JSON_stringify(key, value)</code></td><td>Single-field JSON object</td><td><code>JSON_stringify("name", "Ada")</code></td></tr>
+          <tr id="json-parse"><td><code>JSON_parse(json, key)</code></td><td>Read string field</td><td><code>JSON_parse(json, "name")</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example: <a href="#ex-json"><code>JSON_stringify / JSON_parse</code></a></p>
+
+      <!-- BUILTIN_CODE_TABS_START -->
+
+<section id="builtin-examples-gallery">
+  <h3 id="builtins-gallery">Runnable examples — easy vs typed</h3>
+  <p class="lead">Each block is named after the <strong>method or builtin</strong> it demonstrates. Run: <code>nyra run examples/builtins/…</code>. <strong>Output</strong> shows what prints to stdout.</p>
+  
+<h4 class="builtin-ex-title" id="ex-array"><code>Array_push / map / filter / reduce</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn is_even(x){
+    if x % 2 == 0 {
+        return 1
+    }
+    return 0
+}
+
+fn mul10(x){
+    return x * 10
+}
+
+fn sum(acc, x){
+    return acc + x
+}
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    Array_push(v, 3)
+    Array_push(v, 4)
+
+    let mapped = Array_map(v, mul10)
+    let evens = Array_filter(v, is_even)
+    let total = Array_reduce(v, 0, sum)
+    let found = Array_find(v, is_even, -1)
+
+    print(Vec_i32_len(mapped))
+    print(Vec_i32_len(evens))
+    print(total)
+    print(found)
+    print(Array_pop(v))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn is_even(x: i32){
+    if x % 2 == 0 {
+        return 1
+    }
+    return 0
+}
+
+fn mul10(x: i32){
+    return x * 10
+}
+
+fn sum(acc: i32, x: i32){
+    return acc + x
+}
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    Array_push(v, 3)
+    Array_push(v, 4)
+
+    let mapped: ptr = Array_map(v, mul10)
+    let evens: ptr = Array_filter(v, is_even)
+    let total: i32 = Array_reduce(v, 0, sum)
+    let found = Array_find(v, is_even, -1)
+
+    print(Vec_i32_len(mapped))
+    print(Vec_i32_len(evens))
+    print(total)
+    print(found)
+    print(Array_pop(v))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>4
+2
+10
+2
+4</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-for-in"><code>for x in arr</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let arr = [1, 2, 3]
+    for n in arr {
+        print(n)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let arr: [i32; 3] = [1, 2, 3]
+    for n in arr {
+        print(n)
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+2
+3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-len"><code>.len()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let arr = [10, 20, 30, 40]
+    print(arr.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let arr: [i32; 4] = [10, 20, 30, 40]
+    print(arr.len())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>4</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-length"><code>.len()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let arr = [10, 20, 30, 40]
+    print(arr.length())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let arr: [i32; 4] = [10, 20, 30, 40]
+    print(arr.length())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>4</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-sort"><code>sort</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let nums = [10, 1, 2, 8, 5]
+    let sorted = nums.sort()
+    for n in sorted {
+        print(n)
+    }
+    print(nums[0])
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let nums: [i32; 5] = [10, 1, 2, 8, 5]
+    let sorted: [i32; 5] = nums.sort()
+    for n in sorted {
+        print(n)
+    }
+    print(nums[0])
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+2
+5
+8
+10
+10</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-date"><code>date()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let d = date()
+    print(d.year)
+    print(d.month)
+    print(d.day)
+    print(d.hour)
+    print(d.minute)
+    print(d.second)
+    print(d.week)
+    print(d.millisecond)
+    print(d.minutes)
+    print(d.seconds)
+    print(d.weekday)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let d: Date = date()
+    print(d.year)
+    print(d.month)
+    print(d.day)
+    print(d.hour)
+    print(d.minute)
+    print(d.second)
+    print(d.week)
+    print(d.millisecond)
+    print(d.minutes)
+    print(d.seconds)
+    print(d.weekday)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(local clock — values change)
+2026
+7
+1
+21
+29
+15
+…</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-range"><code>for i in 0..n</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    for i in 0..4 {
+        print(i)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    for i in 0..4 {
+        print(i)
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0
+1
+2
+3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-chars"><code>for c in string</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let word = &quot;AB&quot;
+    for c in word {
+        print(c)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let word: string = &quot;AB&quot;
+    for c in word {
+        print(c)
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>65
+66</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-flush"><code>flush</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    write(&quot;ok&quot;)
+    flush()
+    print(&quot;done&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    write(&quot;ok&quot;)
+    flush()
+    print(&quot;done&quot;)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>okdone</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-input"><code>input</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// Interactive — run: nyra run examples/builtins/io/input.ny
+fn main() {
+    let name = input(&quot;Name)
+    print(name.length())
+    print(name)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// Interactive — run: nyra run examples/builtins/io/input.ny
+fn main() -&gt; void {
+    let name: string = input(&quot;Name)
+    print(name.length())
+    print(name)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>Name: 3
+Ada</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-print-array"><code>print_array</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let nums = [20, 1, 4, 3, 5, 2]
+    print(nums)
+    print([1.5, 2.5])
+    print([&quot;hello&quot;, &quot;Nyra&quot;])
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let nums: [i32; 6] = [20, 1, 4, 3, 5, 2]
+    print(nums)
+    print([1.5, 2.5])
+    print([&quot;hello&quot;, &quot;Nyra&quot;])
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>[20, 1, 4, 3, 5, 2]
+[1.5, 2.5]
+[&quot;hello&quot;, &quot;Nyra&quot;]</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-print"><code>print</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(42)
+    print(&quot;Nyra&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(42)
+    print(&quot;Nyra&quot;)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>42
+Nyra</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-println"><code>println</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    println(&quot;line&quot;)
+    flush()
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    println(&quot;line&quot;)
+    flush()
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>line</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-write"><code>write</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    write(&quot;ok&quot;)
+    flush()
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    write(&quot;ok&quot;)
+    flush()
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>okincremental: cache hit (1 source files)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-json"><code>JSON_stringify / JSON_parse</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_json.ny&quot;
+
+fn main() {
+    let raw = JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;)
+    print(raw)
+    print(JSON_parse(raw, &quot;name&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_json.ny&quot;
+
+fn main() -&gt; void {
+    let raw: string = JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;)
+    print(raw)
+    print(JSON_parse(raw, &quot;name&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>{&quot;name&quot;:&quot;hamdy&quot;}
+hamdy</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map"><code>HashMap insert / get / contains</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let mut m = HashMap_str_i32_new()
+    m = m.insert(&quot;score&quot;, 100)
+    print(m.get(&quot;score&quot;))
+    print(m.contains(&quot;score&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let mut m = HashMap_str_i32_new()
+    m = m.insert(&quot;score&quot;, 100)
+    print(m.get(&quot;score&quot;))
+    print(m.contains(&quot;score&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>100
+1</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-intrinsics"><code>abs / min_i32 / max_i32 / clamp_i32</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// Compiler math intrinsics: no stdlib prelude required (--no-prelude friendly).
+// Build: nyra build examples/builtins/math_intrinsics.ny --release --no-prelude -o math_intrinsics
+// Run:   ./target/release/math_intrinsics
+
+fn main() {
+    let a = abs_i32(-42)
+    let b = min_i32(3, 7)
+    let c = max_i32(3, 7)
+    let d = clamp_i32(15, 0, 10)
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+    let x = abs(-5)
+    print(x)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// Compiler math intrinsics: no stdlib prelude required (--no-prelude friendly).
+// Build: nyra build examples/builtins/math_intrinsics.ny --release --no-prelude -o math_intrinsics
+// Run:   ./target/release/math_intrinsics
+
+fn main() -&gt; void {
+    let a = abs_i32(-42)
+    let b = min_i32(3, 7)
+    let c = max_i32(3, 7)
+    let d = clamp_i32(15, 0, 10)
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+    let x = abs(-5)
+    print(x)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>42
+3
+7
+10
+5</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math"><code>Math_max / min / round / random</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_round(7))
+    print(Math_floor(7))
+    print(Math_ceil(7))
+    print(Math_max(10, 3))
+    print(Math_min(10, 3))
+
+    print(Math_random())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_round(7))
+    print(Math_floor(7))
+    print(Math_ceil(7))
+    print(Math_max(10, 3))
+    print(Math_min(10, 3))
+
+    print(Math_random())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>7
+7
+7
+10
+3
+0.0360552</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-spawn"><code>spawn</code> / <code>spawn:task</code> (lightweight tasks)</h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    let n = 42
+    spawn {
+        print(n)
+    }
+    print(0)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    let n: i32 = 42
+    spawn {
+        print(n)
+    }
+    print(0)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0</code></pre>
+<p><strong><code>allow_extended</code></strong> — first line opts this file into Extended features (<code>spawn</code>). <strong>Statement <code>spawn</code></strong> — no handle; work runs on the task pool while <code>main</code> continues (output <code>0</code> may appear before <code>42</code> from the task). <code>spawn</code> and <code>spawn:task</code> are equivalent.</p>
+
+<h4 class="builtin-ex-title" id="ex-spawn-thread"><code>spawn:thread</code> (OS thread)</h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    let h = spawn:thread {
+        print(88)
+    }
+    h.join()
+    print(1)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    let h = spawn:thread {
+        print(88)
+    }
+    h.join()
+    print(1)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>88
+1</code></pre>
+<p><strong><code>spawn:thread</code></strong> — creates a real OS thread (~MB stack). <strong><code>let h = …</code></strong> — expression form returns <code>JoinHandle</code>. <strong><code>h.join()</code></strong> — blocks until the thread prints <code>88</code>, then <code>main</code> prints <code>1</code>. Order is deterministic here because of <code>join</code>.</p>
+
+<h4 class="builtin-ex-title" id="ex-spawn-join"><code>JoinHandle.join()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    let h = spawn {
+        print(99)
+    }
+    h.join()
+    print(0)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    let h = spawn {
+        print(99)
+    }
+    h.join()
+    print(0)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>99
+0</code></pre>
+<p>This example shows the <strong>expression + join</strong> pattern on the default <strong>task pool</strong> (<code>spawn { }</code> without <code>:thread</code>):</p>
+<ul>
+  <li><code>let h = spawn { … }</code> — starts a lightweight task and stores a <code>JoinHandle</code> in <code>h</code>.</li>
+  <li><code>h.join()</code> — blocks until the task body finishes (here, after <code>print(99)</code>). The handle is <strong>moved</strong>; a second <code>h.join()</code> would be a compile error.</li>
+  <li><code>print(0)</code> runs only after the task completes — hence output order <code>99</code> then <code>0</code>.</li>
+</ul>
+<p>Contrast with the <a href="#ex-spawn">statement example</a>: bare <code>spawn { … }</code> without assigning to a handle does <strong>not</strong> wait. Use <code>.join()</code> when you need happens-before ordering or must read shared results after background work.</p>
+
+<h4 class="builtin-ex-title" id="ex-parallel"><code>parallel for</code> (task pool — default)</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel for i in start..end { … }</code><br><strong>What:</strong> Runs independent loop iterations on the <strong>global task pool</strong> (same workers as <code>spawn</code>). The runtime splits the range into chunks and waits for all chunks before continuing.<br><strong>When:</strong> CPU-bound work where iterations do not share mutable outer state. Requires <code>allow_extended</code> on the first line.<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_task.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0
+1
+3
+2
+999</code></pre>
+<p><strong>Notes:</strong> Lines <code>0</code>–<code>3</code> may print in <strong>any order</strong> (workers run concurrently). <code>999</code> always prints last because <code>parallel for</code> is fork-join — <code>main</code> waits for every iteration before the next statement.</p>
+
+<h4 class="builtin-ex-title" id="ex-parallel-task-max"><code>parallel:task(max = N)</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel:task(max = N) for …</code> or <code>parallel(max = N) for …</code><br><strong>What:</strong> Same task-pool backend as bare <code>parallel for</code>, but caps how many worker chunks run at once. Use <code>max</code> (not <code>max_threads</code>) to avoid confusion with <code>parallel:thread</code>.<br><strong>When:</strong> Large ranges where you want to limit pool pressure (e.g. <code>max = 4</code> on a 1000-iteration loop).<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_task_max.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel:task(max = 2) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel:task(max = 2) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0
+1
+2
+3
+999</code></pre>
+<p><strong>Notes:</strong> <code>parallel:task</code> is an explicit alias for the default backend. Iteration order is still non-deterministic; only the final <code>999</code> is ordered after all work completes.</p>
+
+<h4 class="builtin-ex-title" id="ex-parallel-thread"><code>parallel:thread(max = N)</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel:thread(max = N) for …</code> or <code>parallel(backend = thread, max = N) for …</code><br><strong>What:</strong> Fork-join using <strong>OS threads</strong> per chunk (~MB stack each) instead of the lightweight task pool.<br><strong>When:</strong> Blocking syscalls inside the loop body, thread isolation, or matching pre-v1.39 OS-thread behavior.<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_thread.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel:thread(max = 2) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel:thread(max = 2) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2
+3
+0
+1
+999</code></pre>
+<p><strong>Notes:</strong> Pick backend with <code>:task</code> / <code>:thread</code> — not with the <code>max</code> key. <code>max = N</code> only limits worker count for whichever backend you chose.</p>
+
+<h4 class="builtin-ex-title" id="ex-parallel-exact"><code>parallel(threads = N)</code> — exact worker count</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel(threads = N) for …</code><br><strong>What:</strong> Uses exactly <code>N</code> workers (still default task-pool backend unless you add <code>parallel:thread</code>).<br><strong>When:</strong> You need a fixed degree of parallelism regardless of CPU topology.<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_exact.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel(threads = 2) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel(threads = 2) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(order of 0–3 may vary)
+999</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-parallel-array"><code>parallel for n in array</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel for x in fixed_array { … }</code><br><strong>What:</strong> Same fork-join rules over a fixed-size array (also supports <code>string</code> bytes and <code>vec_str</code>).<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_array.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    let nums = [10, 20, 30]
+    parallel for n in nums {
+        print(n)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    let nums: [i32; 3] = [10, 20, 30]
+    parallel for n in nums {
+        print(n)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>10
+20
+30
+999</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-parallel-cpu"><code>parallel(cpu = P%)</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel(cpu = P%) for …</code><br><strong>What:</strong> Sets worker count to <code>P</code> percent of logical CPUs (from <code>cpu_count()</code>), rounded up.<br><strong>When:</strong> Share the machine with other apps — e.g. <code>cpu = 50%</code> on a 10-core box → ~5 workers.<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_cpu.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel(cpu = 50%) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel(cpu = 50%) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0
+1
+2
+3
+999</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-parallel-mode"><code>parallel(mode = …)</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>parallel(mode = auto | balanced | max_performance | background) for …</code><br><strong>What:</strong> Scheduling preset when you do not set <code>max</code> or <code>threads</code>. <code>balanced</code> uses <code>cpu_count() - 1</code>; <code>max_performance</code> uses all CPUs; <code>background</code> uses half.<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/parallel_mode.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel(mode = balanced) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel(mode = balanced) for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(order of 0–3 may vary)
+999</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-cpu-count"><code>cpu_count()</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>cpu_count() -&gt; i32</code><br><strong>What:</strong> Built-in logical CPU count from <code>rt_parallel.c</code> — used by <code>parallel for</code> worker resolution and <code>parallel(cpu = P%)</code>. No import. For AVX/brand introspection import <code>stdlib/os/cpu.ny</code> (<code>cpu_logical_cores()</code>, etc.).<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/cpu_count.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(cpu_count())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(cpu_count())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(machine-dependent — e.g. 8, 10, 12)
+10</code></pre>
+<p><strong>With <code>parallel for</code>:</strong></p>
+<pre><code>allow_extended
+parallel(threads = cpu_count() - 1) for i in 0..4 { print(i) }</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-progress"><code>progress for</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>progress(label = &quot;…&quot;) for x in items { … }</code><br><strong>What:</strong> Sequential loop with a built-in progress bar and status line each iteration. Cannot combine with <code>parallel for</code>.<br><strong>When:</strong> Long sequential batches (tests, imports, file scans) where you want visible progress without manual formatting.</p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    progress(label = &quot;demo&quot;) for i in 0..3 {
+        print(i)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    progress(label = &quot;demo&quot;) for i in 0..3 {
+        print(i)
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>[#####--------] 33%
+Running demo...
+[#########----] 66%
+Running demo...
+[#############] 100%
+Running demo...
+
+0
+1
+2</code></pre>
+<p><strong>Notes:</strong> Progress lines use carriage return (<code>\r</code>) for in-place updates; your terminal may show one bar per line when captured to a log file.<br><strong>Run:</strong> <code>nyra run examples/builtins/parallel/progress.ny</code></p>
+
+<h4 class="builtin-ex-title" id="ex-benchmark"><code>benchmark { }</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>benchmark { … }</code><br><strong>What:</strong> Measures wall time, RSS delta, and process CPU usage for a block. Lowers to <code>benchmark_begin()</code> / <code>benchmark_end()</code> in <code>stdlib/rt/rt_bench.c</code>. Requires <code>allow_extended</code>.<br><strong>When:</strong> Quick perf smoke tests without manual <code>time_start</code> / <code>mem_start</code>.<br><strong>Run:</strong> <code>nyra run examples/builtins/benchmark/benchmark.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+
+extern fn blackbox_i32(x) -&gt; i32
+
+fn run() {
+    let mut acc = 0
+    for i in 0..10000 {
+        acc = blackbox_i32(acc + i)
+    }
+    blackbox_i32(acc)
+}
+
+fn main() {
+    benchmark {
+        run()
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+
+extern fn blackbox_i32(x) -&gt; i32
+
+fn run() {
+    let mut acc: i32 = 0
+    for i in 0..10000 {
+        acc = blackbox_i32(acc + i)
+    }
+    blackbox_i32(acc)
+}
+
+fn main() -&gt; void {
+    benchmark {
+        run()
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>Time: 0.1 ms
+Memory: 0.0 B
+CPU: 98%</code></pre>
+<p><strong>Notes:</strong> Values vary by machine and load. For iteration benchmarks use <code>stdlib/bench/mod.ny</code>; for labeled timers use <a href="#ex-time"><code>time_start</code></a> / <a href="#ex-mem"><code>mem_start</code></a>.</p>
+
+<h4 class="builtin-ex-title" id="ex-defer"><code>defer</code> (scope exit)</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>defer cleanup()</code><br><strong>What:</strong> Schedules a call at scope exit (before <code>return</code> or end of block). Runs in <strong>LIFO</strong> order when multiple <code>defer</code> lines exist. Extended tier — prefer <code>impl Drop</code> for resource cleanup.<br><strong>When:</strong> One-shot FFI teardown or logging at exit; not for owned <code>string</code> (auto-drop handles that).<br><strong>Run:</strong> <code>nyra run examples/builtins/defer/defer_return.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+
+fn cleanup() {
+    print(1)
+}
+
+fn main() {
+    defer cleanup()
+    return
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+
+fn cleanup() {
+    print(1)
+}
+
+fn main() -&gt; void {
+    defer cleanup()
+    return
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
+<p><strong>Notes:</strong> <code>defer</code> runs even when <code>return</code> is reached early. See also <a href="#ex-defer-lifo">LIFO order</a> · <a href="memory.html#defer">memory → defer vs Drop</a>.</p>
+
+<h4 class="builtin-ex-title" id="ex-defer-lifo"><code>defer</code> (LIFO order)</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> multiple <code>defer</code> lines in one scope<br><strong>What:</strong> Last <code>defer</code> registered runs first — same idea as Go.<br><strong>Run:</strong> <code>nyra run examples/builtins/defer/defer_lifo.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+
+fn a() { print(&quot;a&quot;) }
+fn b() { print(&quot;b&quot;) }
+
+fn main() {
+    defer b()
+    defer a()
+    print(&quot;body&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+
+fn a() { print(&quot;a&quot;) }
+fn b() { print(&quot;b&quot;) }
+
+fn main() -&gt; void {
+    defer b()
+    defer a()
+    print(&quot;body&quot;)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>body
+a
+b</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-async-fn"><code>async fn</code> + <code>await</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>async fn compute() -&gt; i32 { … }</code> and <code>await h</code><br><strong>What:</strong> Calling an <code>async fn</code> returns a promise handle immediately; the body runs on <code>spawn:thread</code>. <code>await</code> blocks the caller until the value is ready. Requires <code>import "stdlib/async_v1.ny"</code> for executor helpers. Not on <code>wasm32-wasi</code>.<br><strong>Run:</strong> <code>nyra run examples/builtins/async/async_spawn.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
+
+async fn compute(){
+    return 42
+}
+
+fn main() {
+    let h = compute()
+    print(await h)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
+
+async fn compute(){
+    return 42
+}
+
+fn main() -&gt; void {
+    let h = compute()
+    print(await h)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>42</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-await"><code>await</code> (state machine)</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> multiple <code>await</code> inside one <code>async fn</code><br><strong>What:</strong> Compiler lowers to cooperative <code>async_poll</code> + <code>runtime_executor_tick</code> (v1.6–v1.7). <code>await</code> inside bare <code>spawn</code> still uses blocking <code>async_await</code>.<br><strong>Run:</strong> <code>nyra run examples/builtins/async/async_state_machine.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
+
+async fn chain(){
+    let _ = await Executor_sleep_ms(5)
+    let _ = await Executor_sleep_ms(5)
+    return 100
+}
+
+fn main() {
+    let h = chain()
+    print(await h)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
+
+async fn chain(){
+    let _ = await Executor_sleep_ms(5)
+    let _ = await Executor_sleep_ms(5)
+    return 100
+}
+
+fn main() -&gt; void {
+    let h = chain()
+    print(await h)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>100</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-async-future"><code>async fn</code> → <code>Future&lt;string&gt;</code></h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> typed <code>async fn greet() -&gt; string</code> with <code>stdlib/async/future.ny</code><br><strong>What:</strong> Call site gets <code>Future_string</code>; <code>await</code> yields <code>string</code>. v1.26+ typed futures.<br><strong>Run:</strong> <code>nyra run examples/builtins/async/async_future_string.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+import &quot;stdlib/async/future.ny&quot;
+
+async fn greet(){
+    let h = Executor_sleep_ms(10)
+    await h
+    return &quot;Nyra async v2&quot;
+}
+
+fn main() {
+    let f = greet()
+    print(await f)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+import &quot;stdlib/async/future.ny&quot;
+
+async fn greet(){
+    let h = Executor_sleep_ms(10)
+    await h
+    return &quot;Nyra async v2&quot;
+}
+
+fn main() -&gt; void {
+    let f = greet()
+    print(await f)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>Nyra async v2</code></pre>
+<p>Full async guide: <a href="async.html">async.html</a></p>
+
+<h4 class="builtin-ex-title" id="ex-for-in"><code>for s in split_list</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let parts = &quot;a,b&quot;.split(&quot;,&quot;)
+    for s in parts {
+        print(s)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let parts: VecStr = &quot;a,b&quot;.split(&quot;,&quot;)
+    for s in parts {
+        print(s)
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>a
+b</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-length"><code>.len() on split</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let parts = &quot;x,y&quot;.split(&quot;,&quot;)
+    print(parts.length())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let parts: VecStr = &quot;x,y&quot;.split(&quot;,&quot;)
+    print(parts.length())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-array-filter"><code>Array_filter</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn is_even(x){
+    if x % 2 == 0 {
+        return 1
+    }
+    return 0
+}
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    Array_push(v, 3)
+    let evens = Array_filter(v, is_even)
+    print(Vec_i32_len(evens))
+    print(Vec_i32_get(evens, 0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn is_even(x: i32){
+    if x % 2 == 0 {
+        return 1
+    }
+    return 0
+}
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    Array_push(v, 3)
+    let evens: ptr = Array_filter(v, is_even)
+    print(Vec_i32_len(evens))
+    print(Vec_i32_get(evens, 0))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-array-find"><code>Array_find</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn is_two(x){
+    if x == 2 {
+        return 1
+    }
+    return 0
+}
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    print(Array_find(v, is_two, -1))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn is_two(x: i32){
+    if x == 2 {
+        return 1
+    }
+    return 0
+}
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    print(Array_find(v, is_two, -1))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-array-map"><code>Array_map</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn double(x){
+    return x * 2
+}
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 3)
+    Array_push(v, 4)
+    let out = Array_map(v, double)
+    print(Vec_i32_get(out, 0))
+    print(Vec_i32_get(out, 1))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn double(x: i32){
+    return x * 2
+}
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 3)
+    Array_push(v, 4)
+    let out: ptr = Array_map(v, double)
+    print(Vec_i32_get(out, 0))
+    print(Vec_i32_get(out, 1))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>6
+8</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-array-pop"><code>Array_pop</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 10)
+    Array_push(v, 20)
+    print(Array_pop(v))
+    print(Vec_i32_len(v))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 10)
+    Array_push(v, 20)
+    print(Array_pop(v))
+    print(Vec_i32_len(v))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>20
+1</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-array-push"><code>Array_push</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    print(Vec_i32_len(v))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 1)
+    Array_push(v, 2)
+    print(Vec_i32_len(v))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-array-reduce"><code>Array_reduce</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn add(acc, x){
+    return acc + x
+}
+
+fn main() {
+    let v = Vec_i32_new()
+    Array_push(v, 10)
+    Array_push(v, 20)
+    print(Array_reduce(v, 0, add))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn add(acc: i32, x: i32){
+    return acc + x
+}
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Array_push(v, 10)
+    Array_push(v, 20)
+    print(Array_reduce(v, 0, add))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>30</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-json-parse"><code>JSON_parse</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_json.ny&quot;
+
+fn main() {
+    let raw = JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;)
+    print(JSON_parse(raw, &quot;name&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_json.ny&quot;
+
+fn main() -&gt; void {
+    let raw: string = JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;)
+    print(JSON_parse(raw, &quot;name&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>hamdy</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-json-stringify"><code>JSON_stringify</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_json.ny&quot;
+
+fn main() {
+    print(JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_json.ny&quot;
+
+fn main() -&gt; void {
+    print(JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>{&quot;name&quot;:&quot;hamdy&quot;}</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-ceil"><code>Math_ceil</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_ceil(7))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_ceil(7))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>7</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-floor"><code>Math_floor</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_floor(7))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_floor(7))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>7</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-max"><code>Math_max</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_max(10, 3))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_max(10, 3))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>10</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-min"><code>Math_min</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_min(10, 3))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_min(10, 3))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-random"><code>Math_random</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_random())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_random())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(varies each run — ChaCha20 stream)
+0.596374
+…</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-math-round"><code>Math_round</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() {
+    print(Math_round(7))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_math.ny&quot;
+
+fn main() -&gt; void {
+    print(Math_round(7))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>7</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-random"><code>random / random_f64</code> (compiler builtins)</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>random()</code>, <code>random(min, max)</code>, <code>random_f64()</code>, <code>random_f64(min, max)</code><br><strong>What:</strong> ChaCha20 CSPRNG (hardware-seeded). Integer <code>random</code> is <strong>generic</strong> — return type follows bounds. <strong>No import required.</strong><br><strong>Run:</strong> <code>nyra run examples/builtins/stdlib/random_builtin.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(random())
+    print(random(1, 6))
+    print(random_f64())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(random())
+    print(random(1, 6))
+    print(random_f64())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(varies each run — ChaCha20 stream)
+1203703274
+1
+0.760557
+…</code></pre>
+<p><strong>Removed (v1.39):</strong> <code>Random()</code> and <code>random_range()</code> — use <code>random()</code> / <code>random(min, max)</code> instead.</p>
+
+<h4 class="builtin-ex-title" id="ex-shuffle-pick"><code>shuffle_pick</code> (import required)</h4>
+<p class="builtin-ex-desc"><strong>Name:</strong> <code>shuffle_pick(vec) -&gt; i32</code> from <code>stdlib/random.ny</code><br><strong>What:</strong> Returns a random element from an <code>i32</code> vector handle.<br><strong>Run:</strong> <code>nyra run examples/builtins/stdlib/shuffle_pick.ny</code></p>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/random.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = Vec_i32_new()
+    Vec_i32_push(v, 10)
+    Vec_i32_push(v, 20)
+    Vec_i32_push(v, 30)
+    print(shuffle_pick(v))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/random.ny&quot;
+import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Vec_i32_push(v, 10)
+    Vec_i32_push(v, 20)
+    Vec_i32_push(v, 30)
+    print(shuffle_pick(v))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(varies — one of 10, 20, 30)
+20</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-includes"><code>String_includes</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() {
+    print(String_includes(&quot;hello&quot;, &quot;ell&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() -&gt; void {
+    print(String_includes(&quot;hello&quot;, &quot;ell&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-replace"><code>String_replace</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() {
+    print(String_replace(&quot;foo-bar&quot;, &quot;bar&quot;, &quot;baz&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() -&gt; void {
+    print(String_replace(&quot;foo-bar&quot;, &quot;bar&quot;, &quot;baz&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>foo-baz</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-split"><code>String_split</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+import &quot;stdlib/vec_str.ny&quot;
+
+fn main() {
+    let parts = String_split(&quot;a,b&quot;, &quot;,&quot;)
+    print(Vec_str_len(parts))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+import &quot;stdlib/vec_str.ny&quot;
+
+fn main() -&gt; void {
+    let parts = String_split(&quot;a,b&quot;, &quot;,&quot;)
+    print(Vec_str_len(parts))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-to-lower"><code>String_toLowerCase</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() {
+    print(String_toLowerCase(&quot;NYRA&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() -&gt; void {
+    print(String_toLowerCase(&quot;NYRA&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>nyra</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-to-upper"><code>String_toUpperCase</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() {
+    print(String_toUpperCase(&quot;nyra&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() -&gt; void {
+    print(String_toUpperCase(&quot;nyra&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>NYRA</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string-trim"><code>trim</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() {
+    print(trim(&quot;  hi  &quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() -&gt; void {
+    print(trim(&quot;  hi  &quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>hi</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-string"><code>String helpers</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() {
+    let s = &quot;  Nyra Lang  &quot;
+    print(String_toUpperCase(clone s))
+    print(String_toLowerCase(clone s))
+    print(String_includes(clone s, &quot;Lang&quot;))
+    let parts = &quot;a,b,c&quot;.split(&quot;,&quot;)
+    print(parts.length())
+    print(String_replace(&quot;hello world&quot;, &quot;world&quot;, &quot;nyra&quot;))
+    print(trim(clone s))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_string.ny&quot;
+
+fn main() -&gt; void {
+    let s: string = &quot;  Nyra Lang  &quot;
+    print(String_toUpperCase(clone s))
+    print(String_toLowerCase(clone s))
+    print(String_includes(clone s, &quot;Lang&quot;))
+    let parts: VecStr = &quot;a,b,c&quot;.split(&quot;,&quot;)
+    print(parts.length())
+    print(String_replace(&quot;hello world&quot;, &quot;world&quot;, &quot;nyra&quot;))
+    print(trim(clone s))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>  NYRA LANG  
+  nyra lang  
+1
+3
+hello nyra
+Nyra Lang</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-clone"><code>clone</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let s = &quot;copy me&quot;
+    let c = clone s
+    print(c)
+    print(s)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let s: string = &quot;copy me&quot;
+    let c: string = clone s
+    print(c)
+    print(s)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>copy me
+copy me</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-contains"><code>.contains()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.contains(&quot;ell&quot;))
+    print(&quot;hello&quot;.contains(&quot;xyz&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.contains(&quot;ell&quot;))
+    print(&quot;hello&quot;.contains(&quot;xyz&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-ends-with"><code>.ends_with()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.ends_with(&quot;llo&quot;))
+    print(&quot;hello&quot;.ends_with(&quot;xyz&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.ends_with(&quot;llo&quot;))
+    print(&quot;hello&quot;.ends_with(&quot;xyz&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-len"><code>.len()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;abc&quot;.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;abc&quot;.len())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-length"><code>.length()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;abc&quot;.length())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;abc&quot;.length())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-replace"><code>.replace()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;foo-bar&quot;.replace(&quot;bar&quot;, &quot;baz&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;foo-bar&quot;.replace(&quot;bar&quot;, &quot;baz&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>foo-baz</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-split"><code>.split()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let parts = &quot;a,b,c&quot;.split(&quot;,&quot;)
+    print(parts.length())
+    for p in parts {
+        print(p)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let parts: VecStr = &quot;a,b,c&quot;.split(&quot;,&quot;)
+    print(parts.length())
+    for p in parts {
+        print(p)
+    }
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>3
+a
+b
+c</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-starts-with"><code>.starts_with()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.starts_with(&quot;hel&quot;))
+    print(&quot;hello&quot;.starts_with(&quot;xyz&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.starts_with(&quot;hel&quot;))
+    print(&quot;hello&quot;.starts_with(&quot;xyz&quot;))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-to-lower"><code>.to_lower()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;NYRA&quot;.to_lower())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;NYRA&quot;.to_lower())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>nyra</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-to-upper"><code>.to_upper()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;Nyra&quot;.to_upper())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;Nyra&quot;.to_upper())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>NYRA</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-trim"><code>.trim()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;  hello  &quot;.trim())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;  hello  &quot;.trim())
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-strvec"><code>StrVec</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec_str.ny&quot;
+
+fn main() {
+    let mut v = StrVec_new()
+    v = v.push(&quot;alpha&quot;)
+    v = v.push(&quot;beta&quot;)
+    print(v.len())
+    print(v.get(0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec_str.ny&quot;
+
+fn main() -&gt; void {
+    let mut v = StrVec_new()
+    v = v.push(&quot;alpha&quot;)
+    v = v.push(&quot;beta&quot;)
+    print(v.len())
+    print(v.get(0))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2
+alpha</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-mem"><code>mem_start / mem_end</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    mem_start(&quot;work&quot;)
+    let mut sum = 0
+    for i in 0..1000 {
+        sum = sum + i
+    }
+    mem_end(&quot;work&quot;)
+    print(sum)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    mem_start(&quot;work&quot;)
+    let mut sum: i32 = 0
+    for i in 0..1000 {
+        sum = sum + i
+    }
+    mem_end(&quot;work&quot;)
+    print(sum)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(timing / RSS vary by machine)
+work: RSS +0.000 B
+499500</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-time"><code>time_start / time_end</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    time_start(&quot;work&quot;)
+    let mut sum = 0
+    for i in 0..1000 {
+        sum = sum + i
+    }
+    time_end(&quot;work&quot;)
+    print(sum)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    time_start(&quot;work&quot;)
+    let mut sum: i32 = 0
+    for i in 0..1000 {
+        sum = sum + i
+    }
+    time_end(&quot;work&quot;)
+    print(sum)
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>(timing / RSS vary by machine)
+work: 791.666667 ns
+499500</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-vec"><code>Vec_i32</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = Vec_i32_new()
+    Vec_i32_push(v, 10)
+    Vec_i32_push(v, 20)
+    print(Vec_i32_len(v))
+    print(Vec_i32_get(v, 0))
+    print(Vec_i32_pop(v))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v: ptr = Vec_i32_new()
+    Vec_i32_push(v, 10)
+    Vec_i32_push(v, 20)
+    print(Vec_i32_len(v))
+    print(Vec_i32_get(v, 0))
+    print(Vec_i32_pop(v))
+}</code></pre></div>
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>2
+10
+20</code></pre>
+</section>
+<!-- BUILTIN_CODE_TABS_END -->
+
+      <p>Module reference: <a href="stdlib.html">Standard library</a> · Concurrency: <a href="concurrency.html">Concurrency</a></p>
+
+      <footer class="site-footer"><a href="stdlib.html">Standard library →</a> · <a href="reference.html">Language reference →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

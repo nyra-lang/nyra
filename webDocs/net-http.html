@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>net/http — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="net-http">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a class="active" href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1>net/http</h1>
+      <p class="lead">Modern HTTP/1.1 client and routed server for Nyra — inspired by Go’s <code>net/http</code>, built on native TCP + optional TLS.</p>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2>Architecture</h2>
+      <pre><code>stdlib/net/http/
+  mod.ny         — public entry (Router, listen_and_serve_handlers, client verbs)
+  types.ny       — HttpRequest, HttpResponse, Server, Client, Router
+  client.ny      — GET, POST, PUT, PATCH, DELETE, HEAD
+  server.ny      — listen, keep-alive, dispatch, CORS helpers
+  request.ny     — parse incoming requests
+  response.ny    — status lines, JSON helpers</code></pre>
+      <p>Routing and middleware helpers live in <code>mod.ny</code> / <code>server.ny</code> (no separate <code>router.ny</code> file).</p>
+
+      <h2>HTTP client</h2>
+      <p>All verbs return <code>HttpResponse</code> except <code>get(url)</code> / <code>fetch(url)</code>, which return the response body as a <code>string</code>.</p>
+      <table>
+        <thead><tr><th>Function</th><th>Returns</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only; HTTPS auto via TLS</td></tr>
+          <tr><td><code>fetch(url)</code></td><td><code>string</code></td><td>Alias for <code>get</code></td></tr>
+          <tr><td><code>post(url, body)</code></td><td><code>HttpResponse</code></td><td><code>Content-Type: application/json</code></td></tr>
+          <tr><td><code>put(url, body)</code></td><td><code>HttpResponse</code></td><td>Full request/response</td></tr>
+          <tr><td><code>patch(url, body)</code></td><td><code>HttpResponse</code></td><td>PATCH support</td></tr>
+          <tr><td><code>delete(url)</code></td><td><code>HttpResponse</code></td><td>DELETE support</td></tr>
+          <tr><td><code>head(url)</code></td><td><code>HttpResponse</code></td><td>Status + headers, empty body</td></tr>
+          <tr><td><code>http_request(method, url, body, ct)</code></td><td><code>HttpResponse</code></td><td>Low-level core</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Client example</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/http/mod.ny&quot;
+
+fn main() {
+    let client = Client_default()
+    let resp = client.do_post(&quot;https://example.com/api&quot;, &quot;{\&quot;name\&quot;:\&quot;Nyra\&quot;}&quot;)
+    if resp.status == 201 {
+        print(resp.body)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/http/mod.ny&quot;
+
+fn main() -&gt; void {
+    let client = Client_default()
+    let resp = client.do_post(&quot;https://example.com/api&quot;, &quot;{\&quot;name\&quot;:\&quot;Nyra\&quot;}&quot;)
+    if resp.status == 201 {
+        print(resp.body)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2>HttpResponse</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td><code>i32</code></td><td>HTTP status code</td></tr>
+          <tr><td><code>body</code></td><td><code>string</code></td><td>Response payload</td></tr>
+          <tr><td><code>content_type</code></td><td><code>string</code></td><td>MIME type</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Router</h2>
+      <p>Routes are keyed by <code>METHOD:path</code> (e.g. <code>GET:/health</code>). Register handlers with free functions:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let router = Router_new()
+let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;)
+let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;)
+let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let router = Router_new()
+let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;)
+let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;)
+let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;)</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Router_new()</code></td><td>Empty router, default 404 JSON</td></tr>
+          <tr><td><code>Router_add_get(router, path, body)</code></td><td>Register GET handler body</td></tr>
+          <tr><td><code>Router_add_post(router, path, body)</code></td><td>Register POST handler body</td></tr>
+          <tr><td><code>Router_add_put(router, path, body)</code></td><td>Register PUT handler body</td></tr>
+          <tr><td><code>Router_add_patch(router, path, body)</code></td><td>Register PATCH handler body</td></tr>
+          <tr><td><code>Router_add_delete(router, path, body)</code></td><td>Register DELETE handler body</td></tr>
+          <tr><td><code>HandleFunc(router, method, path, body)</code></td><td>Register by method constant</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Server</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let server = Server_with_router(&quot;127.0.0.1&quot;, 8080, router)
+let s2 = Server_enable_cors(server)
+Server_listen(s2, router)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let server = Server_with_router(&quot;127.0.0.1&quot;, 8080, router)
+let s2 = Server_enable_cors(server)
+Server_listen(s2, router)</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch (v1.2)</h3>
+      <p>Register integer <strong>slots</strong> and pass a Nyra function <code>fn(i32, RequestContext) -&gt; HttpResponse</code>. Use for dynamic logic instead of static response bodies.</p>
+      <!-- NYRA_SNIPPET_SKIP -->
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn health_slot(slot, ctx) {
+    return response_ok_json(&quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;)
+}
+
+fn main() {
+    let router = Router_new()
+    let r = Router_add_slot_get(router, &quot;/health&quot;, 0)
+    listen_and_serve_handlers(&quot;127.0.0.1&quot;, 8080, r, health_slot)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn health_slot(slot: i32, ctx: RequestContext) -&gt; i32 {
+    return response_ok_json(&quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;)
+}
+
+fn main() -&gt; void {
+    let router = Router_new()
+    let r = Router_add_slot_get(router, &quot;/health&quot;, 0)
+    listen_and_serve_handlers(&quot;127.0.0.1&quot;, 8080, r, health_slot)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Arrow handler alternative (Extended): <code>(ctx: RequestContext) =&gt; response_ok_json("{\"status\":\"ok\"}")</code> when compiled with arrow support.</p>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Router_add_slot_get(router, path, slot)</code></td><td>Map GET path to handler slot id</td></tr>
+          <tr><td><code>Router_add_slot_post(router, path, slot)</code></td><td>Map POST path to slot</td></tr>
+          <tr><td><code>Router_match_slot(router, ctx)</code></td><td>Resolve slot for request (used internally)</td></tr>
+          <tr><td><code>listen_and_serve_handlers(host, port, router, dispatch)</code></td><td>Listen with custom handler function</td></tr>
+          <tr><td><code>Server_handle_one_handler(...)</code></td><td>Single connection + handler dispatch</td></tr>
+        </tbody>
+      </table>
+
+      <table>
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Server_with_router(host, port, router)</code></td><td>Bind address + route table</td></tr>
+          <tr><td><code>Server_enable_cors(server)</code></td><td>Attach CORS headers + OPTIONS preflight</td></tr>
+          <tr><td><code>Server_listen(server, router)</code></td><td>Accept one connection, handle up to 100 keep-alive requests</td></tr>
+          <tr><td><code>serve_once(host, port, body)</code></td><td>Quick one-shot <code>/</code> + <code>/health</code> server</td></tr>
+          <tr><td><code>listen_and_serve(host, port, router)</code></td><td>Shorthand for listen</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Response helpers</h2>
+      <table>
+        <thead><tr><th>Function</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><code>response_ok_json(body)</code></td><td>200</td></tr>
+          <tr><td><code>response_created_json(body)</code></td><td>201</td></tr>
+          <tr><td><code>response_no_content()</code></td><td>204</td></tr>
+          <tr><td><code>response_not_found()</code></td><td>404 JSON error</td></tr>
+          <tr><td><code>response_bad_request()</code></td><td>400</td></tr>
+          <tr><td><code>response_unauthorized()</code></td><td>401</td></tr>
+          <tr><td><code>response_internal_error()</code></td><td>500</td></tr>
+          <tr><td><code>build_response(resp, keep_alive)</code></td><td>Raw HTTP/1.1 bytes</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Request lifecycle</h2>
+      <ol>
+        <li>TCP accept on <code>host:port</code></li>
+        <li>Read raw HTTP/1.1 request (headers + body)</li>
+        <li>Parse into <code>RequestContext</code> (method, path, query, body)</li>
+        <li>Log request line (<code>middleware_log</code>)</li>
+        <li>Match route in router → build <code>HttpResponse</code></li>
+        <li>Apply CORS headers if enabled</li>
+        <li>Write response; repeat on keep-alive until close or 100 requests</li>
+      </ol>
+
+      <h2>Method constants</h2>
+      <p><code>METHOD_GET</code>, <code>METHOD_POST</code>, <code>METHOD_PUT</code>, <code>METHOD_DELETE</code>, <code>METHOD_PATCH</code>, <code>METHOD_HEAD</code>, <code>METHOD_OPTIONS</code></p>
+
+      <h2>Other networking (stdlib)</h2>
+      <p>Beyond HTTP/1.1, the stdlib ships:</p>
+      <table>
+        <thead><tr><th>Module</th><th>API</th></tr></thead>
+        <tbody>
+          <tr><td><code>stdlib/net/udp.ny</code></td><td><code>UdpSocket_bind</code>, <code>send</code>, <code>recv</code></td></tr>
+          <tr><td><code>stdlib/net/websocket.ny</code></td><td><code>WebSocket_connect</code>, <code>send</code>, <code>recv</code> (client, RFC 6455 text)</td></tr>
+          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_listen</code>, <code>tls_accept</code> (OpenSSL)</td></tr>
+          <tr><td><code>stdlib/net/smtp.ny</code></td><td><code>Smtp_send</code></td></tr>
+          <tr><td><code>stdlib/net/mail.ny</code></td><td><code>Mail_send</code>, <code>Mail_message</code></td></tr>
+          <tr><td><code>stdlib/net/rpc.ny</code></td><td>JSON-RPC 2.0 helpers</td></tr>
+        </tbody>
+      </table>
+      <p>Full inventory: <a href="stdlib.html#net-http">stdlib → Net, HTTP, WebSocket</a></p>
+
+      <h2>Legacy imports</h2>
+      <p><code>stdlib/http/mod.ny</code> and <code>stdlib/http.ny</code> re-export this module. <code>HttpServer</code> wraps <code>Server_listen</code> for older examples.</p>
+
+      <h2>Production APIs</h2>
+      <p>Build services with handler slots (<code>examples/net_http_smoke.ny</code>), <code>stdlib/db/*</code>, and NyraPkg drivers (<code>ny-postgres</code>, <code>ny-redis</code>). See <a href="stdlib.html#net-http">Standard library → net/http</a> and <a href="packages.html">NyraPkg</a>.</p>
+
+      <footer class="site-footer"><a href="stdlib.html">← Standard library</a> · <a href="async.html">Async →</a></footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- After <body>: nav checkbox, then header with toolbar + mobile toggle -->
+<input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+<header class="site-header">
+  <a class="logo" href="index.html">
+    <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+  </a>
+  <div class="site-toolbar">
+    <div class="toolbar-group" role="group" aria-label="Theme">
+      <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+        <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+        <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+      </button>
+    </div>
+    <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+      <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+      <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+    </div>
+  </div>
+  <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+    <span></span><span></span><span></span>
+  </label>
+  <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+</header>
+<label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>

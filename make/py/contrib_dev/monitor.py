@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .paths import ROOT
 from .spec import RecipeResult
+from .terminal_style import ACCENT, MUTED, RESET, TITLE, box_bottom, box_top, hint_line, menu_item, use_color
 from .tiger_banner import play_tiger_intro
 from .wizard_guide import GUIDES, monitor_sections
 
@@ -86,31 +87,38 @@ def print_recipe_monitor(result: RecipeResult) -> None:
 
 def print_hub_banner() -> None:
     play_tiger_intro()
-    print("  make contribute — Nyra contributor hub")
-    print("  Step-by-step monitor — TOOL wires, YOU code")
+    color = use_color()
+
+    if color:
+        print(f"  {TITLE}make contribute{RESET} {MUTED}— Nyra contributor hub{RESET}")
+        print(f"  {MUTED}Step-by-step monitor — {ACCENT}TOOL{RESET}{MUTED} wires, {ACCENT}YOU{RESET}{MUTED} code{RESET}")
+    else:
+        print("  make contribute — Nyra contributor hub")
+        print("  Step-by-step monitor — TOOL wires, YOU code")
     print()
-    print("┌─────────────────────────────────────────────┐")
-    print("│ 1. Stdlib Pure Function (Pattern A)         │")
-    print("│    Nyra fn in stdlib — no new C             │")
-    print("│ 2. Stdlib Extern + C (Pattern B)            │")
-    print("│    extern fn + rt/*.c + runtime_map         │")
-    print("│ 3. Built-in Method (.method)                │")
-    print("│    → make add-builtin wizard                │")
-    print("│ 4. Test + Example Pair                      │")
-    print("│    tests/nyra/* + examples/* (typed pair)   │")
-    print("│ 5. NyraPkg Package                          │")
-    print("│    examples/packages/<name>/                │")
-    print("│ 6. CLI Command / Flag                       │")
-    print("│    scaffold → manual wire in cli/           │")
-    print("│ 7. Conformance Test                         │")
-    print("│    pass/ or fail/ language contract         │")
-    print("│ 8. Syntax / Keyword Scaffold                │")
-    print("│    checklist — no auto lexer/parser         │")
-    print("└─────────────────────────────────────────────┘")
+
+    w = 45
+    items = (
+        ("1", "Stdlib Pure Function", "(Pattern A)", "Nyra fn in stdlib — no new C"),
+        ("2", "Stdlib Extern + C", "(Pattern B)", "extern fn + rt/*.c + runtime_map"),
+        ("3", "Built-in Method", "(.method)", "→ make add-builtin wizard"),
+        ("4", "Test + Example Pair", "", "tests/nyra/* + examples/* (typed pair)"),
+        ("5", "NyraPkg Package", "", "examples/packages/<name>/"),
+        ("6", "CLI Command / Flag", "", "scaffold → manual wire in cli/"),
+        ("7", "Conformance Test", "", "pass/ or fail/ language contract"),
+        ("8", "Syntax / Keyword Scaffold", "", "checklist — no auto lexer/parser"),
+    )
+
+    print(box_top(width=w, color=color))
+    for num, title, tag, hint in items:
+        t_row, h_row = menu_item(num, title, tag, hint, width=w, color=color)
+        print(t_row)
+        print(h_row)
+    print(box_bottom(width=w, color=color))
     print()
-    print("  Type 1–8, then answer each question (WHY / TOOL / YOU shown).")
-    print("  Preview + confirm before any file is written.")
-    print("  Docs: CONTRIBUTING.md § Contributor hub guide")
+    print(hint_line("Type 1–8, then answer each question (WHY / TOOL / YOU shown).", color=color))
+    print(hint_line("Preview + confirm before any file is written.", color=color))
+    print(hint_line("Docs: CONTRIBUTING.md § Contributor hub guide", color=color))
     print()
 
 

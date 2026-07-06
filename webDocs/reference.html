@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Language reference — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="reference">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a class="active" href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.reference.h1">Language reference</h1>
+      <p class="lead" data-i18n-html="pages.reference.lead">Keywords, operators, literals, and quick lookup — everything the lexer and parser accept today.</p>
+
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <ul>
+          <li><a href="#keywords">Keywords</a></li>
+          <li><a href="#types">Type names</a></li>
+          <li><a href="#comments">Comments</a></li>
+          <li><a href="#literals">Literals</a></li>
+          <li><a href="#operators">Operators</a></li>
+          <li><a href="#statements">Statements</a></li>
+          <li><a href="#expressions">Expressions</a></li>
+          <li><a href="#ownership">Ownership quick ref</a></li>
+          <li><a href="#ownership-ux">Ownership UX (v2.8+)</a></li>
+          <li><a href="#lifetimes">Lifetimes &amp; HRTB</a></li>
+          <li><a href="#traits">Traits (Drop)</a></li>
+          <li><a href="#unsafe">Unsafe &amp; raw pointers</a></li>
+          <li><a href="#pipeline">Compiler pipeline</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="keywords">Keywords</h2>
+      <p>Full reserved-word list, <code>@</code> raw identifiers, and <code>#[…]</code> attributes: <a href="keywords.html">Nyra Keywords</a>.</p>
+      <table>
+        <thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>fn</code></td><td>Function definition</td></tr>
+          <tr><td><code>let</code> / <code>let mut</code></td><td>Immutable / mutable binding</td></tr>
+          <tr><td><code>const</code></td><td>Compile-time constant name</td></tr>
+          <tr><td><code>comptime</code></td><td>Optional compile-time evaluation — file module, <code>#[comptime]</code>, or <code>comptime { }</code> block (<a href="comptime.html">guide</a>)</td></tr>
+          <tr><td><code>if</code> / <code>else</code></td><td>Conditional</td></tr>
+          <tr><td><code>while</code></td><td>Loop</td></tr>
+          <tr><td><code>for</code> / <code>in</code></td><td>Range loop: <code>for i in 0..10</code></td></tr>
+          <tr><td><code>return</code></td><td>Return from function</td></tr>
+          <tr><td><code>match</code></td><td>Pattern match on enums / values</td></tr>
+          <tr><td><code>struct</code> / <code>enum</code></td><td>User-defined types</td></tr>
+          <tr><td><code>impl</code></td><td>Methods on a type; <code>impl Trait for Type</code></td></tr>
+          <tr><td><code>for</code> (in types)</td><td>HRTB binder: <code>for&lt;'a&gt; fn(...)</code></td></tr>
+          <tr><td><code>import</code></td><td>Load another <code>.ny</code> file</td></tr>
+          <tr><td><code>module</code></td><td>Module declaration (parsed)</td></tr>
+          <tr><td><code>extern</code> / <code>export</code></td><td>FFI declare / export symbol</td></tr>
+          <tr><td><code>test</code></td><td>Test function</td></tr>
+          <tr><td><code>print</code></td><td>Built-in stdout (keyword); optional <code>color:</code> for ANSI output</td></tr>
+          <tr><td><code>spawn</code></td><td>Concurrent block</td></tr>
+          <tr><td><code>defer</code></td><td>Scope-exit call (LIFO) — <strong>Extended</strong>; prefer auto-drop / <code>impl Drop</code></td></tr>
+          <tr><td><code>unsafe</code></td><td>Block for raw memory (deref, ptr arithmetic, raw casts)</td></tr>
+          <tr><td><code>asm</code></td><td>Inline assembly: <code>asm "template"</code> (inside <code>unsafe</code>)</td></tr>
+          <tr><td><code>as</code></td><td>Type cast: <code>expr as Type</code> (raw casts need <code>unsafe</code>)</td></tr>
+          <tr><td><code>no_std</code></td><td>Top-level directive — skip <code>nyra_rt</code> link; no <code>print</code>/<code>spawn</code></td></tr>
+          <tr><td><code>move</code> / <code>clone</code></td><td>Unary prefixes at call sites — explicit move or clone (v2.9)</td></tr>
+          <tr><td><code>async</code> / <code>await</code></td><td>Stable Extended — promises + <code>await</code>; not on wasm32</td></tr>
+          <tr><td><code>trait</code> / <code>dyn</code></td><td>Stable Extended — <code>impl Trait for Type</code>, trait objects <code>dyn Trait</code></td></tr>
+          <tr><td><code>macro</code></td><td>Extended — parsed and expanded</td></tr>
+          <tr><td><code>self</code></td><td>Method receiver in <code>impl</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Built-in call names (no import)</h3>
+      <p>Resolved in the typechecker like keywords. Full lookup: <a href="methods.html">Built-in methods</a> · <a href="stdlib.html#builtins">Standard library → Built-ins</a>.</p>
+      <ul>
+        <li><code>print</code>, <code>write</code>, <code>println</code>, <code>flush</code>, <code>input</code></li>
+        <li><code>date()</code> — returns <code>Date</code> with <code>.year</code>, <code>.month</code>, <code>.day</code>, <code>.hour</code>, …</li>
+        <li><code>time_start</code>, <code>time_end</code>, <code>mem_start</code>, <code>mem_end</code></li>
+      </ul>
+      <p>String methods (no import): <code>.length()</code>, <code>.split()</code>, <code>.trim()</code>, <code>.contains()</code>, <code>.replace()</code>, <code>.to_upper()</code>, … — see <a href="methods.html#strings">Built-in methods → Strings</a>.</p>
+
+      <h2 id="types">Type names</h2>
+      <p>Every type Nyra supports in source annotations and inference. All optional unless inference fails.</p>
+      <table>
+        <thead><tr><th>Type</th><th>Ownership</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>i8</code> … <code>i128</code></td><td>Copy</td><td>Signed integers; <code>i32</code> default for int literals</td></tr>
+          <tr><td><code>u8</code> … <code>u128</code></td><td>Copy</td><td>Unsigned integers</td></tr>
+          <tr><td><code>isize</code>, <code>usize</code></td><td>Copy</td><td>Pointer-sized integers</td></tr>
+          <tr><td><code>f32</code></td><td>Copy</td><td>IEEE-754 single (LLVM <code>float</code>); suffix <code>f32</code></td></tr>
+          <tr><td><code>f64</code></td><td>Copy</td><td>IEEE-754 double (LLVM <code>double</code>); default float literal</td></tr>
+          <tr><td><code>char</code></td><td>Copy</td><td>Unicode scalar; <code>'a'</code>, <code>'\n'</code></td></tr>
+          <tr><td><code>bool</code></td><td>Copy</td><td><code>true</code> / <code>false</code></td></tr>
+          <tr><td><code>string</code></td><td>Move</td><td>UTF-8 bytes; literals static, heap values auto-dropped</td></tr>
+          <tr><td><code>VecStr</code></td><td>Copy (handle)</td><td><code>.split(sep)</code> result; <code>for x in parts</code>; optional annotation</td></tr>
+          <tr><td><code>void</code></td><td>—</td><td>Function with no return value</td></tr>
+          <tr><td><code>ptr</code></td><td>Copy</td><td>Opaque FFI handle (<code>Send</code>)</td></tr>
+          <tr><td><code>*T</code></td><td>Copy</td><td>Typed raw pointer (<code>!Send</code> / <code>!Sync</code>)</td></tr>
+          <tr><td><code>&amp;T</code> / <code>&amp;mut T</code></td><td>Borrow</td><td>Immutable / mutable reference</td></tr>
+          <tr><td><code>&amp;'a T</code></td><td>Borrow</td><td>Explicit lifetime on reference (Extended)</td></tr>
+          <tr><td><code>for&lt;'a&gt; fn(...)</code></td><td>—</td><td>Higher-ranked function pointer type (Extended)</td></tr>
+          <tr><td><code>[T; N]</code></td><td>Depends on <code>T</code></td><td>Fixed-size array</td></tr>
+          <tr><td><code>(T, U, …)</code></td><td>Depends on fields</td><td>Tuple</td></tr>
+          <tr><td><code>Vec&lt;T&gt;</code></td><td>Depends on <code>T</code></td><td>Stdlib growable vector (monomorphized)</td></tr>
+          <tr><td><code>StructName</code></td><td>Copy or Move</td><td>Auto-Copy when all fields Copy; Move if any field is Move</td></tr>
+          <tr><td><code>EnumName</code></td><td>Copy</td><td>Enum tag + optional payload</td></tr>
+          <tr><td><code>option</code> / <code>result</code></td><td>Copy</td><td>Built-in enum tags</td></tr>
+          <tr><td><code>T</code> (generic param)</td><td>—</td><td>Inferred at generic call site when omitted</td></tr>
+          <tr><td><code>Struct Send Sync</code></td><td>—</td><td>Thread-safety markers on struct declaration</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="comments">Comments</h2>
+      <table>
+        <thead><tr><th>Form</th><th>Example</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Line</td><td><code>// comment to EOL</code></td><td>Core — ignored by lexer</td></tr>
+          <tr><td>Block</td><td><code>/* … */</code></td><td>Core — multiline OK; non-nested; unclosed <code>/*</code> → lexer error</td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// file header
+let x = 1 /* inline */ + 2
+/*
+ * multiline doc
+ */</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// file header
+let x = 1 /* inline */ + 2
+/*
+ * multiline doc
+ */</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>See <a href="learn-comments.html">Learn → Comments</a> · Tests: <code>tests/nyra/block_comments_test.ny</code> · <code>CONF-COMMENT-*</code></p>
+
+      <h2 id="literals">Literals</h2>
+      <table>
+        <thead><tr><th>Form</th><th>Example</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td>Integer</td><td><code>42</code>, <code>0xff</code>, <code>1_000_000</code>, <code>255u8</code></td><td><code>i32</code> (default) or suffix width</td></tr>
+          <tr><td>Float</td><td><code>3.14</code>, <code>1.5f32</code>, <code>1e-3</code></td><td><code>f64</code> default; <code>f32</code> with suffix or annotation</td></tr>
+          <tr><td>Character</td><td><code>'a'</code>, <code>'\n'</code></td><td><code>char</code></td></tr>
+          <tr><td>Boolean</td><td><code>true</code>, <code>false</code></td><td><code>bool</code></td></tr>
+          <tr><td>String</td><td><code>"hello"</code></td><td><code>string</code> (static, not heap-freed)</td></tr>
+          <tr><td>Template</td><td><code>`Hello, ${name}!`</code></td><td><code>string</code> (interpolates <code>i32</code>, <code>f64</code>, <code>string</code>)</td></tr>
+          <tr><td>Array</td><td><code>[1, 2, 3]</code>, <code>[0; 8]</code>, <code>[-1; STROKE_MAX]</code></td><td><code>[i32; N]</code> when annotated; repeat count may be a module <code>const</code></td></tr>
+          <tr><td>Tuple</td><td><code>(1, "a")</code></td><td><code>(i32, string)</code> when annotated</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Template strings (v1.2):</strong> backticks with <code>${expr}</code> — e.g. <code>`score: ${n}`</code>. See <a href="learn-strings.html">Learn → Strings</a>.</p>
+      <p><strong>Numeric separators:</strong> underscores between digits are ignored — <code>10_00000</code> equals <code>100000</code>. <strong>Hex integers:</strong> <code>0xFF</code>, <code>0xffu8</code>.</p>
+
+      <h2 id="operators">Operators</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Operators</th></tr></thead>
+        <tbody>
+          <tr><td>Arithmetic</td><td><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>%</code></td></tr>
+          <tr><td>Comparison</td><td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code> — <code>ptr</code> values compare string content (except function pointers)</td></tr>
+          <tr><td>Logical</td><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td></tr>
+          <tr><td>Bitwise</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code> <code>&amp;</code> <code>|</code> <code>^</code> (integers)</td></tr>
+          <tr><td>Nullish / optional (v2.1+)</td><td><code>??</code> <code>?.</code> <code>?.method()</code> — desugar to <code>Option</code> <code>match</code>; <code>Option.Some(v)</code> payload bind on <code>??</code> (v2.2)</td></tr>
+          <tr><td>Reference</td><td><code>&amp;x</code> (shared), <code>&amp;mut x</code> (exclusive)</td></tr>
+          <tr><td>Raw (unsafe)</td><td><code>*ptr</code> load, <code>*ptr = v</code> store, <code>ptr + i32</code>, <code>ptr - i32</code></td></tr>
+          <tr><td>Cast</td><td><code>expr as Type</code> — e.g. <code>&amp;x as *i32</code>, <code>ptr as i32</code></td></tr>
+          <tr><td>Field</td><td><code>obj.field</code></td></tr>
+          <tr><td>Call</td><td><code>f(a, b)</code>, <code>obj.method(a)</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="statements">Statements</h2>
+      <ul>
+        <li><code>let name = expr</code> / <code>let mut name = expr</code></li>
+        <li><code>fn f(mut x: i32)</code> — mutable parameter (reassignable in body); <code>mut s: Struct</code> updates the caller's struct in place (passed by pointer)</li>
+        <li><code>const NAME = expr</code></li>
+        <li><code>name = expr</code> (assign; requires <code>mut</code>)</li>
+        <li><code>if cond { } else { }</code></li>
+        <li><code>while cond { }</code></li>
+        <li><code>for var in start..end { }</code> — half-open integer range</li>
+        <li><code>for x in arr { }</code> — iterate array elements</li>
+        <li><code>for x in str { }</code> — string chars (<code>char</code>)</li>
+        <li><code>for x in parts { }</code> — split list (<code>VecStr</code> from <code>.split()</code>)</li>
+        <li><code>return expr</code> / <code>return</code></li>
+        <li><code>print(expr)</code> / <code>print(expr, color: spec)</code></li>
+        <li><code>defer expr</code> — runs at block exit (after other statements, before parent scope)</li>
+        <li><code>spawn { statements }</code></li>
+        <li><code>unsafe { statements }</code></li>
+        <li><code>asm "template"</code> — LLVM inline asm (inside <code>unsafe</code>)</li>
+        <li><code>*ptr = expr</code> — pointer store (inside <code>unsafe</code>)</li>
+        <li><code>no_std</code> — file-level directive (first statement)</li>
+        <li><code>import "path.ny"</code></li>
+        <li>Expression statement: bare call, e.g. <code>free(s)</code></li>
+      </ul>
+
+      <h2 id="expressions">Expressions</h2>
+      <ul>
+        <li>Literals, variables, unary <code>-</code> / <code>!</code> / <code>&amp;</code> / <code>&amp;mut</code> / <code>move</code> / <code>clone</code></li>
+        <li>Binary arithmetic, comparison, logic</li>
+        <li><code>if cond { a } else { b }</code> as expression</li>
+        <li><code>cond ? a : b</code> — ternary shorthand (same as <code>if</code> expression)</li>
+        <li><code>match scrutinee { Arm => expr }</code></li>
+        <li>Struct literal: <code>Point { x: 1, y: 2 }</code> or sugar <code>Point(1, 2)</code></li>
+        <li>Enum variant: <code>Color.Red</code>, <code>Option.Some(1)</code></li>
+        <li>Array literal: <code>[1, 2, 3]</code></li>
+        <li>Method call: <code>obj.method(args)</code> — struct methods and built-in string methods</li>
+        <li>Field access: <code>obj.field</code> — structs, tuples, <code>Date</code> from <code>date()</code></li>
+        <li>Grouped: <code>(expr)</code></li>
+        <li><code>await expr</code> (parsed; MVP handle type <code>i32</code>)</li>
+        <li>Template literal: <code>`text ${expr} more`</code></li>
+        <li>Arrow function (v2.1): <code>(x) =&gt; expr</code>, <code>x =&gt; expr</code>, <code>((a, b)) =&gt; expr</code>, or typed <code>(a: i32) =&gt; { ... }</code> — see <a href="closures.html">Closures</a></li>
+        <li><code>expr as Type</code> — cast (raw-pointer casts require <code>unsafe</code>)</li>
+      </ul>
+
+      <h2 id="unsafe">Unsafe &amp; raw pointers</h2>
+      <p>Nyra is safe by default. Low-level memory requires <code>unsafe { }</code>:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>mut x = 42
+unsafe {
+    let p = &amp;x as *i32
+    *p = 99
+    print(*p)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>mut x = 42
+unsafe {
+    let p = &amp;x as *i32
+    *p = 99
+    print(*p)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>Inside <code>unsafe</code></th><th>Outside <code>unsafe</code></th></tr></thead>
+        <tbody>
+          <tr><td><code>*ptr</code> load / <code>*ptr = v</code> store on <code>*T</code> or <code>ptr</code></td><td><code>&amp;T</code> / <code>&amp;mut T</code> only</td></tr>
+          <tr><td><code>ptr + i32</code>, <code>ptr - i32</code></td><td>Rejected</td></tr>
+          <tr><td><code>expr as *T</code>, <code>ptr as i32</code></td><td>Safe casts only (no raw pointers)</td></tr>
+          <tr><td>Borrow checker bypassed</td><td>Full NLL + move rules</td></tr>
+        </tbody>
+      </table>
+      <p><code>ptr</code> = opaque FFI handle. <code>*T</code> = typed raw pointer for drivers/MMIO. Inline asm: <code>asm "nop"</code> inside <code>unsafe</code>. OS APIs: <code>import "stdlib/os.ny"</code>. See <a href="memory.html#unsafe">Memory → unsafe</a>, <a href="stdlib.html#os">Stdlib → os</a>.</p>
+
+      <h2 id="ownership">Ownership quick ref</h2>
+      <table>
+        <thead><tr><th>Action</th><th>Copy type (<code>i32</code>)</th><th>Move type (<code>string</code> heap)</th></tr></thead>
+        <tbody>
+          <tr><td><code>let b = a</code></td><td>Both usable</td><td><code>a</code> invalidated</td></tr>
+          <tr><td>Pass to function</td><td>Copied (unless <code>mut</code>)</td><td>Moved (unless <code>mut</code>)</td></tr>
+          <tr><td>Scope end</td><td>Stack discard</td><td>Auto <code>free</code> if heap-owned</td></tr>
+          <tr><td><code>&amp;a</code> / <code>&amp;mut a</code></td><td>NLL borrows — end at last use of ref</td><td>Same + auto-drop at scope</td></tr>
+          <tr><td><code>spawn { }</code></td><td>Copy captures OK</td><td>Move must be <code>Send</code>; moved into thread</td></tr>
+        </tbody>
+      </table>
+      <p>Beginner track: <a href="learn-ownership.html">Nyra Ownership</a> → <a href="learn-borrowing.html">Nyra Borrowing</a>. Full rules: <a href="memory.html">Memory &amp; ownership</a>. Developer UX: <a href="ownership-ux.html">Ownership UX</a> (auto-borrow, auto-Copy, inference).</p>
+
+      <h2 id="ownership-ux">Ownership UX (v2.8–v3.1)</h2>
+      <table>
+        <thead><tr><th>Feature</th><th>What you write</th><th>What the compiler does</th></tr></thead>
+        <tbody>
+          <tr><td>Auto-borrow</td><td><code>save(user)</code></td><td><code>save(&amp;user)</code> when param is <code>&amp;User</code></td></tr>
+          <tr><td>Auto-Copy</td><td><code>let p2 = p1</code> on <code>Point</code></td><td>Both bindings valid if all fields Copy</td></tr>
+          <tr><td>Return inference</td><td><code>fn f() { return 1 }</code></td><td>Infers <code>-> i32</code> or <code>void</code></td></tr>
+          <tr><td>Generic call inference</td><td><code>id(7)</code></td><td>Monomorph <code>id__i32</code></td></tr>
+          <tr><td>Clone</td><td><code>clone user</code> or <code>user.clone()</code></td><td>Heap duplicate; binding kept</td></tr>
+          <tr><td>Move</td><td><code>move user</code></td><td>Explicit move; skips auto-borrow</td></tr>
+        </tbody>
+      </table>
+      <p>Diagnostics name the callee and suggest fixes. Conformance: <code>CONF-INF-*</code>, <code>CONF-COERCE-*</code>, <code>CONF-DIAG-*</code>, <code>CONF-COPY-*</code>, <code>CONF-F64-*</code>.</p>
+
+      <h2 id="lifetimes">Lifetimes &amp; HRTB</h2>
+      <ul>
+        <li>Function lifetime params: <code>fn pick&lt;'a&gt;(a: &amp;'a string) -&gt; &amp;'a string</code></li>
+        <li>Elision: one input <code>&amp;T</code> → return <code>&amp;T</code> shares that lifetime</li>
+        <li>Ambiguous elision (multiple input refs, no annotation) → compile error</li>
+        <li>HRTB callback type: <code>for&lt;'a&gt; fn(&amp;'a string) -&gt; &amp;'a string</code></li>
+      </ul>
+
+      <h2 id="traits">Traits (<code>Drop</code>)</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>impl Drop for MyType {
+    fn drop(self) {
+        // custom cleanup
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>impl Drop for MyType {
+    fn drop(self) {
+        // custom cleanup
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><code>Drop</code> and <code>Clone</code> are wired in the compiler. User traits: <code>trait</code> defs, <code>impl Trait for Type</code>, and dynamic dispatch via <code>dyn Trait</code> / <code>value as dyn Trait</code> (Extended MVP). See <a href="traits-macros.html">Traits &amp; macros</a> and <code>examples/trait_dyn.ny</code>.</p>
+
+      <h2 id="pipeline">Compiler pipeline</h2>
+      <pre class="pipeline">Source (.ny)
+  → Lexer → Parser → Macro expand
+  → Monomorph (+ generic call inference)
+  → Auto-borrow coercion
+  → Typecheck → Ownership (Copy inference) → Borrow + Lifetimes + Send/Sync
+  → Drop plan → LLVM IR (f64/double, spawn, custom drop)
+  → opt → clang + nyra_rt.c → binary</pre>
+      <p>Stop early: <code>nyra check .</code> or <code>nyra diag .</code>. See <a href="tooling.html">Toolchain</a>.</p>
+
+      <footer class="site-footer"><a href="stdlib.html">Standard library →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

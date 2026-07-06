@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Runtime bindings — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="bindings">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="../assets/Nyrabgremoved.png" alt="Nyra">
+      <span>Nyra</span>
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a class="active" href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1>Runtime bindings</h1>
+      <p class="lead">C runtime symbols mapped to Nyra <code>extern fn</code> in stdlib and NyraPkg packages.</p>
+      <p>Generated from <code>docs/abi-manifest.toml</code> + stdlib scan. Regenerate: <code>make gen-bindings-doc</code>. C header: <code>stdlib/nyra_rt.h</code>.</p>
+
+      <h2 id="hashmap-naming">HashMap runtime naming</h2>
+      <p>Hash-map symbols follow <code>map_&lt;key_type&gt;_&lt;value_type&gt;_&lt;operation&gt;</code>. The first type is the <strong>key</strong>, the second is the <strong>value</strong>, then the operation (<code>new</code>, <code>insert</code>, <code>get</code>, <code>contains</code>, <code>remove</code>, <code>keys</code>, <code>free</code>, <code>retain</code>).</p>
+      <table>
+        <thead><tr><th>Family</th><th>Example symbols</th><th>Use case</th></tr></thead>
+        <tbody>
+          <tr><td><code>map_str_i32_*</code></td><td><code>map_str_i32_insert</code>, <code>map_str_i32_get</code></td><td>String keys, integer values</td></tr>
+          <tr><td><code>map_str_str_*</code></td><td><code>map_str_str_insert</code>, <code>map_str_str_get</code></td><td>String keys, string values</td></tr>
+          <tr><td><code>map_i32_i32_*</code></td><td><code>map_i32_i32_insert</code>, <code>map_i32_i32_get</code></td><td>Integer keys and values (<code>map[int]int</code> parity)</td></tr>
+        </tbody>
+      </table>
+      <p>When key and value types match, both appear in the name (e.g. <code>map_i32_i32_get</code>) so each C entry point has an unambiguous signature. Tutorial and examples: <a href="learn-hashmap.html">Learn → HashMap</a>. Stdlib wrappers: <code>stdlib/map.ny</code> (<code>HashMap_str_i32</code>, <code>HashMap_str_str</code>).</p>
+
+      <h2>Stable bindings (400)</h2>
+      <table>
+        <thead><tr><th>Symbol</th><th>C signature</th><th>RT module</th><th>Since</th><th>Nyra stdlib</th></tr></thead>
+        <tbody>
+<tr><td><code>aes_cbc_decrypt_hex</code></td><td><code>char *aes_cbc_decrypt_hex(const char *key, const char *ciphertext_hex)</code></td><td><code>rt_aes.c</code></td><td>1.3.3</td><td>stdlib/crypto/aes.ny</td></tr>
+<tr><td><code>aes_cbc_encrypt_hex</code></td><td><code>char *aes_cbc_encrypt_hex(const char *key, const char *plaintext)</code></td><td><code>rt_aes.c</code></td><td>1.3.3</td><td>stdlib/crypto/aes.ny</td></tr>
+<tr><td><code>alloc_track_end</code></td><td><code>void alloc_track_end(const char *label)</code></td><td><code>rt_alloc_track.c</code></td><td>1.14.0</td><td>stdlib/mem.ny</td></tr>
+<tr><td><code>alloc_track_note</code></td><td><code>void alloc_track_note(size_t bytes)</code></td><td><code>rt_alloc_track.c</code></td><td>1.14.0</td><td>stdlib/mem.ny</td></tr>
+<tr><td><code>alloc_track_start</code></td><td><code>void alloc_track_start(const char *label)</code></td><td><code>rt_alloc_track.c</code></td><td>1.14.0</td><td>stdlib/mem.ny</td></tr>
+<tr><td><code>ansi_reset</code></td><td><code>const char *ansi_reset(void)</code></td><td><code>rt_io.c</code></td><td>1.2.0</td><td>—</td></tr>
+<tr><td><code>append_file</code></td><td><code>int append_file(const char *path, const char *content)</code></td><td><code>rt_fs.c</code></td><td>1.1.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>arc_alloc_i32</code></td><td><code>void *arc_alloc_i32(int value)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arc_alloc_string</code></td><td><code>void *arc_alloc_string(const char *value)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arc_dec</code></td><td><code>void arc_dec(void *handle)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>—</td></tr>
+<tr><td><code>arc_dec_i32</code></td><td><code>void arc_dec_i32(void *handle)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arc_dec_string</code></td><td><code>void arc_dec_string(void *handle)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arc_get_i32</code></td><td><code>int arc_get_i32(void *handle)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arc_get_string</code></td><td><code>char *arc_get_string(void *handle)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arc_inc</code></td><td><code>void arc_inc(void *handle)</code></td><td><code>rt_arc.c</code></td><td>2.5.0</td><td>stdlib/arc.ny</td></tr>
+<tr><td><code>arena_alloc</code></td><td><code>void *arena_alloc(void *arena, long long nbytes)</code></td><td><code>rt_arena.c</code></td><td>1.39.0</td><td>stdlib/alloc/arena.ny</td></tr>
+<tr><td><code>arena_free</code></td><td><code>void arena_free(void *arena)</code></td><td><code>rt_arena.c</code></td><td>1.39.0</td><td>stdlib/alloc/arena.ny</td></tr>
+<tr><td><code>arena_new</code></td><td><code>void *arena_new(long long capacity)</code></td><td><code>rt_arena.c</code></td><td>1.39.0</td><td>stdlib/alloc/arena.ny</td></tr>
+<tr><td><code>arena_reset</code></td><td><code>void arena_reset(void *arena)</code></td><td><code>rt_arena.c</code></td><td>1.39.0</td><td>stdlib/alloc/arena.ny</td></tr>
+<tr><td><code>array_bool_debug_string</code></td><td><code>char *array_bool_debug_string(const unsigned char *arr, int n)</code></td><td><code>rt_array.c</code></td><td>1.8.0</td><td>—</td></tr>
+<tr><td><code>array_f32_debug_string</code></td><td><code>char *array_f32_debug_string(const float *arr, int n)</code></td><td><code>rt_array.c</code></td><td>1.8.0</td><td>—</td></tr>
+<tr><td><code>array_f64_debug_string</code></td><td><code>char *array_f64_debug_string(const double *arr, int n)</code></td><td><code>rt_array.c</code></td><td>1.8.0</td><td>—</td></tr>
+<tr><td><code>array_f64_sort_copy</code></td><td><code>void array_f64_sort_copy(double *dst, const double *src, int n)</code></td><td><code>rt_array.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>array_i32_debug_string</code></td><td><code>char *array_i32_debug_string(const int *arr, int n)</code></td><td><code>rt_array.c</code></td><td>1.8.0</td><td>—</td></tr>
+<tr><td><code>array_i32_sort_copy</code></td><td><code>void array_i32_sort_copy(int *dst, const int *src, int n)</code></td><td><code>rt_array.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>array_str_debug_string</code></td><td><code>char *array_str_debug_string(const char *const *arr, int n)</code></td><td><code>rt_array.c</code></td><td>1.8.0</td><td>—</td></tr>
+<tr><td><code>async_await</code></td><td><code>int async_await(int handle)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/async.ny, stdlib/async_v1.ny</td></tr>
+<tr><td><code>async_await_bool</code></td><td><code>int async_await_bool(int handle)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_await_ptr</code></td><td><code>void *async_await_ptr(int handle)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_future_done</code></td><td><code>int async_future_done(int handle)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_future_ptr_value</code></td><td><code>void *async_future_ptr_value(int handle)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_poll</code></td><td><code>int async_poll(int handle)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/async.ny, stdlib/async_v1.ny, stdlib/net/poll.ny, stdlib/net/tcp.ny</td></tr>
+<tr><td><code>async_poll_bool</code></td><td><code>int async_poll_bool(int handle)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_promise_complete</code></td><td><code>void async_promise_complete(int handle, int value)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/async.ny, stdlib/async_v1.ny</td></tr>
+<tr><td><code>async_promise_complete_bool</code></td><td><code>void async_promise_complete_bool(int handle, int value)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_promise_complete_ptr</code></td><td><code>void async_promise_complete_ptr(int handle, void *value)</code></td><td><code>rt_async.c</code></td><td>1.22.0</td><td>stdlib/async/future.ny</td></tr>
+<tr><td><code>async_promise_new</code></td><td><code>int async_promise_new(void)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/async.ny, stdlib/async_v1.ny, stdlib/net/poll.ny, stdlib/os/event_loop.ny</td></tr>
+<tr><td><code>async_run</code></td><td><code>int async_run(int result)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/async.ny</td></tr>
+<tr><td><code>async_select2_bool</code></td><td><code>int async_select2_bool(int h0, int h1, int *out_index)</code></td><td><code>rt_async.c</code></td><td>1.26.0</td><td>—</td></tr>
+<tr><td><code>async_select2_i32</code></td><td><code>int async_select2_i32(int h0, int h1, int *out_index)</code></td><td><code>rt_async.c</code></td><td>1.26.0</td><td>—</td></tr>
+<tr><td><code>async_select2_ptr</code></td><td><code>void *async_select2_ptr(int h0, int h1, int *out_index)</code></td><td><code>rt_async.c</code></td><td>1.26.0</td><td>—</td></tr>
+<tr><td><code>async_select_i32</code></td><td><code>int async_select_i32(int *handles, int count, int *out_index)</code></td><td><code>rt_async.c</code></td><td>1.26.0</td><td>—</td></tr>
+<tr><td><code>async_sleep_ms</code></td><td><code>int async_sleep_ms(int delay_ms)</code></td><td><code>rt_async.c</code></td><td>1.4.0</td><td>stdlib/async_v1.ny</td></tr>
+<tr><td><code>atan2_f64</code></td><td><code>double atan2_f64(double y, double x)</code></td><td><code>rt_math.c</code></td><td>1.16.0</td><td>stdlib/math.ny</td></tr>
+<tr><td><code>atomic_add_i32</code></td><td><code>int atomic_add_i32(int *p, int delta)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/atomic.ny</td></tr>
+<tr><td><code>atomic_cas_i32</code></td><td><code>int atomic_cas_i32(int *p, int expected, int desired)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/atomic.ny</td></tr>
+<tr><td><code>atomic_i32_free</code></td><td><code>void atomic_i32_free(void *p)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/atomic.ny</td></tr>
+<tr><td><code>atomic_i32_new</code></td><td><code>void *atomic_i32_new(int initial)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/atomic.ny</td></tr>
+<tr><td><code>atomic_load_i32</code></td><td><code>int atomic_load_i32(int *p)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/atomic.ny</td></tr>
+<tr><td><code>atomic_store_i32</code></td><td><code>void atomic_store_i32(int *p, int v)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/atomic.ny</td></tr>
+<tr><td><code>benchmark_begin</code></td><td><code>void benchmark_begin(void)</code></td><td><code>rt_bench.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>benchmark_end</code></td><td><code>void benchmark_end(void)</code></td><td><code>rt_bench.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>bin_blob_free</code></td><td><code>void bin_blob_free(void *blob)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_blob_payload_len</code></td><td><code>int32_t bin_blob_payload_len(void *blob)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_append_blob</code></td><td><code>void bin_buf_append_blob(void *handle, void *blob)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_finish</code></td><td><code>void *bin_buf_finish(void *handle)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_new</code></td><td><code>void *bin_buf_new(void)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_write_bool</code></td><td><code>void bin_buf_write_bool(void *handle, int flag)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_write_bytes</code></td><td><code>void bin_buf_write_bytes(void *handle, const void *bytes, int32_t len)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_write_i32</code></td><td><code>void bin_buf_write_i32(void *handle, int32_t v)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_buf_write_string</code></td><td><code>void bin_buf_write_string(void *handle, const char *s)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_decode_blob_at</code></td><td><code>void *bin_decode_blob_at(void *bin, int32_t index)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_decode_bool_at</code></td><td><code>int32_t bin_decode_bool_at(void *blob, int32_t off)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_decode_i32_at</code></td><td><code>int32_t bin_decode_i32_at(void *blob, int32_t off)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_decode_string_at</code></td><td><code>char *bin_decode_string_at(void *blob, int32_t off)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_field_width_blob_at</code></td><td><code>int32_t bin_field_width_blob_at(void *blob, int32_t off)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_field_width_bool</code></td><td><code>int32_t bin_field_width_bool(void)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_field_width_i32</code></td><td><code>int32_t bin_field_width_i32(void)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>bin_field_width_string_at</code></td><td><code>int32_t bin_field_width_string_at(void *blob, int32_t off)</code></td><td><code>rt_bin.c</code></td><td>2.5.0</td><td>stdlib/serde/binary.ny</td></tr>
+<tr><td><code>byte_at</code></td><td><code>int byte_at(void *handle, long long index)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>bytes_free</code></td><td><code>void bytes_free(void *handle)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>bytes_from_string</code></td><td><code>void *bytes_from_string(const char *s)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>bytes_len</code></td><td><code>long long bytes_len(void *handle)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>bytes_read_file</code></td><td><code>void *bytes_read_file(const char *path)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>bytes_to_string</code></td><td><code>char *bytes_to_string(void *handle)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>bytes_write_file</code></td><td><code>int bytes_write_file(const char *path, void *handle)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>channel_free</code></td><td><code>void channel_free(void *ch)</code></td><td><code>rt_channel.c</code></td><td>0.2.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_new</code></td><td><code>void *channel_new(void)</code></td><td><code>rt_channel.c</code></td><td>0.2.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_recv</code></td><td><code>int channel_recv(void *ch)</code></td><td><code>rt_channel.c</code></td><td>0.2.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_send</code></td><td><code>void channel_send(void *ch, int value)</code></td><td><code>rt_channel.c</code></td><td>0.2.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_str_free</code></td><td><code>void channel_str_free(void *ch)</code></td><td><code>rt_channel.c</code></td><td>1.12.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_str_new</code></td><td><code>void *channel_str_new(void)</code></td><td><code>rt_channel.c</code></td><td>1.12.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_str_recv</code></td><td><code>char *channel_str_recv(void *ch)</code></td><td><code>rt_channel.c</code></td><td>1.12.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>channel_str_send</code></td><td><code>void channel_str_send(void *ch, const char *value)</code></td><td><code>rt_channel.c</code></td><td>1.12.0</td><td>stdlib/sync/channel.ny</td></tr>
+<tr><td><code>char_at</code></td><td><code>int char_at(const char *s, int i)</code></td><td><code>rt_strings.c</code></td><td>0.3.0</td><td>stdlib/gui/buffer.ny, stdlib/gui/picker.ny, stdlib/gui/syntax.ny, stdlib/strings.ny</td></tr>
+<tr><td><code>color_ansi</code></td><td><code>const char *color_ansi(const char *spec)</code></td><td><code>rt_io.c</code></td><td>1.2.0</td><td>—</td></tr>
+<tr><td><code>command_exec_capture</code></td><td><code>char *command_exec_capture(const char *program, void *args_handle)</code></td><td><code>rt_process.c</code></td><td>1.14.0</td><td>—</td></tr>
+<tr><td><code>command_run</code></td><td><code>int command_run(const char *program, void *args_handle)</code></td><td><code>rt_process.c</code></td><td>1.0.0</td><td>—</td></tr>
+<tr><td><code>copy_dir</code></td><td><code>int copy_dir(const char *src, const char *dst)</code></td><td><code>rt_fs.c</code></td><td>1.38.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>copy_dir_contents</code></td><td><code>int copy_dir_contents(const char *src, const char *dst)</code></td><td><code>rt_fs.c</code></td><td>1.38.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>copy_file</code></td><td><code>long long copy_file(const char *src, const char *dst)</code></td><td><code>rt_fs.c</code></td><td>1.0.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>cos_f64</code></td><td><code>double cos_f64(double x)</code></td><td><code>rt_math.c</code></td><td>1.16.0</td><td>stdlib/math.ny</td></tr>
+<tr><td><code>cpu_count</code></td><td><code>int32_t cpu_count(void)</code></td><td><code>rt_parallel.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>create_dir</code></td><td><code>int create_dir(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.1.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>create_dir_all</code></td><td><code>int create_dir_all(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.38.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>date_now</code></td><td><code>void date_now(int *out)</code></td><td><code>rt_time.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>error_stack_trace</code></td><td><code>char *error_stack_trace(void)</code></td><td><code>rt_error.c</code></td><td>1.40.0</td><td>stdlib/error.ny</td></tr>
+<tr><td><code>f64_to_string</code></td><td><code>char *f64_to_string(double n)</code></td><td><code>rt_strings.c</code></td><td>1.3.3</td><td>stdlib/strconv/mod.ny</td></tr>
+<tr><td><code>file_exists</code></td><td><code>int file_exists(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.1.0</td><td>stdlib/compress/mod.ny, stdlib/fs/file.ny, stdlib/gui/picker.ny</td></tr>
+<tr><td><code>file_size</code></td><td><code>long long file_size(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.0.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>flate_compress_hex</code></td><td><code>char *flate_compress_hex(const char *data)</code></td><td><code>rt_gzip.c</code></td><td>1.3.3</td><td>stdlib/compress/flate.ny</td></tr>
+<tr><td><code>flate_decompress_hex</code></td><td><code>char *flate_decompress_hex(const char *hex)</code></td><td><code>rt_gzip.c</code></td><td>1.3.3</td><td>stdlib/compress/flate.ny</td></tr>
+<tr><td><code>fsync_file</code></td><td><code>int fsync_file(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.18.0</td><td>stdlib/db/sstable.ny</td></tr>
+<tr><td><code>gpu_font_draw</code></td><td><code>void gpu_font_draw(const char *text, int x, int y, int font_size, unsigned char r, unsigned char g, unsigned char b, unsigned char a)</code></td><td><code>gpu/rt_gpu_font.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>gpu_font_free</code></td><td><code>void gpu_font_free(void)</code></td><td><code>gpu/rt_gpu_font.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>gpu_font_init</code></td><td><code>void gpu_font_init(void)</code></td><td><code>gpu/rt_gpu_font.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>gunzip_file</code></td><td><code>int gunzip_file(const char *src, const char *dst)</code></td><td><code>rt_gzip.c</code></td><td>1.3.0</td><td>stdlib/compress/gzip.ny</td></tr>
+<tr><td><code>gzip_compress_hex</code></td><td><code>char *gzip_compress_hex(const char *data)</code></td><td><code>rt_gzip.c</code></td><td>1.3.3</td><td>stdlib/compress/mod.ny</td></tr>
+<tr><td><code>gzip_decompress_hex</code></td><td><code>char *gzip_decompress_hex(const char *hex)</code></td><td><code>rt_gzip.c</code></td><td>1.3.3</td><td>stdlib/compress/mod.ny</td></tr>
+<tr><td><code>gzip_file</code></td><td><code>int gzip_file(const char *src, const char *dst)</code></td><td><code>rt_gzip.c</code></td><td>1.3.0</td><td>stdlib/compress/gzip.ny</td></tr>
+<tr><td><code>heap_free</code></td><td><code>void heap_free(void *p)</code></td><td><code>rt_alloc.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>hmac_sha256_hex</code></td><td><code>char *hmac_sha256_hex(const char *key, const char *data)</code></td><td><code>rt_crypto.c</code></td><td>1.3.3</td><td>stdlib/crypto/hmac.ny</td></tr>
+<tr><td><code>http_download_file</code></td><td><code>int http_download_file(const char *url, const char *path)</code></td><td><code>rt_http.c</code></td><td>1.38.0</td><td>stdlib/http/download.ny</td></tr>
+<tr><td><code>http_get</code></td><td><code>char *http_get(const char *url)</code></td><td><code>rt_http.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>http_status</code></td><td><code>int http_status(const char *response_header)</code></td><td><code>rt_http.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>i32_to_string</code></td><td><code>char *i32_to_string(int n)</code></td><td><code>rt_strings.c</code></td><td>0.2.0</td><td>stdlib/bridge/mod.ny, stdlib/json/mod.ny, stdlib/strconv/mod.ny, stdlib/strings.ny, stdlib/time/date.ny</td></tr>
+<tr><td><code>i64_to_string</code></td><td><code>char *i64_to_string(long long n)</code></td><td><code>rt_strings.c</code></td><td>1.17.0</td><td>stdlib/strings.ny</td></tr>
+<tr><td><code>instant_elapsed_ms</code></td><td><code>int instant_elapsed_ms(int64_t start)</code></td><td><code>rt_time.c</code></td><td>1.1.0</td><td>stdlib/time/instant.ny</td></tr>
+<tr><td><code>instant_now</code></td><td><code>int64_t instant_now(void)</code></td><td><code>rt_time.c</code></td><td>1.1.0</td><td>stdlib/time/date.ny, stdlib/time/instant.ny</td></tr>
+<tr><td><code>io_pool_create</code></td><td><code>int32_t io_pool_create(int32_t workers)</code></td><td><code>rt_io_pool.c</code></td><td>1.39.0</td><td>stdlib/io/pool.ny</td></tr>
+<tr><td><code>io_pool_queue_depth</code></td><td><code>int32_t io_pool_queue_depth(int32_t pool)</code></td><td><code>rt_io_pool.c</code></td><td>1.39.0</td><td>stdlib/io/pool.ny</td></tr>
+<tr><td><code>io_pool_shutdown</code></td><td><code>void io_pool_shutdown(int32_t pool)</code></td><td><code>rt_io_pool.c</code></td><td>1.39.0</td><td>stdlib/io/pool.ny</td></tr>
+<tr><td><code>io_pool_submit_read</code></td><td><code>int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise)</code></td><td><code>rt_io_pool.c</code></td><td>1.39.0</td><td>stdlib/io/pool.ny</td></tr>
+<tr><td><code>io_pool_submit_wait_readable</code></td><td><code>int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise)</code></td><td><code>rt_io_pool.c</code></td><td>1.39.0</td><td>stdlib/io/pool.ny</td></tr>
+<tr><td><code>io_register</code></td><td><code>int io_register(int fd, int task_id)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/net/poll.ny, stdlib/os/event_loop.ny, stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>io_unregister</code></td><td><code>int io_unregister(int fd)</code></td><td><code>rt_async.c</code></td><td>1.39.0</td><td>stdlib/os/event_loop.ny</td></tr>
+<tr><td><code>io_uring_available</code></td><td><code>int32_t io_uring_available(void)</code></td><td><code>rt_io_uring.c</code></td><td>1.39.0</td><td>stdlib/os/io_uring.ny</td></tr>
+<tr><td><code>io_uring_pending</code></td><td><code>int io_uring_pending(void)</code></td><td><code>rt_io_uring.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>io_uring_register_read</code></td><td><code>int32_t io_uring_register_read(int32_t fd, int32_t promise)</code></td><td><code>rt_io_uring.c</code></td><td>1.39.0</td><td>stdlib/os/io_uring.ny</td></tr>
+<tr><td><code>io_uring_unregister_read</code></td><td><code>int32_t io_uring_unregister_read(int32_t fd)</code></td><td><code>rt_io_uring.c</code></td><td>1.39.0</td><td>stdlib/os/io_uring.ny</td></tr>
+<tr><td><code>io_uring_wait_once</code></td><td><code>int io_uring_wait_once(int timeout_ms)</code></td><td><code>rt_io_uring.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>io_wait_once</code></td><td><code>int io_wait_once(int timeout_ms)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/net/poll.ny</td></tr>
+<tr><td><code>json_decode_i32_array</code></td><td><code>void *json_decode_i32_array(const char *array_json)</code></td><td><code>rt_json.c</code></td><td>1.3.4</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_decode_ptr_token</code></td><td><code>void *json_decode_ptr_token(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.9.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_decode_str_array</code></td><td><code>void *json_decode_str_array(const char *array_json)</code></td><td><code>rt_json.c</code></td><td>2.5.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_encode_i32_array</code></td><td><code>char *json_encode_i32_array(void *handle)</code></td><td><code>rt_json.c</code></td><td>1.3.4</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_encode_object</code></td><td><code>char *json_encode_object(void *keys_vec, void *values_vec)</code></td><td><code>rt_json.c</code></td><td>1.3.4</td><td>stdlib/json/mod.ny, stdlib/serialize/mod.ny</td></tr>
+<tr><td><code>json_encode_ptr_token</code></td><td><code>char *json_encode_ptr_token(void *p)</code></td><td><code>rt_json.c</code></td><td>1.9.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_encode_str_array</code></td><td><code>char *json_encode_str_array(void *handle)</code></td><td><code>rt_json.c</code></td><td>2.5.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_get_array</code></td><td><code>char *json_get_array(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.3.2</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_get_bool</code></td><td><code>int json_get_bool(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.3.2</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_get_i32</code></td><td><code>int json_get_i32(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.3.2</td><td>stdlib/json/mod.ny, stdlib/process.ny</td></tr>
+<tr><td><code>json_get_object</code></td><td><code>char *json_get_object(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.3.2</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_get_string</code></td><td><code>char *json_get_string(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>0.3.0</td><td>stdlib/bridge/mod.ny, stdlib/json/mod.ny, stdlib/process.ny</td></tr>
+<tr><td><code>json_has_bool</code></td><td><code>int json_has_bool(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.40.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_has_i32</code></td><td><code>int json_has_i32(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.40.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_has_key</code></td><td><code>int json_has_key(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.40.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_has_string</code></td><td><code>int json_has_string(const char *json, const char *key)</code></td><td><code>rt_json.c</code></td><td>1.40.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_join_raw_array</code></td><td><code>char *json_join_raw_array(void *handle)</code></td><td><code>rt_json.c</code></td><td>1.38.0</td><td>stdlib/json/mod.ny</td></tr>
+<tr><td><code>json_split_array_elements</code></td><td><code>void *json_split_array_elements(const char *array_json)</code></td><td><code>rt_json.c</code></td><td>1.38.0</td><td>stdlib/json/jsonl.ny, stdlib/json/mod.ny</td></tr>
+<tr><td><code>list_dir</code></td><td><code>char *list_dir(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.3.0</td><td>stdlib/fs/file.ny, stdlib/gui/picker.ny</td></tr>
+<tr><td><code>map_i32_i32_contains</code></td><td><code>int map_i32_i32_contains(void *handle, int key)</code></td><td><code>rt_map.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>map_i32_i32_free</code></td><td><code>void map_i32_i32_free(void *handle)</code></td><td><code>rt_map.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>map_i32_i32_get</code></td><td><code>int map_i32_i32_get(void *handle, int key)</code></td><td><code>rt_map.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>map_i32_i32_insert</code></td><td><code>void map_i32_i32_insert(void *handle, int key, int value)</code></td><td><code>rt_map.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>map_i32_i32_new</code></td><td><code>void *map_i32_i32_new(void)</code></td><td><code>rt_map.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>map_i32_i32_retain</code></td><td><code>void map_i32_i32_retain(void *handle)</code></td><td><code>rt_map.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>map_str_i32_contains</code></td><td><code>int map_str_i32_contains(void *handle, const char *key)</code></td><td><code>rt_map.c</code></td><td>0.4.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_free</code></td><td><code>void map_str_i32_free(void *handle)</code></td><td><code>rt_map.c</code></td><td>0.4.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_get</code></td><td><code>int map_str_i32_get(void *handle, const char *key)</code></td><td><code>rt_map.c</code></td><td>0.4.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_insert</code></td><td><code>void map_str_i32_insert(void *handle, const char *key, int value)</code></td><td><code>rt_map.c</code></td><td>0.4.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_keys</code></td><td><code>void *map_str_i32_keys(void *handle)</code></td><td><code>rt_map.c</code></td><td>1.14.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_new</code></td><td><code>void *map_str_i32_new(void)</code></td><td><code>rt_map.c</code></td><td>0.4.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_remove</code></td><td><code>int map_str_i32_remove(void *handle, const char *key)</code></td><td><code>rt_map.c</code></td><td>1.14.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_i32_retain</code></td><td><code>void map_str_i32_retain(void *handle)</code></td><td><code>rt_map.c</code></td><td>1.16.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_contains</code></td><td><code>int map_str_str_contains(void *handle, const char *key)</code></td><td><code>rt_map_str_str.c</code></td><td>1.2.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_free</code></td><td><code>void map_str_str_free(void *handle)</code></td><td><code>rt_map_str_str.c</code></td><td>1.2.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_get</code></td><td><code>const char *map_str_str_get(void *handle, const char *key)</code></td><td><code>rt_map_str_str.c</code></td><td>1.2.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_insert</code></td><td><code>void map_str_str_insert(void *handle, const char *key, const char *value)</code></td><td><code>rt_map_str_str.c</code></td><td>1.2.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_keys</code></td><td><code>void *map_str_str_keys(void *handle)</code></td><td><code>rt_map_str_str.c</code></td><td>1.14.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_new</code></td><td><code>void *map_str_str_new(void)</code></td><td><code>rt_map_str_str.c</code></td><td>1.2.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_remove</code></td><td><code>int map_str_str_remove(void *handle, const char *key)</code></td><td><code>rt_map_str_str.c</code></td><td>1.14.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>map_str_str_retain</code></td><td><code>void map_str_str_retain(void *handle)</code></td><td><code>rt_map_str_str.c</code></td><td>1.16.0</td><td>stdlib/map.ny</td></tr>
+<tr><td><code>mem_end</code></td><td><code>void mem_end(const char *label)</code></td><td><code>rt_mem.c</code></td><td>0.2.0</td><td>stdlib/mem.ny, stdlib/profile/mod.ny</td></tr>
+<tr><td><code>mem_start</code></td><td><code>void mem_start(const char *label)</code></td><td><code>rt_mem.c</code></td><td>0.2.0</td><td>stdlib/mem.ny, stdlib/profile/mod.ny</td></tr>
+<tr><td><code>mutex_free</code></td><td><code>void mutex_free(void *m)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/mutex.ny</td></tr>
+<tr><td><code>mutex_lock</code></td><td><code>void mutex_lock(void *m)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/mutex.ny</td></tr>
+<tr><td><code>mutex_new</code></td><td><code>void *mutex_new(void)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/mutex.ny</td></tr>
+<tr><td><code>mutex_unlock</code></td><td><code>void mutex_unlock(void *m)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/mutex.ny</td></tr>
+<tr><td><code>nyra_check_file</code></td><td><code>int nyra_check_file(const char *path)</code></td><td><code>rt_compiler.c</code></td><td>1.19.0</td><td>stdlib/compiler.ny</td></tr>
+<tr><td><code>nyra_check_source</code></td><td><code>int nyra_check_source(const char *source, const char *file)</code></td><td><code>rt_compiler.c</code></td><td>1.19.0</td><td>stdlib/compiler.ny</td></tr>
+<tr><td><code>nyra_compiler_free</code></td><td><code>void nyra_compiler_free(char *ptr)</code></td><td><code>rt_compiler.c</code></td><td>1.19.0</td><td>stdlib/compiler.ny</td></tr>
+<tr><td><code>nyra_diag_json_file</code></td><td><code>char *nyra_diag_json_file(const char *path)</code></td><td><code>rt_compiler.c</code></td><td>1.19.0</td><td>stdlib/compiler.ny</td></tr>
+<tr><td><code>nyra_diag_json_source</code></td><td><code>char *nyra_diag_json_source(const char *source, const char *file)</code></td><td><code>rt_compiler.c</code></td><td>1.19.0</td><td>stdlib/compiler.ny</td></tr>
+<tr><td><code>os_arg_at</code></td><td><code>char *os_arg_at(int index)</code></td><td><code>rt_args.c</code></td><td>1.3.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>os_arg_count</code></td><td><code>int os_arg_count(void)</code></td><td><code>rt_args.c</code></td><td>1.3.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>parallel_all_range</code></td><td><code>int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)</code></td><td><code>rt_parallel.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>parallel_any_range</code></td><td><code>int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)</code></td><td><code>rt_parallel.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>parallel_find_range</code></td><td><code>int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)</code></td><td><code>rt_parallel.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>parallel_for_range</code></td><td><code>void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)</code></td><td><code>rt_parallel.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>path_is_dir</code></td><td><code>int path_is_dir(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.3.0</td><td>stdlib/fs/file.ny, stdlib/gui/picker.ny</td></tr>
+<tr><td><code>println</code></td><td><code>int println(const char *msg)</code></td><td><code>rt_io.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>process_exit</code></td><td><code>void process_exit(int code)</code></td><td><code>rt_args.c</code></td><td>1.3.0</td><td>stdlib/flag/mod.ny, stdlib/process/exit.ny</td></tr>
+<tr><td><code>progress_finish</code></td><td><code>void progress_finish(void)</code></td><td><code>rt_progress.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>progress_update</code></td><td><code>void progress_update(int32_t current, int32_t total, const char *label)</code></td><td><code>rt_progress.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>pty_close</code></td><td><code>void pty_close(int master)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_drain</code></td><td><code>char *pty_drain(int master, int max_bytes)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_drain_raw</code></td><td><code>char *pty_drain_raw(int master, int max_bytes)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_flush_stdout</code></td><td><code>void pty_flush_stdout(int master, int max_bytes, int timeout_ms)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_poll</code></td><td><code>int pty_poll(int master)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_read</code></td><td><code>char *pty_read(int master, int max_bytes)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_read_wait</code></td><td><code>char *pty_read_wait(int master, int max_bytes, int timeout_ms)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_read_wait_raw</code></td><td><code>char *pty_read_wait_raw(int master, int max_bytes, int timeout_ms)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_resize</code></td><td><code>void pty_resize(int master, int rows, int cols)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_spawn</code></td><td><code>int pty_spawn(const char *shell, int rows, int cols)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_wait</code></td><td><code>int pty_wait(int master)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>pty_write</code></td><td><code>int pty_write(int master, const char *data)</code></td><td><code>rt_pty.c</code></td><td>1.3.0</td><td>stdlib/terminal/pty.ny</td></tr>
+<tr><td><code>rand_f64</code></td><td><code>double rand_f64(void)</code></td><td><code>rt_random.c</code></td><td>1.16.0</td><td>stdlib/builtins_math.ny</td></tr>
+<tr><td><code>rand_f64_range</code></td><td><code>double rand_f64_range(double min_val, double max_val)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>rand_i32</code></td><td><code>int rand_i32(void)</code></td><td><code>rt_random.c</code></td><td>1.1.0</td><td>—</td></tr>
+<tr><td><code>rand_i64</code></td><td><code>int64_t rand_i64(void)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>rand_range</code></td><td><code>int rand_range(int min_val, int max_val)</code></td><td><code>rt_random.c</code></td><td>1.1.0</td><td>stdlib/random.ny</td></tr>
+<tr><td><code>rand_range_i64</code></td><td><code>int64_t rand_range_i64(int64_t min_val, int64_t max_val)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>rand_range_u32</code></td><td><code>uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>rand_range_u64</code></td><td><code>uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>rand_u32</code></td><td><code>uint32_t rand_u32(void)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>rand_u64</code></td><td><code>uint64_t rand_u64(void)</code></td><td><code>rt_random.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>random_hex</code></td><td><code>char *random_hex(int byte_count)</code></td><td><code>rt_random.c</code></td><td>1.1.0</td><td>stdlib/crypto/random.ny, stdlib/uuid/mod.ny</td></tr>
+<tr><td><code>read_file</code></td><td><code>char *read_file(const char *path)</code></td><td><code>rt_fs.c</code></td><td>0.2.0</td><td>stdlib/compress/mod.ny, stdlib/fs/file.ny</td></tr>
+<tr><td><code>read_file_limit</code></td><td><code>char *read_file_limit(const char *path, int max_bytes)</code></td><td><code>rt_fs.c</code></td><td>1.13.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>regex_compile</code></td><td><code>void *regex_compile(const char *pattern)</code></td><td><code>rt_regex.c</code></td><td>1.3.0</td><td>stdlib/strings/regex.ny</td></tr>
+<tr><td><code>regex_free</code></td><td><code>void regex_free(void *handle)</code></td><td><code>rt_regex.c</code></td><td>1.3.0</td><td>stdlib/strings/regex.ny</td></tr>
+<tr><td><code>regex_is_match</code></td><td><code>int regex_is_match(void *handle, const char *text)</code></td><td><code>rt_regex.c</code></td><td>1.3.0</td><td>stdlib/strings/regex.ny</td></tr>
+<tr><td><code>remove_dir</code></td><td><code>int remove_dir(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.1.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>remove_dir_all</code></td><td><code>int remove_dir_all(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.38.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>remove_file</code></td><td><code>int remove_file(const char *path)</code></td><td><code>rt_fs.c</code></td><td>1.1.0</td><td>stdlib/fs/file.ny</td></tr>
+<tr><td><code>rsa_available</code></td><td><code>int rsa_available(void)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/rsa.ny</td></tr>
+<tr><td><code>rsa_public_encrypt_pem</code></td><td><code>char *rsa_public_encrypt_pem(const char *pem_pub, const char *plaintext)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/rsa.ny</td></tr>
+<tr><td><code>rsa_sha256_sign_pem</code></td><td><code>char *rsa_sha256_sign_pem(const char *pem_priv, const char *message)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/rsa.ny</td></tr>
+<tr><td><code>rt_args_init</code></td><td><code>void rt_args_init(int argc, char **argv)</code></td><td><code>rt_args.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>rt_bridge_exec</code></td><td><code>char *rt_bridge_exec(const char *program, const char *input)</code></td><td><code>rt_process.c</code></td><td>1.2.0</td><td>stdlib/bridge/mod.ny</td></tr>
+<tr><td><code>rt_bridge_exec_arg</code></td><td><code>char *rt_bridge_exec_arg(const char *program, const char *arg1, const char *input)</code></td><td><code>rt_process.c</code></td><td>1.2.0</td><td>stdlib/bridge/mod.ny</td></tr>
+<tr><td><code>rt_dns_lookup</code></td><td><code>char *rt_dns_lookup(const char *host)</code></td><td><code>rt_net.c</code></td><td>1.11.0</td><td>stdlib/net/dns.ny</td></tr>
+<tr><td><code>rt_icmp_capable</code></td><td><code>int rt_icmp_capable(void)</code></td><td><code>rt_net.c</code></td><td>1.20.0</td><td>stdlib/net/icmp.ny</td></tr>
+<tr><td><code>rt_icmp_ping_ms</code></td><td><code>int rt_icmp_ping_ms(const char *host, int timeout_ms)</code></td><td><code>rt_net.c</code></td><td>1.12.0</td><td>stdlib/net/icmp.ny</td></tr>
+<tr><td><code>rt_icmp_ping_system_ms</code></td><td><code>int rt_icmp_ping_system_ms(const char *host, int timeout_ms)</code></td><td><code>rt_net.c</code></td><td>1.20.0</td><td>stdlib/net/icmp.ny</td></tr>
+<tr><td><code>rt_tcp_accept</code></td><td><code>int rt_tcp_accept(int listener_fd)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tcp_accept_async</code></td><td><code>int rt_tcp_accept_async(int listener_fd)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tcp_close</code></td><td><code>void rt_tcp_close(int fd)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tcp_connect</code></td><td><code>int rt_tcp_connect(const char *host, int port)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tcp_connect_timeout</code></td><td><code>int rt_tcp_connect_timeout(const char *host, int port, int timeout_ms)</code></td><td><code>rt_net.c</code></td><td>1.11.0</td><td>stdlib/net/tcp.ny</td></tr>
+<tr><td><code>rt_tcp_hub_add</code></td><td><code>int32_t rt_tcp_hub_add(void *hub, int32_t fd)</code></td><td><code>rt_tcp_hub.c</code></td><td>1.12.0</td><td>stdlib/net/hub.ny</td></tr>
+<tr><td><code>rt_tcp_hub_broadcast</code></td><td><code>void rt_tcp_hub_broadcast(void *hub, const char *msg)</code></td><td><code>rt_tcp_hub.c</code></td><td>1.12.0</td><td>stdlib/net/hub.ny</td></tr>
+<tr><td><code>rt_tcp_hub_free</code></td><td><code>void rt_tcp_hub_free(void *hub)</code></td><td><code>rt_tcp_hub.c</code></td><td>1.12.0</td><td>stdlib/net/hub.ny</td></tr>
+<tr><td><code>rt_tcp_hub_new</code></td><td><code>void *rt_tcp_hub_new(int32_t max_clients)</code></td><td><code>rt_tcp_hub.c</code></td><td>1.12.0</td><td>stdlib/net/hub.ny</td></tr>
+<tr><td><code>rt_tcp_hub_remove</code></td><td><code>void rt_tcp_hub_remove(void *hub, int32_t fd)</code></td><td><code>rt_tcp_hub.c</code></td><td>1.12.0</td><td>stdlib/net/hub.ny</td></tr>
+<tr><td><code>rt_tcp_listen</code></td><td><code>int rt_tcp_listen(const char *host, int port)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tcp_ping_ms</code></td><td><code>int rt_tcp_ping_ms(const char *host, int port, int timeout_ms)</code></td><td><code>rt_net.c</code></td><td>1.11.0</td><td>stdlib/net/icmp.ny</td></tr>
+<tr><td><code>rt_tcp_read</code></td><td><code>char *rt_tcp_read(int fd, int max_bytes)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tcp_write</code></td><td><code>int rt_tcp_write(int fd, const char *data)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>rt_tls_accept</code></td><td><code>int rt_tls_accept(int listener_handle)</code></td><td><code>rt_tls.c</code></td><td>1.3.3</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_close</code></td><td><code>void rt_tls_close(int handle)</code></td><td><code>rt_tls.c</code></td><td>1.0.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_connect</code></td><td><code>int rt_tls_connect(const char *host, int port)</code></td><td><code>rt_tls.c</code></td><td>1.0.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_connect_ca</code></td><td><code>int rt_tls_connect_ca(const char *host, int port, const char *ca_path)</code></td><td><code>rt_tls.c</code></td><td>1.20.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_connect_ex</code></td><td><code>int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer)</code></td><td><code>rt_tls.c</code></td><td>2.5.0</td><td>—</td></tr>
+<tr><td><code>rt_tls_connect_verify</code></td><td><code>int rt_tls_connect_verify(const char *host, int port)</code></td><td><code>rt_tls.c</code></td><td>2.5.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_gen_self_signed</code></td><td><code>int rt_tls_gen_self_signed(const char *cert_path, const char *key_path, const char *common_name)</code></td><td><code>rt_tls.c</code></td><td>1.15.0</td><td>stdlib/net/tls_dev.ny</td></tr>
+<tr><td><code>rt_tls_last_error</code></td><td><code>const char *rt_tls_last_error(void)</code></td><td><code>rt_tls.c</code></td><td>1.20.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_listen</code></td><td><code>int rt_tls_listen(const char *cert_pem_path, const char *key_pem_path, const char *host, int port)</code></td><td><code>rt_tls.c</code></td><td>1.3.3</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_listener_close</code></td><td><code>void rt_tls_listener_close(int listener_handle)</code></td><td><code>rt_tls.c</code></td><td>1.3.3</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_read</code></td><td><code>char *rt_tls_read(int handle, int max_bytes)</code></td><td><code>rt_tls.c</code></td><td>1.0.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_upgrade_client</code></td><td><code>int rt_tls_upgrade_client(int plain_fd, const char *hostname)</code></td><td><code>rt_tls.c</code></td><td>1.14.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_upgrade_client_ex</code></td><td><code>int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer)</code></td><td><code>rt_tls.c</code></td><td>1.20.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_upgrade_client_verify</code></td><td><code>int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname)</code></td><td><code>rt_tls.c</code></td><td>2.5.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_validate_pem_files</code></td><td><code>int rt_tls_validate_pem_files(const char *cert_pem_path, const char *key_pem_path)</code></td><td><code>rt_tls.c</code></td><td>1.20.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_tls_write</code></td><td><code>int rt_tls_write(int handle, const char *data)</code></td><td><code>rt_tls.c</code></td><td>1.0.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>rt_udp_bind</code></td><td><code>int rt_udp_bind(const char *host, int port)</code></td><td><code>rt_net.c</code></td><td>1.3.3</td><td>stdlib/net/udp.ny</td></tr>
+<tr><td><code>rt_udp_close</code></td><td><code>void rt_udp_close(int fd)</code></td><td><code>rt_net.c</code></td><td>1.3.3</td><td>stdlib/net/udp.ny</td></tr>
+<tr><td><code>rt_udp_recv</code></td><td><code>char *rt_udp_recv(int fd, int max_bytes)</code></td><td><code>rt_net.c</code></td><td>1.3.3</td><td>stdlib/net/udp.ny</td></tr>
+<tr><td><code>rt_udp_send</code></td><td><code>int rt_udp_send(int fd, const char *host, int port, const char *data)</code></td><td><code>rt_net.c</code></td><td>1.3.3</td><td>stdlib/net/udp.ny</td></tr>
+<tr><td><code>runtime_executor_run_until</code></td><td><code>int runtime_executor_run_until(int handle, int timeout_ms)</code></td><td><code>rt_async.c</code></td><td>1.4.0</td><td>stdlib/async_v1.ny</td></tr>
+<tr><td><code>runtime_executor_tick</code></td><td><code>int runtime_executor_tick(int timeout_ms)</code></td><td><code>rt_async.c</code></td><td>1.4.0</td><td>stdlib/async_v1.ny</td></tr>
+<tr><td><code>runtime_poll_io</code></td><td><code>int runtime_poll_io(int timeout_ms)</code></td><td><code>rt_async.c</code></td><td>1.4.0</td><td>stdlib/async_v1.ny</td></tr>
+<tr><td><code>runtime_run</code></td><td><code>void runtime_run(void)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>stdlib/async.ny, stdlib/async_v1.ny</td></tr>
+<tr><td><code>rwlock_free</code></td><td><code>void rwlock_free(void *r)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/rwlock.ny</td></tr>
+<tr><td><code>rwlock_new</code></td><td><code>void *rwlock_new(void)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/rwlock.ny</td></tr>
+<tr><td><code>rwlock_rlock</code></td><td><code>void rwlock_rlock(void *r)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/rwlock.ny</td></tr>
+<tr><td><code>rwlock_unlock</code></td><td><code>void rwlock_unlock(void *r)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/rwlock.ny</td></tr>
+<tr><td><code>rwlock_wlock</code></td><td><code>void rwlock_wlock(void *r)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/rwlock.ny</td></tr>
+<tr><td><code>sha256_hex</code></td><td><code>char *sha256_hex(const char *data)</code></td><td><code>rt_crypto.c</code></td><td>1.3.2</td><td>stdlib/crypto/sha256.ny</td></tr>
+<tr><td><code>sha512_hex</code></td><td><code>char *sha512_hex(const char *data)</code></td><td><code>rt_crypto_sha512.c</code></td><td>1.3.3</td><td>stdlib/crypto/sha512.ny</td></tr>
+<tr><td><code>shm_close_fd</code></td><td><code>int32_t shm_close_fd(int32_t fd)</code></td><td><code>rt_shm.c</code></td><td>1.39.0</td><td>stdlib/os/shm.ny</td></tr>
+<tr><td><code>shm_create</code></td><td><code>int32_t shm_create(const char *name, int64_t nbytes)</code></td><td><code>rt_shm.c</code></td><td>1.39.0</td><td>stdlib/os/shm.ny</td></tr>
+<tr><td><code>shm_map</code></td><td><code>void *shm_map(int32_t fd, int64_t nbytes)</code></td><td><code>rt_shm.c</code></td><td>1.39.0</td><td>stdlib/os/shm.ny</td></tr>
+<tr><td><code>shm_open_existing</code></td><td><code>int32_t shm_open_existing(const char *name, int64_t nbytes)</code></td><td><code>rt_shm.c</code></td><td>1.39.0</td><td>stdlib/os/shm.ny</td></tr>
+<tr><td><code>shm_unlink_region</code></td><td><code>int32_t shm_unlink_region(const char *name)</code></td><td><code>rt_shm.c</code></td><td>1.39.0</td><td>stdlib/os/shm.ny</td></tr>
+<tr><td><code>shm_unmap</code></td><td><code>int32_t shm_unmap(void *addr, int64_t nbytes)</code></td><td><code>rt_shm.c</code></td><td>1.39.0</td><td>stdlib/os/shm.ny</td></tr>
+<tr><td><code>sin_f64</code></td><td><code>double sin_f64(double x)</code></td><td><code>rt_math.c</code></td><td>1.16.0</td><td>stdlib/math.ny</td></tr>
+<tr><td><code>sleep_ms</code></td><td><code>void sleep_ms(int ms)</code></td><td><code>rt_time.c</code></td><td>1.1.0</td><td>stdlib/time/instant.ny</td></tr>
+<tr><td><code>spawn</code></td><td><code>void spawn(void)</code></td><td><code>rt_async.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>spawn_capture</code></td><td><code>void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes)</code></td><td><code>rt_spawn.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>spawn_handle_drop</code></td><td><code>void spawn_handle_drop(void *handle)</code></td><td><code>rt_spawn.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>spawn_join</code></td><td><code>int spawn_join(void *handle)</code></td><td><code>rt_spawn.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>spawn_task_capture</code></td><td><code>void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes)</code></td><td><code>rt_task_pool.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>spawn_task_handle_drop</code></td><td><code>void spawn_task_handle_drop(void *handle)</code></td><td><code>rt_task_pool.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>spawn_task_join</code></td><td><code>int spawn_task_join(void *handle)</code></td><td><code>rt_task_pool.c</code></td><td>1.39.0</td><td>—</td></tr>
+<tr><td><code>sqlite_close</code></td><td><code>void sqlite_close(void *handle)</code></td><td><code>rt_sqlite.c</code></td><td>1.3.2</td><td>stdlib/db/sql.ny, stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_column_count</code></td><td><code>int sqlite_column_count(void *stmt)</code></td><td><code>rt_sqlite.c</code></td><td>1.21.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_column_text</code></td><td><code>const char *sqlite_column_text(void *stmt, int col)</code></td><td><code>rt_sqlite.c</code></td><td>1.21.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_exec</code></td><td><code>int sqlite_exec(void *handle, const char *sql)</code></td><td><code>rt_sqlite.c</code></td><td>1.3.2</td><td>stdlib/db/sql.ny, stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_finalize</code></td><td><code>void sqlite_finalize(void *stmt)</code></td><td><code>rt_sqlite.c</code></td><td>1.21.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_last_error</code></td><td><code>const char *sqlite_last_error(void *handle)</code></td><td><code>rt_sqlite.c</code></td><td>1.21.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_open</code></td><td><code>void *sqlite_open(const char *path)</code></td><td><code>rt_sqlite.c</code></td><td>1.3.2</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_prepare</code></td><td><code>void *sqlite_prepare(void *handle, const char *sql)</code></td><td><code>rt_sqlite.c</code></td><td>1.21.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_query_rows</code></td><td><code>void *sqlite_query_rows(void *handle, const char *sql)</code></td><td><code>rt_sqlite.c</code></td><td>1.18.0</td><td>stdlib/db/sql.ny, stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_rowset_at</code></td><td><code>const char *sqlite_rowset_at(void *rowset, int row, int col)</code></td><td><code>rt_sqlite.c</code></td><td>1.18.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_rowset_cols</code></td><td><code>int sqlite_rowset_cols(void *rowset)</code></td><td><code>rt_sqlite.c</code></td><td>1.18.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_rowset_free</code></td><td><code>void sqlite_rowset_free(void *rowset)</code></td><td><code>rt_sqlite.c</code></td><td>1.18.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_rowset_rows</code></td><td><code>int sqlite_rowset_rows(void *rowset)</code></td><td><code>rt_sqlite.c</code></td><td>1.18.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>sqlite_step</code></td><td><code>int sqlite_step(void *stmt)</code></td><td><code>rt_sqlite.c</code></td><td>1.21.0</td><td>stdlib/db/sqlite.ny</td></tr>
+<tr><td><code>stdin_read_bytes</code></td><td><code>void *stdin_read_bytes(int max_bytes)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>stdin_read_key</code></td><td><code>int stdin_read_key(void)</code></td><td><code>rt_io.c</code></td><td>1.16.0</td><td>stdlib/terminal/raw.ny</td></tr>
+<tr><td><code>stdin_read_line</code></td><td><code>char *stdin_read_line(const char *prompt)</code></td><td><code>rt_io.c</code></td><td>1.1.0</td><td>stdlib/bufio/mod.ny, stdlib/terminal/mod.ny</td></tr>
+<tr><td><code>stdin_set_raw_mode</code></td><td><code>void stdin_set_raw_mode(int enable)</code></td><td><code>rt_io.c</code></td><td>1.16.0</td><td>stdlib/terminal/raw.ny</td></tr>
+<tr><td><code>stdout_flush</code></td><td><code>void stdout_flush(void)</code></td><td><code>rt_io.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>stdout_write_bytes</code></td><td><code>void stdout_write_bytes(void *handle)</code></td><td><code>rt_bytes.c</code></td><td>1.3.0</td><td>stdlib/fs/bytes.ny</td></tr>
+<tr><td><code>stdout_write_i32</code></td><td><code>void stdout_write_i32(int n)</code></td><td><code>rt_io.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>stdout_write_str</code></td><td><code>void stdout_write_str(const char *s)</code></td><td><code>rt_io.c</code></td><td>0.2.0</td><td>stdlib/terminal/mod.ny</td></tr>
+<tr><td><code>stdout_writeln_i32</code></td><td><code>void stdout_writeln_i32(int n)</code></td><td><code>rt_io.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>stdout_writeln_str</code></td><td><code>void stdout_writeln_str(const char *s)</code></td><td><code>rt_io.c</code></td><td>0.2.0</td><td>stdlib/log.ny, stdlib/terminal/mod.ny</td></tr>
+<tr><td><code>str_buf_append</code></td><td><code>void str_buf_append(void *handle, const char *piece)</code></td><td><code>rt_str_buf.c</code></td><td>1.39.0</td><td>stdlib/strings/builder.ny</td></tr>
+<tr><td><code>str_buf_append_char</code></td><td><code>void str_buf_append_char(void *handle, int ch)</code></td><td><code>rt_str_buf.c</code></td><td>1.39.0</td><td>stdlib/strings/builder.ny</td></tr>
+<tr><td><code>str_buf_build</code></td><td><code>char *str_buf_build(void *handle)</code></td><td><code>rt_str_buf.c</code></td><td>1.39.0</td><td>stdlib/strings/builder.ny</td></tr>
+<tr><td><code>str_buf_drop</code></td><td><code>void str_buf_drop(void *handle)</code></td><td><code>rt_str_buf.c</code></td><td>1.39.0</td><td>stdlib/strings/builder.ny</td></tr>
+<tr><td><code>str_buf_new</code></td><td><code>void *str_buf_new(void)</code></td><td><code>rt_str_buf.c</code></td><td>1.39.0</td><td>stdlib/strings/builder.ny</td></tr>
+<tr><td><code>str_cat</code></td><td><code>char *str_cat(const char *a, const char *b)</code></td><td><code>rt_strings.c</code></td><td>0.2.0</td><td>—</td></tr>
+<tr><td><code>str_clone</code></td><td><code>char *str_clone(const char *s)</code></td><td><code>rt_alloc.c</code></td><td>3.0.0</td><td>—</td></tr>
+<tr><td><code>str_cmp</code></td><td><code>int str_cmp(const char *a, const char *b)</code></td><td><code>rt_strings.c</code></td><td>0.3.0</td><td>—</td></tr>
+<tr><td><code>str_contains</code></td><td><code>int str_contains(const char *hay, const char *needle)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_ends_with</code></td><td><code>int str_ends_with(const char *s, const char *suffix)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_len</code></td><td><code>int str_len(const char *s)</code></td><td><code>rt_strings.c</code></td><td>0.2.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_pop</code></td><td><code>char *str_pop(const char *s)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/gui/buffer.ny, stdlib/strings.ny</td></tr>
+<tr><td><code>str_push_char</code></td><td><code>char *str_push_char(const char *s, int ch)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/gui/buffer.ny, stdlib/strings.ny</td></tr>
+<tr><td><code>str_replace</code></td><td><code>char *str_replace(const char *s, const char *from, const char *to)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_replacen</code></td><td><code>char *str_replacen(const char *s, const char *from, const char *to, int count)</code></td><td><code>rt_strings.c</code></td><td>1.5.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_split</code></td><td><code>void *str_split(const char *s, const char *sep)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/builtins_string.ny</td></tr>
+<tr><td><code>str_starts_with</code></td><td><code>int str_starts_with(const char *s, const char *prefix)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_strip_ansi</code></td><td><code>char *str_strip_ansi(const char *input)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>str_strip_suffix</code></td><td><code>char *str_strip_suffix(const char *s, const char *suffix)</code></td><td><code>rt_strings.c</code></td><td>1.0.0</td><td>stdlib/strings.ny</td></tr>
+<tr><td><code>str_to_f64</code></td><td><code>double str_to_f64(const char *s)</code></td><td><code>rt_strings.c</code></td><td>1.3.3</td><td>stdlib/strconv/mod.ny</td></tr>
+<tr><td><code>str_to_i32</code></td><td><code>int str_to_i32(const char *s)</code></td><td><code>rt_strings.c</code></td><td>1.3.0</td><td>stdlib/strconv/mod.ny, stdlib/strings.ny</td></tr>
+<tr><td><code>str_to_lower</code></td><td><code>char *str_to_lower(const char *s)</code></td><td><code>rt_strings.c</code></td><td>1.1.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_to_upper</code></td><td><code>char *str_to_upper(const char *s)</code></td><td><code>rt_strings.c</code></td><td>1.1.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>str_trim</code></td><td><code>char *str_trim(const char *s)</code></td><td><code>rt_strings.c</code></td><td>1.1.0</td><td>stdlib/strings/ops.ny</td></tr>
+<tr><td><code>strstr_pos</code></td><td><code>int strstr_pos(const char *hay, const char *needle)</code></td><td><code>rt_strings.c</code></td><td>0.3.0</td><td>stdlib/config/mod.ny, stdlib/gui/picker.ny, stdlib/gui/syntax.ny, stdlib/strings.ny</td></tr>
+<tr><td><code>substring</code></td><td><code>char *substring(const char *s, int start, int len)</code></td><td><code>rt_strings.c</code></td><td>0.3.0</td><td>stdlib/games/audio.ny, stdlib/gui/buffer.ny, stdlib/gui/picker.ny, stdlib/gui/syntax.ny, stdlib/strings.ny, stdlib/uuid/mod.ny</td></tr>
+<tr><td><code>sys_accept</code></td><td><code>int sys_accept(int listener_fd)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>sys_close</code></td><td><code>void sys_close(int fd)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>sys_connect</code></td><td><code>int sys_connect(const char *host, int port)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>sys_listen</code></td><td><code>int sys_listen(const char *host, int port)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>sys_recv</code></td><td><code>char *sys_recv(int fd, int max_bytes)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>sys_send</code></td><td><code>int sys_send(int fd, const char *data)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>sys_set_nonblock</code></td><td><code>int sys_set_nonblock(int fd)</code></td><td><code>rt_net.c</code></td><td>0.3.0</td><td>stdlib/net/syscall.ny</td></tr>
+<tr><td><code>tan_f64</code></td><td><code>double tan_f64(double x)</code></td><td><code>rt_math.c</code></td><td>1.16.0</td><td>stdlib/math.ny</td></tr>
+<tr><td><code>tar_create</code></td><td><code>int tar_create(const char *archive, void *paths_vec)</code></td><td><code>rt_tar.c</code></td><td>1.3.0</td><td>stdlib/archive/tar.ny</td></tr>
+<tr><td><code>tar_extract</code></td><td><code>int tar_extract(const char *archive, const char *out_dir)</code></td><td><code>rt_tar.c</code></td><td>1.3.0</td><td>stdlib/archive/tar.ny</td></tr>
+<tr><td><code>time_end</code></td><td><code>void time_end(const char *label)</code></td><td><code>rt_time.c</code></td><td>0.2.0</td><td>stdlib/bench/mod.ny, stdlib/profile/mod.ny, stdlib/time.ny</td></tr>
+<tr><td><code>time_start</code></td><td><code>void time_start(const char *label)</code></td><td><code>rt_time.c</code></td><td>0.2.0</td><td>stdlib/bench/mod.ny, stdlib/profile/mod.ny, stdlib/time.ny</td></tr>
+<tr><td><code>tls_available</code></td><td><code>int tls_available(void)</code></td><td><code>rt_tls.c</code></td><td>1.0.0</td><td>stdlib/tls.ny</td></tr>
+<tr><td><code>vec_bytes_free</code></td><td><code>void vec_bytes_free(void *handle)</code></td><td><code>rt_vec.c</code></td><td>1.17.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_bytes_get</code></td><td><code>void vec_bytes_get(void *handle, int index, void *out)</code></td><td><code>rt_vec.c</code></td><td>1.17.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_bytes_get_ptr</code></td><td><code>void *vec_bytes_get_ptr(void *handle, int index)</code></td><td><code>rt_vec.c</code></td><td>1.25.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_bytes_len</code></td><td><code>int vec_bytes_len(void *handle)</code></td><td><code>rt_vec.c</code></td><td>1.17.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_bytes_new</code></td><td><code>void *vec_bytes_new(int elem_size)</code></td><td><code>rt_vec.c</code></td><td>1.17.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_bytes_push</code></td><td><code>void vec_bytes_push(void *handle, void *elem)</code></td><td><code>rt_vec.c</code></td><td>1.17.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_bytes_push_ptr</code></td><td><code>void vec_bytes_push_ptr(void *handle, void *elem)</code></td><td><code>rt_vec.c</code></td><td>1.25.0</td><td>stdlib/collections/vec_pod.ny</td></tr>
+<tr><td><code>vec_i32_free</code></td><td><code>void vec_i32_free(void *handle)</code></td><td><code>rt_vec.c</code></td><td>0.4.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_i32_get</code></td><td><code>int vec_i32_get(void *handle, int index)</code></td><td><code>rt_vec.c</code></td><td>0.4.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_i32_len</code></td><td><code>int vec_i32_len(void *handle)</code></td><td><code>rt_vec.c</code></td><td>0.4.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_i32_new</code></td><td><code>void *vec_i32_new(void)</code></td><td><code>rt_vec.c</code></td><td>0.4.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_i32_pop</code></td><td><code>int vec_i32_pop(void *handle)</code></td><td><code>rt_vec.c</code></td><td>1.1.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_i32_push</code></td><td><code>void vec_i32_push(void *handle, int value)</code></td><td><code>rt_vec.c</code></td><td>0.4.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_i32_set</code></td><td><code>void vec_i32_set(void *handle, int index, int value)</code></td><td><code>rt_vec.c</code></td><td>1.20.0</td><td>stdlib/vec.ny</td></tr>
+<tr><td><code>vec_str_free</code></td><td><code>void vec_str_free(void *handle)</code></td><td><code>rt_vec.c</code></td><td>1.3.0</td><td>stdlib/vec_str.ny</td></tr>
+<tr><td><code>vec_str_from_argv</code></td><td><code>void *vec_str_from_argv(int start_index)</code></td><td><code>rt_args.c</code></td><td>1.3.0</td><td>stdlib/vec_str.ny</td></tr>
+<tr><td><code>vec_str_get</code></td><td><code>const char *vec_str_get(void *handle, int index)</code></td><td><code>rt_vec.c</code></td><td>1.3.0</td><td>stdlib/vec_str.ny</td></tr>
+<tr><td><code>vec_str_len</code></td><td><code>int vec_str_len(void *handle)</code></td><td><code>rt_vec.c</code></td><td>1.3.0</td><td>stdlib/vec_str.ny</td></tr>
+<tr><td><code>vec_str_new</code></td><td><code>void *vec_str_new(void)</code></td><td><code>rt_vec.c</code></td><td>1.3.0</td><td>stdlib/vec_str.ny</td></tr>
+<tr><td><code>vec_str_push</code></td><td><code>void vec_str_push(void *handle, const char *value)</code></td><td><code>rt_vec.c</code></td><td>1.3.0</td><td>stdlib/vec_str.ny</td></tr>
+<tr><td><code>waitgroup_add</code></td><td><code>void waitgroup_add(void *wg, int delta)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/waitgroup.ny</td></tr>
+<tr><td><code>waitgroup_done</code></td><td><code>void waitgroup_done(void *wg)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/waitgroup.ny</td></tr>
+<tr><td><code>waitgroup_free</code></td><td><code>void waitgroup_free(void *wg)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/waitgroup.ny</td></tr>
+<tr><td><code>waitgroup_new</code></td><td><code>void *waitgroup_new(void)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/waitgroup.ny</td></tr>
+<tr><td><code>waitgroup_wait</code></td><td><code>void waitgroup_wait(void *wg)</code></td><td><code>rt_sync.c</code></td><td>1.3.3</td><td>stdlib/sync/waitgroup.ny</td></tr>
+<tr><td><code>write_file</code></td><td><code>int write_file(const char *path, const char *content)</code></td><td><code>rt_fs.c</code></td><td>0.2.0</td><td>stdlib/compress/mod.ny, stdlib/fs/file.ny</td></tr>
+<tr><td><code>ws_accept_handshake</code></td><td><code>int ws_accept_handshake(int listener_fd)</code></td><td><code>rt_websocket.c</code></td><td>1.11.0</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_accept_tls_handshake</code></td><td><code>int ws_accept_tls_handshake(int tls_listener_handle)</code></td><td><code>rt_websocket.c</code></td><td>1.14.0</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_close</code></td><td><code>void ws_close(int fd)</code></td><td><code>rt_websocket.c</code></td><td>1.3.3</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_connect</code></td><td><code>int ws_connect(const char *url)</code></td><td><code>rt_websocket.c</code></td><td>1.3.3</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_listen</code></td><td><code>int ws_listen(const char *host, int port)</code></td><td><code>rt_websocket.c</code></td><td>1.11.0</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_listen_tls</code></td><td><code>int ws_listen_tls(const char *cert_path, const char *key_path, const char *host, int port)</code></td><td><code>rt_websocket.c</code></td><td>1.14.0</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_recv_text</code></td><td><code>char *ws_recv_text(int fd, int max_bytes)</code></td><td><code>rt_websocket.c</code></td><td>1.3.3</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_send_text</code></td><td><code>int ws_send_text(int fd, const char *text)</code></td><td><code>rt_websocket.c</code></td><td>1.3.3</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>ws_send_text_server</code></td><td><code>int ws_send_text_server(int handle, const char *text)</code></td><td><code>rt_websocket.c</code></td><td>1.11.0</td><td>stdlib/net/websocket.ny</td></tr>
+<tr><td><code>x509_available</code></td><td><code>int x509_available(void)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/x509.ny</td></tr>
+<tr><td><code>x509_pem_issuer</code></td><td><code>char *x509_pem_issuer(const char *pem_cert)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/x509.ny</td></tr>
+<tr><td><code>x509_pem_subject</code></td><td><code>char *x509_pem_subject(const char *pem_cert)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/x509.ny</td></tr>
+<tr><td><code>x509_pem_verify_time</code></td><td><code>int x509_pem_verify_time(const char *pem_cert)</code></td><td><code>rt_crypto_openssl.c</code></td><td>1.3.3</td><td>stdlib/crypto/x509.ny</td></tr>
+<tr><td><code>zip_create_file</code></td><td><code>int zip_create_file(const char *archive_path, const char *source_path, const char *entry_name)</code></td><td><code>rt_zip.c</code></td><td>1.3.3</td><td>stdlib/archive/zip.ny</td></tr>
+<tr><td><code>zip_extract_file</code></td><td><code>int zip_extract_file(const char *archive_path, const char *dest_path)</code></td><td><code>rt_zip.c</code></td><td>1.3.3</td><td>stdlib/archive/zip.ny</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Experimental bindings (83)</h2>
+      <table>
+        <thead><tr><th>Symbol</th><th>C signature</th><th>RT module</th><th>Since</th><th>Nyra stdlib</th></tr></thead>
+        <tbody>
+<tr><td><code>_mysql_stub_open</code></td><td><code>void *_mysql_stub_open(const char *dsn)</code></td><td><code>rt_db.c</code></td><td>1.3.3</td><td>stdlib/db/mysql.ny</td></tr>
+<tr><td><code>_postgres_stub_open</code></td><td><code>void *_postgres_stub_open(const char *dsn)</code></td><td><code>rt_db.c</code></td><td>1.3.3</td><td>stdlib/db/postgres.ny</td></tr>
+<tr><td><code>_sqlite_null_handle</code></td><td><code>void *_sqlite_null_handle(void)</code></td><td><code>rt_db.c</code></td><td>1.3.1</td><td>stdlib/db/sql.ny</td></tr>
+<tr><td><code>asm_nop</code></td><td><code>void asm_nop(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>asm_pause</code></td><td><code>void asm_pause(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>blackbox_i32</code></td><td><code>void blackbox_i32(void)</code></td><td><code>rt_bench.c</code></td><td>0.5.0</td><td>stdlib/bench/mod.ny</td></tr>
+<tr><td><code>bounds_assert_i32</code></td><td><code>void bounds_assert_i32(int ok)</code></td><td><code>rt_array.c</code></td><td>1.3.0</td><td>—</td></tr>
+<tr><td><code>hw_cpu_brand</code></td><td><code>char *hw_cpu_brand(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_cpu_cache_line_size</code></td><td><code>int32_t hw_cpu_cache_line_size(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_cpu_has_avx</code></td><td><code>int32_t hw_cpu_has_avx(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_cpu_has_avx2</code></td><td><code>int32_t hw_cpu_has_avx2(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_cpu_has_sse42</code></td><td><code>int32_t hw_cpu_has_sse42(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_cpu_logical_cores</code></td><td><code>int32_t hw_cpu_logical_cores(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_cpu_physical_cores</code></td><td><code>int32_t hw_cpu_physical_cores(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/cpu.ny</td></tr>
+<tr><td><code>hw_disk_free_bytes</code></td><td><code>int64_t hw_disk_free_bytes(const char *path)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/storage.ny</td></tr>
+<tr><td><code>hw_disk_fs_type</code></td><td><code>char *hw_disk_fs_type(const char *path)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/storage.ny</td></tr>
+<tr><td><code>hw_disk_total_bytes</code></td><td><code>int64_t hw_disk_total_bytes(const char *path)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/storage.ny</td></tr>
+<tr><td><code>hw_display_brightness_pct</code></td><td><code>int32_t hw_display_brightness_pct(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/display.ny</td></tr>
+<tr><td><code>hw_display_height</code></td><td><code>int32_t hw_display_height(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/display.ny</td></tr>
+<tr><td><code>hw_display_refresh_hz</code></td><td><code>int32_t hw_display_refresh_hz(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/display.ny</td></tr>
+<tr><td><code>hw_display_width</code></td><td><code>int32_t hw_display_width(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/display.ny</td></tr>
+<tr><td><code>hw_dma_available</code></td><td><code>int32_t hw_dma_available(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/memory.ny</td></tr>
+<tr><td><code>hw_mem_map_anonymous</code></td><td><code>void *hw_mem_map_anonymous(int64_t nbytes)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/memory.ny</td></tr>
+<tr><td><code>hw_mem_map_file</code></td><td><code>void *hw_mem_map_file(const char *path, int64_t nbytes, int32_t writable)</code></td><td><code>rt_hw.c</code></td><td>1.39.0</td><td>stdlib/os/memory.ny</td></tr>
+<tr><td><code>hw_mem_page_size</code></td><td><code>int32_t hw_mem_page_size(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/memory.ny</td></tr>
+<tr><td><code>hw_mem_sync</code></td><td><code>int32_t hw_mem_sync(void *addr, int64_t nbytes)</code></td><td><code>rt_hw.c</code></td><td>1.39.0</td><td>stdlib/os/memory.ny</td></tr>
+<tr><td><code>hw_mem_unmap</code></td><td><code>int32_t hw_mem_unmap(void *addr, int64_t nbytes)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/memory.ny</td></tr>
+<tr><td><code>hw_net_if_count</code></td><td><code>int32_t hw_net_if_count(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/netif.ny</td></tr>
+<tr><td><code>hw_net_if_is_up</code></td><td><code>int32_t hw_net_if_is_up(int32_t index)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/netif.ny</td></tr>
+<tr><td><code>hw_net_if_mac</code></td><td><code>char *hw_net_if_mac(int32_t index)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/netif.ny</td></tr>
+<tr><td><code>hw_net_if_name</code></td><td><code>char *hw_net_if_name(int32_t index)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/netif.ny</td></tr>
+<tr><td><code>hw_power_cpu_temp_centi_c</code></td><td><code>int32_t hw_power_cpu_temp_centi_c(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/power.ny</td></tr>
+<tr><td><code>hw_power_on_ac</code></td><td><code>int32_t hw_power_on_ac(void)</code></td><td><code>rt_hw.c</code></td><td>1.3.0</td><td>stdlib/os/power.ny</td></tr>
+<tr><td><code>mysql_close</code></td><td><code>void mysql_close(void *handle)</code></td><td><code>rt_db.c</code></td><td>1.3.3</td><td>stdlib/db/mysql.ny</td></tr>
+<tr><td><code>mysql_exec</code></td><td><code>int mysql_exec(void *handle, const char *sql)</code></td><td><code>rt_db.c</code></td><td>1.3.3</td><td>stdlib/db/mysql.ny</td></tr>
+<tr><td><code>os_battery_percent</code></td><td><code>void os_battery_percent(void)</code></td><td><code>rt_os.c</code></td><td>0.5.0</td><td>stdlib/os/battery.ny</td></tr>
+<tr><td><code>os_close_fd</code></td><td><code>void os_close_fd(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>os_exit</code></td><td><code>void os_exit(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>os_getpid</code></td><td><code>void os_getpid(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>os_page_size</code></td><td><code>void os_page_size(void)</code></td><td><code>rt_os.c</code></td><td>0.5.0</td><td>stdlib/os/platform.ny</td></tr>
+<tr><td><code>os_platform_id</code></td><td><code>void os_platform_id(void)</code></td><td><code>rt_os.c</code></td><td>0.5.0</td><td>stdlib/os/platform.ny</td></tr>
+<tr><td><code>os_platform_name</code></td><td><code>void os_platform_name(void)</code></td><td><code>rt_os.c</code></td><td>0.5.0</td><td>stdlib/os/platform.ny</td></tr>
+<tr><td><code>os_read</code></td><td><code>void os_read(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>os_syscall6</code></td><td><code>void os_syscall6(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>os_write</code></td><td><code>void os_write(void)</code></td><td><code>rt_syscall.c</code></td><td>0.5.0</td><td>stdlib/os/syscall.ny</td></tr>
+<tr><td><code>postgres_close</code></td><td><code>void postgres_close(void *handle)</code></td><td><code>rt_db.c</code></td><td>1.3.3</td><td>stdlib/db/postgres.ny</td></tr>
+<tr><td><code>postgres_exec</code></td><td><code>int postgres_exec(void *handle, const char *sql)</code></td><td><code>rt_db.c</code></td><td>1.3.3</td><td>stdlib/db/postgres.ny</td></tr>
+<tr><td><code>race_clear_access</code></td><td><code>void race_clear_access(void *addr)</code></td><td><code>rt_race.c</code></td><td>1.9.0</td><td>stdlib/race.ny</td></tr>
+<tr><td><code>race_runtime_enabled</code></td><td><code>int race_runtime_enabled(void)</code></td><td><code>rt_race.c</code></td><td>1.9.0</td><td>stdlib/race.ny</td></tr>
+<tr><td><code>race_runtime_init</code></td><td><code>void race_runtime_init(void)</code></td><td><code>rt_race.c</code></td><td>1.9.0</td><td>stdlib/race.ny</td></tr>
+<tr><td><code>race_track_read</code></td><td><code>void race_track_read(void *addr, int64_t nbytes)</code></td><td><code>rt_race.c</code></td><td>1.9.0</td><td>stdlib/race.ny</td></tr>
+<tr><td><code>race_track_write</code></td><td><code>void race_track_write(void *addr, int64_t nbytes)</code></td><td><code>rt_race.c</code></td><td>1.9.0</td><td>stdlib/race.ny</td></tr>
+<tr><td><code>rt_affinity_get_thread_cpu</code></td><td><code>int32_t rt_affinity_get_thread_cpu(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/affinity.ny</td></tr>
+<tr><td><code>rt_affinity_set_thread_cpu</code></td><td><code>int32_t rt_affinity_set_thread_cpu(int32_t core_index)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/affinity.ny</td></tr>
+<tr><td><code>rt_clock_monotonic_ns</code></td><td><code>int64_t rt_clock_monotonic_ns(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/clocks.ny</td></tr>
+<tr><td><code>rt_clock_rdtsc</code></td><td><code>int64_t rt_clock_rdtsc(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/clocks.ny</td></tr>
+<tr><td><code>rt_hw_random_bytes</code></td><td><code>char *rt_hw_random_bytes(int32_t count)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/hw_crypto.ny</td></tr>
+<tr><td><code>rt_hw_secure_enclave_available</code></td><td><code>int32_t rt_hw_secure_enclave_available(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/hw_crypto.ny</td></tr>
+<tr><td><code>rt_mqueue_close</code></td><td><code>int32_t rt_mqueue_close(int32_t mq_id)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/mqueue.ny</td></tr>
+<tr><td><code>rt_mqueue_open</code></td><td><code>int32_t rt_mqueue_open(const char *name, int32_t max_msgs, int32_t msg_size)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/mqueue.ny</td></tr>
+<tr><td><code>rt_mqueue_recv</code></td><td><code>char *rt_mqueue_recv(int32_t mq_id, int32_t max_bytes)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/mqueue.ny</td></tr>
+<tr><td><code>rt_mqueue_send</code></td><td><code>int32_t rt_mqueue_send(int32_t mq_id, const char *msg)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/mqueue.ny</td></tr>
+<tr><td><code>rt_os_getenv</code></td><td><code>void rt_os_getenv(void)</code></td><td><code>rt_os.c</code></td><td>0.5.0</td><td>stdlib/os/env.ny</td></tr>
+<tr><td><code>rt_os_setenv</code></td><td><code>int rt_os_setenv(const char *name, const char *value)</code></td><td><code>rt_os.c</code></td><td>0.5.0</td><td>stdlib/env/mod.ny</td></tr>
+<tr><td><code>rt_perm_chroot</code></td><td><code>int32_t rt_perm_chroot(const char *path)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/permissions.ny</td></tr>
+<tr><td><code>rt_perm_drop_to_uid</code></td><td><code>int32_t rt_perm_drop_to_uid(int32_t uid)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/permissions.ny</td></tr>
+<tr><td><code>rt_perm_geteuid</code></td><td><code>int32_t rt_perm_geteuid(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/permissions.ny</td></tr>
+<tr><td><code>rt_perm_getuid</code></td><td><code>int32_t rt_perm_getuid(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/permissions.ny</td></tr>
+<tr><td><code>rt_perm_sandbox_seatbelt_available</code></td><td><code>int32_t rt_perm_sandbox_seatbelt_available(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/permissions.ny</td></tr>
+<tr><td><code>rt_serial_close</code></td><td><code>int32_t rt_serial_close(int32_t handle)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/serial.ny</td></tr>
+<tr><td><code>rt_serial_open</code></td><td><code>int32_t rt_serial_open(const char *path, int32_t baud)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/serial.ny</td></tr>
+<tr><td><code>rt_serial_read</code></td><td><code>char *rt_serial_read(int32_t handle, int32_t max_bytes)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/serial.ny</td></tr>
+<tr><td><code>rt_serial_write</code></td><td><code>int32_t rt_serial_write(int32_t handle, const char *data)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/serial.ny</td></tr>
+<tr><td><code>rt_signal_install</code></td><td><code>int32_t rt_signal_install(int32_t sig_num)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/signals.ny</td></tr>
+<tr><td><code>rt_signal_poll</code></td><td><code>int32_t rt_signal_poll(int32_t sig_num)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/signals.ny</td></tr>
+<tr><td><code>rt_usb_device_count</code></td><td><code>int32_t rt_usb_device_count(void)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/usb.ny</td></tr>
+<tr><td><code>rt_usb_device_path</code></td><td><code>char *rt_usb_device_path(int32_t index)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/usb.ny</td></tr>
+<tr><td><code>rt_usb_device_pid</code></td><td><code>int32_t rt_usb_device_pid(int32_t index)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/usb.ny</td></tr>
+<tr><td><code>rt_usb_device_vid</code></td><td><code>int32_t rt_usb_device_vid(int32_t index)</code></td><td><code>rt_os_adv.c</code></td><td>1.4.0</td><td>stdlib/os/usb.ny</td></tr>
+<tr><td><code>volatile_load_i32</code></td><td><code>void volatile_load_i32(void)</code></td><td><code>rt_volatile.c</code></td><td>0.5.0</td><td>stdlib/core/mem.ny</td></tr>
+<tr><td><code>volatile_load_u32</code></td><td><code>void volatile_load_u32(void)</code></td><td><code>rt_volatile.c</code></td><td>0.5.0</td><td>stdlib/core/mem.ny</td></tr>
+<tr><td><code>volatile_store_i32</code></td><td><code>void volatile_store_i32(void)</code></td><td><code>rt_volatile.c</code></td><td>0.5.0</td><td>stdlib/core/mem.ny</td></tr>
+<tr><td><code>volatile_store_u32</code></td><td><code>void volatile_store_u32(void)</code></td><td><code>rt_volatile.c</code></td><td>0.5.0</td><td>stdlib/core/mem.ny</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Package bindings (NyraPkg)</h2>
+      <table>
+        <thead><tr><th>Package</th><th>Nyra module</th><th>C shim</th><th>Native lib</th></tr></thead>
+        <tbody>
+          <tr><td><code>ny-sqlite</code></td><td><code>sqlite.ny</code></td><td><code>rt/sqlite.c</code></td><td><code>-lsqlite3</code></td></tr>
+        </tbody>
+      </table>
+      <p>Install: <code>nyra pkg install ny-sqlite@^0.1.0</code> then <code>import "pkg/ny-sqlite"</code>. See <a href="packages.html">NyraPkg</a>.</p>
+
+      <footer class="site-footer"><a href="packages.html">NyraPkg →</a></footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>

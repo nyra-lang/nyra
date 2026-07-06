@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Language basics — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="language-basics">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a class="active" href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.language-basics.h1">Language basics</h1>
+      <p class="lead" data-i18n-html="pages.language-basics.lead">Learn Nyra from zero — no prior programming experience required. Every keyword is explained in plain language with runnable examples.</p>
+
+      <div class="callout">
+        <strong>New to programming?</strong>
+        <p>Start the <a href="beginner-track.html">Beginner track</a> — eight guided lessons with line-by-line explanations, try-it exercises, and common mistakes. Use this page as a reference once you finish the track.</p>
+      </div>
+
+      <div class="callout">
+        <strong data-i18n="pages.language-basics.audienceTitle">Who is this for?</strong>
+        <p data-i18n-html="pages.language-basics.audienceBody">If you have never written code before, start here. We explain <em>what</em> each piece of syntax means and <em>why</em> you would use it — not just how to type it.</p>
+      </div>
+
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <ul>
+          <li><a href="#structure">Program structure</a></li>
+          <li><a href="#variables">Variables overview</a></li>
+          <li><a href="#let">let — bind a name</a></li>
+          <li><a href="#mut">mut — mutable (changeable)</a></li>
+          <li><a href="#const">const — constants</a></li>
+          <li><a href="#let-vs-mut-vs-const">let vs mut vs const</a></li>
+          <li><a href="#types">Types</a></li>
+          <li><a href="#functions">Functions</a></li>
+          <li><a href="#loops">Loops</a></li>
+          <li><a href="#conditionals">Conditionals</a></li>
+          <li><a href="#structs">Structs</a></li>
+          <li><a href="#enums">Enums &amp; match</a></li>
+          <li><a href="#imports">Imports</a></li>
+          <li><a href="#methods">Methods</a></li>
+          <li><a href="#io">Built-in I/O</a></li>
+          <li><a href="#next">Next steps</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="structure">Program structure</h2>
+      <p>A <strong>program</strong> is a list of instructions the computer runs from top to bottom. In Nyra, the entry point is always a function called <code>main</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;Hello, Nyra!&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;Hello, Nyra!&quot;)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
+        <li><code>fn main()</code> — defines the function named <code>main</code>. When you run the program, execution starts here.</li>
+        <li><code>{</code> … <code>}</code> — a <strong>block</strong>. Code inside the block runs together. Indentation helps you read it; Nyra does not require specific spacing.</li>
+        <li><code>print(...)</code> — sends text or numbers to the screen (standard output).</li>
+        <li><code>// comment</code> — notes for humans; the compiler ignores everything after <code>//</code> on that line.</li>
+      </ul>
+      <p><strong>Try it:</strong> save as <code>hello.ny</code>, then run <code>nyra run hello.ny</code>. For a folder with <code>main.ny</code>, run <code>nyra run .</code> from that folder.</p>
+
+      <h2 id="variables">Variables overview</h2>
+      <p>A <strong>variable</strong> is a <em>name</em> you give to a value so you can use it later — like labeling a box with what is inside.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let age = 25
+print(age)    // prints 25</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let age: i32 = 25
+print(age)    // prints 25</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Here <code>age</code> is the name, and <code>25</code> is the value stored under that name. When the program runs, Nyra remembers that <code>age</code> means <code>25</code>.</p>
+      <p>Nyra gives you three main ways to introduce names:</p>
+      <ul>
+        <li><code>let</code> — a normal binding; the value should not be replaced later.</li>
+        <li><code>let mut</code> — a binding you <strong>can</strong> change later (counters, accumulators, game state).</li>
+        <li><code>const</code> — a fixed name for a value known when the program is compiled.</li>
+      </ul>
+
+      <h2 id="let">let — bind a name (immutable)</h2>
+      <p><code>let</code> creates a variable and sets its initial value. By default the binding is <strong>immutable</strong>: after the first assignment, you must not assign a new value to that name.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let player_name = &quot;Nyra&quot;
+let score = 10
+let pi_approx = 3
+
+print(score)   // OK — reading is always fine</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let player_name: string = &quot;Nyra&quot;
+let score: i32 = 10
+let pi_approx: i32 = 3
+
+print(score)   // OK — reading is always fine</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Why immutable by default?</strong> When a value never changes, the compiler and other readers of your code can reason about it more easily. Most variables in a program never need to change.</p>
+      <p><strong>Type inference:</strong> Nyra figures out the type from the value. <code>10</code> is an <code>i32</code> (integer). <code>"Nyra"</code> is a <code>string</code>. You can write the type explicitly if you want: <code>let score: i32 = 10</code>.</p>
+      <div class="callout">
+        <strong>What if you try to change it?</strong>
+        <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let score = 10
+score = 20   // compile error — score is not mut</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let score: i32 = 10
+score = 20   // compile error — score is not mut</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->        <p>Nyra stops at compile time with an error telling you to use <code>let mut</code> if the value must change.</p>
+      </div>
+
+      <h2 id="mut">mut — short for <em>mutable</em></h2>
+      <p><code>mut</code> is an abbreviation of <strong>mutable</strong> — meaning the variable is <strong>allowed to change</strong> after it is created. You use it when the value will be updated later (loops, counters, running totals).</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let mut lives = 3
+lives = lives - 1    // OK — lives is mutable
+print(lives)         // 2</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let mut lives: i32 = 3
+lives = lives - 1    // OK — lives is mutable
+print(lives)         // 2</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Think of <code>let mut</code> as: “create a named box, and I will put different values in it over time.”</p>
+      <h3>Shorthand: <code>mut</code> without <code>let</code></h3>
+      <p>In some examples you will see <code>mut sum = 0</code> instead of <code>let mut sum = 0</code>. Both declare a mutable variable; the shorter form appears in loops and benchmarks.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    mut counter = 0
+    counter = counter + 1
+    print(counter)   // 1
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    mut counter = 0
+    counter = counter + 1
+    print(counter)   // 1
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>When you need <code>mut</code></h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let mut i = 0
+while i &lt; 3 {
+    print(i)
+    i = i + 1        // i must be mut — we change it every loop
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let mut i: i32 = 0
+while i &lt; 3 {
+    print(i)
+    i = i + 1        // i must be mut — we change it every loop
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Without <code>mut</code>, the line <code>i = i + 1</code> would be rejected — you cannot reassign an immutable <code>let</code>.</p>
+
+      <h2 id="const">const — compile-time constants</h2>
+      <p><code>const</code> defines a <strong>constant</strong>: a name for a value that is fixed for the entire program and known when you compile (not computed at runtime).</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>const MAX_PLAYERS = 4
+const GRID_SIZE = 8
+
+fn main() {
+    print(MAX_PLAYERS)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>const MAX_PLAYERS = 4
+const GRID_SIZE = 8
+
+fn main() -&gt; void {
+    print(MAX_PLAYERS)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th></tr></thead>
+        <tbody>
+          <tr><td><strong>Can reassign?</strong></td><td>No</td><td>Yes</td><td>No</td></tr>
+          <tr><td><strong>Value set when?</strong></td><td>At that line in <code>main</code> (or any function)</td><td>At that line; can change later</td><td>At compile time (fixed)</td></tr>
+          <tr><td><strong>Typical use</strong></td><td>Most values that do not change</td><td>Counters, loops, game state</td><td>Limits, config names, magic numbers</td></tr>
+          <tr><td><strong>Example</strong></td><td><code>let name = "Ali"</code></td><td><code>let mut hp = 100</code></td><td><code>const MAX_HP = 100</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="let-vs-mut-vs-const">let vs mut vs const — side by side</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>const MAX = 100          // never changes; known at compile time
+
+let title = &quot;Dungeon&quot;    // set once at runtime; do not reassign
+// title = &quot;Other&quot;       // ERROR
+
+let mut gold = 0         // starts at 0; we will add to it
+gold = gold + 15         // OK
+print(gold)              // 15</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>const MAX = 100          // never changes; known at compile time
+
+let title = &quot;Dungeon&quot;    // set once at runtime; do not reassign
+// title = &quot;Other&quot;       // ERROR
+
+let mut gold: i32 = 0
+gold = gold + 15         // OK
+print(gold)              // 15</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Rule of thumb:</strong> use <code>let</code> unless you need to reassign — then use <code>let mut</code>. Use <code>const</code> for shared fixed numbers used in many places.</p>
+      <p>Heap <code>string</code> follows <strong>Move</strong> rules; structs with only number fields are <strong>auto-Copy</strong>. Calls often <strong>auto-borrow</strong> — see <a href="ownership-ux.html">Ownership UX</a> and <a href="memory.html">Memory &amp; ownership</a>.</p>
+      <div class="callout"><strong>Repo example:</strong> <code>examples/comparison/arithmetic/sum.ny</code></div>
+
+      <h2 id="types">Types — what kind of value is it?</h2>
+      <p>A <strong>type</strong> tells Nyra what operations are allowed. You cannot add a string to an integer; the type checker catches mistakes before the program runs.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let n = 0       // integer (32-bit)
+let ok = true  // true or false
+let msg = &quot;hi&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let n: i32 = 0
+let ok = true  // true or false
+let msg: string = &quot;hi&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Usually Nyra <strong>infers</strong> the type so you can omit <code>: i32</code>. Float literals like <code>3.14</code> infer <code>f64</code>. Add annotations when it helps readability or the compiler needs a hint.</p>
+      <table>
+        <thead><tr><th>Type</th><th>Example value</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td><code>i32</code></td><td><code>42</code>, <code>-1</code></td><td>Whole numbers (scores, counts)</td></tr>
+          <tr><td><code>f64</code></td><td><code>3.14</code>, <code>19.99</code></td><td>Decimals (price, rating, lat/lng, progress)</td></tr>
+          <tr><td><code>bool</code></td><td><code>true</code>, <code>false</code></td><td>Yes/no decisions in <code>if</code> and loops</td></tr>
+          <tr><td><code>string</code></td><td><code>"hello"</code></td><td>Text</td></tr>
+          <tr><td><code>void</code></td><td>—</td><td>“This function returns nothing”</td></tr>
+          <tr><td><code>struct</code></td><td><code>Point { x: 1, y: 2 }</code></td><td>Grouping related fields (like a small object)</td></tr>
+          <tr><td><code>enum</code></td><td><code>Color.Red</code></td><td>A fixed set of named variants</td></tr>
+        </tbody>
+      </table>
+      <p>Full reference: <a href="types.html">Types &amp; data</a>.</p>
+
+      <h2 id="functions">Functions — reusable pieces of code</h2>
+      <p>A <strong>function</strong> is a named block of code you can call whenever you need it. Functions avoid repeating the same logic and make programs easier to read.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn add(a, b) {
+    return a + b
+}
+
+fn greet(name) {
+    print(name)
+}
+
+fn main() {
+    let total = add(10, 32)
+    print(total)      // 42
+    greet(&quot;Welcome&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn add(a: i32, b: i32) -&gt; i32 {
+    return a + b
+}
+
+fn greet(name: string) {
+    print(name)
+}
+
+fn main() -&gt; void {
+    let total = add(10, 32)
+    print(total)      // 42
+    greet(&quot;Welcome&quot;)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
+        <li><code>fn</code> — starts a function definition.</li>
+        <li><code>add</code> — the function name.</li>
+        <li><code>(a: i32, b: i32)</code> — <strong>parameters</strong>: names and types the caller must provide.</li>
+        <li><code>-&gt; i32</code> — return type (what the function gives back). Omit or use <code>-&gt; void</code> when there is no return value.</li>
+        <li><code>return</code> — sends a value back to the caller.</li>
+      </ul>
+      <p>Generics (functions that work on many types) are covered in <a href="generics.html">Generics</a>.</p>
+      <div class="callout"><strong>Repo example:</strong> <code>examples/syntax/math.ny</code></div>
+
+      <h2 id="loops">Loops — repeat work</h2>
+      <p>Loops run the same block multiple times. You almost always need <code>let mut</code> for a counter variable.</p>
+      <h3>while — repeat while a condition is true</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let mut i = 0
+while i &lt; 5 {
+    print(i)
+    i = i + 1
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let mut i: i32 = 0
+while i &lt; 5 {
+    print(i)
+    i = i + 1
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Each time through the loop, <code>i</code> increases by 1 until <code>i</code> is no longer less than 5.</p>
+      <h3>for — iterate a numeric range</h3>
+      <p><code>for x in start..end</code> runs with <code>x</code> equal to each integer from <code>start</code> up to, but not including, <code>end</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>for i in 0..5 {
+    print(i)    // prints 0, then 1, 2, 3, 4
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>for i in 0..5 {
+    print(i)    // prints 0, then 1, 2, 3, 4
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Example: sum numbers with while</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    mut sum = 0
+    mut i = 0
+    let n = 10
+    while i &lt; n {
+        sum = sum + i
+        i = i + 1
+    }
+    print(sum)   // 0+1+2+...+9 = 45
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    mut sum = 0
+    mut i = 0
+    let n: i32 = 10
+    while i &lt; n {
+        sum = sum + i
+        i = i + 1
+    }
+    print(sum)   // 0+1+2+...+9 = 45
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Run:</strong> <code>nyra run examples/comparison/loop/sum_loop.ny</code> (uses a larger <code>n</code>).</p>
+
+      <h2 id="conditionals">Conditionals — choose what runs</h2>
+      <p><code>if</code> runs one block when a condition is true, optionally another when it is false.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let score = 75
+
+if score &gt;= 60 {
+    print(&quot;pass&quot;)
+} else {
+    print(&quot;fail&quot;)
+}
+
+let grade = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let score: i32 = 75
+
+if score &gt;= 60 {
+    print(&quot;pass&quot;)
+} else {
+    print(&quot;fail&quot;)
+}
+
+let grade = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>The last line is an <strong>if expression</strong>: it produces a value (<code>"A"</code> or <code>"B"</code>) that you bind with <code>let</code>.</p>
+
+      <h2 id="structs">Structs — group related data</h2>
+      <p>A <strong>struct</strong> groups named fields. In zero-types style, use an <strong>object literal</strong> directly — no <code>struct</code> keyword. Add a named <code>struct</code> when you need methods (<code>impl</code>), imports, or FFI.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let mut p = { hp: 100, score: 0 }
+    p = { hp: p.hp, score: p.score + 10 }
+    print(p.score)   // 10
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let mut p = { hp: 100, score: 0 }
+    p = { hp: p.hp, score: p.score + 10 }
+    print(p.score)   // 10
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Access fields with a dot: <code>p.score</code>, <code>p.hp</code>. Separate literal fields with commas. See <a href="learn-structs.html">Nyra Structs</a> for object literals vs named <code>struct</code>.</p>
+      <div class="callout"><strong>Repo examples:</strong> <code>examples/comparison/struct_sum/struct_sum.ny</code> · <code>examples/projects/calculator/</code></div>
+
+      <h2 id="enums">Enums &amp; match — fixed choices</h2>
+      <p>An <strong>enum</strong> lists allowed variants. <code>match</code> picks code based on which variant you have.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>enum Status {
+    Idle
+    Running
+    Done
+}
+
+fn code(s) {
+    return match s {
+        Status.Idle =&gt; 0
+        Status.Running =&gt; 1
+        Status.Done =&gt; 2
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>enum Status {
+    Idle
+    Running
+    Done
+}
+
+fn code(s: Status) -&gt; i32 {
+    return match s {
+        Status.Idle =&gt; 0
+        Status.Running =&gt; 1
+        Status.Done =&gt; 2
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>See <a href="match.html">Match</a> for guards and more patterns.</p>
+      <div class="callout"><strong>Repo example:</strong> <code>examples/language_features/demo.ny</code></div>
+
+      <h2 id="imports">Imports — split code across files</h2>
+      <p>Large programs use multiple <code>.ny</code> files. <code>import</code> brings names from another file into the current one.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;src/config.ny&quot;
+import &quot;src/engine.ny&quot;
+
+fn main() {
+    print(APP_TITLE)
+    print(run_sim())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;src/config.ny&quot;
+import &quot;src/engine.ny&quot;
+
+fn main() -&gt; void {
+    print(APP_TITLE)
+    print(run_sim())
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Paths are relative to the file that contains the <code>import</code>. Run multi-file projects with <code>nyra run .</code> from the folder that contains <code>main.ny</code>.</p>
+      <p>Guides: <a href="imports.html">Imports</a> · <a href="modules.html">Modules</a> · <a href="methods.html">Built-in methods</a></p>
+
+      <h2 id="methods">Methods — functions on a type</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Counter {
+    value: i32
+}
+
+impl Counter {
+    fn bump(self) {
+        return Counter { value: self.value + 1 }
+    }
+}
+
+fn main() {
+    let c = Counter { value: 0 }
+    let c2 = c.bump()
+    print(c2.value)   // 1
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Counter {
+    value: i32
+}
+
+impl Counter {
+    fn bump(self) {
+        return Counter { value: self.value + 1 }
+    }
+}
+
+fn main() -&gt; void {
+    let c: Counter = Counter { value: 0 }
+    let c2 = c.bump()
+    print(c2.value)   // 1
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><code>impl Counter { ... }</code> attaches methods to <code>Counter</code>. Call them with dot syntax: <code>c.bump()</code>.</p>
+
+      <h2 id="io">Built-in I/O — output to the screen</h2>
+      <pre><code>print("Hello")     // text
+print(42)          // integer
+print(1 + 2)       // any expression
+
+time_start("work") // optional: measure how long code takes
+// ... your code ...
+time_end("work")</code></pre>
+      <p>More APIs: <a href="stdlib.html">Standard library</a>.</p>
+
+      <h2 id="next">Next steps</h2>
+      <ul>
+        <li><a href="getting-started.html">Getting started</a> — install and first project</li>
+        <li><a href="language.html">Syntax cheat sheet</a> — compact keyword list</li>
+        <li><a href="memory.html">Memory &amp; ownership</a> — Copy, Move, borrow (read after basics)</li>
+        <li><a href="methods.html">Built-in methods</a> — every builtin with a usage example</li>
+        <li><a href="learning-path.html">Learning path</a> — full curriculum</li>
+      </ul>
+
+      <footer class="site-footer"><a href="language.html">Syntax cheat sheet →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

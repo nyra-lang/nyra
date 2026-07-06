@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Nyra Keywords — Nyra Docs</title>
+  <meta name="description" content="Reserved words and type names in Nyra, raw identifiers with @, and compiler attributes with #[].">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="keywords">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a class="active" href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.keywords.h1">Nyra Keywords</h1>
+      <p class="lead" data-i18n-html="pages.keywords.lead">Every <strong>reserved word</strong> and <strong>type name</strong> the lexer treats as a keyword — plus how to reuse those names as variables with a leading <code>@</code>, and how compiler <strong>attributes</strong> differ (<code>#[…]</code>, not <code>@</code>).</p>
+
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <ul>
+          <li><a href="#at-vs-hash">@ vs #[ ]</a></li>
+          <li><a href="#raw-identifiers">Raw identifiers (<code>@name</code>)</a></li>
+          <li><a href="#reserved-list">Reserved words list</a></li>
+          <li><a href="#bindings">Bindings &amp; constants</a></li>
+          <li><a href="#control-flow">Control flow</a></li>
+          <li><a href="#types-functions">Types, modules &amp; functions</a></li>
+          <li><a href="#memory-ownership">Memory &amp; ownership</a></li>
+          <li><a href="#concurrency-async">Concurrency &amp; async</a></li>
+          <li><a href="#type-names">Type names</a></li>
+          <li><a href="#attributes">Compiler attributes (<code>#[…]</code>)</a></li>
+          <li><a href="#quick-ref">Quick reference</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="at-vs-hash">@ vs #[ ]</h2>
+      <p>Nyra uses two different prefix forms. They are <strong>not</strong> interchangeable.</p>
+      <table>
+        <thead><tr><th>Syntax</th><th>Role</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>@name</code></td><td><strong>Raw identifier</strong> — use a reserved word or type name as a variable / field name</td><td><code>let @module = 10</code></td></tr>
+          <tr><td><code>#[attr]</code></td><td><strong>Compiler attribute</strong> — metadata on functions, structs, or parameters</td><td><code>#[derive(Copy)]</code></td></tr>
+          <tr><td><code>module …</code></td><td><strong>Keyword</strong> — declare a module path</td><td><code>module my.app</code></td></tr>
+          <tr><td><code>clone x</code></td><td><strong>Keyword</strong> — explicit heap duplicate at a call site</td><td><code>save(clone user)</code></td></tr>
+        </tbody>
+      </table>
+      <p><code>@module</code> and <code>@clone</code> in source are <em>not</em> special builtins — they are ordinary identifiers whose names happen to match keywords. See <a href="#raw-identifiers">Raw identifiers</a> below.</p>
+
+      <h2 id="raw-identifiers">Raw identifiers (<code>@name</code>)</h2>
+      <p>When a name is reserved (keyword or built-in type), you cannot use it bare as an identifier. Prefix it with <code>@</code> — the same idea as Rust <code>r#name</code>.</p>
+      <p>The lexer strips the <code>@</code> and treats the token as a normal <code>Identifier</code>. The compiler stores the name without the prefix.</p>
+      <pre><code>fn main() {
+    let @module = 10
+    let @clone = @module
+    print(@clone)   // prints 10
+}</code></pre>
+      <p>Here <code>@module</code> is a variable named <code>module</code>; <code>@clone</code> is a variable named <code>clone</code>. This is unrelated to the <code>module</code> declaration keyword or the <code>clone</code> ownership prefix.</p>
+
+      <h3>When <code>@</code> is required</h3>
+      <p>Any name that the lexer would otherwise parse as a keyword or type token needs <code>@</code> to be used as an identifier:</p>
+      <table>
+        <thead><tr><th>Without <code>@</code></th><th>With <code>@</code></th></tr></thead>
+        <tbody>
+          <tr><td><code>module</code> → module keyword</td><td><code>@module</code> → variable named <code>module</code></td></tr>
+          <tr><td><code>clone</code> → clone prefix</td><td><code>@clone</code> → variable named <code>clone</code></td></tr>
+          <tr><td><code>fn</code> → function keyword</td><td><code>@fn</code> → variable named <code>fn</code></td></tr>
+          <tr><td><code>i32</code> → type <code>i32</code></td><td><code>@i32</code> → variable named <code>i32</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Rules</h3>
+      <ul>
+        <li><code>@</code> must be followed by a letter or <code>_</code> (not a digit).</li>
+        <li><code>let x = @</code> alone is a lexer error (<em>Expected identifier after '@'</em>).</li>
+        <li><code>let x = @1</code> is invalid for the same reason.</li>
+        <li>C bindings from <code>nyra pkg c add</code> may append <code>_</code> to reserved C names instead of using <code>@</code> (see <a href="c-bindgen.html">C Bindgen</a>).</li>
+      </ul>
+
+      <h2 id="reserved-list">Reserved words list</h2>
+      <p>The table below matches the compiler’s reserved-name list used by C bindgen (<code>c-bindgen/src/names.rs</code>). These names cannot appear as bare identifiers in Nyra source.</p>
+      <p class="keyword-pills">
+        <code>let</code> <code>mut</code> <code>fn</code> <code>if</code> <code>else</code> <code>while</code> <code>return</code> <code>true</code> <code>false</code> <code>print</code> <code>import</code>
+        <code>module</code> <code>struct</code> <code>impl</code> <code>self</code> <code>for</code> <code>const</code> <code>extern</code> <code>export</code> <code>inst</code> <code>enum</code>
+        <code>match</code> <code>spawn</code> <code>in</code> <code>test</code> <code>async</code> <code>await</code> <code>trait</code> <code>macro</code> <code>defer</code> <code>unsafe</code> <code>asm</code>
+        <code>as</code> <code>move</code> <code>clone</code> <code>void</code> <code>bool</code> <code>string</code> <code>ptr</code> <code>char</code> <code>type</code> <code>out</code>
+        <code>i8</code> <code>i16</code> <code>i32</code> <code>i64</code> <code>i128</code> <code>u8</code> <code>u16</code> <code>u32</code> <code>u64</code> <code>u128</code> <code>isize</code> <code>usize</code> <code>f64</code>
+      </p>
+      <p>The lexer also reserves additional tokens (e.g. <code>break</code>, <code>continue</code>, <code>pub</code>, <code>priv</code>, <code>dyn</code>, <code>f32</code>, <code>benchmark</code>, <code>parallel</code>, <code>progress</code>). Treat any keyword from the <a href="reference.html#keywords">language reference</a> as requiring <code>@</code> when used as an identifier.</p>
+
+      <h2 id="bindings">Bindings &amp; constants</h2>
+      <table>
+        <thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>let</code></td><td>Immutable binding — value cannot be reassigned</td></tr>
+          <tr><td><code>mut</code></td><td>Used with <code>let mut</code> for a reassignable binding</td></tr>
+          <tr><td><code>const</code></td><td>Compile-time constant name</td></tr>
+          <tr><td><code>true</code> / <code>false</code></td><td>Boolean literals</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="control-flow">Control flow</h2>
+      <table>
+        <thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>if</code> / <code>else</code></td><td>Conditional branches</td></tr>
+          <tr><td><code>while</code></td><td>Loop while condition is true</td></tr>
+          <tr><td><code>for</code> / <code>in</code></td><td>Iteration — <code>for i in 0..10</code> or <code>for x in arr</code></td></tr>
+          <tr><td><code>match</code></td><td>Pattern match on enums and values</td></tr>
+          <tr><td><code>return</code></td><td>Return from the current function</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="types-functions">Types, modules &amp; functions</h2>
+      <table>
+        <thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>fn</code></td><td>Function definition</td></tr>
+          <tr><td><code>struct</code></td><td>Product type with named fields</td></tr>
+          <tr><td><code>enum</code></td><td>Sum type with variants</td></tr>
+          <tr><td><code>impl</code></td><td>Methods on a type; <code>impl Trait for Type</code></td></tr>
+          <tr><td><code>trait</code></td><td>Trait definition (Extended)</td></tr>
+          <tr><td><code>self</code></td><td>Method receiver inside <code>impl</code></td></tr>
+          <tr><td><code>import</code></td><td>Load another <code>.ny</code> file</td></tr>
+          <tr><td><code>module</code></td><td>Module path declaration — see <a href="modules.html">Modules</a></td></tr>
+          <tr><td><code>extern</code></td><td>Declare an external (C) function</td></tr>
+          <tr><td><code>export</code></td><td>Export a symbol for FFI</td></tr>
+          <tr><td><code>inst</code></td><td>Generic instance / monomorph hook (tooling)</td></tr>
+          <tr><td><code>type</code></td><td>Type alias or associated type surface</td></tr>
+          <tr><td><code>macro</code></td><td>Macro definition (Extended)</td></tr>
+          <tr><td><code>test</code></td><td>Test function — run with <code>nyra test</code></td></tr>
+          <tr><td><code>print</code></td><td>Built-in stdout; optional <code>color:</code> for ANSI output</td></tr>
+          <tr><td><code>as</code></td><td>Type cast — <code>expr as Type</code></td></tr>
+          <tr><td><code>unsafe</code></td><td>Block for raw pointers and low-level operations</td></tr>
+          <tr><td><code>asm</code></td><td>Inline assembly (inside <code>unsafe</code>)</td></tr>
+          <tr><td><code>defer</code></td><td>Scope-exit call (LIFO) — Extended; prefer <code>impl Drop</code></td></tr>
+          <tr><td><code>out</code></td><td>Output / FFI direction marker in bindings</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="memory-ownership">Memory &amp; ownership</h2>
+      <table>
+        <thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>move</code></td><td>Unary prefix at a call site — transfer ownership explicitly (<a href="ownership-ux.html#move-clone">guide</a>)</td></tr>
+          <tr><td><code>clone</code></td><td>Unary prefix or <code>.clone()</code> — heap duplicate; original stays valid</td></tr>
+        </tbody>
+      </table>
+      <p><code>clone user</code> and <code>let @clone = user</code> mean completely different things: the first duplicates a value; the second binds a variable whose name is the word <code>clone</code>.</p>
+
+      <h2 id="concurrency-async">Concurrency &amp; async</h2>
+      <table>
+        <thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>spawn</code></td><td>Start a concurrent block</td></tr>
+          <tr><td><code>async</code> / <code>await</code></td><td>Async functions and suspension (Extended)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="type-names">Type names</h2>
+      <p>These tokens are parsed as type names, not ordinary identifiers. Use <code>@</code> if you need a variable with the same spelling.</p>
+      <table>
+        <thead><tr><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>i8</code> … <code>i128</code></td><td>Signed integers; <code>i32</code> is the default for int literals</td></tr>
+          <tr><td><code>u8</code> … <code>u128</code></td><td>Unsigned integers</td></tr>
+          <tr><td><code>isize</code>, <code>usize</code></td><td>Pointer-sized integers</td></tr>
+          <tr><td><code>f64</code></td><td>IEEE-754 double; default float literal type</td></tr>
+          <tr><td><code>char</code></td><td>Unicode scalar — <code>'a'</code>, <code>'\n'</code></td></tr>
+          <tr><td><code>bool</code></td><td><code>true</code> / <code>false</code></td></tr>
+          <tr><td><code>string</code></td><td>UTF-8 heap string (Move)</td></tr>
+          <tr><td><code>void</code></td><td>Functions with no return value</td></tr>
+          <tr><td><code>ptr</code></td><td>Opaque FFI pointer handle</td></tr>
+        </tbody>
+      </table>
+      <p>Full type reference: <a href="types.html">Types &amp; data</a> · <a href="reference.html#types">Language reference → Type names</a></p>
+
+      <h2 id="attributes">Compiler attributes (<code>#[…]</code>)</h2>
+      <p>Attributes attach to items in source. They start with <code>#</code>, not <code>@</code>.</p>
+      <table>
+        <thead><tr><th>Attribute</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>#[derive(Copy)]</code></td><td>Document / validate that a struct is Copy-safe</td></tr>
+          <tr><td><code>#[derive(Clone)]</code></td><td>Synthesize <code>.clone()</code> when fields allow it</td></tr>
+          <tr><td><code>#[comptime]</code></td><td>Evaluate this function at compile time; strip from binary — <a href="comptime.html">Comptime guide</a></td></tr>
+          <tr><td><code>#[inline]</code></td><td>Hint inlining at call sites</td></tr>
+          <tr><td><code>#[hot]</code> / <code>#[cold]</code></td><td>LLVM branch-hint attributes for hot / cold paths</td></tr>
+          <tr><td><code>#[no_escape]</code></td><td>On <code>&amp;T</code> parameters — value must not escape the function — <a href="escape-analysis.html">Escape analysis</a></td></tr>
+        </tbody>
+      </table>
+      <pre><code>#[derive(Copy)]
+struct Point { x: i32 y: i32 }
+
+#[comptime]
+fn table_size() { return 256 }
+
+fn process(#[no_escape] data: i32) { ... }</code></pre>
+
+      <h2 id="quick-ref">Quick reference</h2>
+      <table>
+        <thead><tr><th>You write</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>@module</code></td><td>Variable (or field) named <code>module</code></td></tr>
+          <tr><td><code>module my.app</code></td><td>Declare module path <code>my.app</code></td></tr>
+          <tr><td><code>@clone</code></td><td>Variable named <code>clone</code></td></tr>
+          <tr><td><code>clone user</code></td><td>Duplicate <code>user</code> for a call; keep <code>user</code> valid</td></tr>
+          <tr><td><code>#[derive(Copy)]</code></td><td>Compiler attribute on a struct</td></tr>
+          <tr><td><code>@i32</code></td><td>Variable named <code>i32</code> (not type annotation)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>LLVM <code>@</code> (not Nyra source)</h3>
+      <p>Generated LLVM IR uses <code>@symbol</code> for global functions (e.g. <code>@i32_to_string</code>). That is LLVM notation, not something you write in <code>.ny</code> files.</p>
+
+      <footer class="site-footer"><a href="reference.html">Language reference →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>
