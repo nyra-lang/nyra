@@ -172,7 +172,12 @@ impl Codegen {
                     } else if val.reg.chars().all(|c| {
                         c.is_ascii_digit() || c == '-' || c == '.'
                     }) {
-                        val.reg.clone()
+                        let tmp = self.fresh("ssa");
+                        self.emit(&format!(
+                            "  %{tmp} = add {storage_ty} 0, {}",
+                            val.reg
+                        ));
+                        tmp
                     } else {
                         val.reg.trim_start_matches('%').to_string()
                     };
