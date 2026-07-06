@@ -147,16 +147,16 @@
 }
 
 fn main() {
-    print(id(42))           // T inferred as i32 — no type args needed
-    print(id(42))     // explicit still works
+    print(id&lt;i32&gt;(42))
+    print(id&lt;i32&gt;(42))
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn id&lt;T&gt;(x: T) -&gt; T {
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn id&lt;T&gt;(x: T) -&gt; i32 {
     return x
 }
 
 fn main() -&gt; void {
-    print(id&lt;i32&gt;(42))           // T inferred as i32 — no type args needed
-    print(id&lt;i32&gt;(42))     // explicit still works
+    print(id&lt;i32&gt;(42))
+    print(id&lt;i32&gt;(42))
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END --><p>Monomorphization generates specialized functions at compile time (<code>id__i32</code>, etc.). Generic calls use <code>ident &lt; Type &gt; (</code> syntax when types are explicit.</p>
 <p>See also <a href="comptime.html">Comptime evaluation</a> for optional compile-time folding, <a href="ownership-ux.html">Ownership UX</a> for return-type inference, and <code>CONF-GEN-*</code> in the conformance suite.</p>

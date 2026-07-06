@@ -211,13 +211,13 @@ fn main() -&gt; void {
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let router = Router_new()
-let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;)
-let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;)
-let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;)</code></pre></div>
+let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;)
+let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;:true}&quot;)
+let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;:true}&quot;)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let router = Router_new()
-let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;)
-let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;)
-let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;)</code></pre></div>
+let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;)
+let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;:true}&quot;)
+let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;:true}&quot;)</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Function</th><th>Description</th></tr></thead>
         <tbody>

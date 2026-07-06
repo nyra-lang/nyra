@@ -237,9 +237,9 @@ struct User {
 fn main() -&gt; void {
     let user: User = User { id: 101, name: &quot;Hamdy&quot; }
 
-    let mut chan: Channel_i32 = Channel_i32_new()
+    let mut chan = Channel_i32_new()
     chan = chan.send(user.id)
-    let active_id: i32 = chan.recv()
+    let active_id = chan.recv()
 
     print(active_id)
 }</code></pre></div>

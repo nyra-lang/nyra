@@ -629,7 +629,7 @@ fn main() {
 }
 
 impl Counter {
-    fn bump(self) {
+    fn bump(self) -&gt; Counter {
         return Counter { value: self.value + 1 }
     }
 }

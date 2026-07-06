@@ -152,6 +152,9 @@ def _keep_struct_declarations(text: str) -> bool:
         "GzFile",
         "FileHandle",
         "UserRecord",
+        "fn save(",
+        "auto-borrow",
+        "desugared to",
     )
     return any(m in text for m in markers)
 
@@ -489,23 +492,31 @@ def strip_optional_types(text: str) -> str:
                 cleaned.append(p)
                 continue
             if ":" in p:
-                cleaned.append(p.split(":", 1)[0].strip())
+                name, ty = p.split(":", 1)
+                name = name.strip()
+                ty = ty.strip()
+                # Keep type-parameter and reference annotations needed for runnable snippets.
+                if re.match(r"^[A-Z]\w*$", ty) or re.match(r"^&(?:mut\s+)?[A-Z]\w*$", ty):
+                    cleaned.append(f"{name}: {ty}")
+                else:
+                    cleaned.append(name)
             else:
                 cleaned.append(p)
         return "(" + ", ".join(cleaned) + ")"
 
-    text = re.sub(r"\(([^()]*)\)", strip_params, text)
+    # Only strip parameter type annotations on fn/method signatures — not call arguments
+    # (call strings like `"https://host"` and `{"k":"v"}` contain `:` and must stay intact).
+    text = re.sub(
+        r"^(\s*(?:fn|async fn)\s+\w+(?:<[^>]*>)?\s*\([^)]*\))",
+        lambda m: re.sub(r"\(([^()]*)\)", strip_params, m.group(1)),
+        text,
+        flags=re.MULTILINE,
+    )
     text = re.sub(r"(\blet\s+mut\s+\w+)\s*:\s*[^=]+=", r"\1 =", text)
     text = re.sub(r"(\blet\s+\w+)\s*:\s*[^=]+=", r"\1 =", text)
 
-    # generic call-site args only (not `fn id<T>(`)
-    lines = []
-    for line in text.split("\n"):
-        if re.match(r"\s*fn\s+", line):
-            lines.append(line)
-        else:
-            lines.append(re.sub(r"\b(\w+)<[^>]+>\s*\(", r"\1(", line))
-    text = "\n".join(lines)
+    # generic call-site args only (not `fn id<T>(`) — keep `<T>` at call sites so snippets compile
+    # (e.g. `id<i32>(42)`); inference-only `id(42)` is not required for the easy tab.
 
     text = re.sub(r"(\blet\s+\w+)\s*:\s*\([^)]+\)\s*=", r"\1 =", text)
     return text.rstrip() + ("\n" if text.endswith("\n") else "")

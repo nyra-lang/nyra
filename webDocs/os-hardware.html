@@ -309,11 +309,11 @@ nyra run examples/os/battery/main.ny</code></pre>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
-    let name = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name: &quot;)
+    let name = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name)
     print(`Hello, ${name}!`)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
-    let name: string = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name: &quot;)
+    let name = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name)
     print(`Hello, ${name}!`)
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <h2 id="low-level">Low-level: syscalls &amp; assembly</h2>
@@ -626,7 +626,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
 
 fn main() -&gt; void {
-    let raw: string = hw_random_bytes(32)
+    let raw = hw_random_bytes(32)
     print(raw.len())
     print(hw_secure_enclave_available())
 }</code></pre></div>

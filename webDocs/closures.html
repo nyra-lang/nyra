@@ -183,8 +183,8 @@ fn main() {
     let v = Vec_i32_from_range(1, 6)
     let mut i = 0
     let threshold = 2
-    while i < 1 {
-        let pred = (x) => if x > threshold { 1 } else { 0 }
+    while i &lt; 1 {
+        let pred = (x) =&gt; if x &gt; threshold { 1 } else { 0 }
         let out = iter_filter(v, pred)
         print(Vec_i32_len(out))
         i = i + 1
@@ -196,8 +196,8 @@ fn main() -&gt; void {
     let v = Vec_i32_from_range(1, 6)
     let mut i: i32 = 0
     let threshold: i32 = 2
-    while i < 1 {
-        let pred = (x) => if x > threshold { 1 } else { 0 }
+    while i &lt; 1 {
+        let pred = (x) =&gt; if x &gt; threshold { 1 } else { 0 }
         let out = iter_filter(v, pred)
         print(Vec_i32_len(out))
         i = i + 1
