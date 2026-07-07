@@ -140,6 +140,7 @@
       <section class="hero-landing" aria-labelledby="hero-title">
         <div class="hero-facet-bg" aria-hidden="true"></div>
         <div class="hero-glow-orb" aria-hidden="true"></div>
+        <div class="hero-landing-inner">
           <div class="hero-copy">
             <span class="pill" data-i18n="pages.index.pill">Documentation v1.40.x</span>
             <h1 id="hero-title">
@@ -150,17 +151,6 @@
             <p class="hero-lead" data-i18n="pages.index.lead">
               Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.
             </p>
-            <div class="hero-install" aria-label="Install commands">
-              <div class="hero-install-block">
-                <span class="hero-install-label" data-i18n="pages.index.installNyraLabel">Nyra</span>
-                <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></pre>
-              </div>
-              <div class="hero-install-block">
-                <span class="hero-install-label" data-i18n="pages.index.installPkgLabel">nyrapkg (package manager)</span>
-                <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh</code></pre>
-              </div>
-              <p class="hero-install-hint" data-i18n-html="pages.index.installHint">Then: <code>source ~/.zshrc</code> · <a href="install.html">full install guide</a></p>
-            </div>
             <ul class="hero-chips" aria-label="Core traits">
               <li data-i18n="pages.index.chipFast">Fast</li>
               <li data-i18n="pages.index.chipSafe">Safe</li>
@@ -176,6 +166,30 @@
               </a>
             </div>
           </div>
+
+          <div class="hero-code" aria-hidden="true">
+            <div class="hero-code-window">
+              <div class="hero-code-bar">
+                <span class="hero-code-dots"><i></i><i></i><i></i></span>
+                <span class="hero-code-file">main.ny</span>
+                <span class="hero-code-run">nyra run .</span>
+              </div>
+              <pre class="hero-code-body"><code id="hero-typed"></code><span class="hero-caret" aria-hidden="true"></span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-install" aria-label="Install commands">
+          <div class="hero-install-block">
+            <span class="hero-install-label" data-i18n="pages.index.installNyraLabel">Nyra</span>
+            <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></pre>
+          </div>
+          <div class="hero-install-block">
+            <span class="hero-install-label" data-i18n="pages.index.installPkgLabel">nyrapkg (package manager)</span>
+            <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh</code></pre>
+          </div>
+          <p class="hero-install-hint" data-i18n-html="pages.index.installHint">Then: <code>source ~/.zshrc</code> · <a href="install.html">full install guide</a></p>
+        </div>
       </section>
 
       <section class="overview-section" id="about">

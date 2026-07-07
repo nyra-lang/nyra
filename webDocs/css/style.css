@@ -359,6 +359,22 @@ html[dir="rtl"] .steps li::before {
   right: 0;
 }
 
+/* Directional arrows should point the reading way in RTL */
+html[dir="rtl"] .pipeline-arrow {
+  transform: scaleX(-1);
+}
+
+/* Keep the animated hero code left-aligned/LTR regardless of page dir */
+html[dir="rtl"] .hero-code,
+html[dir="rtl"] .hero-code-body,
+html[dir="rtl"] .hero-install-cmd {
+  direction: ltr;
+}
+
+html[dir="rtl"] .hero-code-run {
+  direction: ltr;
+}
+
 @media (max-width: 768px) {
   html[dir="rtl"] .sidebar {
     transform: translateX(100%);
@@ -763,7 +779,8 @@ html:has(#nav-check:checked) body {
 .content ul,
 .content ol {
   margin: 0 0 1.1rem;
-  padding-left: 1.35rem;
+  padding-inline-start: 1.35rem;
+  padding-left: 0;
 }
 
 .content li {
@@ -1008,7 +1025,7 @@ td {
   border: none;
   border-bottom: 1px solid var(--border);
   padding: 0.75rem 1rem;
-  text-align: left;
+  text-align: start;
 }
 
 tr:last-child th,
@@ -1240,7 +1257,8 @@ pre .tok-operator {
 
 .toc ul {
   margin: 0;
-  padding-left: 1.2rem;
+  padding-inline-start: 1.2rem;
+  padding-left: 0;
 }
 
 .toc a {
@@ -1545,6 +1563,37 @@ button:focus-visible {
     grid-template-columns: 1fr;
     text-align: center;
   }
+
+  .hero-copy {
+    align-items: center;
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+
+  .hero-copy h1 {
+    align-items: center;
+  }
+
+  .hero-copy .hero-lead {
+    margin-inline: auto;
+  }
+
+  .hero-chips,
+  .hero-copy .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-code {
+    order: 2;
+    max-width: 40rem;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-code-body {
+    min-height: 0;
+  }
 }
 
 .hero-visual {
@@ -1572,10 +1621,10 @@ button:focus-visible {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 52rem;
-  margin: 0 auto;
+  align-items: flex-start;
+  text-align: start;
+  max-width: 40rem;
+  margin: 0;
 }
 
 .hero-copy .pill {
@@ -1586,7 +1635,7 @@ button:focus-visible {
   margin: 0 0 0.75rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.35rem;
   -webkit-text-fill-color: unset;
   background: none;
@@ -1626,7 +1675,7 @@ button:focus-visible {
   font-size: clamp(1rem, 2.2vw, 1.1rem);
   line-height: 1.7;
   color: var(--text-muted);
-  margin: 0 auto 1.5rem;
+  margin: 0 0 1.5rem;
   max-width: 38em;
 }
 
@@ -1636,7 +1685,7 @@ button:focus-visible {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
 }
 
@@ -1661,17 +1710,145 @@ button:focus-visible {
 }
 
 .hero-copy .hero-actions {
-  justify-content: center;
+  justify-content: flex-start;
   margin-top: 0;
 }
 
+/* ——— Hero: animated code window ——— */
+.hero-code {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.hero-code-window {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(10, 15, 20, 0.96), rgba(6, 9, 13, 0.98));
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), 0 0 60px var(--brand-dim),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  animation: hero-code-float 7s ease-in-out infinite alternate;
+}
+
+[data-theme="light"] .hero-code-window {
+  background: linear-gradient(180deg, #0c1118, #0a0f14);
+}
+
+@keyframes hero-code-float {
+  from { transform: translateY(4px); }
+  to { transform: translateY(-6px); }
+}
+
+.hero-code-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-code-dots {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.hero-code-dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #46525f;
+}
+
+.hero-code-dots i:nth-child(1) { background: #f25d5d; }
+.hero-code-dots i:nth-child(2) { background: #f2b84a; }
+.hero-code-dots i:nth-child(3) { background: var(--brand-light); }
+
+.hero-code-file {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.hero-code-run {
+  margin-inline-start: auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--brand-bright);
+  background: var(--brand-dim);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 0.15rem 0.55rem;
+}
+
+.hero-code-body {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 1.1rem 1.25rem 1.35rem;
+  min-height: 15.5em;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  /* code stays LTR even in RTL layouts */
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 4;
+}
+
+.hero-code-body::before {
+  display: none;
+}
+
+.hero-code-body code {
+  font-family: var(--font-mono);
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--code-block-fg);
+  white-space: pre;
+}
+
+.hero-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-inline-start: 1px;
+  vertical-align: text-bottom;
+  background: var(--brand-bright);
+  box-shadow: 0 0 8px var(--brand-glow);
+  animation: hero-caret-blink 1s step-end infinite;
+}
+
+@keyframes hero-caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-code-window { animation: none; }
+  .hero-caret { animation: none; }
+}
+
 .hero-install {
-  margin: 0 auto 1.75rem;
+  margin: 2rem 0 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
   width: 100%;
-  max-width: 40rem;
+  max-width: 46rem;
+  position: relative;
+  z-index: 1;
   text-align: start;
 }
 
@@ -2016,7 +2193,8 @@ button:focus-visible {
 
 .lesson-track-list {
   margin: 1.5rem 0 2rem;
-  padding-left: 1.4rem;
+  padding-inline-start: 1.4rem;
+  padding-left: 0;
 }
 
 .lesson-track-list li {
@@ -2033,7 +2211,8 @@ button:focus-visible {
 
 .lesson-goals ul {
   margin: 0.5rem 0 0;
-  padding-left: 1.2rem;
+  padding-inline-start: 1.2rem;
+  padding-left: 0;
 }
 
 .line-table {
@@ -2047,7 +2226,7 @@ button:focus-visible {
 .line-table td {
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
-  text-align: left;
+  text-align: start;
   vertical-align: top;
 }
 
@@ -2084,7 +2263,7 @@ button:focus-visible {
 }
 
 .lesson-nav-next {
-  text-align: right;
+  text-align: end;
 }
 
 .lesson-nav-hub {
