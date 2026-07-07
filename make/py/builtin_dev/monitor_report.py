@@ -26,8 +26,8 @@ def print_add_monitor(result: ActionResult) -> None:
     print("\n" + "═" * 62)
     print("  BUILTIN MONITOR — ADD")
     print("═" * 62)
-    print(f"  Method : {spec.receiver.value}.{spec.method}")
-    print(f"  C sym  : {spec.c_name}")
+    print(f"  Nyra method (programmer code): .{spec.method}()")
+    print(f"  C symbol (stdlib/rt only)    : {spec.c_name}")
     print(f"  Runtime: stdlib/rt/{spec.rt_module}")
     print("─" * 62)
 
@@ -148,15 +148,26 @@ def _print_usage_examples(spec: BuiltinSpec) -> None:
 
 
 def print_spec_preview(spec: BuiltinSpec, *, action: str) -> None:
+    import sys
+    from pathlib import Path
+
+    _make_py = Path(__file__).resolve().parents[1]
+    if str(_make_py) not in sys.path:
+        sys.path.insert(0, str(_make_py))
+    from naming_guide import format_builtin_name_summary
+
     print("\n" + "─" * 62)
     print(f"  PREVIEW — will {action}:")
     print(f"    receiver : {spec.receiver.value}")
-    print(f"    method   : {spec.method}")
+    print(f"    method   : {spec.method}  (Nyra — what programmers type)")
     print(f"    Nyra API : .{spec.method}({', '.join(a.name + ': ' + a.nyra_type.value for a in spec.args) or '—'})")
     print(f"    args     : {[f'{a.name}:{a.nyra_type.value}' for a in spec.args] or '(none)'}")
     print(f"    returns  : {spec.returns.value}")
-    print(f"    c_name   : {spec.c_name}  →  stdlib/rt/{spec.rt_module}")
+    print(f"    c_name   : {spec.c_name}  (C only — stdlib/rt/{spec.rt_module})")
     print(f"    borrows  : {spec.borrows_receiver}")
     if spec.free_fn_alias and spec.receiver.value == "string":
         print(f"    free fn  : {spec.method}(s, …) in builtins_string.ny")
+    print("  Naming:")
+    for line in format_builtin_name_summary(spec.method, spec.c_name):
+        print(f"    • {line}")
     print("─" * 62)

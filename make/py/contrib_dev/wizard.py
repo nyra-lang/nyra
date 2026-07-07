@@ -15,18 +15,26 @@ from .spec import (
     StdlibFnSpec,
     TestExampleSpec,
 )
+from .suggestions import Suggestion, suggestions_for
 from .wizard_guide import GUIDES, RecipeGuide, print_preview, print_recipe_intro, print_step
 
 
-def prompt(msg: str, default: str = "") -> str:
+def prompt(msg: str, default: str = "", suggestions: list[Suggestion] | None = None) -> str:
     suffix = f" [{default}]" if default else ""
+    options = suggestions or []
     while True:
         raw = input(f"\n→ {msg}{suffix}: ").strip()
         if raw:
+            if raw.isdigit() and options:
+                idx = int(raw) - 1
+                if 0 <= idx < len(options):
+                    return options[idx].value
+                print(f"  (pick 1–{len(options)}, or type your own value)")
+                continue
             return raw
         if default:
             return default
-        print("  (required — type a value or press Enter for default if shown)")
+        print("  (required — type a value, pick a number, or press Enter for default if shown)")
 
 
 def prompt_yes_no(msg: str, default: bool = False) -> bool:
@@ -76,7 +84,8 @@ def load_json_config(path: str) -> dict:
 
 def _ask_step(step, n: int, total: int) -> str:
     print_step(step, n=n, total=total)
-    return prompt(step.question, step.default)
+    options = suggestions_for(step.suggest) if getattr(step, "suggest", "") else []
+    return prompt(step.question, step.default, suggestions=options)
 
 
 def run_stdlib_pure_wizard() -> StdlibFnSpec:
@@ -120,6 +129,9 @@ def run_stdlib_pure_wizard() -> StdlibFnSpec:
 def run_stdlib_extern_wizard() -> StdlibFnSpec:
     g = GUIDES["stdlib-extern"]
     print_recipe_intro(g)
+    from naming_guide import print_extern_naming_legend
+
+    print_extern_naming_legend()
     ny_module = _ask_step(g.steps[0], 1, len(g.steps))
     fn_name = _ask_step(g.steps[1], 2, len(g.steps))
     args_raw = _ask_step(g.steps[2], 3, len(g.steps))
@@ -130,13 +142,17 @@ def run_stdlib_extern_wizard() -> StdlibFnSpec:
     since = "1.0.0"
     if stable:
         since = prompt("ABI since version", "1.0.0")
+    from naming_guide import format_extern_name_summary
+
     answers = {
         "module": ny_module,
-        "fn": fn_name,
+        "fn (C symbol + extern)": fn_name,
+        "Nyra programmer call": f"{fn_name}(…)",
         "args": args_raw,
-        "returns": str(returns),
+        "returns": returns.value if hasattr(returns, "value") else str(returns),
         "rt_module": rt_module,
         "stable_abi": "yes" if stable else "no",
+        "naming": " | ".join(format_extern_name_summary(fn_name)),
     }
     if not confirm_apply(g, answers):
         raise SystemExit("Cancelled — no files changed.")

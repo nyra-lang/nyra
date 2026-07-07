@@ -46,3 +46,105 @@ fn strip_suffix(s: &string, suffix: &string) -> string {
 }
 // [/builtin-dev:strip_suffix:string]
 
+// [builtin-dev:to_snake_case:string]
+fn String_toSnakeCase(s: &string) -> string {
+    return str_to_snake_case(s)
+}
+
+fn to_snake_case(s: &string) -> string {
+    return str_to_snake_case(s)
+}
+// [/builtin-dev:to_snake_case:string]
+
+
+// [builtin-dev:to_lowercase:string]
+fn String_toLowercase(s: &string) -> string {
+    return str_to_lowercase(s)
+}
+
+fn to_lowercase(s: &string) -> string {
+    return str_to_lowercase(s)
+}
+// [/builtin-dev:to_lowercase:string]
+
+// [builtin-dev:to_titlecase:string]
+fn String_toTitlecase(s: &string) -> string {
+    return str_to_titlecase(s)
+}
+
+fn to_titlecase(s: &string) -> string {
+    return str_to_titlecase(s)
+}
+// [/builtin-dev:to_titlecase:string]
+
+// [builtin-dev:to_capitalize:string]
+fn String_toCapitalize(s: &string) -> string {
+    return str_to_capitalize(s)
+}
+
+fn to_capitalize(s: &string) -> string {
+    return str_to_capitalize(s)
+}
+// [/builtin-dev:to_capitalize:string]
+
+// [builtin-dev:to_camel_case:string]
+fn String_toCamelCase(s: &string) -> string {
+    return str_to_camel_case(s)
+}
+
+fn to_camel_case(s: &string) -> string {
+    return str_to_camel_case(s)
+}
+// [/builtin-dev:to_camel_case:string]
+
+// [builtin-dev:to_kebab_case:string]
+fn String_toKebabCase(s: &string) -> string {
+    return str_to_kebab_case(s)
+}
+
+fn to_kebab_case(s: &string) -> string {
+    return str_to_kebab_case(s)
+}
+// [/builtin-dev:to_kebab_case:string]
+
+// [builtin-dev:to_pascal_case:string]
+fn String_toPascalCase(s: &string) -> string {
+    return str_to_pascal_case(s)
+}
+
+fn to_pascal_case(s: &string) -> string {
+    return str_to_pascal_case(s)
+}
+// [/builtin-dev:to_pascal_case:string]
+
+// [builtin-dev:to_screaming_snake_case:string]
+fn String_toScreamingSnakeCase(s: &string) -> string {
+    return str_to_screaming_snake_case(s)
+}
+
+fn to_screaming_snake_case(s: &string) -> string {
+    return str_to_screaming_snake_case(s)
+}
+// [/builtin-dev:to_screaming_snake_case:string]
+
+// [builtin-dev:to_train_case:string]
+fn String_toTrainCase(s: &string) -> string {
+    return str_to_train_case(s)
+}
+
+fn to_train_case(s: &string) -> string {
+    return str_to_train_case(s)
+}
+// [/builtin-dev:to_train_case:string]
+
+// [builtin-dev:to_dot_case:string]
+fn String_toDotCase(s: &string) -> string {
+    return str_to_dot_case(s)
+}
+
+fn to_dot_case(s: &string) -> string {
+    return str_to_dot_case(s)
+}
+// [/builtin-dev:to_dot_case:string]
+
+

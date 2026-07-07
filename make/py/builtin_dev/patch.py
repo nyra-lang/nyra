@@ -24,6 +24,101 @@ def has_marker(content: str, marker: str) -> bool:
     return f"[builtin-dev:{marker}]" in content
 
 
+def c_function_defined(content: str, name: str) -> bool:
+    """True if a C function named `name` is DEFINED (not merely called) in `content`.
+
+    Matches a definition line like `char *str_to_snake_case(const char *s) {`
+    while ignoring call sites such as `x = str_to_snake_case(s);`. Used to stop
+    two recipes (e.g. Pattern B extern + Built-in Method) from emitting the same
+    C symbol twice, which the C compiler rejects as a redefinition.
+    """
+    pattern = re.compile(
+        rf"(?m)^[A-Za-z_][A-Za-z0-9_ \t\*]*\b{re.escape(name)}\s*\([^;{{]*\)\s*\{{"
+    )
+    return bool(pattern.search(content))
+
+
+_MARKER_BLOCK_RE = re.compile(
+    r"(?:#|//) \[builtin-dev:[^\]]+\].*?(?:#|//) \[/builtin-dev:[^\]]+\]",
+    re.DOTALL,
+)
+
+
+def _marker_block_spans(content: str) -> list[tuple[int, int]]:
+    return [(m.start(), m.end()) for m in _MARKER_BLOCK_RE.finditer(content)]
+
+
+def _find_c_function_span(content: str, name: str) -> tuple[int, int] | None:
+    """Char span of a C function DEFINITION named `name`, brace-balanced.
+
+    Returns (start-of-line, end-after-closing-brace-and-newline) or None if the
+    definition is absent or its braces are unbalanced (in which case we refuse to
+    touch it rather than risk corrupting the file). Braces inside string/char
+    literals and comments are ignored so nested `{}` in the body are handled.
+    """
+    m = re.search(
+        rf"(?m)^[A-Za-z_][A-Za-z0-9_ \t\*]*\b{re.escape(name)}\s*\([^;{{]*\)\s*\{{",
+        content,
+    )
+    if not m:
+        return None
+    i = m.end() - 1  # position of the opening '{'
+    n = len(content)
+    depth = 0
+    while i < n:
+        ch = content[i]
+        nxt = content[i + 1] if i + 1 < n else ""
+        if ch == "/" and nxt == "/":  # line comment
+            j = content.find("\n", i)
+            i = n if j == -1 else j
+            continue
+        if ch == "/" and nxt == "*":  # block comment
+            j = content.find("*/", i + 2)
+            i = n if j == -1 else j + 2
+            continue
+        if ch in ('"', "'"):  # string / char literal
+            quote = ch
+            i += 1
+            while i < n:
+                if content[i] == "\\":
+                    i += 2
+                    continue
+                if content[i] == quote:
+                    i += 1
+                    break
+                i += 1
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                if end < n and content[end] == "\n":
+                    end += 1
+                return (m.start(), end)
+        i += 1
+    return None  # unbalanced — do not remove
+
+
+def remove_c_function_def(content: str, name: str) -> tuple[str, str]:
+    """Remove an UNMARKED C function definition named `name`, brace-balanced.
+
+    Never deletes a definition that lives inside a `[builtin-dev:...]` marker
+    block (that belongs to some feature and is removed via its own marker), and
+    never corrupts multi-brace bodies. Returns (new_content, status) where status
+    is one of: "removed", "skipped_marked", "none".
+    """
+    span = _find_c_function_span(content, name)
+    if span is None:
+        return content, "none"
+    start, end = span
+    for ms, me in _marker_block_spans(content):
+        if start < me and ms < end:  # overlaps a marker block
+            return content, "skipped_marked"
+    return content[:start] + content[end:], "removed"
+
+
 def remove_marked_block(content: str, marker: str) -> tuple[str, bool]:
     pattern = re.compile(
         rf"[ \t]*(?:#|//) \[builtin-dev:{re.escape(marker)}\].*?"
@@ -135,6 +230,39 @@ def _cleanup_orphan_match_fragments(content: str) -> tuple[str, bool]:
     changed = changed or n3 > 0
     content, n4 = re.subn(r"\n\n_ => ExprValue", "\n            _ => ExprValue", content)
     return content, changed or n4 > 0
+
+
+def insert_into_matches(content: str, fn_sig: str, quoted_item: str) -> tuple[str, str]:
+    """Insert `| quoted_item` into the `matches!(…)` of the fn found via `fn_sig`.
+
+    Robust to an early-return guard between the fn's `{` and its `matches!(` (e.g.
+    `if method.starts_with("String_") { return true; }`), which a plain-anchor
+    insert silently misses. `quoted_item` must include the quotes, e.g. `"trim"`.
+
+    Returns (new_content, status) with status one of:
+      * "added"     — item inserted
+      * "present"   — item already in the matches! arm
+      * "not_found" — fn or its matches! block could not be located
+    """
+    fn_idx = content.find(fn_sig)
+    if fn_idx == -1:
+        return content, "not_found"
+    matches_idx = content.find("matches!(", fn_idx)
+    if matches_idx == -1:
+        return content, "not_found"
+    close = content.find(")", matches_idx)
+    if close == -1:
+        return content, "not_found"
+    segment = content[matches_idx:close]
+    if quoted_item in segment:
+        return content, "present"
+    trimmed = segment.rstrip()
+    if trimmed.endswith("|"):
+        new_segment = trimmed + f" {quoted_item}"
+    else:
+        new_segment = trimmed + f" | {quoted_item}"
+    new_segment += segment[len(trimmed):]
+    return content[:matches_idx] + new_segment + content[close:], "added"
 
 
 def remove_or_chain_item(content: str, item: str) -> tuple[str, bool]:

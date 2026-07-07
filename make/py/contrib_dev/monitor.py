@@ -5,7 +5,20 @@ from pathlib import Path
 
 from .paths import ROOT
 from .spec import RecipeResult
-from .terminal_style import ACCENT, MUTED, RESET, TITLE, box_bottom, box_top, hint_line, menu_item, use_color
+from .terminal_style import (
+    ACCENT,
+    BORDER,
+    MUTED,
+    NUM,
+    RESET,
+    TEXT,
+    TITLE,
+    box_bottom,
+    box_top,
+    hint_line,
+    menu_item,
+    use_color,
+)
 from .tiger_banner import play_tiger_intro
 from .wizard_guide import GUIDES, monitor_sections
 
@@ -17,71 +30,78 @@ def _rel(path: Path) -> str:
         return str(path)
 
 
+def _col(text: str, code: str, color: bool) -> str:
+    return f"{code}{text}{RESET}" if color else text
+
+
 def print_recipe_monitor(result: RecipeResult) -> None:
     changed = [p for p in result.patches if getattr(p, "changed", False)]
     guide = GUIDES.get(result.recipe)
+    color = use_color()
+    rule = _col("═" * 62, BORDER, color)
+    thin = _col("─" * 62, BORDER, color)
 
-    print("\n" + "═" * 62)
-    print(f"  CONTRIBUTE MONITOR — {result.title.upper()}")
-    print("═" * 62)
-    print(f"  Recipe : {result.recipe}")
-    print(f"  Marker : [contrib-dev:{result.marker}]")
+    print("\n" + rule)
+    print("  " + _col(f"CONTRIBUTE MONITOR — {result.title.upper()}", TITLE, color))
+    print(rule)
+    print("  " + _col("Recipe :", MUTED, color) + f" {_col(result.recipe, TEXT, color)}")
+    print("  " + _col("Marker :", MUTED, color) + f" {_col(f'[contrib-dev:{result.marker}]', TEXT, color)}")
     if guide:
-        print(f"  Purpose: {guide.when}")
-    print("─" * 62)
+        print("  " + _col("Purpose:", MUTED, color) + f" {guide.when}")
+    print(thin)
 
-    print("\n✅ TOOL DID (automatic — you do NOT edit these stubs to wire files):")
+    print("\n" + _col("✅ TOOL DID", ACCENT, color) + _col(" (automatic — you do NOT edit these stubs to wire files):", MUTED, color))
     if changed:
         for p in changed:
-            print(f"   • {_rel(p.path)}")
-            print(f"     └─ {p.message}")
+            print("   • " + _col(_rel(p.path), TEXT, color))
+            print("     └─ " + _col(p.message, MUTED, color))
     else:
         print("   • Nothing changed — scaffold may already exist (safe to skip).")
 
     if guide:
-        print("\n📁 TOOL touched these areas (summary):")
+        print("\n" + _col("📁 TOOL touched these areas (summary):", ACCENT, color))
         for line in guide.tool_files.strip().splitlines():
             print(f"   {line}")
 
-    print("\n📋 YOU DO (your implementation work):")
+    print("\n" + _col("📋 YOU DO (your implementation work):", ACCENT, color))
     if result.user_tasks:
         for i, task in enumerate(result.user_tasks, 1):
-            print(f"   {i}. {task}")
+            print("   " + _col(f"{i}.", NUM, color) + f" {task}")
     else:
-        print("   1. Open each file above — search for TODO or [contrib-dev:…]")
-        print("   2. Replace stubs with real logic and assertions")
+        print("   " + _col("1.", NUM, color) + " Open each file above — search for TODO or [contrib-dev:…]")
+        print("   " + _col("2.", NUM, color) + " Replace stubs with real logic and assertions")
 
     if guide:
-        print("\n📂 WHERE you edit (open these paths):")
+        print("\n" + _col("📂 WHERE you edit (open these paths):", ACCENT, color))
         for line in guide.you_files.strip().splitlines():
             print(f"   {line}")
 
-    print("\n▶ VERIFY (run in order):")
+    print("\n" + _col("▶ VERIFY (run in order):", ACCENT, color))
     if guide:
-        print(f"   1. {guide.verify}")
-    print("   2. make install-dev     # if compiler/ or runtime_map changed")
-    print("   3. make test-preflight  # fast gate before PR")
-    print("   4. make test-all        # full CI before merge")
+        print("   " + _col("1.", NUM, color) + f" {_col(guide.verify, TEXT, color)}")
+    print("   " + _col("2.", NUM, color) + " make install-dev     # if compiler/ or runtime_map changed")
+    print("   " + _col("3.", NUM, color) + " make test-preflight  # fast gate before PR")
+    print("   " + _col("4.", NUM, color) + " make test-all        # full CI before merge")
 
     if result.usage_lines:
-        print("\n💡 USAGE (after implementation):")
+        print("\n" + _col("💡 USAGE (after implementation):", ACCENT, color))
         for line in result.usage_lines:
-            print(f"   {line}")
+            print("   " + _col(line, TEXT, color))
 
     if guide:
         why, _tool, _you = monitor_sections(guide)
-        print("\n❓ WHY this split?")
+        print("\n" + _col("❓ WHY this split?", ACCENT, color))
         for line in why:
             print(f"   • {line}")
         print("   • TOOL = wiring + stubs so you never miss a file")
         print("   • YOU  = semantics, tests, and compiler logic the tool cannot guess")
 
     if result.warnings:
-        print("\n⚠ NOTES:")
+        print("\n" + _col("⚠ NOTES:", NUM, color))
         for w in result.warnings:
             print(f"   • {w}")
 
-    print("\n🔄 UNDO: make contribute-remove ARGS='--marker " + result.marker + "'")
+    print("\n" + _col("🔄 UNDO:", MUTED, color) + " make contribute-remove ARGS='--marker " + result.marker + "'")
     print()
 
 
@@ -117,6 +137,7 @@ def print_hub_banner() -> None:
     print(box_bottom(width=w, color=color))
     print()
     print(hint_line("Type 1–8, then answer each question (WHY / TOOL / YOU shown).", color=color))
+    print(hint_line("Naming: Recipe 2 = str_* (C/extern). Recipe 3 = .method name (Nyra code).", color=color))
     print(hint_line("Preview + confirm before any file is written.", color=color))
     print(hint_line("Docs: CONTRIBUTING.md § Contributor hub guide", color=color))
     print()

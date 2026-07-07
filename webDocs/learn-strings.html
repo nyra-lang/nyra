@@ -136,9 +136,29 @@
     <main class="content">
       <h1 data-i18n="pages.learn-strings.h1">Nyra Strings</h1>
       <p class="lead" data-i18n-html="pages.learn-strings.lead">Text literals, concatenation, and template strings.</p>
-<h2>String literal</h2><pre><code>let greeting = "Hello"
-print(greeting)</code></pre><h2>Template strings</h2><pre><code>let name = "Nyra"
-print(`Hello, {name}!`)</code></pre><div class="callout">
+<h2>String literal</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let greeting = &quot;Hello&quot;
+print(greeting)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let greeting: string = &quot;Hello&quot;
+print(greeting)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Template strings</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let name = &quot;Nyra&quot;
+print(`Hello, {name}!`)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let name: string = &quot;Nyra&quot;
+print(`Hello, {name}!`)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/template_strings.ny</code></pre>
 <p><strong>Expected output:</strong></p>

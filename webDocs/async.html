@@ -144,27 +144,51 @@
 
       <h2 id="async-basic">Name: <code>async fn</code> + <code>await</code></h2>
       <p><strong>Explanation:</strong> <code>async fn</code> call returns a handle immediately; body runs on <code>spawn:thread</code>. <code>await</code> at the call site blocks until the result is ready. Import <code>stdlib/async_v1.ny</code> for executor helpers.</p>
-      <pre><code>allow_extended
-import "stdlib/async_v1.ny"
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
 
-async fn compute() -&gt; i32 {
+async fn compute(){
     return 42
 }
 
 fn main() {
     let h = compute()
     print(await h)
-}</code></pre>
-      <p><strong>Output:</strong></p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
+
+async fn compute(){
+    return 42
+}
+
+fn main() -&gt; void {
+    let h = compute()
+    print(await h)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
       <pre><code>42</code></pre>
       <p>Run: <code>nyra run examples/builtins/async/async_spawn.ny</code> · Gallery: <a href="methods.html#ex-async-fn"><code>#ex-async-fn</code></a></p>
 
       <h2 id="async-state-machine">Name: multiple <code>await</code> (state machine)</h2>
       <p><strong>Explanation:</strong> Linear and control-flow <code>async fn</code> bodies compile to cooperative poll loops (<code>async_poll</code> + <code>runtime_executor_tick</code>). v1.7: <code>await</code> inside <code>if</code>, <code>while</code>, range <code>for</code>.</p>
-      <pre><code>allow_extended
-import "stdlib/async_v1.ny"
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
 
-async fn chain() -&gt; i32 {
+async fn chain(){
     let _ = await Executor_sleep_ms(5)
     let _ = await Executor_sleep_ms(5)
     return 100
@@ -172,25 +196,56 @@ async fn chain() -&gt; i32 {
 
 fn main() {
     print(await chain())
-}</code></pre>
-      <p><strong>Output:</strong></p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+import &quot;stdlib/async_v1.ny&quot;
+
+async fn chain(){
+    let _ = await Executor_sleep_ms(5)
+    let _ = await Executor_sleep_ms(5)
+    return 100
+}
+
+fn main() -&gt; void {
+    print(await chain())
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
       <pre><code>100</code></pre>
       <p>Gallery: <a href="methods.html#ex-await"><code>#ex-await</code></a> · <code>nyra run examples/builtins/async/async_state_machine.ny</code></p>
 
       <h2 id="async-future">Name: <code>Future&lt;T&gt;</code> (v1.26)</h2>
       <p><strong>Explanation:</strong> Import <code>stdlib/async/future.ny</code> for typed futures (<code>Future_i32</code>, <code>Future_string</code>, …) and <code>Future_select2_*</code>.</p>
-      <pre><code>allow_extended
-import "stdlib/async/future.ny"
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+import &quot;stdlib/async/future.ny&quot;
 
-async fn greet() -&gt; string {
+async fn greet(){
     await Executor_sleep_ms(10)
-    return "Nyra async v2"
+    return &quot;Nyra async v2&quot;
 }
 
 fn main() {
     print(await greet())
-}</code></pre>
-      <p><strong>Output:</strong></p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+import &quot;stdlib/async/future.ny&quot;
+
+async fn greet(){
+    await Executor_sleep_ms(10)
+    return &quot;Nyra async v2&quot;
+}
+
+fn main() -&gt; void {
+    print(await greet())
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
       <pre><code>Nyra async v2</code></pre>
       <p>Gallery: <a href="methods.html#ex-async-future"><code>#ex-async-future</code></a> · <code>nyra run examples/builtins/async/async_future_string.ny</code></p>
 

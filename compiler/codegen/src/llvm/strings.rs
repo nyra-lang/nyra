@@ -395,6 +395,148 @@ impl Codegen {
             }
             // [/builtin-dev:strip_suffix:string]
             
+            // [builtin-dev:to_snake_case:string]
+            "to_snake_case" => {
+                let reg = self.fresh("to_snake_case");
+                self.emit_runtime_call(
+                    "str_to_snake_case",
+                    &format!("  %{reg} = call ptr @str_to_snake_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_snake_case:string]
+            
+            
+            // [builtin-dev:to_lowercase:string]
+            "to_lowercase" => {
+                let reg = self.fresh("to_lowercase");
+                self.emit_runtime_call(
+                    "str_to_lowercase",
+                    &format!("  %{reg} = call ptr @str_to_lowercase(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_lowercase:string]
+            
+            // [builtin-dev:to_titlecase:string]
+            "to_titlecase" => {
+                let reg = self.fresh("to_titlecase");
+                self.emit_runtime_call(
+                    "str_to_titlecase",
+                    &format!("  %{reg} = call ptr @str_to_titlecase(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_titlecase:string]
+            
+            // [builtin-dev:to_capitalize:string]
+            "to_capitalize" => {
+                let reg = self.fresh("to_capitalize");
+                self.emit_runtime_call(
+                    "str_to_capitalize",
+                    &format!("  %{reg} = call ptr @str_to_capitalize(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_capitalize:string]
+            
+            // [builtin-dev:to_camel_case:string]
+            "to_camel_case" => {
+                let reg = self.fresh("to_camel_case");
+                self.emit_runtime_call(
+                    "str_to_camel_case",
+                    &format!("  %{reg} = call ptr @str_to_camel_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_camel_case:string]
+            
+            // [builtin-dev:to_kebab_case:string]
+            "to_kebab_case" => {
+                let reg = self.fresh("to_kebab_case");
+                self.emit_runtime_call(
+                    "str_to_kebab_case",
+                    &format!("  %{reg} = call ptr @str_to_kebab_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_kebab_case:string]
+            
+            // [builtin-dev:to_pascal_case:string]
+            "to_pascal_case" => {
+                let reg = self.fresh("to_pascal_case");
+                self.emit_runtime_call(
+                    "str_to_pascal_case",
+                    &format!("  %{reg} = call ptr @str_to_pascal_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_pascal_case:string]
+            
+            // [builtin-dev:to_screaming_snake_case:string]
+            "to_screaming_snake_case" => {
+                let reg = self.fresh("to_screaming_snake_case");
+                self.emit_runtime_call(
+                    "str_to_screaming_snake_case",
+                    &format!("  %{reg} = call ptr @str_to_screaming_snake_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_screaming_snake_case:string]
+            
+            // [builtin-dev:to_train_case:string]
+            "to_train_case" => {
+                let reg = self.fresh("to_train_case");
+                self.emit_runtime_call(
+                    "str_to_train_case",
+                    &format!("  %{reg} = call ptr @str_to_train_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_train_case:string]
+            
+            // [builtin-dev:to_dot_case:string]
+            "to_dot_case" => {
+                let reg = self.fresh("to_dot_case");
+                self.emit_runtime_call(
+                    "str_to_dot_case",
+                    &format!("  %{reg} = call ptr @str_to_dot_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_dot_case:string]
+            
+            
 _ => ExprValue {
                 reg: "0".into(),
                 ty: "i32".into(),
@@ -465,6 +607,12 @@ _ => ExprValue {
                 return callee.clone();
             }
             return format!("{struct_name}_{method}");
+        }
+        // JS-style UFCS on strings: `name.toUpperCase()` → `String_toUpperCase(name)`.
+        // Only remap when the `String_<method>` free function actually exists.
+        let prefixed = format!("String_{method}");
+        if self.functions.contains_key(&prefixed) {
+            return prefixed;
         }
         method.to_string()
     }

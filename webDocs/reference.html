@@ -257,8 +257,8 @@ let x = 1 /* inline */ + 2
 /*
  * multiline doc
  */</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->
-      <p>See <a href="learn-comments.html">Learn → Comments</a> · Tests: <code>tests/nyra/block_comments_test.ny</code> · <code>CONF-COMMENT-*</code></p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>See <a href="learn-comments.html">Learn → Comments</a> · Tests: <code>tests/nyra/block_comments_test.ny</code> · <code>CONF-COMMENT-*</code></p>
 
       <h2 id="literals">Literals</h2>
       <table>
@@ -357,7 +357,8 @@ unsafe {
     *p = 99
     print(*p)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Inside <code>unsafe</code></th><th>Outside <code>unsafe</code></th></tr></thead>
         <tbody>
           <tr><td><code>*ptr</code> load / <code>*ptr = v</code> store on <code>*T</code> or <code>ptr</code></td><td><code>&amp;T</code> / <code>&amp;mut T</code> only</td></tr>
@@ -420,7 +421,8 @@ unsafe {
         // custom cleanup
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><code>Drop</code> and <code>Clone</code> are wired in the compiler. User traits: <code>trait</code> defs, <code>impl Trait for Type</code>, and dynamic dispatch via <code>dyn Trait</code> / <code>value as dyn Trait</code> (Extended MVP). See <a href="traits-macros.html">Traits &amp; macros</a> and <code>examples/trait_dyn.ny</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><code>Drop</code> and <code>Clone</code> are wired in the compiler. User traits: <code>trait</code> defs, <code>impl Trait for Type</code>, and dynamic dispatch via <code>dyn Trait</code> / <code>value as dyn Trait</code> (Extended MVP). See <a href="traits-macros.html">Traits &amp; macros</a> and <code>examples/trait_dyn.ny</code>.</p>
 
       <h2 id="pipeline">Compiler pipeline</h2>
       <pre class="pipeline">Source (.ny)

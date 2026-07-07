@@ -28,10 +28,23 @@ def run_add_wizard() -> BuiltinSpec:
     print("  Each step explains what your answer controls in the new method.")
     print("═" * 62)
 
+    import sys
+    from pathlib import Path
+
+    _make_py = Path(__file__).resolve().parents[1]
+    if str(_make_py) not in sys.path:
+        sys.path.insert(0, str(_make_py))
+    from naming_guide import print_builtin_naming_legend
+
+    print_builtin_naming_legend()
+
     receiver = _pick_receiver()
     explain_receiver_choice(receiver)
 
-    method = _ask_text("\nMethod name (snake_case)", required=True)
+    method = _ask_text(
+        "\nNyra method name — what programmers write (e.g. to_snake_case for \"x\".to_snake_case())",
+        required=True,
+    )
     explain_method_choice(method, receiver)
     hints = default_spec_hints(method)
 
@@ -60,9 +73,10 @@ def run_add_wizard() -> BuiltinSpec:
         abi_since="1.0.0",
     ).c_name
     c_name = _pick_default(
-        f"C symbol  (LLVM/runtime function name in stdlib/rt/)",
+        f"C symbol only (stdlib/rt/*.c — NOT what programmers type in Nyra)",
         c_default,
     )
+    print(f"     → programmers call .{method}() or {method}(s); C implements {c_name}()")
 
     rt_default = RECEIVERS[receiver].default_rt
     rt_module = _pick_default(f"Runtime C file  (where C implementation lives)", rt_default)

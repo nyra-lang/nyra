@@ -149,40 +149,83 @@
       <p>See the full symbol list in <a href="bindings.html">Runtime bindings</a>.</p>
 
       <h3>String keys, i32 values — <code>map_str_i32_*</code></h3>
-      <pre><code>extern fn map_str_i32_new() -> ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void
-extern fn map_str_i32_get(m: ptr, key: string) -> i32
-extern fn map_str_i32_contains(m: ptr, key: string) -> i32
-extern fn map_str_i32_free(m: ptr) -> void
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_str_i32_new() -&gt; ptr
+extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
+extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_free(m: ptr) -&gt; void
 
 fn main() {
     let m = map_str_i32_new()
-    map_str_i32_insert(m, "score", 100)
-    print(map_str_i32_get(m, "score"))
-    print(map_str_i32_contains(m, "score"))
+    map_str_i32_insert(m, &quot;score&quot;, 100)
+    print(map_str_i32_get(m, &quot;score&quot;))
+    print(map_str_i32_contains(m, &quot;score&quot;))
     map_str_i32_free(m)
-}</code></pre>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_str_i32_new() -&gt; ptr
+extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
+extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_free(m: ptr) -&gt; void
 
-      <h3>String keys, string values — <code>map_str_str_*</code></h3>
-      <pre><code>extern fn map_str_str_new() -> ptr
-extern fn map_str_str_insert(m: ptr, key: string, value: string) -> void
-extern fn map_str_str_get(m: ptr, key: string) -> string
-extern fn map_str_str_contains(m: ptr, key: string) -> i32
-extern fn map_str_str_free(m: ptr) -> void
+fn main() -&gt; void {
+    let m = map_str_i32_new()
+    map_str_i32_insert(m, &quot;score&quot;, 100)
+    print(map_str_i32_get(m, &quot;score&quot;))
+    print(map_str_i32_contains(m, &quot;score&quot;))
+    map_str_i32_free(m)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>String keys, string values — <code>map_str_str_*</code></h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_str_str_new() -&gt; ptr
+extern fn map_str_str_insert(m: ptr, key: string, value: string) -&gt; void
+extern fn map_str_str_get(m: ptr, key: string) -&gt; string
+extern fn map_str_str_contains(m: ptr, key: string) -&gt; i32
+extern fn map_str_str_free(m: ptr) -&gt; void
 
 fn main() {
     let m = map_str_str_new()
-    map_str_str_insert(m, "lang", "Nyra")
-    print(map_str_str_get(m, "lang"))
+    map_str_str_insert(m, &quot;lang&quot;, &quot;Nyra&quot;)
+    print(map_str_str_get(m, &quot;lang&quot;))
     map_str_str_free(m)
-}</code></pre>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_str_str_new() -&gt; ptr
+extern fn map_str_str_insert(m: ptr, key: string, value: string) -&gt; void
+extern fn map_str_str_get(m: ptr, key: string) -&gt; string
+extern fn map_str_str_contains(m: ptr, key: string) -&gt; i32
+extern fn map_str_str_free(m: ptr) -&gt; void
 
-      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
-      <pre><code>extern fn map_i32_i32_new() -> ptr
-extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -> void
-extern fn map_i32_i32_get(m: ptr, key: i32) -> i32
-extern fn map_i32_i32_contains(m: ptr, key: i32) -> i32
-extern fn map_i32_i32_free(m: ptr) -> void
+fn main() -&gt; void {
+    let m = map_str_str_new()
+    map_str_str_insert(m, &quot;lang&quot;, &quot;Nyra&quot;)
+    print(map_str_str_get(m, &quot;lang&quot;))
+    map_str_str_free(m)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_i32_i32_new() -&gt; ptr
+extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -&gt; void
+extern fn map_i32_i32_get(m: ptr, key: i32) -&gt; i32
+extern fn map_i32_i32_contains(m: ptr, key: i32) -&gt; i32
+extern fn map_i32_i32_free(m: ptr) -&gt; void
 
 fn main() {
     let m = map_i32_i32_new()
@@ -190,30 +233,78 @@ fn main() {
     print(map_i32_i32_get(m, 42))
     print(map_i32_i32_contains(m, 42))
     map_i32_i32_free(m)
-}</code></pre>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_i32_i32_new() -&gt; ptr
+extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -&gt; void
+extern fn map_i32_i32_get(m: ptr, key: i32) -&gt; i32
+extern fn map_i32_i32_contains(m: ptr, key: i32) -&gt; i32
+extern fn map_i32_i32_free(m: ptr) -&gt; void
 
-      <h3>Stdlib wrappers (recommended)</h3>
+fn main() -&gt; void {
+    let m = map_i32_i32_new()
+    map_i32_i32_insert(m, 42, 99)
+    print(map_i32_i32_get(m, 42))
+    print(map_i32_i32_contains(m, 42))
+    map_i32_i32_free(m)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Stdlib wrappers (recommended)</h3>
       <p>Import <code>stdlib/map.ny</code> for <code>HashMap_str_i32</code> and <code>HashMap_str_str</code> — method syntax and automatic cleanup via <code>Drop</code>. The low-level <code>map_*</code> names stay stable for <code>extern fn</code> and FFI.</p>
-      <pre><code>import "stdlib/map"
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map&quot;
 
 fn main() {
     let mut scores = HashMap_str_i32_new()
-    scores = scores.insert("ada", 100)
-    print(scores.get("ada"))
-}</code></pre>
-<h2>Runnable example</h2><pre><code>extern fn map_str_i32_new() -> ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void
-extern fn map_str_i32_get(m: ptr, key: string) -> i32
-extern fn map_str_i32_contains(m: ptr, key: string) -> i32
-extern fn map_str_i32_free(m: ptr) -> void
+    scores = scores.insert(&quot;ada&quot;, 100)
+    print(scores.get(&quot;ada&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map&quot;
+
+fn main() -&gt; void {
+    let mut scores = HashMap_str_i32_new()
+    scores = scores.insert(&quot;ada&quot;, 100)
+    print(scores.get(&quot;ada&quot;))
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Runnable example</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_str_i32_new() -&gt; ptr
+extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
+extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_free(m: ptr) -&gt; void
 
 fn main() {
     let handle = map_str_i32_new()
-    map_str_i32_insert(handle, "score", 100)
-    print(map_str_i32_get(handle, "score"))
-    print(map_str_i32_contains(handle, "score"))
+    map_str_i32_insert(handle, &quot;score&quot;, 100)
+    print(map_str_i32_get(handle, &quot;score&quot;))
+    print(map_str_i32_contains(handle, &quot;score&quot;))
     map_str_i32_free(handle)
-}</code></pre><div class="callout">
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_str_i32_new() -&gt; ptr
+extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
+extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
+extern fn map_str_i32_free(m: ptr) -&gt; void
+
+fn main() -&gt; void {
+    let handle = map_str_i32_new()
+    map_str_i32_insert(handle, &quot;score&quot;, 100)
+    print(map_str_i32_get(handle, &quot;score&quot;))
+    print(map_str_i32_contains(handle, &quot;score&quot;))
+    map_str_i32_free(handle)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/hashmap.ny</code></pre>
 <p><strong>Expected output:</strong></p>

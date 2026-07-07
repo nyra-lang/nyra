@@ -148,16 +148,34 @@
           <tr><td><code>void</code></td><td>—</td><td>No return value</td></tr>
         </tbody>
       </table>
-<h2>Examples by type</h2><pre><code>fn main() {
-    let count: i32 = 42
-    let big: i64 = 1_000_000_000
-    let flag: bool = true
-    let name: string = "Nyra"
+<h2>Examples by type</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let count = 42
+    let big = 1_000_000_000
+    let flag = true
+    let name = &quot;Nyra&quot;
     print(count)
     print(big)
     print(flag)
     print(name)
-}</code></pre><div class="callout">
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let count: i32 = 42
+    let big = 1_000_000_000
+    let flag = true
+    let name: string = &quot;Nyra&quot;
+    print(count)
+    print(big)
+    print(flag)
+    print(name)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/hello.ny</code></pre>
 <p><strong>Expected output:</strong></p>

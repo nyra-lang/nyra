@@ -136,13 +136,26 @@
     <main class="content">
       <h1 data-i18n="pages.learn-constants.h1">Nyra Constants</h1>
       <p class="lead" data-i18n-html="pages.learn-constants.lead">Fixed compile-time values with <code>const</code>.</p>
-<h2>const</h2><pre><code>const MAX_LIVES = 3
+<h2>const</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>const MAX_LIVES = 3
 const PI = 3
 
 fn main() {
     print(MAX_LIVES)
-}</code></pre>
-      <table>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>const MAX_LIVES = 3
+const PI = 3
+
+fn main() -&gt; void {
+    print(MAX_LIVES)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th></tr></thead>
         <tbody>
           <tr><td>Can reassign?</td><td>No</td><td>Yes</td><td>No</td></tr>

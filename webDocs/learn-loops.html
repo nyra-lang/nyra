@@ -143,13 +143,28 @@
         <li><code>for i in start..end { ... }</code> — iterate a half-open range</li>
       </ul>
       <p>Details: <a href="learn-while.html">While loops</a> · <a href="learn-for.html">For loops</a></p>
-<h2>Sum with for</h2><pre><code>fn main() {
+<h2>Sum with for</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
     let mut sum = 0
     for i in 0..5 {
         sum = sum + i
     }
     print(sum)
-}</code></pre><nav class="lesson-nav" aria-label="Learn navigation">
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let mut sum: i32 = 0
+    for i in 0..5 {
+        sum = sum + i
+    }
+    print(sum)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-match.html">← Nyra Match</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
 <a class="lesson-nav-next" href="learn-while.html">Nyra While Loops →</a>

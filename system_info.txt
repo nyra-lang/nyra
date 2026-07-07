@@ -1,4 +1,0 @@
-OS: darwin
-PID: 4144
-HOME: /Users/hamdy
-User: Ada

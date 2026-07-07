@@ -309,7 +309,6 @@ impl Codegen {
             ("str_cmp", "declare i32 @str_cmp(ptr, ptr)"),
             ("str_to_upper", "declare ptr @str_to_upper(ptr)"),
             ("str_to_lower", "declare ptr @str_to_lower(ptr)"),
-            ("str_trim", "declare ptr @str_trim(ptr)"),
             ("str_contains", "declare i32 @str_contains(ptr, ptr)"),
             ("str_starts_with", "declare i32 @str_starts_with(ptr, ptr)"),
             ("str_ends_with", "declare i32 @str_ends_with(ptr, ptr)"),
@@ -460,6 +459,16 @@ impl Codegen {
                 "declare double @rand_f64_range(double, double)",
             ),
             ("str_strip_suffix", "declare ptr @str_strip_suffix(ptr, ptr)"),
+            ("str_to_snake_case", "declare ptr @str_to_snake_case(ptr)"),
+            ("str_to_lowercase", "declare ptr @str_to_lowercase(ptr)"),
+            ("str_to_titlecase", "declare ptr @str_to_titlecase(ptr)"),
+            ("str_to_capitalize", "declare ptr @str_to_capitalize(ptr)"),
+            ("str_to_camel_case", "declare ptr @str_to_camel_case(ptr)"),
+            ("str_to_kebab_case", "declare ptr @str_to_kebab_case(ptr)"),
+            ("str_to_pascal_case", "declare ptr @str_to_pascal_case(ptr)"),
+            ("str_to_screaming_snake_case", "declare ptr @str_to_screaming_snake_case(ptr)"),
+            ("str_to_train_case", "declare ptr @str_to_train_case(ptr)"),
+            ("str_to_dot_case", "declare ptr @str_to_dot_case(ptr)"),
         ];
         for (name, line) in decls {
             if self.skip_runtime_decls.contains(name) || self.declared_c_syms.contains(name) {

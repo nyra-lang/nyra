@@ -7,11 +7,13 @@ Built-in methods (menu 3) delegate to `builtin-dev.py`.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 _MAKE_PY = Path(__file__).resolve().parent
+_REPO_ROOT = _MAKE_PY.parent.parent
 if str(_MAKE_PY) not in sys.path:
     sys.path.insert(0, str(_MAKE_PY))
 
@@ -85,12 +87,45 @@ def _ensure_add_subcommand(argv: list[str]) -> list[str]:
     return argv
 
 
+def regen_webdocs() -> None:
+    """Regenerate webDocs so a freshly-added contribution shows up there.
+
+    Runs make/lib/build-webdocs.sh, which embeds example sources, code tabs,
+    the builtin gallery, the skill file, and the search index. None of these
+    steps invoke `nyra`, so it is safe to run right after scaffolding (before
+    the C logic is implemented) — captured example stdout is filled in later by
+    the separate capture-builtin-outputs step. Failures are non-fatal: the
+    scaffold already succeeded, so we only warn.
+    """
+    if os.environ.get("NYRA_CONTRIBUTE_SKIP_WEBDOCS"):
+        print("\n(webDocs regen skipped: NYRA_CONTRIBUTE_SKIP_WEBDOCS set)")
+        return
+    script = _REPO_ROOT / "make" / "lib" / "build-webdocs.sh"
+    if not script.exists():
+        print(f"\n(webDocs regen skipped: {script} not found)", file=sys.stderr)
+        return
+    print("\n==> Updating webDocs so the new contribution is listed…")
+    rc = subprocess.call(["bash", str(script)], cwd=str(_REPO_ROOT))
+    if rc == 0:
+        print("==> webDocs updated. (Run capture-builtin-outputs once the C logic")
+        print("    builds, to fill in example stdout.)")
+    else:
+        print(
+            "\nwarning: webDocs regen failed (exit "
+            f"{rc}). Your scaffold is intact — re-run `make build-webdocs` "
+            "manually after fixing the issue.",
+            file=sys.stderr,
+        )
+
+
 def run_builtin_wizard() -> int:
     script = _MAKE_PY / "builtin-dev.py"
     print("\n── Built-in Method (.method) — option 3 ──")
     print("  WHY  → String/array methods need compiler + C wiring (10+ files).")
     print("  TOOL → Delegates to make add-builtin (same monitor style).")
-    print("  YOU  → Implement C in stdlib/rt/; fix tests.\n")
+    print("  YOU  → Implement C in stdlib/rt/; fix tests.")
+    print("  NAME → Pick the Nyra method (e.g. to_snake_case); C gets str_to_snake_case.")
+    print("         Do NOT also run Recipe 2 for the same feature.\n")
     return subprocess.call([sys.executable, str(script), "add", "-i"])
 
 
@@ -126,15 +161,21 @@ def resolve_spec(choice: str, config: str | None, interactive: bool):
 def cmd_add(args: argparse.Namespace) -> int:
     interactive = args.interactive or (not args.recipe and not args.config)
     choice = pick_recipe(interactive, args.recipe)
+    want_webdocs = not getattr(args, "no_webdocs", False)
     if choice == "3":
-        return run_builtin_wizard()
+        rc = run_builtin_wizard()
+        if rc == 0 and want_webdocs:
+            regen_webdocs()
+        return rc
     _slug, _label, apply_fn = RECIPES[choice]
     spec = resolve_spec(choice, args.config, interactive)
     result = apply_fn(spec, force=args.force)
     print_recipe_monitor(result)
-    if result.ok():
-        return 0
-    if any(getattr(p, "message", "") == "already present" for p in result.patches):
+    changed = result.ok()
+    already = any(getattr(p, "message", "") == "already present" for p in result.patches)
+    if changed and want_webdocs:
+        regen_webdocs()
+    if changed or already:
         return 0
     return 1
 
@@ -145,6 +186,8 @@ def cmd_remove(args: argparse.Namespace) -> int:
         marker = run_remove_wizard()
     result = remove_to_recipe_result(remove_by_marker(marker))
     print_recipe_monitor(result)
+    if result.ok() and not getattr(args, "no_webdocs", False):
+        regen_webdocs()
     return 0 if result.ok() else 1
 
 
@@ -198,11 +241,21 @@ def main() -> int:
     add_p.add_argument("--recipe", help="Recipe slug or number (1-8)")
     add_p.add_argument("--config", help="JSON spec")
     add_p.add_argument("--force", action="store_true")
+    add_p.add_argument(
+        "--no-webdocs",
+        action="store_true",
+        help="Skip regenerating webDocs after the scaffold (for CI/automation)",
+    )
     add_p.set_defaults(func=cmd_add)
 
     rem_p = sub.add_parser("remove", help="Remove scaffold by marker")
     rem_p.add_argument("-i", "--interactive", action="store_true")
     rem_p.add_argument("--marker", help="contrib-dev marker (e.g. test_example:foo)")
+    rem_p.add_argument(
+        "--no-webdocs",
+        action="store_true",
+        help="Skip regenerating webDocs after removal (for CI/automation)",
+    )
     rem_p.set_defaults(func=cmd_remove)
 
     list_p = sub.add_parser("list", help="List wired scaffolds")

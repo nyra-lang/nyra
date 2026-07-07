@@ -37,6 +37,14 @@ cargo build --release -p cli
 info "==> Installing to PATH (cargo install --force)..."
 cargo install --path cli --force
 
+# Always copy the freshly built binary from cargo's install dir, not
+# `command -v nyra` (PATH may prefer an older ~/.nyra/bin/nyra and cp would
+# no-op with "identical (not copied)" while leaving the stale binary active).
+CARGO_NYRA="${CARGO_HOME:-$HOME/.cargo}/bin/nyra"
+if [ ! -x "$CARGO_NYRA" ]; then
+  die "expected cargo-installed nyra at $CARGO_NYRA"
+fi
+
 NYRA_HOME="${NYRA_HOME:-$HOME/.nyra}"
 STD_DEST="$NYRA_HOME/share/stdlib"
 info "==> Syncing stdlib to $STD_DEST ..."
@@ -58,23 +66,18 @@ done
 
 if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh" ]; then
   info "==> Building dev runtime archive (fast debug links)..."
-  bash "$ROOT/make/lib/build-prebuilt-rt.sh" "$(command -v nyra)"
+  bash "$ROOT/make/lib/build-prebuilt-rt.sh" "$CARGO_NYRA"
 fi
 
-if command -v nyra >/dev/null 2>&1; then
-  NYRA_BIN="$(command -v nyra)"
-  NYRA_BIN_DIR="$NYRA_HOME/bin"
-  mkdir -p "$NYRA_BIN_DIR"
-  cp "$NYRA_BIN" "$NYRA_BIN_DIR/nyra"
-  installed_ver="$(nyra --version 2>/dev/null | sed 's/^nyra //')"
-  if [ -n "$installed_ver" ]; then
-    printf '%s\n' "$installed_ver" > "$NYRA_HOME/version"
-  fi
-  info "==> Linked dev binary into $NYRA_BIN_DIR/nyra"
-  info ""
-  info "Done. Active binary:"
-  info "  $NYRA_BIN_DIR/nyra"
-  "$NYRA_BIN_DIR/nyra" -V 2>/dev/null || "$NYRA_BIN_DIR/nyra" --version 2>/dev/null || true
-else
-  die "nyra not on PATH after install. Ensure \$HOME/.cargo/bin is in PATH."
+NYRA_BIN_DIR="$NYRA_HOME/bin"
+mkdir -p "$NYRA_BIN_DIR"
+cp -f "$CARGO_NYRA" "$NYRA_BIN_DIR/nyra"
+installed_ver="$("$NYRA_BIN_DIR/nyra" --version 2>/dev/null | sed 's/^nyra //')"
+if [ -n "$installed_ver" ]; then
+  printf '%s\n' "$installed_ver" > "$NYRA_HOME/version"
 fi
+info "==> Linked dev binary into $NYRA_BIN_DIR/nyra"
+info ""
+info "Done. Active binary:"
+info "  $NYRA_BIN_DIR/nyra"
+"$NYRA_BIN_DIR/nyra" -V 2>/dev/null || "$NYRA_BIN_DIR/nyra" --version 2>/dev/null || true

@@ -136,10 +136,20 @@
     <main class="content">
       <h1 data-i18n="pages.learn-syntax.h1">Nyra Syntax</h1>
       <p class="lead" data-i18n-html="pages.learn-syntax.lead">Blocks, statements, indentation, and naming conventions.</p>
-<h2>Program entry</h2><pre><code>fn main() {
-    print("Hello")
-}</code></pre>
-      <p>Nyra uses <strong>curly braces</strong> for blocks. Statements end at newline (no semicolons required). Function names use <code>snake_case</code>; types and structs use <code>PascalCase</code>.</p>
+<h2>Program entry</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;Hello&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;Hello&quot;)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Nyra uses <strong>curly braces</strong> for blocks. Statements end at newline (no semicolons required). Function names use <code>snake_case</code>; types and structs use <code>PascalCase</code>.</p>
       <p>Full cheat sheet: <a href="language.html">Syntax reference</a> · <a href="reference.html">Keywords</a></p>
 <nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-get-started.html">← Nyra Get Started</a>

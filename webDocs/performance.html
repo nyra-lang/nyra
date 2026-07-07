@@ -143,11 +143,22 @@
 
 <h3>Static dispatch (monomorphization)</h3>
 <p>Generic functions and types are <strong>specialized at compile time</strong> before LLVM IR is emitted. A call like <code>id(42)</code> on <code>fn id&lt;T&gt;(x: T) -&gt; T</code> becomes a direct call to <code>id__i32</code> — no runtime type information, no vtable on the hot path.</p>
-<pre><code>// expand → monomorph → codegen
-fn id&lt;T&gt;(x: T) -&gt; T { return x }
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// expand → monomorph → codegen
+fn id&lt;T&gt;(x: T){ return x }
 let a = id(1)    // → call @id__i32
-let b = id("x")  // → call @id__string</code></pre>
-<p>Prefer <strong>generics</strong> and <code>impl Trait for Type</code> on hot paths. Reserve <code>dyn Trait</code> (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as <code>abs_i32</code> lower to LLVM intrinsics and are not emitted as separate functions.</p>
+let b = id(&quot;x&quot;)  // → call @id__string</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// expand → monomorph → codegen
+fn id&lt;T&gt;(x: T){ return x }
+let a = id&lt;i32&gt;(1)    // → call @id__i32
+let b = id&lt;string&gt;(&quot;x&quot;)  // → call @id__string</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><p>Prefer <strong>generics</strong> and <code>impl Trait for Type</code> on hot paths. Reserve <code>dyn Trait</code> (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as <code>abs_i32</code> lower to LLVM intrinsics and are not emitted as separate functions.</p>
 <p>Pipeline order: <code>expand → monomorph (+ call-site type inference) → typecheck → borrow → escape analysis → codegen</code>. See <a href="generics.html">Generics</a> and <a href="traits-macros.html">Traits &amp; macros</a>.</p>
 
 <h3>Four layers of DCE</h3>

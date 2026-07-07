@@ -145,13 +145,26 @@
           <tr><td><code>struct</code></td><td>Copy or Move</td><td>Move if any field is Move</td></tr>
         </tbody>
       </table>
-<h2>Move example</h2><pre><code>fn main() {
-    let a = "hello"
+<h2>Move example</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let a = &quot;hello&quot;
     let b = a
     // print(a)  // error: use of moved value
     print(b)
-}</code></pre>
-      <p>Owned heap strings are <strong>auto-dropped</strong> at scope end. Deep dive: <a href="memory.html">Memory &amp; ownership</a>.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let a: string = &quot;hello&quot;
+    let b = a
+    // print(a)  // error: use of moved value
+    print(b)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Owned heap strings are <strong>auto-dropped</strong> at scope end. Deep dive: <a href="memory.html">Memory &amp; ownership</a>.</p>
 <nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-strings.html">← Nyra Strings</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>

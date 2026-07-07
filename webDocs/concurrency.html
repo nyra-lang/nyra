@@ -167,9 +167,15 @@
         <li><strong>Statement</strong> — fire-and-forget (handle detached at end of statement).</li>
         <li><strong>Expression</strong> — <code>let h = spawn { ... }</code> returns <code>JoinHandle</code>; call <code>h.join()</code> to wait (consumes handle).</li>
       </ul>
-      <pre><code>// Lightweight task (default) — queued on runtime pool
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// Lightweight task (default) — queued on runtime pool
 spawn {
-    print("many tasks OK")
+    print(&quot;many tasks OK&quot;)
 }
 
 let h = spawn:task {
@@ -181,8 +187,24 @@ h.join()
 let t = spawn:thread {
     heavy_blocking_work()
 }
-t.join()</code></pre>
-      <p><strong>Task vs thread:</strong> tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use <code>spawn</code> / <code>spawn:task</code> for high fan-out (thousands+ jobs). Use <code>spawn:thread</code> when you need a real thread or blocking syscall isolation. Captures must be <code>Send</code> in both modes.</p>
+t.join()</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// Lightweight task (default) — queued on runtime pool
+spawn {
+    print(&quot;many tasks OK&quot;)
+}
+
+let h = spawn:task {
+    print(99)
+}
+h.join()
+
+// Dedicated OS thread — ~MB stack, true parallel isolation
+let t = spawn:thread {
+    heavy_blocking_work()
+}
+t.join()</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Task vs thread:</strong> tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use <code>spawn</code> / <code>spawn:task</code> for high fan-out (thousands+ jobs). Use <code>spawn:thread</code> when you need a real thread or blocking syscall isolation. Captures must be <code>Send</code> in both modes.</p>
       <p>Lowering: codegen emits a closure entry + <code>spawn_task_capture</code> (tasks) or <code>spawn_capture</code> (threads). Captures are packed into a struct and copied to the heap. Dropped handles without <code>.join()</code> detach (tasks keep running on the pool; threads are <code>pthread_detach</code>ed).</p>
 
       <h3 id="allow-extended"><code>allow_extended</code> (file directive)</h3>
@@ -212,7 +234,13 @@ t.join()</code></pre>
         <li>Works for both <code>spawn</code>/<code>spawn:task</code> (task pool) and <code>spawn:thread</code> (OS thread); codegen picks <code>spawn_task_join</code> or <code>spawn_join</code> automatically.</li>
         <li>If a <code>JoinHandle</code> goes out of scope without <code>.join()</code>, the runtime <strong>detaches</strong> — same effect as the statement form.</li>
       </ul>
-      <pre><code>allow_extended
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
 fn main() {
     // Wait for task — output order: 99, then 0
     let h = spawn {
@@ -223,24 +251,53 @@ fn main() {
 
     // Fire-and-forget — main does not wait
     spawn {
-        print("background")
+        print(&quot;background&quot;)
     }
-}</code></pre>
-      <p>Full runnable examples: <a href="methods.html#join-handle">Built-in methods → JoinHandle</a> · <a href="methods.html#ex-spawn-join"><code>.join()</code> example</a>.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    // Wait for task — output order: 99, then 0
+    let h = spawn {
+        print(99)
+    }
+    h.join()
+    print(0)
+
+    // Fire-and-forget — main does not wait
+    spawn {
+        print(&quot;background&quot;)
+    }
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Full runnable examples: <a href="methods.html#join-handle">Built-in methods → JoinHandle</a> · <a href="methods.html#ex-spawn-join"><code>.join()</code> example</a>.</p>
 
       <h2 id="parallel-for">parallel for</h2>
       <p>Use <code>parallel for</code> when iterations are <strong>independent</strong>. Each variant below follows: <strong>name → explanation → example → output</strong>. Full runnable programs: <a href="methods.html#ex-parallel">methods gallery</a> · <code>examples/builtins/parallel/</code>.</p>
 
       <h3 id="parallel-task">Name: <code>parallel for</code> / <code>parallel:task</code></h3>
       <p><strong>Explanation:</strong> Default backend is the <strong>global task pool</strong> (same workers as <code>spawn</code>). Fork-join: the loop body runs on pooled workers; <code>main</code> continues only after all iterations finish. Requires <code>allow_extended</code>.</p>
-      <pre><code>allow_extended
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
 fn main() {
     parallel for i in 0..4 {
         print(i)
     }
     print(999)
-}</code></pre>
-      <p><strong>Output</strong> (iteration lines may appear in any order; <code>999</code> is always last):</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (iteration lines may appear in any order; <code>999</code> is always last):</p>
       <pre><code>0
 1
 3
@@ -250,24 +307,50 @@ fn main() {
 
       <h3 id="parallel-task-max">Name: <code>parallel:task(max = N)</code></h3>
       <p><strong>Explanation:</strong> Explicit task-pool alias with a worker cap. Prefer <code>max = N</code> over deprecated <code>max_threads</code> — avoids confusion with <code>parallel:thread</code>.</p>
-      <pre><code>allow_extended
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
 fn main() {
     parallel:task(max = 4) for i in 0..1000 {
         work(i)
     }
-}</code></pre>
-      <p><strong>Output:</strong> Depends on <code>work(i)</code>; the loop is fork-join — code after the loop runs only when every iteration completes.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel:task(max = 4) for i in 0..1000 {
+        work(i)
+    }
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Depends on <code>work(i)</code>; the loop is fork-join — code after the loop runs only when every iteration completes.</p>
       <p>Gallery: <a href="methods.html#ex-parallel-task-max"><code>parallel:task(max = N)</code></a> · Run: <code>nyra run examples/builtins/parallel/parallel_task_max.ny</code></p>
 
       <h3 id="parallel-thread-max">Name: <code>parallel:thread(max = N)</code></h3>
       <p><strong>Explanation:</strong> OS-thread fork-join per chunk (~MB stack). Use for blocking I/O or when you need real thread isolation. Backend is chosen by <code>:thread</code>, not by the <code>max</code> key.</p>
-      <pre><code>allow_extended
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
 fn main() {
     parallel:thread(max = 4) for i in 0..1000 {
         work(i)
     }
-}</code></pre>
-      <p><strong>Output</strong> (sample with <code>print(i)</code>; order non-deterministic):</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel:thread(max = 4) for i in 0..1000 {
+        work(i)
+    }
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (sample with <code>print(i)</code>; order non-deterministic):</p>
       <pre><code>2
 3
 0
@@ -311,13 +394,26 @@ fn main() {
       <p><strong>Name:</strong> <code>benchmark { … }</code><br>
       <strong>Explanation:</strong> Prints wall time, RSS delta, and CPU% for a block. Requires <code>allow_extended</code>.<br>
       <strong>Example:</strong> <a href="methods.html#ex-benchmark">methods gallery</a> · <code>nyra run examples/builtins/benchmark/benchmark.ny</code></p>
-      <pre><code>allow_extended
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
 fn main() {
     benchmark {
         run()
     }
-}</code></pre>
-      <p><strong>Output:</strong></p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    benchmark {
+        run()
+    }
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
       <pre><code>Time: 0.1 ms
 Memory: 0.0 B
 CPU: 98%</code></pre>
@@ -325,11 +421,22 @@ CPU: 98%</code></pre>
       <h2 id="progress-for">progress for</h2>
       <p><strong>Name:</strong> <code>progress(label = "…") for x in items { … }</code><br>
       <strong>Explanation:</strong> Sequential loop with built-in progress bar — not parallel. Optional <code>label</code>; cannot combine with <code>parallel for</code>.</p>
-      <pre><code>allow_extended
-progress(label = "parser tests") for item in tests {
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+progress(label = &quot;parser tests&quot;) for item in tests {
     run(item)
-}</code></pre>
-      <p><strong>Output</strong> (each iteration):</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+progress(label = &quot;parser tests&quot;) for item in tests {
+    run(item)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (each iteration):</p>
       <pre><code>[#####-------] 43%
 Running parser tests...</code></pre>
       <p>Full example with body output: <a href="methods.html#ex-progress"><code>progress for</code> gallery</a>.</p>
@@ -353,7 +460,8 @@ Running parser tests...</code></pre>
         print(n)   // n captured by value (Copy)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Capture kind</th><th>Compiler rule</th></tr></thead>
         <tbody>
           <tr><td><code>Copy</code> (<code>i32</code>, <code>bool</code>)</td><td>Copied into capture struct</td></tr>

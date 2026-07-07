@@ -172,12 +172,24 @@
       <h2 id="raw-identifiers">Raw identifiers (<code>@name</code>)</h2>
       <p>When a name is reserved (keyword or built-in type), you cannot use it bare as an identifier. Prefix it with <code>@</code> — the same idea as Rust <code>r#name</code>.</p>
       <p>The lexer strips the <code>@</code> and treats the token as a normal <code>Identifier</code>. The compiler stores the name without the prefix.</p>
-      <pre><code>fn main() {
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
     let @module = 10
     let @clone = @module
     print(@clone)   // prints 10
-}</code></pre>
-      <p>Here <code>@module</code> is a variable named <code>module</code>; <code>@clone</code> is a variable named <code>clone</code>. This is unrelated to the <code>module</code> declaration keyword or the <code>clone</code> ownership prefix.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let @module = 10
+    let @clone = @module
+    print(@clone)   // prints 10
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Here <code>@module</code> is a variable named <code>module</code>; <code>@clone</code> is a variable named <code>clone</code>. This is unrelated to the <code>module</code> declaration keyword or the <code>clone</code> ownership prefix.</p>
 
       <h3>When <code>@</code> is required</h3>
       <p>Any name that the lexer would otherwise parse as a keyword or type token needs <code>@</code> to be used as an identifier:</p>
@@ -310,15 +322,28 @@
           <tr><td><code>#[no_escape]</code></td><td>On <code>&amp;T</code> parameters — value must not escape the function — <a href="escape-analysis.html">Escape analysis</a></td></tr>
         </tbody>
       </table>
-      <pre><code>#[derive(Copy)]
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>#[derive(Copy)]
 struct Point { x: i32 y: i32 }
 
 #[comptime]
 fn table_size() { return 256 }
 
-fn process(#[no_escape] data: i32) { ... }</code></pre>
+fn process(#[no_escape] data) { ... }</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>#[derive(Copy)]
+struct Point { x: i32 y: i32 }
 
-      <h2 id="quick-ref">Quick reference</h2>
+#[comptime]
+fn table_size() -&gt; i32 { return 256 }
+
+fn process(#[no_escape] data: i32) { ... }</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h2 id="quick-ref">Quick reference</h2>
       <table>
         <thead><tr><th>You write</th><th>Meaning</th></tr></thead>
         <tbody>
