@@ -1,3 +1,3 @@
 fn main() {
-    print("hello".to_snake_case())
+    print("Hello World".to_snake_case())
 }

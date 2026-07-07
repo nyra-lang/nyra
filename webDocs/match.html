@@ -182,18 +182,14 @@ match r {
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Point { x: i32, y: i32 }
-
-match p {
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>match p {
     Point { x, y } =&gt; x + y
 }
 
 match pair {
     (a, b) =&gt; a + b
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Point { x: i32, y: i32 }
-
-match p {
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>match p {
     Point { x, y } =&gt; x + y
 }
 

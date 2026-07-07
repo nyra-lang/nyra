@@ -1,3 +1,3 @@
 fn main() -> void {
-    print("hello".to_lowercase())
+    print("Hello World".to_lowercase())
 }

@@ -1,3 +1,3 @@
 fn main() -> void {
-    print("hello".to_kebab_case())
+    print("Hello World".to_kebab_case())
 }

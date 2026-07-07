@@ -1,3 +1,3 @@
 fn main() {
-    print("hello".to_dot_case())
+    print("Hello World".to_dot_case())
 }

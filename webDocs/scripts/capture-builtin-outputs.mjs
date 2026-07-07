@@ -13,7 +13,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 const BUILTINS = path.join(ROOT, "examples", "builtins");
 const OUT = path.join(__dirname, "builtin-outputs.json");
-const NYRA = path.join(ROOT, "target", "release", "nyra");
+
+// Prefer the optimized release binary, but fall back to the debug build so
+// `make build-webdocs` can capture example output during normal development.
+function resolveNyra() {
+  const envBin = process.env.NYRA_BIN;
+  const candidates = [
+    envBin,
+    path.join(ROOT, "target", "release", "nyra"),
+    path.join(ROOT, "target", "debug", "nyra"),
+  ].filter(Boolean);
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return candidates[candidates.length - 1];
+}
+
+const NYRA = resolveNyra();
 
 function walkNy(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {
@@ -60,7 +76,10 @@ function runExample(rel) {
 
 function main() {
   if (!fs.existsSync(NYRA)) {
-    console.error(`nyra not found at ${NYRA} — build the compiler first`);
+    console.error(
+      `nyra not found (looked for target/release/nyra then target/debug/nyra) — ` +
+        `build the compiler first (cargo build -p cli)`,
+    );
     process.exit(1);
   }
   const map = {};

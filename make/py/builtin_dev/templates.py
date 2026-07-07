@@ -287,7 +287,15 @@ def example_ny(spec: BuiltinSpec) -> str:
         return f'fn main() {{\n    // TODO: demo {spec.method}\n}}\n'
     lines = ["fn main() {"]
     profile_method = spec.method
-    sample = '"hamdy.txt"' if "suffix" in spec.method or "prefix" in spec.method else '"hello"'
+    # Pick a sample that actually SHOWS the transformation in webDocs. Case /
+    # word-splitting methods need a multi-word input, otherwise the gallery
+    # renders an example whose output looks identical to the input.
+    if "suffix" in spec.method or "prefix" in spec.method:
+        sample = '"hamdy.txt"'
+    elif spec.method.startswith("to_") or "case" in spec.method:
+        sample = '"Hello World"'
+    else:
+        sample = '"hello"'
     if spec.args:
         arg_vals = []
         for a in spec.args:

@@ -1,3 +1,3 @@
 fn main() {
-    print("hello".to_train_case())
+    print("hello world".to_train_case())
 }
