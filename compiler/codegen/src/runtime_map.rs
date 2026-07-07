@@ -16,6 +16,7 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("strstr_pos", "rt_strings.c"),
         ("str_to_upper", "rt_strings.c"),
         ("str_to_lower", "rt_strings.c"),
+        ("str_trim", "rt_strings.c"),
         ("str_contains", "rt_strings.c"),
         ("str_starts_with", "rt_strings.c"),
         ("str_ends_with", "rt_strings.c"),

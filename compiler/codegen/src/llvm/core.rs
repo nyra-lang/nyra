@@ -309,6 +309,7 @@ impl Codegen {
             ("str_cmp", "declare i32 @str_cmp(ptr, ptr)"),
             ("str_to_upper", "declare ptr @str_to_upper(ptr)"),
             ("str_to_lower", "declare ptr @str_to_lower(ptr)"),
+            ("str_trim", "declare ptr @str_trim(ptr)"),
             ("str_contains", "declare i32 @str_contains(ptr, ptr)"),
             ("str_starts_with", "declare i32 @str_starts_with(ptr, ptr)"),
             ("str_ends_with", "declare i32 @str_ends_with(ptr, ptr)"),

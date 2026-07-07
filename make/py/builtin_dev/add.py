@@ -215,12 +215,17 @@ def _add_string(spec: BuiltinSpec, *, force: bool) -> ActionResult:
 
         res.patches.append(patch.patch_file(paths["ownership_kind"], add_owned))
 
-    if spec.stable_abi:
-        res.patches.append(
-            patch.upsert_marked_block(
-                paths["abi_manifest"], templates.abi_manifest_block(spec), marker
-            )
+    # Always record the symbol in the ABI manifest: the runtime_map entry above
+    # is unconditional, and `runtime_map_matches_manifest` requires every
+    # runtime_map symbol to exist in docs/abi-manifest.toml (otherwise
+    # `make test-cargo-workspace` fails). The block's tier is `stable` only when
+    # opted in, so non-stable builtins stay out of the generated C header.
+    res.patches.append(
+        patch.upsert_marked_block(
+            paths["abi_manifest"], templates.abi_manifest_block(spec), marker
         )
+    )
+    if spec.stable_abi:
         res.warnings.append("Run: make gen-abi-header && make gen-bindings-doc")
 
     example = paths["example_dir"] / f"{spec.method}.ny"

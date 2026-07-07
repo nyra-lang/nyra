@@ -267,6 +267,11 @@ def abi_manifest_block(spec: BuiltinSpec) -> str:
         params.append(f"{c_type(arg.nyra_type)} {arg.name}")
     ret = c_type(spec.returns, is_return=True)
     sig = ", ".join(params) if params else "void"
+    # Every runtime_map symbol must appear in the manifest (enforced by the
+    # `runtime_map_matches_manifest` ABI test). Non-stable-ABI builtins are
+    # recorded as `experimental` so they satisfy that invariant without being
+    # required in stdlib/nyra_rt.h (the header only carries stable symbols).
+    tier = "stable" if spec.stable_abi else "experimental"
     return "\n".join(
         [
             toml_marker_start(spec),
@@ -274,7 +279,7 @@ def abi_manifest_block(spec: BuiltinSpec) -> str:
             f'name = "{spec.c_name}"',
             f'c_sig = "{ret}{spec.c_name}({sig})"',
             f'module = "{spec.rt_module}"',
-            'tier = "stable"',
+            f'tier = "{tier}"',
             f'since = "{spec.abi_since}"',
             toml_marker_end(spec),
             "",
