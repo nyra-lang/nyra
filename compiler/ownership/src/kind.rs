@@ -83,7 +83,6 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "substring",
     "str_to_upper",
     "str_to_lower",
-    "str_trim",
     "str_replace",
     "str_replacen",
     "str_split",
@@ -108,6 +107,16 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "stdin_read_line",
     "random_hex",
     "str_strip_suffix",
+    "str_to_snake_case",
+    "str_to_lowercase",
+    "str_to_titlecase",
+    "str_to_capitalize",
+    "str_to_camel_case",
+    "str_to_kebab_case",
+    "str_to_pascal_case",
+    "str_to_screaming_snake_case",
+    "str_to_train_case",
+    "str_to_dot_case",
 ];
 
 pub fn callee_returns_owned(callee: &str) -> bool {

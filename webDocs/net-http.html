@@ -141,7 +141,8 @@
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h2>Architecture</h2>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h2>Architecture</h2>
       <pre><code>stdlib/net/http/
   mod.ny         — public entry (Router, listen_and_serve_handlers, client verbs)
   types.ny       — HttpRequest, HttpResponse, Server, Client, Router
@@ -192,7 +193,8 @@ fn main() -&gt; void {
         print(resp.body)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h2>HttpResponse</h2>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h2>HttpResponse</h2>
       <table>
         <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -218,7 +220,8 @@ let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;:t
 let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;)
 let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;:true}&quot;)
 let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;:true}&quot;)</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Function</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>Router_new()</code></td><td>Empty router, default 404 JSON</td></tr>
@@ -244,7 +247,8 @@ Server_listen(s2, router)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let server = Server_with_router(&quot;127.0.0.1&quot;, 8080, router)
 let s2 = Server_enable_cors(server)
 Server_listen(s2, router)</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch (v1.2)</h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch (v1.2)</h3>
       <p>Register integer <strong>slots</strong> and pass a Nyra function <code>fn(i32, RequestContext) -&gt; HttpResponse</code>. Use for dynamic logic instead of static response bodies.</p>
       <!-- NYRA_SNIPPET_SKIP -->
       <!-- NYRA_SNIPPET_START -->
@@ -271,7 +275,8 @@ fn main() -&gt; void {
     let r = Router_add_slot_get(router, &quot;/health&quot;, 0)
     listen_and_serve_handlers(&quot;127.0.0.1&quot;, 8080, r, health_slot)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Arrow handler alternative (Extended): <code>(ctx: RequestContext) =&gt; response_ok_json("{\"status\":\"ok\"}")</code> when compiled with arrow support.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Arrow handler alternative (Extended): <code>(ctx: RequestContext) =&gt; response_ok_json("{\"status\":\"ok\"}")</code> when compiled with arrow support.</p>
       <table>
         <thead><tr><th>Function</th><th>Description</th></tr></thead>
         <tbody>

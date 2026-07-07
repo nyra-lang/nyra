@@ -3,6 +3,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .suggestions import Suggestion, suggestions_for
+from .terminal_style import (
+    ACCENT,
+    BORDER,
+    MUTED,
+    NUM,
+    RESET,
+    TAG,
+    TEXT,
+    TITLE,
+    use_color,
+)
+
 
 @dataclass(frozen=True)
 class WizardStep:
@@ -12,6 +25,29 @@ class WizardStep:
     you: str
     example: str
     default: str = ""
+    # Key into suggestions.PROVIDERS — live options pulled from the repo.
+    suggest: str = ""
+
+
+def _c(text: str, code: str, color: bool) -> str:
+    return f"{code}{text}{RESET}" if color else text
+
+
+def print_suggestions(items: list[Suggestion], *, default: str = "") -> None:
+    """Show real, existing choices so a contributor never has to guess."""
+    if not items:
+        return
+    color = use_color()
+    shown = items[:12]
+    print("   " + _c("suggestions", ACCENT, color) + _c("  (type the number or your own value):", MUTED, color))
+    for i, s in enumerate(shown, 1):
+        num = _c(f"{i:>2}", NUM, color)
+        val = _c(s.value, TEXT, color)
+        star = _c(" ★ default", ACCENT, color) if default and s.value == default else ""
+        note = _c(f"  — {s.note}", MUTED, color) if s.note else ""
+        print(f"     {num}. {val}{note}{star}")
+    if len(items) > len(shown):
+        print("     " + _c(f"… +{len(items) - len(shown)} more (type your own)", MUTED, color))
 
 
 @dataclass(frozen=True)
@@ -26,39 +62,48 @@ class RecipeGuide:
 
 
 def print_recipe_intro(guide: RecipeGuide) -> None:
-    print("\n" + "═" * 62)
-    print(f"  {guide.title.upper()}")
-    print("═" * 62)
-    print(f"  When to pick this: {guide.when}")
-    print("─" * 62)
-    print("  Legend for each question:")
-    print("    WHY  → why we ask")
-    print("    TOOL → what make contribute writes automatically")
-    print("    YOU  → what you implement after the tool finishes")
-    print("─" * 62)
+    color = use_color()
+    rule = _c("═" * 62, BORDER, color)
+    thin = _c("─" * 62, BORDER, color)
+    print("\n" + rule)
+    print("  " + _c(guide.title.upper(), TITLE, color))
+    print(rule)
+    print("  " + _c("When to pick this: ", ACCENT, color) + guide.when)
+    print(thin)
+    print("  " + _c("How to read each step:", MUTED, color))
+    print("    " + _c("WHY ", NUM, color) + _c(" → why we ask", MUTED, color))
+    print("    " + _c("TOOL", NUM, color) + _c(" → what the tool writes for you automatically", MUTED, color))
+    print("    " + _c("YOU ", NUM, color) + _c(" → what you implement after the tool finishes", MUTED, color))
+    print("  " + _c("New here? Just pick a numbered suggestion at each step.", ACCENT, color))
+    print(thin)
 
 
 def print_step(step: WizardStep, *, n: int, total: int) -> None:
-    print(f"\n── Step {n}/{total} ──")
-    print(f"Q: {step.question}")
-    print(f"   WHY  → {step.why}")
-    print(f"   TOOL → {step.tool}")
-    print(f"   YOU  → {step.you}")
+    color = use_color()
+    print("\n" + _c(f"── Step {n}/{total} ──", BORDER, color))
+    print(_c("Q: ", NUM, color) + _c(step.question, TITLE, color))
+    print("   " + _c("WHY ", MUTED, color) + _c(" → ", ACCENT, color) + _c(step.why, MUTED, color))
+    print("   " + _c("TOOL", MUTED, color) + _c(" → ", ACCENT, color) + _c(step.tool, MUTED, color))
+    print("   " + _c("YOU ", MUTED, color) + _c(" → ", ACCENT, color) + _c(step.you, MUTED, color))
     if step.example:
-        print(f"   e.g. {step.example}")
+        print("   " + _c("e.g. ", MUTED, color) + _c(step.example, TAG, color))
+    if step.suggest:
+        print_suggestions(suggestions_for(step.suggest), default=step.default)
 
 
 def print_preview(guide: RecipeGuide, *, answers: dict[str, str]) -> None:
-    print("\n" + "─" * 62)
-    print("  PREVIEW — confirm before writing files")
-    print("─" * 62)
+    color = use_color()
+    thin = _c("─" * 62, BORDER, color)
+    print("\n" + thin)
+    print("  " + _c("PREVIEW", TITLE, color) + _c(" — confirm before writing files", MUTED, color))
+    print(thin)
     for key, val in answers.items():
         if val:
-            print(f"    {key}: {val}")
-    print(f"\n  TOOL will create/edit:\n{guide.tool_files}")
-    print(f"\n  YOU will implement:\n{guide.you_files}")
-    print(f"\n  Verify with:\n    {guide.verify}")
-    print("─" * 62)
+            print("    " + _c(f"{key}:", ACCENT, color) + f" {_c(val, TEXT, color)}")
+    print("\n  " + _c("TOOL will create/edit:", ACCENT, color) + f"\n{guide.tool_files}")
+    print("\n  " + _c("YOU will implement:", ACCENT, color) + f"\n{guide.you_files}")
+    print("\n  " + _c("Verify with:", ACCENT, color) + f"\n    {_c(guide.verify, TEXT, color)}")
+    print(thin)
 
 
 GUIDES: dict[str, RecipeGuide] = {
@@ -74,6 +119,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Implement the fn body inside the marked block.",
                 "json/mod.ny",
                 "json/mod.ny",
+                suggest="stdlib_module",
             ),
             WizardStep(
                 "Function name",
@@ -98,6 +144,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Return correct values; fix test expectations.",
                 "i32",
                 "i32",
+                suggest="nyra_type",
             ),
             WizardStep(
                 "Wrap existing extern fn (name only, or empty)",
@@ -106,6 +153,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Leave empty if you write custom Nyra logic.",
                 "json_get_i32",
                 "",
+                suggest="extern_fn",
             ),
         ),
         tool_files="""    • stdlib/<module>.ny          — fn stub [contrib-dev:…]
@@ -128,14 +176,15 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Add friendly Nyra wrappers nearby if needed.",
                 "json/mod.ny",
                 "json/mod.ny",
+                suggest="stdlib_module",
             ),
             WizardStep(
-                "Function name",
-                "C symbol name and Nyra extern fn name.",
-                "Registers in runtime_map.rs for linking.",
-                "Implement logic in C stub with same name.",
-                "json_get_f64",
-                "json_get_example",
+                "Function name (C symbol + Nyra extern fn — NOT .method name)",
+                "Becomes the C function in rt/*.c AND the Nyra extern fn programmers call directly.",
+                "Registers in runtime_map.rs; appends extern fn to stdlib.",
+                "Implement this exact symbol in C. For \"x\".foo() method syntax use Recipe 3 instead.",
+                "str_to_snake_case  (C) — not to_snake_case (.method)",
+                "str_to_snake_case",
             ),
             WizardStep(
                 "Arguments",
@@ -152,6 +201,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Replace stub return with real implementation.",
                 "f64",
                 "i32",
+                suggest="nyra_type",
             ),
             WizardStep(
                 "C runtime file",
@@ -160,6 +210,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Open file, search [contrib-dev:…], implement.",
                 "rt_json.c",
                 "rt_json.c",
+                suggest="rt_file",
             ),
             WizardStep(
                 "Add to stable ABI manifest?",
@@ -200,6 +251,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Keep demo small and focused.",
                 "syntax",
                 "syntax",
+                suggest="example_topic",
             ),
             WizardStep(
                 "Optional stdlib import path",
@@ -208,6 +260,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Use APIs you are testing.",
                 "stdlib/testing.ny",
                 "",
+                suggest="stdlib_module",
             ),
         ),
         tool_files="""    • tests/nyra/<name>_test.ny (+ .typed.ny)
@@ -314,6 +367,7 @@ GUIDES: dict[str, RecipeGuide] = {
                 "Pick existing area when possible.",
                 "strings",
                 "edge",
+                suggest="conformance_area",
             ),
             WizardStep(
                 "Test name (snake_case)",

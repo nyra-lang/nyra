@@ -136,18 +136,36 @@
     <main class="content">
       <h1 data-i18n="pages.learn-match.h1">Nyra Match</h1>
       <p class="lead" data-i18n-html="pages.learn-match.lead">Pattern match on enums and values.</p>
-<h2>match</h2><pre><code>enum Color { Red Green Blue }
+<h2>match</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>enum Color { Red Green Blue }
 
 fn main() {
     let c = Color.Red
     let n = match c {
-        Color.Red => 1
-        Color.Green => 2
-        Color.Blue => 3
+        Color.Red =&gt; 1
+        Color.Green =&gt; 2
+        Color.Blue =&gt; 3
     }
     print(n)
-}</code></pre>
-      <p>Guards: <code>Color.Red if x > 0 => 1</code>. Wildcard: <code>_ => 0</code>. See <a href="match.html">Match reference</a>.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>enum Color { Red Green Blue }
+
+fn main() -&gt; void {
+    let c = Color.Red
+    let n = match c {
+        Color.Red =&gt; 1
+        Color.Green =&gt; 2
+        Color.Blue =&gt; 3
+    }
+    print(n)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Guards: <code>Color.Red if x > 0 => 1</code>. Wildcard: <code>_ => 0</code>. See <a href="match.html">Match reference</a>.</p>
 <div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/language_features/demo.ny</code></pre>

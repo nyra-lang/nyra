@@ -136,18 +136,36 @@
     <main class="content">
       <h1 data-i18n="pages.learn-enums.h1">Nyra Enums</h1>
       <p class="lead" data-i18n-html="pages.learn-enums.lead">Named variants and pattern matching.</p>
-<h2>enum + match</h2><pre><code>enum Status { Ok Err Pending }
+<h2>enum + match</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>enum Status { Ok Err Pending }
 
 fn main() {
     let s = Status.Ok
     let code = match s {
-        Status.Ok => 0
-        Status.Err => 1
-        Status.Pending => 2
+        Status.Ok =&gt; 0
+        Status.Err =&gt; 1
+        Status.Pending =&gt; 2
     }
     print(code)
-}</code></pre>
-      <p>v0.2 enums are <strong>tag-only</strong> (no payloads). Next: <a href="methods.html">Built-in methods</a> · <a href="reference.html">Language reference</a>.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>enum Status { Ok Err Pending }
+
+fn main() -&gt; void {
+    let s = Status.Ok
+    let code = match s {
+        Status.Ok =&gt; 0
+        Status.Err =&gt; 1
+        Status.Pending =&gt; 2
+    }
+    print(code)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>v0.2 enums are <strong>tag-only</strong> (no payloads). Next: <a href="methods.html">Built-in methods</a> · <a href="reference.html">Language reference</a>.</p>
 <div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/language_features/demo.ny</code></pre>

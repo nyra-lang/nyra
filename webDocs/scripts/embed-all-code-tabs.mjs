@@ -11,7 +11,7 @@ import { escapeHtml, tabBlock } from "./lib/code-tabs.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WEBDOCS = path.resolve(__dirname, "..");
 const ROOT = path.resolve(WEBDOCS, "..");
-const SNIPPET_PY = path.join(ROOT, "scripts", "snippet-types.py");
+const SNIPPET_PY = path.join(ROOT, "make", "py", "snippet-types.py");
 
 const START = "<!-- NYRA_SNIPPET_START -->";
 const END = "<!-- NYRA_SNIPPET_END -->";

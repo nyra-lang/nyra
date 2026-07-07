@@ -116,7 +116,7 @@ pub(super) fn is_string_builtin_method(method: &str) -> bool {
         method,
         "split" | "trim" | "contains" | "starts_with" | "ends_with" | "replace"
             | "replacen"
-            | "to_upper" | "to_lower" | "strip_suffix")
+            | "to_upper" | "to_lower" | "strip_suffix" | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize" | "to_camel_case" | "to_kebab_case" | "to_pascal_case" | "to_screaming_snake_case" | "to_train_case" | "to_dot_case")
 }
 
 pub(super) fn llvm_ptr_reg(reg: &str) -> String {

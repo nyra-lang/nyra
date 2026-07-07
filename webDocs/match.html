@@ -152,37 +152,100 @@
     Color.Green =&gt; 2
     Color.Blue =&gt; 3
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><h2>Nested enum binds</h2><p>Peel a payload enum inside a variant arm (v1.33+). Shorthand infers the inner enum from the payload type:</p><pre><code>enum Option_i32 { None, Some(i32) }
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Nested enum binds</h2><p>Peel a payload enum inside a variant arm (v1.33+). Shorthand infers the inner enum from the payload type:</p><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>enum Option_i32 { None, Some(i32) }
 enum Result_Opt { Ok(Option_i32), Fail(Option_i32) }
 
 match r {
-    Result_Opt.Ok(Some(x)) => x
-    Result_Opt.Ok(Option_i32.None) => 0
-    Result_Opt.Fail(_) => -1
-}</code></pre><p>Enum variants with <strong>different</strong> payload types in one enum (e.g. <code>Ok(Option)</code> + <code>Err(i32)</code>) are not supported yet.</p><h2>Struct and tuple patterns</h2><p>Since <strong>v1.37.0</strong>, destructure structs and tuples in <code>match</code> arms. Field shorthand binds the field name; use <code>_</code> to ignore a slot.</p><pre><code>struct Point { x: i32, y: i32 }
+    Result_Opt.Ok(Some(x)) =&gt; x
+    Result_Opt.Ok(Option_i32.None) =&gt; 0
+    Result_Opt.Fail(_) =&gt; -1
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>enum Option_i32 { None, Some(i32) }
+enum Result_Opt { Ok(Option_i32), Fail(Option_i32) }
+
+match r {
+    Result_Opt.Ok(Some(x)) =&gt; x
+    Result_Opt.Ok(Option_i32.None) =&gt; 0
+    Result_Opt.Fail(_) =&gt; -1
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><p>Enum variants with <strong>different</strong> payload types in one enum (e.g. <code>Ok(Option)</code> + <code>Err(i32)</code>) are not supported yet.</p><h2>Struct and tuple patterns</h2><p>Since <strong>v1.37.0</strong>, destructure structs and tuples in <code>match</code> arms. Field shorthand binds the field name; use <code>_</code> to ignore a slot.</p><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Point { x: i32, y: i32 }
 
 match p {
-    Point { x, y } => x + y
+    Point { x, y } =&gt; x + y
 }
 
 match pair {
-    (a, b) => a + b
-}</code></pre><p>Field-value patterns (e.g. <code>Point { x: 0, y }</code>) are not supported yet — patterns bind fields only.</p><h2>Or-patterns</h2><p>Combine patterns that share the same body with <code>|</code> (single pipe, not <code>||</code>):</p><pre><code>match c {
-    Color.Red | Color.Blue => 1
-    Color.Green => 2
+    (a, b) =&gt; a + b
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Point { x: i32, y: i32 }
+
+match p {
+    Point { x, y } =&gt; x + y
+}
+
+match pair {
+    (a, b) =&gt; a + b
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><p>Field-value patterns (e.g. <code>Point { x: 0, y }</code>) are not supported yet — patterns bind fields only.</p><h2>Or-patterns</h2><p>Combine patterns that share the same body with <code>|</code> (single pipe, not <code>||</code>):</p><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>match c {
+    Color.Red | Color.Blue =&gt; 1
+    Color.Green =&gt; 2
 }
 
 match method {
-    "GET" | "HEAD" => 200
-    "POST" | "PUT" => 201
-    _ => 400
-}</code></pre>
-<h2>Guards</h2><pre><code>match r {
-    Result.Ok(v) if v > 0 => v
-    Result.Ok(_v) => 0
-    Result.Err(e) => e
-}</code></pre>
-<h2>Payload enums</h2><p>Import <code>stdlib/option.ny</code> for generic <code>Option&lt;T&gt;</code> / <code>Result&lt;T,E&gt;</code>, or declare a monomorph enum:</p>
+    &quot;GET&quot; | &quot;HEAD&quot; =&gt; 200
+    &quot;POST&quot; | &quot;PUT&quot; =&gt; 201
+    _ =&gt; 400
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>match c {
+    Color.Red | Color.Blue =&gt; 1
+    Color.Green =&gt; 2
+}
+
+match method {
+    &quot;GET&quot; | &quot;HEAD&quot; =&gt; 200
+    &quot;POST&quot; | &quot;PUT&quot; =&gt; 201
+    _ =&gt; 400
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Guards</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>match r {
+    Result.Ok(v) if v &gt; 0 =&gt; v
+    Result.Ok(_v) =&gt; 0
+    Result.Err(e) =&gt; e
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>match r {
+    Result.Ok(v) if v &gt; 0 =&gt; v
+    Result.Ok(_v) =&gt; 0
+    Result.Err(e) =&gt; e
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Payload enums</h2><p>Import <code>stdlib/option.ny</code> for generic <code>Option&lt;T&gt;</code> / <code>Result&lt;T,E&gt;</code>, or declare a monomorph enum:</p>
 <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -201,18 +264,32 @@ let n = match x {
     Option_i32.Some(v) =&gt; v,
     Option_i32.None =&gt; 0,
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->
-<p><code>match</code> on a parameter typed <code>Option&lt;T&gt;</code> or <code>Result&lt;T,E&gt;</code> lowers the same as on a local binding. <code>Result.Ok(7)</code> at a call site is monomorphized from the callee parameter type (no extra <code>let</code> annotation needed).</p>
+</div>
+<!-- NYRA_SNIPPET_END --><p><code>match</code> on a parameter typed <code>Option&lt;T&gt;</code> or <code>Result&lt;T,E&gt;</code> lowers the same as on a local binding. <code>Result.Ok(7)</code> at a call site is monomorphized from the callee parameter type (no extra <code>let</code> annotation needed).</p>
 <h2>String matching</h2>
 <p>Since Nyra <strong>v1.17.0</strong>, <code>match</code> works on <code>string</code> scrutinees with string literal arms (compared via <code>strcmp</code>). Use <code>_</code> for the default arm.</p>
-<pre><code>fn http_status(method) {
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn http_status(method) {
     return match method {
-        "GET" =&gt; 200,
-        "POST" =&gt; 201,
+        &quot;GET&quot; =&gt; 200,
+        &quot;POST&quot; =&gt; 201,
         _ =&gt; 404,
     }
-}</code></pre>
-<p>Arm bodies may use a trailing comma. Built-in tag-only <code>Option</code>/<code>Result</code> (no import) support <code>??</code> / <code>?.</code> only — not stored payloads.</p>      <footer class="site-footer"><a href="language.html">Syntax →</a></footer>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn http_status(method: i32) -&gt; i32 {
+    return match method {
+        &quot;GET&quot; =&gt; 200,
+        &quot;POST&quot; =&gt; 201,
+        _ =&gt; 404,
+    }
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><p>Arm bodies may use a trailing comma. Built-in tag-only <code>Option</code>/<code>Result</code> (no import) support <code>??</code> / <code>?.</code> only — not stored payloads.</p>      <footer class="site-footer"><a href="language.html">Syntax →</a></footer>
     </main>
   </div>
     <script src="vendor/lunr.min.js"></script>

@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -417,3 +418,253 @@ char *str_strip_suffix(const char *s, const char *suffix) {
     return str_dup(s);
 }
 // [/builtin-dev:strip_suffix:string]
+// [builtin-dev:to_snake_case:string]
+char *str_to_snake_case(const char *s) {
+    if (s == NULL) return NULL;
+
+    size_t len = strlen(s);
+    // Allocate double the size to accommodate inserted underscores (CamelCase).
+    char *result = (char *)malloc(len * 2 + 1);
+    if (!result) return NULL;
+
+    int i = 0, j = 0;
+    while (s[i] != '\0') {
+        if (isspace((unsigned char)s[i])) {
+            if (j > 0 && result[j - 1] != '_') {
+                result[j++] = '_';
+            }
+        } else if (isupper((unsigned char)s[i])) {
+            if (j > 0 && result[j - 1] != '_') {
+                result[j++] = '_';
+            }
+            result[j++] = (char)tolower((unsigned char)s[i]);
+        } else {
+            result[j++] = s[i];
+        }
+        i++;
+    }
+
+    result[j] = '\0';
+    return result;
+}
+// [/builtin-dev:to_snake_case:string]
+
+
+/* ---- shared helpers for case-conversion builtins (not method-specific) ---- */
+
+/* Split `s` into lowercased words. Boundaries are runs of non-alphanumeric
+ * characters (space, _, -, ., …) and lower/digit → upper transitions so that
+ * "fooBar" splits into ["foo", "bar"]. Returns a malloc'd array of `*count`
+ * malloc'd strings; free with nyra_free_words. */
+static char **nyra_split_words(const char *s, int *count) {
+    *count = 0;
+    if (!s) {
+        return NULL;
+    }
+    size_t len = strlen(s);
+    char **words = (char **)malloc((len + 1) * sizeof(char *));
+    char *buf = (char *)malloc(len + 1);
+    if (!words || !buf) {
+        free(words);
+        free(buf);
+        return NULL;
+    }
+    int n = 0;
+    size_t bi = 0;
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)s[i];
+        if (!isalnum(c)) {
+            if (bi > 0) {
+                buf[bi] = '\0';
+                words[n++] = str_dup(buf);
+                bi = 0;
+            }
+            continue;
+        }
+        if (bi > 0 && isupper(c)) {
+            unsigned char prev = (unsigned char)s[i - 1];
+            if (islower(prev) || isdigit(prev)) {
+                buf[bi] = '\0';
+                words[n++] = str_dup(buf);
+                bi = 0;
+            }
+        }
+        buf[bi++] = (char)tolower(c);
+    }
+    if (bi > 0) {
+        buf[bi] = '\0';
+        words[n++] = str_dup(buf);
+    }
+    free(buf);
+    *count = n;
+    return words;
+}
+
+static void nyra_free_words(char **words, int count) {
+    if (!words) {
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        free(words[i]);
+    }
+    free(words);
+}
+
+/* Join lowercased words. sep = 0 means no separator. cap mode:
+ *   0 = keep lower, 1 = UPPER, 2 = Capitalize each, 3 = camel (first word
+ *   lower, later words capitalized). */
+static char *nyra_join_words(char **words, int count, char sep, int cap) {
+    size_t total = 1;
+    for (int i = 0; i < count; i++) {
+        total += strlen(words[i]);
+    }
+    if (sep && count > 1) {
+        total += (size_t)(count - 1);
+    }
+    char *out = (char *)malloc(total);
+    if (!out) {
+        return NULL;
+    }
+    size_t oi = 0;
+    for (int i = 0; i < count; i++) {
+        if (sep && i > 0) {
+            out[oi++] = sep;
+        }
+        const char *w = words[i];
+        for (size_t k = 0; w[k]; k++) {
+            unsigned char ch = (unsigned char)w[k];
+            if (cap == 1) {
+                ch = (unsigned char)toupper(ch);
+            } else if (cap == 2 && k == 0) {
+                ch = (unsigned char)toupper(ch);
+            } else if (cap == 3 && i > 0 && k == 0) {
+                ch = (unsigned char)toupper(ch);
+            }
+            out[oi++] = (char)ch;
+        }
+    }
+    out[oi] = '\0';
+    return out;
+}
+
+/* Tokenize `s` then re-join with the given separator + capitalization mode. */
+static char *nyra_case_join(const char *s, char sep, int cap) {
+    if (!s) {
+        return NULL;
+    }
+    int count = 0;
+    char **words = nyra_split_words(s, &count);
+    char *out = nyra_join_words(words, count, sep, cap);
+    nyra_free_words(words, count);
+    return out ? out : str_dup("");
+}
+
+
+// [builtin-dev:to_lowercase:string]
+char *str_to_lowercase(const char *s) {
+    if (!s) {
+        return NULL;
+    }
+    char *out = str_dup(s);
+    if (!out) {
+        return NULL;
+    }
+    for (size_t i = 0; out[i]; i++) {
+        out[i] = (char)tolower((unsigned char)out[i]);
+    }
+    return out;
+}
+// [/builtin-dev:to_lowercase:string]
+
+
+// [builtin-dev:to_titlecase:string]
+char *str_to_titlecase(const char *s) {
+    if (!s) {
+        return NULL;
+    }
+    char *out = str_dup(s);
+    if (!out) {
+        return NULL;
+    }
+    int at_word_start = 1;
+    for (size_t i = 0; out[i]; i++) {
+        unsigned char c = (unsigned char)out[i];
+        if (isalpha(c)) {
+            out[i] = (char)(at_word_start ? toupper(c) : tolower(c));
+            at_word_start = 0;
+        } else {
+            at_word_start = 1;
+        }
+    }
+    return out;
+}
+// [/builtin-dev:to_titlecase:string]
+
+
+// [builtin-dev:to_capitalize:string]
+char *str_to_capitalize(const char *s) {
+    if (!s) {
+        return NULL;
+    }
+    char *out = str_dup(s);
+    if (!out) {
+        return NULL;
+    }
+    int first_alpha = 1;
+    for (size_t i = 0; out[i]; i++) {
+        unsigned char c = (unsigned char)out[i];
+        if (first_alpha && isalpha(c)) {
+            out[i] = (char)toupper(c);
+            first_alpha = 0;
+        } else {
+            out[i] = (char)tolower(c);
+        }
+    }
+    return out;
+}
+// [/builtin-dev:to_capitalize:string]
+
+
+// [builtin-dev:to_camel_case:string]
+char *str_to_camel_case(const char *s) {
+    return nyra_case_join(s, 0, 3);
+}
+// [/builtin-dev:to_camel_case:string]
+
+
+// [builtin-dev:to_kebab_case:string]
+char *str_to_kebab_case(const char *s) {
+    return nyra_case_join(s, '-', 0);
+}
+// [/builtin-dev:to_kebab_case:string]
+
+
+// [builtin-dev:to_pascal_case:string]
+char *str_to_pascal_case(const char *s) {
+    return nyra_case_join(s, 0, 2);
+}
+// [/builtin-dev:to_pascal_case:string]
+
+
+// [builtin-dev:to_screaming_snake_case:string]
+char *str_to_screaming_snake_case(const char *s) {
+    return nyra_case_join(s, '_', 1);
+}
+// [/builtin-dev:to_screaming_snake_case:string]
+
+
+// [builtin-dev:to_train_case:string]
+char *str_to_train_case(const char *s) {
+    return nyra_case_join(s, '-', 2);
+}
+// [/builtin-dev:to_train_case:string]
+
+
+// [builtin-dev:to_dot_case:string]
+char *str_to_dot_case(const char *s) {
+    return nyra_case_join(s, '.', 0);
+}
+// [/builtin-dev:to_dot_case:string]
+
+
+

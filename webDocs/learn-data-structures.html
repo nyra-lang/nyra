@@ -145,19 +145,40 @@
         <li><a href="learn-structs.html">Structs</a> — named field groups</li>
         <li><a href="learn-enums.html">Enums</a> — fixed variant sets</li>
       </ul>
-<h2>Quick tour</h2><pre><code>import "stdlib/map"
+<h2>Quick tour</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map&quot;
 
 fn main() {
     let nums = [1, 2, 3]
     print(nums.len())
 
-    let pair = (42, "ok")
+    let pair = (42, &quot;ok&quot;)
     print(pair.0)
 
     let mut scores = HashMap_str_i32_new()
-    scores = scores.insert("ada", 100)
-    print(scores.get("ada"))
-}</code></pre><div class="callout">
+    scores = scores.insert(&quot;ada&quot;, 100)
+    print(scores.get(&quot;ada&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map&quot;
+
+fn main() -&gt; void {
+    let nums: [i32; 3] = [1, 2, 3]
+    print(nums.len())
+
+    let pair = (42, &quot;ok&quot;)
+    print(pair.0)
+
+    let mut scores = HashMap_str_i32_new()
+    scores = scores.insert(&quot;ada&quot;, 100)
+    print(scores.get(&quot;ada&quot;))
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/hashmap.ny</code></pre>
 <p><strong>Expected output:</strong></p>

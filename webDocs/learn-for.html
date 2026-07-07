@@ -136,10 +136,20 @@
     <main class="content">
       <h1 data-i18n="pages.learn-for.h1">Nyra For Loops</h1>
       <p class="lead" data-i18n-html="pages.learn-for.lead">Iterate over numeric ranges.</p>
-<h2>for .. in ..</h2><pre><code>for j in 0..3 {
+<h2>for .. in ..</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>for j in 0..3 {
     print(j)   // 0, 1, 2
-}</code></pre>
-      <p><code>0..3</code> means from 0 up to (but not including) 3. Use <code>let mut</code> for accumulators outside the loop.</p>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>for j in 0..3 {
+    print(j)   // 0, 1, 2
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><code>0..3</code> means from 0 up to (but not including) 3. Use <code>let mut</code> for accumulators outside the loop.</p>
 <nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-while.html">← Nyra While Loops</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>

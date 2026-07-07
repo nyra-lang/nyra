@@ -15,3 +15,13 @@ fn char_from_code(ch: i32) -> string {
     return str_push_char("", ch)
 }
 extern fn str_strip_suffix(str: &string, suffix: &string) -> string
+extern fn str_to_snake_case(str: &string) -> string
+extern fn str_to_lowercase(str: &string) -> string
+extern fn str_to_titlecase(str: &string) -> string
+extern fn str_to_capitalize(str: &string) -> string
+extern fn str_to_camel_case(str: &string) -> string
+extern fn str_to_kebab_case(str: &string) -> string
+extern fn str_to_pascal_case(str: &string) -> string
+extern fn str_to_screaming_snake_case(str: &string) -> string
+extern fn str_to_train_case(str: &string) -> string
+extern fn str_to_dot_case(str: &string) -> string

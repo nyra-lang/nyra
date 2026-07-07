@@ -136,13 +136,37 @@
     <main class="content">
       <h1 data-i18n="pages.learn-if-else.h1">Nyra If..Else</h1>
       <p class="lead" data-i18n-html="pages.learn-if-else.lead">Branch on conditions with <code>if</code> and <code>else</code>.</p>
-<h2>if / else</h2><pre><code>let score = 75
-if score >= 60 {
-    print("Pass")
+<h2>if / else</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let score = 75
+if score &gt;= 60 {
+    print(&quot;Pass&quot;)
 } else {
-    print("Fail")
-}</code></pre><h2>If-expression</h2><pre><code>let label = if score >= 90 { "A" } else { "B" }
-print(label)</code></pre><div class="callout warning"><strong>Common mistakes</strong><ul><li>Using <code>=</code> instead of <code>==</code> in conditions.</li><li>Mismatched types in if-expression branches.</li></ul></div><nav class="lesson-nav" aria-label="Learn navigation">
+    print(&quot;Fail&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let score: i32 = 75
+if score &gt;= 60 {
+    print(&quot;Pass&quot;)
+} else {
+    print(&quot;Fail&quot;)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><h2>If-expression</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let label = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }
+print(label)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let label = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }
+print(label)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout warning"><strong>Common mistakes</strong><ul><li>Using <code>=</code> instead of <code>==</code> in conditions.</li><li>Mismatched types in if-expression branches.</li></ul></div><nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-booleans.html">← Nyra Booleans</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
 <a class="lesson-nav-next" href="learn-match.html">Nyra Match →</a>

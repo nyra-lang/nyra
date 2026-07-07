@@ -188,9 +188,11 @@ def explain_receiver_choice(name: str) -> None:
 
 def explain_method_choice(method: str, receiver: str) -> None:
     profile = method_profile(method)
-    print(f"\n  📌 Method name: {method}")
-    print(f"     C symbol will be: str_{method}" if receiver == "string" else f"     C symbol will be auto-derived from '{method}'")
-    print(f"     Nyra API       : .{method}(…) on {receiver}")
+    c_guess = f"str_{method}" if receiver == "string" else f"(auto from {method})"
+    print(f"\n  📌 Nyra method name (programmer code): {method}")
+    print(f"     Call in Nyra     : \"value\".{method}(…)")
+    print(f"     C symbol (rt/*.c): {c_guess}  ← implement logic here, not the method name")
+    print(f"     Nyra API         : .{method}(…) on {receiver}")
     if profile:
         print(f"     Behavior       : {profile.summary}")
         print(f"     Example        : {profile.example_in}  →  {profile.example_out}")

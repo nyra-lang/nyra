@@ -136,14 +136,37 @@
     <main class="content">
       <h1 data-i18n="pages.learn-comments.h1">Nyra Comments</h1>
       <p class="lead" data-i18n-html="pages.learn-comments.lead">Document code with line and block comments.</p>
-<h2>Line comments</h2><pre><code>// This is a comment
+<h2>Line comments</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// This is a comment
 let x = 1   // comment after code
-print(x)</code></pre><h2>Block comments</h2><pre><code>/*
+print(x)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// This is a comment
+let x: i32 = 1
+print(x)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Block comments</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>/*
  * File header
  */
 let total = 1 /* inline */ + 2
-print(total)</code></pre>
-      <p>Nyra supports <code>//</code> line comments and C-style <code>/* ... */</code> block comments (non-nested). Unclosed <code>/*</code> is a lexer error.</p>
+print(total)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>/*
+ * File header
+ */
+let total = 1 /* inline */ + 2
+print(total)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Nyra supports <code>//</code> line comments and C-style <code>/* ... */</code> block comments (non-nested). Unclosed <code>/*</code> is a lexer error.</p>
 <nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-output.html">← Nyra Output</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>

@@ -9,7 +9,7 @@ Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, 
 
 ## Cross-impact warning (mandatory)
 
-**Any code change can break something elsewhere.** A fix in one module, pipeline stage, or test suite is not done until you verify it does not create regressions in other areas.
+**Any code change can break something elsewhere.** A fix in one module, pipeline stage, or test suite is not done until validation that there are no regressions in other subsystems impacted by the change.
 
 Before finishing:
 
@@ -43,6 +43,11 @@ Before finishing:
    - **Major update** — a significant, user-facing feature, stdlib addition, ABI/toolchain change, or breaking behavior worth calling out in release notes.
    - Skip version bumps for: refactors, internal-only cleanup, comment/docs-only edits (unless docs ship a new public behavior), CI/Makefile tweaks, test-only changes, and small incremental work that does not fix a bug or deliver a notable feature.
    - When you do bump: patch for fixes (`1.x.Y`), minor for notable features (`1.Y.0`); update `CHANGELOG.md` with a concise entry; see `agents/skill.md` if present.
+
+## AI Agent Regression Monitoring (History Log)
+
+As an AI agent, you must ensure the long-term stability and reliability of the system by converting every bug or failure you identify and resolve into a *permanent regression test*. This log serves as an evolving source of truth for the system’s resilience: if you discover a defect, design a targeted test that reproduces it, and make sure it gets added immediately. This way, the test suite acts as an AI memory, persistently encoding learnings to prevent regressions. Over time, this strategy will transform the language into a robust, self-healing platform.
+
 ## Scope
 
 | Change type            | Required                                                                            |

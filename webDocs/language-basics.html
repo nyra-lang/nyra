@@ -183,7 +183,8 @@
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello, Nyra!&quot;)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <ul>
+</div>
+<!-- NYRA_SNIPPET_END -->      <ul>
         <li><code>fn main()</code> — defines the function named <code>main</code>. When you run the program, execution starts here.</li>
         <li><code>{</code> … <code>}</code> — a <strong>block</strong>. Code inside the block runs together. Indentation helps you read it; Nyra does not require specific spacing.</li>
         <li><code>print(...)</code> — sends text or numbers to the screen (standard output).</li>
@@ -203,7 +204,8 @@
 print(age)    // prints 25</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let age: i32 = 25
 print(age)    // prints 25</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Here <code>age</code> is the name, and <code>25</code> is the value stored under that name. When the program runs, Nyra remembers that <code>age</code> means <code>25</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Here <code>age</code> is the name, and <code>25</code> is the value stored under that name. When the program runs, Nyra remembers that <code>age</code> means <code>25</code>.</p>
       <p>Nyra gives you three main ways to introduce names:</p>
       <ul>
         <li><code>let</code> — a normal binding; the value should not be replaced later.</li>
@@ -229,7 +231,8 @@ let score: i32 = 10
 let pi_approx: i32 = 3
 
 print(score)   // OK — reading is always fine</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Why immutable by default?</strong> When a value never changes, the compiler and other readers of your code can reason about it more easily. Most variables in a program never need to change.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Why immutable by default?</strong> When a value never changes, the compiler and other readers of your code can reason about it more easily. Most variables in a program never need to change.</p>
       <p><strong>Type inference:</strong> Nyra figures out the type from the value. <code>10</code> is an <code>i32</code> (integer). <code>"Nyra"</code> is a <code>string</code>. You can write the type explicitly if you want: <code>let score: i32 = 10</code>.</p>
       <div class="callout">
         <strong>What if you try to change it?</strong>
@@ -243,7 +246,8 @@ print(score)   // OK — reading is always fine</code></pre></div>
 score = 20   // compile error — score is not mut</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let score: i32 = 10
 score = 20   // compile error — score is not mut</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->        <p>Nyra stops at compile time with an error telling you to use <code>let mut</code> if the value must change.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->        <p>Nyra stops at compile time with an error telling you to use <code>let mut</code> if the value must change.</p>
       </div>
 
       <h2 id="mut">mut — short for <em>mutable</em></h2>
@@ -260,7 +264,8 @@ print(lives)         // 2</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let mut lives: i32 = 3
 lives = lives - 1    // OK — lives is mutable
 print(lives)         // 2</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Think of <code>let mut</code> as: “create a named box, and I will put different values in it over time.”</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Think of <code>let mut</code> as: “create a named box, and I will put different values in it over time.”</p>
       <h3>Shorthand: <code>mut</code> without <code>let</code></h3>
       <p>In some examples you will see <code>mut sum = 0</code> instead of <code>let mut sum = 0</code>. Both declare a mutable variable; the shorter form appears in loops and benchmarks.</p>
       <!-- NYRA_SNIPPET_START -->
@@ -279,7 +284,8 @@ print(lives)         // 2</code></pre></div>
     counter = counter + 1
     print(counter)   // 1
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>When you need <code>mut</code></h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>When you need <code>mut</code></h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -296,7 +302,8 @@ while i &lt; 3 {
     print(i)
     i = i + 1        // i must be mut — we change it every loop
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Without <code>mut</code>, the line <code>i = i + 1</code> would be rejected — you cannot reassign an immutable <code>let</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Without <code>mut</code>, the line <code>i = i + 1</code> would be rejected — you cannot reassign an immutable <code>let</code>.</p>
 
       <h2 id="const">const — compile-time constants</h2>
       <p><code>const</code> defines a <strong>constant</strong>: a name for a value that is fixed for the entire program and known when you compile (not computed at runtime).</p>
@@ -318,7 +325,8 @@ const GRID_SIZE = 8
 fn main() -&gt; void {
     print(MAX_PLAYERS)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th></tr></thead>
         <tbody>
           <tr><td><strong>Can reassign?</strong></td><td>No</td><td>Yes</td><td>No</td></tr>
@@ -351,7 +359,8 @@ let title = &quot;Dungeon&quot;    // set once at runtime; do not reassign
 let mut gold: i32 = 0
 gold = gold + 15         // OK
 print(gold)              // 15</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Rule of thumb:</strong> use <code>let</code> unless you need to reassign — then use <code>let mut</code>. Use <code>const</code> for shared fixed numbers used in many places.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Rule of thumb:</strong> use <code>let</code> unless you need to reassign — then use <code>let mut</code>. Use <code>const</code> for shared fixed numbers used in many places.</p>
       <p>Heap <code>string</code> follows <strong>Move</strong> rules; structs with only number fields are <strong>auto-Copy</strong>. Calls often <strong>auto-borrow</strong> — see <a href="ownership-ux.html">Ownership UX</a> and <a href="memory.html">Memory &amp; ownership</a>.</p>
       <div class="callout"><strong>Repo example:</strong> <code>examples/comparison/arithmetic/sum.ny</code></div>
 
@@ -369,7 +378,8 @@ let msg = &quot;hi&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let n: i32 = 0
 let ok = true  // true or false
 let msg: string = &quot;hi&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Usually Nyra <strong>infers</strong> the type so you can omit <code>: i32</code>. Float literals like <code>3.14</code> infer <code>f64</code>. Add annotations when it helps readability or the compiler needs a hint.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Usually Nyra <strong>infers</strong> the type so you can omit <code>: i32</code>. Float literals like <code>3.14</code> infer <code>f64</code>. Add annotations when it helps readability or the compiler needs a hint.</p>
       <table>
         <thead><tr><th>Type</th><th>Example value</th><th>Used for</th></tr></thead>
         <tbody>
@@ -418,7 +428,8 @@ fn main() -&gt; void {
     print(total)      // 42
     greet(&quot;Welcome&quot;)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <ul>
+</div>
+<!-- NYRA_SNIPPET_END -->      <ul>
         <li><code>fn</code> — starts a function definition.</li>
         <li><code>add</code> — the function name.</li>
         <li><code>(a: i32, b: i32)</code> — <strong>parameters</strong>: names and types the caller must provide.</li>
@@ -447,7 +458,8 @@ while i &lt; 5 {
     print(i)
     i = i + 1
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Each time through the loop, <code>i</code> increases by 1 until <code>i</code> is no longer less than 5.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Each time through the loop, <code>i</code> increases by 1 until <code>i</code> is no longer less than 5.</p>
       <h3>for — iterate a numeric range</h3>
       <p><code>for x in start..end</code> runs with <code>x</code> equal to each integer from <code>start</code> up to, but not including, <code>end</code>.</p>
       <!-- NYRA_SNIPPET_START -->
@@ -462,7 +474,8 @@ while i &lt; 5 {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>for i in 0..5 {
     print(i)    // prints 0, then 1, 2, 3, 4
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Example: sum numbers with while</h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Example: sum numbers with while</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -489,7 +502,8 @@ while i &lt; 5 {
     }
     print(sum)   // 0+1+2+...+9 = 45
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Run:</strong> <code>nyra run examples/comparison/loop/sum_loop.ny</code> (uses a larger <code>n</code>).</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Run:</strong> <code>nyra run examples/comparison/loop/sum_loop.ny</code> (uses a larger <code>n</code>).</p>
 
       <h2 id="conditionals">Conditionals — choose what runs</h2>
       <p><code>if</code> runs one block when a condition is true, optionally another when it is false.</p>
@@ -517,7 +531,8 @@ if score &gt;= 60 {
 }
 
 let grade = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>The last line is an <strong>if expression</strong>: it produces a value (<code>"A"</code> or <code>"B"</code>) that you bind with <code>let</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>The last line is an <strong>if expression</strong>: it produces a value (<code>"A"</code> or <code>"B"</code>) that you bind with <code>let</code>.</p>
 
       <h2 id="structs">Structs — group related data</h2>
       <p>A <strong>struct</strong> groups named fields. In zero-types style, use an <strong>object literal</strong> directly — no <code>struct</code> keyword. Add a named <code>struct</code> when you need methods (<code>impl</code>), imports, or FFI.</p>
@@ -537,7 +552,8 @@ let grade = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }</code></p
     p = { hp: p.hp, score: p.score + 10 }
     print(p.score)   // 10
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Access fields with a dot: <code>p.score</code>, <code>p.hp</code>. Separate literal fields with commas. See <a href="learn-structs.html">Nyra Structs</a> for object literals vs named <code>struct</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Access fields with a dot: <code>p.score</code>, <code>p.hp</code>. Separate literal fields with commas. See <a href="learn-structs.html">Nyra Structs</a> for object literals vs named <code>struct</code>.</p>
       <div class="callout"><strong>Repo examples:</strong> <code>examples/comparison/struct_sum/struct_sum.ny</code> · <code>examples/projects/calculator/</code></div>
 
       <h2 id="enums">Enums &amp; match — fixed choices</h2>
@@ -574,7 +590,8 @@ fn code(s: Status) -&gt; i32 {
         Status.Done =&gt; 2
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>See <a href="match.html">Match</a> for guards and more patterns.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>See <a href="match.html">Match</a> for guards and more patterns.</p>
       <div class="callout"><strong>Repo example:</strong> <code>examples/language_features/demo.ny</code></div>
 
       <h2 id="imports">Imports — split code across files</h2>
@@ -599,7 +616,8 @@ fn main() -&gt; void {
     print(APP_TITLE)
     print(run_sim())
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Paths are relative to the file that contains the <code>import</code>. Run multi-file projects with <code>nyra run .</code> from the folder that contains <code>main.ny</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Paths are relative to the file that contains the <code>import</code>. Run multi-file projects with <code>nyra run .</code> from the folder that contains <code>main.ny</code>.</p>
       <p>Guides: <a href="imports.html">Imports</a> · <a href="modules.html">Modules</a> · <a href="methods.html">Built-in methods</a></p>
 
       <h2 id="methods">Methods — functions on a type</h2>
@@ -639,7 +657,8 @@ fn main() -&gt; void {
     let c2 = c.bump()
     print(c2.value)   // 1
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><code>impl Counter { ... }</code> attaches methods to <code>Counter</code>. Call them with dot syntax: <code>c.bump()</code>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><code>impl Counter { ... }</code> attaches methods to <code>Counter</code>. Call them with dot syntax: <code>c.bump()</code>.</p>
 
       <h2 id="io">Built-in I/O — output to the screen</h2>
       <pre><code>print("Hello")     // text

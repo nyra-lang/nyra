@@ -15,6 +15,7 @@ STRING_PATHS = {
     "ops_ny": repo_path("stdlib/strings/ops.ny"),
     "builtins_ny": repo_path("stdlib/builtins_string.ny"),
     "typecheck": repo_path("compiler/typecheck/src/string_builtins.rs"),
+    "borrowck": repo_path("compiler/borrowck/src/lib.rs"),
     "codegen_util": repo_path("compiler/codegen/src/llvm/util.rs"),
     "codegen_strings": repo_path("compiler/codegen/src/llvm/strings.rs"),
     "codegen_core": repo_path("compiler/codegen/src/llvm/core.rs"),

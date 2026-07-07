@@ -18,11 +18,21 @@ use diag::{
 };
 
 fn builtin_method_borrows_receiver(method: &str) -> bool {
+    // All `String_*` stdlib helpers take `&string`, so UFCS calls
+    // (`name.String_toUpperCase()`) borrow rather than move the receiver.
+    if method.starts_with("String_") {
+        return true;
+    }
     matches!(
         method,
         "clone" | "length" | "len" | "split" | "trim" | "contains" | "starts_with"
             | "ends_with" | "replace" | "replacen" | "to_upper" | "to_lower" | "sort"
-            | "sort_by"
+            | "sort_by" | "strip_suffix"
+            // Case-conversion string builtins — all take `&string`.
+            | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize"
+            | "to_camel_case" | "to_kebab_case" | "to_pascal_case"
+            | "to_screaming_snake_case" | "to_train_case" | "to_dot_case"
+            | "includes" 
     )
 }
 

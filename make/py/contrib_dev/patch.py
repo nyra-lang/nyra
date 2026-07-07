@@ -31,6 +31,20 @@ def has_marker(content: str, marker: str) -> bool:
     return marker_tag(marker) in content
 
 
+def c_function_defined(content: str, name: str) -> bool:
+    """True if a C function named `name` is DEFINED (not merely called) in `content`.
+
+    Matches a definition line like `char *str_to_snake_case(const char *s) {`
+    while ignoring call sites such as `x = str_to_snake_case(s);`. Used to stop
+    two recipes (e.g. Pattern B extern + Built-in Method) from emitting the same
+    C symbol twice, which the C compiler rejects as a redefinition.
+    """
+    pattern = re.compile(
+        rf"(?m)^[A-Za-z_][A-Za-z0-9_ \t\*]*\b{re.escape(name)}\s*\([^;{{]*\)\s*\{{"
+    )
+    return bool(pattern.search(content))
+
+
 def marker_start(marker: str, *, lang: str = "ny") -> str:
     if lang == "c":
         return f"// {marker_tag(marker)}"

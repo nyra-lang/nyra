@@ -16,7 +16,6 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("strstr_pos", "rt_strings.c"),
         ("str_to_upper", "rt_strings.c"),
         ("str_to_lower", "rt_strings.c"),
-        ("str_trim", "rt_strings.c"),
         ("str_contains", "rt_strings.c"),
         ("str_starts_with", "rt_strings.c"),
         ("str_ends_with", "rt_strings.c"),
@@ -487,6 +486,16 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("arc_get_i32", "rt_arc.c"),
         ("arc_get_string", "rt_arc.c"),
         ("str_strip_suffix", "rt_strings.c"),
+        ("str_to_snake_case", "rt_strings.c"),
+        ("str_to_lowercase", "rt_strings.c"),
+        ("str_to_titlecase", "rt_strings.c"),
+        ("str_to_capitalize", "rt_strings.c"),
+        ("str_to_camel_case", "rt_strings.c"),
+        ("str_to_kebab_case", "rt_strings.c"),
+        ("str_to_pascal_case", "rt_strings.c"),
+        ("str_to_screaming_snake_case", "rt_strings.c"),
+        ("str_to_train_case", "rt_strings.c"),
+        ("str_to_dot_case", "rt_strings.c"),
     ])
 }
 
@@ -508,6 +517,16 @@ pub fn c_symbol_for(nyra_fn: &str) -> String {
         ("Vec_str_len", "vec_str_len"),
         ("tcp_accept_async", "rt_tcp_accept_async"),
         ("strip_suffix", "str_strip_suffix"),
+        ("to_snake_case", "str_to_snake_case"),
+        ("to_lowercase", "str_to_lowercase"),
+        ("to_titlecase", "str_to_titlecase"),
+        ("to_capitalize", "str_to_capitalize"),
+        ("to_camel_case", "str_to_camel_case"),
+        ("to_kebab_case", "str_to_kebab_case"),
+        ("to_pascal_case", "str_to_pascal_case"),
+        ("to_screaming_snake_case", "str_to_screaming_snake_case"),
+        ("to_train_case", "str_to_train_case"),
+        ("to_dot_case", "str_to_dot_case"),
     ];
     for (name, sym) in ALIASES {
         if *name == nyra_fn {

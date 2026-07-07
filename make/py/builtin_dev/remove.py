@@ -47,6 +47,51 @@ def _strip_marker(path: Path, marker: str, patches: list[patch.PatchResult]) -> 
     patches.append(patch.patch_file(path, transform))
 
 
+def _strip_legacy_c_defs(path: Path, spec: BuiltinSpec, res: "RemoveResult") -> None:
+    """Safely clean up legacy (pre-builtin-dev) C definitions for this method.
+
+    The builtin's own C body lives inside its `[builtin-dev:...]` marker and is
+    already removed by `_strip_marker`. Here we only handle hand-wired leftovers,
+    and we do so conservatively to avoid destroying an unrelated function that
+    merely shares a name (the bug this guards against):
+
+      * `string_<method>` — the documented legacy alias form. Auto-removed
+        (brace-balanced), unless it sits inside another feature's marker block.
+      * `spec.c_name` (e.g. `str_trim`) — NEVER auto-deleted when found outside
+        our marker: it may be a core/hand-wired function of the same name. We
+        only warn so the maintainer can decide.
+    """
+    if not path.exists():
+        return
+    content = patch.read_text(path)
+    changed = False
+
+    if spec.receiver == ReceiverKind.STRING:
+        alias = f"string_{spec.method}"
+        content, status = patch.remove_c_function_def(content, alias)
+        if status == "removed":
+            changed = True
+        elif status == "skipped_marked":
+            res.warnings.append(
+                f"Legacy C alias `{alias}` in {path.name} is inside another "
+                "builtin-dev marker block — left intact."
+            )
+
+    if changed:
+        patch.write_text(path, content)
+        res.patches.append(patch.PatchResult(path, True, "legacy C alias removed"))
+    else:
+        res.patches.append(patch.PatchResult(path, False, "no legacy C alias"))
+
+    if spec.c_name and patch.c_function_defined(content, spec.c_name):
+        res.warnings.append(
+            f"C function `{spec.c_name}` still defined in {path.name} outside this "
+            "builtin's marker block — left intact to avoid destroying an unrelated "
+            "or hand-wired definition. Remove it manually if it belonged to this "
+            "feature."
+        )
+
+
 def _remove_string(spec: BuiltinSpec) -> RemoveResult:
     res = RemoveResult(spec=spec)
     marker = spec.marker
@@ -54,20 +99,7 @@ def _remove_string(spec: BuiltinSpec) -> RemoveResult:
 
     _strip_marker(paths["rt_c"], marker, res.patches)
 
-    legacy_names = _legacy_c_names(spec)
-
-    def strip_legacy_c(content: str):
-        changed = False
-        for c_name in legacy_names:
-            pattern = re.compile(
-                rf"[\w\s\*]+{re.escape(c_name)}\([^\)]*\)\s*\{{.*?\}}\n?",
-                re.DOTALL,
-            )
-            content, n = pattern.subn("", content, count=1)
-            changed = changed or n > 0
-        return content, changed
-
-    res.patches.append(patch.patch_file(paths["rt_c"], strip_legacy_c))
+    _strip_legacy_c_defs(paths["rt_c"], spec, res)
     _strip_marker(paths["builtins_ny"], marker, res.patches)
     _strip_marker(paths["abi_manifest"], marker, res.patches)
 
@@ -87,6 +119,13 @@ def _remove_string(spec: BuiltinSpec) -> RemoveResult:
         return content, c1 or c2 or c3
 
     res.patches.append(patch.patch_file(paths["typecheck"], strip_typecheck))
+    if "borrowck" in paths:
+        res.patches.append(
+            patch.patch_file(
+                paths["borrowck"],
+                lambda c: patch.remove_or_chain_item(c, f'"{spec.method}"'),
+            )
+        )
     res.patches.append(
         patch.patch_file(
             paths["codegen_util"],

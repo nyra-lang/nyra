@@ -21,10 +21,20 @@ fn is_string_like(ty: &Type) -> bool {
 }
 
 pub fn string_method_borrows_receiver(method: &str) -> bool {
+    // All `String_*` stdlib helpers borrow the receiver (`&string`).
+    if method.starts_with("String_") {
+        return true;
+    }
     matches!(
         method,
         "clone" | "length" | "len" | "split" | "trim" | "contains" | "starts_with"
-            | "ends_with" | "replace" | "replacen" | "to_upper" | "to_lower" | "strip_suffix")
+            | "ends_with" | "replace" | "replacen" | "to_upper" | "to_lower" | "strip_suffix"
+            // Case-conversion string builtins — all take `&string`.
+            | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize"
+            | "to_camel_case" | "to_kebab_case" | "to_pascal_case"
+            | "to_screaming_snake_case" | "to_train_case" | "to_dot_case"
+            // JS-style string aliases mapping to `String_*` (`&string`) helpers.
+            | "toUpperCase" | "toLowerCase" | "includes" | "stripSuffix")
 }
 
 impl TypeChecker {
@@ -108,7 +118,99 @@ impl TypeChecker {
                 Type::String
             }
             // [/builtin-dev:strip_suffix:string]
-            _ => return None,
+                        // [builtin-dev:to_snake_case:string]
+            "to_snake_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_snake_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_snake_case:string]
+            
+            
+            // [builtin-dev:to_lowercase:string]
+            "to_lowercase" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_lowercase"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_lowercase:string]
+            
+            // [builtin-dev:to_titlecase:string]
+            "to_titlecase" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_titlecase"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_titlecase:string]
+            
+            // [builtin-dev:to_capitalize:string]
+            "to_capitalize" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_capitalize"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_capitalize:string]
+            
+            // [builtin-dev:to_camel_case:string]
+            "to_camel_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_camel_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_camel_case:string]
+            
+            // [builtin-dev:to_kebab_case:string]
+            "to_kebab_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_kebab_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_kebab_case:string]
+            
+            // [builtin-dev:to_pascal_case:string]
+            "to_pascal_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_pascal_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_pascal_case:string]
+            
+            // [builtin-dev:to_screaming_snake_case:string]
+            "to_screaming_snake_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_screaming_snake_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_screaming_snake_case:string]
+            
+            // [builtin-dev:to_train_case:string]
+            "to_train_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_train_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_train_case:string]
+            
+            // [builtin-dev:to_dot_case:string]
+            "to_dot_case" => {
+                if !mc.args.is_empty() {
+                    diagnostics::wrong_arity(self, &format!(".to_dot_case"), 0, mc.args.len(), sp.clone());
+                }
+                Type::String
+            }
+            // [/builtin-dev:to_dot_case:string]
+            
+            
+_ => return None,
         };
         Some(ret)
     }

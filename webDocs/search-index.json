@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-05T22:52:00.534Z",
+  "generated": "2026-07-07T08:29:01.659Z",
   "docs": [
     {
       "pageTitle": "AI skill file",
@@ -119,7 +119,7 @@
       "id": "async.html#async-basic",
       "title": "Async & await",
       "heading": "Name: async fn + await",
-      "body": "Name: async fn + await Explanation: async fn call returns a handle immediately; body runs on spawn:thread . await at the call site blocks until the result is ready. Import stdlib/async_v1.ny for executor helpers. allow_extended import \"stdlib/async_v1.ny\" async fn compute() -> i32 { return 42 } fn main() { let h = compute() print(await h) } Output: 42 Run: nyra run examples/builtins/async/async_spawn.ny · Gallery: #ex-async-fn"
+      "body": "Name: async fn + await Explanation: async fn call returns a handle immediately; body runs on spawn:thread . await at the call site blocks until the result is ready. Import stdlib/async_v1.ny for executor helpers. Without types With types allow_extended import \"stdlib/async_v1.ny\" async fn compute(){ return 42 } fn main() { let h = compute() print(await h) } allow_extended import \"stdlib/async_v1.ny\" async fn compute(){ return 42 } fn main() -> void { let h = compute() print(await h) } Output: 42 Run: nyra run examples/builtins/async/async_spawn.ny · Gallery: #ex-async-fn"
     },
     {
       "pageTitle": "Async & await",
@@ -129,7 +129,7 @@
       "id": "async.html#async-state-machine",
       "title": "Async & await",
       "heading": "Name: multiple await (state machine)",
-      "body": "Name: multiple await (state machine) Explanation: Linear and control-flow async fn bodies compile to cooperative poll loops ( async_poll + runtime_executor_tick ). v1.7: await inside if , while , range for . allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { print(await chain()) } Output: 100 Gallery: #ex-await · nyra run examples/builtins/async/async_state_machine.ny"
+      "body": "Name: multiple await (state machine) Explanation: Linear and control-flow async fn bodies compile to cooperative poll loops ( async_poll + runtime_executor_tick ). v1.7: await inside if , while , range for . Without types With types allow_extended import \"stdlib/async_v1.ny\" async fn chain(){ let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { print(await chain()) } allow_extended import \"stdlib/async_v1.ny\" async fn chain(){ let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { print(await chain()) } Output: 100 Gallery: #ex-await · nyra run examples/builtins/async/async_state_machine.ny"
     },
     {
       "pageTitle": "Async & await",
@@ -139,7 +139,7 @@
       "id": "async.html#async-future",
       "title": "Async & await",
       "heading": "Name: Future<T> (v1.26)",
-      "body": "Name: Future<T> (v1.26) Explanation: Import stdlib/async/future.ny for typed futures ( Future_i32 , Future_string , …) and Future_select2_* . allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { await Executor_sleep_ms(10) return \"Nyra async v2\" } fn main() { print(await greet()) } Output: Nyra async v2 Gallery: #ex-async-future · nyra run examples/builtins/async/async_future_string.ny Runtime: promises ( async_promise_new , async_promise_complete ), await (pumps the executor while waiting), and IO ( io_register / kqueue/epoll/select)."
+      "body": "Name: Future<T> (v1.26) Explanation: Import stdlib/async/future.ny for typed futures ( Future_i32 , Future_string , …) and Future_select2_* . Without types With types allow_extended import \"stdlib/async/future.ny\" async fn greet(){ await Executor_sleep_ms(10) return \"Nyra async v2\" } fn main() { print(await greet()) } allow_extended import \"stdlib/async/future.ny\" async fn greet(){ await Executor_sleep_ms(10) return \"Nyra async v2\" } fn main() -> void { print(await greet()) } Output: Nyra async v2 Gallery: #ex-async-future · nyra run examples/builtins/async/async_future_string.ny Runtime: promises ( async_promise_new , async_promise_complete ), await (pumps the executor while waiting), and IO ( io_register / kqueue/epoll/select)."
     },
     {
       "pageTitle": "Async & await",
@@ -1079,7 +1079,7 @@
       "id": "closures.html#loop-safe-pattern",
       "title": "Closures (v2.2)",
       "heading": "Loop-safe pattern",
-      "body": "Loop-safe pattern Without types With types import \"stdlib/iter/mod.ny\" fn main() { let v = Vec_i32_from_range(1, 6) let mut i = 0 let threshold = 2 while i if x > threshold { 1 } else { 0 } let out = iter_filter(v, pred) print(Vec_i32_len(out)) i = i + 1 } } import \"stdlib/iter/mod.ny\" fn main() -> void { let v = Vec_i32_from_range(1, 6) let mut i: i32 = 0 let threshold: i32 = 2 while i if x > threshold { 1 } else { 0 } let out = iter_filter(v, pred) print(Vec_i32_len(out)) i = i + 1 } } iter_filter calls pred synchronously before returning, so the stack env remains valid for the invoke window."
+      "body": "Loop-safe pattern Without types With types import \"stdlib/iter/mod.ny\" fn main() { let v = Vec_i32_from_range(1, 6) let mut i = 0 let threshold = 2 while i < 1 { let pred = (x) => if x > threshold { 1 } else { 0 } let out = iter_filter(v, pred) print(Vec_i32_len(out)) i = i + 1 } } import \"stdlib/iter/mod.ny\" fn main() -> void { let v = Vec_i32_from_range(1, 6) let mut i: i32 = 0 let threshold: i32 = 2 while i < 1 { let pred = (x) => if x > threshold { 1 } else { 0 } let out = iter_filter(v, pred) print(Vec_i32_len(out)) i = i + 1 } } iter_filter calls pred synchronously before returning, so the stack env remains valid for the invoke window."
     },
     {
       "pageTitle": "Closures (v2.2)",
@@ -1129,7 +1129,7 @@
       "id": "comptime.html#1-file-level-comptime-module",
       "title": "Comptime evaluation",
       "heading": "1 — File-level comptime module",
-      "body": "1 — File-level comptime module Put comptime on the first line . The entire file is evaluated at compile time. Export pub const (and optional pub struct / pub enum ) for importers. No main , print , spawn , async , or extern in comptime modules. Without types With types comptime fn hash_step(n) { return (n * 2654435761) % 2147483647 } pub const SEED = hash_step(42) pub const SUM_FOUR = sum_array([0, 1, 2, 3]) comptime fn hash_step(n: i32) -> i32 { return (n * 2654435761) % 2147483647 } pub const SEED = hash_step(42) pub const SUM_FOUR = sum_array([0, 1, 2, 3]) Check without codegen: nyra check examples/toolchain/comptime_tables.ny . Import from runtime code: import \"comptime_tables.ny\" as tables fn main() { let seed = tables::SEED } Example: examples/toolchain/comptime_import_main.ny ."
+      "body": "1 — File-level comptime module Put comptime on the first line . The entire file is evaluated at compile time. Export pub const (and optional pub struct / pub enum ) for importers. No main , print , spawn , async , or extern in comptime modules. Without types With types comptime fn hash_step(n) { return (n * 2654435761) % 2147483647 } pub const SEED = hash_step(42) pub const SUM_FOUR = sum_array([0, 1, 2, 3]) comptime fn hash_step(n: i32) -> i32 { return (n * 2654435761) % 2147483647 } pub const SEED = hash_step(42) pub const SUM_FOUR = sum_array([0, 1, 2, 3]) Check without codegen: nyra check examples/toolchain/comptime_tables.ny . Import from runtime code: Without types With types import \"comptime_tables.ny\" as tables fn main() { let seed = tables::SEED } import \"comptime_tables.ny\" as tables fn main() -> void { let seed = tables::SEED } Example: examples/toolchain/comptime_import_main.ny ."
     },
     {
       "pageTitle": "Comptime evaluation",
@@ -1159,7 +1159,7 @@
       "id": "comptime.html#power-example-tables-strings-match",
       "title": "Comptime evaluation",
       "heading": "Power example — tables, strings, match",
-      "body": "Power example — tables, strings, match examples/toolchain/comptime_power.ny builds a lookup table, routes HTTP verbs by string match , and concatenates labels — all at compile time: comptime fn build_lookup(size) { let mut table = [0; size] let mut i = 0 while i < size { table[i] = i * i i = i + 1 } return table } pub const LOOKUP = build_lookup(8) pub const GET_CODE = comptime { match \"GET\" { \"GET\" => 1 \"POST\" => 2 _ => 0 } }"
+      "body": "Power example — tables, strings, match examples/toolchain/comptime_power.ny builds a lookup table, routes HTTP verbs by string match , and concatenates labels — all at compile time: Without types With types comptime fn build_lookup(size) { let mut table = [0; size] let mut i = 0 while i < size { table[i] = i * i i = i + 1 } return table } pub const LOOKUP = build_lookup(8) pub const GET_CODE = comptime { match \"GET\" { \"GET\" => 1 \"POST\" => 2 _ => 0 } } comptime fn build_lookup(size: i32) -> i32 { let mut table = [0; size] let mut i: i32 = 0 while i < size { table[i] = i * i i = i + 1 } return table } pub const LOOKUP = build_lookup(8) pub const GET_CODE = comptime { match \"GET\" { \"GET\" => 1 \"POST\" => 2 _ => 0 } }"
     },
     {
       "pageTitle": "Comptime evaluation",
@@ -1239,7 +1239,7 @@
       "id": "concurrency.html#spawn",
       "title": "Concurrency",
       "heading": "spawn",
-      "body": "spawn Nyra offers two concurrency backends, selected with a suffix on spawn : Syntax Backend When to use spawn { } or spawn:task { } Lightweight tasks (global worker pool, Tokio-style) Default — many concurrent jobs; queue up to 65k tasks; workers ≈ cpu_count() spawn:thread { } OS thread ( pthread / CreateThread ) Blocking work, long-running isolation, or when you need a real 1:1 thread Both forms support: Statement — fire-and-forget (handle detached at end of statement). Expression — let h = spawn { ... } returns JoinHandle ; call h.join() to wait (consumes handle). // Lightweight task (default) — queued on runtime pool spawn { print(\"many tasks OK\") } let h = spawn:task { print(99) } h.join() // Dedicated OS thread — ~MB stack, true parallel isolation let t = spawn:thread { heavy_blocking_work() } t.join() Task vs thread: tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use spawn / spawn:task for high fan-out (thousands+ jobs). Use spawn:thread when you need a real thread or blocking syscall isolation. Captures must be Send in both modes. Lowering: codegen emits a closure entry + spawn_task_capture (tasks) or spawn_capture (threads). Captures are packed into a struct and copied to the heap. Dropped handles without .join() detach (tasks keep running on the pool; threads are pthread_detach ed)."
+      "body": "spawn Nyra offers two concurrency backends, selected with a suffix on spawn : Syntax Backend When to use spawn { } or spawn:task { } Lightweight tasks (global worker pool, Tokio-style) Default — many concurrent jobs; queue up to 65k tasks; workers ≈ cpu_count() spawn:thread { } OS thread ( pthread / CreateThread ) Blocking work, long-running isolation, or when you need a real 1:1 thread Both forms support: Statement — fire-and-forget (handle detached at end of statement). Expression — let h = spawn { ... } returns JoinHandle ; call h.join() to wait (consumes handle). Without types With types // Lightweight task (default) — queued on runtime pool spawn { print(\"many tasks OK\") } let h = spawn:task { print(99) } h.join() // Dedicated OS thread — ~MB stack, true parallel isolation let t = spawn:thread { heavy_blocking_work() } t.join() // Lightweight task (default) — queued on runtime pool spawn { print(\"many tasks OK\") } let h = spawn:task { print(99) } h.join() // Dedicated OS thread — ~MB stack, true parallel isolation let t = spawn:thread { heavy_blocking_work() } t.join() Task vs thread: tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use spawn / spawn:task for high fan-out (thousands+ jobs). Use spawn:thread when you need a real thread or blocking syscall isolation. Captures must be Send in both modes. Lowering: codegen emits a closure entry + spawn_task_capture (tasks) or spawn_capture (threads). Captures are packed into a struct and copied to the heap. Dropped handles without .join() detach (tasks keep running on the pool; threads are pthread_detach ed)."
     },
     {
       "pageTitle": "Concurrency",
@@ -1259,7 +1259,7 @@
       "id": "concurrency.html#join-handle",
       "title": "Concurrency",
       "heading": "JoinHandle and .join()",
-      "body": "JoinHandle and .join() Two ways to use spawn : Style Example Behavior Statement spawn { work() } Start background work and return immediately . No handle; runtime detaches (fire-and-forget). Expression let h = spawn { work() } Returns JoinHandle — an opaque token representing the in-flight task or thread. .join() — method on JoinHandle ; signature h.join() -> void (no arguments). Blocks the calling thread until the spawned body completes. Consumes the handle (move semantics) — after h.join() , h cannot be used again. Works for both spawn / spawn:task (task pool) and spawn:thread (OS thread); codegen picks spawn_task_join or spawn_join automatically. If a JoinHandle goes out of scope without .join() , the runtime detaches — same effect as the statement form. allow_extended fn main() { // Wait for task — output order: 99, then 0 let h = spawn { print(99) } h.join() print(0) // Fire-and-forget — main does not wait spawn { print(\"background\") } } Full runnable examples: Built-in methods → JoinHandle · .join() example ."
+      "body": "JoinHandle and .join() Two ways to use spawn : Style Example Behavior Statement spawn { work() } Start background work and return immediately . No handle; runtime detaches (fire-and-forget). Expression let h = spawn { work() } Returns JoinHandle — an opaque token representing the in-flight task or thread. .join() — method on JoinHandle ; signature h.join() -> void (no arguments). Blocks the calling thread until the spawned body completes. Consumes the handle (move semantics) — after h.join() , h cannot be used again. Works for both spawn / spawn:task (task pool) and spawn:thread (OS thread); codegen picks spawn_task_join or spawn_join automatically. If a JoinHandle goes out of scope without .join() , the runtime detaches — same effect as the statement form. Without types With types allow_extended fn main() { // Wait for task — output order: 99, then 0 let h = spawn { print(99) } h.join() print(0) // Fire-and-forget — main does not wait spawn { print(\"background\") } } allow_extended fn main() -> void { // Wait for task — output order: 99, then 0 let h = spawn { print(99) } h.join() print(0) // Fire-and-forget — main does not wait spawn { print(\"background\") } } Full runnable examples: Built-in methods → JoinHandle · .join() example ."
     },
     {
       "pageTitle": "Concurrency",
@@ -1279,7 +1279,7 @@
       "id": "concurrency.html#parallel-task",
       "title": "Concurrency",
       "heading": "Name: parallel for / parallel:task",
-      "body": "Name: parallel for / parallel:task Explanation: Default backend is the global task pool (same workers as spawn ). Fork-join: the loop body runs on pooled workers; main continues only after all iterations finish. Requires allow_extended . allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } Output (iteration lines may appear in any order; 999 is always last): 0 1 3 2 999 Gallery: parallel for · Run: nyra run examples/builtins/parallel/parallel_task.ny"
+      "body": "Name: parallel for / parallel:task Explanation: Default backend is the global task pool (same workers as spawn ). Fork-join: the loop body runs on pooled workers; main continues only after all iterations finish. Requires allow_extended . Without types With types allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) } Output (iteration lines may appear in any order; 999 is always last): 0 1 3 2 999 Gallery: parallel for · Run: nyra run examples/builtins/parallel/parallel_task.ny"
     },
     {
       "pageTitle": "Concurrency",
@@ -1289,7 +1289,7 @@
       "id": "concurrency.html#parallel-task-max",
       "title": "Concurrency",
       "heading": "Name: parallel:task(max = N)",
-      "body": "Name: parallel:task(max = N) Explanation: Explicit task-pool alias with a worker cap. Prefer max = N over deprecated max_threads — avoids confusion with parallel:thread . allow_extended fn main() { parallel:task(max = 4) for i in 0..1000 { work(i) } } Output: Depends on work(i) ; the loop is fork-join — code after the loop runs only when every iteration completes. Gallery: parallel:task(max = N) · Run: nyra run examples/builtins/parallel/parallel_task_max.ny"
+      "body": "Name: parallel:task(max = N) Explanation: Explicit task-pool alias with a worker cap. Prefer max = N over deprecated max_threads — avoids confusion with parallel:thread . Without types With types allow_extended fn main() { parallel:task(max = 4) for i in 0..1000 { work(i) } } allow_extended fn main() -> void { parallel:task(max = 4) for i in 0..1000 { work(i) } } Output: Depends on work(i) ; the loop is fork-join — code after the loop runs only when every iteration completes. Gallery: parallel:task(max = N) · Run: nyra run examples/builtins/parallel/parallel_task_max.ny"
     },
     {
       "pageTitle": "Concurrency",
@@ -1299,7 +1299,7 @@
       "id": "concurrency.html#parallel-thread-max",
       "title": "Concurrency",
       "heading": "Name: parallel:thread(max = N)",
-      "body": "Name: parallel:thread(max = N) Explanation: OS-thread fork-join per chunk (~MB stack). Use for blocking I/O or when you need real thread isolation. Backend is chosen by :thread , not by the max key. allow_extended fn main() { parallel:thread(max = 4) for i in 0..1000 { work(i) } } Output (sample with print(i) ; order non-deterministic): 2 3 0 1 999 Gallery: parallel:thread · Run: nyra run examples/builtins/parallel/parallel_thread.ny"
+      "body": "Name: parallel:thread(max = N) Explanation: OS-thread fork-join per chunk (~MB stack). Use for blocking I/O or when you need real thread isolation. Backend is chosen by :thread , not by the max key. Without types With types allow_extended fn main() { parallel:thread(max = 4) for i in 0..1000 { work(i) } } allow_extended fn main() -> void { parallel:thread(max = 4) for i in 0..1000 { work(i) } } Output (sample with print(i) ; order non-deterministic): 2 3 0 1 999 Gallery: parallel:thread · Run: nyra run examples/builtins/parallel/parallel_thread.ny"
     },
     {
       "pageTitle": "Concurrency",
@@ -1329,7 +1329,7 @@
       "id": "concurrency.html#benchmark-block",
       "title": "Concurrency",
       "heading": "benchmark { }",
-      "body": "benchmark { } Name: benchmark { … } Explanation: Prints wall time, RSS delta, and CPU% for a block. Requires allow_extended . Example: methods gallery · nyra run examples/builtins/benchmark/benchmark.ny allow_extended fn main() { benchmark { run() } } Output: Time: 0.1 ms Memory: 0.0 B CPU: 98%"
+      "body": "benchmark { } Name: benchmark { … } Explanation: Prints wall time, RSS delta, and CPU% for a block. Requires allow_extended . Example: methods gallery · nyra run examples/builtins/benchmark/benchmark.ny Without types With types allow_extended fn main() { benchmark { run() } } allow_extended fn main() -> void { benchmark { run() } } Output: Time: 0.1 ms Memory: 0.0 B CPU: 98%"
     },
     {
       "pageTitle": "Concurrency",
@@ -1339,7 +1339,7 @@
       "id": "concurrency.html#progress-for",
       "title": "Concurrency",
       "heading": "progress for",
-      "body": "progress for Name: progress(label = \"…\") for x in items { … } Explanation: Sequential loop with built-in progress bar — not parallel. Optional label ; cannot combine with parallel for . allow_extended progress(label = \"parser tests\") for item in tests { run(item) } Output (each iteration): [#####-------] 43% Running parser tests... Full example with body output: progress for gallery ."
+      "body": "progress for Name: progress(label = \"…\") for x in items { … } Explanation: Sequential loop with built-in progress bar — not parallel. Optional label ; cannot combine with parallel for . Without types With types allow_extended progress(label = \"parser tests\") for item in tests { run(item) } allow_extended progress(label = \"parser tests\") for item in tests { run(item) } Output (each iteration): [#####-------] 43% Running parser tests... Full example with body output: progress for gallery ."
     },
     {
       "pageTitle": "Concurrency",
@@ -1549,7 +1549,7 @@
       "id": "escape-analysis.html#example",
       "title": "Escape analysis",
       "heading": "Example",
-      "body": "Example Without types With types fn main() { let user = { id: 101, name: \"Hamdy\" } let chan = Channel::new() chan.send(user.id) let active_id = chan.recv() println(\"Active User ID, active_id) } fn main() -> void { let user = { id: 101, name: \"Hamdy\" } let chan = Channel::new() chan.send(user.id) let active_id = chan.recv() println(\"Active User ID, active_id) } With --verbose : user and chan are NoEscape; chan becomes LocalChannel."
+      "body": "Example Without types With types import \"stdlib/sync/channel.ny\" struct User { id: i32 name: string } fn main() { let user = User { id: 101, name: \"Hamdy\" } let mut chan = Channel_i32_new() chan = chan.send(user.id) let active_id = chan.recv() print(active_id) } import \"stdlib/sync/channel.ny\" struct User { id: i32 name: string } fn main() -> void { let user: User = User { id: 101, name: \"Hamdy\" } let mut chan = Channel_i32_new() chan = chan.send(user.id) let active_id = chan.recv() print(active_id) } With --verbose : user and chan are NoEscape; chan becomes LocalChannel."
     },
     {
       "pageTitle": "Escape analysis",
@@ -1659,7 +1659,7 @@
       "id": "generics.html",
       "title": "Generics",
       "heading": "",
-      "body": "Generics Type parameters, monomorphization, and call-site inference. Without types With types fn id<T>(x) { return x } fn main() { print(id(42)) // T inferred as i32 — no type args needed print(id(42)) // explicit still works } fn id<T>(x: T) -> T { return x } fn main() -> void { print(id<i32>(42)) // T inferred as i32 — no type args needed print(id<i32>(42)) // explicit still works } Monomorphization generates specialized functions at compile time ( id__i32 , etc.). Generic calls use ident < Type > ( syntax when types are explicit. See also Comptime evaluation for optional compile-time folding, Ownership UX for return-type inference, and CONF-GEN-* in the conformance suite. Comptime →"
+      "body": "Generics Type parameters, monomorphization, and call-site inference. Without types With types fn id<T>(x: T) { return x } fn main() { print(id<i32>(42)) print(id<i32>(42)) } fn id<T>(x: T) -> i32 { return x } fn main() -> void { print(id<i32>(42)) print(id<i32>(42)) } Monomorphization generates specialized functions at compile time ( id__i32 , etc.). Generic calls use ident < Type > ( syntax when types are explicit. See also Comptime evaluation for optional compile-time folding, Ownership UX for return-type inference, and CONF-GEN-* in the conformance suite. Comptime →"
     },
     {
       "pageTitle": "Getting started",
@@ -2409,7 +2409,7 @@
       "id": "keywords.html#raw-identifiers",
       "title": "Nyra Keywords",
       "heading": "Raw identifiers ( @name )",
-      "body": "Raw identifiers ( @name ) When a name is reserved (keyword or built-in type), you cannot use it bare as an identifier. Prefix it with @ — the same idea as Rust r#name . The lexer strips the @ and treats the token as a normal Identifier . The compiler stores the name without the prefix. fn main() { let @module = 10 let @clone = @module print(@clone) // prints 10 } Here @module is a variable named module ; @clone is a variable named clone . This is unrelated to the module declaration keyword or the clone ownership prefix."
+      "body": "Raw identifiers ( @name ) When a name is reserved (keyword or built-in type), you cannot use it bare as an identifier. Prefix it with @ — the same idea as Rust r#name . The lexer strips the @ and treats the token as a normal Identifier . The compiler stores the name without the prefix. Without types With types fn main() { let @module = 10 let @clone = @module print(@clone) // prints 10 } fn main() -> void { let @module = 10 let @clone = @module print(@clone) // prints 10 } Here @module is a variable named module ; @clone is a variable named clone . This is unrelated to the module declaration keyword or the clone ownership prefix."
     },
     {
       "pageTitle": "Nyra Keywords",
@@ -2509,7 +2509,7 @@
       "id": "keywords.html#attributes",
       "title": "Nyra Keywords",
       "heading": "Compiler attributes ( #[…] )",
-      "body": "Compiler attributes ( #[…] ) Attributes attach to items in source. They start with # , not @ . Attribute Purpose #[derive(Copy)] Document / validate that a struct is Copy-safe #[derive(Clone)] Synthesize .clone() when fields allow it #[comptime] Evaluate this function at compile time; strip from binary — Comptime guide #[inline] Hint inlining at call sites #[hot] / #[cold] LLVM branch-hint attributes for hot / cold paths #[no_escape] On &T parameters — value must not escape the function — Escape analysis #[derive(Copy)] struct Point { x: i32 y: i32 } #[comptime] fn table_size() { return 256 } fn process(#[no_escape] data: i32) { ... }"
+      "body": "Compiler attributes ( #[…] ) Attributes attach to items in source. They start with # , not @ . Attribute Purpose #[derive(Copy)] Document / validate that a struct is Copy-safe #[derive(Clone)] Synthesize .clone() when fields allow it #[comptime] Evaluate this function at compile time; strip from binary — Comptime guide #[inline] Hint inlining at call sites #[hot] / #[cold] LLVM branch-hint attributes for hot / cold paths #[no_escape] On &T parameters — value must not escape the function — Escape analysis Without types With types #[derive(Copy)] struct Point { x: i32 y: i32 } #[comptime] fn table_size() { return 256 } fn process(#[no_escape] data) { ... } #[derive(Copy)] struct Point { x: i32 y: i32 } #[comptime] fn table_size() -> i32 { return 256 } fn process(#[no_escape] data: i32) { ... }"
     },
     {
       "pageTitle": "Nyra Keywords",
@@ -2729,7 +2729,7 @@
       "id": "language-basics.html#methods",
       "title": "Language basics",
       "heading": "Methods — functions on a type",
-      "body": "Methods — functions on a type Without types With types struct Counter { value: i32 } impl Counter { fn bump(self) { Counter { value: self.value + 1 } } } fn main() { let c = Counter { value: 0 } let c2 = c.bump() print(c2.value) // 1 } struct Counter { value: i32 } impl Counter { fn bump(self) { Counter { value: self.value + 1 } } } fn main() -> void { let c: Counter = Counter { value: 0 } let c2 = c.bump() print(c2.value) // 1 } impl Counter { ... } attaches methods to Counter . Call them with dot syntax: c.bump() ."
+      "body": "Methods — functions on a type Without types With types struct Counter { value: i32 } impl Counter { fn bump(self) { return Counter { value: self.value + 1 } } } fn main() { let c = Counter { value: 0 } let c2 = c.bump() print(c2.value) // 1 } struct Counter { value: i32 } impl Counter { fn bump(self) -> Counter { return Counter { value: self.value + 1 } } } fn main() -> void { let c: Counter = Counter { value: 0 } let c2 = c.bump() print(c2.value) // 1 } impl Counter { ... } attaches methods to Counter . Call them with dot syntax: c.bump() ."
     },
     {
       "pageTitle": "Language basics",
@@ -2879,7 +2879,7 @@
       "id": "language.html#break-continue",
       "title": "Language syntax",
       "heading": "break / continue",
-      "body": "break / continue break exits the nearest loop; continue skips to the next iteration ( while and range for ). let mut sum = 0 let mut i = 0 while i < 10 { i = i + 1 if i == 5 { continue } sum = sum + i }"
+      "body": "break / continue break exits the nearest loop; continue skips to the next iteration ( while and range for ). Without types With types let mut sum = 0 let mut i = 0 while i < 10 { i = i + 1 if i == 5 { continue } sum = sum + i } let mut sum: i32 = 0 let mut i: i32 = 0 while i < 10 { i = i + 1 if i == 5 { continue } sum = sum + i }"
     },
     {
       "pageTitle": "Language syntax",
@@ -3039,7 +3039,7 @@
       "id": "learn-arrays.html#array",
       "title": "Nyra Arrays",
       "heading": "Array",
-      "body": "Array fn main() { let nums: [i32; 3] = [1, 2, 3] print(nums[0]) print(nums[1]) } Try it nyra run examples/syntax/arrays.ny Expected output: 1 2 Common mistakes Index must be i32 . All elements must have the same type. ← Nyra Data Structures Learn overview Nyra Vectors →"
+      "body": "Array Without types With types fn main() { let nums = [1, 2, 3] print(nums[0]) print(nums[1]) } fn main() -> void { let nums: [i32; 3] = [1, 2, 3] print(nums[0]) print(nums[1]) } Try it nyra run examples/syntax/arrays.ny Expected output: 1 2 Common mistakes Index must be i32 . All elements must have the same type. ← Nyra Data Structures Learn overview Nyra Vectors →"
     },
     {
       "pageTitle": "Nyra Booleans",
@@ -3059,7 +3059,7 @@
       "id": "learn-booleans.html#bool",
       "title": "Nyra Booleans",
       "heading": "bool",
-      "body": "bool let passed = true let failed = false print(passed) print(5 > 3) Comparisons and logical operators produce bool values used in if and loops. ← Nyra Operators Learn overview Nyra If..Else →"
+      "body": "bool Without types With types let passed = true let failed = false print(passed) print(5 > 3) let passed = true let failed = false print(passed) print(5 > 3) Comparisons and logical operators produce bool values used in if and loops. ← Nyra Operators Learn overview Nyra If..Else →"
     },
     {
       "pageTitle": "Nyra Borrowing",
@@ -3079,7 +3079,7 @@
       "id": "learn-borrowing.html#mutable-borrow",
       "title": "Nyra Borrowing",
       "heading": "Mutable borrow",
-      "body": "Mutable borrow fn main() { mut x = 1 let r = &mut x print(*r) *r = 5 print(x) }"
+      "body": "Mutable borrow Without types With types fn main() { let mut x = 1 let r = &mut x print(*r) x = 2 print(x) } fn main() -> void { let mut x: i32 = 1 let r = &mut x print(*r) x = 2 print(x) }"
     },
     {
       "pageTitle": "Nyra Borrowing",
@@ -3089,7 +3089,7 @@
       "id": "learn-borrowing.html#shared-read-only-borrow",
       "title": "Nyra Borrowing",
       "heading": "Shared read-only borrow",
-      "body": "Shared read-only borrow fn main() { let msg = \"hello\" let r = &msg print(*r) print(msg) } Borrows expire at the last use (non-lexical lifetimes). Rules: Many &T OR one &mut T at a time Cannot use a moved value after move Cannot return &local ← Nyra Ownership Learn overview Nyra Data Structures →"
+      "body": "Shared read-only borrow Without types With types fn main() { let msg = \"hello\" let r = &msg print(*r) print(msg) } fn main() -> void { let msg: string = \"hello\" let r = &msg print(*r) print(msg) } Borrows expire at the last use (non-lexical lifetimes). Rules: Many &T OR one &mut T at a time Cannot use a moved value after move Cannot return &local ← Nyra Ownership Learn overview Nyra Data Structures →"
     },
     {
       "pageTitle": "Nyra Comments",
@@ -3109,7 +3109,7 @@
       "id": "learn-comments.html#line-comments",
       "title": "Nyra Comments",
       "heading": "Line comments",
-      "body": "Line comments // This is a comment let x = 1 // comment after code print(x)"
+      "body": "Line comments Without types With types // This is a comment let x = 1 // comment after code print(x) // This is a comment let x: i32 = 1 print(x)"
     },
     {
       "pageTitle": "Nyra Comments",
@@ -3119,7 +3119,7 @@
       "id": "learn-comments.html#block-comments",
       "title": "Nyra Comments",
       "heading": "Block comments",
-      "body": "Block comments /* * File header */ let total = 1 /* inline */ + 2 print(total) Nyra supports // line comments and C-style /* ... */ block comments (non-nested). Unclosed /* is a lexer error. ← Nyra Output Learn overview Nyra Variables →"
+      "body": "Block comments Without types With types /* * File header */ let total = 1 /* inline */ + 2 print(total) /* * File header */ let total = 1 /* inline */ + 2 print(total) Nyra supports // line comments and C-style /* ... */ block comments (non-nested). Unclosed /* is a lexer error. ← Nyra Output Learn overview Nyra Variables →"
     },
     {
       "pageTitle": "Nyra Constants",
@@ -3139,7 +3139,7 @@
       "id": "learn-constants.html#const",
       "title": "Nyra Constants",
       "heading": "const",
-      "body": "const const MAX_LIVES = 3 const PI = 3 fn main() { print(MAX_LIVES) } let let mut const Can reassign? No Yes No When set? Runtime Runtime Compile time ← Nyra Data Types Learn overview Nyra Operators →"
+      "body": "const Without types With types const MAX_LIVES = 3 const PI = 3 fn main() { print(MAX_LIVES) } const MAX_LIVES = 3 const PI = 3 fn main() -> void { print(MAX_LIVES) } let let mut const Can reassign? No Yes No When set? Runtime Runtime Compile time ← Nyra Data Types Learn overview Nyra Operators →"
     },
     {
       "pageTitle": "Nyra Data Structures",
@@ -3159,7 +3159,7 @@
       "id": "learn-data-structures.html#quick-tour",
       "title": "Nyra Data Structures",
       "heading": "Quick tour",
-      "body": "Quick tour import \"stdlib/map\" fn main() { let nums = [1, 2, 3] print(nums.len()) let pair = (42, \"ok\") print(pair.0) let mut scores = HashMap_str_i32_new() scores = scores.insert(\"ada\", 100) print(scores.get(\"ada\")) } Try it nyra run examples/syntax/hashmap.ny Expected output: 100 true HashMap runnable demo; combine with array and tuple snippets from sibling lessons. ← Nyra Borrowing Learn overview Nyra Arrays →"
+      "body": "Quick tour Without types With types import \"stdlib/map\" fn main() { let nums = [1, 2, 3] print(nums.len()) let pair = (42, \"ok\") print(pair.0) let mut scores = HashMap_str_i32_new() scores = scores.insert(\"ada\", 100) print(scores.get(\"ada\")) } import \"stdlib/map\" fn main() -> void { let nums: [i32; 3] = [1, 2, 3] print(nums.len()) let pair = (42, \"ok\") print(pair.0) let mut scores = HashMap_str_i32_new() scores = scores.insert(\"ada\", 100) print(scores.get(\"ada\")) } Try it nyra run examples/syntax/hashmap.ny Expected output: 100 true HashMap runnable demo; combine with array and tuple snippets from sibling lessons. ← Nyra Borrowing Learn overview Nyra Arrays →"
     },
     {
       "pageTitle": "Nyra Data Types",
@@ -3179,7 +3179,7 @@
       "id": "learn-data-types.html#examples-by-type",
       "title": "Nyra Data Types",
       "heading": "Examples by type",
-      "body": "Examples by type fn main() { let count: i32 = 42 let big: i64 = 1_000_000_000 let flag: bool = true let name: string = \"Nyra\" print(count) print(big) print(flag) print(name) } Try it nyra run examples/syntax/hello.ny Expected output: Hello, Nyra! Annotate types explicitly: let age: i32 = 25 . See Types & data for structs, arrays, and references. ← Nyra Variables Learn overview Nyra Constants →"
+      "body": "Examples by type Without types With types fn main() { let count = 42 let big = 1_000_000_000 let flag = true let name = \"Nyra\" print(count) print(big) print(flag) print(name) } fn main() -> void { let count: i32 = 42 let big = 1_000_000_000 let flag = true let name: string = \"Nyra\" print(count) print(big) print(flag) print(name) } Try it nyra run examples/syntax/hello.ny Expected output: Hello, Nyra! Annotate types explicitly: let age: i32 = 25 . See Types & data for structs, arrays, and references. ← Nyra Variables Learn overview Nyra Constants →"
     },
     {
       "pageTitle": "Nyra Enums",
@@ -3199,7 +3199,7 @@
       "id": "learn-enums.html#enum-match",
       "title": "Nyra Enums",
       "heading": "enum + match",
-      "body": "enum + match enum Status { Ok Err Pending } fn main() { let s = Status.Ok let code = match s { Status.Ok => 0 Status.Err => 1 Status.Pending => 2 } print(code) } v0.2 enums are tag-only (no payloads). Next: Built-in methods · Language reference . Try it nyra run examples/language_features/demo.ny Expected output: 1 ← Nyra Structs Learn overview"
+      "body": "enum + match Without types With types enum Status { Ok Err Pending } fn main() { let s = Status.Ok let code = match s { Status.Ok => 0 Status.Err => 1 Status.Pending => 2 } print(code) } enum Status { Ok Err Pending } fn main() -> void { let s = Status.Ok let code = match s { Status.Ok => 0 Status.Err => 1 Status.Pending => 2 } print(code) } v0.2 enums are tag-only (no payloads). Next: Built-in methods · Language reference . Try it nyra run examples/language_features/demo.ny Expected output: 1 ← Nyra Structs Learn overview"
     },
     {
       "pageTitle": "Nyra For Loops",
@@ -3219,7 +3219,7 @@
       "id": "learn-for.html#for-in",
       "title": "Nyra For Loops",
       "heading": "for .. in ..",
-      "body": "for .. in .. for j in 0..3 { print(j) // 0, 1, 2 } 0..3 means from 0 up to (but not including) 3. Use let mut for accumulators outside the loop. ← Nyra While Loops Learn overview Nyra Functions →"
+      "body": "for .. in .. Without types With types for j in 0..3 { print(j) // 0, 1, 2 } for j in 0..3 { print(j) // 0, 1, 2 } 0..3 means from 0 up to (but not including) 3. Use let mut for accumulators outside the loop. ← Nyra While Loops Learn overview Nyra Functions →"
     },
     {
       "pageTitle": "Nyra Functions",
@@ -3239,7 +3239,7 @@
       "id": "learn-functions.html#fn",
       "title": "Nyra Functions",
       "heading": "fn",
-      "body": "fn fn double(n: i32) -> i32 { return n + n } fn main() { print(double(5)) }"
+      "body": "fn Without types With types fn double(n){ return n + n } fn main() { print(double(5)) } fn double(n: i32){ return n + n } fn main() -> void { print(double(5)) }"
     },
     {
       "pageTitle": "Nyra Functions",
@@ -3249,7 +3249,7 @@
       "id": "learn-functions.html#shorthand-body",
       "title": "Nyra Functions",
       "heading": "Shorthand body",
-      "body": "Shorthand body fn square(n: i32) -> i32 = n * n Try it nyra run examples/syntax/math.ny Expected output: (math helpers) ← Nyra For Loops Learn overview Nyra Scope →"
+      "body": "Shorthand body Without types With types fn square(n)= n * n fn square(n: i32)= n * n Try it nyra run examples/syntax/math.ny Expected output: (math helpers) ← Nyra For Loops Learn overview Nyra Scope →"
     },
     {
       "pageTitle": "Nyra Get Started",
@@ -3299,7 +3299,7 @@
       "id": "learn-hashmap.html#string-keys-i32-values-map_str_i32_",
       "title": "Nyra HashMap",
       "heading": "String keys, i32 values — map_str_i32_*",
-      "body": "String keys, i32 values — map_str_i32_* extern fn map_str_i32_new() -> ptr extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void extern fn map_str_i32_get(m: ptr, key: string) -> i32 extern fn map_str_i32_contains(m: ptr, key: string) -> i32 extern fn map_str_i32_free(m: ptr) -> void fn main() { let m = map_str_i32_new() map_str_i32_insert(m, \"score\", 100) print(map_str_i32_get(m, \"score\")) print(map_str_i32_contains(m, \"score\")) map_str_i32_free(m) }"
+      "body": "String keys, i32 values — map_str_i32_* Without types With types extern fn map_str_i32_new() -> ptr extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void extern fn map_str_i32_get(m: ptr, key: string) -> i32 extern fn map_str_i32_contains(m: ptr, key: string) -> i32 extern fn map_str_i32_free(m: ptr) -> void fn main() { let m = map_str_i32_new() map_str_i32_insert(m, \"score\", 100) print(map_str_i32_get(m, \"score\")) print(map_str_i32_contains(m, \"score\")) map_str_i32_free(m) } extern fn map_str_i32_new() -> ptr extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void extern fn map_str_i32_get(m: ptr, key: string) -> i32 extern fn map_str_i32_contains(m: ptr, key: string) -> i32 extern fn map_str_i32_free(m: ptr) -> void fn main() -> void { let m = map_str_i32_new() map_str_i32_insert(m, \"score\", 100) print(map_str_i32_get(m, \"score\")) print(map_str_i32_contains(m, \"score\")) map_str_i32_free(m) }"
     },
     {
       "pageTitle": "Nyra HashMap",
@@ -3309,7 +3309,7 @@
       "id": "learn-hashmap.html#string-keys-string-values-map_str_str_",
       "title": "Nyra HashMap",
       "heading": "String keys, string values — map_str_str_*",
-      "body": "String keys, string values — map_str_str_* extern fn map_str_str_new() -> ptr extern fn map_str_str_insert(m: ptr, key: string, value: string) -> void extern fn map_str_str_get(m: ptr, key: string) -> string extern fn map_str_str_contains(m: ptr, key: string) -> i32 extern fn map_str_str_free(m: ptr) -> void fn main() { let m = map_str_str_new() map_str_str_insert(m, \"lang\", \"Nyra\") print(map_str_str_get(m, \"lang\")) map_str_str_free(m) }"
+      "body": "String keys, string values — map_str_str_* Without types With types extern fn map_str_str_new() -> ptr extern fn map_str_str_insert(m: ptr, key: string, value: string) -> void extern fn map_str_str_get(m: ptr, key: string) -> string extern fn map_str_str_contains(m: ptr, key: string) -> i32 extern fn map_str_str_free(m: ptr) -> void fn main() { let m = map_str_str_new() map_str_str_insert(m, \"lang\", \"Nyra\") print(map_str_str_get(m, \"lang\")) map_str_str_free(m) } extern fn map_str_str_new() -> ptr extern fn map_str_str_insert(m: ptr, key: string, value: string) -> void extern fn map_str_str_get(m: ptr, key: string) -> string extern fn map_str_str_contains(m: ptr, key: string) -> i32 extern fn map_str_str_free(m: ptr) -> void fn main() -> void { let m = map_str_str_new() map_str_str_insert(m, \"lang\", \"Nyra\") print(map_str_str_get(m, \"lang\")) map_str_str_free(m) }"
     },
     {
       "pageTitle": "Nyra HashMap",
@@ -3319,7 +3319,7 @@
       "id": "learn-hashmap.html#integer-keys-and-values-map_i32_i32_",
       "title": "Nyra HashMap",
       "heading": "Integer keys and values — map_i32_i32_*",
-      "body": "Integer keys and values — map_i32_i32_* extern fn map_i32_i32_new() -> ptr extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -> void extern fn map_i32_i32_get(m: ptr, key: i32) -> i32 extern fn map_i32_i32_contains(m: ptr, key: i32) -> i32 extern fn map_i32_i32_free(m: ptr) -> void fn main() { let m = map_i32_i32_new() map_i32_i32_insert(m, 42, 99) print(map_i32_i32_get(m, 42)) print(map_i32_i32_contains(m, 42)) map_i32_i32_free(m) }"
+      "body": "Integer keys and values — map_i32_i32_* Without types With types extern fn map_i32_i32_new() -> ptr extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -> void extern fn map_i32_i32_get(m: ptr, key: i32) -> i32 extern fn map_i32_i32_contains(m: ptr, key: i32) -> i32 extern fn map_i32_i32_free(m: ptr) -> void fn main() { let m = map_i32_i32_new() map_i32_i32_insert(m, 42, 99) print(map_i32_i32_get(m, 42)) print(map_i32_i32_contains(m, 42)) map_i32_i32_free(m) } extern fn map_i32_i32_new() -> ptr extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -> void extern fn map_i32_i32_get(m: ptr, key: i32) -> i32 extern fn map_i32_i32_contains(m: ptr, key: i32) -> i32 extern fn map_i32_i32_free(m: ptr) -> void fn main() -> void { let m = map_i32_i32_new() map_i32_i32_insert(m, 42, 99) print(map_i32_i32_get(m, 42)) print(map_i32_i32_contains(m, 42)) map_i32_i32_free(m) }"
     },
     {
       "pageTitle": "Nyra HashMap",
@@ -3329,7 +3329,7 @@
       "id": "learn-hashmap.html#stdlib-wrappers-recommended",
       "title": "Nyra HashMap",
       "heading": "Stdlib wrappers (recommended)",
-      "body": "Stdlib wrappers (recommended) Import stdlib/map.ny for HashMap_str_i32 and HashMap_str_str — method syntax and automatic cleanup via Drop . The low-level map_* names stay stable for extern fn and FFI. import \"stdlib/map\" fn main() { let mut scores = HashMap_str_i32_new() scores = scores.insert(\"ada\", 100) print(scores.get(\"ada\")) }"
+      "body": "Stdlib wrappers (recommended) Import stdlib/map.ny for HashMap_str_i32 and HashMap_str_str — method syntax and automatic cleanup via Drop . The low-level map_* names stay stable for extern fn and FFI. Without types With types import \"stdlib/map\" fn main() { let mut scores = HashMap_str_i32_new() scores = scores.insert(\"ada\", 100) print(scores.get(\"ada\")) } import \"stdlib/map\" fn main() -> void { let mut scores = HashMap_str_i32_new() scores = scores.insert(\"ada\", 100) print(scores.get(\"ada\")) }"
     },
     {
       "pageTitle": "Nyra HashMap",
@@ -3339,7 +3339,7 @@
       "id": "learn-hashmap.html#runnable-example",
       "title": "Nyra HashMap",
       "heading": "Runnable example",
-      "body": "Runnable example extern fn map_str_i32_new() -> ptr extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void extern fn map_str_i32_get(m: ptr, key: string) -> i32 extern fn map_str_i32_contains(m: ptr, key: string) -> i32 extern fn map_str_i32_free(m: ptr) -> void fn main() { let handle = map_str_i32_new() map_str_i32_insert(handle, \"score\", 100) print(map_str_i32_get(handle, \"score\")) print(map_str_i32_contains(handle, \"score\")) map_str_i32_free(handle) } Try it nyra run examples/syntax/hashmap.ny Expected output: 100 true ← Nyra Tuples Learn overview Nyra Structs →"
+      "body": "Runnable example Without types With types extern fn map_str_i32_new() -> ptr extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void extern fn map_str_i32_get(m: ptr, key: string) -> i32 extern fn map_str_i32_contains(m: ptr, key: string) -> i32 extern fn map_str_i32_free(m: ptr) -> void fn main() { let handle = map_str_i32_new() map_str_i32_insert(handle, \"score\", 100) print(map_str_i32_get(handle, \"score\")) print(map_str_i32_contains(handle, \"score\")) map_str_i32_free(handle) } extern fn map_str_i32_new() -> ptr extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void extern fn map_str_i32_get(m: ptr, key: string) -> i32 extern fn map_str_i32_contains(m: ptr, key: string) -> i32 extern fn map_str_i32_free(m: ptr) -> void fn main() -> void { let handle = map_str_i32_new() map_str_i32_insert(handle, \"score\", 100) print(map_str_i32_get(handle, \"score\")) print(map_str_i32_contains(handle, \"score\")) map_str_i32_free(handle) } Try it nyra run examples/syntax/hashmap.ny Expected output: 100 true ← Nyra Tuples Learn overview Nyra Structs →"
     },
     {
       "pageTitle": "Nyra If..Else",
@@ -3359,7 +3359,7 @@
       "id": "learn-if-else.html#if-else",
       "title": "Nyra If..Else",
       "heading": "if / else",
-      "body": "if / else let score = 75 if score >= 60 { print(\"Pass\") } else { print(\"Fail\") }"
+      "body": "if / else Without types With types let score = 75 if score >= 60 { print(\"Pass\") } else { print(\"Fail\") } let score: i32 = 75 if score >= 60 { print(\"Pass\") } else { print(\"Fail\") }"
     },
     {
       "pageTitle": "Nyra If..Else",
@@ -3369,7 +3369,7 @@
       "id": "learn-if-else.html#if-expression",
       "title": "Nyra If..Else",
       "heading": "If-expression",
-      "body": "If-expression let label = if score >= 90 { \"A\" } else { \"B\" } print(label) Common mistakes Using = instead of == in conditions. Mismatched types in if-expression branches. ← Nyra Booleans Learn overview Nyra Match →"
+      "body": "If-expression Without types With types let label = if score >= 90 { \"A\" } else { \"B\" } print(label) let label = if score >= 90 { \"A\" } else { \"B\" } print(label) Common mistakes Using = instead of == in conditions. Mismatched types in if-expression branches. ← Nyra Booleans Learn overview Nyra Match →"
     },
     {
       "pageTitle": "Nyra Intro",
@@ -3389,7 +3389,7 @@
       "id": "learn-intro.html#your-first-program",
       "title": "Nyra Intro",
       "heading": "Your first program",
-      "body": "Your first program fn main() { print(\"Hello, Nyra!\") } Try it nyra run examples/syntax/hello.ny Expected output: Hello, Nyra!"
+      "body": "Your first program Without types With types fn main() { print(\"Hello, Nyra!\") } fn main() -> void { print(\"Hello, Nyra!\") } Try it nyra run examples/syntax/hello.ny Expected output: Hello, Nyra!"
     },
     {
       "pageTitle": "Nyra Intro",
@@ -3419,7 +3419,7 @@
       "id": "learn-loops.html#sum-with-for",
       "title": "Nyra Loops",
       "heading": "Sum with for",
-      "body": "Sum with for fn main() { let mut sum = 0 for i in 0..5 { sum = sum + i } print(sum) } ← Nyra Match Learn overview Nyra While Loops →"
+      "body": "Sum with for Without types With types fn main() { let mut sum = 0 for i in 0..5 { sum = sum + i } print(sum) } fn main() -> void { let mut sum: i32 = 0 for i in 0..5 { sum = sum + i } print(sum) } ← Nyra Match Learn overview Nyra While Loops →"
     },
     {
       "pageTitle": "Nyra Match",
@@ -3439,7 +3439,7 @@
       "id": "learn-match.html#match",
       "title": "Nyra Match",
       "heading": "match",
-      "body": "match enum Color { Red Green Blue } fn main() { let c = Color.Red let n = match c { Color.Red => 1 Color.Green => 2 Color.Blue => 3 } print(n) } Guards: Color.Red if x > 0 => 1 . Wildcard: _ => 0 . See Match reference . Try it nyra run examples/language_features/demo.ny Expected output: 1 ← Nyra If..Else Learn overview Nyra Loops →"
+      "body": "match Without types With types enum Color { Red Green Blue } fn main() { let c = Color.Red let n = match c { Color.Red => 1 Color.Green => 2 Color.Blue => 3 } print(n) } enum Color { Red Green Blue } fn main() -> void { let c = Color.Red let n = match c { Color.Red => 1 Color.Green => 2 Color.Blue => 3 } print(n) } Guards: Color.Red if x > 0 => 1 . Wildcard: _ => 0 . See Match reference . Try it nyra run examples/language_features/demo.ny Expected output: 1 ← Nyra If..Else Learn overview Nyra Loops →"
     },
     {
       "pageTitle": "Nyra Operators",
@@ -3459,7 +3459,7 @@
       "id": "learn-operators.html#example",
       "title": "Nyra Operators",
       "heading": "Example",
-      "body": "Example fn main() { print(10 + 5) print(10 == 5) } Try it nyra run examples/syntax/math.ny Expected output: (math demo) ← Nyra Constants Learn overview Nyra Booleans →"
+      "body": "Example Without types With types fn main() { print(10 + 5) print(10 == 5) } fn main() -> void { print(10 + 5) print(10 == 5) } Try it nyra run examples/syntax/math.ny Expected output: (math demo) ← Nyra Constants Learn overview Nyra Booleans →"
     },
     {
       "pageTitle": "Nyra Output",
@@ -3479,7 +3479,7 @@
       "id": "learn-output.html#print",
       "title": "Nyra Output",
       "heading": "print",
-      "body": "print fn main() { print(\"Hello, Nyra!\") print(42) } Try it nyra run examples/syntax/hello.ny Expected output: Hello, Nyra! Common mistakes Forgetting quotes around text — strings use double quotes. Passing too many types in one call — use separate print calls or template strings. ← Nyra Syntax Learn overview Nyra Comments →"
+      "body": "print Without types With types fn main() { print(\"Hello, Nyra!\") print(42) } fn main() -> void { print(\"Hello, Nyra!\") print(42) } Try it nyra run examples/syntax/hello.ny Expected output: Hello, Nyra! Common mistakes Forgetting quotes around text — strings use double quotes. Passing too many types in one call — use separate print calls or template strings. ← Nyra Syntax Learn overview Nyra Comments →"
     },
     {
       "pageTitle": "Nyra Ownership",
@@ -3499,7 +3499,7 @@
       "id": "learn-ownership.html#move-example",
       "title": "Nyra Ownership",
       "heading": "Move example",
-      "body": "Move example fn main() { let a = \"hello\" let b = a // print(a) // error: use of moved value print(b) } Owned heap strings are auto-dropped at scope end. Deep dive: Memory & ownership . ← Nyra Strings Learn overview Nyra Borrowing →"
+      "body": "Move example Without types With types fn main() { let a = \"hello\" let b = a // print(a) // error: use of moved value print(b) } fn main() -> void { let a: string = \"hello\" let b = a // print(a) // error: use of moved value print(b) } Owned heap strings are auto-dropped at scope end. Deep dive: Memory & ownership . ← Nyra Strings Learn overview Nyra Borrowing →"
     },
     {
       "pageTitle": "Nyra Scope",
@@ -3519,7 +3519,7 @@
       "id": "learn-scope.html#block-scope",
       "title": "Nyra Scope",
       "heading": "Block scope",
-      "body": "Block scope fn main() { let x = 1 { let y = 2 print(x) // ok — outer scope print(y) } // print(y) // error — y not in scope } Each { } block creates a new scope. Bindings declared inside a block are not visible outside it. ← Nyra Functions Learn overview Nyra Strings →"
+      "body": "Block scope Without types With types fn main() { let x = 1 if true { let y = 2 print(x) // ok — outer scope print(y) } // print(y) // error — y not in scope } fn main() -> void { let x: i32 = 1 if true { let y: i32 = 2 print(x) // ok — outer scope print(y) } // print(y) // error — y not in scope } Each { } block creates a new scope. Bindings declared inside a block are not visible outside it. ← Nyra Functions Learn overview Nyra Strings →"
     },
     {
       "pageTitle": "Nyra Strings",
@@ -3539,7 +3539,7 @@
       "id": "learn-strings.html#string-literal",
       "title": "Nyra Strings",
       "heading": "String literal",
-      "body": "String literal let greeting = \"Hello\" print(greeting)"
+      "body": "String literal Without types With types let greeting = \"Hello\" print(greeting) let greeting: string = \"Hello\" print(greeting)"
     },
     {
       "pageTitle": "Nyra Strings",
@@ -3549,7 +3549,7 @@
       "id": "learn-strings.html#template-strings",
       "title": "Nyra Strings",
       "heading": "Template strings",
-      "body": "Template strings let name = \"Nyra\" print(`Hello, {name}!`) Try it nyra run examples/syntax/template_strings.ny Expected output: (template output) Stdlib: import \"stdlib/strings.ny\" for strlen , strcat , etc. ← Nyra Scope Learn overview Nyra Ownership →"
+      "body": "Template strings Without types With types let name = \"Nyra\" print(`Hello, {name}!`) let name: string = \"Nyra\" print(`Hello, {name}!`) Try it nyra run examples/syntax/template_strings.ny Expected output: (template output) Stdlib: import \"stdlib/strings.ny\" for strlen , strcat , etc. ← Nyra Scope Learn overview Nyra Ownership →"
     },
     {
       "pageTitle": "Nyra Structs",
@@ -3569,7 +3569,7 @@
       "id": "learn-structs.html#struct",
       "title": "Nyra Structs",
       "heading": "struct",
-      "body": "struct struct Player { hp: i32 score: i32 } fn main() { let p = Player { hp: 100, score: 0 } print(p.hp) } Methods: impl Player { fn heal(self) -> void { ... } } . See Traits . ← Nyra HashMap Learn overview Nyra Enums →"
+      "body": "struct Without types With types struct Player { hp: i32 score: i32 } fn main() { let p = Player { hp: 100, score: 0 } print(p.hp) } struct Player { hp: i32 score: i32 } fn main() -> void { let p: Player = Player { hp: 100, score: 0 } print(p.hp) } Methods: impl Player { fn heal(self) -> void { ... } } . See Traits . ← Nyra HashMap Learn overview Nyra Enums →"
     },
     {
       "pageTitle": "Nyra Syntax",
@@ -3589,7 +3589,7 @@
       "id": "learn-syntax.html#program-entry",
       "title": "Nyra Syntax",
       "heading": "Program entry",
-      "body": "Program entry fn main() { print(\"Hello\") } Nyra uses curly braces for blocks. Statements end at newline (no semicolons required). Function names use snake_case ; types and structs use PascalCase . Full cheat sheet: Syntax reference · Keywords ← Nyra Get Started Learn overview Nyra Output →"
+      "body": "Program entry Without types With types fn main() { print(\"Hello\") } fn main() -> void { print(\"Hello\") } Nyra uses curly braces for blocks. Statements end at newline (no semicolons required). Function names use snake_case ; types and structs use PascalCase . Full cheat sheet: Syntax reference · Keywords ← Nyra Get Started Learn overview Nyra Output →"
     },
     {
       "pageTitle": "Nyra Tuples",
@@ -3609,7 +3609,7 @@
       "id": "learn-tuples.html#tuple",
       "title": "Nyra Tuples",
       "heading": "Tuple",
-      "body": "Tuple fn main() { let pair: (i32, string) = (1, \"hi\") print(pair.0) let (a, b) = pair print(a) } Try it nyra run examples/syntax/tuples.ny Expected output: 1 1 ← Nyra Vectors Learn overview Nyra HashMap →"
+      "body": "Tuple Without types With types fn main() { let pair = (1, \"hi\") print(pair.0) let (a, b) = pair print(a) } fn main() -> void { let pair = (1, \"hi\") print(pair.0) let (a, b) = pair print(a) } Try it nyra run examples/syntax/tuples.ny Expected output: 1 1 ← Nyra Vectors Learn overview Nyra HashMap →"
     },
     {
       "pageTitle": "Nyra Variables",
@@ -3629,7 +3629,7 @@
       "id": "learn-variables.html#let-and-let-mut",
       "title": "Nyra Variables",
       "heading": "let and let mut",
-      "body": "let and let mut let name = \"Sam\" let mut score = 0 score = score + 10 print(score) let creates an immutable binding. Use let mut when the value must change. Shorthand inside functions: mut x = 0 . Try it nyra run examples/comparison/arithmetic/sum.ny Expected output: (arithmetic demo) Common mistakes Assigning to a let binding without mut . Confusing let with const — see Constants . ← Nyra Comments Learn overview Nyra Data Types →"
+      "body": "let and let mut Without types With types let name = \"Sam\" let mut score = 0 score = score + 10 print(score) let name: string = \"Sam\" let mut score: i32 = 0 score = score + 10 print(score) let creates an immutable binding. Use let mut when the value must change. Shorthand inside functions: mut x = 0 . Try it nyra run examples/comparison/arithmetic/sum.ny Expected output: (arithmetic demo) Common mistakes Assigning to a let binding without mut . Confusing let with const — see Constants . ← Nyra Comments Learn overview Nyra Data Types →"
     },
     {
       "pageTitle": "Nyra Vectors",
@@ -3649,7 +3649,7 @@
       "id": "learn-vectors.html#vec-runtime-api",
       "title": "Nyra Vectors",
       "heading": "Vec (runtime API)",
-      "body": "Vec (runtime API) extern fn vec_i32_new() -> ptr extern fn vec_i32_push(v: ptr, x: i32) -> void extern fn vec_i32_len(v: ptr) -> i32 extern fn vec_i32_get(v: ptr, i: i32) -> i32 extern fn vec_i32_free(v: ptr) -> void fn main() { let handle = vec_i32_new() vec_i32_push(handle, 10) vec_i32_push(handle, 20) print(vec_i32_len(handle)) print(vec_i32_get(handle, 0)) vec_i32_free(handle) } Try it nyra run examples/syntax/vectors.ny Expected output: 2 10 Import stdlib/vec.ny for Vec_i32 and Vec_str wrappers. ← Nyra Arrays Learn overview Nyra Tuples →"
+      "body": "Vec (runtime API) Without types With types extern fn vec_i32_new() -> ptr extern fn vec_i32_push(v: ptr, x: i32) -> void extern fn vec_i32_len(v: ptr) -> i32 extern fn vec_i32_get(v: ptr, i: i32) -> i32 extern fn vec_i32_free(v: ptr) -> void fn main() { let handle = vec_i32_new() vec_i32_push(handle, 10) vec_i32_push(handle, 20) print(vec_i32_len(handle)) print(vec_i32_get(handle, 0)) vec_i32_free(handle) } extern fn vec_i32_new() -> ptr extern fn vec_i32_push(v: ptr, x: i32) -> void extern fn vec_i32_len(v: ptr) -> i32 extern fn vec_i32_get(v: ptr, i: i32) -> i32 extern fn vec_i32_free(v: ptr) -> void fn main() -> void { let handle = vec_i32_new() vec_i32_push(handle, 10) vec_i32_push(handle, 20) print(vec_i32_len(handle)) print(vec_i32_get(handle, 0)) vec_i32_free(handle) } Try it nyra run examples/syntax/vectors.ny Expected output: 2 10 Import stdlib/vec.ny for Vec_i32 and Vec_str wrappers. ← Nyra Arrays Learn overview Nyra Tuples →"
     },
     {
       "pageTitle": "Nyra While Loops",
@@ -3669,7 +3669,7 @@
       "id": "learn-while.html#while",
       "title": "Nyra While Loops",
       "heading": "while",
-      "body": "while let mut i = 0 while i Try it nyra run examples/comparison/loop/sum_loop_small.ny Expected output: 499500 Common mistakes Infinite loop — ensure the condition eventually becomes false. ← Nyra Loops Learn overview Nyra For Loops →"
+      "body": "while Without types With types let mut i = 0 while i < 3 { print(i) i = i + 1 } let mut i: i32 = 0 while i < 3 { print(i) i = i + 1 } Try it nyra run examples/comparison/loop/sum_loop_small.ny Expected output: 499500 Common mistakes Infinite loop — ensure the condition eventually becomes false. ← Nyra Loops Learn overview Nyra For Loops →"
     },
     {
       "pageTitle": "Learning path",
@@ -3699,7 +3699,7 @@
       "id": "match.html#nested-enum-binds",
       "title": "Match expressions",
       "heading": "Nested enum binds",
-      "body": "Nested enum binds Peel a payload enum inside a variant arm (v1.33+). Shorthand infers the inner enum from the payload type: enum Option_i32 { None, Some(i32) } enum Result_Opt { Ok(Option_i32), Fail(Option_i32) } match r { Result_Opt.Ok(Some(x)) => x Result_Opt.Ok(Option_i32.None) => 0 Result_Opt.Fail(_) => -1 } Enum variants with different payload types in one enum (e.g. Ok(Option) + Err(i32) ) are not supported yet."
+      "body": "Nested enum binds Peel a payload enum inside a variant arm (v1.33+). Shorthand infers the inner enum from the payload type: Without types With types enum Option_i32 { None, Some(i32) } enum Result_Opt { Ok(Option_i32), Fail(Option_i32) } match r { Result_Opt.Ok(Some(x)) => x Result_Opt.Ok(Option_i32.None) => 0 Result_Opt.Fail(_) => -1 } enum Option_i32 { None, Some(i32) } enum Result_Opt { Ok(Option_i32), Fail(Option_i32) } match r { Result_Opt.Ok(Some(x)) => x Result_Opt.Ok(Option_i32.None) => 0 Result_Opt.Fail(_) => -1 } Enum variants with different payload types in one enum (e.g. Ok(Option) + Err(i32) ) are not supported yet."
     },
     {
       "pageTitle": "Match expressions",
@@ -3709,7 +3709,7 @@
       "id": "match.html#struct-and-tuple-patterns",
       "title": "Match expressions",
       "heading": "Struct and tuple patterns",
-      "body": "Struct and tuple patterns Since v1.37.0 , destructure structs and tuples in match arms. Field shorthand binds the field name; use _ to ignore a slot. struct Point { x: i32, y: i32 } match p { Point { x, y } => x + y } match pair { (a, b) => a + b } Field-value patterns (e.g. Point { x: 0, y } ) are not supported yet — patterns bind fields only."
+      "body": "Struct and tuple patterns Since v1.37.0 , destructure structs and tuples in match arms. Field shorthand binds the field name; use _ to ignore a slot. Without types With types struct Point { x: i32, y: i32 } match p { Point { x, y } => x + y } match pair { (a, b) => a + b } struct Point { x: i32, y: i32 } match p { Point { x, y } => x + y } match pair { (a, b) => a + b } Field-value patterns (e.g. Point { x: 0, y } ) are not supported yet — patterns bind fields only."
     },
     {
       "pageTitle": "Match expressions",
@@ -3719,7 +3719,7 @@
       "id": "match.html#or-patterns",
       "title": "Match expressions",
       "heading": "Or-patterns",
-      "body": "Or-patterns Combine patterns that share the same body with | (single pipe, not || ): match c { Color.Red | Color.Blue => 1 Color.Green => 2 } match method { \"GET\" | \"HEAD\" => 200 \"POST\" | \"PUT\" => 201 _ => 400 }"
+      "body": "Or-patterns Combine patterns that share the same body with | (single pipe, not || ): Without types With types match c { Color.Red | Color.Blue => 1 Color.Green => 2 } match method { \"GET\" | \"HEAD\" => 200 \"POST\" | \"PUT\" => 201 _ => 400 } match c { Color.Red | Color.Blue => 1 Color.Green => 2 } match method { \"GET\" | \"HEAD\" => 200 \"POST\" | \"PUT\" => 201 _ => 400 }"
     },
     {
       "pageTitle": "Match expressions",
@@ -3729,7 +3729,7 @@
       "id": "match.html#guards",
       "title": "Match expressions",
       "heading": "Guards",
-      "body": "Guards match r { Result.Ok(v) if v > 0 => v Result.Ok(_v) => 0 Result.Err(e) => e }"
+      "body": "Guards Without types With types match r { Result.Ok(v) if v > 0 => v Result.Ok(_v) => 0 Result.Err(e) => e } match r { Result.Ok(v) if v > 0 => v Result.Ok(_v) => 0 Result.Err(e) => e }"
     },
     {
       "pageTitle": "Match expressions",
@@ -3749,7 +3749,7 @@
       "id": "match.html#string-matching",
       "title": "Match expressions",
       "heading": "String matching",
-      "body": "String matching Since Nyra v1.17.0 , match works on string scrutinees with string literal arms (compared via strcmp ). Use _ for the default arm. fn http_status(method) { return match method { \"GET\" => 200, \"POST\" => 201, _ => 404, } } Arm bodies may use a trailing comma. Built-in tag-only Option / Result (no import) support ?? / ?. only — not stored payloads. Syntax →"
+      "body": "String matching Since Nyra v1.17.0 , match works on string scrutinees with string literal arms (compared via strcmp ). Use _ for the default arm. Without types With types fn http_status(method) { return match method { \"GET\" => 200, \"POST\" => 201, _ => 404, } } fn http_status(method: i32) -> i32 { return match method { \"GET\" => 200, \"POST\" => 201, _ => 404, } } Arm bodies may use a trailing comma. Built-in tag-only Option / Result (no import) support ?? / ?. only — not stored payloads. Syntax →"
     },
     {
       "pageTitle": "Memory & ownership",
@@ -3779,7 +3779,7 @@
       "id": "memory.html#ownership-ux",
       "title": "Memory & ownership",
       "heading": "Ownership UX (v2.8–v3.1)",
-      "body": "Ownership UX (v2.8–v3.1) Nyra keeps Rust’s static ownership model but reduces day-to-day friction: Auto-borrow — save(user) becomes save(&user) when the callee expects &User . Auto-Copy — structs like Point { x: i32 y: i32 } copy on assign without #[derive(Copy)] . Inference — return types, generic call sites ( id(7) ), and let price = 3.14 → f64 . Explicit control — move user / clone user at calls; Swift-style errors with fix-it notes. Full guide: Ownership UX · Conformance: CONF-INF-* , CONF-COERCE-* , CONF-DIAG-* , CONF-COPY-* , CONF-F64-* . Without types With types fn save(u) { print(u.name) } fn main() { let user = { name: \"Ada\", age: 30 } save(user) // auto-borrow — user not moved print(user.name) } struct User { name: string age: i32 } fn save(u: &User) { print(u.name) } fn main() -> void { let user: User = User { name: \"Ada\", age: 30 } save(user) // auto-borrow — user not moved print(user.name) }"
+      "body": "Ownership UX (v2.8–v3.1) Nyra keeps Rust’s static ownership model but reduces day-to-day friction: Auto-borrow — save(user) becomes save(&user) when the callee expects &User . Auto-Copy — structs like Point { x: i32 y: i32 } copy on assign without #[derive(Copy)] . Inference — return types, generic call sites ( id(7) ), and let price = 3.14 → f64 . Explicit control — move user / clone user at calls; Swift-style errors with fix-it notes. Full guide: Ownership UX · Conformance: CONF-INF-* , CONF-COERCE-* , CONF-DIAG-* , CONF-COPY-* , CONF-F64-* . Without types With types struct User { name: string age: i32 } fn save(u: &User) { print(u.name) } fn main() { let user = User { name: \"Ada\", age: 30 } save(user) print(user.name) } struct User { name: string age: i32 } fn save(u: &User) { print(u.name) } fn main() -> void { let user: User = User { name: \"Ada\", age: 30 } save(user) print(user.name) }"
     },
     {
       "pageTitle": "Memory & ownership",
@@ -3799,7 +3799,7 @@
       "id": "memory.html#rules",
       "title": "Memory & ownership",
       "heading": "Ownership rules",
-      "body": "Ownership rules One owner — each heap-owned value has exactly one binding responsible for cleanup. Move by default — passing a string to a function or assigning it moves ownership unless the binding is mut and the callee borrows. Borrow, don’t steal — &T and &mut T temporarily share access without transferring ownership. No active borrows on move — you cannot move a value while an immutable or mutable reference to it is live (NLL tracks this). Returned owned values — functions like read_file , strcat return new heap string s; the caller owns the result. Without types With types extern fn strcat(a, b){ return strcat(\"Hello, \", name) // new owned string } fn main() { let msg = greet(\"Nyra\") print(msg) // msg used here } // auto-drop msg at end of main extern fn strcat(a, b){ return strcat(\"Hello, \", name) // new owned string } fn main() -> void { let msg = greet(\"Nyra\") print(msg) // msg used here } // auto-drop msg at end of main"
+      "body": "Ownership rules One owner — each heap-owned value has exactly one binding responsible for cleanup. Move by default — passing a string to a function or assigning it moves ownership unless the binding is mut and the callee borrows. Borrow, don’t steal — &T and &mut T temporarily share access without transferring ownership. No active borrows on move — you cannot move a value while an immutable or mutable reference to it is live (NLL tracks this). Returned owned values — functions like read_file , strcat return new heap string s; the caller owns the result. Without types With types fn greet(name) { return strcat(\"Hello, \", name) } fn main() { let msg = greet(\"Nyra\") print(msg) } fn greet(name: string) -> i32 { return strcat(\"Hello, \", name) } fn main() -> void { let msg = greet(\"Nyra\") print(msg) }"
     },
     {
       "pageTitle": "Memory & ownership",
@@ -3989,7 +3989,7 @@
       "id": "memory.html#defer",
       "title": "Memory & ownership",
       "heading": "defer vs Drop (Extended)",
-      "body": "defer vs Drop (Extended) Name: defer expr Explanation: Schedules a call at scope exit (LIFO). Prefer impl Drop for resources — do not defer free on owned strings. Example: methods gallery · nyra run examples/builtins/defer/defer_return.ny allow_extended fn cleanup() { print(1) } fn main() { defer cleanup() return } Output: 1 (before function returns). LIFO demo: #ex-defer-lifo → body , a , b . defer schedules a call expression at scope exit (LIFO). It lives in the Extended tier. For most code, auto-drop and impl Drop replace defer — do not use defer free on owned strings (double-free risk). Need Prefer defer ? Heap string at } Auto-drop No FFI handle / file impl Drop wrapper (RAII) Only one-off defer extern_close(h) if you skip a struct Log at scope exit Write before return or in Drop Optional defer log_done() Without types With types extern fn gzclose(f){ handle: ptr } impl Drop for GzFile { fn drop(self) { unsafe { gzclose(self.handle) } } } fn main() { let f = GzFile { handle: open_gz(\"log.txt.gz\") } print(read_all(f.handle)) } // gzclose via Drop — preferred over defer extern fn gzclose(f){ handle: ptr } impl Drop for GzFile { fn drop(self) { unsafe { gzclose(self.handle) } } } fn main() -> void { let f = GzFile { handle: open_gz(\"log.txt.gz\") } print(read_all(f.handle)) } // gzclose via Drop — preferred over defer Why Extended, not Core: Drop covers cleanup semantics Core needs; defer overlaps and is mainly for niche FFI/side-effect hooks. Core-only CI uses nyra check --deny-extended with auto-drop only. See nyra-skill.md § defer vs Drop."
+      "body": "defer vs Drop (Extended) Name: defer expr Explanation: Schedules a call at scope exit (LIFO). Prefer impl Drop for resources — do not defer free on owned strings. Example: methods gallery · nyra run examples/builtins/defer/defer_return.ny Without types With types allow_extended fn cleanup() { print(1) } fn main() { defer cleanup() return } allow_extended fn cleanup() { print(1) } fn main() -> void { defer cleanup() return } Output: 1 (before function returns). LIFO demo: #ex-defer-lifo → body , a , b . defer schedules a call expression at scope exit (LIFO). It lives in the Extended tier. For most code, auto-drop and impl Drop replace defer — do not use defer free on owned strings (double-free risk). Need Prefer defer ? Heap string at } Auto-drop No FFI handle / file impl Drop wrapper (RAII) Only one-off defer extern_close(h) if you skip a struct Log at scope exit Write before return or in Drop Optional defer log_done() Without types With types extern fn gzclose(f){ handle: ptr } impl Drop for GzFile { fn drop(self) { unsafe { gzclose(self.handle) } } } fn main() { let f = GzFile { handle: open_gz(\"log.txt.gz\") } print(read_all(f.handle)) } // gzclose via Drop — preferred over defer extern fn gzclose(f){ handle: ptr } impl Drop for GzFile { fn drop(self) { unsafe { gzclose(self.handle) } } } fn main() -> void { let f = GzFile { handle: open_gz(\"log.txt.gz\") } print(read_all(f.handle)) } // gzclose via Drop — preferred over defer Why Extended, not Core: Drop covers cleanup semantics Core needs; defer overlaps and is mainly for niche FFI/side-effect hooks. Core-only CI uses nyra check --deny-extended with auto-drop only. See nyra-skill.md § defer vs Drop."
     },
     {
       "pageTitle": "Memory & ownership",
@@ -4259,7 +4259,7 @@
       "id": "methods.html#allow-extended",
       "title": "Built-in methods",
       "heading": "File directive: allow_extended",
-      "body": "File directive: allow_extended spawn , parallel for , async / await , defer , and related APIs live in Nyra’s Stable Extended tier. Put this line at the top of the file (before fn main or imports) when the unit intentionally uses those features: allow_extended What it does Why use it Marks the file as an Extended-tier program Documents intent for readers and reviewers Suppresses warning[W001] Extended-feature warnings are silenced in this file (useful when CI runs with stricter flags) One line per file Not per-function — applies to the whole compilation unit You do not need allow_extended for Core-only code (plain print , structs, loops, etc.). All spawn and parallel examples below include it. See also Concurrency → spawn and Roadmap (Core vs Extended). Name: allow_extended (first line of file) Explanation: Declares that this compilation unit intentionally uses Stable Extended APIs. Does not enable features by itself — it documents intent and integrates with stability warnings. Example: allow_extended fn main() { parallel for i in 0..3 { print(i) } } Output: Same as parallel for (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use spawn , parallel for , etc. Platform: spawn is unavailable on wasm32-wasi (compile error). Native Linux, macOS, and Windows only."
+      "body": "File directive: allow_extended spawn , parallel for , async / await , defer , and related APIs live in Nyra’s Stable Extended tier. Put this line at the top of the file (before fn main or imports) when the unit intentionally uses those features: allow_extended What it does Why use it Marks the file as an Extended-tier program Documents intent for readers and reviewers Suppresses warning[W001] Extended-feature warnings are silenced in this file (useful when CI runs with stricter flags) One line per file Not per-function — applies to the whole compilation unit You do not need allow_extended for Core-only code (plain print , structs, loops, etc.). All spawn and parallel examples below include it. See also Concurrency → spawn and Roadmap (Core vs Extended). Name: allow_extended (first line of file) Explanation: Declares that this compilation unit intentionally uses Stable Extended APIs. Does not enable features by itself — it documents intent and integrates with stability warnings. Example: Without types With types allow_extended fn main() { parallel for i in 0..3 { print(i) } } allow_extended fn main() -> void { parallel for i in 0..3 { print(i) } } Output: Same as parallel for (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use spawn , parallel for , etc. Platform: spawn is unavailable on wasm32-wasi (compile error). Native Linux, macOS, and Windows only."
     },
     {
       "pageTitle": "Built-in methods",
@@ -4359,7 +4359,7 @@
       "id": "methods.html#ex-array",
       "title": "Built-in methods",
       "heading": "Array_push / map / filter / reduce",
-      "body": "Array_push / map / filter / reduce Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x){ if x % 2 == 0 { return 1 } return 0 } fn mul10(x){ return x * 10 } fn sum(acc, x){ return acc + x } fn main() { let v = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) Array_push(v, 4) let mapped = Array_map(v, mul10) let evens = Array_filter(v, is_even) let total = Array_reduce(v, 0, sum) let found = Array_find(v, is_even, -1) print(Vec_i32_len(mapped)) print(Vec_i32_len(evens)) print(total) print(found) print(Array_pop(v)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x: i32){ if x % 2 == 0 { return 1 } return 0 } fn mul10(x: i32){ return x * 10 } fn sum(acc: i32, x: i32){ return acc + x } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) Array_push(v, 4) let mapped: ptr = Array_map(v, mul10) let evens: ptr = Array_filter(v, is_even) let total: i32 = Array_reduce(v, 0, sum) let found = Array_find(v, is_even, -1) print(Vec_i32_len(mapped)) print(Vec_i32_len(evens)) print(total) print(found) print(Array_pop(v)) } Output 4 2 10 2 4"
+      "body": "Array_push / map / filter / reduce Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x: i32) -> i32 { if x % 2 == 0 { return 1 } return 0 } fn mul10(x: i32) -> i32 { return x * 10 } fn sum(acc: i32, x: i32) -> i32 { return acc + x } fn main() { let v = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) Array_push(v, 4) let mapped = Array_map(v, mul10) let evens = Array_filter(v, is_even) let total = Array_reduce(v, 0, sum) let found = Array_find(v, is_even, -1) print(Vec_i32_len(mapped)) print(Vec_i32_len(evens)) print(total) print(found) print(Array_pop(v)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x: i32) -> i32 { if x % 2 == 0 { return 1 } return 0 } fn mul10(x: i32) -> i32 { return x * 10 } fn sum(acc: i32, x: i32) -> i32 { return acc + x } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) Array_push(v, 4) let mapped: ptr = Array_map(v, mul10) let evens: ptr = Array_filter(v, is_even) let total: i32 = Array_reduce(v, 0, sum) let found = Array_find(v, is_even, -1) print(Vec_i32_len(mapped)) print(Vec_i32_len(evens)) print(total) print(found) print(Array_pop(v)) } Output 4 2 10 2 4"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4403,6 +4403,46 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-async-future-string",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-async-future-string",
+      "title": "Built-in methods",
+      "heading": "async_future_string",
+      "body": "async_future_string Without types With types // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-async-spawn",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-async-spawn",
+      "title": "Built-in methods",
+      "heading": "async_spawn",
+      "body": "async_spawn Without types With types // async fn + await — call site gets handle immediately; body runs on spawn:thread. allow_extended import \"stdlib/async_v1.ny\" async fn compute() -> i32 { return 42 } fn main() { let h = compute() print(await h) } // async fn + await — call site gets handle immediately; body runs on spawn:thread. allow_extended import \"stdlib/async_v1.ny\" async fn compute() -> i32 { return 42 } fn main() -> void { let h = compute() print(await h) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-async-state-machine",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-async-state-machine",
+      "title": "Built-in methods",
+      "heading": "async_state_machine",
+      "body": "async_state_machine Without types With types // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-benchmark",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-benchmark",
+      "title": "Built-in methods",
+      "heading": "benchmark",
+      "body": "benchmark Without types With types // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } }"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-date",
       "section": "Standard library",
       "kind": "content",
@@ -4410,6 +4450,26 @@
       "title": "Built-in methods",
       "heading": "date()",
       "body": "date() Without types With types fn main() { let d = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } fn main() -> void { let d: Date = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } Output (local clock — values change) 2026 7 1 21 29 15 …"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-defer-lifo",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-defer-lifo",
+      "title": "Built-in methods",
+      "heading": "defer_lifo",
+      "body": "defer_lifo Without types With types // defer runs LIFO (last deferred, first executed). allow_extended fn a() { print(\"a\") } fn b() { print(\"b\") } fn main() { defer b() defer a() print(\"body\") } // defer runs LIFO (last deferred, first executed). allow_extended fn a() { print(\"a\") } fn b() { print(\"b\") } fn main() -> void { defer b() defer a() print(\"body\") }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-defer-return",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-defer-return",
+      "title": "Built-in methods",
+      "heading": "defer_return",
+      "body": "defer_return Without types With types // defer on return — runs cleanup before function exits. allow_extended fn cleanup() { print(1) } fn main() { defer cleanup() return } // defer on return — runs cleanup before function exits. allow_extended fn cleanup() { print(1) } fn main() -> void { defer cleanup() return }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4449,7 +4509,7 @@
       "id": "methods.html#ex-input",
       "title": "Built-in methods",
       "heading": "input",
-      "body": "input Without types With types // Interactive — run: nyra run examples/builtins/io/input.ny fn main() { let name = input(\"Name) print(name.length()) print(name) } // Interactive — run: nyra run examples/builtins/io/input.ny fn main() -> void { let name: string = input(\"Name) print(name.length()) print(name) } Output Name: 3 Ada"
+      "body": "input Without types With types // Interactive — run: nyra run examples/builtins/io/input.ny fn main() { let name = input(\"Name: \") print(name.length()) print(name) } // Interactive — run: nyra run examples/builtins/io/input.ny fn main() -> void { let name: string = input(\"Name: \") print(name.length()) print(name) } Output Name: 3 Ada"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4533,73 +4593,13 @@
     },
     {
       "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-spawn",
+      "url": "methods.html#ex-cpu-count",
       "section": "Standard library",
       "kind": "content",
-      "id": "methods.html#ex-spawn",
+      "id": "methods.html#ex-cpu-count",
       "title": "Built-in methods",
-      "heading": "spawn / spawn:task (lightweight tasks)",
-      "body": "spawn / spawn:task (lightweight tasks) Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } Output 0 allow_extended — first line opts this file into Extended features ( spawn ). Statement spawn — no handle; work runs on the task pool while main continues (output 0 may appear before 42 from the task). spawn and spawn:task are equivalent."
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-spawn-thread",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-spawn-thread",
-      "title": "Built-in methods",
-      "heading": "spawn:thread (OS thread)",
-      "body": "spawn:thread (OS thread) Without types With types allow_extended fn main() { let h = spawn:thread { print(88) } h.join() print(1) } allow_extended fn main() -> void { let h = spawn:thread { print(88) } h.join() print(1) } Output 88 1 spawn:thread — creates a real OS thread (~MB stack). let h = … — expression form returns JoinHandle . h.join() — blocks until the thread prints 88 , then main prints 1 . Order is deterministic here because of join ."
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-spawn-join",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-spawn-join",
-      "title": "Built-in methods",
-      "heading": "JoinHandle.join()",
-      "body": "JoinHandle.join() Without types With types allow_extended fn main() { let h = spawn { print(99) } h.join() print(0) } allow_extended fn main() -> void { let h = spawn { print(99) } h.join() print(0) } Output 99 0 This example shows the expression + join pattern on the default task pool ( spawn { } without :thread ): let h = spawn { … } — starts a lightweight task and stores a JoinHandle in h . h.join() — blocks until the task body finishes (here, after print(99) ). The handle is moved ; a second h.join() would be a compile error. print(0) runs only after the task completes — hence output order 99 then 0 . Contrast with the statement example : bare spawn { … } without assigning to a handle does not wait. Use .join() when you need happens-before ordering or must read shared results after background work."
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-parallel",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-parallel",
-      "title": "Built-in methods",
-      "heading": "parallel for (task pool — default)",
-      "body": "parallel for (task pool — default) Name: parallel for i in start..end { … } What: Runs independent loop iterations on the global task pool (same workers as spawn ). The runtime splits the range into chunks and waits for all chunks before continuing. When: CPU-bound work where iterations do not share mutable outer state. Requires allow_extended on the first line. Run: nyra run examples/builtins/parallel/parallel_task.ny Without types With types allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) } Output 0 1 3 2 999 Notes: Lines 0 – 3 may print in any order (workers run concurrently). 999 always prints last because parallel for is fork-join — main waits for every iteration before the next statement."
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-parallel-task-max",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-parallel-task-max",
-      "title": "Built-in methods",
-      "heading": "parallel:task(max = N)",
-      "body": "parallel:task(max = N) Name: parallel:task(max = N) for … or parallel(max = N) for … What: Same task-pool backend as bare parallel for , but caps how many worker chunks run at once. Use max (not max_threads ) to avoid confusion with parallel:thread . When: Large ranges where you want to limit pool pressure (e.g. max = 4 on a 1000-iteration loop). Run: nyra run examples/builtins/parallel/parallel_task_max.ny Without types With types allow_extended fn main() { parallel:task(max = 2) for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel:task(max = 2) for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999 Notes: parallel:task is an explicit alias for the default backend. Iteration order is still non-deterministic; only the final 999 is ordered after all work completes."
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-parallel-thread",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-parallel-thread",
-      "title": "Built-in methods",
-      "heading": "parallel:thread(max = N)",
-      "body": "parallel:thread(max = N) Name: parallel:thread(max = N) for … or parallel(backend = thread, max = N) for … What: Fork-join using OS threads per chunk (~MB stack each) instead of the lightweight task pool. When: Blocking syscalls inside the loop body, thread isolation, or matching pre-v1.39 OS-thread behavior. Run: nyra run examples/builtins/parallel/parallel_thread.ny Without types With types allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } Output 2 3 0 1 999 Notes: Pick backend with :task / :thread — not with the max key. max = N only limits worker count for whichever backend you chose."
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-parallel-exact",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-parallel-exact",
-      "title": "Built-in methods",
-      "heading": "parallel(threads = N) — exact worker count",
-      "body": "parallel(threads = N) — exact worker count Name: parallel(threads = N) for … What: Uses exactly N workers (still default task-pool backend unless you add parallel:thread ). When: You need a fixed degree of parallelism regardless of CPU topology. Run: nyra run examples/builtins/parallel/parallel_exact.ny Without types With types allow_extended fn main() { parallel(threads = 2) for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel(threads = 2) for i in 0..4 { print(i) } print(999) } Output (order of 0–3 may vary) 999"
+      "heading": "cpu_count",
+      "body": "cpu_count Without types With types // cpu_count() — compiler builtin logical CPU count. fn main() { print(cpu_count()) } // cpu_count() — compiler builtin logical CPU count. fn main() -> void { print(cpu_count()) }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4608,8 +4608,8 @@
       "kind": "content",
       "id": "methods.html#ex-parallel-array",
       "title": "Built-in methods",
-      "heading": "parallel for n in array",
-      "body": "parallel for n in array Name: parallel for x in fixed_array { … } What: Same fork-join rules over a fixed-size array (also supports string bytes and vec_str ). Run: nyra run examples/builtins/parallel/parallel_array.ny Without types With types allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) } Output 10 20 30 999"
+      "heading": "parallel_array",
+      "body": "parallel_array Without types With types // parallel for over a fixed array. allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } // parallel for over a fixed array. allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4618,8 +4618,18 @@
       "kind": "content",
       "id": "methods.html#ex-parallel-cpu",
       "title": "Built-in methods",
-      "heading": "parallel(cpu = P%)",
-      "body": "parallel(cpu = P%) Name: parallel(cpu = P%) for … What: Sets worker count to P percent of logical CPUs (from cpu_count() ), rounded up. When: Share the machine with other apps — e.g. cpu = 50% on a 10-core box → ~5 workers. Run: nyra run examples/builtins/parallel/parallel_cpu.ny Without types With types allow_extended fn main() { parallel(cpu = 50%) for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel(cpu = 50%) for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
+      "heading": "parallel_cpu",
+      "body": "parallel_cpu Without types With types // parallel(cpu = P%) — use P percent of logical CPUs as worker count. allow_extended fn main() { parallel(cpu = 50%) for i in 0..4 { print(i) } print(999) } // parallel(cpu = P%) — use P percent of logical CPUs as worker count. allow_extended fn main() -> void { parallel(cpu = 50%) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-parallel-exact",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-parallel-exact",
+      "title": "Built-in methods",
+      "heading": "parallel_exact",
+      "body": "parallel_exact Without types With types // parallel(threads = N) — exactly N workers (backend still task pool by default). allow_extended fn main() { parallel(threads = 2) for i in 0..4 { print(i) } print(999) } // parallel(threads = N) — exactly N workers (backend still task pool by default). allow_extended fn main() -> void { parallel(threads = 2) for i in 0..4 { print(i) } print(999) }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4628,18 +4638,48 @@
       "kind": "content",
       "id": "methods.html#ex-parallel-mode",
       "title": "Built-in methods",
-      "heading": "parallel(mode = …)",
-      "body": "parallel(mode = …) Name: parallel(mode = auto | balanced | max_performance | background) for … What: Scheduling preset when you do not set max or threads . balanced uses cpu_count() - 1 ; max_performance uses all CPUs; background uses half. Run: nyra run examples/builtins/parallel/parallel_mode.ny Without types With types allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } Output (order of 0–3 may vary) 999"
+      "heading": "parallel_mode",
+      "body": "parallel_mode Without types With types // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) }"
     },
     {
       "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-cpu-count",
+      "url": "methods.html#ex-parallel-search",
       "section": "Standard library",
       "kind": "content",
-      "id": "methods.html#ex-cpu-count",
+      "id": "methods.html#ex-parallel-search",
       "title": "Built-in methods",
-      "heading": "cpu_count()",
-      "body": "cpu_count() Name: cpu_count() -> i32 What: Built-in logical CPU count from rt_parallel.c — used by parallel for worker resolution and parallel(cpu = P%) . No import. For AVX/brand introspection import stdlib/os/cpu.ny ( cpu_logical_cores() , etc.). Run: nyra run examples/builtins/parallel/cpu_count.ny Without types With types fn main() { print(cpu_count()) } fn main() -> void { print(cpu_count()) } Output (machine-dependent — e.g. 8, 10, 12) 10 With parallel for : allow_extended parallel(threads = cpu_count() - 1) for i in 0..4 { print(i) }"
+      "heading": "parallel_search",
+      "body": "parallel_search Without types With types // parallel any / find / all — early-exit parallel search (fork-join + atomic cancel). allow_extended fn main() { let any_hit = parallel any for i in 0..1000 { i == 42 } print(any_hit) let idx = parallel find for i in 0..1000 { i == 42 } print(idx) let all_pos = parallel all for i in 1..10 { i > 0 } print(all_pos) } // parallel any / find / all — early-exit parallel search (fork-join + atomic cancel). allow_extended fn main() -> void { let any_hit = parallel any for i in 0..1000 { i == 42 } print(any_hit) let idx = parallel find for i in 0..1000 { i == 42 } print(idx) let all_pos = parallel all for i in 1..10 { i > 0 } print(all_pos) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-parallel-task-max",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-parallel-task-max",
+      "title": "Built-in methods",
+      "heading": "parallel_task_max",
+      "body": "parallel_task_max Without types With types // parallel:task(max = N) — cap task-pool workers (alias of bare parallel). allow_extended fn main() { parallel:task(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:task(max = N) — cap task-pool workers (alias of bare parallel). allow_extended fn main() -> void { parallel:task(max = 2) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-parallel-task",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-parallel-task",
+      "title": "Built-in methods",
+      "heading": "parallel_task",
+      "body": "parallel_task Without types With types // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-parallel-thread",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-parallel-thread",
+      "title": "Built-in methods",
+      "heading": "parallel_thread",
+      "body": "parallel_thread Without types With types // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4648,68 +4688,38 @@
       "kind": "content",
       "id": "methods.html#ex-progress",
       "title": "Built-in methods",
-      "heading": "progress for",
-      "body": "progress for Name: progress(label = \"…\") for x in items { … } What: Sequential loop with a built-in progress bar and status line each iteration. Cannot combine with parallel for . When: Long sequential batches (tests, imports, file scans) where you want visible progress without manual formatting. Without types With types allow_extended fn main() { progress(label = \"demo\") for i in 0..3 { print(i) } } allow_extended fn main() -> void { progress(label = \"demo\") for i in 0..3 { print(i) } } Output [#####--------] 33% Running demo... [#########----] 66% Running demo... [#############] 100% Running demo... 0 1 2 Notes: Progress lines use carriage return ( \\r ) for in-place updates; your terminal may show one bar per line when captured to a log file. Run: nyra run examples/builtins/parallel/progress.ny"
+      "heading": "progress",
+      "body": "progress Without types With types // progress for — sequential loop with built-in progress bar. allow_extended fn main() { progress(label = \"demo\") for i in 0..3 { print(i) } } // progress for — sequential loop with built-in progress bar. allow_extended fn main() -> void { progress(label = \"demo\") for i in 0..3 { print(i) } }"
     },
     {
       "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-benchmark",
+      "url": "methods.html#ex-spawn-join",
       "section": "Standard library",
       "kind": "content",
-      "id": "methods.html#ex-benchmark",
+      "id": "methods.html#ex-spawn-join",
       "title": "Built-in methods",
-      "heading": "benchmark { }",
-      "body": "benchmark { } Name: benchmark { … } What: Measures wall time, RSS delta, and process CPU usage for a block. Lowers to benchmark_begin() / benchmark_end() in stdlib/rt/rt_bench.c . Requires allow_extended . When: Quick perf smoke tests without manual time_start / mem_start . Run: nyra run examples/builtins/benchmark/benchmark.ny Without types With types allow_extended extern fn blackbox_i32(x) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } allow_extended extern fn blackbox_i32(x) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } } Output Time: 0.1 ms Memory: 0.0 B CPU: 98% Notes: Values vary by machine and load. For iteration benchmarks use stdlib/bench/mod.ny ; for labeled timers use time_start / mem_start ."
+      "heading": "spawn",
+      "body": "spawn Without types With types allow_extended fn main() { let h = spawn { print(99) } h.join() print(0) } allow_extended fn main() -> void { let h = spawn { print(99) } h.join() print(0) }"
     },
     {
       "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-defer",
+      "url": "methods.html#ex-spawn-thread",
       "section": "Standard library",
       "kind": "content",
-      "id": "methods.html#ex-defer",
+      "id": "methods.html#ex-spawn-thread",
       "title": "Built-in methods",
-      "heading": "defer (scope exit)",
-      "body": "defer (scope exit) Name: defer cleanup() What: Schedules a call at scope exit (before return or end of block). Runs in LIFO order when multiple defer lines exist. Extended tier — prefer impl Drop for resource cleanup. When: One-shot FFI teardown or logging at exit; not for owned string (auto-drop handles that). Run: nyra run examples/builtins/defer/defer_return.ny Without types With types allow_extended fn cleanup() { print(1) } fn main() { defer cleanup() return } allow_extended fn cleanup() { print(1) } fn main() -> void { defer cleanup() return } Output 1 Notes: defer runs even when return is reached early. See also LIFO order · memory → defer vs Drop ."
+      "heading": "spawn",
+      "body": "spawn Without types With types allow_extended fn main() { spawn:thread { print(88) } } allow_extended fn main() -> void { spawn:thread { print(88) } }"
     },
     {
       "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-defer-lifo",
+      "url": "methods.html#ex-spawn",
       "section": "Standard library",
       "kind": "content",
-      "id": "methods.html#ex-defer-lifo",
+      "id": "methods.html#ex-spawn",
       "title": "Built-in methods",
-      "heading": "defer (LIFO order)",
-      "body": "defer (LIFO order) Name: multiple defer lines in one scope What: Last defer registered runs first — same idea as Go. Run: nyra run examples/builtins/defer/defer_lifo.ny Without types With types allow_extended fn a() { print(\"a\") } fn b() { print(\"b\") } fn main() { defer b() defer a() print(\"body\") } allow_extended fn a() { print(\"a\") } fn b() { print(\"b\") } fn main() -> void { defer b() defer a() print(\"body\") } Output body a b"
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-async-fn",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-async-fn",
-      "title": "Built-in methods",
-      "heading": "async fn + await",
-      "body": "async fn + await Name: async fn compute() -> i32 { … } and await h What: Calling an async fn returns a promise handle immediately; the body runs on spawn:thread . await blocks the caller until the value is ready. Requires import \"stdlib/async_v1.ny\" for executor helpers. Not on wasm32-wasi . Run: nyra run examples/builtins/async/async_spawn.ny Without types With types allow_extended import \"stdlib/async_v1.ny\" async fn compute(){ return 42 } fn main() { let h = compute() print(await h) } allow_extended import \"stdlib/async_v1.ny\" async fn compute(){ return 42 } fn main() -> void { let h = compute() print(await h) } Output 42"
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-await",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-await",
-      "title": "Built-in methods",
-      "heading": "await (state machine)",
-      "body": "await (state machine) Name: multiple await inside one async fn What: Compiler lowers to cooperative async_poll + runtime_executor_tick (v1.6–v1.7). await inside bare spawn still uses blocking async_await . Run: nyra run examples/builtins/async/async_state_machine.ny Without types With types allow_extended import \"stdlib/async_v1.ny\" async fn chain(){ let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } allow_extended import \"stdlib/async_v1.ny\" async fn chain(){ let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) } Output 100"
-    },
-    {
-      "pageTitle": "Built-in methods",
-      "url": "methods.html#ex-async-future",
-      "section": "Standard library",
-      "kind": "content",
-      "id": "methods.html#ex-async-future",
-      "title": "Built-in methods",
-      "heading": "async fn → Future<string>",
-      "body": "async fn → Future<string> Name: typed async fn greet() -> string with stdlib/async/future.ny What: Call site gets Future_string ; await yields string . v1.26+ typed futures. Run: nyra run examples/builtins/async/async_future_string.ny Without types With types allow_extended import \"stdlib/async/future.ny\" async fn greet(){ let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } allow_extended import \"stdlib/async/future.ny\" async fn greet(){ let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) } Output Nyra async v2 Full async guide: async.html"
+      "heading": "spawn",
+      "body": "spawn Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } Output 0"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4719,7 +4729,7 @@
       "id": "methods.html#ex-array-filter",
       "title": "Built-in methods",
       "heading": "Array_filter",
-      "body": "Array_filter Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x){ if x % 2 == 0 { return 1 } return 0 } fn main() { let v = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) let evens = Array_filter(v, is_even) print(Vec_i32_len(evens)) print(Vec_i32_get(evens, 0)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x: i32){ if x % 2 == 0 { return 1 } return 0 } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) let evens: ptr = Array_filter(v, is_even) print(Vec_i32_len(evens)) print(Vec_i32_get(evens, 0)) } Output 1 2"
+      "body": "Array_filter Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x: i32) -> i32 { if x % 2 == 0 { return 1 } return 0 } fn main() { let v = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) let evens = Array_filter(v, is_even) print(Vec_i32_len(evens)) print(Vec_i32_get(evens, 0)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_even(x: i32) -> i32 { if x % 2 == 0 { return 1 } return 0 } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) Array_push(v, 3) let evens: ptr = Array_filter(v, is_even) print(Vec_i32_len(evens)) print(Vec_i32_get(evens, 0)) } Output 1 2"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4729,7 +4739,7 @@
       "id": "methods.html#ex-array-find",
       "title": "Built-in methods",
       "heading": "Array_find",
-      "body": "Array_find Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_two(x){ if x == 2 { return 1 } return 0 } fn main() { let v = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) print(Array_find(v, is_two, -1)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_two(x: i32){ if x == 2 { return 1 } return 0 } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) print(Array_find(v, is_two, -1)) } Output 2"
+      "body": "Array_find Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_two(x: i32) -> i32 { if x == 2 { return 1 } return 0 } fn main() { let v = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) print(Array_find(v, is_two, -1)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn is_two(x: i32) -> i32 { if x == 2 { return 1 } return 0 } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 1) Array_push(v, 2) print(Array_find(v, is_two, -1)) } Output 2"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4739,7 +4749,7 @@
       "id": "methods.html#ex-array-map",
       "title": "Built-in methods",
       "heading": "Array_map",
-      "body": "Array_map Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn double(x){ return x * 2 } fn main() { let v = Vec_i32_new() Array_push(v, 3) Array_push(v, 4) let out = Array_map(v, double) print(Vec_i32_get(out, 0)) print(Vec_i32_get(out, 1)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn double(x: i32){ return x * 2 } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 3) Array_push(v, 4) let out: ptr = Array_map(v, double) print(Vec_i32_get(out, 0)) print(Vec_i32_get(out, 1)) } Output 6 8"
+      "body": "Array_map Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn double(x: i32) -> i32 { return x * 2 } fn main() { let v = Vec_i32_new() Array_push(v, 3) Array_push(v, 4) let out = Array_map(v, double) print(Vec_i32_get(out, 0)) print(Vec_i32_get(out, 1)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn double(x: i32) -> i32 { return x * 2 } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 3) Array_push(v, 4) let out: ptr = Array_map(v, double) print(Vec_i32_get(out, 0)) print(Vec_i32_get(out, 1)) } Output 6 8"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4769,7 +4779,7 @@
       "id": "methods.html#ex-array-reduce",
       "title": "Built-in methods",
       "heading": "Array_reduce",
-      "body": "Array_reduce Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn add(acc, x){ return acc + x } fn main() { let v = Vec_i32_new() Array_push(v, 10) Array_push(v, 20) print(Array_reduce(v, 0, add)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn add(acc: i32, x: i32){ return acc + x } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 10) Array_push(v, 20) print(Array_reduce(v, 0, add)) } Output 30"
+      "body": "Array_reduce Without types With types import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn add(acc: i32, x: i32) -> i32 { return acc + x } fn main() { let v = Vec_i32_new() Array_push(v, 10) Array_push(v, 20) print(Array_reduce(v, 0, add)) } import \"stdlib/builtins_array.ny\" import \"stdlib/vec.ny\" fn add(acc: i32, x: i32) -> i32 { return acc + x } fn main() -> void { let v: ptr = Vec_i32_new() Array_push(v, 10) Array_push(v, 20) print(Array_reduce(v, 0, add)) } Output 30"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4853,13 +4863,23 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-random-builtin",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-random-builtin",
+      "title": "Built-in methods",
+      "heading": "random_builtin",
+      "body": "random_builtin Without types With types // random() / random_f64() — compiler builtins (no import required). fn main() { print(random()) print(random(1, 6)) print(random_f64()) } // random() / random_f64() — compiler builtins (no import required). fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-random",
       "section": "Standard library",
       "kind": "content",
       "id": "methods.html#ex-random",
       "title": "Built-in methods",
-      "heading": "random / random_f64 (compiler builtins)",
-      "body": "random / random_f64 (compiler builtins) Name: random() , random(min, max) , random_f64() , random_f64(min, max) What: ChaCha20 CSPRNG (hardware-seeded). Integer random is generic — return type follows bounds. No import required. Run: nyra run examples/builtins/stdlib/random_builtin.ny Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output (varies each run — ChaCha20 stream) 1203703274 1 0.760557 … Removed (v1.39): Random() and random_range() — use random() / random(min, max) instead."
+      "heading": "random / random_f64",
+      "body": "random / random_f64 Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output (varies each run — ChaCha20 stream) -1606881436 6 0.451006 0.846264 …"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4868,8 +4888,8 @@
       "kind": "content",
       "id": "methods.html#ex-shuffle-pick",
       "title": "Built-in methods",
-      "heading": "shuffle_pick (import required)",
-      "body": "shuffle_pick (import required) Name: shuffle_pick(vec) -> i32 from stdlib/random.ny What: Returns a random element from an i32 vector handle. Run: nyra run examples/builtins/stdlib/shuffle_pick.ny Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } Output (varies — one of 10, 20, 30) 20"
+      "heading": "shuffle_pick",
+      "body": "shuffle_pick Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5003,6 +5023,56 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-strip-suffix",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-strip-suffix",
+      "title": "Built-in methods",
+      "heading": "strip_suffix",
+      "body": "strip_suffix Without types With types fn main() { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) } fn main() -> void { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-camel-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-camel-case",
+      "title": "Built-in methods",
+      "heading": "to_camel_case",
+      "body": "to_camel_case Without types With types fn main() { print(\"hello\".to_camel_case()) } fn main() -> void { print(\"hello\".to_camel_case()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-capitalize",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-capitalize",
+      "title": "Built-in methods",
+      "heading": "to_capitalize",
+      "body": "to_capitalize Without types With types fn main() { print(\"hello\".to_capitalize()) } fn main() -> void { print(\"hello\".to_capitalize()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-dot-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-dot-case",
+      "title": "Built-in methods",
+      "heading": "to_dot_case",
+      "body": "to_dot_case Without types With types fn main() { print(\"hello\".to_dot_case()) } fn main() -> void { print(\"hello\".to_dot_case()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-kebab-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-kebab-case",
+      "title": "Built-in methods",
+      "heading": "to_kebab_case",
+      "body": "to_kebab_case Without types With types fn main() { print(\"hello\".to_kebab_case()) } fn main() -> void { print(\"hello\".to_kebab_case()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-to-lower",
       "section": "Standard library",
       "kind": "content",
@@ -5010,6 +5080,66 @@
       "title": "Built-in methods",
       "heading": ".to_lower()",
       "body": ".to_lower() Without types With types fn main() { print(\"NYRA\".to_lower()) } fn main() -> void { print(\"NYRA\".to_lower()) } Output nyra"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-lowercase",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-lowercase",
+      "title": "Built-in methods",
+      "heading": "to_lowercase",
+      "body": "to_lowercase Without types With types fn main() { print(\"hello\".to_lowercase()) } fn main() -> void { print(\"hello\".to_lowercase()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-pascal-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-pascal-case",
+      "title": "Built-in methods",
+      "heading": "to_pascal_case",
+      "body": "to_pascal_case Without types With types fn main() { print(\"hello\".to_pascal_case()) } fn main() -> void { print(\"hello\".to_pascal_case()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-screaming-snake-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-screaming-snake-case",
+      "title": "Built-in methods",
+      "heading": "to_screaming_snake_case",
+      "body": "to_screaming_snake_case Without types With types fn main() { print(\"hello\".to_screaming_snake_case()) } fn main() -> void { print(\"hello\".to_screaming_snake_case()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-snake-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-snake-case",
+      "title": "Built-in methods",
+      "heading": "to_snake_case",
+      "body": "to_snake_case Without types With types fn main() { print(\"hello\".to_snake_case()) } fn main() -> void { print(\"hello\".to_snake_case()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-titlecase",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-titlecase",
+      "title": "Built-in methods",
+      "heading": "to_titlecase",
+      "body": "to_titlecase Without types With types fn main() { print(\"hello\".to_titlecase()) } fn main() -> void { print(\"hello\".to_titlecase()) }"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-to-train-case",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-to-train-case",
+      "title": "Built-in methods",
+      "heading": "to_train_case",
+      "body": "to_train_case Without types With types fn main() { print(\"hello\".to_train_case()) } fn main() -> void { print(\"hello\".to_train_case()) }"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5109,7 +5239,7 @@
       "id": "modules.html#import-alias-qualified-names",
       "title": "Modules & projects",
       "heading": "Import alias & qualified names",
-      "body": "Import alias & qualified names Since v1.37.0 , rename an import and call through :: (desugars to alias__symbol ): import \"src/helpers.ny\" as h fn main() { print(h::greet(\"nyra\")) } Without as , public symbols keep their original names. priv items stay in the defining file only."
+      "body": "Import alias & qualified names Since v1.37.0 , rename an import and call through :: (desugars to alias__symbol ): Without types With types import \"src/helpers.ny\" as h fn main() { print(h::greet(\"nyra\")) } import \"src/helpers.ny\" as h fn main() -> void { print(h::greet(\"nyra\")) } Without as , public symbols keep their original names. priv items stay in the defining file only."
     },
     {
       "pageTitle": "Modules & projects",
@@ -5199,7 +5329,7 @@
       "id": "net-http.html#client-example",
       "title": "net/http",
       "heading": "Client example",
-      "body": "Client example Without types With types import \"stdlib/net/http/mod.ny\" fn main() { let client = Client_default() let resp = client.do_post(\"https, \"{\\\"name\\\") if resp.status == 201 { print(resp.body) } } import \"stdlib/net/http/mod.ny\" fn main() -> void { let client = Client_default() let resp = client.do_post(\"https, \"{\\\"name\\\") if resp.status == 201 { print(resp.body) } }"
+      "body": "Client example Without types With types import \"stdlib/net/http/mod.ny\" fn main() { let client = Client_default() let resp = client.do_post(\"https://example.com/api\", \"{\\\"name\\\":\\\"Nyra\\\"}\") if resp.status == 201 { print(resp.body) } } import \"stdlib/net/http/mod.ny\" fn main() -> void { let client = Client_default() let resp = client.do_post(\"https://example.com/api\", \"{\\\"name\\\":\\\"Nyra\\\"}\") if resp.status == 201 { print(resp.body) } }"
     },
     {
       "pageTitle": "net/http",
@@ -5219,7 +5349,7 @@
       "id": "net-http.html#router",
       "title": "net/http",
       "heading": "Router",
-      "body": "Router Routes are keyed by METHOD:path (e.g. GET:/health ). Register handlers with free functions: Without types With types let router = Router_new() let r = Router_add_get(router, \"/health\", \"{\\\"status\\\") let r2 = Router_add_post(r, \"/users\", \"{\\\"created\\\") let r3 = Router_add_put(r2, \"/users/1\", \"{\\\"updated\\\") let router = Router_new() let r = Router_add_get(router, \"/health\", \"{\\\"status\\\") let r2 = Router_add_post(r, \"/users\", \"{\\\"created\\\") let r3 = Router_add_put(r2, \"/users/1\", \"{\\\"updated\\\") Function Description Router_new() Empty router, default 404 JSON Router_add_get(router, path, body) Register GET handler body Router_add_post(router, path, body) Register POST handler body Router_add_put(router, path, body) Register PUT handler body Router_add_patch(router, path, body) Register PATCH handler body Router_add_delete(router, path, body) Register DELETE handler body HandleFunc(router, method, path, body) Register by method constant"
+      "body": "Router Routes are keyed by METHOD:path (e.g. GET:/health ). Register handlers with free functions: Without types With types let router = Router_new() let r = Router_add_get(router, \"/health\", \"{\\\"status\\\":\\\"ok\\\"}\") let r2 = Router_add_post(r, \"/users\", \"{\\\"created\\\":true}\") let r3 = Router_add_put(r2, \"/users/1\", \"{\\\"updated\\\":true}\") let router = Router_new() let r = Router_add_get(router, \"/health\", \"{\\\"status\\\":\\\"ok\\\"}\") let r2 = Router_add_post(r, \"/users\", \"{\\\"created\\\":true}\") let r3 = Router_add_put(r2, \"/users/1\", \"{\\\"updated\\\":true}\") Function Description Router_new() Empty router, default 404 JSON Router_add_get(router, path, body) Register GET handler body Router_add_post(router, path, body) Register POST handler body Router_add_put(router, path, body) Register PUT handler body Router_add_patch(router, path, body) Register PATCH handler body Router_add_delete(router, path, body) Register DELETE handler body HandleFunc(router, method, path, body) Register by method constant"
     },
     {
       "pageTitle": "net/http",
@@ -5239,7 +5369,7 @@
       "id": "net-http.html#handler-dispatch-v12",
       "title": "net/http",
       "heading": "Handler dispatch (v1.2)",
-      "body": "Handler dispatch (v1.2) Register integer slots and pass a Nyra function fn(i32, RequestContext) -> HttpResponse . Use for dynamic logic instead of static response bodies. Without types With types fn health_slot(slot, ctx) { return response_ok_json(\"{\\\"status\\\") } fn main() { let router = Router_new() let r = Router_add_slot_get(router, \"/health\", 0) listen_and_serve_handlers(\"127.0.0.1\", 8080, r, health_slot) } fn health_slot(slot: i32, ctx: RequestContext) -> i32 { return response_ok_json(\"{\\\"status\\\") } fn main() -> void { let router = Router_new() let r = Router_add_slot_get(router, \"/health\", 0) listen_and_serve_handlers(\"127.0.0.1\", 8080, r, health_slot) } Arrow handler alternative (Extended): (ctx: RequestContext) => response_ok_json(\"{\\\"status\\\":\\\"ok\\\"}\") when compiled with arrow support. Function Description Router_add_slot_get(router, path, slot) Map GET path to handler slot id Router_add_slot_post(router, path, slot) Map POST path to slot Router_match_slot(router, ctx) Resolve slot for request (used internally) listen_and_serve_handlers(host, port, router, dispatch) Listen with custom handler function Server_handle_one_handler(...) Single connection + handler dispatch Function Description Server_with_router(host, port, router) Bind address + route table Server_enable_cors(server) Attach CORS headers + OPTIONS preflight Server_listen(server, router) Accept one connection, handle up to 100 keep-alive requests serve_once(host, port, body) Quick one-shot / + /health server listen_and_serve(host, port, router) Shorthand for listen"
+      "body": "Handler dispatch (v1.2) Register integer slots and pass a Nyra function fn(i32, RequestContext) -> HttpResponse . Use for dynamic logic instead of static response bodies. Without types With types fn health_slot(slot, ctx) { return response_ok_json(\"{\\\"status\\\":\\\"ok\\\"}\") } fn main() { let router = Router_new() let r = Router_add_slot_get(router, \"/health\", 0) listen_and_serve_handlers(\"127.0.0.1\", 8080, r, health_slot) } fn health_slot(slot: i32, ctx: RequestContext) -> i32 { return response_ok_json(\"{\\\"status\\\":\\\"ok\\\"}\") } fn main() -> void { let router = Router_new() let r = Router_add_slot_get(router, \"/health\", 0) listen_and_serve_handlers(\"127.0.0.1\", 8080, r, health_slot) } Arrow handler alternative (Extended): (ctx: RequestContext) => response_ok_json(\"{\\\"status\\\":\\\"ok\\\"}\") when compiled with arrow support. Function Description Router_add_slot_get(router, path, slot) Map GET path to handler slot id Router_add_slot_post(router, path, slot) Map POST path to slot Router_match_slot(router, ctx) Resolve slot for request (used internally) listen_and_serve_handlers(host, port, router, dispatch) Listen with custom handler function Server_handle_one_handler(...) Single connection + handler dispatch Function Description Server_with_router(host, port, router) Bind address + route table Server_enable_cors(server) Attach CORS headers + OPTIONS preflight Server_listen(server, router) Accept one connection, handle up to 100 keep-alive requests serve_once(host, port, body) Quick one-shot / + /health server listen_and_serve(host, port, router) Shorthand for listen"
     },
     {
       "pageTitle": "net/http",
@@ -5379,7 +5509,7 @@
       "id": "os-hardware.html#input",
       "title": "OS, files & hardware",
       "heading": "User input",
-      "body": "User input input(\"prompt\") is a builtin — no import required. It reads a line from stdin and returns a string . Full I/O builtins: stdlib → Built-ins → I/O . Without types With types fn main() { let name = input(\"Enter your name) print(`Hello, ${name}!`) } fn main() -> void { let name: string = input(\"Enter your name) print(`Hello, ${name}!`) }"
+      "body": "User input input(\"prompt\") is a builtin — no import required. It reads a line from stdin and returns a string . Full I/O builtins: stdlib → Built-ins → I/O . Without types With types fn main() { let name = \"Ada\" // in apps: let name = input(\"Enter your name) print(`Hello, ${name}!`) } fn main() -> void { let name = \"Ada\" // in apps: let name = input(\"Enter your name) print(`Hello, ${name}!`) }"
     },
     {
       "pageTitle": "OS, files & hardware",
@@ -5479,7 +5609,7 @@
       "id": "os-hardware.html#os-signal-handling",
       "title": "OS, files & hardware",
       "heading": "OS signal handling",
-      "body": "OS signal handling Nyra uses a poll model : a C handler sets a flag; your main loop calls signal_poll . Do not run Nyra code inside the Unix signal handler. Without types With types import \"stdlib/os.ny\" fn main() { signal_install(SIGINT) while true { if signal_poll(SIGINT) { print(\"Ctrl+C — shutting down\") break } // ... work ... } } import \"stdlib/os.ny\" fn main() -> void { signal_install(SIGINT) while true { if signal_poll(SIGINT) { print(\"Ctrl+C — shutting down\") break } // ... work ... } } Constants: SIGINT (2), SIGTERM (15), SIGSEGV (11). Windows: supported for SIGINT/SIGTERM via console control events."
+      "body": "OS signal handling Nyra uses a poll model : a C handler sets a flag; your main loop calls signal_poll . Do not run Nyra code inside the Unix signal handler. Without types With types import \"stdlib/os.ny\" fn main() { signal_install(SIGINT) let mut ticks = 0 while ticks < 1 { if signal_poll(SIGINT) { print(\"Ctrl+C — shutting down\") break } ticks = ticks + 1 } } import \"stdlib/os.ny\" fn main() -> void { signal_install(SIGINT) let mut ticks: i32 = 0 while ticks < 1 { if signal_poll(SIGINT) { print(\"Ctrl+C — shutting down\") break } ticks = ticks + 1 } } Constants: SIGINT (2), SIGTERM (15), SIGSEGV (11). Windows: supported for SIGINT/SIGTERM via console control events."
     },
     {
       "pageTitle": "OS, files & hardware",
@@ -5519,7 +5649,7 @@
       "id": "os-hardware.html#hardware-trng",
       "title": "OS, files & hardware",
       "heading": "Hardware TRNG",
-      "body": "Hardware TRNG Without types With types import \"stdlib/os.ny\" fn main() { let bytes = hw_random_bytes(32) // getentropy / arc4random / BCrypt print(hw_secure_enclave_available()) // true on Apple Silicon } import \"stdlib/os.ny\" fn main() -> void { let bytes = hw_random_bytes(32) // getentropy / arc4random / BCrypt print(hw_secure_enclave_available()) // true on Apple Silicon } Full Secure Enclave / Intel SGX key sealing needs platform-specific FFI beyond this hook."
+      "body": "Hardware TRNG Without types With types import \"stdlib/os.ny\" fn main() { let raw = hw_random_bytes(32) print(raw.len()) print(hw_secure_enclave_available()) } import \"stdlib/os.ny\" fn main() -> void { let raw = hw_random_bytes(32) print(raw.len()) print(hw_secure_enclave_available()) } Full Secure Enclave / Intel SGX key sealing needs platform-specific FFI beyond this hook."
     },
     {
       "pageTitle": "OS, files & hardware",
@@ -5599,7 +5729,7 @@
       "id": "os-hardware.html#full-example",
       "title": "OS, files & hardware",
       "heading": "Full example",
-      "body": "Full example Combine filesystem, OS detection, user input, and battery into one project ( myapp/main.ny ): Without types With types import \"stdlib/fs.ny\" import \"stdlib/os.ny\" fn main() { let name = input(\"Enter your name) let info = `OS: ${platform_name()} PID: ${os_getpid()} HOME: ${os_getenv(\"HOME\")} User: ${name} ` write_file(\"system_info.txt\", info) print(read_file(\"system_info.txt\")) let bat = battery_percent() if bat >= 0 { print(`Battery) } } import \"stdlib/fs.ny\" import \"stdlib/os.ny\" fn main() -> void { let name: string = input(\"Enter your name) let info = `OS: ${platform_name()} PID: ${os_getpid()} HOME: ${os_getenv(\"HOME\")} User: ${name} ` write_file(\"system_info.txt\", info) print(read_file(\"system_info.txt\")) let bat = battery_percent() if bat >= 0 { print(`Battery) } } cd myapp nyra run ."
+      "body": "Full example Combine filesystem, OS detection, user input, and battery into one project ( myapp/main.ny ): Without types With types import \"stdlib/fs.ny\" import \"stdlib/os.ny\" fn main() { let name = \"Ada\" let info = `OS: ${platform_name()} PID: ${os_getpid()} HOME: ${os_getenv(\"HOME\")} User: ${name} ` write_file(\"system_info.txt\", info) print(read_file(\"system_info.txt\")) let bat = battery_percent() if bat >= 0 { print(`Battery: ${bat}%`) } } import \"stdlib/fs.ny\" import \"stdlib/os.ny\" fn main() -> void { let name: string = \"Ada\" let info = `OS: ${platform_name()} PID: ${os_getpid()} HOME: ${os_getenv(\"HOME\")} User: ${name} ` write_file(\"system_info.txt\", info) print(read_file(\"system_info.txt\")) let bat = battery_percent() if bat >= 0 { print(`Battery: ${bat}%`) } } cd myapp nyra run ."
     },
     {
       "pageTitle": "OS, files & hardware",
@@ -5639,7 +5769,7 @@
       "id": "ownership-ux.html#inference",
       "title": "Ownership UX",
       "heading": "Type inference (RFC 0006)",
-      "body": "Type inference (RFC 0006) Without types With types let age = 25 // i32 let price = 19.99 // f64 (v3.1) fn twice(x) { return x + x // return type inferred as i32 } fn id(x){ return x } fn main() { print(id(7)) // T = i32 at call site } let age: i32 = 25 let price: f64 = 19.99 fn twice(x: i32) -> i32 { return x + x // return type inferred as i32 } fn id(x: i32){ return x } fn main() -> void { print(id(7)) // T = i32 at call site } fn f() { } with no return → void Conflicting return types → error; add -> T Cannot infer let → cannot infer type for 'x'; annotate: let x: User = ..."
+      "body": "Type inference (RFC 0006) Without types With types fn twice(x) { return x + x // return type inferred as i32 } fn id(x){ return x } fn main() { let age = 25 // i32 let price = 19.99 // f64 (v3.1) print(id(7)) // T = i32 at call site print(twice(age)) } fn twice(x: i32) -> i32 { return x + x // return type inferred as i32 } fn id(x: i32){ return x } fn main() -> void { let age: i32 = 25 let price: f64 = 19.99 print(id(7)) // T = i32 at call site print(twice(age)) } fn f() { } with no return → void Conflicting return types → error; add -> T Cannot infer let → cannot infer type for 'x'; annotate: let x: User = ..."
     },
     {
       "pageTitle": "Ownership UX",
@@ -5649,7 +5779,7 @@
       "id": "ownership-ux.html#auto-borrow",
       "title": "Ownership UX",
       "heading": "Auto-borrow at calls (RFC 0006)",
-      "body": "Auto-borrow at calls (RFC 0006) Before typecheck, the expand pass rewrites call arguments when the callee borrows: Without types With types fn save(u) { print(u.name) } fn main() { let user = { name: \"Ada\", age: 30 } save(user) // desugared to save(&user) print(user.name) // OK — user was not moved } struct User { name: string age: i32 } fn save(u: &User) { print(u.name) } fn main() -> void { let user: User = User { name: \"Ada\", age: 30 } save(user) // desugared to save(&user) print(user.name) // OK — user was not moved } Parameter Argument Rewrite &T owned T &arg &mut T mut owned T &mut arg T (owned) owned T move (no rewrite) Conformance: CONF-COERCE-* in docs/conformance/coercion.md ."
+      "body": "Auto-borrow at calls (RFC 0006) Before typecheck, the expand pass rewrites call arguments when the callee borrows: Without types With types struct User { name: string age: i32 } fn save(u: &User) { print(u.name) } fn main() { let user = User { name: \"Ada\", age: 30 } save(user) // desugared to save(&user) print(user.name) // OK — user was not moved } struct User { name: string age: i32 } fn save(u: &User) { print(u.name) } fn main() -> void { let user: User = User { name: \"Ada\", age: 30 } save(user) // desugared to save(&user) print(user.name) // OK — user was not moved } Parameter Argument Rewrite &T owned T &arg &mut T mut owned T &mut arg T (owned) owned T move (no rewrite) Conformance: CONF-COERCE-* in docs/conformance/coercion.md ."
     },
     {
       "pageTitle": "Ownership UX",
@@ -5689,7 +5819,7 @@
       "id": "ownership-ux.html#struct-sugar",
       "title": "Ownership UX",
       "heading": "Struct constructor sugar (RFC 0006)",
-      "body": "Struct constructor sugar (RFC 0006) Without types With types struct User { name: string age: i32 } fn main() { let u = User(\"Ada\") // positional → User { name: \"Ada\", age: 0 } let origin = Point() // all fields defaulted } struct User { name: string age: i32 } fn main() -> void { let u: User = User(\"Ada\") // positional → User { name: \"Ada\", age: 0 } let origin = Point() // all fields defaulted } Missing trailing fields use type defaults ( 0 , 0.0 , false , \"\" )."
+      "body": "Struct constructor sugar (RFC 0006) Without types With types struct User { name: string age: i32 } struct Point { x: i32 y: i32 } fn main() { let u = User(\"Ada\") // positional → User { name: \"Ada\", age: 0 } let origin = Point() // all fields defaulted print(u.name) print(origin.x) } struct User { name: string age: i32 } struct Point { x: i32 y: i32 } fn main() -> void { let u: User = User(\"Ada\") // positional → User { name: \"Ada\", age: 0 } let origin: Point = Point() // all fields defaulted print(u.name) print(origin.x) } Missing trailing fields use type defaults ( 0 , 0.0 , false , \"\" )."
     },
     {
       "pageTitle": "Ownership UX",
@@ -5829,7 +5959,7 @@
       "id": "packages.html#install-a-package-ny-sqlite",
       "title": "nyrapkg",
       "heading": "Install a package (ny-sqlite)",
-      "body": "Install a package (ny-sqlite) nyrapkg init nyrapkg install ny-sqlite@^0.1.0 # semver, cache, link sqlite3 + rt/sqlite.c import \"pkg/ny-sqlite\""
+      "body": "Install a package (ny-sqlite) Without types With types nyrapkg init nyrapkg install ny-sqlite@^0.1.0 # semver, cache, link sqlite3 + rt/sqlite.c import \"pkg/ny-sqlite\" nyrapkg init nyrapkg install ny-sqlite@^0.1.0 # semver, cache, link sqlite3 + rt/sqlite.c import \"pkg/ny-sqlite\""
     },
     {
       "pageTitle": "nyrapkg",
@@ -5949,7 +6079,7 @@
       "id": "performance.html#static-dispatch-monomorphization",
       "title": "Performance toolchain",
       "heading": "Static dispatch (monomorphization)",
-      "body": "Static dispatch (monomorphization) Generic functions and types are specialized at compile time before LLVM IR is emitted. A call like id(42) on fn id<T>(x: T) -> T becomes a direct call to id__i32 — no runtime type information, no vtable on the hot path. // expand → monomorph → codegen fn id<T>(x: T) -> T { return x } let a = id(1) // → call @id__i32 let b = id(\"x\") // → call @id__string Prefer generics and impl Trait for Type on hot paths. Reserve dyn Trait (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as abs_i32 lower to LLVM intrinsics and are not emitted as separate functions. Pipeline order: expand → monomorph (+ call-site type inference) → typecheck → borrow → escape analysis → codegen . See Generics and Traits & macros ."
+      "body": "Static dispatch (monomorphization) Generic functions and types are specialized at compile time before LLVM IR is emitted. A call like id(42) on fn id<T>(x: T) -> T becomes a direct call to id__i32 — no runtime type information, no vtable on the hot path. Without types With types // expand → monomorph → codegen fn id<T>(x: T){ return x } let a = id(1) // → call @id__i32 let b = id(\"x\") // → call @id__string // expand → monomorph → codegen fn id<T>(x: T){ return x } let a = id<i32>(1) // → call @id__i32 let b = id<string>(\"x\") // → call @id__string Prefer generics and impl Trait for Type on hot paths. Reserve dyn Trait (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as abs_i32 lower to LLVM intrinsics and are not emitted as separate functions. Pipeline order: expand → monomorph (+ call-site type inference) → typecheck → borrow → escape analysis → codegen . See Generics and Traits & macros ."
     },
     {
       "pageTitle": "Performance toolchain",
@@ -6703,6 +6833,46 @@
     },
     {
       "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-async-async-future-string-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-async-async-future-string-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/async/async_future_string.ny",
+      "body": "examples/builtins/async/async_future_string.ny Without types With types // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-async-async-spawn-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-async-async-spawn-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/async/async_spawn.ny",
+      "body": "examples/builtins/async/async_spawn.ny Without types With types // async fn + await — call site gets handle immediately; body runs on spawn:thread. allow_extended import \"stdlib/async_v1.ny\" async fn compute() -> i32 { return 42 } fn main() { let h = compute() print(await h) } // async fn + await — call site gets handle immediately; body runs on spawn:thread. allow_extended import \"stdlib/async_v1.ny\" async fn compute() -> i32 { return 42 } fn main() -> void { let h = compute() print(await h) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-async-async-state-machine-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-async-async-state-machine-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/async/async_state_machine.ny",
+      "body": "examples/builtins/async/async_state_machine.ny Without types With types // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-benchmark-benchmark-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-benchmark-benchmark-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/benchmark/benchmark.ny",
+      "body": "examples/builtins/benchmark/benchmark.ny Without types With types // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } }"
+    },
+    {
+      "pageTitle": "Standard library",
       "url": "stdlib.html#ex-examples-builtins-date-date-ny",
       "section": "Standard library",
       "kind": "content",
@@ -6710,6 +6880,26 @@
       "title": "Standard library",
       "heading": "examples/builtins/date/date.ny",
       "body": "examples/builtins/date/date.ny Without types With types fn main() { let d = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } fn main() -> void { let d: Date = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-defer-defer-lifo-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-defer-defer-lifo-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/defer/defer_lifo.ny",
+      "body": "examples/builtins/defer/defer_lifo.ny Without types With types // defer runs LIFO (last deferred, first executed). allow_extended fn a() { print(\"a\") } fn b() { print(\"b\") } fn main() { defer b() defer a() print(\"body\") } // defer runs LIFO (last deferred, first executed). allow_extended fn a() { print(\"a\") } fn b() { print(\"b\") } fn main() -> void { defer b() defer a() print(\"body\") }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-defer-defer-return-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-defer-defer-return-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/defer/defer_return.ny",
+      "body": "examples/builtins/defer/defer_return.ny Without types With types // defer on return — runs cleanup before function exits. allow_extended fn cleanup() { print(1) } fn main() { defer cleanup() return } // defer on return — runs cleanup before function exits. allow_extended fn cleanup() { print(1) } fn main() -> void { defer cleanup() return }"
     },
     {
       "pageTitle": "Standard library",
@@ -6809,7 +6999,7 @@
       "id": "stdlib.html#ex-examples-builtins-map-main-ny",
       "title": "Standard library",
       "heading": "examples/builtins/map/main.ny",
-      "body": "examples/builtins/map/main.ny Without types With types import \"stdlib/map.ny\" fn main() { let mut m = HashMap_str_i32_new() m = m.insert(\"score\", 100) print(m.get(\"score\")) print(m.contains(\"score\")) } import \"stdlib/map.ny\" fn main() { let mut m = HashMap_str_i32_new() m = m.insert(\"score\", 100) print(m.get(\"score\")) print(m.contains(\"score\")) }"
+      "body": "examples/builtins/map/main.ny Without types With types import \"stdlib/map.ny\" fn main() { let mut m = HashMap_str_i32_new() m = m.insert(\"score\", 100) print(m.get(\"score\")) print(m.contains(\"score\")) } import \"stdlib/map.ny\" fn main() -> void { let mut m = HashMap_str_i32_new() m = m.insert(\"score\", 100) print(m.get(\"score\")) print(m.contains(\"score\")) }"
     },
     {
       "pageTitle": "Standard library",
@@ -6833,13 +7023,133 @@
     },
     {
       "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-cpu-count-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-cpu-count-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/cpu_count.ny",
+      "body": "examples/builtins/parallel/cpu_count.ny Without types With types // cpu_count() — compiler builtin logical CPU count. fn main() { print(cpu_count()) } // cpu_count() — compiler builtin logical CPU count. fn main() -> void { print(cpu_count()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-array-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-array-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_array.ny",
+      "body": "examples/builtins/parallel/parallel_array.ny Without types With types // parallel for over a fixed array. allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } // parallel for over a fixed array. allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-cpu-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-cpu-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_cpu.ny",
+      "body": "examples/builtins/parallel/parallel_cpu.ny Without types With types // parallel(cpu = P%) — use P percent of logical CPUs as worker count. allow_extended fn main() { parallel(cpu = 50%) for i in 0..4 { print(i) } print(999) } // parallel(cpu = P%) — use P percent of logical CPUs as worker count. allow_extended fn main() -> void { parallel(cpu = 50%) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-exact-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-exact-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_exact.ny",
+      "body": "examples/builtins/parallel/parallel_exact.ny Without types With types // parallel(threads = N) — exactly N workers (backend still task pool by default). allow_extended fn main() { parallel(threads = 2) for i in 0..4 { print(i) } print(999) } // parallel(threads = N) — exactly N workers (backend still task pool by default). allow_extended fn main() -> void { parallel(threads = 2) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-mode-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-mode-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_mode.ny",
+      "body": "examples/builtins/parallel/parallel_mode.ny Without types With types // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-search-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-search-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_search.ny",
+      "body": "examples/builtins/parallel/parallel_search.ny Without types With types // parallel any / find / all — early-exit parallel search (fork-join + atomic cancel). allow_extended fn main() { let any_hit = parallel any for i in 0..1000 { i == 42 } print(any_hit) let idx = parallel find for i in 0..1000 { i == 42 } print(idx) let all_pos = parallel all for i in 1..10 { i > 0 } print(all_pos) } // parallel any / find / all — early-exit parallel search (fork-join + atomic cancel). allow_extended fn main() -> void { let any_hit = parallel any for i in 0..1000 { i == 42 } print(any_hit) let idx = parallel find for i in 0..1000 { i == 42 } print(idx) let all_pos = parallel all for i in 1..10 { i > 0 } print(all_pos) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-task-max-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-task-max-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_task_max.ny",
+      "body": "examples/builtins/parallel/parallel_task_max.ny Without types With types // parallel:task(max = N) — cap task-pool workers (alias of bare parallel). allow_extended fn main() { parallel:task(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:task(max = N) — cap task-pool workers (alias of bare parallel). allow_extended fn main() -> void { parallel:task(max = 2) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-task-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-task-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_task.ny",
+      "body": "examples/builtins/parallel/parallel_task.ny Without types With types // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-parallel-thread-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-parallel-thread-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/parallel_thread.ny",
+      "body": "examples/builtins/parallel/parallel_thread.ny Without types With types // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-parallel-progress-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-parallel-progress-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/parallel/progress.ny",
+      "body": "examples/builtins/parallel/progress.ny Without types With types // progress for — sequential loop with built-in progress bar. allow_extended fn main() { progress(label = \"demo\") for i in 0..3 { print(i) } } // progress for — sequential loop with built-in progress bar. allow_extended fn main() -> void { progress(label = \"demo\") for i in 0..3 { print(i) } }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-spawn-spawn-join-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-spawn-spawn-join-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/spawn/spawn_join.ny",
+      "body": "examples/builtins/spawn/spawn_join.ny Without types With types allow_extended fn main() { let h = spawn { print(99) } h.join() print(0) } allow_extended fn main() -> void { let h = spawn { print(99) } h.join() print(0) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-spawn-spawn-thread-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-spawn-spawn-thread-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/spawn/spawn_thread.ny",
+      "body": "examples/builtins/spawn/spawn_thread.ny Without types With types allow_extended fn main() { spawn:thread { print(88) } } allow_extended fn main() -> void { spawn:thread { print(88) } }"
+    },
+    {
+      "pageTitle": "Standard library",
       "url": "stdlib.html#ex-examples-builtins-spawn-spawn-ny",
       "section": "Standard library",
       "kind": "content",
       "id": "stdlib.html#ex-examples-builtins-spawn-spawn-ny",
       "title": "Standard library",
       "heading": "examples/builtins/spawn/spawn.ny",
-      "body": "examples/builtins/spawn/spawn.ny Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } allow_extended — required at file top when using spawn (Extended tier); suppresses W001 and documents intent. Statement spawn — fire-and-forget on the task pool; main does not wait for the spawned body."
+      "body": "examples/builtins/spawn/spawn.ny Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) }"
     },
     {
       "pageTitle": "Standard library",
@@ -7003,13 +7313,33 @@
     },
     {
       "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-stdlib-random-builtin-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-stdlib-random-builtin-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/stdlib/random_builtin.ny",
+      "body": "examples/builtins/stdlib/random_builtin.ny Without types With types // random() / random_f64() — compiler builtins (no import required). fn main() { print(random()) print(random(1, 6)) print(random_f64()) } // random() / random_f64() — compiler builtins (no import required). fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) }"
+    },
+    {
+      "pageTitle": "Standard library",
       "url": "stdlib.html#ex-examples-builtins-stdlib-random-ny",
       "section": "Standard library",
       "kind": "content",
       "id": "stdlib.html#ex-examples-builtins-stdlib-random-ny",
       "title": "Standard library",
       "heading": "examples/builtins/stdlib/random.ny",
-      "body": "examples/builtins/stdlib/random.ny Without types With types import \"stdlib/random.ny\" fn main() { print(random()) print(random(1, 6)) print(random_f64()) print(random_f64(0.0, 1.0)) } import \"stdlib/random.ny\" fn main() { print(random()) print(random(1, 6)) let min: i64 = 50 let max: i64 = 100 print(random(min, max)) print(random_f64()) print(random_f64(0.0, 1.0)) }"
+      "body": "examples/builtins/stdlib/random.ny Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-stdlib-shuffle-pick-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-stdlib-shuffle-pick-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/stdlib/shuffle_pick.ny",
+      "body": "examples/builtins/stdlib/shuffle_pick.ny Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) }"
     },
     {
       "pageTitle": "Standard library",
@@ -7163,6 +7493,56 @@
     },
     {
       "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-strip-suffix-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-strip-suffix-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/strip_suffix.ny",
+      "body": "examples/builtins/strings/strip_suffix.ny Without types With types fn main() { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) } fn main() -> void { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-camel-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-camel-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_camel_case.ny",
+      "body": "examples/builtins/strings/to_camel_case.ny Without types With types fn main() { print(\"hello\".to_camel_case()) } fn main() -> void { print(\"hello\".to_camel_case()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-capitalize-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-capitalize-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_capitalize.ny",
+      "body": "examples/builtins/strings/to_capitalize.ny Without types With types fn main() { print(\"hello\".to_capitalize()) } fn main() -> void { print(\"hello\".to_capitalize()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-dot-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-dot-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_dot_case.ny",
+      "body": "examples/builtins/strings/to_dot_case.ny Without types With types fn main() { print(\"hello\".to_dot_case()) } fn main() -> void { print(\"hello\".to_dot_case()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-kebab-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-kebab-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_kebab_case.ny",
+      "body": "examples/builtins/strings/to_kebab_case.ny Without types With types fn main() { print(\"hello\".to_kebab_case()) } fn main() -> void { print(\"hello\".to_kebab_case()) }"
+    },
+    {
+      "pageTitle": "Standard library",
       "url": "stdlib.html#ex-examples-builtins-strings-to-lower-ny",
       "section": "Standard library",
       "kind": "content",
@@ -7170,6 +7550,66 @@
       "title": "Standard library",
       "heading": "examples/builtins/strings/to_lower.ny",
       "body": "examples/builtins/strings/to_lower.ny Without types With types fn main() { print(\"NYRA\".to_lower()) } fn main() -> void { print(\"NYRA\".to_lower()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-lowercase-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-lowercase-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_lowercase.ny",
+      "body": "examples/builtins/strings/to_lowercase.ny Without types With types fn main() { print(\"hello\".to_lowercase()) } fn main() -> void { print(\"hello\".to_lowercase()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-pascal-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-pascal-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_pascal_case.ny",
+      "body": "examples/builtins/strings/to_pascal_case.ny Without types With types fn main() { print(\"hello\".to_pascal_case()) } fn main() -> void { print(\"hello\".to_pascal_case()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-screaming-snake-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-screaming-snake-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_screaming_snake_case.ny",
+      "body": "examples/builtins/strings/to_screaming_snake_case.ny Without types With types fn main() { print(\"hello\".to_screaming_snake_case()) } fn main() -> void { print(\"hello\".to_screaming_snake_case()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-snake-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-snake-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_snake_case.ny",
+      "body": "examples/builtins/strings/to_snake_case.ny Without types With types fn main() { print(\"hello\".to_snake_case()) } fn main() -> void { print(\"hello\".to_snake_case()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-titlecase-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-titlecase-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_titlecase.ny",
+      "body": "examples/builtins/strings/to_titlecase.ny Without types With types fn main() { print(\"hello\".to_titlecase()) } fn main() -> void { print(\"hello\".to_titlecase()) }"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strings-to-train-case-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strings-to-train-case-ny",
+      "title": "Standard library",
+      "heading": "examples/builtins/strings/to_train_case.ny",
+      "body": "examples/builtins/strings/to_train_case.ny Without types With types fn main() { print(\"hello\".to_train_case()) } fn main() -> void { print(\"hello\".to_train_case()) }"
     },
     {
       "pageTitle": "Standard library",
@@ -7199,7 +7639,7 @@
       "id": "stdlib.html#ex-examples-builtins-strvec-main-ny",
       "title": "Standard library",
       "heading": "examples/builtins/strvec/main.ny",
-      "body": "examples/builtins/strvec/main.ny Without types With types import \"stdlib/vec_str.ny\" fn main() { let mut v = StrVec_new() v = v.push(\"alpha\") v = v.push(\"beta\") print(v.len()) print(v.get(0)) } import \"stdlib/vec_str.ny\" fn main() { let mut v = StrVec_new() v = v.push(\"alpha\") v = v.push(\"beta\") print(v.len()) print(v.get(0)) }"
+      "body": "examples/builtins/strvec/main.ny Without types With types import \"stdlib/vec_str.ny\" fn main() { let mut v = StrVec_new() v = v.push(\"alpha\") v = v.push(\"beta\") print(v.len()) print(v.get(0)) } import \"stdlib/vec_str.ny\" fn main() -> void { let mut v = StrVec_new() v = v.push(\"alpha\") v = v.push(\"beta\") print(v.len()) print(v.get(0)) }"
     },
     {
       "pageTitle": "Standard library",
@@ -7229,7 +7669,7 @@
       "id": "stdlib.html#ex-examples-builtins-vec-main-ny",
       "title": "Standard library",
       "heading": "examples/builtins/vec/main.ny",
-      "body": "examples/builtins/vec/main.ny Without types With types import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) print(Vec_i32_len(v)) print(Vec_i32_get(v, 0)) print(Vec_i32_pop(v)) } import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) print(Vec_i32_len(v)) print(Vec_i32_get(v, 0)) print(Vec_i32_pop(v)) }"
+      "body": "examples/builtins/vec/main.ny Without types With types import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) print(Vec_i32_len(v)) print(Vec_i32_get(v, 0)) print(Vec_i32_pop(v)) } import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) print(Vec_i32_len(v)) print(Vec_i32_get(v, 0)) print(Vec_i32_pop(v)) }"
     },
     {
       "pageTitle": "Standard library",

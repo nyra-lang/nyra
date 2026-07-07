@@ -145,10 +145,22 @@
           <tr><td><code>&amp;&amp; || !</code></td><td>Logic</td><td><code>true &amp;&amp; false</code> → false</td></tr>
         </tbody>
       </table>
-<h2>Example</h2><pre><code>fn main() {
+<h2>Example</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
     print(10 + 5)
     print(10 == 5)
-}</code></pre><div class="callout">
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(10 + 5)
+    print(10 == 5)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/math.ny</code></pre>
 <p><strong>Expected output:</strong></p>

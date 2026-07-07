@@ -5,6 +5,14 @@ from .. import patch, templates
 from ..paths import ABI_MANIFEST, RUNTIME_MAP, STDLIB, TESTS_NYRA, EXAMPLES
 from ..spec import RecipeResult, StdlibFnSpec
 
+import sys
+from pathlib import Path
+
+_MAKE_PY = Path(__file__).resolve().parents[2]
+if str(_MAKE_PY) not in sys.path:
+    sys.path.insert(0, str(_MAKE_PY))
+from naming_guide import format_extern_name_summary
+
 
 def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     if not spec.rt_module:
@@ -22,7 +30,26 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     res.patches.append(patch.append_extern_line(ny_path, templates.extern_line(spec), marker))
 
     rt_path = STDLIB / "rt" / spec.rt_module
-    res.patches.append(patch.upsert_marked_block(rt_path, templates.c_stub(spec, marker), marker))
+    rt_content = patch.read_text(rt_path) if rt_path.exists() else ""
+    if (
+        not patch.has_marker(rt_content, marker)
+        and patch.c_function_defined(rt_content, spec.fn_name)
+    ):
+        res.patches.append(
+            patch.PatchResult(
+                rt_path,
+                False,
+                f"C symbol `{spec.fn_name}` already defined — skipped duplicate stub",
+            )
+        )
+        res.warnings.append(
+            f"C function `{spec.fn_name}` already exists in {rt_path.name} "
+            "(likely from another recipe, e.g. Built-in Method). Skipped the "
+            "duplicate stub to avoid a C redefinition error. Reuse that "
+            "implementation, or remove it first before re-adding."
+        )
+    else:
+        res.patches.append(patch.upsert_marked_block(rt_path, templates.c_stub(spec, marker), marker))
 
     sym_line = templates.runtime_map_line(spec)
 
@@ -75,5 +102,8 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     if spec.stable_abi:
         res.user_tasks.append("make gen-abi-header && make gen-bindings-doc")
         res.user_tasks.append("Verify: cargo test -p driver abi_manifest -- manifest sync")
-    res.usage_lines = [templates.extern_line(spec)]
+    res.usage_lines = [
+        templates.extern_line(spec),
+        *format_extern_name_summary(spec.fn_name),
+    ]
     return res

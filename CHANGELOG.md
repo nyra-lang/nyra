@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.40.3 (2026-07-07)
+
+**JS-style string methods**
+
+- **Added** — JS-style method syntax for stdlib string helpers: `name.toUpperCase()` now dispatches (UFCS) to the free function `String_toUpperCase(name)`, and likewise `toLowerCase`, `includes`, `stripSuffix`, etc. The fully-qualified spelling `name.String_toUpperCase()` also works. The typechecker resolves a `string` receiver method to `String_<method>` (or the bare name) when such a free function exists, codegen lowers the call accordingly, and the borrow checker treats these receivers as borrowed (`&string`) rather than moved. Intrinsic methods (`trim`, `split`, `to_upper`, …) remain compiler-lowered and are unaffected.
+- **Fixed** — stdlib helpers referenced only via method-call syntax are now recorded as used, so the lazy stdlib prelude merges their defining module. Previously such a call was skipped by `collect_program_uses`, so `builtins_string.ny` was never loaded and codegen emitted a call to an undefined symbol (`use of undefined value '@String_toUpperCase'` at link time); the error only vanished by coincidence when another plain call pulled the same module in.
+- **Tests** — `resolve` regression tests `symbols::method_call_name_is_recorded_as_use`, `symbols::js_style_method_maps_to_string_prefixed_use`, `symbols::intrinsic_method_does_not_pull_stdlib_helper`, and `prelude::lazy_prelude_loads_module_for_method_call_reference` (zero-types and explicit-types spellings); end-to-end `tests/nyra/string_js_methods_test.ny` and `tests/nyra/string_js_methods_typed_test.ny`. All run under `make test-all` / CI (`cargo test --workspace` + the `nyra test tests/nyra` gate).
+
 ## v1.40.0 (2026-07-03)
 
 **Batteries-included errors and async**

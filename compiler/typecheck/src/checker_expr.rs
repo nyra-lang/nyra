@@ -9,6 +9,14 @@ use super::date_builtins::DATE_STRUCT;
 use super::diagnostics;
 use types::{self, float_assignable, integer_assignable, Type};
 
+/// Peel a single reference so `string` and `&string` compare equal for UFCS args.
+fn strip_ref(ty: &Type) -> Type {
+    match ty {
+        Type::Ref { inner, .. } => (**inner).clone(),
+        other => other.clone(),
+    }
+}
+
 impl TypeChecker {
     pub fn check_expr(&mut self, expr: &Expression, env: &mut TypeEnv) -> Type {
         let sp = expr_span(expr);
@@ -752,6 +760,33 @@ impl TypeChecker {
                 } {
                     if let Some(ret) = self.check_generic_bound_method(mc, param, env, &sp) {
                         return ret;
+                    }
+                }
+                if matches!(obj_ty, Type::String | Type::Unknown) {
+                    // JS-style UFCS on strings: `name.toUpperCase()` dispatches to
+                    // the stdlib free function `String_toUpperCase(name)`. Also
+                    // accepts the already-qualified spelling (`name.String_toUpperCase()`).
+                    let candidates =
+                        [format!("String_{}", mc.method), mc.method.clone()];
+                    for cand in candidates {
+                        if let Some(sig) = env.functions.get(&cand).cloned() {
+                            let mut args = vec![mc.object.clone()];
+                            args.extend(mc.args.clone());
+                            for (arg, expected) in args.iter().zip(sig.params.iter()) {
+                                let at = self.check_expr(arg, env);
+                                // A `string` receiver/argument satisfies a `&string`
+                                // parameter, so compare after stripping references.
+                                let at = strip_ref(&at);
+                                let expected = strip_ref(expected);
+                                if at != expected
+                                    && at != Type::Unknown
+                                    && expected != Type::Unknown
+                                {
+                                    diagnostics::method_arg_mismatch(self, &mc.method, sp.clone());
+                                }
+                            }
+                            return sig.return_type;
+                        }
                     }
                 }
                 let type_name = match obj_ty {

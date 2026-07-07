@@ -136,11 +136,22 @@
     <main class="content">
       <h1 data-i18n="pages.learn-variables.h1">Nyra Variables</h1>
       <p class="lead" data-i18n-html="pages.learn-variables.lead">Bind names to values with <code>let</code> and <code>let mut</code>.</p>
-<h2>let and let mut</h2><pre><code>let name = "Sam"
+<h2>let and let mut</h2><!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let name = &quot;Sam&quot;
 let mut score = 0
 score = score + 10
-print(score)</code></pre>
-      <p><code>let</code> creates an <strong>immutable</strong> binding. Use <code>let mut</code> when the value must change. Shorthand inside functions: <code>mut x = 0</code>.</p>
+print(score)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let name: string = &quot;Sam&quot;
+let mut score: i32 = 0
+score = score + 10
+print(score)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><code>let</code> creates an <strong>immutable</strong> binding. Use <code>let mut</code> when the value must change. Shorthand inside functions: <code>mut x = 0</code>.</p>
 <div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/comparison/arithmetic/sum.ny</code></pre>

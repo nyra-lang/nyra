@@ -164,6 +164,64 @@ mod tests {
     }
 
     #[test]
+    fn lazy_prelude_loads_module_for_method_call_reference() {
+        // Regression: a stdlib function referenced ONLY via UFCS method-call
+        // syntax (`name.String_toUpperCase()`) must still pull in its defining
+        // module. Before the fix, `collect_program_uses` skipped method names,
+        // so `builtins_string.ny` was never merged and codegen emitted a call to
+        // an undefined `@String_toUpperCase` (linker error). Covers both
+        // zero-types and explicit-types spellings.
+        let dir = std::env::temp_dir()
+            .join(format!("nyra_prelude_method_call_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        for (label, src) in [
+            (
+                "zero_types",
+                "fn main() {\n    let name = \"hamdy\"\n    print(name.String_toUpperCase())\n}\n",
+            ),
+            (
+                "typed",
+                "fn main() {\n    let name: string = \"hamdy\"\n    print(name.String_toUpperCase())\n}\n",
+            ),
+        ] {
+            let entry = dir.join(format!("{label}.ny"));
+            std::fs::write(&entry, src).unwrap();
+
+            let mut visited = HashSet::new();
+            let mut errors = Vec::new();
+            let mut program = crate::parse_file_only(&entry).unwrap();
+            assert!(
+                !program
+                    .functions
+                    .iter()
+                    .any(|f| f.name == "String_toUpperCase"),
+                "[{label}] fixture must not define String_toUpperCase itself"
+            );
+
+            inject_lazy_stdlib_prelude(&entry, &mut program, &mut visited, &mut errors).unwrap();
+
+            assert!(
+                program
+                    .functions
+                    .iter()
+                    .any(|f| f.name == "String_toUpperCase"),
+                "[{label}] method-call reference must pull in builtins_string.ny \
+                 (String_toUpperCase); loaded string fns: {:?}",
+                program
+                    .functions
+                    .iter()
+                    .filter(|f| f.name.starts_with("String_"))
+                    .map(|f| f.name.as_str())
+                    .collect::<Vec<_>>()
+            );
+        }
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
     fn lazy_prelude_loads_strvec_for_untyped_cat() {
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
         let entry = repo.join("examples/zero_types_cli.ny");

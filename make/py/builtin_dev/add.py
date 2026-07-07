@@ -19,6 +19,70 @@ class ActionResult:
         return any(p.changed for p in self.patches)
 
 
+def _rt_stub_patch(res: ActionResult, spec: BuiltinSpec, rt_path) -> None:
+    """Insert the C stub, unless a function with the same C symbol already exists.
+
+    Guards against symbol collisions when another recipe (e.g. Pattern B
+    stdlib-extern) already emitted `spec.c_name`; a duplicate definition would
+    fail C compilation with a redefinition error.
+    """
+    marker = spec.marker
+    content = patch.read_text(rt_path) if rt_path.exists() else ""
+    if (
+        not patch.has_marker(content, marker)
+        and patch.c_function_defined(content, spec.c_name)
+    ):
+        res.patches.append(
+            patch.PatchResult(
+                rt_path,
+                False,
+                f"C symbol `{spec.c_name}` already defined — skipped duplicate stub",
+            )
+        )
+        res.warnings.append(
+            f"C function `{spec.c_name}` already exists in {rt_path.name} "
+            "(likely from another recipe, e.g. Pattern B). Skipped the duplicate "
+            "stub to avoid a C redefinition error. Reuse that implementation, or "
+            f"remove it first (make contribute-remove) before re-adding."
+        )
+        return
+    res.patches.append(patch.upsert_marked_block(rt_path, templates.c_stub(spec), marker))
+
+
+def _wire_borrow_list(
+    res: ActionResult, spec: BuiltinSpec, path, fn_sig: str, label: str
+) -> None:
+    """Add `spec.method` to the matches!() borrow list in `fn_sig` within `path`.
+
+    Emits a loud warning (instead of failing silently) if the anchor can't be
+    located, so a stale anchor never leaves a method treated as move-not-borrow
+    (the root cause of E012 on a receiver used more than once).
+    """
+    if not path.exists():
+        res.patches.append(patch.PatchResult(path, False, "file not found"))
+        res.warnings.append(
+            f"{label}: {path.name} not found — borrow entry NOT wired; "
+            f'add `| "{spec.method}"` to `{fn_sig.split("(")[0].split()[-1]}` manually.'
+        )
+        return
+
+    status = {"v": "not_found"}
+
+    def transform(content: str):
+        new_content, st = patch.insert_into_matches(content, fn_sig, f'"{spec.method}"')
+        status["v"] = st
+        return new_content, st == "added"
+
+    res.patches.append(patch.patch_file(path, transform))
+    if status["v"] == "not_found":
+        fn_name = fn_sig.split("(")[0].split()[-1]
+        res.warnings.append(
+            f"{label}: could not locate `matches!()` in `{fn_name}` ({path.name}). "
+            f'Add `| "{spec.method}"` there manually so the receiver is borrowed, '
+            "not moved (otherwise callers hit E012 when reusing the value)."
+        )
+
+
 def add_builtin(spec: BuiltinSpec, *, force: bool = False) -> ActionResult:
     if spec.receiver == ReceiverKind.STRING:
         return _add_string(spec, force=force)
@@ -36,9 +100,7 @@ def _add_string(spec: BuiltinSpec, *, force: bool) -> ActionResult:
     marker = spec.marker
     paths = STRING_PATHS
 
-    res.patches.append(
-        patch.upsert_marked_block(paths["rt_c"], templates.c_stub(spec), marker)
-    )
+    _rt_stub_patch(res, spec, paths["rt_c"])
     res.user_tasks.append(
         f"Implement C logic in stdlib/rt/{spec.rt_module} (search for [builtin-dev:{marker}])"
     )
@@ -57,19 +119,26 @@ def _add_string(spec: BuiltinSpec, *, force: bool) -> ActionResult:
         patch.upsert_marked_block(paths["builtins_ny"], templates.builtins_wrapper(spec) + "\n", marker)
     )
 
-    borrow_item = templates.typecheck_borrow_entry(spec)
     if spec.borrows_receiver:
-
-        def add_borrow(content: str):
-            if f'"{spec.method}"' in content.split("string_method_borrows_receiver")[1].split(")")[0]:
-                return content, False
-            return patch.add_to_rust_or_chain(
-                content,
-                "pub fn string_method_borrows_receiver(method: &str) -> bool {\n    matches!(\n        method,",
-                f'"{spec.method}"',
-            )
-
-        res.patches.append(patch.patch_file(paths["typecheck"], add_borrow))
+        # Two borrow lists must both learn the new method or the receiver is
+        # treated as MOVED (E012 when reused): typecheck's
+        # `string_method_borrows_receiver` and borrowck's
+        # `builtin_method_borrows_receiver`. Both sit behind a
+        # `starts_with("String_")` guard, so we locate their matches!() robustly.
+        _wire_borrow_list(
+            res,
+            spec,
+            paths["typecheck"],
+            "pub fn string_method_borrows_receiver(method: &str) -> bool {",
+            "typecheck borrow list",
+        )
+        _wire_borrow_list(
+            res,
+            spec,
+            paths["borrowck"],
+            "fn builtin_method_borrows_receiver(method: &str) -> bool {",
+            "borrowck borrow list",
+        )
 
     def add_typecheck_arm(content: str):
         if templates.marker_start(spec) in content:
@@ -217,9 +286,7 @@ def _add_bytes(spec: BuiltinSpec, *, force: bool) -> ActionResult:
     paths = BYTES_PATHS
 
     if paths["rt_c"].exists():
-        res.patches.append(
-            patch.upsert_marked_block(paths["rt_c"], templates.c_stub(spec), marker)
-        )
+        _rt_stub_patch(res, spec, paths["rt_c"])
         res.user_tasks.append(f"Implement C logic in {paths['rt_c']}")
 
     def add_return_type(content: str):
@@ -241,9 +308,7 @@ def _add_free(spec: BuiltinSpec, *, force: bool) -> ActionResult:
     marker = spec.marker
     paths = FREE_PATHS
 
-    res.patches.append(
-        patch.upsert_marked_block(paths["rt_c"], templates.c_stub(spec), marker)
-    )
+    _rt_stub_patch(res, spec, paths["rt_c"])
     res.user_tasks.append(f"Implement C logic in {paths['rt_c']}")
 
     def add_extern(content: str):
