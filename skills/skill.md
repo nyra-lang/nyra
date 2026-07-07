@@ -169,7 +169,7 @@ Ship the executable from `target/release/` (or `target/{triple}/release/`) for p
 
 Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` (ThreadSanitizer for async/concurrency debug), `--for`, `--os`, `--arch`, `--target`.
 
-Systems / freestanding: `--no-std` (skip `nyra_rt` link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`.
+Systems / freestanding: `--no-std` (skip runtime link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`.
 
 **Environment variables:**
 
@@ -364,7 +364,7 @@ Quick lookup for syntax the lexer and parser accept today. Types are optional un
 | `unsafe` | Raw memory block |
 | `asm` | Inline assembly inside `unsafe` |
 | `as` | Type cast (`expr as Type`) |
-| `no_std` | Skip `nyra_rt` link |
+| `no_std` | Skip runtime link |
 | `move` / `clone` | Explicit move or clone at call site |
 | `async` / `await` | Parsed; runtime evolving (Extended) |
 | `trait` / `dyn` | Trait defs, static impl, trait objects `dyn Trait` (Extended) |
@@ -440,7 +440,7 @@ Source (.ny)
   → Drop plan (auto-free at scope exit)
   → LLVM IR codegen
   → llvm opt (-O0 debug, -O3 release)
-  → clang link + nyra_rt C modules
+  → clang link + Nyra runtime
   → target/debug/main or target/release/main
 ```
 
@@ -1245,7 +1245,7 @@ mem_end("label")     // prints RSS delta (platform-dependent)
 
 ### `spawn { }` / `spawn:task` / `spawn:thread` (Extended — no import keyword)
 
-**Platform:** native Linux, macOS, Windows only — **`spawn` is a compile error on `wasm32-wasi`**. Requires runtime link (`nyra_rt`); rejected in `no_std`.
+**Platform:** native Linux, macOS, Windows only — **`spawn` is a compile error on `wasm32-wasi`**. Requires the runtime link; rejected in `no_std`.
 
 #### File directive: `allow_extended`
 
@@ -1530,7 +1530,7 @@ Full rules: [Send/Sync](https://nyra-lang.github.io/docs/memory.html#send-sync) 
 | `Channel_i32` | `.send(i32)`, `.recv() -> i32` | `i32` |
 | `Channel_str` | `.send(string)`, `.recv() -> string` | `string` |
 
-Low-level: `channel_new`, `channel_send`, `channel_recv`, `channel_free` (C runtime `stdlib/rt/rt_channel.c`).
+Low-level: `channel_new`, `channel_send`, `channel_recv`, `channel_free`.
 
 ### Mutex / RwLock / WaitGroup / Atomic
 
@@ -1601,7 +1601,7 @@ Prefer built-in `.split()` / `.trim()` on `string` when you do not need the impo
 
 ### Random — compiler builtins (no import)
 
-`random()` / `random(min, max)` and `random_f64()` / `random_f64(min, max)` are **compiler builtins** (ChaCha20 CSPRNG in `stdlib/rt/rt_random.c`). **No import required.**
+`random()` / `random(min, max)` and `random_f64()` / `random_f64(min, max)` are **compiler builtins** (ChaCha20 CSPRNG). **No import required.**
 
 | Call | Returns | Notes |
 |------|---------|-------|
@@ -2258,7 +2258,7 @@ python3 host/call.py    # ctypes + free on returned strings
 node host/call.mjs      # koffi (npm install)
 ```
 
-See [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html) · [https://nyra-lang.github.io/docs/bindings.html](https://nyra-lang.github.io/docs/bindings.html).
+See [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html).
 
 ## Tests
 
@@ -2316,7 +2316,7 @@ unsafe {
 Inside `unsafe`: `*ptr` load, `*ptr = v` store, `ptr + i32` / `ptr - i32`, casts involving `*T` or `ptr as i32`.
 Outside `unsafe`: only `&T` / `&mut T` references.
 
-`no_std` at top of file (or `--no-std`): no automatic `nyra_rt` link; `print`/`spawn` rejected.
+`no_std` at top of file (or `--no-std`): no automatic runtime link; `print`/`spawn` rejected.
 `import "stdlib/core/mem.ny"` for `malloc`, `free`, `memcpy`, `memset`, `volatile_*`.
 
 `ptr` = opaque FFI. `*T` = typed raw pointer for MMIO/drivers — not `Send`.
@@ -2363,7 +2363,7 @@ Nyra targets **batteries-included APIs** with **pay-for-what-you-use** binaries.
 | Layer | Mechanism | Effect |
 |-------|-----------|--------|
 | Lazy prelude | `StdlibVirtualIndex` + `collect_program_uses` | Only referenced `.ny` stdlib modules merge into the program |
-| Micro-modules | Small `stdlib/*.ny` + `stdlib/rt/*.c` files | `str_trim` does not pull `regex.ny` or `rt_net.c` |
+| Micro-modules | Small `stdlib/*.ny` modules | `str_trim` does not pull `regex.ny` or networking |
 | Runtime profile | `used_runtime` in codegen → `runtime_map.rs` | Linker gets only needed C runtime translation units |
 | LLVM + Thin LTO | `opt -O3`, `clang -flto=thin` on `--release` | Cross-module inlining and dead function elimination |
 
@@ -2429,7 +2429,7 @@ After borrow checking, Nyra classifies each binding:
 
 **Stack promotion & SROA:** NoEscape struct literals skip unnecessary `str_clone`; all-Copy scalar structs (`Point { x: i32 y: i32 }`) decompose into SSA values instead of struct `alloca`.
 
-**LocalChannel:** NoEscape `Channel<T>` never shared with `spawn` → inline ring buffer (capacity 16), no `pthread_mutex` / `rt_channel.c`.
+**LocalChannel:** NoEscape `Channel<T>` never shared with `spawn` → inline ring buffer (capacity 16), no locking or runtime channel calls.
 
 **`#[no_escape]` on parameters:** promise reference never escapes callee:
 

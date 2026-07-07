@@ -123,7 +123,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -151,8 +150,7 @@
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello, world!&quot;)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>Variables</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>Variables</h2>
       <p>New to programming? Read the full walkthrough: <a href="language-basics.html#variables">Language basics → Variables</a>.</p>
       <h3><code>let</code> — immutable binding</h3>
       <p>Creates a name for a value. After initialization, you must not assign a new value to that name.</p>
@@ -164,8 +162,7 @@
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let x = 42          // x stays 42 unless you used let mut</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let x: i32 = 42</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3><code>mut</code> — mutable (changeable)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3><code>mut</code> — mutable (changeable)</h3>
       <p><code>mut</code> is short for <strong>mutable</strong>. Use <code>let mut</code> when the value will change (counters, loops).</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -177,8 +174,7 @@
 n = n + 1</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let mut n: i32 = 0
 n = n + 1</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3><code>const</code> — compile-time constant</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3><code>const</code> — compile-time constant</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -187,8 +183,7 @@ n = n + 1</code></pre></div>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>const MAX = 100     // fixed name; value known when compiling</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>const MAX = 100     // fixed name; value known when compiling</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <table>
+</div><!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th></tr></thead>
         <tbody>
           <tr><td>Reassign?</td><td>No</td><td>Yes</td><td>No</td></tr>
@@ -218,8 +213,7 @@ fn greet(name) {
 fn greet(name: string) {
     print(name)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Generic syntax is supported with monomorphization (<code>fn id&lt;T&gt;(x: T)</code>).</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Generic syntax is supported with monomorphization (<code>fn id&lt;T&gt;(x: T)</code>).</p>
 
       <h3>Template strings (v1.2)</h3>
       <!-- NYRA_SNIPPET_START -->
@@ -236,8 +230,7 @@ print(`score)</code></pre></div>
 let score: i32 = 42
 print(`Hello, ${name}!`)
 print(`score)</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>Arrow functions (v1.2 — Extended)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Arrow functions (v1.2 — Extended)</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -248,8 +241,7 @@ print(`score)</code></pre></div>
 print(add_one(41))</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let add_one = (x) =&gt; x + 1
 print(add_one(41))</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Emits <code>warning[W001]</code> unless you use <code>--deny-extended</code> in CI. Useful for HTTP handler slots — see <a href="net-http.html">net/http</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Emits <code>warning[W001]</code> unless you use <code>--deny-extended</code> in CI. Useful for HTTP handler slots — see <a href="net-http.html">net/http</a>.</p>
 
       <h2>Control flow</h2>
       <h3>if / else</h3>
@@ -276,8 +268,7 @@ while i &lt; 10 {
     print(i)
     i = i + 1
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3><code>break</code> / <code>continue</code></h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3><code>break</code> / <code>continue</code></h3>
       <p><code>break</code> exits the nearest loop; <code>continue</code> skips to the next iteration (<code>while</code> and range <code>for</code>).</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -299,8 +290,7 @@ while i &lt; 10 {
     if i == 5 { continue }
     sum = sum + i
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>for range</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>for range</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -313,8 +303,7 @@ while i &lt; 10 {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>for i in 0..5 {
     print(i)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>if expressions</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>if expressions</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -323,8 +312,7 @@ while i &lt; 10 {
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let sign = if x &gt;= 0 { 1 } else { -1 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let sign = if x &gt;= 0 { 1 } else { -1 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>match</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>match</h2>
       <p>Exhaustive-style matching on enums and values. Supports <strong>guards</strong> — see <a href="match.html">Match</a>.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -342,8 +330,7 @@ while i &lt; 10 {
     Color.Green =&gt; 2
     Color.Blue =&gt; 3
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>Methods</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>Methods</h2>
       <p>Defined with <code>impl</code>; desugared to <code>Type_method</code> functions:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -361,8 +348,7 @@ while i &lt; 10 {
         Calculator { value: self.value + n }
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -370,8 +356,7 @@ while i &lt; 10 {
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let c2 = c.add(10)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let c2 = c.add(10)</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>I/O</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>I/O</h2>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -390,8 +375,7 @@ write(&quot;no newline&quot;) // buffered
 println(&quot;line&quot;)     // buffered + newline
 flush()             // flush buffer
 let s: string = input(&quot;Name? &quot;)</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>Colored output</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Colored output</h3>
       <p>Add an optional <code>color:</code> argument to <code>print</code>. Works in ANSI-capable terminals (macOS Terminal, iTerm, Windows Terminal).</p>
       <pre><code>print("Error!", color: red)
 print("OK", color: green)
@@ -424,8 +408,7 @@ print(d.hour)
 print(d.minute)
 print(d.second)
 print(d.week)    // 0=Sunday … 6=Saturday</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Aliases: <code>d.minutes</code>, <code>d.seconds</code>, <code>d.weekday</code>. Full reference: <a href="stdlib.html#builtins-date">Built-ins → date()</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Aliases: <code>d.minutes</code>, <code>d.seconds</code>, <code>d.weekday</code>. Full reference: <a href="stdlib.html#builtins-date">Built-ins → date()</a>.</p>
 
       <h2>String &amp; array built-ins</h2>
       <!-- NYRA_SNIPPET_START -->
@@ -446,8 +429,7 @@ for p in parts { print(p) }
 let arr: [i32; 3] = [10, 20, 30]
 for n in arr { print(n) }
 print(arr.length())</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>String methods: <code>.trim()</code>, <code>.contains()</code>, <code>.replace()</code>, <code>.to_upper()</code>, … — <a href="stdlib.html#builtins-strings">full list</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>String methods: <code>.trim()</code>, <code>.contains()</code>, <code>.replace()</code>, <code>.to_upper()</code>, … — <a href="stdlib.html#builtins-strings">full list</a>.</p>
 
       <h2>defer (Extended — prefer Drop)</h2>
       <p>Run a <strong>call expression</strong> when the block ends (LIFO). Extended tier — emits <code>warning[W001]</code>. For memory, <strong>auto-drop</strong> already frees at <code>}</code>; for handles, use <strong><code>impl Drop</code> RAII</strong> instead of <code>defer free</code>.</p>
@@ -469,8 +451,7 @@ print(arr.length())</code></pre></div>
     read_into(fd)
 }
 // owned string locals: auto-dropped — no defer needed</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Details: <a href="memory.html#defer">Memory → defer vs Drop</a> · <a href="nyra-skill.md">nyra-skill.md</a></p>      <h2>Timing &amp; memory (builtins)</h2>
+</div><!-- NYRA_SNIPPET_END -->      <p>Details: <a href="memory.html#defer">Memory → defer vs Drop</a> · <a href="nyra-skill.md">nyra-skill.md</a></p>      <h2>Timing &amp; memory (builtins)</h2>
       <p>No import required — same ergonomics as <code>print</code> and <code>date()</code>:</p>
       <pre><code>time_start("loop")
 mem_start("RAM")
@@ -498,8 +479,7 @@ export fn my_api() -> i32 { return 0 }</code></pre>
     let sum = 1 + 2
     print(sum)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>Comments</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>Comments</h2>
       <p>Line comments with <code>//</code>. Block comments are planned.</p>
 
       <p>See <a href="types.html">Types &amp; data</a> for structs, enums, arrays, and references. Complete keyword/operator list: <a href="reference.html">Language reference</a>.</p>

@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -166,8 +165,7 @@ fn hash_step(n: i32) -&gt; i32 {
 
 pub const SEED = hash_step(42)
 pub const SUM_FOUR = sum_array([0, 1, 2, 3])</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Check without codegen: <code>nyra check examples/toolchain/comptime_tables.ny</code>. Import from runtime code:</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Check without codegen: <code>nyra check examples/toolchain/comptime_tables.ny</code>. Import from runtime code:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -184,8 +182,7 @@ fn main() {
 fn main() -&gt; void {
     let seed = tables::SEED
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Example: <code>examples/toolchain/comptime_import_main.ny</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Example: <code>examples/toolchain/comptime_import_main.ny</code>.</p>
 
       <h3>2 — Function attribute <code>#[comptime]</code></h3>
       <p>Mark a single function in a <strong>normal</strong> file. Calls with known arguments fold at compile time; the function body is removed from the runtime binary.</p>
@@ -215,8 +212,7 @@ const SEED = mix(14)
 fn main() -&gt; void {
     print(&quot;SEED&quot;, SEED)   // 42 — mix() not in binary
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Example: <code>examples/toolchain/comptime_fn_attr.ny</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Example: <code>examples/toolchain/comptime_fn_attr.ny</code>.</p>
 
       <h3>3 — Block expression <code>comptime { … }</code></h3>
       <p>Folds a compile-time block to a value (trailing expression or <code>return</code>). Supports loops, mutable locals, and <code>match</code>.</p>
@@ -262,8 +258,7 @@ const SCORE = comptime {
         Mode.Slow =&gt; 10
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Examples: <code>comptime_block_loops.ny</code>, <code>comptime_match.ny</code>, <code>comptime_struct_enum.ny</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Examples: <code>comptime_block_loops.ny</code>, <code>comptime_match.ny</code>, <code>comptime_struct_enum.ny</code>.</p>
 
       <h2>Power example — tables, strings, match</h2>
       <p><code>examples/toolchain/comptime_power.ny</code> builds a lookup table, routes HTTP verbs by string <code>match</code>, and concatenates labels — all at compile time:</p>
@@ -313,8 +308,7 @@ pub const GET_CODE = comptime {
         _ =&gt; 0
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>What comptime supports</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>What comptime supports</h2>
       <ul>
         <li>Integers, bools, <strong>strings</strong> (literals, <code>+</code>, <code>==</code> / <code>!=</code>)</li>
         <li>Fixed arrays (<code>[1, 2, 3]</code>, <code>[x; N]</code>, spreads), <code>.len()</code> on arrays/strings</li>

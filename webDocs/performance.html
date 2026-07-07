@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -157,26 +156,25 @@ let b = id(&quot;x&quot;)  // → call @id__string</code></pre></div>
 fn id&lt;T&gt;(x: T){ return x }
 let a = id&lt;i32&gt;(1)    // → call @id__i32
 let b = id&lt;string&gt;(&quot;x&quot;)  // → call @id__string</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><p>Prefer <strong>generics</strong> and <code>impl Trait for Type</code> on hot paths. Reserve <code>dyn Trait</code> (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as <code>abs_i32</code> lower to LLVM intrinsics and are not emitted as separate functions.</p>
+</div><!-- NYRA_SNIPPET_END --><p>Prefer <strong>generics</strong> and <code>impl Trait for Type</code> on hot paths. Reserve <code>dyn Trait</code> (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as <code>abs_i32</code> lower to LLVM intrinsics and are not emitted as separate functions.</p>
 <p>Pipeline order: <code>expand → monomorph (+ call-site type inference) → typecheck → borrow → escape analysis → codegen</code>. See <a href="generics.html">Generics</a> and <a href="traits-macros.html">Traits &amp; macros</a>.</p>
 
 <h3>Four layers of DCE</h3>
 <table>
 <thead><tr><th>Layer</th><th>Mechanism</th><th>What gets removed</th></tr></thead>
 <tbody>
-<tr><td><strong>1 — Lazy prelude</strong></td><td><code>StdlibVirtualIndex</code> + <code>collect_program_uses</code></td><td>Unused <code>.ny</code> stdlib modules never enter the AST</td></tr>
-<tr><td><strong>2 — Micro-modules</strong></td><td>Small files under <code>stdlib/</code> (e.g. <code>strings/ops.ny</code>, <code>rt/rt_strings.c</code>)</td><td>Only referenced symbols pull their defining file</td></tr>
-<tr><td><strong>3 — Runtime profile</strong></td><td>Codegen records <code>used_runtime</code> → <code>runtime_map.rs</code></td><td>Only needed <code>stdlib/rt/*.c</code> units link (not <code>nyra_rt.c</code> monolith unless legacy)</td></tr>
-<tr><td><strong>4 — LLVM + Thin LTO</strong></td><td><code>opt -O3</code> then <code>clang -flto=thin</code> on <code>--release</code></td><td>Uncalled functions inlined away or dropped across Nyra IR and C runtime</td></tr>
+<tr><td><strong>1 — Lazy prelude</strong></td><td>Auto-prelude symbol index</td><td>Unused <code>.ny</code> stdlib modules never enter the AST</td></tr>
+<tr><td><strong>2 — Micro-modules</strong></td><td>Small files under <code>stdlib/</code> (e.g. <code>strings/ops.ny</code>)</td><td>Only referenced symbols pull their defining file</td></tr>
+<tr><td><strong>3 — Runtime profile</strong></td><td>Demand-driven runtime linking</td><td>Only the runtime your program actually uses gets linked</td></tr>
+<tr><td><strong>4 — LLVM + Thin LTO</strong></td><td><code>opt -O3</code> then <code>clang -flto=thin</code> on <code>--release</code></td><td>Uncalled functions inlined away or dropped</td></tr>
 </tbody>
 </table>
 
 <h3>Example: one stdlib call</h3>
 <pre><code>main.ny
-  str_trim(s)              // lazy prelude → strings/ops.ny only
-    → str_trim        // runtime profile → rt_strings.c
-      → Thin LTO           // str_replace, str_split, … dropped if uncalled</code></pre>
+  str.trim()               // lazy prelude → strings/ops.ny only
+    → runtime profile      // only the string runtime you use is linked
+      → Thin LTO           // unused string helpers dropped if uncalled</code></pre>
 <p>Opt out of auto-prelude for embedded or single-file builds: <code># no_std</code>, <code>nyra build --no-prelude</code>. Example: <code>examples/toolchain/lazy_prelude.ny</code>, <code>examples/toolchain/monomorph_static_dispatch.ny</code>.</p>
 <p>Stdlib layout rules: <code>stdlib/README.md</code> · project guidelines: one function per focused file where practical so the linker (especially with Thin LTO) can strip dead symbols.</p>
 
@@ -189,7 +187,7 @@ let b = id&lt;string&gt;(&quot;x&quot;)  // → call @id__string</code></pre></d
 <pre><code>Time: 14.2 ms
 Memory: 1.8 MB
 CPU: 38%</code></pre>
-<p>Lowers to <code>benchmark_begin()</code> / <code>benchmark_end()</code> in <code>stdlib/rt/rt_bench.c</code>. For iteration loops use <code>stdlib/bench/mod.ny</code>; for labeled timers use <code>time_start</code> / <code>mem_start</code>. See <code>examples/benchmark_block.ny</code>.</p>
+<p>For iteration loops use <code>stdlib/bench/mod.ny</code>; for labeled timers use <code>time_start</code> / <code>mem_start</code>. See <code>examples/benchmark_block.ny</code>.</p>
 
 <h2>CLI flags</h2><table><thead><tr><th>Flag</th><th>Effect</th></tr></thead><tbody>
 <tr><td><code>--release</code></td><td>-O3, LLVM opt, thin LTO</td></tr>

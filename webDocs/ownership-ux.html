@@ -123,7 +123,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -193,8 +192,7 @@ fn main() -&gt; void {
     print(id(7))                  // T = i32 at call site
     print(twice(age))
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <ul>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
         <li><code>fn f() { }</code> with no <code>return</code> → <code>void</code></li>
         <li>Conflicting <code>return</code> types → error; add <code>-> T</code></li>
         <li>Cannot infer <code>let</code> → <code>cannot infer type for 'x'; annotate: let x: User = ...</code></li>
@@ -236,8 +234,7 @@ fn main() -&gt; void {
     save(user)           // desugared to save(&amp;user)
     print(user.name)     // OK — user was not moved
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <table>
+</div><!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Parameter</th><th>Argument</th><th>Rewrite</th></tr></thead>
         <tbody>
           <tr><td><code>&amp;T</code></td><td>owned <code>T</code></td><td><code>&amp;arg</code></td></tr>
@@ -262,8 +259,7 @@ let b = a.clone()        // heap duplicate; a still valid
 let b = a.clone()        // heap duplicate; a still valid
 
 // All-Copy struct → synthesized Point_clone when needed</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Structs with only Clone fields get a compiler-synthesized <code>.clone()</code>. <code>string.clone()</code> calls <code>str_clone</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Structs with only Clone fields get a compiler-synthesized <code>.clone()</code>. <code>string.clone()</code> calls <code>str_clone</code>.</p>
 
       <h2 id="move-clone">move / clone prefixes (RFC 0007)</h2>
       <p>Unary <code>move</code> and <code>clone</code> at call sites control coercion:</p>
@@ -290,8 +286,7 @@ save(clone user)   // duplicate then pass; user stays valid</code></pre>
     print(p1.x)      // both bindings valid — no annotation needed
     print(p2.y)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Structs with any Move field (e.g. <code>string</code>) stay Move. Optional <code>#[derive(Copy)]</code> documents intent and validates fields — it does not force Copy on unsafe structs.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Structs with any Move field (e.g. <code>string</code>) stay Move. Optional <code>#[derive(Copy)]</code> documents intent and validates fields — it does not force Copy on unsafe structs.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -302,8 +297,7 @@ save(clone user)   // duplicate then pass; user stays valid</code></pre>
 struct Bad { label: string }   // ERROR — string is not Copy</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>#[derive(Copy)]
 struct Bad { label: string }   // ERROR — string is not Copy</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="struct-sugar">Struct constructor sugar (RFC 0006)</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="struct-sugar">Struct constructor sugar (RFC 0006)</h2>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -342,8 +336,7 @@ fn main() -&gt; void {
     print(u.name)
     print(origin.x)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Missing trailing fields use type defaults (<code>0</code>, <code>0.0</code>, <code>false</code>, <code>""</code>).</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Missing trailing fields use type defaults (<code>0</code>, <code>0.0</code>, <code>false</code>, <code>""</code>).</p>
 
       <h2 id="diagnostics">Swift-style diagnostics (RFC 0007)</h2>
       <pre><code>error: use of moved value 'user'
@@ -370,8 +363,7 @@ print(price)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let price: f64 = 19.99
 let lat: f64 = 30.0444
 print(price)</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="char">char Unicode scalar (RFC 0010)</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="char">char Unicode scalar (RFC 0010)</h2>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -388,8 +380,7 @@ let nl = '\n'
 if ch == 'A' {
     print(ch)    // %c — prints the character
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Single-quoted literals are <strong>not</strong> lifetimes: <code>'a'</code> is a char, <code>'a</code> in <code>&amp;'a T</code> is a lifetime.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Single-quoted literals are <strong>not</strong> lifetimes: <code>'a'</code> is a char, <code>'a</code> in <code>&amp;'a T</code> is a lifetime.</p>
 
       <h2 id="pipeline">Compiler pipeline</h2>
       <pre class="pipeline">Source (.ny)

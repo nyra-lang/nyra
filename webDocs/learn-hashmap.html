@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -145,8 +144,7 @@
         <li><strong>Value type</strong> — second segment (e.g. <code>i32</code>, <code>str</code>)</li>
         <li><strong>Operation</strong> — last segment: <code>new</code>, <code>insert</code>, <code>get</code>, <code>contains</code>, <code>remove</code>, <code>keys</code>, <code>free</code>, <code>retain</code></li>
       </ul>
-      <p>Examples: <code>map_str_i32_insert</code>, <code>map_str_str_get</code>, <code>map_i32_i32_contains</code>. When key and value share the same type (like Go <code>map[int]int</code>), both appear in the name — <code>map_i32_i32_*</code> is intentional so the ABI stays explicit.</p>
-      <p>See the full symbol list in <a href="bindings.html">Runtime bindings</a>.</p>
+      <p>Examples: <code>map_str_i32_insert</code>, <code>map_str_str_get</code>, <code>map_i32_i32_contains</code>. When key and value share the same type (like Go <code>map[int]int</code>), both appear in the name — <code>map_i32_i32_*</code> is intentional so the API stays explicit.</p>
 
       <h3>String keys, i32 values — <code>map_str_i32_*</code></h3>
       <!-- NYRA_SNIPPET_START -->
@@ -181,8 +179,7 @@ fn main() -&gt; void {
     print(map_str_i32_contains(m, &quot;score&quot;))
     map_str_i32_free(m)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>String keys, string values — <code>map_str_str_*</code></h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>String keys, string values — <code>map_str_str_*</code></h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -213,8 +210,7 @@ fn main() -&gt; void {
     print(map_str_str_get(m, &quot;lang&quot;))
     map_str_str_free(m)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -247,8 +243,7 @@ fn main() -&gt; void {
     print(map_i32_i32_contains(m, 42))
     map_i32_i32_free(m)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>Stdlib wrappers (recommended)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Stdlib wrappers (recommended)</h3>
       <p>Import <code>stdlib/map.ny</code> for <code>HashMap_str_i32</code> and <code>HashMap_str_str</code> — method syntax and automatic cleanup via <code>Drop</code>. The low-level <code>map_*</code> names stay stable for <code>extern fn</code> and FFI.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -270,8 +265,7 @@ fn main() -&gt; void {
     scores = scores.insert(&quot;ada&quot;, 100)
     print(scores.get(&quot;ada&quot;))
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><h2>Runnable example</h2><!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END --><h2>Runnable example</h2><!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -303,8 +297,7 @@ fn main() -&gt; void {
     print(map_str_i32_contains(handle, &quot;score&quot;))
     map_str_i32_free(handle)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
+</div><!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/hashmap.ny</code></pre>
 <p><strong>Expected output:</strong></p>

@@ -125,7 +125,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -188,7 +187,7 @@
           <article class="about-card">
             <span class="about-icon" aria-hidden="true">.ny</span>
             <h3 data-i18n="pages.index.aboutSourceH">Source</h3>
-            <p data-i18n-html="pages.index.aboutSourceP">Programs live in <code>.ny</code> files. A Nyra frontend emits <strong>LLVM IR</strong>, then <strong>clang</strong> links with <code>nyra_rt.c</code> for I/O and runtime helpers.</p>
+            <p data-i18n-html="pages.index.aboutSourceP">Programs live in <code>.ny</code> files. A Nyra frontend emits <strong>LLVM IR</strong>, then <strong>clang</strong> links the Nyra runtime for I/O and runtime helpers.</p>
           </article>
           <article class="about-card">
             <span class="about-icon" aria-hidden="true">◇</span>
@@ -266,7 +265,7 @@
           <div class="pipeline-step pipeline-step-final">
             <span class="pipeline-num">4</span>
             <strong data-i18n="pages.index.pipeFinal">Native binary</strong>
-            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailFinal">clang + nyra_rt.c</span>
+            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailFinal">clang + Nyra runtime</span>
           </div>
         </div>
       </section>

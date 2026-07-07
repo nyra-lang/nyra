@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -170,8 +169,7 @@ let add5 = make_adder(5)
 print(add5(10))                 // 15
 
 iter_filter(v, (x) =&gt; x &gt; 0)    // stack + invoke slot (sync)</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><h2>Loop-safe pattern</h2>
+</div><!-- NYRA_SNIPPET_END --><h2>Loop-safe pattern</h2>
 <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -204,8 +202,7 @@ fn main() -&gt; void {
         i = i + 1
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><p><code>iter_filter</code> calls <code>pred</code> synchronously before returning, so the stack env remains valid for the invoke window.</p>
+</div><!-- NYRA_SNIPPET_END --><p><code>iter_filter</code> calls <code>pred</code> synchronously before returning, so the stack env remains valid for the invoke window.</p>
 
 <h2>Ownership</h2>
 <ul>

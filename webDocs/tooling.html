@@ -123,7 +123,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -191,8 +190,7 @@ nyra run .</code></pre>
   src/helper.ny
   nyra.mod
   target/debug/main</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="run"><code>nyra run</code></h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="run"><code>nyra run</code></h2>
       <p><strong>Job:</strong> Fastest feedback — compile and run in one step while you edit code.</p>
       <pre><code>nyra run .                          # project with main.ny
 nyra run examples/syntax/hello.ny   # single file
@@ -241,8 +239,7 @@ test fn sum_works() {
 test fn sum_works() {
     assert_eq(1 + 2, 3)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <pre><code>nyra test .                              # all tests in project
+</div><!-- NYRA_SNIPPET_END -->      <pre><code>nyra test .                              # all tests in project
 nyra test tests/conformance/pass         # language conformance (pass only)
 nyra test examples/smoke_test_test.ny    # one test file
 nyra test . --release                    # optimized test binary</code></pre>
@@ -455,7 +452,7 @@ nyra build . --no-std</code></pre>
       <table>
         <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
         <tbody>
-          <tr><td><code>--no-std</code></td><td>Skip <code>nyra_rt</code> link; <code>print</code>/<code>spawn</code> rejected</td></tr>
+          <tr><td><code>--no-std</code></td><td>Skip runtime link; <code>print</code>/<code>spawn</code> rejected</td></tr>
           <tr><td><code>--freestanding</code></td><td>Clang <code>-ffreestanding -nostdlib</code> (pair with <code>--no-std</code>)</td></tr>
         </tbody>
       </table>

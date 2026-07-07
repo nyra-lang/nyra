@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -371,8 +370,7 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
       <p><strong>Platform:</strong> <code>spawn</code> is unavailable on <code>wasm32-wasi</code> (compile error). Native Linux, macOS, and Windows only.</p>
 
       <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>
@@ -399,7 +397,7 @@ fn main() -&gt; void {
       <h2 id="js-helpers">JS-style helpers <span class="badge">import required</span></h2>
       <p>Ergonomic wrappers with familiar names — import when you want function-style APIs over <code>ptr</code> handles.</p>
 
-      <h3 id="js-array"><code>stdlib/builtins_array.ny</code></h3>
+      <h3 id="js-array">Array helpers — <code>import "stdlib/builtins_array.ny"</code></h3>
       <table>
         <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
         <tbody>
@@ -413,7 +411,7 @@ fn main() -&gt; void {
       </table>
       <p>Example: <a href="#ex-array"><code>Array_push / map / filter</code></a></p>
 
-      <h3 id="js-string"><code>stdlib/builtins_string.ny</code></h3>
+      <h3 id="js-string">String helpers — <code>import "stdlib/builtins_string.ny"</code></h3>
       <table>
         <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
         <tbody>
@@ -440,7 +438,7 @@ fn main() -&gt; void {
       </table>
       <p>Example: <a href="#ex-random"><code>random</code></a> · <a href="#ex-shuffle-pick"><code>shuffle_pick</code></a></p>
 
-      <h3 id="js-math"><code>stdlib/builtins_math.ny</code></h3>
+      <h3 id="js-math">Math helpers — <code>import "stdlib/builtins_math.ny"</code></h3>
       <table>
         <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
         <tbody>
@@ -451,7 +449,7 @@ fn main() -&gt; void {
       </table>
       <p>Example: <a href="#ex-math-random"><code>Math_random</code></a></p>
 
-      <h3 id="js-json"><code>stdlib/builtins_json.ny</code></h3>
+      <h3 id="js-json">JSON helpers — <code>import "stdlib/builtins_json.ny"</code></h3>
       <table>
         <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
         <tbody>
@@ -500,8 +498,7 @@ fn main() -&gt; void {
     print(String_replace(&quot;hello world&quot;, &quot;world&quot;, &quot;nyra&quot;))
     print(trim(clone s))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>  NYRA LANG  
 1
 3
@@ -526,8 +523,7 @@ Nyra Lang</code></pre>
     print(c)
     print(s)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>copy me
 copy me</code></pre>
 
@@ -545,8 +541,7 @@ copy me</code></pre>
     print(&quot;hello&quot;.contains(&quot;ell&quot;))
     print(&quot;hello&quot;.contains(&quot;xyz&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0</code></pre>
 
@@ -564,8 +559,7 @@ copy me</code></pre>
     print(&quot;hello&quot;.ends_with(&quot;llo&quot;))
     print(&quot;hello&quot;.ends_with(&quot;xyz&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0</code></pre>
 
@@ -581,8 +575,7 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;abc&quot;.len())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>3</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-length"><code>.length()</code></h4>
@@ -597,8 +590,7 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;abc&quot;.length())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>3</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-replace"><code>.replace()</code></h4>
@@ -613,8 +605,7 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;foo-bar&quot;.replace(&quot;bar&quot;, &quot;baz&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>foo-baz</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-split"><code>.split()</code></h4>
@@ -637,8 +628,7 @@ copy me</code></pre>
         print(p)
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>3
 a
 b
@@ -658,8 +648,7 @@ c</code></pre>
     print(&quot;hello&quot;.starts_with(&quot;hel&quot;))
     print(&quot;hello&quot;.starts_with(&quot;xyz&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0</code></pre>
 
@@ -677,8 +666,7 @@ c</code></pre>
     print(&quot;hamdy.txt&quot;.strip_suffix(&quot;.txt&quot;))
     print(strip_suffix(&quot;hamdy.txt&quot;, &quot;.txt&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hamdy
 hamdy</code></pre>
 
@@ -694,8 +682,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_camel_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>helloWorld</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-capitalize"><code>to_capitalize</code></h4>
@@ -710,8 +697,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;hello world&quot;.to_capitalize())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello world</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-dot-case"><code>to_dot_case</code></h4>
@@ -726,8 +712,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_dot_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello.world</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-kebab-case"><code>to_kebab_case</code></h4>
@@ -742,8 +727,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_kebab_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello-world</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-lower"><code>.to_lower()</code></h4>
@@ -758,8 +742,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;NYRA&quot;.to_lower())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>nyra</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-lowercase"><code>to_lowercase</code></h4>
@@ -774,8 +757,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_lowercase())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello world</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-pascal-case"><code>to_pascal_case</code></h4>
@@ -790,8 +772,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_pascal_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>HelloWorld</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-screaming-snake-case"><code>to_screaming_snake_case</code></h4>
@@ -806,8 +787,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_screaming_snake_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>HELLO_WORLD</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-snake-case"><code>to_snake_case</code></h4>
@@ -822,8 +802,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_snake_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello_world</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-titlecase"><code>to_titlecase</code></h4>
@@ -838,8 +817,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;hello world&quot;.to_titlecase())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello World</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-train-case"><code>to_train_case</code></h4>
@@ -854,8 +832,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;hello world&quot;.to_train_case())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello-World</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-upper"><code>.to_upper()</code></h4>
@@ -870,8 +847,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Nyra&quot;.to_upper())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>NYRA</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-trim"><code>.trim()</code></h4>
@@ -886,8 +862,7 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;  hello  &quot;.trim())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>(run failed — exit 1)</code></pre>
 </section>
 
@@ -903,18 +878,18 @@ hamdy</code></pre>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x: i32) -&gt; i32 {
+fn is_even(x){
     if x % 2 == 0 {
         return 1
     }
     return 0
 }
 
-fn mul10(x: i32) -&gt; i32 {
+fn mul10(x){
     return x * 10
 }
 
-fn sum(acc: i32, x: i32) -&gt; i32 {
+fn sum(acc, x){
     return acc + x
 }
 
@@ -939,18 +914,18 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x: i32) -&gt; i32 {
+fn is_even(x: i32){
     if x % 2 == 0 {
         return 1
     }
     return 0
 }
 
-fn mul10(x: i32) -&gt; i32 {
+fn mul10(x: i32){
     return x * 10
 }
 
-fn sum(acc: i32, x: i32) -&gt; i32 {
+fn sum(acc: i32, x: i32){
     return acc + x
 }
 
@@ -972,8 +947,7 @@ fn main() -&gt; void {
     print(found)
     print(Array_pop(v))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>4
 2
 10
@@ -998,8 +972,7 @@ fn main() -&gt; void {
         print(n)
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 2
 3</code></pre>
@@ -1018,8 +991,7 @@ fn main() -&gt; void {
     let arr: [i32; 4] = [10, 20, 30, 40]
     print(arr.len())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>4</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-length"><code>.len()</code></h4>
@@ -1036,8 +1008,7 @@ fn main() -&gt; void {
     let arr: [i32; 4] = [10, 20, 30, 40]
     print(arr.length())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>4</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-sort"><code>sort</code></h4>
@@ -1062,8 +1033,7 @@ fn main() -&gt; void {
     }
     print(nums[0])
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 2
 5
@@ -1101,8 +1071,7 @@ fn main() -&gt; void {
     print(Vec_i32_get(v, 0))
     print(Vec_i32_pop(v))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2
 10
 20</code></pre>
@@ -1135,8 +1104,7 @@ fn main() -&gt; void {
     print(v.len())
     print(v.get(0))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2
 alpha</code></pre>
 </section>
@@ -1166,8 +1134,7 @@ fn main() -&gt; void {
     print(m.get(&quot;score&quot;))
     print(m.contains(&quot;score&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>100
 1</code></pre>
 </section>
@@ -1193,8 +1160,7 @@ fn main() -&gt; void {
         print(s)
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>a
 b</code></pre>
 
@@ -1212,8 +1178,7 @@ b</code></pre>
     let parts: VecStr = &quot;x,y&quot;.split(&quot;,&quot;)
     print(parts.length())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 </section>
 
@@ -1236,8 +1201,7 @@ b</code></pre>
         print(i)
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -1261,8 +1225,7 @@ b</code></pre>
         print(c)
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>65
 66</code></pre>
 </section>
@@ -1279,7 +1242,7 @@ b</code></pre>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x: i32) -&gt; i32 {
+fn is_even(x){
     if x % 2 == 0 {
         return 1
     }
@@ -1298,7 +1261,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x: i32) -&gt; i32 {
+fn is_even(x: i32){
     if x % 2 == 0 {
         return 1
     }
@@ -1314,8 +1277,7 @@ fn main() -&gt; void {
     print(Vec_i32_len(evens))
     print(Vec_i32_get(evens, 0))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 2</code></pre>
 
@@ -1328,7 +1290,7 @@ fn main() -&gt; void {
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_two(x: i32) -&gt; i32 {
+fn is_two(x){
     if x == 2 {
         return 1
     }
@@ -1344,7 +1306,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_two(x: i32) -&gt; i32 {
+fn is_two(x: i32){
     if x == 2 {
         return 1
     }
@@ -1357,8 +1319,7 @@ fn main() -&gt; void {
     Array_push(v, 2)
     print(Array_find(v, is_two, -1))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-array-map"><code>Array_map</code></h4>
@@ -1370,7 +1331,7 @@ fn main() -&gt; void {
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn double(x: i32) -&gt; i32 {
+fn double(x){
     return x * 2
 }
 
@@ -1385,7 +1346,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn double(x: i32) -&gt; i32 {
+fn double(x: i32){
     return x * 2
 }
 
@@ -1397,8 +1358,7 @@ fn main() -&gt; void {
     print(Vec_i32_get(out, 0))
     print(Vec_i32_get(out, 1))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>6
 8</code></pre>
 
@@ -1428,8 +1388,7 @@ fn main() -&gt; void {
     print(Array_pop(v))
     print(Vec_i32_len(v))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>20
 1</code></pre>
 
@@ -1457,8 +1416,7 @@ fn main() -&gt; void {
     Array_push(v, 2)
     print(Vec_i32_len(v))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-array-reduce"><code>Array_reduce</code></h4>
@@ -1470,7 +1428,7 @@ fn main() -&gt; void {
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn add(acc: i32, x: i32) -&gt; i32 {
+fn add(acc, x){
     return acc + x
 }
 
@@ -1483,7 +1441,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn add(acc: i32, x: i32) -&gt; i32 {
+fn add(acc: i32, x: i32){
     return acc + x
 }
 
@@ -1493,8 +1451,7 @@ fn main() -&gt; void {
     Array_push(v, 20)
     print(Array_reduce(v, 0, add))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>30</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-json-parse"><code>JSON_parse</code></h4>
@@ -1515,8 +1472,7 @@ fn main() -&gt; void {
     let raw: string = JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;)
     print(JSON_parse(raw, &quot;name&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hamdy</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-json-stringify"><code>JSON_stringify</code></h4>
@@ -1535,8 +1491,7 @@ fn main() {
 fn main() -&gt; void {
     print(JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>{&quot;name&quot;:&quot;hamdy&quot;}</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-ceil"><code>Math_ceil</code></h4>
@@ -1555,8 +1510,7 @@ fn main() {
 fn main() -&gt; void {
     print(Math_ceil(7))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>7</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-floor"><code>Math_floor</code></h4>
@@ -1575,8 +1529,7 @@ fn main() {
 fn main() -&gt; void {
     print(Math_floor(7))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>7</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-max"><code>Math_max</code></h4>
@@ -1595,8 +1548,7 @@ fn main() {
 fn main() -&gt; void {
     print(Math_max(10, 3))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>10</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-min"><code>Math_min</code></h4>
@@ -1615,8 +1567,7 @@ fn main() {
 fn main() -&gt; void {
     print(Math_min(10, 3))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>3</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-random"><code>Math_random</code></h4>
@@ -1635,8 +1586,7 @@ fn main() {
 fn main() -&gt; void {
     print(Math_random())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>(varies each run — ChaCha20 stream)
 0.306599
 …</code></pre>
@@ -1657,8 +1607,7 @@ fn main() {
 fn main() -&gt; void {
     print(Math_round(7))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>7</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-random-builtin"><code>random_builtin</code></h4>
@@ -1679,8 +1628,7 @@ fn main() -&gt; void {
     print(random(1, 6))
     print(random_f64())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>-1056650716
 5
 0.591879</code></pre>
@@ -1701,8 +1649,7 @@ fn main() -&gt; void {
     print(random(1, 6))
     print(random_f64())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>(varies each run — ChaCha20 stream)
 1228635207
 3
@@ -1735,8 +1682,7 @@ fn main() -&gt; void {
     Vec_i32_push(v, 30)
     print(shuffle_pick(v))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>30</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-includes"><code>String_includes</code></h4>
@@ -1755,8 +1701,7 @@ fn main() {
 fn main() -&gt; void {
     print(String_includes(&quot;hello&quot;, &quot;ell&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-replace"><code>String_replace</code></h4>
@@ -1775,8 +1720,7 @@ fn main() {
 fn main() -&gt; void {
     print(String_replace(&quot;foo-bar&quot;, &quot;bar&quot;, &quot;baz&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>foo-baz</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-split"><code>String_split</code></h4>
@@ -1799,8 +1743,7 @@ fn main() -&gt; void {
     let parts = String_split(&quot;a,b&quot;, &quot;,&quot;)
     print(Vec_str_len(parts))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-to-lower"><code>String_toLowerCase</code></h4>
@@ -1819,8 +1762,7 @@ fn main() {
 fn main() -&gt; void {
     print(String_toLowerCase(&quot;NYRA&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>nyra</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-to-upper"><code>String_toUpperCase</code></h4>
@@ -1839,8 +1781,7 @@ fn main() {
 fn main() -&gt; void {
     print(String_toUpperCase(&quot;nyra&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>NYRA</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-trim"><code>trim</code></h4>
@@ -1859,8 +1800,7 @@ fn main() {
 fn main() -&gt; void {
     print(trim(&quot;  hi  &quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hi</code></pre>
 </section>
 
@@ -1905,8 +1845,7 @@ fn main() -&gt; void {
     let x = abs(-5)
     print(x)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>42
 3
 7
@@ -1941,8 +1880,7 @@ fn main() -&gt; void {
 
     print(Math_random())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>7
 7
 7
@@ -1974,8 +1912,7 @@ fn main() -&gt; void {
     print(raw)
     print(JSON_parse(raw, &quot;name&quot;))
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>{&quot;name&quot;:&quot;hamdy&quot;}
 hamdy</code></pre>
 </section>
@@ -1999,8 +1936,7 @@ hamdy</code></pre>
     flush()
     print(&quot;done&quot;)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>okdone</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-input"><code>input</code></h4>
@@ -2021,8 +1957,7 @@ fn main() -&gt; void {
     print(name.length())
     print(name)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Name: 3
 Ada</code></pre>
 
@@ -2044,8 +1979,7 @@ Ada</code></pre>
     print([1.5, 2.5])
     print([&quot;hello&quot;, &quot;Nyra&quot;])
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>[20, 1, 4, 3, 5, 2]
 [1.5, 2.5]
 [&quot;hello&quot;, &quot;Nyra&quot;]</code></pre>
@@ -2064,8 +1998,7 @@ Ada</code></pre>
     print(42)
     print(&quot;Nyra&quot;)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>42
 Nyra</code></pre>
 
@@ -2083,8 +2016,7 @@ Nyra</code></pre>
     println(&quot;line&quot;)
     flush()
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>line</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-write"><code>write</code></h4>
@@ -2101,8 +2033,7 @@ Nyra</code></pre>
     write(&quot;ok&quot;)
     flush()
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>ok</code></pre>
 </section>
 
@@ -2133,8 +2064,7 @@ Nyra</code></pre>
     mem_end(&quot;work&quot;)
     print(sum)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>(timing / RSS vary by machine)
 work: RSS +0.000 B
 499500</code></pre>
@@ -2163,8 +2093,7 @@ work: RSS +0.000 B
     time_end(&quot;work&quot;)
     print(sum)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>(timing / RSS vary by machine)
 work: 750.000000 ns
 499500</code></pre>
@@ -2207,8 +2136,7 @@ work: 750.000000 ns
     print(d.seconds)
     print(d.weekday)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>(local clock — values change)
 2026
 7
@@ -2233,7 +2161,7 @@ allow_extended
 
 import &quot;stdlib/async/future.ny&quot;
 
-async fn greet() -&gt; string {
+async fn greet(){
     let h = Executor_sleep_ms(10)
     await h
     return &quot;Nyra async v2&quot;
@@ -2248,7 +2176,7 @@ allow_extended
 
 import &quot;stdlib/async/future.ny&quot;
 
-async fn greet() -&gt; string {
+async fn greet(){
     let h = Executor_sleep_ms(10)
     await h
     return &quot;Nyra async v2&quot;
@@ -2258,8 +2186,7 @@ fn main() -&gt; void {
     let f = greet()
     print(await f)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Nyra async v2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-async-spawn"><code>async_spawn</code></h4>
@@ -2273,7 +2200,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn compute() -&gt; i32 {
+async fn compute(){
     return 42
 }
 
@@ -2286,7 +2213,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn compute() -&gt; i32 {
+async fn compute(){
     return 42
 }
 
@@ -2294,8 +2221,7 @@ fn main() -&gt; void {
     let h = compute()
     print(await h)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>42</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-async-state-machine"><code>async_state_machine</code></h4>
@@ -2309,7 +2235,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn chain() -&gt; i32 {
+async fn chain(){
     let _ = await Executor_sleep_ms(5)
     let _ = await Executor_sleep_ms(5)
     return 100
@@ -2324,7 +2250,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn chain() -&gt; i32 {
+async fn chain(){
     let _ = await Executor_sleep_ms(5)
     let _ = await Executor_sleep_ms(5)
     return 100
@@ -2334,8 +2260,7 @@ fn main() -&gt; void {
     let h = chain()
     print(await h)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>100</code></pre>
 </section>
 
@@ -2356,8 +2281,7 @@ fn main() {
 fn main() -&gt; void {
     print(cpu_count())
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>8</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-parallel-array"><code>parallel_array</code></h4>
@@ -2386,8 +2310,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>10
 20
 30
@@ -2417,8 +2340,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0
 2
@@ -2449,8 +2371,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>2
 3
 0
@@ -2481,8 +2402,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 3
 1
@@ -2533,8 +2453,7 @@ fn main() -&gt; void {
     }
     print(all_pos)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 42
 1</code></pre>
@@ -2563,8 +2482,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -2595,8 +2513,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -2627,8 +2544,7 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -2657,13 +2573,15 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
-<pre class="example-output"><code>[#####--------] 33%
+</div><p class="example-output-label">Output</p>
+<pre class="example-output"><code>
+[#####--------] 33%
 Running demo...
-[#########----] 66%
+
+[#########----] 66%
 Running demo...
-[#############] 100%
+
+[#############] 100%
 Running demo...
 0
 1
@@ -2695,8 +2613,7 @@ fn main() -&gt; void {
     h.join()
     print(0)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>99
 0</code></pre>
 
@@ -2718,10 +2635,7 @@ fn main() -&gt; void {
         print(88)
     }
 }</code></pre></div>
-</div>
-
-
-<h4 class="builtin-ex-title" id="ex-spawn"><code>spawn</code></h4>
+</div><h4 class="builtin-ex-title" id="ex-spawn"><code>spawn</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -2743,8 +2657,7 @@ fn main() -&gt; void {
     }
     print(0)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>42</code></pre>
 </section>
 
@@ -2793,8 +2706,7 @@ fn main() -&gt; void {
         run()
     }
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Time: 0.1 ms
 Memory: 0.0 B
 CPU: 99%</code></pre>
@@ -2841,8 +2753,7 @@ fn main() -&gt; void {
     defer a()
     print(&quot;body&quot;)
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>body
 a
 b</code></pre>
@@ -2875,8 +2786,7 @@ fn main() -&gt; void {
     defer cleanup()
     return
 }</code></pre></div>
-</div>
-<p class="example-output-label">Output</p>
+</div><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1</code></pre>
 </section>
 </section>
