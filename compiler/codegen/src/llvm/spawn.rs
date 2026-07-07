@@ -78,7 +78,14 @@ impl Codegen {
         let outer: HashSet<String> = env.keys().cloned().collect();
         let capture_names = collect_captures(body, &outer);
         let spawn_fn = drop_state.next_spawn_key();
-        let spawn_idx = drop_state.spawn_id - 1;
+        // The emitted LLVM symbol uses a per-function counter on `self` (not the
+        // per-`DropState` id): expression spawns get a fresh `DropState` whose id
+        // always restarts at 0, so relying on it produced duplicate
+        // `__spawn_<fn>_0` definitions when a function mixed statement and
+        // expression spawns. `spawn_fn` above stays DropState-derived to keep
+        // drop-plan lookups aligned with the ownership pass.
+        let spawn_idx = self.func_spawn_idx;
+        self.func_spawn_idx += 1;
 
         let mut fields: Vec<(String, String)> = Vec::new();
         for name in &capture_names {

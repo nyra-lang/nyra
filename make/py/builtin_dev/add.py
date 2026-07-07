@@ -245,6 +245,18 @@ def _add_string(spec: BuiltinSpec, *, force: bool) -> ActionResult:
     res.user_tasks.append(f"Fix test expectations in {rel_test}")
     res.user_tasks.append(f"Run: nyra test {rel_test}")
 
+    # The stdlib wrapper added to builtins_string.ny becomes a `define` in the
+    # prelude, so it shows up in the LLVM golden snapshots. Without regenerating
+    # them, `cargo test -p compiler --test codegen_snapshots` (test-cargo-workspace)
+    # fails with a diff of the new wrapper.
+    res.warnings.append(
+        "New stdlib wrapper changes LLVM snapshots — regenerate with: "
+        "INSTA_UPDATE=always cargo test -p compiler --test codegen_snapshots"
+    )
+    res.user_tasks.append(
+        "Update codegen snapshots: INSTA_UPDATE=always cargo test -p compiler --test codegen_snapshots"
+    )
+
     return res
 
 
@@ -337,6 +349,18 @@ def _add_free(spec: BuiltinSpec, *, force: bool) -> ActionResult:
         return patch.add_tuple_line_before(content, "    ])", "        " + sym)
 
     res.patches.append(patch.patch_file(paths["runtime_map"], add_map))
+
+    # The runtime_map entry above is unconditional, so the manifest must gain a
+    # matching entry or `runtime_map_matches_manifest` (test-cargo-workspace)
+    # fails. tier follows stable_abi, so non-stable free fns stay out of the
+    # generated C header. Mirrors the string-builtin path.
+    res.patches.append(
+        patch.upsert_marked_block(
+            paths["abi_manifest"], templates.abi_manifest_block(spec), marker
+        )
+    )
+    if spec.stable_abi:
+        res.warnings.append("Run: make gen-abi-header && make gen-bindings-doc")
 
     if spec.owned_return:
 

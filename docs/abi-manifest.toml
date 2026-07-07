@@ -491,8 +491,8 @@ tier = "experimental"
 since = "1.3.3"
 
 [[symbol]]
-name = "mysql_close"
-c_sig = "void mysql_close(void *handle)"
+name = "nyra_mysql_close"
+c_sig = "void nyra_mysql_close(void *handle)"
 module = "rt_db.c"
 tier = "experimental"
 since = "1.3.3"

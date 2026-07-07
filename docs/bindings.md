@@ -366,9 +366,19 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `str_starts_with` | `int str_starts_with(const char *s, const char *prefix)` | `rt_strings.c` | 1.3.0 | `stdlib/strings/ops.ny` |
 | `str_strip_ansi` | `char *str_strip_ansi(const char *input)` | `rt_strings.c` | 1.3.0 | — |
 | `str_strip_suffix` | `char *str_strip_suffix(const char *s, const char *suffix)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_to_camel_case` | `char *str_to_camel_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_capitalize` | `char *str_to_capitalize(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_dot_case` | `char *str_to_dot_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
 | `str_to_f64` | `double str_to_f64(const char *s)` | `rt_strings.c` | 1.3.3 | `stdlib/strconv/mod.ny` |
 | `str_to_i32` | `int str_to_i32(const char *s)` | `rt_strings.c` | 1.3.0 | `stdlib/strconv/mod.ny`, `stdlib/strings.ny` |
+| `str_to_kebab_case` | `char *str_to_kebab_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
 | `str_to_lower` | `char *str_to_lower(const char *s)` | `rt_strings.c` | 1.1.0 | `stdlib/strings/ops.ny` |
+| `str_to_lowercase` | `char *str_to_lowercase(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_pascal_case` | `char *str_to_pascal_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_screaming_snake_case` | `char *str_to_screaming_snake_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_snake_case` | `char *str_to_snake_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_titlecase` | `char *str_to_titlecase(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
+| `str_to_train_case` | `char *str_to_train_case(const char *s)` | `rt_strings.c` | 1.40.3 | `stdlib/strings.ny` |
 | `str_to_upper` | `char *str_to_upper(const char *s)` | `rt_strings.c` | 1.1.0 | `stdlib/strings/ops.ny` |
 | `str_trim` | `char *str_trim(const char *s)` | `rt_strings.c` | 1.1.0 | `stdlib/strings/ops.ny` |
 | `strstr_pos` | `int strstr_pos(const char *hay, const char *needle)` | `rt_strings.c` | 0.3.0 | `stdlib/config/mod.ny`, `stdlib/gui/picker.ny`, `stdlib/gui/syntax.ny`, `stdlib/strings.ny` |
@@ -465,8 +475,8 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `hw_net_if_name` | `char *hw_net_if_name(int32_t index)` | `rt_hw.c` | 1.3.0 | `stdlib/os/netif.ny` |
 | `hw_power_cpu_temp_centi_c` | `int32_t hw_power_cpu_temp_centi_c(void)` | `rt_hw.c` | 1.3.0 | `stdlib/os/power.ny` |
 | `hw_power_on_ac` | `int32_t hw_power_on_ac(void)` | `rt_hw.c` | 1.3.0 | `stdlib/os/power.ny` |
-| `mysql_close` | `void mysql_close(void *handle)` | `rt_db.c` | 1.3.3 | `stdlib/db/mysql.ny` |
 | `mysql_exec` | `int mysql_exec(void *handle, const char *sql)` | `rt_db.c` | 1.3.3 | `stdlib/db/mysql.ny` |
+| `nyra_mysql_close` | `void nyra_mysql_close(void *handle)` | `rt_db.c` | 1.3.3 | `stdlib/db/mysql.ny` |
 | `os_battery_percent` | `void os_battery_percent(void)` | `rt_os.c` | 0.5.0 | `stdlib/os/battery.ny` |
 | `os_close_fd` | `void os_close_fd(void)` | `rt_syscall.c` | 0.5.0 | `stdlib/os/syscall.ny` |
 | `os_exit` | `void os_exit(void)` | `rt_syscall.c` | 0.5.0 | `stdlib/os/syscall.ny` |

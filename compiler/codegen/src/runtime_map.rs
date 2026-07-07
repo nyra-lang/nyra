@@ -212,7 +212,7 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("postgres_close", "rt_db.c"),
         ("_mysql_stub_open", "rt_db.c"),
         ("mysql_exec", "rt_db.c"),
-        ("mysql_close", "rt_db.c"),
+        ("nyra_mysql_close", "rt_db.c"),
         ("http_get", "rt_http.c"),
         ("http_download_file", "rt_http.c"),
         ("http_status", "rt_http.c"),

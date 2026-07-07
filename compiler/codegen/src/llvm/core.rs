@@ -68,6 +68,7 @@ impl Codegen {
             loop_stack: Vec::new(),
             current_block: "entry".into(),
             func_par_idx: 0,
+            func_spawn_idx: 0,
             fn_attr_sets: Vec::new(),
             repr_c_structs: HashSet::new(),
             union_fields: HashMap::new(),

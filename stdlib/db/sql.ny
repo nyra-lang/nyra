@@ -51,7 +51,7 @@ impl SqlDb {
                 postgres_close(self.handle)
             } else {
                 if strcmp(self.driver, "mysql") == 0 {
-                    mysql_close(self.handle)
+                    nyra_mysql_close(self.handle)
                 }
             }
         }
