@@ -2,6 +2,7 @@
 description: Mandatory Nyra workflow — tests, examples, webDocs, test-all.sh (always apply)
 alwaysApply: true
 ---
+## any update should be support macOS , windows , Linux 
 **Not sure which folder to edit?** See [`docs/contributor-map.md`](../docs/contributor-map.md).
 # Nyra change guidelines (mandatory)
 
@@ -47,6 +48,7 @@ Before finishing:
 ## AI Agent Regression Monitoring (History Log)
 
 As an AI agent, you must ensure the long-term stability and reliability of the system by converting every bug or failure you identify and resolve into a *permanent regression test*. This log serves as an evolving source of truth for the system’s resilience: if you discover a defect, design a targeted test that reproduces it, and make sure it gets added immediately. This way, the test suite acts as an AI memory, persistently encoding learnings to prevent regressions. Over time, this strategy will transform the language into a robust, self-healing platform.
+
 
 ## Scope
 

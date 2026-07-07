@@ -60,12 +60,17 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
 
     res.patches.append(patch.patch_file(RUNTIME_MAP, add_runtime_map))
 
-    if spec.stable_abi:
-        res.patches.append(
-            patch.upsert_marked_block(
-                ABI_MANIFEST, templates.abi_manifest_block(spec, marker), marker
-            )
+    # runtime_map is patched unconditionally above, and the
+    # `runtime_map_matches_manifest` ABI test requires every runtime_map symbol
+    # to exist in docs/abi-manifest.toml. Always emit the manifest block; its
+    # tier is `stable` only when opted in (otherwise `experimental`, which stays
+    # out of the generated C header).
+    res.patches.append(
+        patch.upsert_marked_block(
+            ABI_MANIFEST, templates.abi_manifest_block(spec, marker), marker
         )
+    )
+    if spec.stable_abi:
         res.warnings.append("Run: make gen-abi-header && make gen-bindings-doc")
 
     test_base = f"{spec.fn_name}_test"

@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -169,7 +168,7 @@
 <pre class="pipeline">Source (.ny)
   → parse → monomorph → auto-borrow → typecheck
   → borrow + lifetimes → escape analysis → drop plan
-  → LLVM IR → opt → clang + nyra_rt → binary</pre>
+  → LLVM IR → opt → clang + Nyra runtime → binary</pre>
 <p>Early exit: <code>nyra check .</code> · Verbose escape report: <code>nyra build --verbose .</code></p>
 
 <h3>Built-ins at a glance (no import)</h3>
@@ -237,8 +236,7 @@ Nyra is production-ready on Core + Stable Extended (async, ?, spawn, traits, ser
 Use ```ny fenced blocks for Nyra code.
 Do not invent syntax, enum payloads, or GC.
 Nyra is production-ready on Core + Stable Extended (async, ?, spawn, traits, serde).</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><script>
+</div><!-- NYRA_SNIPPET_END --><script>
 document.getElementById('copy-skill')?.addEventListener('click', function() {
   fetch('nyra-skill.md').then(r=>r.text()).then(t=>navigator.clipboard.writeText(t));
 });

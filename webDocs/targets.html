@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a class="active" href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -136,7 +135,7 @@
     <main class="content">
       <h1 data-i18n="pages.targets.h1">Compilation targets</h1>
       <p class="lead" data-i18n-html="pages.targets.lead">Native binaries, cross-compilation, and WebAssembly.</p>
-<h2>Native (default)</h2><p>clang + <code>nyra_rt.c</code> — full stdlib, timing, memory, channels.</p>
+<h2>Native (default)</h2><p>clang + the Nyra runtime — full stdlib, timing, memory, channels.</p>
 <h2>Cross-compilation</h2>
 <p>Build a release binary for another OS while developing on macOS, Linux, or Windows:</p>
 <pre><code>nyra build . --release --for windows
@@ -158,7 +157,7 @@ nyra build . --release --os linux --arch aarch64</code></pre>
 <p><strong>Windows cross-compile</strong> (<code>--for windows</code>, MinGW <code>*-pc-windows-gnu</code>): hello, print, file I/O, <code>spawn</code> (Win32 threads), TCP/HTTP (Winsock2), and <code>async</code>/<code>await</code> (Win32 sync + <code>select</code> socket I/O). Run the resulting <code>.exe</code> on Windows or Wine. Bridge subprocess (<code>bridge_exec</code>) remains POSIX-only.</p>
 <h2>wasm32-wasi</h2><pre><code>nyra build --for wasm app.ny -o app.wasm
 nyra build --target wasm32-wasi app.ny -o app.wasm</code></pre>
-<p>Links <code>nyra_rt_wasi.c</code>. Timing/memory no-ops; spawn limited.</p>
+<p>Timing/memory no-ops; spawn limited.</p>
       <footer class="site-footer"><a href="performance.html">Performance →</a></footer>
     </main>
   </div>

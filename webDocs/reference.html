@@ -123,7 +123,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -184,7 +183,7 @@
           <tr><td><code>unsafe</code></td><td>Block for raw memory (deref, ptr arithmetic, raw casts)</td></tr>
           <tr><td><code>asm</code></td><td>Inline assembly: <code>asm "template"</code> (inside <code>unsafe</code>)</td></tr>
           <tr><td><code>as</code></td><td>Type cast: <code>expr as Type</code> (raw casts need <code>unsafe</code>)</td></tr>
-          <tr><td><code>no_std</code></td><td>Top-level directive — skip <code>nyra_rt</code> link; no <code>print</code>/<code>spawn</code></td></tr>
+          <tr><td><code>no_std</code></td><td>Top-level directive — skip runtime link; no <code>print</code>/<code>spawn</code></td></tr>
           <tr><td><code>move</code> / <code>clone</code></td><td>Unary prefixes at call sites — explicit move or clone (v2.9)</td></tr>
           <tr><td><code>async</code> / <code>await</code></td><td>Stable Extended — promises + <code>await</code>; not on wasm32</td></tr>
           <tr><td><code>trait</code> / <code>dyn</code></td><td>Stable Extended — <code>impl Trait for Type</code>, trait objects <code>dyn Trait</code></td></tr>
@@ -257,8 +256,7 @@ let x = 1 /* inline */ + 2
 /*
  * multiline doc
  */</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>See <a href="learn-comments.html">Learn → Comments</a> · Tests: <code>tests/nyra/block_comments_test.ny</code> · <code>CONF-COMMENT-*</code></p>
+</div><!-- NYRA_SNIPPET_END -->      <p>See <a href="learn-comments.html">Learn → Comments</a> · Tests: <code>tests/nyra/block_comments_test.ny</code> · <code>CONF-COMMENT-*</code></p>
 
       <h2 id="literals">Literals</h2>
       <table>
@@ -357,8 +355,7 @@ unsafe {
     *p = 99
     print(*p)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <table>
+</div><!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Inside <code>unsafe</code></th><th>Outside <code>unsafe</code></th></tr></thead>
         <tbody>
           <tr><td><code>*ptr</code> load / <code>*ptr = v</code> store on <code>*T</code> or <code>ptr</code></td><td><code>&amp;T</code> / <code>&amp;mut T</code> only</td></tr>
@@ -421,8 +418,7 @@ unsafe {
         // custom cleanup
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p><code>Drop</code> and <code>Clone</code> are wired in the compiler. User traits: <code>trait</code> defs, <code>impl Trait for Type</code>, and dynamic dispatch via <code>dyn Trait</code> / <code>value as dyn Trait</code> (Extended MVP). See <a href="traits-macros.html">Traits &amp; macros</a> and <code>examples/trait_dyn.ny</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p><code>Drop</code> and <code>Clone</code> are wired in the compiler. User traits: <code>trait</code> defs, <code>impl Trait for Type</code>, and dynamic dispatch via <code>dyn Trait</code> / <code>value as dyn Trait</code> (Extended MVP). See <a href="traits-macros.html">Traits &amp; macros</a> and <code>examples/trait_dyn.ny</code>.</p>
 
       <h2 id="pipeline">Compiler pipeline</h2>
       <pre class="pipeline">Source (.ny)
@@ -431,7 +427,7 @@ unsafe {
   → Auto-borrow coercion
   → Typecheck → Ownership (Copy inference) → Borrow + Lifetimes + Send/Sync
   → Drop plan → LLVM IR (f64/double, spawn, custom drop)
-  → opt → clang + nyra_rt.c → binary</pre>
+  → opt → clang + Nyra runtime → binary</pre>
       <p>Stop early: <code>nyra check .</code> or <code>nyra diag .</code>. See <a href="tooling.html">Toolchain</a>.</p>
 
       <footer class="site-footer"><a href="stdlib.html">Standard library →</a></footer>

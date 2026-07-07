@@ -125,7 +125,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -141,6 +140,7 @@
       <section class="hero-landing" aria-labelledby="hero-title">
         <div class="hero-facet-bg" aria-hidden="true"></div>
         <div class="hero-glow-orb" aria-hidden="true"></div>
+        <div class="hero-landing-inner">
           <div class="hero-copy">
             <span class="pill" data-i18n="pages.index.pill">Documentation v1.40.x</span>
             <h1 id="hero-title">
@@ -151,17 +151,6 @@
             <p class="hero-lead" data-i18n="pages.index.lead">
               Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.
             </p>
-            <div class="hero-install" aria-label="Install commands">
-              <div class="hero-install-block">
-                <span class="hero-install-label" data-i18n="pages.index.installNyraLabel">Nyra</span>
-                <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></pre>
-              </div>
-              <div class="hero-install-block">
-                <span class="hero-install-label" data-i18n="pages.index.installPkgLabel">nyrapkg (package manager)</span>
-                <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh</code></pre>
-              </div>
-              <p class="hero-install-hint" data-i18n-html="pages.index.installHint">Then: <code>source ~/.zshrc</code> · <a href="install.html">full install guide</a></p>
-            </div>
             <ul class="hero-chips" aria-label="Core traits">
               <li data-i18n="pages.index.chipFast">Fast</li>
               <li data-i18n="pages.index.chipSafe">Safe</li>
@@ -177,6 +166,30 @@
               </a>
             </div>
           </div>
+
+          <div class="hero-code" aria-hidden="true">
+            <div class="hero-code-window">
+              <div class="hero-code-bar">
+                <span class="hero-code-dots"><i></i><i></i><i></i></span>
+                <span class="hero-code-file">main.ny</span>
+                <span class="hero-code-run">nyra run .</span>
+              </div>
+              <pre class="hero-code-body"><code id="hero-typed"></code><span class="hero-caret" aria-hidden="true"></span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-install" aria-label="Install commands">
+          <div class="hero-install-block">
+            <span class="hero-install-label" data-i18n="pages.index.installNyraLabel">Nyra</span>
+            <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></pre>
+          </div>
+          <div class="hero-install-block">
+            <span class="hero-install-label" data-i18n="pages.index.installPkgLabel">nyrapkg (package manager)</span>
+            <pre class="hero-install-cmd"><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh</code></pre>
+          </div>
+          <p class="hero-install-hint" data-i18n-html="pages.index.installHint">Then: <code>source ~/.zshrc</code> · <a href="install.html">full install guide</a></p>
+        </div>
       </section>
 
       <section class="overview-section" id="about">
@@ -188,7 +201,7 @@
           <article class="about-card">
             <span class="about-icon" aria-hidden="true">.ny</span>
             <h3 data-i18n="pages.index.aboutSourceH">Source</h3>
-            <p data-i18n-html="pages.index.aboutSourceP">Programs live in <code>.ny</code> files. A Nyra frontend emits <strong>LLVM IR</strong>, then <strong>clang</strong> links with <code>nyra_rt.c</code> for I/O and runtime helpers.</p>
+            <p data-i18n-html="pages.index.aboutSourceP">Programs live in <code>.ny</code> files. A Nyra frontend emits <strong>LLVM IR</strong>, then <strong>clang</strong> links the Nyra runtime for I/O and runtime helpers.</p>
           </article>
           <article class="about-card">
             <span class="about-icon" aria-hidden="true">◇</span>
@@ -266,7 +279,7 @@
           <div class="pipeline-step pipeline-step-final">
             <span class="pipeline-num">4</span>
             <strong data-i18n="pages.index.pipeFinal">Native binary</strong>
-            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailFinal">clang + nyra_rt.c</span>
+            <span class="pipeline-detail" data-i18n="pages.index.pipeDetailFinal">clang + Nyra runtime</span>
           </div>
         </div>
       </section>

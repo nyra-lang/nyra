@@ -14,8 +14,13 @@ ${tabBlock(pair)}
 ${outHtml}`;
 }
 
-export function stdlibGalleryBlock(pair) {
+export function stdlibGalleryBlock(pair, output) {
+  const outHtml = output
+    ? `<p class="example-output-label">Output</p>
+<pre class="example-output"><code>${escapeHtml(output)}</code></pre>`
+    : "";
   return `
 <h4 class="builtin-ex-title" id="ex-${pair.id}"><code>${escapeHtml(pair.title)}</code></h4>
-${tabBlock(pair)}`;
+${tabBlock(pair)}
+${outHtml}`;
 }

@@ -1,3 +1,3 @@
 fn main() -> void {
-    print("hello".to_pascal_case())
+    print("Hello World".to_pascal_case())
 }

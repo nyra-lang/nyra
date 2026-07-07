@@ -89,6 +89,11 @@ def abi_manifest_block(spec: StdlibFnSpec, marker: str) -> str:
     params = [f"{c_type(a.nyra_type)} {a.name}" for a in spec.args]
     ret = c_type(spec.returns, is_return=True)
     sig = ", ".join(params) if params else "void"
+    # Keep the manifest a superset of runtime_map (see the
+    # `runtime_map_matches_manifest` ABI test). Symbols that did not opt into
+    # the stable ABI are recorded as `experimental`, which the test allows while
+    # keeping them out of the generated stdlib/nyra_rt.h header.
+    tier = "stable" if spec.stable_abi else "experimental"
     return "\n".join(
         [
             marker_start(marker, lang="toml"),
@@ -96,7 +101,7 @@ def abi_manifest_block(spec: StdlibFnSpec, marker: str) -> str:
             f'name = "{spec.fn_name}"',
             f'c_sig = "{ret}{spec.fn_name}({sig})"',
             f'module = "{spec.rt_module}"',
-            'tier = "stable"',
+            f'tier = "{tier}"',
             f'since = "{spec.abi_since}"',
             marker_end(marker, lang="toml"),
             "",

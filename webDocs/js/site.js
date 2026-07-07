@@ -23,6 +23,7 @@
     lang: DEFAULT_LANG,
     theme: DEFAULT_THEME,
     strings: {},
+    content: {},
   };
 
   function getNested(obj, path) {
@@ -52,6 +53,25 @@
       });
   }
 
+  /* Body-prose dictionary (only Arabic has one). English is the source of truth. */
+  function loadContentLocale(lang) {
+    if (lang === 'en') {
+      state.content = {};
+      return Promise.resolve();
+    }
+    return fetch('locales/' + lang + '-content.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('content locale ' + lang);
+        return r.json();
+      })
+      .then(function (data) {
+        state.content = data || {};
+      })
+      .catch(function () {
+        state.content = {};
+      });
+  }
+
   function applyTheme(theme) {
     state.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
@@ -65,6 +85,57 @@
     }
     updateThemeToggleUi();
     localStorage.setItem(STORAGE_THEME, theme);
+  }
+
+  /* ——— Smart body-prose translation ———
+     Translates whole text blocks (headings, paragraphs, list items, cells…) using
+     a dictionary keyed by the original English innerHTML. Code blocks, inline
+     <code> (method/type names), and elements already handled by data-i18n are
+     never touched, so identifiers like print() or i32 stay verbatim. */
+  var TRANSLATE_BLOCKS =
+    'h1,h2,h3,h4,h5,h6,p,li,figcaption,blockquote,th,td,dt,dd,summary,' +
+    '.section-desc,.lesson-meta,.example-output-label,.builtin-ex-title,' +
+    '.bento-kicker,.pillar-label,.callout>strong,.lesson-nav-hub,' +
+    '.lesson-nav-prev,.lesson-nav-next,.code-tab';
+  var NO_TRANSLATE_ANCESTORS =
+    'pre,code,.file-tree,script,style,svg,.no-translate,[data-no-translate]';
+  var NESTED_BLOCK = 'p,ul,ol,li,div,table,pre,section,h1,h2,h3,h4,h5,h6,blockquote,dl';
+
+  function normalizeKey(s) {
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  function translateBlocks(lang) {
+    var root = document.querySelector('main') || document.body;
+    if (!root) return;
+    var blocks = state.content && state.content.blocks ? state.content.blocks : null;
+    var els = root.querySelectorAll(TRANSLATE_BLOCKS);
+
+    els.forEach(function (el) {
+      if (el.hasAttribute('data-i18n') || el.hasAttribute('data-i18n-html')) return;
+      if (el.closest(NO_TRANSLATE_ANCESTORS)) return;
+      // Skip wrappers that contain their own translatable blocks; translate leaves.
+      if (el.querySelector(NESTED_BLOCK)) return;
+
+      if (el.dataset.nyraOrig === undefined) {
+        el.dataset.nyraOrig = el.innerHTML;
+      }
+      var original = el.dataset.nyraOrig;
+
+      if (lang === 'ar' && blocks) {
+        var val = blocks[normalizeKey(original)];
+        if (typeof val === 'string') {
+          if (el.innerHTML !== val) el.innerHTML = val;
+          el.dataset.nyraTr = '1';
+          return;
+        }
+      }
+      // No translation (or EN): restore the authored English once.
+      if (el.dataset.nyraTr === '1') {
+        el.innerHTML = original;
+        delete el.dataset.nyraTr;
+      }
+    });
   }
 
   function applyLang(lang) {
@@ -108,6 +179,8 @@
       var title = t(titleKey);
       if (title) document.title = title;
     }
+
+    translateBlocks(lang);
 
     updateLangToggleUi();
     localStorage.setItem(STORAGE_LANG, lang);
@@ -189,7 +262,7 @@
 
   function switchLang(lang) {
     if (lang === state.lang) return;
-    loadLocale(lang)
+    Promise.all([loadLocale(lang), loadContentLocale(lang)])
       .then(function () {
         applyLang(lang);
         ensureCodeTabs();
@@ -474,6 +547,137 @@
     });
   }
 
+  /* ——— Hero: animated Nyra code typing ———
+     Renders a small editor window that types Nyra snippets with live syntax
+     highlighting and a blinking caret, then cycles to the next snippet. */
+  function initHeroTyping() {
+    var out = document.getElementById('hero-typed');
+    if (!out || out.dataset.bound === '1') return;
+    out.dataset.bound = '1';
+
+    var SNIPPETS = [
+      'fn main() -> void {\n' +
+        '    let name = "Nyra"\n' +
+        '    let mut count = 0\n' +
+        '    for i in 0..3 {\n' +
+        '        count = count + i\n' +
+        '        print("hello, " + name)\n' +
+        '    }\n' +
+        '}',
+      'struct Panther {\n' +
+        '    name: string\n' +
+        '    speed: i32\n' +
+        '}\n\n' +
+        'fn run(p: Panther) -> void {\n' +
+        '    print(p.name)\n' +
+        '}',
+      'async fn fetch(url: string) -> i32 {\n' +
+        '    let body = await get(url)\n' +
+        '    return body.len()\n' +
+        '}',
+    ];
+
+    var KEYWORDS = {
+      fn: 1, let: 1, mut: 1, const: 1, struct: 1, enum: 1, impl: 1, trait: 1,
+      for: 1, in: 1, while: 1, if: 1, else: 1, match: 1, return: 1, spawn: 1,
+      defer: 1, async: 1, await: 1, extern: 1, export: 1, import: 1, module: 1,
+      use: 1, pub: 1, move: 1, true: 1, false: 1,
+    };
+    var TYPES = {
+      i32: 1, i64: 1, u32: 1, u64: 1, f32: 1, f64: 1, bool: 1, string: 1,
+      void: 1, ptr: 1, usize: 1, isize: 1, char: 1,
+    };
+
+    var tokenRe =
+      /\/\/[^\n]*|"([^"\\]|\\.)*"|->|::|\.\.|\b(?:0x[0-9A-Fa-f_]+|\d[\d_]*)\b|\b[A-Za-z_][A-Za-z0-9_]*\b|[()[\]{}.,;:+\-*/%=&|!<>?]+|\s+|[^\s]/g;
+
+    function tokenize(src) {
+      var tokens = [];
+      var m;
+      tokenRe.lastIndex = 0;
+      while ((m = tokenRe.exec(src)) !== null) {
+        var tok = m[0];
+        var cls = '';
+        if (/^\s+$/.test(tok)) cls = '';
+        else if (tok.indexOf('//') === 0) cls = 'tok-comment';
+        else if (tok.charAt(0) === '"') cls = 'tok-string';
+        else if (tok === 'true' || tok === 'false') cls = 'tok-boolean';
+        else if (/^(?:0x[0-9A-Fa-f_]+|\d[\d_]*)$/.test(tok)) cls = 'tok-number';
+        else if (KEYWORDS[tok]) cls = 'tok-keyword';
+        else if (TYPES[tok] || /^[A-Z][A-Za-z0-9]*$/.test(tok)) cls = 'tok-type';
+        else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(tok)) {
+          var rest = src.slice(m.index + tok.length);
+          if (/^\s*\(/.test(rest)) cls = 'tok-fn';
+        } else if (/^(->|::|\.\.)$/.test(tok) || /^[()[\]{}.,;:+\-*/%=&|!<>?]+$/.test(tok)) {
+          cls = 'tok-operator';
+        }
+        tokens.push({ text: tok, cls: cls });
+      }
+      return tokens;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function renderUpTo(tokens, chars) {
+      var html = '';
+      var used = 0;
+      for (var i = 0; i < tokens.length && used < chars; i++) {
+        var t = tokens[i];
+        var take = Math.min(t.text.length, chars - used);
+        var piece = escapeHtml(t.text.slice(0, take));
+        html += t.cls ? '<span class="' + t.cls + '">' + piece + '</span>' : piece;
+        used += take;
+      }
+      return html;
+    }
+
+    var reduced =
+      window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduced) {
+      var toks = tokenize(SNIPPETS[0]);
+      out.innerHTML = renderUpTo(toks, SNIPPETS[0].length);
+      return;
+    }
+
+    var snippetIndex = 0;
+    var tokens = tokenize(SNIPPETS[0]);
+    var full = SNIPPETS[0];
+    var pos = 0;
+    var typing = true;
+
+    function tick() {
+      out.innerHTML = renderUpTo(tokens, pos);
+      var delay;
+      if (typing) {
+        if (pos < full.length) {
+          pos++;
+          var ch = full.charAt(pos - 1);
+          delay = ch === '\n' ? 90 : 18 + Math.random() * 40;
+        } else {
+          typing = false;
+          delay = 2200;
+        }
+      } else {
+        if (pos > 0) {
+          pos -= 3;
+          if (pos < 0) pos = 0;
+          delay = 12;
+        } else {
+          typing = true;
+          snippetIndex = (snippetIndex + 1) % SNIPPETS.length;
+          full = SNIPPETS[snippetIndex];
+          tokens = tokenize(full);
+          delay = 350;
+        }
+      }
+      window.setTimeout(tick, delay);
+    }
+    tick();
+  }
+
   function init() {
     var lang = localStorage.getItem(STORAGE_LANG) || DEFAULT_LANG;
     var theme = localStorage.getItem(STORAGE_THEME) || DEFAULT_THEME;
@@ -486,8 +690,9 @@
     ensureCodeTabs();
     highlightAllCodeBlocks();
     initCodeTabs();
+    initHeroTyping();
 
-    loadLocale(lang)
+    Promise.all([loadLocale(lang), loadContentLocale(lang)])
       .then(function () {
         applyLang(lang);
         bindMobileNav();

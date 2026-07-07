@@ -1,3 +1,3 @@
 fn main() -> void {
-    print("hello".to_screaming_snake_case())
+    print("Hello World".to_screaming_snake_case())
 }

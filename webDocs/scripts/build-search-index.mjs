@@ -67,7 +67,6 @@ const SECTION_MAP = {
   diagnostics: 'Toolchain',
   'ffi-abi': 'Toolchain',
   'c-bindgen': 'Toolchain',
-  bindings: 'Toolchain',
   targets: 'Toolchain',
   'editor-setup': 'Toolchain',
   packages: 'Toolchain',

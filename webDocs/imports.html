@@ -124,7 +124,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -217,8 +216,7 @@ fn double(x: i32){
 fn triple(x: i32) -&gt; i32 {
     return x * 3
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -238,8 +236,7 @@ fn main() -&gt; void {
     print(double(5))   // 10
     print(triple(5))   // 15
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
+</div><!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
 nyra run .</code></pre>
 
       <p>There is no <code>export</code> keyword per function — every top-level <code>fn</code> in an imported file is visible (unless name collisions; see <a href="#rules">rules</a>).</p>
@@ -271,8 +268,7 @@ struct Point {
 fn origin() -&gt; Point {
     return Point { x: 0, y: 0 }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -294,8 +290,7 @@ fn main() -&gt; void {
     print(p.x)
     print(p.y)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>Split types and operations (calculator pattern)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Split types and operations (calculator pattern)</h3>
       <p>Real project in the Nyra repo: <code>examples/projects/calculator/</code></p>
 
       <pre><code><span class="file-label">types.ny</span>struct Calculator {
@@ -320,8 +315,7 @@ import &quot;types.ny&quot;
 fn add_calc(c: Calculator, n: i32) -&gt; Calculator {
     return Calculator { value: c.value + n }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -345,8 +339,7 @@ fn main() -&gt; void {
     let c2 = add_calc(c, 10)
     print(c2.value)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="enums">Importing enums</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="enums">Importing enums</h2>
       <p>Enum definitions merge like functions. Use <code>Type.Variant</code> syntax after import.</p>
 
       <!-- NYRA_SNIPPET_START -->
@@ -379,8 +372,7 @@ fn is_ok(s: Status) -&gt; i32 {
         Status.Err =&gt; false
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -400,8 +392,7 @@ fn main() -&gt; void {
     let s = Status.Ok
     print(is_ok(s))
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="consts">Importing constants</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="consts">Importing constants</h2>
       <p>Top-level <code>const</code> bindings in imported files are merged into the program.</p>
 
       <!-- NYRA_SNIPPET_START -->
@@ -414,8 +405,7 @@ fn main() -&gt; void {
 const APP_NAME = &quot;MyApp&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>config.nyconst MAX_USERS = 100
 const APP_NAME = &quot;MyApp&quot;</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -435,9 +425,8 @@ fn main() -&gt; void {
     print(MAX_USERS)
     print(APP_NAME)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="stdlib">Standard library files</h2>
-      <p>Runtime helpers are declared in <code>stdlib/*.ny</code> and implemented in C (<code>nyra_rt.c</code>). Builtins <code>print</code>, <code>time_start</code>/<code>time_end</code>, <code>mem_start</code>/<code>mem_end</code> need <strong>no import</strong>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="stdlib">Standard library files</h2>
+      <p>Runtime helpers are declared in <code>stdlib/*.ny</code> and backed by the Nyra C runtime. Builtins <code>print</code>, <code>time_start</code>/<code>time_end</code>, <code>mem_start</code>/<code>mem_end</code> need <strong>no import</strong>.</p>
 
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -461,8 +450,7 @@ fn main() -&gt; void {
     print(s)
     // compiler auto-drops s — no free needed
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Use short paths — no <code>../../../stdlib/...</code> from examples:</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Use short paths — no <code>../../../stdlib/...</code> from examples:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -475,8 +463,7 @@ import &quot;stdlib/json/mod.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/prelude.ny&quot;
 import &quot;stdlib/async.ny&quot;
 import &quot;stdlib/json/mod.ny&quot;</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Full function list: <a href="stdlib.html">Standard library</a>. Refresh installed stdlib with <code>./scripts/updateLang.sh</code> after upgrades.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full function list: <a href="stdlib.html">Standard library</a>. Refresh installed stdlib with <code>./scripts/updateLang.sh</code> after upgrades.</p>
 
       <h2 id="rules">Rules &amp; pitfalls</h2>
       <table>

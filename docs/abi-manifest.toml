@@ -491,8 +491,8 @@ tier = "experimental"
 since = "1.3.3"
 
 [[symbol]]
-name = "mysql_close"
-c_sig = "void mysql_close(void *handle)"
+name = "nyra_mysql_close"
+c_sig = "void nyra_mysql_close(void *handle)"
 module = "rt_db.c"
 tier = "experimental"
 since = "1.3.3"
@@ -3385,4 +3385,94 @@ module = "rt_strings.c"
 tier = "stable"
 since = "1.0.0"
 # [/builtin-dev:strip_suffix:string]
+
+# [builtin-dev:to_snake_case:string]
+[[symbol]]
+name = "str_to_snake_case"
+c_sig = "char *str_to_snake_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_snake_case:string]
+
+# [builtin-dev:to_lowercase:string]
+[[symbol]]
+name = "str_to_lowercase"
+c_sig = "char *str_to_lowercase(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_lowercase:string]
+
+# [builtin-dev:to_titlecase:string]
+[[symbol]]
+name = "str_to_titlecase"
+c_sig = "char *str_to_titlecase(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_titlecase:string]
+
+# [builtin-dev:to_capitalize:string]
+[[symbol]]
+name = "str_to_capitalize"
+c_sig = "char *str_to_capitalize(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_capitalize:string]
+
+# [builtin-dev:to_camel_case:string]
+[[symbol]]
+name = "str_to_camel_case"
+c_sig = "char *str_to_camel_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_camel_case:string]
+
+# [builtin-dev:to_kebab_case:string]
+[[symbol]]
+name = "str_to_kebab_case"
+c_sig = "char *str_to_kebab_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_kebab_case:string]
+
+# [builtin-dev:to_pascal_case:string]
+[[symbol]]
+name = "str_to_pascal_case"
+c_sig = "char *str_to_pascal_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_pascal_case:string]
+
+# [builtin-dev:to_screaming_snake_case:string]
+[[symbol]]
+name = "str_to_screaming_snake_case"
+c_sig = "char *str_to_screaming_snake_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_screaming_snake_case:string]
+
+# [builtin-dev:to_train_case:string]
+[[symbol]]
+name = "str_to_train_case"
+c_sig = "char *str_to_train_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_train_case:string]
+
+# [builtin-dev:to_dot_case:string]
+[[symbol]]
+name = "str_to_dot_case"
+c_sig = "char *str_to_dot_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_dot_case:string]
 

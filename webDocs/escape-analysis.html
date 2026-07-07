@@ -122,7 +122,6 @@
       <li><a class="active" href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -162,7 +161,7 @@
       <p>Struct literals with spread (<code>..p</code>) are excluded from SROA — the compiler keeps a single struct binding.</p>
 
       <h2>LocalChannel</h2>
-      <p>When a <code>Channel&lt;T&gt;</code> is <strong>NoEscape</strong> and never captured by <code>spawn</code>, Nyra emits a stack <strong>LocalChannel</strong>: a fixed-capacity ring buffer (16 slots) with inline send/recv IR — no <code>pthread_mutex</code>, no calls into <code>rt_channel.c</code>.</p>
+      <p>When a <code>Channel&lt;T&gt;</code> is <strong>NoEscape</strong> and never captured by <code>spawn</code>, Nyra emits a stack <strong>LocalChannel</strong>: a fixed-capacity ring buffer (16 slots) with inline send/recv — no locking and no runtime channel calls.</p>
       <p>If the channel handle or its messages escape to another thread, the plan falls back to the normal runtime channel.</p>
       <p>See also: <a href="concurrency.html">Concurrency</a> · <a href="memory.html">Memory &amp; ownership</a>.</p>
 
@@ -188,8 +187,7 @@ fn bad(#[no_escape] data){
 fn bad(#[no_escape] data: i32){
     return data   // compile error E0602
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <ul>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
         <li><strong>E0601</strong> — <code>#[no_escape]</code> is only allowed on <code>&amp;T</code> parameters.</li>
         <li><strong>E0602</strong> — the parameter would escape (return, <code>spawn</code>, or channel send).</li>
       </ul>
@@ -244,8 +242,7 @@ fn main() -&gt; void {
 
     print(active_id)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>user</code> and <code>chan</code> are NoEscape; <code>chan</code> becomes LocalChannel.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>user</code> and <code>chan</code> are NoEscape; <code>chan</code> becomes LocalChannel.</p>
 
       <h2>Limitations</h2>
       <ul>

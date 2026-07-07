@@ -122,7 +122,6 @@
       <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
       <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
       <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
-      <li><a href="bindings.html" data-i18n="nav.bindings">Runtime bindings</a></li>
       <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
       <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
       <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
@@ -207,7 +206,7 @@
 
 <h2>v1.18.0 (2026-06-24)</h2>
 <ul>
-<li><strong>SQLite row cursor</strong> — <code>query_rows()</code>, <code>SqliteRowset</code> (<code>rt_sqlite.c</code>)</li>
+<li><strong>SQLite row cursor</strong> — <code>query_rows()</code>, <code>SqliteRowset</code></li>
 <li><strong>RESP2</strong> — <code>stdlib/db/resp.ny</code> encode/decode for Redis-style wire</li>
 <li><strong>BTreeMap</strong> — sorted <code>BTreeMap_str_str</code> / <code>BTreeMap_str_i32</code> in <code>btree_map.ny</code></li>
 <li><strong>SSTable + fsync</strong> — <code>stdlib/db/sstable.ny</code>, <code>fsync_file()</code></li>
@@ -228,7 +227,7 @@
 
 <h2>v1.16.0 (2026-06-24)</h2>
 <ul>
-<li><strong>Trig stdlib</strong> — <code>sin</code>, <code>cos</code>, <code>atan2</code>, <code>tan</code> (<code>stdlib/math.ny</code>, compiler intrinsics + <code>rt_math.c</code>)</li>
+<li><strong>Trig stdlib</strong> — <code>sin</code>, <code>cos</code>, <code>atan2</code>, <code>tan</code> (<code>stdlib/math.ny</code>)</li>
 <li><strong><code>random_f64()</code></strong> — unit-interval random doubles</li>
 <li><strong>Terminal raw keys</strong> — <code>terminal_raw_on</code>, <code>terminal_read_key</code></li>
 <li><strong><code>FixedStep</code></strong> — fixed-Hz tick accumulator (<code>stdlib/time/fixed_step.ny</code>)</li>
@@ -301,8 +300,8 @@
 <h2>v1.2.1 (I/O — 2026-06-19)</h2>
 <ul>
 <li><strong>Colored <code>print</code></strong> — <code>print("msg", color: red)</code>; named colors, <code>#RGB</code> / <code>#RRGGBB</code>, <code>rgb(r,g,b)</code>, or <code>string</code> variable</li>
-<li><strong>String escapes</strong> — <code>\033</code> (octal), <code>\x1b</code> (hex), <code>\u{…}</code> (Unicode) in double-quoted strings; fixes Unicode literal codegen (UTF-8 in LLVM IR)</li>
-<li><strong>Runtime</strong> — <code>color_ansi</code>, <code>ansi_reset</code> in <code>rt_io.c</code></li>
+<li><strong>String escapes</strong> — <code>\033</code> (octal), <code>\x1b</code> (hex), <code>\u{…}</code> (Unicode) in double-quoted strings</li>
+<li><strong>Color output</strong> — <code>color_ansi</code>, <code>ansi_reset</code> helpers</li>
 <li><strong><code>nyra pkg init</code></strong> — scaffolds <code>src/ASCII.ny</code> (Nyra logo) imported from <code>main.ny</code></li>
 </ul>
 
@@ -362,7 +361,7 @@
 <h2>v2.5.0 (shared ownership — 2026-06-15)</h2>
 <ul>
 <li><strong>Generic Arc&lt;T&gt;</strong> — <code>Arc&lt;i32&gt;</code>, <code>Arc&lt;string&gt;</code> via monomorph (<code>Arc__i32</code>, <code>Arc__string</code>)</li>
-<li><strong>Arc runtime</strong> — <code>stdlib/rt/rt_arc.c</code>: refcount cells for i32 and string payloads; <code>arc_dec_string</code> frees heap strings</li>
+<li><strong>Arc runtime</strong> — refcount cells for i32 and string payloads; heap strings freed automatically</li>
 <li><strong>Auto Drop for Arc__*</strong> — compiler synthesizes <code>impl Drop</code> for monomorphized <code>Arc</code> instances</li>
 <li><strong>?? + Option&lt;T&gt;</strong> — infers <code>Option&lt;i32&gt;</code> from <code>Option.None ?? 42</code> before monomorph</li>
 <li><strong>Example</strong> — <code>examples/graph_arc_smoke.ny</code> (shared <code>Arc&lt;string&gt;</code> in graph edges)</li>
@@ -427,12 +426,11 @@
 <li><strong>NyraPkg install</strong> — <code>nyra pkg install ny-sqlite@^0.1.0</code> fetches into <code>.nyra/cache/</code>, merges <code>link</code> lines; <code>import "pkg/ny-sqlite"</code></li>
 <li><strong>NyraPkg semver + registry</strong> — <code>require ny-sqlite ^0.1.0</code>, persistent <code>pkg-registry</code> (<code>~/.nyra/registry/index.json</code>), <code>nyra pkg verify</code> / <code>publish</code></li>
 <li><strong>Package C auto-link</strong> — <code>link-source rt/sqlite.c</code> in package <code>nyra.mod</code>; compiled automatically at <code>nyra build</code></li>
-<li><strong>Bindings reference</strong> — <a href="bindings.html">Runtime bindings</a> generated from <code>docs/abi-manifest.toml</code> + stdlib scan</li>
 <li><strong>Language bridge</strong> — <code>stdlib/bridge/mod.ny</code> · Python/Node/Java workers (<code>examples/bridge/</code>) · <a href="https://github.com/nyra-lang/nyra/blob/main/docs/bridge.md">docs/bridge.md</a></li>
-<li><strong>TLS / HTTPS stable</strong> — OpenSSL in <code>rt_tls.c</code>; <code>get("https://…")</code> · example <code>examples/projects/https_smoke/</code></li>
+<li><strong>TLS / HTTPS stable</strong> — <code>get("https://…")</code> · example <code>examples/projects/https_smoke/</code></li>
 <li><strong>Modular stdlib</strong> — collections, strings/ops, regex, fs/path, time/instant, json, iter, crypto stubs, uuid, env, terminal, config, bench, profile, and more under <code>stdlib/</code></li>
 <li><strong>Vec_i32 / HashMap_str_i32</strong> — method syntax <code>v.push(x)</code>; free helpers <code>vec_len</code> for stdlib internals</li>
-<li><strong>ABI 1.1</strong> — <code>file_exists</code>, <code>str_to_upper</code>, <code>instant_now</code>, <code>random_hex</code>, … (see <code>stdlib/nyra_rt.h</code>)</li>
+<li><strong>ABI 1.1</strong> — <code>file_exists</code>, <code>str_to_upper</code>, <code>instant_now</code>, <code>random_hex</code>, …</li>
 <li><strong>Examples</strong> — <code>examples/stdlib/demo/</code>, <code>examples/stdlib/extended/</code></li>
 <li><strong>Docs</strong> — <a href="stdlib.html">Standard library</a> reference expanded; NyraPkg path for crypto/SQLite/WebSocket</li>
 </ul>
@@ -447,7 +445,7 @@
 <h2>v0.5.0 (2026-06-05)</h2>
 <ul>
 <li><strong>Unsafe memory</strong> — <code>unsafe { }</code>, typed <code>*T</code> raw pointers, <code>expr as Type</code>, pointer arithmetic, deref/store</li>
-<li><strong><code>no_std</code></strong> — top-level directive or <code>--no-std</code>; skips <code>nyra_rt</code> link</li>
+<li><strong><code>no_std</code></strong> — top-level directive or <code>--no-std</code>; skips the runtime link</li>
 <li><strong>Freestanding</strong> — <code>nyra build --freestanding</code> (<code>-ffreestanding -nostdlib</code>)</li>
 <li><strong>Stdlib</strong> — <code>stdlib/core/mem.ny</code> (<code>malloc</code>, <code>memcpy</code>, volatile MMIO)</li>
 <li>Example: <code>examples/unsafe/raw_memory/main.ny</code></li>

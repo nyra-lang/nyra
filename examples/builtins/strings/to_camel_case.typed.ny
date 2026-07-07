@@ -1,3 +1,3 @@
 fn main() -> void {
-    print("hello".to_camel_case())
+    print("Hello World".to_camel_case())
 }

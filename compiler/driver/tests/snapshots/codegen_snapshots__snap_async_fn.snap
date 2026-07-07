@@ -237,7 +237,17 @@ declare ptr @str_replace(ptr %0, ptr %1, ptr %2)
 declare ptr @str_replacen(ptr %0, ptr %1, ptr %2, i32 %3)
 declare ptr @str_split(ptr %0, ptr %1)
 declare ptr @str_strip_suffix(ptr %0, ptr %1)
+declare ptr @str_to_camel_case(ptr %0)
+declare ptr @str_to_capitalize(ptr %0)
+declare ptr @str_to_dot_case(ptr %0)
+declare ptr @str_to_kebab_case(ptr %0)
 declare ptr @str_to_lower(ptr %0)
+declare ptr @str_to_lowercase(ptr %0)
+declare ptr @str_to_pascal_case(ptr %0)
+declare ptr @str_to_screaming_snake_case(ptr %0)
+declare ptr @str_to_snake_case(ptr %0)
+declare ptr @str_to_titlecase(ptr %0)
+declare ptr @str_to_train_case(ptr %0)
 declare ptr @str_to_upper(ptr %0)
 declare ptr @str_trim(ptr %0)
 declare ptr @strip_ansi(ptr %0)
@@ -3061,9 +3071,59 @@ entry:
   %call.N = call ptr @str_strip_suffix(ptr %0, ptr %1)
   ret ptr %call.N
 }
+define ptr @String_toCamelCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_camel_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toCapitalize(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_capitalize(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toDotCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_dot_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toKebabCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_kebab_case(ptr %0)
+  ret ptr %call.N
+}
 define ptr @String_toLowerCase(ptr %0) {
 entry:
   %call.N = call ptr @str_to_lower(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toLowercase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_lowercase(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toPascalCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_pascal_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toScreamingSnakeCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_screaming_snake_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toSnakeCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_snake_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toTitlecase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_titlecase(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_toTrainCase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_train_case(ptr %0)
   ret ptr %call.N
 }
 define ptr @String_toUpperCase(ptr %0) {
@@ -4088,6 +4148,56 @@ entry:
 define ptr @tls_read(i32 %0, i32 %1) {
 entry:
   %call.N = call ptr @rt_tls_read(i32 %0, i32 %1)
+  ret ptr %call.N
+}
+define ptr @to_camel_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_camel_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_capitalize(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_capitalize(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_dot_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_dot_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_kebab_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_kebab_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_lowercase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_lowercase(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_pascal_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_pascal_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_screaming_snake_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_screaming_snake_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_snake_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_snake_case(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_titlecase(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_titlecase(ptr %0)
+  ret ptr %call.N
+}
+define ptr @to_train_case(ptr %0) {
+entry:
+  %call.N = call ptr @str_to_train_case(ptr %0)
   ret ptr %call.N
 }
 define ptr @toml_decode_field(ptr %0, ptr %1) {

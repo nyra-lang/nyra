@@ -1209,6 +1209,36 @@ int32_t shm_unlink_region(const char *name);
 /* since Nyra 1.0.0 */
 char *str_strip_suffix(const char *s, const char *suffix);
 
+/* since Nyra 1.40.3 */
+char *str_to_snake_case(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_lowercase(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_titlecase(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_capitalize(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_camel_case(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_kebab_case(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_pascal_case(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_screaming_snake_case(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_train_case(const char *s);
+
+/* since Nyra 1.40.3 */
+char *str_to_dot_case(const char *s);
+
 #ifdef __cplusplus
 }
 #endif

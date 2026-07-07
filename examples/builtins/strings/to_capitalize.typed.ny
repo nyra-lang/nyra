@@ -1,3 +1,3 @@
 fn main() -> void {
-    print("hello".to_capitalize())
+    print("hello world".to_capitalize())
 }

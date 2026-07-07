@@ -485,6 +485,7 @@ impl Codegen {
         self.loop_stack.clear();
         self.current_func = func.name.clone();
         self.func_par_idx = 0;
+        self.func_spawn_idx = 0;
         let mut env: Env = HashMap::new();
         for (i, param) in func.params.iter().enumerate() {
             self.track_local_int_kind_ann(&param.name, &param.ty);
