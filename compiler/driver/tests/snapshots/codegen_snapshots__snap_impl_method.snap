@@ -8,6 +8,9 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [5 x i8] c" = \22\00", align 1
 @.str.N = private unnamed_addr constant [18 x i8] c" HTTP/1.N\0D\0AHost: \00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c": \00", align 1
+@.str.N = private unnamed_addr constant [7 x i8] c"secure\00", align 1
+@.str.N = private unnamed_addr constant [6 x i8] c"start\00", align 1
+@.str.N = private unnamed_addr constant [7 x i8] c"status\00", align 1
 @.str.N = private unnamed_addr constant [25 x i8] c"text/html; charset=utf-8\00", align 1
 @.str.N = private unnamed_addr constant [26 x i8] c"text/plain; charset=utf-8\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"text/plain\00", align 1
@@ -15,21 +18,23 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [6 x i8] c"trace\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"true\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"url\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c": \22\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"user_agent\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"year\00", align 1
+@.str.N = private unnamed_addr constant [11 x i8] c"{\22error\22:\22\00", align 1
 @.str.N = private unnamed_addr constant [24 x i8] c"{\22error\22:\22bad request\22}\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c": \22\00", align 1
 @.str.N = private unnamed_addr constant [34 x i8] c"{\22error\22:\22internal server error\22}\00", align 1
 @.str.N = private unnamed_addr constant [31 x i8] c"{\22error\22:\22method not allowed\22}\00", align 1
 @.str.N = private unnamed_addr constant [22 x i8] c"{\22error\22:\22not found\22}\00", align 1
+@.str.N = private unnamed_addr constant [27 x i8] c"{\22error\22:\22request failed\22}\00", align 1
 @.str.N = private unnamed_addr constant [25 x i8] c"{\22error\22:\22unauthorized\22}\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:10,\22b\22:32}\00", align 1
+@.str.N = private unnamed_addr constant [2 x i8] c":\00", align 1
 @.str.N = private unnamed_addr constant [28 x i8] c"{\22op\22:\22add\22,\22a\22:100,\22b\22:23}\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22add\22,\22a\22:19,\22b\22:23}\00", align 1
 @.str.N = private unnamed_addr constant [17 x i8] c"{\22op\22:\22add\22,\22a\22:\00", align 1
 @.str.N = private unnamed_addr constant [27 x i8] c"{\22op\22:\22eval\22,\22expr\22:\226*7\22}\00", align 1
 @.str.N = private unnamed_addr constant [22 x i8] c"{\22op\22:\22eval\22,\22expr\22:\22\00", align 1
-@.str.N = private unnamed_addr constant [2 x i8] c":\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"}\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"?\00", align 1
 @.str.N = private unnamed_addr constant [12 x i8] c"Bad Request\00", align 1
@@ -47,64 +52,67 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [269 x i8] c"HTTP/1.N 204 No Content\0D\0AAccess-Control-Allow-Origin: *\0D\0AAccess-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD\0D\0AAccess-Control-Allow-Headers: Content-Type, Authorization\0D\0AAccess-Control-Max-Age: 86400\0D\0AContent-Length: 0\0D\0AConnection: keep-alive\0D\0A\0D\0A\00", align 1
 @.str.N = private unnamed_addr constant [10 x i8] c"HTTP/1.N \00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"HTTP/\00", align 1
-@.str.N = private unnamed_addr constant [86 x i8] c"HTTPS unavailable \E2\80\94 install OpenSSL (brew install openssl / apt install libssl-dev)\00", align 1
-@.str.N = private unnamed_addr constant [22 x i8] c"Internal Server Error\00", align 1
+@.str.N = private unnamed_addr constant [23 x i8] c"HTTPS connect failed: \00", align 1
+@.str.N = private unnamed_addr constant [21 x i8] c"HTTPS connect failed\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@.str.N = private unnamed_addr constant [33 x i8] c"HTTPS failed: TLS is unavailable\00", align 1
+@.str.N = private unnamed_addr constant [15 x i8] c"HTTPS failed: \00", align 1
+@.str.N = private unnamed_addr constant [21 x i8] c"HTTPS write failed: \00", align 1
+@.str.N = private unnamed_addr constant [22 x i8] c"Internal Server Error\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"Keep-Alive\00", align 1
 @.str.N = private unnamed_addr constant [19 x i8] c"Method Not Allowed\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"No Content\00", align 1
 @.str.N = private unnamed_addr constant [10 x i8] c"Not Found\00", align 1
 @.str.N = private unnamed_addr constant [9 x i8] c"Nyra/1.N\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"OK\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"OPTIONS\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"PATCH\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"POST\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"PUT\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @.str.N = private unnamed_addr constant [18 x i8] c"Too Many Requests\00", align 1
 @.str.N = private unnamed_addr constant [18 x i8] c"Transfer-Encoding\00", align 1
 @.str.N = private unnamed_addr constant [13 x i8] c"Unauthorized\00", align 1
 @.str.N = private unnamed_addr constant [21 x i8] c"Unprocessable Entity\00", align 1
 @.str.N = private unnamed_addr constant [1 x i8] c"\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@.str.N = private unnamed_addr constant [6 x i8] c",\22b\22:\00", align 1
 @.str.N = private unnamed_addr constant [13 x i8] c"\0Acaused by: \00", align 1
 @.str.N = private unnamed_addr constant [15 x i8] c"\0Astack trace:\0A\00", align 1
 @.str.N = private unnamed_addr constant [38 x i8] c"\0D\0AUser-Agent: Nyra/1.N\0D\0AAccept: */*\0D\0A\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"\0D\0A\00", align 1
-@.str.N = private unnamed_addr constant [6 x i8] c",\22b\22:\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"\0D\0A\0D\0A\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"\22\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"\22\0A\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"\22}\00", align 1
 @.str.N = private unnamed_addr constant [32 x i8] c"application/json; charset=utf-8\00", align 1
 @.str.N = private unnamed_addr constant [17 x i8] c"application/json\00", align 1
+@.str.N = private unnamed_addr constant [2 x i8] c"-\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"async\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"body\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"cause\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"chunked\00", align 1
-@.str.N = private unnamed_addr constant [2 x i8] c"-\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"code\00", align 1
 @.str.N = private unnamed_addr constant [13 x i8] c"content_type\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"cors\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"date\00", align 1
 @.str.N = private unnamed_addr constant [4 x i8] c"day\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"false\00", align 1
+@.str.N = private unnamed_addr constant [2 x i8] c"/\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"fd\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"host\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"hour\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"http://\00", align 1
-@.str.N = private unnamed_addr constant [2 x i8] c"/\00", align 1
 @.str.N = private unnamed_addr constant [9 x i8] c"https://\00", align 1
-@.str.N = private unnamed_addr constant [64 x i8] c"install OpenSSL (brew install openssl / apt install libssl-dev)\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"invalid\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"io\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"json\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"keep-alive\00", align 1
 @.str.N = private unnamed_addr constant [11 x i8] c"keep_alive\00", align 1
+@.str.N = private unnamed_addr constant [4 x i8] c"6*7\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"kind\00", align 1
 @.str.N = private unnamed_addr constant [10 x i8] c"localhost\00", align 1
 @.str.N = private unnamed_addr constant [8 x i8] c"message\00", align 1
-@.str.N = private unnamed_addr constant [4 x i8] c"6*7\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"method\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"millis\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"minute\00", align 1
@@ -112,10 +120,10 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [24 x i8] c"missing integer field: \00", align 1
 @.str.N = private unnamed_addr constant [23 x i8] c"missing string field: \00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"month\00", align 1
+@.str.N = private unnamed_addr constant [21 x i8] c": TLS is unavailable\00", align 1
 @.str.N = private unnamed_addr constant [2 x i8] c"n\00", align 1
 @.str.N = private unnamed_addr constant [3 x i8] c"ok\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"owns\00", align 1
-@.str.N = private unnamed_addr constant [29 x i8] c": OpenSSL not available \E2\80\94 \00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"path\00", align 1
 @.str.N = private unnamed_addr constant [5 x i8] c"port\00", align 1
 @.str.N = private unnamed_addr constant [6 x i8] c"query\00", align 1
@@ -123,9 +131,6 @@ target triple = "nyra-snapshot-host"
 @.str.N = private unnamed_addr constant [7 x i8] c"result\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"router\00", align 1
 @.str.N = private unnamed_addr constant [7 x i8] c"second\00", align 1
-@.str.N = private unnamed_addr constant [7 x i8] c"secure\00", align 1
-@.str.N = private unnamed_addr constant [6 x i8] c"start\00", align 1
-@.str.N = private unnamed_addr constant [7 x i8] c"status\00", align 1
 
 %CalendarDate = type { i32, i32, i32 }
 %Client = type { ptr, i32 }
@@ -965,17 +970,55 @@ endif.N:
   %bin.N = icmp eq i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
-  %call.N = call %HttpResponse @response_internal_error()
+  %call.N = call ptr @tls_last_error()
+  %call.N = call i32 @str_len(ptr %call.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %call.N)
+  store ptr %call.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
   %ld.N = load ptr, ptr %alloca.N
   call void @heap_free(ptr %ld.N)
-  ret %HttpResponse %call.N
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
+else.N:
+  br label %endif.N
+endif.N:
+  %alloca.N = alloca %HttpResponse
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 0
+  store i32 0, i32* %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 1
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %gep.N = getelementptr inbounds %HttpResponse, %HttpResponse* %alloca.N, i32 0, i32 2
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %str_clone.N = call ptr @str_clone(ptr %str.N)
+  store ptr %str_clone.N, ptr %gep.N
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
+  %ld.N = load ptr, ptr %alloca.N
+  call void @heap_free(ptr %ld.N)
+  %load.N = load %HttpResponse, %HttpResponse* %alloca.N
+  ret %HttpResponse %load.N
 else.N:
   br label %endif.N
 endif.N:
   %call.N = call i32 @http_status_from_header(ptr %call.N)
-  %call.N = call ptr @http_body_from_response(ptr %call.N)
+  %call.N = call ptr @body_from_raw(ptr %call.N)
   %bin.N = icmp eq i32 %0, 6
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
@@ -1790,12 +1833,24 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
+  %call.N = call ptr @tls_last_error()
+  %call.N = call i32 @str_len(ptr %call.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   %call.N = call ptr @str_cat(ptr %0, ptr %str.N)
-  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  %call.N = call ptr @str_cat(ptr %call.N, ptr %str.N)
+  %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
+  br label %endif.N
+else.N:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %0, ptr %str.N)
+  %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
+  br label %endif.N
+endif.N:
   ret i1 0
 }
 define i32 @Counter_value(%Counter* %0) {
@@ -2240,12 +2295,37 @@ entry:
   %ssa.N = add i32 0, 0
   br label %while.cond.N
 while.cond.N:
-  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
-  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %then.N], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %then.N], [%loop.in.N, %endif.N]
   %bin.N = icmp slt i32 %loop.phi.N, %call.N
   br i1 %bin.N, label %while.body.N, label %while.end.N
 while.body.N:
   %call.N = call i32 @char_at(ptr %0, i32 %loop.phi.N)
+  %bin.N = icmp eq i32 %call.N, 32
+  %bin.N = icmp eq i32 %call.N, 9
+  %bin.N = or i1 %bin.N, %bin.N
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %bin.N = add i32 %loop.phi.N, 1
+  %loop.val.N = add i32 0, %bin.N
+  %loop.val.N = add i32 0, %loop.phi.N
+  %loop.in.N = add i32 0, %bin.N
+  %loop.in.N = add i32 0, %loop.phi.N
+  br label %while.cond.N
+after.continue.N:
+  unreachable
+else.N:
+  br label %endif.N
+endif.N:
+  %bin.N = icmp eq i32 %call.N, 59
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  br label %while.end.N
+after.break.N:
+  unreachable
+else.N:
+  br label %endif.N
+endif.N:
   %call.N = call i32 @hex_digit(i32 %call.N)
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
@@ -2263,8 +2343,8 @@ endif.N:
   %loop.in.N = add i32 0, %bin.N
   br label %while.cond.N
 while.end.N:
-  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N], [%loop.phi.N, %then.N]
-  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N], [%loop.phi.N, %then.N]
+  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N], [%loop.phi.N, %then.N], [%loop.phi.N, %then.N]
+  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N], [%loop.phi.N, %then.N], [%loop.phi.N, %then.N]
   ret i32 %loop.exit.N
 }
 define i32 @tcp_accept_task(%TcpListener* %0) {
@@ -4131,8 +4211,21 @@ then.N:
   %unary.N = xor i1 %call.N, true
   br i1 %unary.N, label %then.N, label %else.N
 then.N:
+  %call.N = call ptr @tls_last_error()
+  %call.N = call i32 @str_len(ptr %call.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %call.N)
+  %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
+  br label %endif.N
+else.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   call i32 @puts(ptr %str.N)
+  br label %endif.N
+endif.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   ret ptr %str.N
 else.N:
@@ -4146,6 +4239,21 @@ endif.N:
   %bin.N = icmp slt i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
+  %call.N = call ptr @tls_last_error()
+  %call.N = call i32 @str_len(ptr %call.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %call.N)
+  %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
+  br label %endif.N
+else.N:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 @puts(ptr %str.N)
+  br label %endif.N
+endif.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   ret ptr %str.N
 else.N:
@@ -4155,7 +4263,20 @@ endif.N:
   %bin.N = icmp ne i32 %call.N, 0
   br i1 %bin.N, label %then.N, label %else.N
 then.N:
+  %call.N = call ptr @tls_last_error()
   call void @tls_close(i32 %call.N)
+  %call.N = call i32 @str_len(ptr %call.N)
+  %bin.N = icmp sgt i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @str_cat(ptr %str.N, ptr %call.N)
+  %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call i32 (ptr, ...) @printf(ptr %fmt.N, ptr %call.N)
+  br label %endif.N
+else.N:
+  br label %endif.N
+endif.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   ret ptr %str.N
 else.N:
