@@ -3,6 +3,7 @@ from __future__ import annotations
 from builtin_dev.spec import ArgSpec, NyraType
 from builtin_dev.templates import c_type, nyra_type_annotation
 
+from .example_codegen import example_ny_from_stdlib, extern_test_body
 from .patch import marker_end, marker_start, wrap_scaffold
 from .spec import (
     CliKind,
@@ -48,6 +49,8 @@ def pure_fn_body(spec: StdlibFnSpec) -> str:
 
 
 def pure_fn_block(spec: StdlibFnSpec, marker: str) -> str:
+    if spec.pure_source:
+        return wrap_scaffold(spec.pure_source.rstrip() + "\n", marker)
     ret_ann = "" if spec.returns == NyraType.VOID else f" -> {nyra_type_annotation(spec.returns, ref=False)}"
     lines = [
         marker_start(marker),
@@ -64,14 +67,14 @@ def c_stub(spec: StdlibFnSpec, marker: str) -> str:
     params = [f"{c_type(a.nyra_type)} {a.name}" for a in spec.args]
     ret = c_type(spec.returns, is_return=True)
     sig = ", ".join(params) if params else "void"
-    default = "0" if spec.returns in (NyraType.I32, NyraType.BOOL, NyraType.I64) else '""' if spec.returns == NyraType.STRING else ""
+    default = "0" if spec.returns in (NyraType.I32, NyraType.BOOL, NyraType.I64) else '""' if spec.returns == NyraType.STRING else "0.0" if spec.returns == NyraType.F64 else "NULL" if spec.returns == NyraType.PTR else ""
     body = "    /* TODO: implement logic — safe default stub. */"
     if spec.returns != NyraType.VOID:
         body += f"\n    return {default};"
     return "\n".join(
         [
             marker_start(marker, lang="c"),
-            f"{ret}{spec.fn_name}({sig}) {{",
+            f"{ret} {spec.fn_name}({sig}) {{",
             body,
             "}",
             marker_end(marker, lang="c"),
@@ -99,7 +102,7 @@ def abi_manifest_block(spec: StdlibFnSpec, marker: str) -> str:
             marker_start(marker, lang="toml"),
             "[[symbol]]",
             f'name = "{spec.fn_name}"',
-            f'c_sig = "{ret}{spec.fn_name}({sig})"',
+            f'c_sig = "{ret} {spec.fn_name}({sig})"',
             f'module = "{spec.rt_module}"',
             f'tier = "{tier}"',
             f'since = "{spec.abi_since}"',
@@ -107,6 +110,35 @@ def abi_manifest_block(spec: StdlibFnSpec, marker: str) -> str:
             "",
         ]
     )
+
+
+def ny_alias_block(spec: StdlibFnSpec, marker: str) -> str:
+    if not spec.ny_alias:
+        return ""
+    call_args = ", ".join(a.name for a in spec.args)
+    ret_ann = "" if spec.returns == NyraType.VOID else f" -> {nyra_type_annotation(spec.returns, ref=False)}"
+    body = (
+        f"fn {spec.ny_alias}({ny_sig_args(spec.args)}){ret_ann} {{\n"
+        f"    return {spec.fn_name}({call_args})\n"
+        "}"
+    )
+    alias_marker = f"{marker}:alias"
+    return "\n".join(
+        [
+            marker_start(alias_marker),
+            body,
+            marker_end(alias_marker),
+            "",
+        ]
+    )
+
+
+def test_ny_from_stdlib(spec: StdlibFnSpec, marker: str) -> str:
+    lines = ['import "stdlib/testing.ny"']
+    lines.append(f'import "{spec.stdlib_path}"')
+    lines.append("")
+    lines.extend([f"test fn test_{spec.fn_name}() {{", *extern_test_body(spec), "}"])
+    return wrap_scaffold("\n".join(lines), marker)
 
 
 def test_ny(spec: TestExampleSpec, marker: str) -> str:
@@ -153,7 +185,7 @@ def example_ny(spec: TestExampleSpec, marker: str) -> str:
             f"// Demo: {spec.name}",
             "",
             "fn main() {",
-            f'    print("TODO: demo", "{spec.name}")',
+            f'    print("demo: {spec.name}")',
             "}",
         ]
     )
@@ -166,7 +198,7 @@ def example_typed_ny(spec: TestExampleSpec, marker: str) -> str:
             f"// Demo: {spec.name} (explicit types)",
             "",
             "fn main() -> void {",
-            f'    print("TODO: demo", "{spec.name}")',
+            f'    print("demo: {spec.name}")',
             "}",
         ]
     )

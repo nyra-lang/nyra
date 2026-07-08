@@ -158,7 +158,8 @@
     <li><a href="pgo.html">PGO</a> — <code>nyra build --pgo .</code>, training, cache, LLVM profiles</li>
     <li><a href="escape-analysis.html">Escape analysis</a> — NoEscape, LocalChannel, SROA, <code>#[no_escape]</code></li>
     <li><a href="c-bindgen.html">C Bindgen</a> — <code>nyra pkg c add zlib</code>, FFI out-parameters</li>
-    <li><a href="packages.html">NyraPkg</a> — <code>nyra.mod</code>, semver, <code>link-source</code>, <a href="packages.html#prune"><code>nyra pkg prune</code></a> (W002/W003 auto-fix)</li>
+    <li><a href="packages.html">NyraPkg</a> — <code>nyra.mod</code> syntax (<code>module</code>, <code>tls</code>, <code>require</code>, <code>link</code>), semver, <code>link-source</code>, <a href="packages.html#prune"><code>nyra pkg prune</code></a></li>
+    <li><a href="net-http.html#tls-backends">HTTPS / TLS</a> — <code>tls rustls|native|openssl</code>, <code>get("https://…")</code>, <code>tls_last_error()</code></li>
     <li><a href="#result-errors">Result &amp; errors</a> — <code>?</code> propagation and explicit <code>match</code></li>
     <li><a href="tooling.html">Toolchain</a> — <code>run</code>, <code>build --release</code>, cross-compile, <code>check</code></li>
   </ul>
@@ -180,6 +181,7 @@
     <tr><td>String</td><td><code>.len()</code>, <code>.split()</code>, <code>.trim()</code>, <code>.contains()</code>, <code>.replace()</code>, …</td></tr>
     <tr><td>Arrays</td><td><code>[1,2,3]</code>, <code>.sort()</code>, <code>for x in arr</code>, <code>for i in 0..n</code></td></tr>
     <tr><td>Timing</td><td><code>time_start</code> / <code>time_end</code>, <code>mem_start</code> / <code>mem_end</code></td></tr>
+    <tr><td>Net / HTTPS</td><td><code>get(url)</code>, <code>fetch</code>, <code>post</code> — auto-prelude; backend from <code>nyra.mod</code> <code>tls</code></td></tr>
     <tr><td>Concurrency</td><td><code>spawn { }</code> (Extended)</td></tr>
   </tbody>
 </table>

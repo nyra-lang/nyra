@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Output — Nyra Docs</title>
+  <title>Output — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-output.h1">Nyra Output</h1>
-      <p class="lead" data-i18n-html="pages.learn-output.lead">Print text and numbers to the console with <code>print</code>.</p>
-<h2>print</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-output.h1">Output</h1>
+      <p class="lead" data-i18n-html="pages.learn-output.lead">Print text or numbers with <code>print</code>.</p>
+<section class="doc-ex">
+<h2>print</h2>
+<p class="doc-ex-prose"><code>print</code> writes to the terminal and adds a newline after each call.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -149,16 +152,13 @@
     print(&quot;Hello, Nyra!&quot;)
     print(42)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/hello.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>Hello, Nyra!</code></pre>
-
-</div><div class="callout warning"><strong>Common mistakes</strong><ul><li>Forgetting quotes around text — strings use double quotes.</li><li>Passing too many types in one call — use separate <code>print</code> calls or template strings.</li></ul></div><nav class="lesson-nav" aria-label="Learn navigation">
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>Hello, Nyra!
+42</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-syntax.html">← Nyra Syntax</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-comments.html">Nyra Comments →</a>
+<a class="lesson-nav-next" href="learn-comments.html">Comments →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

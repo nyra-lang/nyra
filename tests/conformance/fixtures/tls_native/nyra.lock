@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "module": "conf.tls.native",
+  "features": { "tls": "native" },
+  "require": []
+}

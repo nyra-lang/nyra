@@ -169,7 +169,7 @@ nyra run examples/toolchain/comptime_import_main.ny</code></pre>
       <p>Three forms: file-level <code>comptime</code>, function <code>#[comptime]</code>, and block <code>comptime { … }</code>. Full guide: <a href="comptime.html">Comptime evaluation</a>.</p>
 
       <h2>Start a project</h2>
-      <p><strong>Job:</strong> Scaffold <code>main.ny</code>, <code>nyra.mod</code>, and lockfiles before your first build.</p>
+      <p><strong>Job:</strong> Scaffold <code>main.ny</code>, <code>nyra.mod</code>, and lockfiles before your first build. File roles: <a href="packages.html#project-files">packages.html</a>.</p>
       <pre><code>mkdir myapp &amp;&amp; cd myapp
 nyrapkg init
 nyra run .</code></pre>
@@ -191,14 +191,14 @@ nyra run .</code></pre>
   nyra.mod
   target/debug/main</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <h2 id="run"><code>nyra run</code></h2>
-      <p><strong>Job:</strong> Fastest feedback — compile and run in one step while you edit code.</p>
+      <p><strong>Job:</strong> Fastest feedback — compile and run in one step while you edit code. If <code>nyra.mod</code> <code>require</code> lines changed, Nyra syncs first: fetches missing packages and removes orphaned ones from <code>.nyra/cache/</code> (like <code>cargo run</code>).</p>
       <pre><code>nyra run .                          # project with main.ny
 nyra run examples/syntax/hello.ny   # single file
 nyra run . --release                # optimized run
 nyra run . -- --arg1 value          # pass args to your program (after --)</code></pre>
 
       <h2 id="build"><code>nyra build</code></h2>
-      <p><strong>Job:</strong> Produce a binary you ship, profile, or debug — without executing it.</p>
+      <p><strong>Job:</strong> Produce a binary you ship, profile, or debug — without executing it. Same auto-sync of <code>require</code> lines as <code>nyra run</code>.</p>
       <pre><code>nyra build .                        # target/debug/main
 nyra build . --release              # target/release/main
 nyra build . --pgo                  # release + automated PGO (see pgo.html)

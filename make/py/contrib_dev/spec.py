@@ -41,15 +41,21 @@ class StdlibFnSpec:
     stable_abi: bool = False
     abi_since: str = "1.0.0"
     wrap_extern: str | None = None
+    ny_alias: str | None = None
     pure_body: str | None = None
+    # Free-form Nyra source for multi-fn / struct modules (stdlib-module recipe).
+    # When set, fn_name is used only as the marker slug (not a single fn).
+    pure_source: str | None = None
+    # Optional shared test/example topic override for module scaffolds.
+    example_topic: str | None = None
 
     def __post_init__(self) -> None:
         self.fn_name = self.fn_name.strip()
         if not self.fn_name:
             raise ValueError("function name is required")
         self.ny_module = normalize_ny_module(self.ny_module)
-        if self.rt_module is None and self.wrap_extern is None:
-            self.rt_module = guess_rt_module(self.ny_module)
+        if self.pure_source is None and self.rt_module is None and self.wrap_extern is None:
+            self.rt_module = guess_rt_module(self.ny_module, self.fn_name)
 
     @property
     def marker(self) -> str:
@@ -178,7 +184,11 @@ def normalize_ny_module(raw: str) -> str:
     return f"{raw}.ny"
 
 
-def guess_rt_module(ny_module: str) -> str:
+def guess_rt_module(ny_module: str, fn_name: str | None = None) -> str:
+    if fn_name and fn_name.startswith("map_str_str_"):
+        return "rt_map_str_str.c"
+    if fn_name and fn_name.startswith("map_str_i32_"):
+        return "rt_map.c"
     stem = ny_module.split("/")[0].replace(".ny", "")
     mapping = {
         "json": "rt_json.c",
@@ -191,5 +201,31 @@ def guess_rt_module(ny_module: str) -> str:
         "compress": "rt_compress.c",
         "process": "rt_process.c",
         "error": "rt_error.c",
+        "encoding": "rt_strings.c",
+        "strconv": "rt_strings.c",
+        "math": "rt_math.c",
+        "vec": "rt_vec.c",
+        "map": "rt_map.c",
     }
     return mapping.get(stem, f"rt_{stem}.c")
+
+
+def builtin_example_topic(ny_module: str) -> str:
+    """Folder name under examples/builtins/ — never ends with `.ny`."""
+    top = ny_module.split("/")[0]
+    if top.endswith(".ny"):
+        top = top[:-3]
+    return top or "stdlib"
+
+
+def stdlib_builtin_examples_dir(ny_module: str):
+    from .paths import EXAMPLES
+
+    return EXAMPLES / "builtins" / builtin_example_topic(ny_module)
+
+
+def uses_stdlib_builtin_examples(ny_module: str) -> bool:
+    root = ny_module.split("/")[0]
+    if root.endswith(".ny"):
+        return True
+    return ny_module.split("/")[0] in {"encoding", "strconv"}

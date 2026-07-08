@@ -5,7 +5,7 @@ mod semver;
 pub use semver::{best_match, parse_req, parse_version, satisfies, Req, Version};
 
 pub use lockfile::{
-    cache_module_path, sha256_hex, LockEntry, LockFile, LockSource,
+    cache_module_path, sha256_hex, LockEntry, LockFeatures, LockFile, LockSource, TlsBackend,
 };
 pub use rust_bridge::{
     bind_rust_crate, bind_rust_crate_with_options, build_link_crate,
@@ -34,6 +34,8 @@ pub struct NyraMod {
     pub link_crates: Vec<String>,
     /// Args for the instrumented binary during `nyra build --pgo` (`pgo-run ...` lines).
     pub pgo_run_args: Vec<String>,
+    /// TLS backend for HTTPS (`tls rustls|native|openssl`). Default when unset: rustls.
+    pub tls: Option<TlsBackend>,
 }
 
 pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
@@ -47,12 +49,15 @@ pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
     let mut link_sources = Vec::new();
     let mut link_crates = Vec::new();
     let mut pgo_run_args = Vec::new();
+    let mut tls = None;
     for line in text.lines() {
         let line = line.trim();
         if let Some(rest) = line.strip_prefix("module ") {
             module = rest.trim().to_string();
         } else if let Some(rest) = line.strip_prefix("version ") {
             version = Some(rest.trim().to_string());
+        } else if let Some(rest) = line.strip_prefix("tls ") {
+            tls = Some(TlsBackend::parse(rest.trim())?);
         } else if let Some(rest) = line.strip_prefix("require ") {
             let req = rest.trim();
             if req == "(" || req == ")" || req.is_empty() {
@@ -112,7 +117,60 @@ pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
         link_sources,
         link_crates,
         pgo_run_args,
+        tls,
     })
+}
+
+/// Resolve TLS backend: `nyra.mod` declaration wins, else pinned `nyra.lock`
+/// `features.tls`, else bundled **rustls**.
+pub fn resolve_tls_backend(project_root: &Path) -> Result<TlsBackend, String> {
+    let mod_path = project_root.join("nyra.mod");
+    let lock_path = project_root.join("nyra.lock");
+
+    let from_mod = if mod_path.is_file() {
+        parse_nyra_mod(&mod_path)?.tls
+    } else {
+        None
+    };
+
+    let from_lock = if lock_path.is_file() {
+        LockFile::read(&lock_path)?.features.tls
+    } else {
+        None
+    };
+
+    match (from_mod, from_lock) {
+        (Some(m), Some(l)) if m != l => Err(format!(
+            "tls backend mismatch: nyra.mod has '{}' but nyra.lock pins '{}' — \
+             update nyra.lock `features.tls` to match, or remove the lock pin",
+            m.as_str(),
+            l.as_str()
+        )),
+        (Some(m), _) => Ok(m),
+        (None, Some(l)) => Ok(l),
+        (None, None) => Ok(TlsBackend::Rustls),
+    }
+}
+
+/// Ensure `nyra.lock` records the resolved TLS backend (creates lock if missing).
+pub fn pin_tls_backend(project_root: &Path, backend: TlsBackend) -> Result<(), String> {
+    let lock_path = project_root.join("nyra.lock");
+    let mod_path = project_root.join("nyra.mod");
+    let module_name = if mod_path.is_file() {
+        parse_nyra_mod(&mod_path)?.module
+    } else {
+        "local".into()
+    };
+    let mut lock = if lock_path.is_file() {
+        LockFile::read(&lock_path)?
+    } else {
+        LockFile::new(module_name.clone())
+    };
+    if lock.module.is_empty() {
+        lock.module = module_name;
+    }
+    lock.features.tls = Some(backend);
+    lock.write(&lock_path)
 }
 
 /// Merge manifest link settings with CLI overrides (CLI wins on duplicates).
@@ -221,6 +279,53 @@ pub fn verify_project(root: &Path) -> Result<(), String> {
         lock.verify_sum(&sum_path)?;
     }
     Ok(())
+}
+
+/// True when requires ↔ lock ↔ `.nyra/cache/` are out of sync (missing packages
+/// **or** orphaned lock/cache entries after a `require` was removed from `nyra.mod`).
+pub fn needs_dependency_sync(root: &Path) -> Result<bool, String> {
+    let mod_path = root.join("nyra.mod");
+    if !mod_path.is_file() {
+        return Ok(false);
+    }
+    let nyra_mod = parse_nyra_mod(&mod_path)?;
+    let lock_path = root.join("nyra.lock");
+    let lock = if lock_path.exists() {
+        match LockFile::read(&lock_path) {
+            Ok(lock) => Some(lock),
+            // Corrupt / outdated lock → treat as needing sync rather than failing compile.
+            Err(_) => return Ok(true),
+        }
+    } else {
+        None
+    };
+
+    // Missing packages (need fetch)
+    for req in &nyra_mod.requires {
+        let pkg_dir = root.join(cache_module_path(&req.name));
+        if !pkg_dir.join("nyra.mod").is_file() {
+            return Ok(true);
+        }
+        match &lock {
+            None => return Ok(true),
+            Some(lock) => {
+                if !lock.require.iter().any(|e| e.module == req.name) {
+                    return Ok(true);
+                }
+            }
+        }
+    }
+
+    // Orphaned lock entries (package removed from nyra.mod — need prune + rewrite lock)
+    if let Some(lock) = &lock {
+        for entry in &lock.require {
+            if !nyra_mod.requires.iter().any(|r| r.name == entry.module) {
+                return Ok(true);
+            }
+        }
+    }
+
+    Ok(false)
 }
 
 fn verify_requirements_match_lock(mod_path: &Path, lock_path: &Path) -> Result<(), String> {
@@ -332,6 +437,81 @@ mod tests {
             m.pgo_run_args,
             vec!["--benchmark-mode".to_string(), "--quick".to_string()]
         );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn needs_dependency_sync_detects_missing_cache() {
+        let dir = std::env::temp_dir().join(format!("nyra_sync_need_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("nyra.mod"),
+            "module app\nrequire ny-sqlite ^0.1.0\n",
+        )
+        .unwrap();
+        assert!(needs_dependency_sync(&dir).unwrap());
+        // Cache present but lock missing → still needs sync
+        let cache = dir.join(".nyra/cache/ny-sqlite");
+        std::fs::create_dir_all(&cache).unwrap();
+        std::fs::write(cache.join("nyra.mod"), "module ny-sqlite\n").unwrap();
+        assert!(needs_dependency_sync(&dir).unwrap());
+        // Empty requires + empty lock → no sync
+        std::fs::write(dir.join("nyra.mod"), "module app\n").unwrap();
+        assert!(!needs_dependency_sync(&dir).unwrap());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn needs_dependency_sync_detects_orphaned_lock() {
+        let dir = std::env::temp_dir().join(format!("nyra_sync_orphan_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nyra.mod"), "module app\n").unwrap();
+        let mut lock = LockFile::new("app");
+        lock.require.push(LockEntry {
+            module: "old-pkg".into(),
+            version: "0.1.0".into(),
+            source: LockSource::Local,
+            checksum: "abc".into(),
+        });
+        lock.write(&dir.join("nyra.lock")).unwrap();
+        assert!(needs_dependency_sync(&dir).unwrap());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn parse_tls_line() {
+        let dir = std::env::temp_dir().join(format!("nyra_tls_mod_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nyra.mod"), "module app\ntls native\n").unwrap();
+        let m = parse_nyra_mod(&dir.join("nyra.mod")).unwrap();
+        assert_eq!(m.tls, Some(TlsBackend::Native));
+        assert_eq!(resolve_tls_backend(&dir).unwrap(), TlsBackend::Native);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn resolve_tls_defaults_to_rustls() {
+        let dir = std::env::temp_dir().join(format!("nyra_tls_def_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        assert_eq!(resolve_tls_backend(&dir).unwrap(), TlsBackend::Rustls);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn lock_tls_features_roundtrip() {
+        let mut lock = LockFile::new("app.example");
+        lock.features.tls = Some(TlsBackend::Openssl);
+        let dir = std::env::temp_dir().join(format!("nyra_tls_lock_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let lock_path = dir.join("nyra.lock");
+        lock.write(&lock_path).unwrap();
+        let read = LockFile::read(&lock_path).unwrap();
+        assert_eq!(read.features.tls, Some(TlsBackend::Openssl));
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

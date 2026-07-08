@@ -237,34 +237,8 @@ impl TypeChecker {
                     }
                     return Type::Void;
                 }
-                if let Some(sig) = env.functions.get(&call.callee).cloned() {
-                    if call.args.len() != sig.params.len() {
-                        diagnostics::wrong_arity(
-                            self,
-                            &call.callee,
-                            sig.params.len(),
-                            call.args.len(),
-                            sp.clone(),
-                        );
-                    }
-                    for (i, (arg, expected)) in call.args.iter().zip(sig.params.iter()).enumerate() {
-                        let at = self.check_expr(arg, env);
-                        if !types_assignable(&at, expected) && !self.signature_inference {
-                            diagnostics::wrong_arg_type(
-                                self,
-                                &call.callee,
-                                format!(
-                                    "argument {}: expected {}, found {}",
-                                    i,
-                                    diagnostics::type_pretty(expected),
-                                    diagnostics::type_pretty(&at),
-                                ),
-                                expr_span(arg),
-                            );
-                        }
-                    }
-                    sig.return_type
-                } else if let Some(var) = env.variables.get(&call.callee) {
+                // Locals (params, fn-ptr bindings) shadow global functions with the same name.
+                if let Some(var) = env.variables.get(&call.callee) {
                     if let Type::FnPtr {
                         params,
                         return_type,
@@ -293,6 +267,33 @@ impl TypeChecker {
                         diagnostics::not_callable(self, &call.callee, sp.clone());
                         Type::Unknown
                     }
+                } else if let Some(sig) = env.functions.get(&call.callee).cloned() {
+                    if call.args.len() != sig.params.len() {
+                        diagnostics::wrong_arity(
+                            self,
+                            &call.callee,
+                            sig.params.len(),
+                            call.args.len(),
+                            sp.clone(),
+                        );
+                    }
+                    for (i, (arg, expected)) in call.args.iter().zip(sig.params.iter()).enumerate() {
+                        let at = self.check_expr(arg, env);
+                        if !types_assignable(&at, expected) && !self.signature_inference {
+                            diagnostics::wrong_arg_type(
+                                self,
+                                &call.callee,
+                                format!(
+                                    "argument {}: expected {}, found {}",
+                                    i,
+                                    diagnostics::type_pretty(expected),
+                                    diagnostics::type_pretty(&at),
+                                ),
+                                expr_span(arg),
+                            );
+                        }
+                    }
+                    sig.return_type
                 } else {
                     if self.signature_inference {
                         return self

@@ -237,10 +237,10 @@ pub fn normalize_ir(ir: &str) -> String {
     sort_ir_sections(&normalize_string_constants(&ssa_norm))
 }
 
-/// Windows emits `nyra_atoi` etc. to avoid MSVC CRT collisions; canonicalize for snapshots.
+/// Windows emits `nyra_*` link names for CRT/libm collisions; canonicalize for snapshots.
 fn normalize_windows_crt_link_names(ir: &str) -> String {
     let mut out = ir.to_string();
-    for name in ["atoi", "atof", "atol", "atoll"] {
+    for name in codegen::WINDOWS_CRT_FN_COLLISIONS {
         out = out.replace(&format!("@nyra_{name}"), &format!("@{name}"));
     }
     out

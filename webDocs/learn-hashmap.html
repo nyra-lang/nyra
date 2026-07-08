@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra HashMap — Nyra Docs</title>
+  <title>HashMap — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,119 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-hashmap.h1">Nyra HashMap</h1>
-      <p class="lead" data-i18n-html="pages.learn-hashmap.lead">Key-value maps: runtime naming map_<key>_<value>_<op> and stdlib wrappers.</p>
-
-      <h2>Runtime naming: <code>map_&lt;key&gt;_&lt;value&gt;_&lt;op&gt;</code></h2>
-      <p>Every hash-map C runtime symbol follows one pattern:</p>
-      <pre><code>map_&lt;key_type&gt;_&lt;value_type&gt;_&lt;operation&gt;</code></pre>
-      <ul>
-        <li><strong>Key type</strong> — first segment after <code>map_</code> (e.g. <code>str</code>, <code>i32</code>)</li>
-        <li><strong>Value type</strong> — second segment (e.g. <code>i32</code>, <code>str</code>)</li>
-        <li><strong>Operation</strong> — last segment: <code>new</code>, <code>insert</code>, <code>get</code>, <code>contains</code>, <code>remove</code>, <code>keys</code>, <code>free</code>, <code>retain</code></li>
-      </ul>
-      <p>Examples: <code>map_str_i32_insert</code>, <code>map_str_str_get</code>, <code>map_i32_i32_contains</code>. When key and value share the same type (like Go <code>map[int]int</code>), both appear in the name — <code>map_i32_i32_*</code> is intentional so the API stays explicit.</p>
-
-      <h3>String keys, i32 values — <code>map_str_i32_*</code></h3>
-      <!-- NYRA_SNIPPET_START -->
-<div class="code-tabs" data-code-tabs>
-  <div class="code-tabs-bar" role="tablist">
-    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
-    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
-  </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_str_i32_new() -&gt; ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
-extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_free(m: ptr) -&gt; void
-
-fn main() {
-    let m = map_str_i32_new()
-    map_str_i32_insert(m, &quot;score&quot;, 100)
-    print(map_str_i32_get(m, &quot;score&quot;))
-    print(map_str_i32_contains(m, &quot;score&quot;))
-    map_str_i32_free(m)
-}</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_str_i32_new() -&gt; ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
-extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_free(m: ptr) -&gt; void
-
-fn main() -&gt; void {
-    let m = map_str_i32_new()
-    map_str_i32_insert(m, &quot;score&quot;, 100)
-    print(map_str_i32_get(m, &quot;score&quot;))
-    print(map_str_i32_contains(m, &quot;score&quot;))
-    map_str_i32_free(m)
-}</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>String keys, string values — <code>map_str_str_*</code></h3>
-      <!-- NYRA_SNIPPET_START -->
-<div class="code-tabs" data-code-tabs>
-  <div class="code-tabs-bar" role="tablist">
-    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
-    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
-  </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_str_str_new() -&gt; ptr
-extern fn map_str_str_insert(m: ptr, key: string, value: string) -&gt; void
-extern fn map_str_str_get(m: ptr, key: string) -&gt; string
-extern fn map_str_str_contains(m: ptr, key: string) -&gt; i32
-extern fn map_str_str_free(m: ptr) -&gt; void
-
-fn main() {
-    let m = map_str_str_new()
-    map_str_str_insert(m, &quot;lang&quot;, &quot;Nyra&quot;)
-    print(map_str_str_get(m, &quot;lang&quot;))
-    map_str_str_free(m)
-}</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_str_str_new() -&gt; ptr
-extern fn map_str_str_insert(m: ptr, key: string, value: string) -&gt; void
-extern fn map_str_str_get(m: ptr, key: string) -&gt; string
-extern fn map_str_str_contains(m: ptr, key: string) -&gt; i32
-extern fn map_str_str_free(m: ptr) -&gt; void
-
-fn main() -&gt; void {
-    let m = map_str_str_new()
-    map_str_str_insert(m, &quot;lang&quot;, &quot;Nyra&quot;)
-    print(map_str_str_get(m, &quot;lang&quot;))
-    map_str_str_free(m)
-}</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
-      <!-- NYRA_SNIPPET_START -->
-<div class="code-tabs" data-code-tabs>
-  <div class="code-tabs-bar" role="tablist">
-    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
-    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
-  </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_i32_i32_new() -&gt; ptr
-extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -&gt; void
-extern fn map_i32_i32_get(m: ptr, key: i32) -&gt; i32
-extern fn map_i32_i32_contains(m: ptr, key: i32) -&gt; i32
-extern fn map_i32_i32_free(m: ptr) -&gt; void
-
-fn main() {
-    let m = map_i32_i32_new()
-    map_i32_i32_insert(m, 42, 99)
-    print(map_i32_i32_get(m, 42))
-    print(map_i32_i32_contains(m, 42))
-    map_i32_i32_free(m)
-}</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_i32_i32_new() -&gt; ptr
-extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -&gt; void
-extern fn map_i32_i32_get(m: ptr, key: i32) -&gt; i32
-extern fn map_i32_i32_contains(m: ptr, key: i32) -&gt; i32
-extern fn map_i32_i32_free(m: ptr) -&gt; void
-
-fn main() -&gt; void {
-    let m = map_i32_i32_new()
-    map_i32_i32_insert(m, 42, 99)
-    print(map_i32_i32_get(m, 42))
-    print(map_i32_i32_contains(m, 42))
-    map_i32_i32_free(m)
-}</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Stdlib wrappers (recommended)</h3>
-      <p>Import <code>stdlib/map.ny</code> for <code>HashMap_str_i32</code> and <code>HashMap_str_str</code> — method syntax and automatic cleanup via <code>Drop</code>. The low-level <code>map_*</code> names stay stable for <code>extern fn</code> and FFI.</p>
-      <!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-hashmap.h1">HashMap</h1>
+      <p class="lead" data-i18n-html="pages.learn-hashmap.lead">Key → value maps via stdlib.</p>
+<section class="doc-ex">
+<h2>HashMap_str_i32</h2>
+<p class="doc-ex-prose">Import <code>stdlib/map</code> then use <code>insert</code> / <code>get</code>.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -255,59 +148,22 @@ fn main() -&gt; void {
 
 fn main() {
     let mut scores = HashMap_str_i32_new()
-    scores = scores.insert(&quot;ada&quot;, 100)
-    print(scores.get(&quot;ada&quot;))
+    scores = scores.insert(&quot;score&quot;, 100)
+    print(scores.get(&quot;score&quot;))
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map&quot;
 
 fn main() -&gt; void {
     let mut scores = HashMap_str_i32_new()
-    scores = scores.insert(&quot;ada&quot;, 100)
-    print(scores.get(&quot;ada&quot;))
+    scores = scores.insert(&quot;score&quot;, 100)
+    print(scores.get(&quot;score&quot;))
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><h2>Runnable example</h2><!-- NYRA_SNIPPET_START -->
-<div class="code-tabs" data-code-tabs>
-  <div class="code-tabs-bar" role="tablist">
-    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
-    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
-  </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn map_str_i32_new() -&gt; ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
-extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_free(m: ptr) -&gt; void
-
-fn main() {
-    let handle = map_str_i32_new()
-    map_str_i32_insert(handle, &quot;score&quot;, 100)
-    print(map_str_i32_get(handle, &quot;score&quot;))
-    print(map_str_i32_contains(handle, &quot;score&quot;))
-    map_str_i32_free(handle)
-}</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn map_str_i32_new() -&gt; ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -&gt; void
-extern fn map_str_i32_get(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_contains(m: ptr, key: string) -&gt; i32
-extern fn map_str_i32_free(m: ptr) -&gt; void
-
-fn main() -&gt; void {
-    let handle = map_str_i32_new()
-    map_str_i32_insert(handle, &quot;score&quot;, 100)
-    print(map_str_i32_get(handle, &quot;score&quot;))
-    print(map_str_i32_contains(handle, &quot;score&quot;))
-    map_str_i32_free(handle)
-}</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/hashmap.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>100
-true</code></pre>
-
-</div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-tuples.html">← Nyra Tuples</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>100</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-tuples.html">← Tuples</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-structs.html">Nyra Structs →</a>
+<a class="lesson-nav-next" href="learn-structs.html">Structs →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

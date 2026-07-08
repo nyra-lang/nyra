@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra If..Else — Nyra Docs</title>
+  <title>If..Else — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,40 +133,60 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-if-else.h1">Nyra If..Else</h1>
-      <p class="lead" data-i18n-html="pages.learn-if-else.lead">Branch on conditions with <code>if</code> and <code>else</code>.</p>
-<h2>if / else</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-if-else.h1">If..Else</h1>
+      <p class="lead" data-i18n-html="pages.learn-if-else.lead">Branch on a condition.</p>
+<section class="doc-ex">
+<h2>if / else</h2>
+<p class="doc-ex-prose">Run one block when the condition is true, otherwise the other.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let score = 75
-if score &gt;= 60 {
-    print(&quot;Pass&quot;)
-} else {
-    print(&quot;Fail&quot;)
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let score = 75
+    if score &gt;= 60 {
+        print(&quot;Pass&quot;)
+    } else {
+        print(&quot;Fail&quot;)
+    }
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let score: i32 = 75
-if score &gt;= 60 {
-    print(&quot;Pass&quot;)
-} else {
-    print(&quot;Fail&quot;)
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let score: i32 = 75
+    if score &gt;= 60 {
+        print(&quot;Pass&quot;)
+    } else {
+        print(&quot;Fail&quot;)
+    }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><h2>If-expression</h2><!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>Pass</code></pre>
+</section><section class="doc-ex">
+<h2>if as expression</h2>
+<p class="doc-ex-prose"><code>if</code> can return a value directly.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let label = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }
-print(label)</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let label = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }
-print(label)</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout warning"><strong>Common mistakes</strong><ul><li>Using <code>=</code> instead of <code>==</code> in conditions.</li><li>Mismatched types in if-expression branches.</li></ul></div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-booleans.html">← Nyra Booleans</a>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let score = 95
+    let label = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }
+    print(label)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let score: i32 = 95
+    let label = if score &gt;= 90 { &quot;A&quot; } else { &quot;B&quot; }
+    print(label)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>A</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-booleans.html">← Booleans</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-match.html">Nyra Match →</a>
+<a class="lesson-nav-next" href="learn-match.html">Match →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

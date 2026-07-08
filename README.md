@@ -10,9 +10,7 @@
 
 ## What is Nyra?
 
-**Nyra** is a compiled programming language (`.ny` source files) with optional types, ownership and borrowing, LLVM-backed native codegen, and a single `nyra` CLI for run, build, test, fmt, and pkg.
-
-Write with zero types or explicit annotations — both styles are first-class.
+**Nyra** is a compiled language (`.ny`) with optional types, ownership and borrowing, LLVM native codegen, and one `nyra` CLI for run, build, test, fmt, and pkg. Write zero-types or explicit annotations — both are first-class.
 
 ## Highlights
 
@@ -23,15 +21,7 @@ Write with zero types or explicit annotations — both styles are first-class.
 
 Details: [`docs/status.md`](docs/status.md) · [`docs/stability-v1.md`](docs/stability-v1.md)
 
-## Syntax examples
-
-Nyra reads like a scripting language but compiles to native code — **no types required**, inference when possible, clear errors when not. Each topic below is a pain point in other languages; Nyra keeps the fix short.
-
-### No type ceremony
-
-**Java / Rust:** annotate almost every variable, parameter, and return type.
-
-**Nyra (zero-types):**
+## Syntax at a glance
 
 ```ny
 fn greet(name) {
@@ -40,86 +30,49 @@ fn greet(name) {
 
 let nums = [10, 20, 30]
 let total = 0
-for n in nums {
-    total = total + n
-}
+for n in nums { total = total + n }
 print(total)   // 60
 ```
 
-Want explicit types for a public API? Add them — same program, same binary. See `examples/syntax/math.ny` and `math.typed.ny`.
-
-### Fast memory — no GC, no manual `free`
-
-| Language | Trade-off |
-|----------|-----------|
-| **Go** | Easy syntax, but a garbage collector adds pauses and extra RAM |
-| **C / C++** | Full control, but `malloc`/`free` bugs and use-after-free are your problem |
-| **Nyra** | Ownership + borrow checker at compile time — no GC, safe by default |
+**Ownership, no GC** — compiler tracks moves and borrows; `defer` for cleanup:
 
 ```ny
 allow_extended
 
 fn main() {
-    defer print("cleanup")   // runs on return — like Go's defer, no GC
-    // compiler tracks moves and borrows; no manual free in normal code
+    defer print("cleanup")
 }
 ```
 
-### Null and optionals in one line
-
-**Java / C# (before modern helpers):** nested `if (x != null)` checks. **C/C++:** null dereference is undefined behavior.
+**Optionals and errors** — `??`, `?.`, and `?` propagation:
 
 ```ny
 import "stdlib/option.ny"
 
-let y = x ?? 42              // default when None
-let m = opt?.method()        // skip call safely when None
-```
+let y = x ?? 42
+let m = opt?.method()
 
-### Errors without `if err != nil` everywhere
-
-**Go:** repeat `if err != nil { return err }` after every fallible call.
-
-**Nyra:** propagate with `?` and handle once where it matters:
-
-```ny
 fn step(n) -> Result<i32, i32> {
-    if n == 0 {
-        return Result.Err(1)
-    }
+    if n == 0 { return Result.Err(1) }
     return Result.Ok(n)
 }
 
 fn main() -> Result<i32, i32> {
-    let a = step(1)?
-    let b = step(a + 1)?
-    return step(b)?
+    return step(step(1)? + 1)?
 }
 ```
 
-Runnable: `examples/try_operator_generic.ny`.
-
-### Strings and loops that read like scripts
-
-**Verbose string APIs** in C/C++ and Java vs. **method chaining + `for-in`** in Nyra:
+**Strings and loops:**
 
 ```ny
-let name = "Ada"
-print(`Hello ${name}`)                    // template strings
-
 let line = "  hello,nyra,world  "
-for part in line.trim().split(",") {
-    print(part)
-}
+for part in line.trim().split(",") { print(part) }
+print(`Hello ${name}`)
 ```
 
-Runnable: `examples/syntax/template_strings.ny`, `examples/syntax/string_methods.ny`, `examples/syntax/for_in.ny`.
-
-**Two styles, one language:** demos in [`examples/`](examples/) ship as `foo.ny` (zero-types) and `foo.typed.ny` (explicit types) — use whichever fits your project.
+Demos ship as `foo.ny` (zero-types) and `foo.typed.ny` (explicit types) in [`examples/`](examples/).
 
 ## Quick start
-
-### Install
 
 **Requires:** clang (Xcode CLT on macOS, `clang` on Linux).
 
@@ -129,18 +82,15 @@ nyra --version
 mkdir myapp && cd myapp && nyra pkg init
 ```
 
-Windows: use `scripts/install.ps1` from [GitHub Releases](https://github.com/nyra-lang/nyra/releases).
+Windows: `scripts/install.ps1` from [GitHub Releases](https://github.com/nyra-lang/nyra/releases).
 
-### Build from source
-
-**Requires:** [Rust](https://rustup.rs/) (stable), clang.
+**Build from source** — [Rust](https://rustup.rs/) (stable) + clang:
 
 ```bash
 git clone git@github.com:nyra-lang/nyra.git
 cd Nyra
 cargo build --release
 cargo run -- run examples/syntax/hello.ny
-cargo run -- run examples/syntax/math.ny    # prints 30
 ```
 
 Optional: `cargo install --path cli` then `nyra run examples/syntax/math.ny`.
@@ -149,88 +99,29 @@ Optional: `cargo install --path cli` then `nyra run examples/syntax/math.ny`.
 
 | Resource | Link |
 |----------|------|
-| **Project status** | [`docs/status.md`](docs/status.md) |
-| **Roadmap** | [`docs/roadmap-stable.md`](docs/roadmap-stable.md) |
-| **Architecture** | [`docs/architecture.md`](docs/architecture.md) |
-| **Contributor map** | [`docs/contributor-map.md`](docs/contributor-map.md) — what to change → where to go |
-| **Stdlib layout** | [`stdlib/README.md`](stdlib/README.md) |
-| **Contributing** | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
-| **Contributor hub (`make contribute`)** | [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md) |
+| Status · Roadmap · Architecture | [`docs/status.md`](docs/status.md) · [`docs/roadmap-stable.md`](docs/roadmap-stable.md) · [`docs/architecture.md`](docs/architecture.md) |
+| Contributor map | [`docs/contributor-map.md`](docs/contributor-map.md) |
+| Stdlib · Contributing | [`stdlib/README.md`](stdlib/README.md) · [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
-**Examples:** [`examples/`](examples/) (small demos) · [`Apps/`](Apps/) (full reference apps) · calculator [`examples/projects/calculator/`](examples/projects/calculator/)
-
-**Syntax highlighting:** [`grammar/nyra.tmLanguage.json`](grammar/nyra.tmLanguage.json) · [setup](grammar/README.md)
+**Examples:** [`examples/`](examples/) · calculator [`examples/projects/calculator/`](examples/projects/calculator/) · syntax highlighting [`grammar/`](grammar/)
 
 ## Project layout
 
 ```
 Nyra/
-├── compiler/     # lexer → parser → expand → typecheck → borrowck → LLVM IR
+├── compiler/     # lexer → parser → typecheck → borrowck → LLVM IR
 ├── cli/          # nyra binary
 ├── lsp/ dap/     # language server + debug adapter
 ├── stdlib/       # Nyra stdlib + C runtime
-├── tests/        # nyra/ (feature tests), conformance/, suite/
-├── examples/     # small demos, builtins, cross-language benchmarks
-├── Apps/         # full reference applications (games, IDE, databases, …)
-├── docs/         # architecture, contributor map, status, roadmap
+├── tests/        # feature tests, conformance, suite
+├── examples/     # demos and benchmarks
+├── Apps/         # reference applications
 └── Makefile      # make test-all, make bench, make help
 ```
 
-## Contributing — what to change → where to go
+## Contributing
 
-New contributor? Start with [`docs/contributor-map.md`](docs/contributor-map.md) for the full guide. Quick map:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│              What do you want to add or change?           │
-└─────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Syntax / keyword     Stdlib function       CLI flag
-        │                   │                   │
-   lexer → parser       stdlib/**/*.ny        cli/src/commands/
-   → ast → expand?      (+ rt/*.c if C)       cli/src/app/args.rs
-   → typecheck          (+ runtime_map.rs)
-   → codegen?
-   → const_eval? (comptime)
-        │
-   tests/nyra/foo.ny + foo.typed.ny
-   examples/foo.ny + foo.typed.ny
-   grammar/nyra.tmLanguage.json
-
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Type rules          Ownership / borrow    Generics
-   typecheck/          ownership/             monomorph/
-   types/              borrowck/              expand/ (synthesis)
-
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Builtin (print)     Import / prelude      Package manager
-   typecheck +         resolve/              pkg/
-   codegen +           (prelude.rs)          cli/src/commands/pkg*
-   stdlib/rt/
-
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   Comptime eval        Remove / deprecate
-   const_eval/          reverse paths above;
-   (comptime.rs)        delete tests, examples,
-   + parser/            docs, grammar entries
-   + typecheck/
-```
-
-| Task | Primary location |
-|------|------------------|
-| **Scaffold (quick start)** | `make contribute` — stdlib, tests, pkg, syntax checklist |
-| New syntax | `compiler/lexer/` → `parser/` → `ast/` → `expand?` → `typecheck/` → `codegen/` |
-| Stdlib API | `stdlib/` (+ `stdlib/rt/` + `runtime_map.rs` if C) |
-| CLI | `cli/src/app/args.rs` · `cli/src/commands/` |
-| Tests for a feature | `tests/nyra/<name>_test.ny` (+ `.typed.ny`) |
-| Runnable demo | `examples/<topic>/` (`foo.ny` + `foo.typed.ny`) |
-
-Full details, test placement rules, and `expand/` module index: [`docs/contributor-map.md`](docs/contributor-map.md) · [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Start with [`docs/contributor-map.md`](docs/contributor-map.md) — syntax → `compiler/`, stdlib → `stdlib/`, CLI → `cli/`, tests → `tests/nyra/`, demos → `examples/`. Quick scaffold: `make contribute`.
 
 <!-- BENCH:START -->
 
@@ -277,7 +168,3 @@ BENCH_QUICK=1 make bench  # CI-friendly subset
 ## License
 
 **Proprietary** — All Rights Reserved. See [LICENSE.md](LICENSE.md).
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and the contributor map: [docs/contributor-map.md](docs/contributor-map.md).

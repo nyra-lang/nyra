@@ -146,6 +146,7 @@ fn run_tests(
             profile.link_search_paths.extend(link_search_paths);
             profile.link_args.extend(link_args);
             profile.link_sources.extend(link_sources);
+            profile.tls_backend = pkg::resolve_tls_backend(&crate::app::session::project_root(&entry))?;
             eprintln!("LINK {label} -> {}", bin.display());
             link::link_binary(&ll, &bin, &profile, &out_dir, "", &output.runtime_profile)?;
             eprintln!(

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra While Loops — Nyra Docs</title>
+  <title>While — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,34 +133,39 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-while.h1">Nyra While Loops</h1>
-      <p class="lead" data-i18n-html="pages.learn-while.lead">Repeat while a condition is true.</p>
-<h2>while</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-while.h1">While</h1>
+      <p class="lead" data-i18n-html="pages.learn-while.lead">Repeat while the condition is true.</p>
+<section class="doc-ex">
+<h2>while</h2>
+<p class="doc-ex-prose">Update the variable inside the loop until the condition becomes false (or you get an infinite loop).</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let mut i = 0
-while i &lt; 3 {
-    print(i)
-    i = i + 1
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let mut i = 0
+    while i &lt; 3 {
+        print(i)
+        i = i + 1
+    }
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let mut i: i32 = 0
-while i &lt; 3 {
-    print(i)
-    i = i + 1
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let mut i: i32 = 0
+    while i &lt; 3 {
+        print(i)
+        i = i + 1
+    }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/comparison/loop/sum_loop_small.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>499500</code></pre>
-
-</div><div class="callout warning"><strong>Common mistakes</strong><ul><li>Infinite loop — ensure the condition eventually becomes false.</li></ul></div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-loops.html">← Nyra Loops</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0
+1
+2</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-loops.html">← Loops</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-for.html">Nyra For Loops →</a>
+<a class="lesson-nav-next" href="learn-for.html">For →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

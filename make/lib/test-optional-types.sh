@@ -60,7 +60,7 @@ while IFS= read -r -d '' plain; do
   if [[ -f "$typed" ]]; then
     check_file "${rel%.ny}.typed.ny" "$typed"
   fi
-done < <(find "$ROOT/examples/builtins" -name '*.ny' ! -name '*.typed.ny' -print0)
+done < <(find "$ROOT/examples/builtins" -type f -name '*.ny' ! -name '*.typed.ny' -print0)
 
 log "checking syntax examples (easy + typed)"
 while IFS= read -r -d '' plain; do
@@ -70,7 +70,7 @@ while IFS= read -r -d '' plain; do
   if [[ -f "$typed" ]]; then
     check_file "${rel%.ny}.typed.ny" "$typed"
   fi
-done < <(find "$ROOT/examples/syntax" -name '*.ny' ! -name '*.typed.ny' -print0)
+done < <(find "$ROOT/examples/syntax" -type f -name '*.ny' ! -name '*.typed.ny' -print0)
 
 # Spot-run a few deterministic builtins in both styles
 run_file "strings/split.ny" "$ROOT/examples/builtins/strings/split.ny" $'3\na\nb\nc'

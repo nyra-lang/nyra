@@ -35,7 +35,7 @@ mod store;
 mod strings;
 mod trait_objects;
 mod types_map;
-mod util;
+pub(crate) mod util;
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 

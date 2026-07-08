@@ -1,7 +1,7 @@
 # Language Conformance Tests (CONF-LANG)
 
 Nyra source tests that verify **each language feature behaves as specified**.
-Organized by feature area; run via `scripts/conformance-tests.sh` (included in `test-all.sh`).
+Organized by feature area; run via `make/lib/conformance-tests.sh` (included in `make test-all`).
 
 ## Layout
 
@@ -9,32 +9,46 @@ Organized by feature area; run via `scripts/conformance-tests.sh` (included in `
 |------|------|-------------|
 | `pass/` | `nyra test` | Compile, link, run; assertions pass |
 | `fail/` | `nyra check` | **Must not** compile (type/borrow errors) |
-| `fixtures/` | `nyra run` | Multi-file import smoke |
+| `fixtures/` | `nyra run` / `nyra test` / `nyra check` | Multi-file import, TLS backends, comptime, no_std |
 
 ### Pass areas (`pass/`)
 
 | Directory | Feature |
 |-----------|---------|
 | `variables/` | `let`, `mut`, arithmetic |
-| `control/` | `if`, `while`, `for` |
+| `control/` | `if`, `while`, `for`, `break`, `continue` |
 | `match/` | `match`, `if` expressions |
-| `types/` | structs, booleans |
+| `types/` | structs, booleans, i64 literals |
 | `functions/` | params, return, inference |
-| `arrays/` | literals, indexing |
+| `arrays/` | literals, indexing, push |
 | `enums/` | ADT payloads |
-| `strings/` | len, concat |
+| `strings/` | len, concat, ops |
 | `generics/` | monomorph / typed fn |
-| `borrow/` | i32 copy (happy path) |
+| `borrow/` | i32 copy, NLL happy paths |
 | `edge/` | empty loops, nested expr |
-| `imports/` | local const (project import via fixture) |
+| `imports/` | local const |
+| `option/` / `result/` | `Option`, `Result`, `?` propagation |
+| `hashmap/` | insert/get |
+| `async/` | `async`/`await`, executor, promises |
+| `spawn/` | `spawn`, `spawn:thread`, join |
+| `traits/` | static `impl`, `dyn Trait` dispatch |
+| `macros/` | syntactic macro expansion |
+| `defer/` | scope-exit hooks on `return` |
+| `comptime/` | `#[comptime]` const folding |
+| `unsafe/` | `unsafe` blocks, unions, raw pointers |
+| `tls/` | rustls availability, HTTP body decode, **deterministic** HTTPS error paths (no soft-skip) |
 
 ### Fail areas (`fail/`)
 
 | Directory | Feature |
-|-----------|---------|
+|-----------|------|
 | `assign/` | immutable variable reassignment |
-| `borrow/` | use-after-move (string + struct) |
+| `borrow/` | use-after-move, double move, conflicting borrows, mut+imm conflicts |
 | `types/` | type mismatch in expr / assign |
+| `generics/` | monomorph mismatch |
+| `option/` | wrong optional payload type |
+| `unsafe/` | raw pointer deref outside `unsafe` |
+| `no_std/` | `print` rejected in `no_std` programs (`no_std` file directive) |
 
 ## Writing a pass test
 
@@ -47,7 +61,7 @@ test fn conf_let_binding() {
 }
 ```
 
-Helpers: `assert`, `assert_eq`, `assert_ne`, `assert_true`, `assert_bool`.
+Helpers: `assert`, `assert_eq`, `assert_ne`, `assert_true`, `assert_bool`, `assert_str_eq`.
 
 ## Writing a fail test
 
@@ -60,11 +74,26 @@ fn main() {
 }
 ```
 
+## TLS testing strategy
+
+| Suite | What it verifies |
+|-------|------------------|
+| `pass/tls/offline.ny` | Chunked/plain body decode, status parse, **localhost refused port → JSON error** (always runs) |
+| `fixtures/tls_native/` | OS native TLS backend + deterministic error path |
+| `fixtures/tls_openssl/` | OpenSSL backend availability or descriptive `tls_last_error` |
+| `fixtures/tls_live/` | **Optional** hard live HTTPS (`NYRA_CONF_TLS_LIVE=1`) — no soft-skip |
+
+Live public-Internet HTTPS is **off by default** so CI stays deterministic. Enable explicitly:
+
+```bash
+NYRA_CONF_TLS_LIVE=1 bash make/lib/conformance-tests.sh
+```
+
 ## Run locally
 
 ```bash
 cargo build -p cli
-bash scripts/conformance-tests.sh
+bash make/lib/conformance-tests.sh
 # pass only (nyra test tests/conformance also works — skips fail/ and fixtures/):
 ./target/debug/nyra test tests/conformance/pass
 ```

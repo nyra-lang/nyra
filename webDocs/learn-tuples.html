@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Tuples — Nyra Docs</title>
+  <title>Tuples — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-tuples.h1">Nyra Tuples</h1>
-      <p class="lead" data-i18n-html="pages.learn-tuples.lead">Group values with tuple types and literals.</p>
-<h2>Tuple</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-tuples.h1">Tuples</h1>
+      <p class="lead" data-i18n-html="pages.learn-tuples.lead">Group values of different types.</p>
+<section class="doc-ex">
+<h2>Tuple</h2>
+<p class="doc-ex-prose">Access fields with <code>.0</code> or destructure with <code>let (a, b) = pair</code>.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -153,17 +156,13 @@
     let (a, b) = pair
     print(a)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/tuples.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>1
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
 1</code></pre>
-
-</div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-vectors.html">← Nyra Vectors</a>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-vectors.html">← Vectors</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-hashmap.html">Nyra HashMap →</a>
+<a class="lesson-nav-next" href="learn-hashmap.html">HashMap →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Scope — Nyra Docs</title>
+  <title>Scope — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-scope.h1">Nyra Scope</h1>
-      <p class="lead" data-i18n-html="pages.learn-scope.lead">Where variables are visible — block scope in Nyra.</p>
-<h2>Block scope</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-scope.h1">Scope</h1>
+      <p class="lead" data-i18n-html="pages.learn-scope.lead">Where a variable is visible.</p>
+<section class="doc-ex">
+<h2>Block scope</h2>
+<p class="doc-ex-prose">Each <code>{ }</code> block creates a new scope. Bindings declared inside a block are not visible outside it.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -145,25 +148,25 @@
     let x = 1
     if true {
         let y = 2
-        print(x)   // ok — outer scope
+        print(x)
         print(y)
     }
-    // print(y)  // error — y not in scope
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     let x: i32 = 1
     if true {
         let y: i32 = 2
-        print(x)   // ok — outer scope
+        print(x)
         print(y)
     }
-    // print(y)  // error — y not in scope
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Each <code>{ }</code> block creates a new scope. Bindings declared inside a block are not visible outside it.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-functions.html">← Nyra Functions</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+2</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-functions.html">← Functions</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-strings.html">Nyra Strings →</a>
+<a class="lesson-nav-next" href="learn-strings.html">Strings →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

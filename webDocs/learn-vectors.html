@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Vectors — Nyra Docs</title>
+  <title>Vectors — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,55 +133,34 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-vectors.h1">Nyra Vectors</h1>
-      <p class="lead" data-i18n-html="pages.learn-vectors.lead">Growable arrays with <code>Vec&lt;T&gt;</code>.</p>
-<h2>Vec (runtime API)</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-vectors.h1">Vectors</h1>
+      <p class="lead" data-i18n-html="pages.learn-vectors.lead">Growable lists with <code>vec()</code>.</p>
+<section class="doc-ex">
+<h2>vec()</h2>
+<p class="doc-ex-prose">Push elements and read length and index. Higher-order helpers like <code>filter</code> ship in v1.45.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn vec_i32_new() -&gt; ptr
-extern fn vec_i32_push(v: ptr, x: i32) -&gt; void
-extern fn vec_i32_len(v: ptr) -&gt; i32
-extern fn vec_i32_get(v: ptr, i: i32) -&gt; i32
-extern fn vec_i32_free(v: ptr) -&gt; void
-
-fn main() {
-    let handle = vec_i32_new()
-    vec_i32_push(handle, 10)
-    vec_i32_push(handle, 20)
-    print(vec_i32_len(handle))
-    print(vec_i32_get(handle, 0))
-    vec_i32_free(handle)
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let xs = vec().push(10).push(20).push(30)
+    print(xs.len())
+    print(xs.get(0))
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn vec_i32_new() -&gt; ptr
-extern fn vec_i32_push(v: ptr, x: i32) -&gt; void
-extern fn vec_i32_len(v: ptr) -&gt; i32
-extern fn vec_i32_get(v: ptr, i: i32) -&gt; i32
-extern fn vec_i32_free(v: ptr) -&gt; void
-
-fn main() -&gt; void {
-    let handle = vec_i32_new()
-    vec_i32_push(handle, 10)
-    vec_i32_push(handle, 20)
-    print(vec_i32_len(handle))
-    print(vec_i32_get(handle, 0))
-    vec_i32_free(handle)
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let xs = vec().push(10).push(20).push(30)
+    print(xs.len())
+    print(xs.get(0))
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/vectors.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>2
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>3
 10</code></pre>
-
-</div>
-      <p>Import <code>stdlib/vec.ny</code> for <code>Vec_i32</code> and <code>Vec_str</code> wrappers.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-arrays.html">← Nyra Arrays</a>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-arrays.html">← Arrays</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-tuples.html">Nyra Tuples →</a>
+<a class="lesson-nav-next" href="learn-tuples.html">Tuples →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

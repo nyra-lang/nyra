@@ -19,6 +19,7 @@ class NyraType(str, Enum):
     F64 = "f64"
     BOOL = "bool"
     VOID = "void"
+    PTR = "ptr"
     VEC_STR = "vec_str"
     BYTES = "bytes"
     ARRAY = "array"
@@ -41,13 +42,13 @@ class ArgSpec:
         name = name.strip()
         ty = ty.strip().lower()
         # tolerate plural / common aliases
-        ty = {"strings": "string", "str": "string", "int": "i32", "integer": "i32"}.get(ty, ty)
+        ty = {"strings": "string", "str": "string", "int": "i32", "integer": "i32", "pointer": "ptr"}.get(ty, ty)
         try:
             return cls(name=name, nyra_type=NyraType(ty))
         except ValueError as exc:
             raise ValueError(
                 f"unknown Nyra type {ty!r} in {raw!r}. "
-                f"Valid types: string, i32, i64, f64, bool, vec_str, bytes, array"
+                f"Valid types: string, i32, i64, f64, bool, void, ptr, vec_str, bytes, array"
             ) from exc
 
 
@@ -123,6 +124,8 @@ class BuiltinSpec:
 
 def default_c_name(receiver: ReceiverKind, method: str) -> str:
     if receiver == ReceiverKind.STRING:
+        if method == "split_once":
+            return "str_before_sep"
         if method.startswith("str_"):
             return method
         return f"str_{method}"

@@ -1,6 +1,68 @@
 # Changelog
 
+## v1.45.0 (2026-07-08)
+
+**Collections HOFs + SQL query builder**
+
+- **VecI32 / StrVec** — `contains`/`includes`, `first`/`last`, `find`/`find_eq`/`index_of`, `filter`, `map`, `reduce` (i32)
+- **SQL builder** — `qb()` / `qb_from(table)` with `.select` / `.from` / `.where` / `.and` / `.include` (JOIN) / `.lookup` / `.unwind` (LEFT JOIN) / `.order` / `.limit` / `.distinct` / `.to_sql()`; writers `sql_insert` / `sql_update` / `sql_delete` / `sql_quote`
+- **DB** — `SqlDb.find(q)` / `SqliteDb.find(q)` run a built query
+- **Tests** — `tests/nyra/collection_qb_test.ny`
+
+## v1.44.1 (2026-07-08)
+
+**Auto-prelude: resolve imports when lazy-loading stdlib**
+
+- **Fixed** — `inject_lazy_stdlib_prelude` used `parse_file_only`, so modules like `net/http/sugar.ny` were merged without sibling imports. Also, the parser duplicated mangled `impl` methods into `program.functions`, so wrappers like `RequestInit_timeout` could replace the real free helpers from `fetch.ny` → infinite recursion / `program exited with status -1` under auto-import with no explicit `import`s.
+- **Now** — auto-loaded files resolve their imports like explicit ones, and `impl` methods stay on `program.impls` (codegen emits them only when no free function of the same name exists). `req().timeout(…).get(url)` works with zero import lines.
+
+## v1.44.0 (2026-07-08)
+
+**HTTP naming — one primary path like JS `fetch`**
+
+- **Primary** — `fetch(url) -> HttpResponse` (was body `string`); body-only stays as `get(url)` / `resp.text()`
+- **One configure object** — `req().header(...).timeout(...).json(...).post(url)` (also `.get` / `.put` / `.patch` / `.delete` / `.head` / `.go`)
+- **String verbs** — `req().verb("POST")…` via `method_from_name`
+- **Short helpers** — `post_json` / `post_form` / `put_json` / `patch_json` / `get_json` (no `http_` prefix)
+- **Compat** — `http_post_json`, `.send(url)`, and body-only `fetch_text(url)` still exist; do **not** redefine `fetch` in legacy `stdlib/http*` (that collided with `net/http` and broke codegen)
+- **Docs/examples** — preferred style is `fetch` + `req().…verb(url)`, not long per-verb names
+
+## v1.43.0 (2026-07-08)
+
+**Language-wide short APIs (less code, same power)**
+
+- **JSON** — `jparse`, `jstringify`, `jstr`/`jraw`/`jobj`/`jnum`/`jbool`, `obj()`/`dict()`/`dict_i32()` (shared; no longer HTTP-only)
+- **Strings** — `sb().push(...).build()`, `cat`/`cat3`/`cat4`
+- **Collections** — `strs()`/`.joined(sep)`, `vec()`/`vec_range()` method-bearing `VecI32`
+- **FS/Path** — `slurp`/`spit`/`mkdir`/`mkdir_all`/`rm`/`rm_rf`/`ls`; `path(p).read()`/`.write()`/`.exists()`
+- **Time** — `now()`, `ms(n).sleep()`
+- **Env / process / uuid / encoding / errors** — `env`/`env_or`, `cmd`, `uuid`, `b64`/`b64d`, `err_io` + `Error.context()`/`.format()`/`.show()`
+- **Tests** — `tests/nyra/stdlib_sugar_test*.ny`
+
+## v1.42.0 (2026-07-08)
+
+**HTTP ergonomics — JS/Go-short style**
+
+- **Added** — fluent chaining: `req().header(...).timeout(...).send(url)`, `form().append(...).urlencoded()`, `params().set(...).to_string()`, `cookies().set(...)`, `resp.json()` / `resp.text()` / `resp.is_ok()`
+- **Added** — short constructors `req()`, `form()`, `params()`, `cookies()`, `headers()`
+- **Added** — one-liner verbs `http_get`, `http_get_json`, `http_post_json`, `http_post_form`, `http_put_json`, `http_patch_json`, `http_delete`
+- **Added** — JSON field helpers `jstr` / `jraw` / `jobj` / `jnum` (auto-unquote string values)
+- **Tests/examples** — `tests/nyra/http_sugar_test*.ny`, shortened `examples/net/fetch_apis*.ny`
+
+## v1.41.0 (2026-07-08)
+
+**HTTP fetch surface + contributor hub fixes**
+
+- **Added** — custom request headers (`RequestInit` / `HeaderMap`), response header map on `HttpResponse`, `FormData`, `URLSearchParams`, `application/x-www-form-urlencoded` helpers
+- **Added** — `HttpResponse_json` / `JSON_parse_object` (object → `HashMap_str_str`), full RFC 3986 `url_encode` / `url_decode`
+- **Added** — real connect/read timeouts via `sys_set_timeout_ms` + `Client.timeout_ms` / `RequestInit_timeout`
+- **Added** — `AbortController` / `AbortSignal`, `CookieJar`, redirect modes (`FOLLOW` / `ERROR` / `MANUAL`), `Blob` / `ArrayBuffer` / `BodyStream`
+- **Added** — `fetch_with(url, init)` alongside existing `get`/`post`/`put`/`patch`/`delete`
+- **Fixed** — `make contribute-remove`/`patch` no longer hang regenerating webDocs by default; discover skips bulky trees; `pure_source` scaffolds multi-fn stdlib modules
+- **Tests/examples** — `tests/nyra/http_fetch_apis_test*.ny`, `examples/net/fetch_apis*.ny`
+
 ## v1.40.3 (2026-07-07)
+
 
 **JS-style string methods**
 

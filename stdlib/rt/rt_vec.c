@@ -221,3 +221,90 @@ void *vec_bytes_get_ptr(void *handle, int index) {
     }
     return ((void **)v->data)[index];
 }
+// [contrib-dev:vec_i32_clear:vec]
+void vec_i32_clear(void *handle) {
+    NyraVec *v = (NyraVec *)handle;
+    if (!v) {
+        return;
+    }
+    v->len = 0;
+}
+// [/contrib-dev:vec_i32_clear:vec]
+
+// [contrib-dev:vec_i32_insert:vec]
+void vec_i32_insert(void *handle, int index, int value) {
+    NyraVec *v = (NyraVec *)handle;
+    if (!v || index < 0 || index > v->len) {
+        return;
+    }
+    if (v->len >= v->cap) {
+        int nc = v->cap * 2;
+        void *nd = realloc(v->data, (size_t)nc * (size_t)v->elem_size);
+        if (!nd) {
+            return;
+        }
+        v->data = nd;
+        v->cap = nc;
+    }
+    int *data = (int *)v->data;
+    memmove(data + index + 1, data + index, (size_t)(v->len - index) * sizeof(int));
+    data[index] = value;
+    v->len++;
+}
+// [/contrib-dev:vec_i32_insert:vec]
+
+// [contrib-dev:vec_i32_remove_at:vec]
+int vec_i32_remove_at(void *handle, int index) {
+    NyraVec *v = (NyraVec *)handle;
+    if (!v || index < 0 || index >= v->len) {
+        return 0;
+    }
+    int *data = (int *)v->data;
+    int removed = data[index];
+    memmove(data + index, data + index + 1, (size_t)(v->len - index - 1) * sizeof(int));
+    v->len--;
+    return removed;
+}
+// [/contrib-dev:vec_i32_remove_at:vec]
+
+// [contrib-dev:vec_i32_reverse:vec]
+void vec_i32_reverse(void *handle) {
+    NyraVec *v = (NyraVec *)handle;
+    if (!v || v->len <= 1) {
+        return;
+    }
+    int *data = (int *)v->data;
+    int lo = 0;
+    int hi = v->len - 1;
+    while (lo < hi) {
+        int tmp = data[lo];
+        data[lo] = data[hi];
+        data[hi] = tmp;
+        lo++;
+        hi--;
+    }
+}
+// [/contrib-dev:vec_i32_reverse:vec]
+
+static int vec_i32_cmp(const void *a, const void *b) {
+    int av = *(const int *)a;
+    int bv = *(const int *)b;
+    if (av < bv) {
+        return -1;
+    }
+    if (av > bv) {
+        return 1;
+    }
+    return 0;
+}
+
+// [contrib-dev:vec_i32_sort:vec]
+void vec_i32_sort(void *handle) {
+    NyraVec *v = (NyraVec *)handle;
+    if (!v || v->len <= 1) {
+        return;
+    }
+    qsort(v->data, (size_t)v->len, sizeof(int), vec_i32_cmp);
+}
+// [/contrib-dev:vec_i32_sort:vec]
+

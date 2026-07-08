@@ -4,10 +4,48 @@ use std::path::{Path, PathBuf};
 
 use sha2::{Digest, Sha256};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum TlsBackend {
+    #[default]
+    Rustls,
+    Native,
+    Openssl,
+}
+
+impl TlsBackend {
+    pub fn parse(s: &str) -> Result<Self, String> {
+        match s.trim().to_ascii_lowercase().as_str() {
+            "rustls" => Ok(Self::Rustls),
+            "native" | "native-tls" | "nativetls" => Ok(Self::Native),
+            "openssl" | "ssl" => Ok(Self::Openssl),
+            other => Err(format!(
+                "unknown tls backend '{other}' (expected rustls, native, or openssl)"
+            )),
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Rustls => "rustls",
+            Self::Native => "native",
+            Self::Openssl => "openssl",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct LockFeatures {
+    #[serde(default)]
+    pub tls: Option<TlsBackend>,
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LockFile {
     pub version: u32,
     pub module: String,
+    #[serde(default)]
+    pub features: LockFeatures,
     pub require: Vec<LockEntry>,
 }
 
@@ -33,6 +71,7 @@ impl LockFile {
         Self {
             version: 1,
             module: module.into(),
+            features: LockFeatures::default(),
             require: vec![],
         }
     }

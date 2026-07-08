@@ -777,10 +777,40 @@ impl Codegen {
                 )
             }
             Expression::MethodCall(mc) if mc.method == "sort" => {
-                self.compile_array_sort(mc, env)
+                if self.expr_receiver_struct_name(&mc.object, env).is_some() {
+                    let callee = self.method_callee_name(&mc.object, &mc.method, env);
+                    let mut args = vec![mc.object.clone()];
+                    args.extend(mc.args.clone());
+                    self.compile_expr(
+                        &Expression::Call(CallExpr {
+                            callee,
+                            type_args: vec![],
+                            args,
+                            span: mc.span.clone(),
+                        }),
+                        env,
+                    )
+                } else {
+                    self.compile_array_sort(mc, env)
+                }
             }
             Expression::MethodCall(mc) if mc.method == "sort_by" => {
-                self.compile_array_sort_by(mc, env)
+                if self.expr_receiver_struct_name(&mc.object, env).is_some() {
+                    let callee = self.method_callee_name(&mc.object, &mc.method, env);
+                    let mut args = vec![mc.object.clone()];
+                    args.extend(mc.args.clone());
+                    self.compile_expr(
+                        &Expression::Call(CallExpr {
+                            callee,
+                            type_args: vec![],
+                            args,
+                            span: mc.span.clone(),
+                        }),
+                        env,
+                    )
+                } else {
+                    self.compile_array_sort_by(mc, env)
+                }
             }
             Expression::MethodCall(mc) if mc.method == "join" && mc.args.is_empty() => {
                 let obj = self.compile_expr(&mc.object, env);

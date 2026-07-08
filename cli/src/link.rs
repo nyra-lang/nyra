@@ -94,6 +94,8 @@ pub struct LinkProfile {
     pub race_native: bool,
     /// AddressSanitizer (`-fsanitize=address`) for heap/stack use-after-free detection.
     pub sanitize: bool,
+    /// HTTPS / TLS client backend from `nyra.mod` / `nyra.lock` (`rustls` default).
+    pub tls_backend: pkg::TlsBackend,
 }
 
 impl LinkProfile {
@@ -144,7 +146,13 @@ impl LinkProfile {
             race: false,
             race_native: false,
             sanitize: false,
+            tls_backend: pkg::TlsBackend::Rustls,
         })
+    }
+
+    pub fn with_tls_backend(mut self, backend: pkg::TlsBackend) -> Self {
+        self.tls_backend = backend;
+        self
     }
 
     pub fn with_sanitize(mut self, sanitize: bool) -> Self {
@@ -565,6 +573,38 @@ pub fn link_binary_with_options(
     for obj in &link_objects {
         cmd.arg(obj);
     }
+    if runtime_profile.needs_rustls_tls() {
+        match profile.tls_backend {
+            pkg::TlsBackend::Rustls => {
+                let tls_lib = crate::prebuilt_tls::ensure_prebuilt_tls(&spec)?;
+                cmd.arg(&tls_lib);
+            }
+            pkg::TlsBackend::Native => {
+                let tls_lib = crate::prebuilt_tls_native::ensure_prebuilt_native_tls(&spec)?;
+                cmd.arg(&tls_lib);
+            }
+            pkg::TlsBackend::Openssl => {
+                // Compile optional OpenSSL client unit instead of rustls/native staticlib.
+                let rt_dir = compiler::runtime_map::stdlib_rt_dir();
+                let src = rt_dir.join("rt_tls_openssl_client.c");
+                if !src.is_file() {
+                    return Err(format!(
+                        "tls openssl selected but missing {}",
+                        src.display()
+                    ));
+                }
+                let objs = crate::c_cache::compile_link_sources(
+                    &[src],
+                    work_dir,
+                    profile,
+                    &spec,
+                )?;
+                for obj in objs {
+                    cmd.arg(obj);
+                }
+            }
+        }
+    }
     let rt_flags = LinkTargetFlags {
         needs_pthread: runtime_profile.needs_pthread(),
         uses_rt_os: runtime_profile.modules().contains("rt_os.c"),
@@ -572,7 +612,16 @@ pub fn link_binary_with_options(
         uses_rt_os_adv: runtime_profile.modules().contains("rt_os_adv.c"),
         uses_rt_random: runtime_profile.modules().contains("rt_random.c"),
         uses_rt_net: runtime_profile.uses_ws2_32(&spec.triple),
-        needs_openssl: runtime_profile.needs_openssl(),
+        needs_openssl: runtime_profile.needs_openssl()
+            || (runtime_profile.needs_rustls_tls()
+                && matches!(profile.tls_backend, pkg::TlsBackend::Openssl))
+            || (runtime_profile.needs_rustls_tls()
+                && matches!(profile.tls_backend, pkg::TlsBackend::Native)
+                && spec.is_linux()),
+        needs_rustls_tls: runtime_profile.needs_rustls_tls()
+            && matches!(profile.tls_backend, pkg::TlsBackend::Rustls),
+        needs_native_tls: runtime_profile.needs_rustls_tls()
+            && matches!(profile.tls_backend, pkg::TlsBackend::Native),
         needs_zlib: runtime_profile.needs_zlib(),
         needs_libm: runtime_profile.needs_libm(),
     };

@@ -1,5 +1,9 @@
 import "strings.ny"
 
+extern fn read_file(path: string) -> string
+extern fn write_file(path: string, content: string) -> i32
+extern fn file_exists(path: string) -> i32
+
 fn basename_str(path: string) -> string {
     let n = strlen(path)
     let mut last = -1
@@ -22,6 +26,10 @@ struct Path {
 
 fn Path_new(value: string) -> Path {
     return Path { value: value }
+}
+
+fn path(value: string) -> Path {
+    return Path_new(value)
 }
 
 fn Path_join(path: Path, segment: string) -> Path {
@@ -67,6 +75,18 @@ impl Path {
 
     fn as_string(self) -> string {
         return self.value
+    }
+
+    fn read(self) -> string {
+        return read_file(self.value)
+    }
+
+    fn write(self, content: string) -> i32 {
+        return write_file(self.value, content)
+    }
+
+    fn exists(self) -> i32 {
+        return file_exists(self.value)
     }
 }
 

@@ -200,6 +200,7 @@ pub fn link_cache_key(
     link_libs: &[String],
     link_args: &[String],
     link_sources: &[PathBuf],
+    tls_backend: &str,
 ) -> u64 {
     let mut hasher = DefaultHasher::new();
     base.hash(&mut hasher);
@@ -221,6 +222,7 @@ pub fn link_cache_key(
             bytes.hash(&mut hasher);
         }
     }
+    tls_backend.hash(&mut hasher);
     hasher.finish()
 }
 

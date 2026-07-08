@@ -1,0 +1,3 @@
+# Nyra links user programs with MinGW on Windows; cross-built TLS staticlibs need a GNU linker.
+[target.x86_64-pc-windows-gnu]
+linker = "gcc"

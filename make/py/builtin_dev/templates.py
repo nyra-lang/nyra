@@ -16,6 +16,12 @@ def nyra_type_annotation(ty: NyraType, ref: bool = True) -> str:
         return "i32"
     if ty == NyraType.BYTES:
         return "&bytes" if ref else "bytes"
+    if ty == NyraType.PTR:
+        return "ptr"
+    if ty == NyraType.VEC_STR:
+        return "ptr"
+    if ty == NyraType.VOID:
+        return "void"
     raise ValueError(f"unsupported Nyra type annotation: {ty}")
 
 
@@ -30,9 +36,17 @@ def c_type(ty: NyraType, *, is_return: bool = False) -> str:
         return "double"
     if ty == NyraType.BYTES:
         return "char *" if is_return else "const char *"
+    if ty == NyraType.PTR or ty == NyraType.VEC_STR:
+        return "void *"
     if ty == NyraType.VOID:
         return "void"
     raise ValueError(f"unsupported C type: {ty}")
+
+
+def expr_value_ty(ret: NyraType) -> str:
+    if ret == NyraType.VEC_STR:
+        return "vec_str"
+    return llvm_return_ty(ret)
 
 
 def llvm_return_ty(ret: NyraType) -> str:
@@ -44,6 +58,10 @@ def llvm_return_ty(ret: NyraType) -> str:
         return "i64"
     if ret == NyraType.F64:
         return "double"
+    if ret == NyraType.VOID:
+        return "void"
+    if ret == NyraType.PTR:
+        return "ptr"
     raise ValueError(f"unsupported LLVM return: {ret}")
 
 
@@ -56,6 +74,8 @@ def llvm_arg_ty(ty: NyraType) -> str:
         return "i64"
     if ty == NyraType.F64:
         return "double"
+    if ty == NyraType.PTR:
+        return "ptr"
     raise ValueError(f"unsupported LLVM arg: {ty}")
 
 
@@ -99,7 +119,7 @@ def c_stub(spec: BuiltinSpec) -> str:
     lines = [
         "",
         marker_start(spec),
-        f"{ret}{spec.c_name}({sig}) {{",
+        f"{ret} {spec.c_name}({sig}) {{",
         "    /* TODO: implement logic here — this stub returns a safe default. */",
     ]
     if spec.returns == NyraType.STRING:
@@ -229,7 +249,7 @@ def codegen_string_method_arm(spec: BuiltinSpec) -> str:
     lines.append("    );")
     lines.append("    ExprValue {")
     lines.append('        reg: format!("%{reg}"),')
-    lines.append(f'        ty: "{ret_ty}".into(),')
+    lines.append(f'        ty: "{expr_value_ty(spec.returns)}".into(),')
     lines.append("    }")
     lines.append("}")
     lines.append(marker_end(spec))
@@ -277,7 +297,7 @@ def abi_manifest_block(spec: BuiltinSpec) -> str:
             toml_marker_start(spec),
             "[[symbol]]",
             f'name = "{spec.c_name}"',
-            f'c_sig = "{ret}{spec.c_name}({sig})"',
+            f'c_sig = "{ret} {spec.c_name}({sig})"',
             f'module = "{spec.rt_module}"',
             f'tier = "{tier}"',
             f'since = "{spec.abi_since}"',
@@ -301,6 +321,31 @@ def example_ny(spec: BuiltinSpec) -> str:
         sample = '"Hello World"'
     else:
         sample = '"hello"'
+    if spec.returns == NyraType.VEC_STR:
+        if spec.args:
+            arg_vals = []
+            for a in spec.args:
+                if a.nyra_type == NyraType.STRING:
+                    if a.name in ("suffix", "prefix"):
+                        arg_vals.append('".txt"')
+                    elif a.name == "needle":
+                        arg_vals.append('"ell"')
+                    elif a.name == "sep":
+                        arg_vals.append('","')
+                    else:
+                        arg_vals.append('"arg"')
+                else:
+                    arg_vals.append("1")
+            lines.append(
+                f"    let parts = {sample}.{profile_method}({', '.join(arg_vals)})"
+            )
+        else:
+            sample = '"a b c"' if spec.method == "fields" else sample
+            lines.append(f"    let parts = {sample}.{profile_method}()")
+        lines.append("    print(parts.len())")
+        lines.append("}")
+        lines.append("")
+        return "\n".join(lines)
     if spec.args:
         arg_vals = []
         for a in spec.args:
@@ -331,6 +376,30 @@ def example_typed_ny(spec: BuiltinSpec) -> str:
     return body
 
 
+def _test_arg_value(arg: ArgSpec) -> str:
+    if arg.nyra_type == NyraType.STRING:
+        if arg.name in ("suffix", "prefix"):
+            return '".txt"'
+        if arg.name in ("sep", "needle", "from"):
+            return '","'
+        if arg.name == "pad":
+            return '"0"'
+        return '"x"'
+    if arg.nyra_type == NyraType.I32 and arg.name in ("width", "n", "count"):
+        return "2"
+    return "1"
+
+
+def _test_assert_line(spec: BuiltinSpec, var: str = "result") -> str:
+    if spec.returns == NyraType.STRING:
+        return f'    assert_str_eq({var}, "")  // TODO: set expected after C impl'
+    if spec.returns in (NyraType.I32, NyraType.BOOL):
+        return f'    assert_eq({var}, 0)  // TODO: set expected after C impl'
+    if spec.returns == NyraType.VEC_STR:
+        return f'    assert_eq({var}.len(), 0)  // TODO: set expected after C impl'
+    return f"    // TODO: assert {var}"
+
+
 def test_ny(spec: BuiltinSpec) -> str:
     test_name = f"test_{spec.receiver.value}_{spec.method}"
     if spec.receiver == ReceiverKind.STRING:
@@ -340,24 +409,18 @@ def test_ny(spec: BuiltinSpec) -> str:
             'import "stdlib/builtins_string.ny"',
             "",
         ]
-        arg_vals = []
-        for a in spec.args:
-            if a.nyra_type == NyraType.STRING and a.name in ("suffix", "prefix"):
-                arg_vals.append('".txt"')
-            elif a.nyra_type == NyraType.STRING:
-                arg_vals.append('"x"')
-            else:
-                arg_vals.append("1")
+        arg_vals = [_test_arg_value(a) for a in spec.args]
+        args_suffix = f"({', '.join(arg_vals)})" if arg_vals else "()"
         body_lines = [
             f"test fn {test_name}() {{",
             '    let s = "hamdy.txt"',
-            f"    let result = s.{spec.method}({', '.join(arg_vals)})",
-            '    assert_str_eq(result, "hamdy")  // TODO: fix expected value after C impl',
+            f"    let result = s.{spec.method}{args_suffix}",
+            _test_assert_line(spec),
         ]
         if spec.free_fn_alias and spec.args:
             body_lines.extend([
                 f"    let result2 = {spec.method}(s, {', '.join(arg_vals)})",
-                '    assert_str_eq(result2, "hamdy")  // TODO: fix expected value',
+                _test_assert_line(spec, "result2"),
             ])
         body_lines.extend(["}", ""])
         return "\n".join(imports + body_lines)

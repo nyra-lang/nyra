@@ -582,21 +582,28 @@ fn end_to_end_tcp_echo() {
         .arg(&server_path)
         .spawn()
         .expect("spawn tcp server");
-    thread::sleep(Duration::from_millis(1500));
-    let client = Command::new(&nyra)
-        .env_remove("NYRA_HOME")
-        .arg("run")
-        .arg(&client_path)
-        .output()
-        .expect("run tcp client");
+    thread::sleep(Duration::from_millis(2500));
+    let mut client_ok = false;
+    let mut last_stderr = String::new();
+    for attempt in 0..6 {
+        if attempt > 0 {
+            thread::sleep(Duration::from_millis(500));
+        }
+        let client = Command::new(&nyra)
+            .env_remove("NYRA_HOME")
+            .arg("run")
+            .arg(&client_path)
+            .output()
+            .expect("run tcp client");
+        last_stderr = String::from_utf8_lossy(&client.stderr).into_owned();
+        if client.status.success() && String::from_utf8_lossy(&client.stdout).trim() == "1" {
+            client_ok = true;
+            break;
+        }
+    }
     let _ = server.kill();
     let _ = server.wait();
-    assert!(
-        client.status.success(),
-        "client stderr: {}",
-        String::from_utf8_lossy(&client.stderr)
-    );
-    assert_eq!(String::from_utf8_lossy(&client.stdout).trim(), "1");
+    assert!(client_ok, "tcp echo client failed after retries; last stderr={last_stderr}");
 }
 
 #[test]

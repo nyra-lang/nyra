@@ -286,6 +286,37 @@ int sys_set_nonblock(int fd) {
     return nyra_sock_set_nonblock(fd);
 }
 
+int sys_set_timeout_ms(int fd, int timeout_ms) {
+    if (fd < 0) {
+        return -1;
+    }
+    if (timeout_ms < 0) {
+        timeout_ms = 0;
+    }
+#if defined(_WIN32)
+    DWORD tv = (DWORD)timeout_ms;
+    if (setsockopt((SOCKET)fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof(tv)) != 0) {
+        return -1;
+    }
+    if (setsockopt((SOCKET)fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof(tv)) != 0) {
+        return -1;
+    }
+    return 0;
+#else
+    struct timeval tv;
+    tv.tv_sec = timeout_ms / 1000;
+    tv.tv_usec = (timeout_ms % 1000) * 1000;
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0) {
+        return -1;
+    }
+    if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) != 0) {
+        return -1;
+    }
+    return 0;
+#endif
+}
+
+
 int sys_listen(const char *host, int port) {
     return rt_tcp_listen(host, port);
 }

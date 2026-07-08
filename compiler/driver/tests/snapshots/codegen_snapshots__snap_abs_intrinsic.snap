@@ -7,15 +7,105 @@ target triple = "nyra-snapshot-host"
 
 @.str.N = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
+declare double @acos_f64(double %0)
+declare double @asin_f64(double %0)
 declare double @atan2_f64(double %0, double %1)
+declare double @atan_f64(double %0)
+declare double @ceil_f64(double %0)
+declare double @clamp_f64(double %0, double %1, double %2)
 declare double @cos_f64(double %0)
+declare double @exp_f64(double %0)
+declare double @floor_f64(double %0)
+declare double @hypot_f64(double %0, double %1)
+declare double @log10_f64(double %0)
+declare double @log2_f64(double %0)
+declare double @log_f64(double %0)
+declare double @pow_f64(double %0, double %1)
+declare double @round_f64(double %0)
 declare double @sin_f64(double %0)
+declare double @sqrt_f64(double %0)
 declare double @tan_f64(double %0)
+declare double @trunc_f64(double %0)
 declare i32 @llvm.abs.i32(i32, i1)
 declare i32 @printf(ptr, ...)
 declare void @abort()
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
+define double @acos(double %0) {
+entry:
+  %call.N = call double @acos_f64(double %0)
+  ret double %call.N
+}
+define double @asin(double %0) {
+entry:
+  %call.N = call double @asin_f64(double %0)
+  ret double %call.N
+}
+define double @atan(double %0) {
+entry:
+  %call.N = call double @atan_f64(double %0)
+  ret double %call.N
+}
+define double @ceil(double %0) {
+entry:
+  %call.N = call double @ceil_f64(double %0)
+  ret double %call.N
+}
+define double @clamp(double %0, double %1, double %2) {
+entry:
+  %call.N = call double @clamp_f64(double %0, double %1, double %2)
+  ret double %call.N
+}
+define double @exp(double %0) {
+entry:
+  %call.N = call double @exp_f64(double %0)
+  ret double %call.N
+}
+define double @floor(double %0) {
+entry:
+  %call.N = call double @floor_f64(double %0)
+  ret double %call.N
+}
+define double @hypot(double %0, double %1) {
+entry:
+  %call.N = call double @hypot_f64(double %0, double %1)
+  ret double %call.N
+}
+define double @log(double %0) {
+entry:
+  %call.N = call double @log_f64(double %0)
+  ret double %call.N
+}
+define double @log10(double %0) {
+entry:
+  %call.N = call double @log10_f64(double %0)
+  ret double %call.N
+}
+define double @log2(double %0) {
+entry:
+  %call.N = call double @log2_f64(double %0)
+  ret double %call.N
+}
+define double @pow(double %0, double %1) {
+entry:
+  %call.N = call double @pow_f64(double %0, double %1)
+  ret double %call.N
+}
+define double @round(double %0) {
+entry:
+  %call.N = call double @round_f64(double %0)
+  ret double %call.N
+}
+define double @sqrt(double %0) {
+entry:
+  %call.N = call double @sqrt_f64(double %0)
+  ret double %call.N
+}
+define double @trunc(double %0) {
+entry:
+  %call.N = call double @trunc_f64(double %0)
+  ret double %call.N
+}
 define i32 @main() {
 entry:
   %abs.N = call i32 @llvm.abs.i32(i32 -42, i1 true)

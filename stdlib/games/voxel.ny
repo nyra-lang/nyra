@@ -110,22 +110,6 @@ impl VoxelChunk_i32 {
 }
 
 // Aliases for tests/examples that prefer free functions.
-fn VoxelChunk_i32_get(chunk: VoxelChunk_i32, x: i32, y: i32, z: i32) -> i32 {
-    return chunk.get(x, y, z)
-}
-
-fn VoxelChunk_i32_set(chunk: VoxelChunk_i32, x: i32, y: i32, z: i32, value: i32) -> VoxelChunk_i32 {
-    return chunk.set(x, y, z, value)
-}
-
-fn VoxelChunk_i32_solid_count(chunk: VoxelChunk_i32) -> i32 {
-    return chunk.solid_count()
-}
-
-fn VoxelChunk_i32_visible_face_count(chunk: VoxelChunk_i32) -> i32 {
-    return chunk.visible_face_count()
-}
-
 impl Drop for VoxelChunk_i32 {
     fn drop(self) -> void {
         Vec_i32_free(self.blocks)

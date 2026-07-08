@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "map.ny",
+  "fn_name": "hashmap_extra_methods",
+  "pure_source": "extern fn map_str_i32_values(m: ptr) -> ptr\nextern fn map_str_i32_len(m: ptr) -> i32\nextern fn map_str_i32_clear(m: ptr) -> void\nextern fn map_str_str_values(m: ptr) -> ptr\nextern fn map_str_str_len(m: ptr) -> i32\nextern fn map_str_str_clear(m: ptr) -> void\n\nimpl HashMap_str_i32 {\n    fn values(self) -> VecI32 {\n        return VecI32 { handle: map_str_i32_values(self.handle) }\n    }\n\n    fn len(self) -> i32 {\n        return map_str_i32_len(self.handle)\n    }\n\n    fn clear(self) -> HashMap_str_i32 {\n        map_str_i32_clear(self.handle)\n        return self\n    }\n}\n\nimpl HashMap_str_str {\n    fn values(self) -> StrVec {\n        return StrVec { handle: map_str_str_values(self.handle) }\n    }\n\n    fn len(self) -> i32 {\n        return map_str_str_len(self.handle)\n    }\n\n    fn clear(self) -> HashMap_str_str {\n        map_str_str_clear(self.handle)\n        return self\n    }\n}\n"
+}

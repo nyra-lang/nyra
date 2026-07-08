@@ -55,8 +55,11 @@ fn compute_rt_sources_stamp() -> Result<u64, String> {
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| {
+            let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
             p.extension().and_then(|x| x.to_str()) == Some("c")
                 && !p.to_string_lossy().contains(".inc.")
+                // Optional OpenSSL client — linked only for `tls openssl`.
+                && name != "rt_tls_openssl_client.c"
         })
         .collect();
     entries.sort();
@@ -72,6 +75,39 @@ fn compute_rt_sources_stamp() -> Result<u64, String> {
 
 fn stamp_path(spec: &TargetSpec) -> PathBuf {
     prebuilt_rt_dir(spec).join(STAMP_NAME)
+}
+
+fn build_lock_path(spec: &TargetSpec) -> PathBuf {
+    prebuilt_rt_dir(spec).join(".building.lock")
+}
+
+fn acquire_build_lock(spec: &TargetSpec) -> Result<std::fs::File, String> {
+    let path = build_lock_path(spec);
+    fs::create_dir_all(prebuilt_rt_dir(spec)).map_err(|e| e.to_string())?;
+    for _ in 0..600 {
+        match fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+        {
+            Ok(file) => return Ok(file),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                if !is_prebuilt_stale(spec) {
+                    return Err("lock-held-and-ready".into());
+                }
+                std::thread::sleep(std::time::Duration::from_millis(100));
+            }
+            Err(e) => return Err(e.to_string()),
+        }
+    }
+    Err(format!(
+        "timed out waiting to build {}",
+        prebuilt_rt_archive(spec).display()
+    ))
+}
+
+fn release_build_lock(spec: &TargetSpec, _lock: std::fs::File) {
+    let _ = fs::remove_file(build_lock_path(spec));
 }
 
 pub fn is_prebuilt_stale(spec: &TargetSpec) -> bool {
@@ -93,7 +129,19 @@ pub fn ensure_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
     if !is_prebuilt_stale(spec) {
         return Ok(prebuilt_rt_archive(spec));
     }
-    build_prebuilt_runtime(spec)
+    match acquire_build_lock(spec) {
+        Ok(lock) => {
+            let result = if is_prebuilt_stale(spec) {
+                build_prebuilt_runtime(spec)
+            } else {
+                Ok(prebuilt_rt_archive(spec))
+            };
+            release_build_lock(spec, lock);
+            result
+        }
+        Err(ref e) if e == "lock-held-and-ready" => Ok(prebuilt_rt_archive(spec)),
+        Err(e) => Err(e),
+    }
 }
 
 fn build_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
@@ -105,8 +153,10 @@ fn build_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| {
+            let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
             p.extension().and_then(|x| x.to_str()) == Some("c")
                 && !p.to_string_lossy().contains(".inc.")
+                && name != "rt_tls_openssl_client.c"
         })
         .collect();
     sources.sort();
@@ -129,12 +179,12 @@ fn build_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
 
     let archive = prebuilt_rt_archive(spec);
     let ar = llvm_tools::find_ar();
+    let tmp = out_dir.join(format!(
+        ".{ARCHIVE_NAME}.{}",
+        std::process::id()
+    ));
     let mut cmd = Command::new(&ar);
-    if archive.is_file() {
-        cmd.arg("rcs").arg(&archive);
-    } else {
-        cmd.arg("rcs").arg(&archive);
-    }
+    cmd.arg("rcs").arg(&tmp);
     for obj in &objects {
         cmd.arg(obj);
     }
@@ -142,6 +192,7 @@ fn build_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
         .output()
         .map_err(|e| format!("failed to run `{}`: {e}", ar.display()))?;
     if !output.status.success() {
+        let _ = fs::remove_file(&tmp);
         let stderr = String::from_utf8_lossy(&output.stderr);
         return Err(format!(
             "failed to build {}: {}",
@@ -149,6 +200,10 @@ fn build_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
             stderr.trim()
         ));
     }
+    fs::rename(&tmp, &archive).map_err(|e| {
+        let _ = fs::remove_file(&tmp);
+        format!("rename {} → {}: {e}", tmp.display(), archive.display())
+    })?;
 
     let stamp = compute_rt_sources_stamp()?;
     fs::write(stamp_path(spec), stamp.to_string()).map_err(|e| e.to_string())?;

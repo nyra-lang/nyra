@@ -35,6 +35,10 @@ fn Command_new(program: string) -> Command {
     return Command { program: program, args: StrVec_new() }
 }
 
+fn cmd(program: string) -> Command {
+    return Command_new(program)
+}
+
 impl Command {
     fn arg(self, value: string) -> Command {
         return Command {

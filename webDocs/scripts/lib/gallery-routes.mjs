@@ -26,13 +26,28 @@ const CATEGORIES = {
   arrays: { section: "Array methods", pages: ["methods"] },
   array: { section: "Array methods", pages: ["methods"] },
   vec: { section: "Vector methods", pages: ["methods"] },
+  vec_sugar: { section: "vec() HOFs", pages: ["methods", "stdlib"] },
   strvec: { section: "String-vector methods", pages: ["methods"] },
+  strs_sugar: { section: "strs() HOFs", pages: ["methods", "stdlib"] },
   map: { section: "HashMap methods", pages: ["methods"] },
+  map_sugar: { section: "HashMap methods", pages: ["methods", "stdlib"] },
   split_list: { section: "String split", pages: ["methods"] },
   for_in: { section: "For-in iteration", pages: ["methods"] },
 
   stdlib: { section: "Stdlib functions", pages: ["methods", "stdlib"] },
   json: { section: "JSON", pages: ["methods", "stdlib"] },
+  json_sugar: { section: "JSON sugar", pages: ["methods", "stdlib"] },
+  sb: { section: "String builder", pages: ["methods", "stdlib"] },
+  fs_sugar: { section: "Files (slurp/spit)", pages: ["methods", "stdlib"] },
+  time_sugar: { section: "Time sugar", pages: ["methods", "stdlib"] },
+  env: { section: "Env", pages: ["methods", "stdlib"] },
+  process_sugar: { section: "Process", pages: ["methods", "stdlib"] },
+  uuid: { section: "UUID", pages: ["methods", "stdlib"] },
+  encoding: { section: "Encoding", pages: ["methods", "stdlib"] },
+  strconv: { section: "Strconv", pages: ["methods", "stdlib"] },
+  error_sugar: { section: "Errors", pages: ["methods", "stdlib"] },
+  http_sugar: { section: "HTTP sugar", pages: ["methods", "stdlib"] },
+  qb: { section: "SQL qb()", pages: ["methods", "stdlib"] },
   math: { section: "Math", pages: ["methods", "stdlib"] },
   root: { section: "Math", pages: ["methods", "stdlib"] },
   io: { section: "Input / Output", pages: ["methods", "stdlib"] },
@@ -50,15 +65,29 @@ const DEFAULT = { section: "Other", pages: ["methods"] };
 /** Stable render order for sections within a page. */
 export const SECTION_ORDER = [
   "String methods",
+  "String builder",
   "Array methods",
   "Vector methods",
+  "vec() HOFs",
   "String-vector methods",
+  "strs() HOFs",
   "HashMap methods",
   "String split",
   "For-in iteration",
   "Stdlib functions",
   "Math",
   "JSON",
+  "JSON sugar",
+  "Files (slurp/spit)",
+  "Time sugar",
+  "Env",
+  "Process",
+  "UUID",
+  "Encoding",
+  "Strconv",
+  "Errors",
+  "HTTP sugar",
+  "SQL qb()",
   "Input / Output",
   "Timing & memory",
   "Date & time",
@@ -70,11 +99,17 @@ export const SECTION_ORDER = [
   "Other",
 ];
 
+/** Normalize folder names like `math.ny` → `math` (stdlib module examples). */
+export function normalizeCategory(raw) {
+  if (!raw) return "root";
+  return raw.replace(/\.ny$/i, "");
+}
+
 /** Top-level category folder for an example rel path (or "root"). */
 export function categoryOf(rel) {
   const norm = rel.replace(/\\/g, "/");
   const m = norm.match(/examples\/builtins\/([^/]+)\/[^/]+$/);
-  return m ? m[1] : "root";
+  return m ? normalizeCategory(m[1]) : "root";
 }
 
 /** Routing decision for an example: { category, section, pages }. */

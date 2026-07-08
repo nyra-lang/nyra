@@ -27,6 +27,8 @@ OBJS=()
 for src in "$RT"/*.c; do
   [[ -f "$src" ]] || continue
   [[ "$src" == *.inc.c ]] && continue
+  # Optional OpenSSL client — not part of the fat rustls-backed prebuilt.
+  [[ "$(basename "$src")" == "rt_tls_openssl_client.c" ]] && continue
   base="$(basename "$src" .c)"
   clang -c -O0 -Wno-override-module "$src" -o "$WORK/${base}.o"
   OBJS+=("$WORK/${base}.o")

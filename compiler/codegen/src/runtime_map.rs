@@ -201,6 +201,7 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("sys_send", "rt_net.c"),
         ("sys_close", "rt_net.c"),
         ("sys_set_nonblock", "rt_net.c"),
+        ("sys_set_timeout_ms", "rt_net.c"),
         ("rt_udp_bind", "rt_net.c"),
         ("rt_udp_recv", "rt_net.c"),
         ("rt_udp_send", "rt_net.c"),
@@ -234,6 +235,9 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("json_split_array_elements", "rt_json.c"),
         ("json_encode_ptr_token", "rt_json.c"),
         ("json_decode_ptr_token", "rt_json.c"),
+        ("json_top_keys", "rt_json.c"),
+        ("json_raw_get", "rt_json.c"),
+        ("json_value_kind", "rt_json.c"),
         ("bin_buf_new", "rt_bin.c"),
         ("bin_buf_write_i32", "rt_bin.c"),
         ("bin_buf_write_bool", "rt_bin.c"),
@@ -275,19 +279,19 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("sqlite_rowset_cols", "rt_sqlite.c"),
         ("sqlite_rowset_at", "rt_sqlite.c"),
         ("sqlite_rowset_free", "rt_sqlite.c"),
-        ("tls_available", "rt_tls.c"),
-        ("rt_tls_connect", "rt_tls.c"),
-        ("rt_tls_connect_verify", "rt_tls.c"),
-        ("rt_tls_connect_ca", "rt_tls.c"),
-        ("rt_tls_connect_ex", "rt_tls.c"),
-        ("rt_tls_upgrade_client", "rt_tls.c"),
-        ("rt_tls_upgrade_client_verify", "rt_tls.c"),
-        ("rt_tls_upgrade_client_ex", "rt_tls.c"),
-        ("rt_tls_last_error", "rt_tls.c"),
+        ("tls_available", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect_verify", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect_ca", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect_ex", "rt-tls/src/lib.rs"),
+        ("rt_tls_upgrade_client", "rt-tls/src/lib.rs"),
+        ("rt_tls_upgrade_client_verify", "rt-tls/src/lib.rs"),
+        ("rt_tls_upgrade_client_ex", "rt-tls/src/lib.rs"),
+        ("rt_tls_last_error", "rt-tls/src/lib.rs"),
         ("rt_tls_validate_pem_files", "rt_tls.c"),
-        ("rt_tls_read", "rt_tls.c"),
-        ("rt_tls_write", "rt_tls.c"),
-        ("rt_tls_close", "rt_tls.c"),
+        ("rt_tls_read", "rt-tls/src/lib.rs"),
+        ("rt_tls_write", "rt-tls/src/lib.rs"),
+        ("rt_tls_close", "rt-tls/src/lib.rs"),
         ("rt_tls_gen_self_signed", "rt_tls.c"),
         ("rt_tls_listen", "rt_tls.c"),
         ("rt_tls_accept", "rt_tls.c"),
@@ -497,6 +501,47 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("str_to_screaming_snake_case", "rt_strings.c"),
         ("str_to_train_case", "rt_strings.c"),
         ("str_to_dot_case", "rt_strings.c"),
+        ("str_strip_prefix", "rt_strings.c"),
+        ("ceil_f64", "rt_math.c"),
+        ("clamp_f64", "rt_math.c"),
+        ("exp_f64", "rt_math.c"),
+        ("floor_f64", "rt_math.c"),
+        ("log_f64", "rt_math.c"),
+        ("pow_f64", "rt_math.c"),
+        ("round_f64", "rt_math.c"),
+        ("sqrt_f64", "rt_math.c"),
+        ("str_index", "rt_strings.c"),
+        ("str_is_empty", "rt_strings.c"),
+        ("str_last_index", "rt_strings.c"),
+        ("str_repeat", "rt_strings.c"),
+        ("str_trim_end", "rt_strings.c"),
+        ("str_trim_start", "rt_strings.c"),
+        ("vec_i32_clear", "rt_vec.c"),
+        ("vec_i32_insert", "rt_vec.c"),
+        ("vec_i32_remove_at", "rt_vec.c"),
+        ("vec_i32_reverse", "rt_vec.c"),
+        ("vec_i32_sort", "rt_vec.c"),
+        ("map_str_i32_clear", "rt_map.c"),
+        ("map_str_i32_len", "rt_map.c"),
+        ("map_str_i32_values", "rt_map.c"),
+        ("map_str_str_clear", "rt_map_str_str.c"),
+        ("map_str_str_len", "rt_map_str_str.c"),
+        ("map_str_str_values", "rt_map_str_str.c"),
+        ("str_splitn", "rt_strings.c"),
+        ("str_count", "rt_strings.c"),
+        ("str_fields", "rt_strings.c"),
+        ("str_pad_end", "rt_strings.c"),
+        ("str_pad_start", "rt_strings.c"),
+        ("str_before_sep", "rt_strings.c"),
+        ("acos_f64", "rt_math.c"),
+        ("asin_f64", "rt_math.c"),
+        ("atan_f64", "rt_math.c"),
+        ("hypot_f64", "rt_math.c"),
+        ("log10_f64", "rt_math.c"),
+        ("log2_f64", "rt_math.c"),
+        ("trunc_f64", "rt_math.c"),
+        ("hex_decode", "rt_strings.c"),
+        ("str_to_bool", "rt_strings.c"),
     ])
 }
 
@@ -528,6 +573,13 @@ pub fn c_symbol_for(nyra_fn: &str) -> String {
         ("to_screaming_snake_case", "str_to_screaming_snake_case"),
         ("to_train_case", "str_to_train_case"),
         ("to_dot_case", "str_to_dot_case"),
+        ("strip_prefix", "str_strip_prefix"),
+        ("index", "str_index"),
+        ("is_empty", "str_is_empty"),
+        ("last_index", "str_last_index"),
+        ("repeat", "str_repeat"),
+        ("trim_end", "str_trim_end"),
+        ("trim_start", "str_trim_start"),
     ];
     for (name, sym) in ALIASES {
         if *name == nyra_fn {
@@ -563,20 +615,33 @@ impl RuntimeProfile {
         })
     }
 
+    /// OpenSSL is only required for RSA/X509 helpers and TLS *server* (optional).
+    /// HTTPS clients use the bundled rustls staticlib (`needs_rustls_tls`).
     pub fn needs_openssl(&self) -> bool {
+        self.symbols.iter().any(|s| {
+            s.starts_with("rsa_")
+                || s.starts_with("x509_")
+                || s == "rt_tls_listen"
+                || s == "rt_tls_accept"
+                || s == "rt_tls_listener_close"
+                || s == "rt_tls_gen_self_signed"
+                || s == "rt_tls_validate_pem_files"
+                || s == "ws_accept_tls_handshake"
+        })
+    }
+
+    /// Client TLS / WS saw symbols that need `libnyra_rt_tls.a` (rustls).
+    pub fn needs_rustls_tls(&self) -> bool {
         self.symbols.iter().any(|s| {
             s.starts_with("tls_")
                 || s.starts_with("ws_")
                 || s.starts_with("rt_tls_")
-                || s.starts_with("rsa_")
-                || s.starts_with("x509_")
         })
     }
 
     pub fn needs_libm(&self) -> bool {
-        self.symbols.iter().any(|s| {
-            s == "sin_f64" || s == "cos_f64" || s == "atan2_f64" || s == "tan_f64"
-        })
+        let map = symbol_module_map();
+        self.symbols.iter().any(|s| map.get(s.as_str()) == Some(&"rt_math.c"))
     }
 
     pub fn needs_zlib(&self) -> bool {
@@ -595,7 +660,10 @@ impl RuntimeProfile {
         let mut mods = BTreeSet::new();
         for sym in &self.symbols {
             if let Some(m) = map.get(sym.as_str()) {
-                mods.insert(*m);
+                // Rust TLS client crates are linked as staticlibs, not compiled as C units.
+                if m.ends_with(".c") {
+                    mods.insert(*m);
+                }
             }
         }
         if self.symbols.contains("spawn") {
@@ -1044,13 +1112,23 @@ mod tests {
     }
 
     #[test]
-    fn tls_and_ws_still_require_openssl() {
+    fn tls_client_uses_rustls_not_openssl() {
         let mut p = RuntimeProfile::default();
         p.symbols.insert("tls_available".into());
-        assert!(p.needs_openssl());
+        assert!(p.needs_rustls_tls());
+        assert!(!p.needs_openssl());
         p.symbols.clear();
         p.symbols.insert("ws_connect".into());
+        assert!(p.needs_rustls_tls());
+        assert!(!p.needs_openssl());
+    }
+
+    #[test]
+    fn tls_server_still_may_need_openssl() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("rt_tls_listen".into());
         assert!(p.needs_openssl());
+        assert!(p.needs_rustls_tls());
     }
 
     #[test]

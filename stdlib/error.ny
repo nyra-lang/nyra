@@ -66,6 +66,36 @@ fn Error_print(err: Error) -> void {
     print(Error_format(err))
 }
 
+impl Error {
+    fn context(self, context: string) -> Error {
+        return Error_context(self, context)
+    }
+
+    fn format(self) -> string {
+        return Error_format(self)
+    }
+
+    fn show(self) -> void {
+        Error_print(self)
+    }
+
+    fn headline(self) -> string {
+        return Error_headline(self)
+    }
+}
+
+fn err_io(message: string) -> Error {
+    return Error_io(message)
+}
+
+fn err_json(message: string) -> Error {
+    return Error_json(message)
+}
+
+fn err_invalid(message: string) -> Error {
+    return Error_invalid(message)
+}
+
 fn Result_string_context(result: Result<string, Error>, context: string) -> Result<string, Error> {
     return match result {
         Result.Ok(v) => Result__string_S_Error.Ok(v.clone())

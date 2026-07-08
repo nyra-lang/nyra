@@ -2,7 +2,8 @@
 
 mod common;
 
-use common::{compile, normalize_ir};
+use common::{compile, compile_with, normalize_ir};
+use compiler::CompileOptions;
 
 macro_rules! snap_ir {
     ($name:ident, $src:expr) => {
@@ -217,4 +218,46 @@ fn normalize_ir_canonicalizes_windows_crt_link_names() {
     let norm = normalize_ir(ir);
     assert!(norm.contains("define i32 @atoi("));
     assert!(!norm.contains("@nyra_atoi"));
+}
+
+#[test]
+fn normalize_ir_canonicalizes_windows_libm_wrappers() {
+    let ir = r#"define double @nyra_acos(double %0) {
+  %call.N = call double @acos_f64(double %0)
+  ret double %call.N
+}
+"#;
+    let norm = normalize_ir(ir);
+    assert!(norm.contains("define double @acos("));
+    assert!(!norm.contains("@nyra_acos"));
+}
+
+#[test]
+fn snap_abs_intrinsic_matches_on_windows_target() {
+    let opts = CompileOptions {
+        target: "x86_64-pc-windows-gnu".into(),
+        ..Default::default()
+    };
+    let out = compile_with(
+        r#"fn main() {
+    let x = abs_i32(-42)
+    print(x)
+}"#,
+        "test.ny",
+        &opts,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+    assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);
+    let ir = out.llvm_ir.expect("llvm ir");
+    assert!(
+        ir.contains("@nyra_acos") || ir.contains("@nyra_sqrt"),
+        "expected Windows CRT-prefixed math wrappers in raw IR"
+    );
+    insta::with_settings!({
+        filters => vec![
+            (r"\.\d+", ".N"),
+        ],
+    }, {
+        insta::assert_snapshot!("snap_abs_intrinsic", normalize_ir(&ir));
+    });
 }

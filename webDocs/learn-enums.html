@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Enums — Nyra Docs</title>
+  <title>Enums — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-enums.h1">Nyra Enums</h1>
-      <p class="lead" data-i18n-html="pages.learn-enums.lead">Named variants and pattern matching.</p>
-<h2>enum + match</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-enums.h1">Enums</h1>
+      <p class="lead" data-i18n-html="pages.learn-enums.lead">Named variants with <code>match</code>.</p>
+<section class="doc-ex">
+<h2>enum + match</h2>
+<p class="doc-ex-prose">In v0.2 enums are tag-only (no payloads on variants).</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -163,15 +166,10 @@ fn main() -&gt; void {
     }
     print(code)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>v0.2 enums are <strong>tag-only</strong> (no payloads). Next: <a href="methods.html">Built-in methods</a> · <a href="reference.html">Language reference</a>.</p>
-<div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/language_features/demo.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>1</code></pre>
-
-</div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-structs.html">← Nyra Structs</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>0</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-structs.html">← Structs</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
 <span class="lesson-nav-spacer"></span>
 </nav>

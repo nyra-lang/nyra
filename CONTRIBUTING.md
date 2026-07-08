@@ -310,10 +310,15 @@ Short pointer — patterns A/B/D above. **Full walkthrough:** [Contributor hub g
 ```bash
 make contribute                         # interactive menu (add)
 make contribute-list                    # show [contrib-dev:…] markers
-make contribute-remove ARGS='-i'        # remove scaffold
+make contribute-remove ARGS='-i'        # remove scaffold (skips webDocs by default)
 make contribute-patch ARGS='--marker … --config …'
 make test-contrib-py                    # CI smoke for Python tooling
+
+# Multi-fn stdlib module: put Nyra source in pure_source (see examples/stdlib_module.json)
+make contribute ARGS='add --recipe stdlib-pure --config make/py/contrib_dev/examples/stdlib_module.json --force --no-webdocs'
 ```
+
+Discover skips bulky trees (`target`, `webDocs`, `vendor`, `Apps`) so list/remove stay fast.
 
 Full details: [`make/py/contrib_dev/README.md`](make/py/contrib_dev/README.md).
 

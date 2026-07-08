@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Structs — Nyra Docs</title>
+  <title>Structs — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-structs.h1">Nyra Structs</h1>
-      <p class="lead" data-i18n-html="pages.learn-structs.lead">Define custom types with named fields.</p>
-<h2>struct</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-structs.h1">Structs</h1>
+      <p class="lead" data-i18n-html="pages.learn-structs.lead">Custom types with named fields.</p>
+<section class="doc-ex">
+<h2>struct</h2>
+<p class="doc-ex-prose">Define the shape then create a value with fields.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -149,11 +152,12 @@
     let p = { hp: 100, score: 0 }
     print(p.hp)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Methods: <code>impl Player { fn heal(self) -> void { ... } }</code>. See <a href="traits-macros.html">Traits</a>.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-hashmap.html">← Nyra HashMap</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>100</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-hashmap.html">← HashMap</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-enums.html">Nyra Enums →</a>
+<a class="lesson-nav-next" href="learn-enums.html">Enums →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

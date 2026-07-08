@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "module": "conf.tls.openssl",
+  "features": { "tls": "openssl" },
+  "require": []
+}

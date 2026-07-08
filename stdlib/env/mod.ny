@@ -18,4 +18,16 @@ fn env_has(name: string) -> i32 {
     return 0
 }
 
+fn env(name: string) -> string {
+    return env_get(name)
+}
+
+fn env_or(name: string, fallback: string) -> string {
+    let v = env_get(name)
+    if strlen(v) > 0 {
+        return v
+    }
+    return fallback
+}
+
 extern fn strlen(s: &string) -> i32

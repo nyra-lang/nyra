@@ -1,0 +1,9 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "net/http/form_helpers.ny",
+  "fn_name": "http_form_helpers",
+  "args": [],
+  "returns": "void",
+  "example_topic": "net",
+  "pure_source": "fn http_form_helpers_ok() -> i32 {\n    return 1\n}\n"
+}

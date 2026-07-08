@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Constants — Nyra Docs</title>
+  <title>Constants — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,37 +133,33 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-constants.h1">Nyra Constants</h1>
-      <p class="lead" data-i18n-html="pages.learn-constants.lead">Fixed compile-time values with <code>const</code>.</p>
-<h2>const</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-constants.h1">Constants</h1>
+      <p class="lead" data-i18n-html="pages.learn-constants.lead">Compile-time values with <code>const</code>.</p>
+<section class="doc-ex">
+<h2>const</h2>
+<p class="doc-ex-prose"><code>const</code> cannot be reassigned and is evaluated at compile time. Unlike <code>let</code>, which creates a runtime binding.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>const MAX_LIVES = 3
-const PI = 3
 
 fn main() {
     print(MAX_LIVES)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>const MAX_LIVES = 3
-const PI = 3
 
 fn main() -&gt; void {
     print(MAX_LIVES)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
-        <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th></tr></thead>
-        <tbody>
-          <tr><td>Can reassign?</td><td>No</td><td>Yes</td><td>No</td></tr>
-          <tr><td>When set?</td><td>Runtime</td><td>Runtime</td><td>Compile time</td></tr>
-        </tbody>
-      </table>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-data-types.html">← Nyra Data Types</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>3</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-data-types.html">← Data Types</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-operators.html">Nyra Operators →</a>
+<a class="lesson-nav-next" href="learn-operators.html">Operators →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

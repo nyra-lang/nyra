@@ -668,3 +668,349 @@ char *str_to_dot_case(const char *s) {
 
 
 
+
+// [builtin-dev:strip_prefix:string]
+char *str_strip_prefix(const char *s, const char *prefix) {
+    if (!s) return NULL;
+    if (!prefix || prefix[0] == '\0') return str_dup(s);
+    size_t plen = strlen(prefix);
+    size_t slen = strlen(s);
+    if (plen > slen) return str_dup(s);
+    if (strncmp(s, prefix, plen) != 0) return str_dup(s);
+    return str_dup(s + plen);
+}
+// [/builtin-dev:strip_prefix:string]
+
+
+// [builtin-dev:index:string]
+int str_index(const char *s, const char *needle) {
+    if (!s || !needle) return -1;
+    int pos = strstr_pos(s, needle);
+    return pos;
+}
+// [/builtin-dev:index:string]
+
+
+// [builtin-dev:is_empty:string]
+int str_is_empty(const char *s) {
+    if (!s) return 1;
+    return s[0] == '\0' ? 1 : 0;
+}
+// [/builtin-dev:is_empty:string]
+
+
+// [builtin-dev:last_index:string]
+int str_last_index(const char *s, const char *needle) {
+    if (!s || !needle || needle[0] == '\0') return -1;
+    size_t nlen = strlen(needle);
+    size_t slen = strlen(s);
+    if (nlen > slen) return -1;
+    for (size_t i = slen - nlen; i != (size_t)-1; i--) {
+        if (strncmp(s + i, needle, nlen) == 0) {
+            return (int)i;
+        }
+        if (i == 0) break;
+    }
+    return -1;
+}
+// [/builtin-dev:last_index:string]
+
+
+// [builtin-dev:repeat:string]
+char *str_repeat(const char *s, int count) {
+    if (!s || count <= 0) return str_dup("");
+    size_t slen = strlen(s);
+    size_t total = (size_t)count * slen;
+    char *out = (char *)malloc(total + 1);
+    if (!out) return NULL;
+    char *p = out;
+    for (int i = 0; i < count; i++) {
+        memcpy(p, s, slen);
+        p += slen;
+    }
+    out[total] = '\0';
+    return out;
+}
+// [/builtin-dev:repeat:string]
+
+
+// [builtin-dev:trim_end:string]
+char *str_trim_end(const char *s) {
+    if (!s) return NULL;
+    size_t len = strlen(s);
+    while (len > 0) {
+        char c = s[len - 1];
+        if (c != ' ' && c != '\t' && c != '\n' && c != '\r') break;
+        len--;
+    }
+    char *out = (char *)malloc(len + 1);
+    if (!out) return NULL;
+    memcpy(out, s, len);
+    out[len] = '\0';
+    return out;
+}
+// [/builtin-dev:trim_end:string]
+
+
+// [builtin-dev:trim_start:string]
+char *str_trim_start(const char *s) {
+    if (!s) return NULL;
+    while (*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r') s++;
+    return str_dup(s);
+}
+// [/builtin-dev:trim_start:string]
+
+
+// [builtin-dev:splitn:string]
+void *str_splitn(const char *s, const char *sep, int n) {
+    void *vec = vec_str_new();
+    if (!vec) {
+        return NULL;
+    }
+    if (!s) {
+        vec_str_push(vec, "");
+        return vec;
+    }
+    if (n <= 0) {
+        vec_str_push(vec, s);
+        return vec;
+    }
+    if (!sep || sep[0] == '\0') {
+        vec_str_push(vec, s);
+        return vec;
+    }
+    size_t seplen = strlen(sep);
+    const char *start = s;
+    const char *p = s;
+    int parts = 1;
+    while (*p && parts < n) {
+        if (strncmp(p, sep, seplen) == 0) {
+            size_t chunk = (size_t)(p - start);
+            char *part = (char *)malloc(chunk + 1);
+            if (!part) {
+                break;
+            }
+            memcpy(part, start, chunk);
+            part[chunk] = '\0';
+            vec_str_push(vec, part);
+            free(part);
+            p += seplen;
+            start = p;
+            parts++;
+        } else {
+            p++;
+        }
+    }
+    vec_str_push(vec, start);
+    return vec;
+}
+// [/builtin-dev:splitn:string]
+
+
+// [builtin-dev:count:string]
+int str_count(const char *s, const char *needle) {
+    if (!s || !needle || needle[0] == '\0') {
+        return 0;
+    }
+    size_t nlen = strlen(needle);
+    int count = 0;
+    const char *p = s;
+    while (*p) {
+        if (strncmp(p, needle, nlen) == 0) {
+            count++;
+            p += nlen;
+        } else {
+            p++;
+        }
+    }
+    return count;
+}
+// [/builtin-dev:count:string]
+
+
+// [builtin-dev:fields:string]
+static int str_is_field_sep(char c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+void *str_fields(const char *s) {
+    void *vec = vec_str_new();
+    if (!vec) {
+        return NULL;
+    }
+    if (!s) {
+        return vec;
+    }
+    const char *p = s;
+    while (*p) {
+        while (*p && str_is_field_sep(*p)) {
+            p++;
+        }
+        if (!*p) {
+            break;
+        }
+        const char *start = p;
+        while (*p && !str_is_field_sep(*p)) {
+            p++;
+        }
+        size_t chunk = (size_t)(p - start);
+        char *part = (char *)malloc(chunk + 1);
+        if (!part) {
+            break;
+        }
+        memcpy(part, start, chunk);
+        part[chunk] = '\0';
+        vec_str_push(vec, part);
+        free(part);
+    }
+    return vec;
+}
+// [/builtin-dev:fields:string]
+
+
+// [builtin-dev:pad_end:string]
+char *str_pad_end(const char *s, int width, const char *pad) {
+    if (!s) {
+        return NULL;
+    }
+    size_t slen = strlen(s);
+    if (width <= (int)slen) {
+        return str_dup(s);
+    }
+    const char *p = (pad && pad[0] != '\0') ? pad : " ";
+    size_t plen = strlen(p);
+    size_t need = (size_t)width - slen;
+    char *out = (char *)malloc((size_t)width + 1);
+    if (!out) {
+        return NULL;
+    }
+    memcpy(out, s, slen);
+    size_t oi = slen;
+    size_t pi = 0;
+    while (oi < (size_t)width) {
+        out[oi++] = p[pi++];
+        if (pi >= plen) {
+            pi = 0;
+        }
+    }
+    out[width] = '\0';
+    return out;
+}
+// [/builtin-dev:pad_end:string]
+
+
+// [builtin-dev:pad_start:string]
+char *str_pad_start(const char *s, int width, const char *pad) {
+    if (!s) {
+        return NULL;
+    }
+    size_t slen = strlen(s);
+    if (width <= (int)slen) {
+        return str_dup(s);
+    }
+    const char *p = (pad && pad[0] != '\0') ? pad : " ";
+    size_t plen = strlen(p);
+    size_t need = (size_t)width - slen;
+    char *out = (char *)malloc((size_t)width + 1);
+    if (!out) {
+        return NULL;
+    }
+    size_t oi = 0;
+    size_t pi = 0;
+    while (oi < need) {
+        out[oi++] = p[pi++];
+        if (pi >= plen) {
+            pi = 0;
+        }
+    }
+    memcpy(out + need, s, slen + 1);
+    return out;
+}
+// [/builtin-dev:pad_start:string]
+
+
+// [builtin-dev:split_once:string]
+char *str_before_sep(const char *s, const char *sep) {
+    if (!s) {
+        return NULL;
+    }
+    if (!sep || sep[0] == '\0') {
+        return str_dup(s);
+    }
+    const char *p = strstr(s, sep);
+    if (!p) {
+        return str_dup(s);
+    }
+    size_t len = (size_t)(p - s);
+    char *out = (char *)malloc(len + 1);
+    if (!out) {
+        return NULL;
+    }
+    memcpy(out, s, len);
+    out[len] = '\0';
+    return out;
+}
+// [/builtin-dev:split_once:string]
+
+// [contrib-dev:hex_decode:encoding_mod]
+static int hex_nibble(char c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+    if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    }
+    if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    }
+    return -1;
+}
+
+char *hex_decode(const char *hex) {
+    if (!hex) {
+        return str_dup("");
+    }
+    size_t i = 0;
+    if (hex[0] == '0' && (hex[1] == 'x' || hex[1] == 'X')) {
+        i = 2;
+    }
+    size_t cap = strlen(hex) / 2 + 1;
+    char *out = (char *)malloc(cap);
+    if (!out) {
+        return NULL;
+    }
+    size_t oi = 0;
+    int hi = -1;
+    for (; hex[i] != '\0'; i++) {
+        if (hex[i] == ' ' || hex[i] == '\t') {
+            continue;
+        }
+        int n = hex_nibble(hex[i]);
+        if (n < 0) {
+            out[oi] = '\0';
+            return out;
+        }
+        if (hi < 0) {
+            hi = n;
+        } else {
+            out[oi++] = (char)((hi << 4) | n);
+            hi = -1;
+        }
+    }
+    out[oi] = '\0';
+    return out;
+}
+// [/contrib-dev:hex_decode:encoding_mod]
+
+// [contrib-dev:str_to_bool:strconv_mod]
+int str_to_bool(const char *s) {
+    if (!s) {
+        return 0;
+    }
+    if (strcmp(s, "true") == 0 || strcmp(s, "1") == 0 || strcmp(s, "yes") == 0) {
+        return 1;
+    }
+    return 0;
+}
+// [/contrib-dev:str_to_bool:strconv_mod]
+

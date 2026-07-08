@@ -136,6 +136,23 @@
       <h1 data-i18n="pages.changelog.h1">Changelog</h1>
       <p class="lead" data-i18n-html="pages.changelog.lead">Spec freeze history and release notes.</p>
 
+<h2>v1.40.4 (auto-sync deps — 2026-07-08)</h2>
+<ul>
+<li><strong>Cargo-like auto-sync</strong> — <code>nyra run .</code> / <code>nyra build .</code> sync <code>nyra.mod</code> requires before compile: fetch missing packages into <code>.nyra/cache/</code>, and prune packages removed from <code>require</code></li>
+<li><strong><code>nyrapkg sync</code></strong> / bare <code>nyrapkg install</code> — same sync after a manual <code>nyra.mod</code> edit (add or remove)</li>
+<li><strong><code>remove_dir_all</code></strong> — recursive delete on Unix now unlinks files correctly (fixes package prune from cache)</li>
+<li><strong>Docs</strong> — project files after <code>init</code>, manual <code>require</code> / remove in <a href="packages.html">packages.html</a>, getting-started / modules / tooling</li>
+<li><strong>Stable <code>tls native</code></strong> — OS TLS client via <code>libnyra_rt_tls_native.a</code> (macOS Secure Transport · Windows SChannel · Linux OpenSSL). CI conformance fixtures <code>tls_native</code> / <code>tls_openssl</code></li>
+</ul>
+
+<h2>v1.40.3 (TLS backends — 2026-07-08)</h2>
+<ul>
+<li><strong>Bundled rustls HTTPS</strong> — default TLS client via <code>libnyra_rt_tls.a</code>; no OpenSSL install for <code>get("https://…")</code></li>
+<li><strong>Selectable backends</strong> — <code>tls rustls|native|openssl</code> in <code>nyra.mod</code>; pinned as <code>features.tls</code> in <code>nyra.lock</code> (<code>native</code> shipped stable in v1.40.4)</li>
+<li><strong>Errors</strong> — HTTPS failures report real handshake/connect messages via <code>tls_last_error()</code></li>
+<li><strong>Docs</strong> — <a href="net-http.html">net/http</a>, <a href="packages.html">NyraPkg</a>, <a href="stdlib.html">stdlib</a> TLS sections updated</li>
+</ul>
+
 <h2>v1.40.0 (errors &amp; async runtime — 2026-07-03)</h2>
 <ul>
 <li><strong>Official errors</strong> — <code>stdlib/error.ny</code> adds <code>Error</code>, context/cause formatting, stack trace hook, and <code>Result&lt;T, Error&gt;</code> helpers.</li>

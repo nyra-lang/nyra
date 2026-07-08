@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Match — Nyra Docs</title>
+  <title>Match — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-match.h1">Nyra Match</h1>
-      <p class="lead" data-i18n-html="pages.learn-match.lead">Pattern match on enums and values.</p>
-<h2>match</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-match.h1">Match</h1>
+      <p class="lead" data-i18n-html="pages.learn-match.lead">Match on enum values.</p>
+<section class="doc-ex">
+<h2>match</h2>
+<p class="doc-ex-prose">Each arm covers one case. Use <code>_</code> for the default.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -163,17 +166,12 @@ fn main() -&gt; void {
     }
     print(n)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Guards: <code>Color.Red if x > 0 => 1</code>. Wildcard: <code>_ => 0</code>. See <a href="match.html">Match reference</a>.</p>
-<div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/language_features/demo.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>1</code></pre>
-
-</div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-if-else.html">← Nyra If..Else</a>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-if-else.html">← If..Else</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-loops.html">Nyra Loops →</a>
+<a class="lesson-nav-next" href="learn-loops.html">Loops →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

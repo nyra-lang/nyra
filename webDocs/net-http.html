@@ -130,7 +130,7 @@
     </aside>
     <main class="content">
       <h1>net/http</h1>
-      <p class="lead">Modern HTTP/1.1 client and routed server for Nyra — inspired by Go’s <code>net/http</code>, built on native TCP + optional TLS.</p>
+      <p class="lead">Modern HTTP/1.1 client and routed server for Nyra — inspired by Go’s <code>net/http</code>, built on native TCP + selectable TLS backends.</p>
 
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -141,6 +141,74 @@
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <h2>Architecture</h2>
+      <pre><code>Application
+      │
+stdlib/net/http  (get / post / …)
+      │
+stdlib/tls.ny    (stable rt_tls_* ABI)
+      │
+ ┌────┴────┬──────────┐
+rustls   native    openssl
+(default) (OS TLS) (optional)
+      │
+     TCP</code></pre>
+      <p>HTTPS works out of the box with the <strong>bundled rustls</strong> client — no OpenSSL install required. Choose a backend in <code>nyra.mod</code>; <code>nyra.lock</code> pins the resolved choice under <code>features.tls</code>.</p>
+
+      <h2 id="tls-backends">TLS backends — what Nyra supports today</h2>
+      <div class="callout">
+        <strong>Default you should use:</strong> <code>rustls</code>.
+        HTTPS client (<code>get("https://…")</code>, WebSocket TLS, SMTP STARTTLS client paths) ships as a <strong>bundled</strong> static library (<code>libnyra_rt_tls.a</code>). No OpenSSL install. System CA store. This is the production default when <code>tls</code> is omitted from <code>nyra.mod</code>. Prefer <code>tls native</code> when you want OS TLS (Secure Transport / SChannel).
+      </div>
+      <pre><code># nyra.mod — optional; rustls is already the default
+module example.local
+tls rustls</code></pre>
+      <pre><code>// nyra.lock pins the resolved backend
+{
+  "features": { "tls": "rustls" },
+  "require": []
+}</code></pre>
+      <table>
+        <thead><tr><th>Backend</th><th><code>nyra.mod</code></th><th>Status today</th><th>When to use</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>rustls</strong></td>
+            <td><code>tls rustls</code> or omit</td>
+            <td><strong>Stable — default</strong></td>
+            <td>All normal HTTPS apps. Bundled with Nyra (<code>libnyra_rt_tls.a</code>); no extra packages.</td>
+          </tr>
+          <tr>
+            <td><strong>native</strong></td>
+            <td><code>tls native</code></td>
+            <td><strong>Stable</strong></td>
+            <td>OS TLS: macOS Secure Transport · Windows SChannel · Linux system OpenSSL (via <code>native-tls</code> / <code>libnyra_rt_tls_native.a</code>). Same HTTPS API as rustls.</td>
+          </tr>
+          <tr>
+            <td><strong>openssl</strong></td>
+            <td><code>tls openssl</code></td>
+            <td><strong>Optional / available</strong></td>
+            <td>System OpenSSL client unit, or TLS <em>server</em> / PEM helpers. Requires OpenSSL headers + libs (<code>-lssl -lcrypto</code>). Soft-skips in CI when OpenSSL is missing.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>How to choose in practice:</strong> prefer <code>rustls</code> (default, portable). Use <code>tls native</code> when you want the platform TLS stack (enterprise CA / OS policy). Use <code>openssl</code> when you already depend on OpenSSL or need server helpers.</p>
+      <p>Resolve order: value in <code>nyra.mod</code> → else <code>features.tls</code> in <code>nyra.lock</code> → else <code>rustls</code>. If mod and lock disagree, Nyra reports a mismatch. Full <code>nyra.mod</code> syntax: <a href="packages.html#nyra-mod-syntax">packages → nyra.mod syntax</a>.</p>
+      <p>CI covers all three backends in <code>make test-conformance</code> (<code>pass/tls</code> for rustls defaults; fixtures <code>tls_native</code> / <code>tls_openssl</code> for the others).</p>
+      <p>Application code is identical for every backend:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(get(&quot;https://example.com/&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(get(&quot;https://example.com/&quot;))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem (network reset, cert error, …) — it does not ask you to install OpenSSL when using <code>rustls</code> or <code>native</code> on macOS/Windows.</p>
+
+      <h2>Module layout</h2>
       <pre><code>stdlib/net/http/
   mod.ny         — public entry (Router, listen_and_serve_handlers, client verbs)
   types.ny       — HttpRequest, HttpResponse, Server, Client, Router
@@ -151,18 +219,64 @@
       <p>Routing and middleware helpers live in <code>mod.ny</code> / <code>server.ny</code> (no separate <code>router.ny</code> file).</p>
 
       <h2>HTTP client</h2>
-      <p>All verbs return <code>HttpResponse</code> except <code>get(url)</code> / <code>fetch(url)</code>, which return the response body as a <code>string</code>.</p>
-      <table>
-        <thead><tr><th>Function</th><th>Returns</th><th>Notes</th></tr></thead>
+      <p><strong>Preferred (JS-like):</strong> one entry — <code>fetch(url)</code> returns <code>HttpResponse</code>. Put options on <code>req()</code>, then call the method with the URL (<code>.get</code> / <code>.post</code> / …). Body-only convenience remains <code>get(url) -&gt; string</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let resp = fetch(&quot;https://example.com/&quot;)
+print(resp.status, resp.text())
+
+let posted = req()
+    .header(&quot;Authorization&quot;, &quot;Bearer tok&quot;)
+    .timeout(10000)
+    .json(&quot;{\&quot;name\&quot;:\&quot;Nyra\&quot;}&quot;)
+    .post(&quot;https://example.com/api&quot;)
+
+let form_post = req()
+    .form(form().append(&quot;a&quot;, &quot;1&quot;).append(&quot;b&quot;, &quot;2&quot;))
+    .post(url)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let resp = fetch(&quot;https://example.com/&quot;)
+print(resp.status, resp.text())
+
+let posted = req()
+    .header(&quot;Authorization&quot;, &quot;Bearer tok&quot;)
+    .timeout(10000)
+    .json(&quot;{\&quot;name\&quot;:\&quot;Nyra\&quot;}&quot;)
+    .post(&quot;https://example.com/api&quot;)
+
+let form_post = req()
+    .form(form().append(&quot;a&quot;, &quot;1&quot;).append(&quot;b&quot;, &quot;2&quot;))
+    .post(url)</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>API</th><th>Returns</th><th>Role</th></tr></thead>
         <tbody>
-          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only; HTTPS auto via TLS</td></tr>
-          <tr><td><code>fetch(url)</code></td><td><code>string</code></td><td>Alias for <code>get</code></td></tr>
-          <tr><td><code>post(url, body)</code></td><td><code>HttpResponse</code></td><td><code>Content-Type: application/json</code></td></tr>
-          <tr><td><code>put(url, body)</code></td><td><code>HttpResponse</code></td><td>Full request/response</td></tr>
-          <tr><td><code>patch(url, body)</code></td><td><code>HttpResponse</code></td><td>PATCH support</td></tr>
-          <tr><td><code>delete(url)</code></td><td><code>HttpResponse</code></td><td>DELETE support</td></tr>
-          <tr><td><code>head(url)</code></td><td><code>HttpResponse</code></td><td>Status + headers, empty body</td></tr>
-          <tr><td><code>http_request(method, url, body, ct)</code></td><td><code>HttpResponse</code></td><td>Low-level core</td></tr>
+          <tr><td><code>fetch(url)</code></td><td><code>HttpResponse</code></td><td>Primary GET</td></tr>
+          <tr><td><code>req().header(…).timeout(…).json(…).post(url)</code></td><td><code>HttpResponse</code></td><td>Options + verb (like <code>fetch(url, {method, headers, body})</code>)</td></tr>
+          <tr><td><code>req().verb("PATCH").go(url)</code></td><td><code>HttpResponse</code></td><td>String method name + fire</td></tr>
+          <tr><td><code>post_json</code> / <code>post_form</code> / <code>get_json</code></td><td>response / map</td><td>Short helpers (optional)</td></tr>
+          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only</td></tr>
+          <tr><td><code>fetch_with(url, init)</code></td><td><code>HttpResponse</code></td><td>Explicit init object</td></tr>
+          <tr><td><code>post</code> / <code>put</code> / <code>patch</code> / <code>delete</code> / <code>head</code></td><td><code>HttpResponse</code></td><td>Legacy free verbs</td></tr>
+        </tbody>
+      </table>
+      <p>Long names like <code>http_post_form</code> still work as aliases — prefer the short path above.</p>
+
+      <h3>RequestInit · headers · forms · abort · redirects</h3>
+      <table>
+        <thead><tr><th>API</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><code>RequestInit_new</code> / <code>_header</code> / <code>_authorization</code> / <code>_cookie</code></td><td>Custom request headers</td></tr>
+          <tr><td><code>RequestInit_timeout</code> / <code>Client_with_timeout</code></td><td>Real connect/read timeout (<code>sys_set_timeout_ms</code>)</td></tr>
+          <tr><td><code>RequestInit_redirect</code> · <code>REDIRECT_FOLLOW</code>/<code>ERROR</code>/<code>MANUAL</code></td><td>Redirect policy</td></tr>
+          <tr><td><code>AbortController</code> / <code>AbortSignal</code></td><td>Cooperative cancel before/between hops</td></tr>
+          <tr><td><code>CookieJar</code></td><td>Store <code>Set-Cookie</code>, emit <code>Cookie</code></td></tr>
+          <tr><td><code>FormData</code> · <code>URLSearchParams</code> · urlencoded helpers</td><td>Form bodies</td></tr>
+          <tr><td><code>HeaderMap_*</code> · <code>HttpResponse.headers</code></td><td>Request/response header maps</td></tr>
+          <tr><td><code>HttpResponse_json</code> · <code>JSON_parse_object</code></td><td>Parse body / text to map</td></tr>
+          <tr><td><code>Blob</code> / <code>ArrayBuffer</code> / <code>BodyStream</code></td><td>Binary-ish body helpers over <code>bytes</code></td></tr>
         </tbody>
       </table>
 
@@ -193,11 +307,16 @@ fn main() -&gt; void {
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <h2>HttpResponse</h2>
       <table>
-        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <thead><tr><th>Field / helper</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>status</code></td><td><code>i32</code></td><td>HTTP status code</td></tr>
           <tr><td><code>body</code></td><td><code>string</code></td><td>Response payload</td></tr>
           <tr><td><code>content_type</code></td><td><code>string</code></td><td>MIME type</td></tr>
+          <tr><td><code>headers</code></td><td><code>HashMap_str_str</code></td><td>Parsed response headers</td></tr>
+          <tr><td><code>HttpResponse_json(resp)</code></td><td><code>HashMap_str_str</code></td><td>Parse JSON object body</td></tr>
+          <tr><td><code>HttpResponse_text(resp)</code></td><td><code>string</code></td><td>Body text</td></tr>
+          <tr><td><code>HttpResponse_blob(resp)</code></td><td><code>Blob</code></td><td>Body as Blob</td></tr>
+          <tr><td><code>HttpResponse_array_buffer(resp)</code></td><td><code>ArrayBuffer</code></td><td>Body as ArrayBuffer</td></tr>
         </tbody>
       </table>
 
@@ -329,7 +448,7 @@ fn main() -&gt; void {
         <tbody>
           <tr><td><code>stdlib/net/udp.ny</code></td><td><code>UdpSocket_bind</code>, <code>send</code>, <code>recv</code></td></tr>
           <tr><td><code>stdlib/net/websocket.ny</code></td><td><code>WebSocket_connect</code>, <code>send</code>, <code>recv</code> (client, RFC 6455 text)</td></tr>
-          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_listen</code>, <code>tls_accept</code> (OpenSSL)</td></tr>
+          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_listen</code>, <code>tls_accept</code> (backends via <code>tls</code> in <code>nyra.mod</code>)</td></tr>
           <tr><td><code>stdlib/net/smtp.ny</code></td><td><code>Smtp_send</code></td></tr>
           <tr><td><code>stdlib/net/mail.ny</code></td><td><code>Mail_send</code>, <code>Mail_message</code></td></tr>
           <tr><td><code>stdlib/net/rpc.ny</code></td><td>JSON-RPC 2.0 helpers</td></tr>
