@@ -76,3 +76,6 @@ mod struct_serde;
 
 #[path = "conformance/windows.rs"]
 mod windows;
+
+#[path = "conformance/tls.rs"]
+mod tls;

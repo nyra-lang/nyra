@@ -5,10 +5,11 @@
 .PHONY: test-platform-ci-tier1 test-platform-ci-tier2 test-platform-ci-tier3
 
 # Stage 0 — shared workspace + nyra binary (one job per OS before matrix tiers).
+# Workspace already includes nyra-rt-tls; build-cli also compiles it for HTTPS conformance.
 test-platform-ci-build:
-	$(call log_step,CI build workspace + cli)
+	$(call log_step,CI build workspace + cli + rt-tls)
 	@$(MAKE) build-workspace build-cli
-	$(call log_ok,CI build workspace + cli)
+	$(call log_ok,CI build workspace + cli + rt-tls)
 
 # Tier 1 — seconds to ~3 min (matrix: optional-types, conformance, cargo-workspace).
 test-platform-ci-tier1: ensure-nyra
