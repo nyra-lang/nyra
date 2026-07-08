@@ -3,6 +3,7 @@ from __future__ import annotations
 from builtin_dev.spec import ArgSpec, NyraType
 from builtin_dev.templates import c_type, nyra_type_annotation
 
+from .example_codegen import example_ny_from_stdlib, extern_test_body
 from .patch import marker_end, marker_start, wrap_scaffold
 from .spec import (
     CliKind,
@@ -132,29 +133,6 @@ def ny_alias_block(spec: StdlibFnSpec, marker: str) -> str:
     )
 
 
-def extern_test_body(spec: StdlibFnSpec) -> list[str]:
-    if spec.returns == NyraType.F64:
-        return [
-            f"    let x = {spec.fn_name}(/* TODO: args */)",
-            "    // TODO: set args and expected range",
-            "    if x < 0.0 {",
-            "        assert_eq(1, 0)",
-            "    }",
-        ]
-    if spec.returns == NyraType.I32:
-        return [
-            f"    assert_eq({spec.fn_name}(/* TODO: args */), 0)  // TODO: set args + expected",
-        ]
-    if spec.returns == NyraType.STRING:
-        return [
-            f'    assert_str_eq({spec.fn_name}(/* TODO: args */), "")  // TODO: set args + expected',
-        ]
-    return [
-        "    // TODO: assert behavior",
-        "    assert_eq(1, 1)",
-    ]
-
-
 def test_ny_from_stdlib(spec: StdlibFnSpec, marker: str) -> str:
     lines = ['import "stdlib/testing.ny"']
     lines.append(f'import "{spec.stdlib_path}"')
@@ -207,7 +185,7 @@ def example_ny(spec: TestExampleSpec, marker: str) -> str:
             f"// Demo: {spec.name}",
             "",
             "fn main() {",
-            f'    print("TODO: demo", "{spec.name}")',
+            f'    print("demo: {spec.name}")',
             "}",
         ]
     )
@@ -220,7 +198,7 @@ def example_typed_ny(spec: TestExampleSpec, marker: str) -> str:
             f"// Demo: {spec.name} (explicit types)",
             "",
             "fn main() -> void {",
-            f'    print("TODO: demo", "{spec.name}")',
+            f'    print("demo: {spec.name}")',
             "}",
         ]
     )

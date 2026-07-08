@@ -68,6 +68,48 @@ def _check_manifest_invariant() -> None:
     print("manifest-invariant: ok")
 
 
+def _check_example_codegen() -> None:
+    from builtin_dev.spec import ArgSpec, NyraType
+    from contrib_dev.example_codegen import demo_body, extern_test_body
+    from contrib_dev.spec import StdlibFnSpec, builtin_example_topic, guess_rt_module
+
+    assert builtin_example_topic("math.ny") == "math"
+    assert builtin_example_topic("encoding/mod.ny") == "encoding"
+    assert guess_rt_module("map.ny", "map_str_str_clear") == "rt_map_str_str.c"
+
+    floor = StdlibFnSpec(
+        fn_name="floor_f64",
+        args=[ArgSpec("x", NyraType.F64)],
+        returns=NyraType.F64,
+        ny_module="math.ny",
+        rt_module="rt_math.c",
+    )
+    body = demo_body(floor)
+    assert "print(floor(3.7))" in body
+
+    vec = StdlibFnSpec(
+        fn_name="vec_i32_remove_at",
+        args=[ArgSpec("handle", NyraType.PTR), ArgSpec("index", NyraType.I32)],
+        returns=NyraType.I32,
+        ny_module="vec.ny",
+        rt_module="rt_vec.c",
+    )
+    assert ".remove(0)" in demo_body(vec)
+    assert "remove_at" not in demo_body(vec)
+
+    hex_spec = StdlibFnSpec(
+        fn_name="hex_decode",
+        args=[ArgSpec("hex", NyraType.STRING)],
+        returns=NyraType.STRING,
+        ny_module="encoding/mod.ny",
+        rt_module="rt_strings.c",
+    )
+    assert 'hex_decode("4869")' in demo_body(hex_spec)
+    assert 'assert_str_eq(hex_decode("4869"), "Hi")' in "\n".join(extern_test_body(hex_spec))
+
+    print("example-codegen: ok")
+
+
 def main() -> int:
     for path in MODULES:
         subprocess.check_call([sys.executable, "-m", "py_compile", str(path)])
@@ -79,6 +121,7 @@ def main() -> int:
     list_wired_contribs()
 
     _check_manifest_invariant()
+    _check_example_codegen()
 
     for name in (
         "stdlib_pure.json",

@@ -201,5 +201,31 @@ def guess_rt_module(ny_module: str, fn_name: str | None = None) -> str:
         "compress": "rt_compress.c",
         "process": "rt_process.c",
         "error": "rt_error.c",
+        "encoding": "rt_strings.c",
+        "strconv": "rt_strings.c",
+        "math": "rt_math.c",
+        "vec": "rt_vec.c",
+        "map": "rt_map.c",
     }
     return mapping.get(stem, f"rt_{stem}.c")
+
+
+def builtin_example_topic(ny_module: str) -> str:
+    """Folder name under examples/builtins/ — never ends with `.ny`."""
+    top = ny_module.split("/")[0]
+    if top.endswith(".ny"):
+        top = top[:-3]
+    return top or "stdlib"
+
+
+def stdlib_builtin_examples_dir(ny_module: str):
+    from .paths import EXAMPLES
+
+    return EXAMPLES / "builtins" / builtin_example_topic(ny_module)
+
+
+def uses_stdlib_builtin_examples(ny_module: str) -> bool:
+    root = ny_module.split("/")[0]
+    if root.endswith(".ny"):
+        return True
+    return ny_module.split("/")[0] in {"encoding", "strconv"}

@@ -3867,7 +3867,7 @@ since = "1.46.0"
 # [contrib-dev:str_to_bool:strconv_mod]
 [[symbol]]
 name = "str_to_bool"
-c_sig = "intstr_to_bool(const char * s)"
+c_sig = "int str_to_bool(const char * s)"
 module = "rt_strings.c"
 tier = "experimental"
 since = "1.46.0"

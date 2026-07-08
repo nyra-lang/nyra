@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from .. import patch, templates
 from ..paths import ABI_MANIFEST, RUNTIME_MAP, STDLIB, TESTS_NYRA, EXAMPLES
-from ..spec import RecipeResult, StdlibFnSpec
+from ..spec import RecipeResult, StdlibFnSpec, stdlib_builtin_examples_dir
 
 import sys
 from pathlib import Path
@@ -91,15 +91,21 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     )
 
     topic = spec.ny_module.split("/")[0]
-    ex_dir = EXAMPLES / "builtins" / topic
+    ex_dir = stdlib_builtin_examples_dir(spec.ny_module)
     ex_path = ex_dir / f"{spec.fn_name}.ny"
     ex_typed = ex_dir / f"{spec.fn_name}.typed.ny"
-    ex_spec = TestExampleSpec(name=spec.fn_name, import_path=spec.stdlib_path, use_testing=False)
     res.patches.append(
-        patch.write_new_file(ex_path, templates.example_ny(ex_spec, marker), marker, force=force)
+        patch.write_new_file(
+            ex_path, templates.example_ny_from_stdlib(spec, marker), marker, force=force
+        )
     )
     res.patches.append(
-        patch.write_new_file(ex_typed, templates.example_typed_ny(ex_spec, marker), marker, force=force)
+        patch.write_new_file(
+            ex_typed,
+            templates.example_ny_from_stdlib(spec, marker, typed=True),
+            marker,
+            force=force,
+        )
     )
 
     res.user_tasks = [

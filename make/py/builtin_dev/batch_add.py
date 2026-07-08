@@ -106,7 +106,7 @@ def scaffold_string(cfg: Path, *, force: bool, dry_run: bool) -> int:
     return run_cmd(cmd, dry_run=dry_run)
 
 
-def scaffold_contrib(cfg: Path, recipe: str, *, dry_run: bool) -> int:
+def scaffold_contrib(cfg: Path, recipe: str, *, dry_run: bool, no_webdocs: bool) -> int:
     cmd = [
         sys.executable,
         str(CONTRIBUTE_PY),
@@ -115,8 +115,9 @@ def scaffold_contrib(cfg: Path, recipe: str, *, dry_run: bool) -> int:
         recipe,
         "--config",
         str(cfg),
-        "--no-webdocs",
     ]
+    if no_webdocs:
+        cmd.append("--no-webdocs")
     return run_cmd(cmd, dry_run=dry_run)
 
 
@@ -134,9 +135,17 @@ def main() -> int:
     )
     parser.add_argument("--force", action="store_true", help="pass --force to builtin-dev add")
     parser.add_argument("--dry-run", action="store_true", help="print commands only")
+    parser.add_argument(
+        "--no-webdocs",
+        action="store_true",
+        help="skip webDocs regen after each contribute add (faster; default regens)",
+    )
     args = parser.parse_args()
 
-    os.environ.setdefault("NYRA_CONTRIBUTE_SKIP_WEBDOCS", "1")
+    if not args.no_webdocs:
+        os.environ.pop("NYRA_CONTRIBUTE_SKIP_WEBDOCS", None)
+    else:
+        os.environ.setdefault("NYRA_CONTRIBUTE_SKIP_WEBDOCS", "1")
     only = {x.strip() for x in args.only.split(",") if x.strip()}
     batch_names = collect_batches(args.batch)
     configs = collect_configs(batch_names, only)
@@ -147,11 +156,11 @@ def main() -> int:
         report.add(cfg, "string", rc)
 
     for cfg in configs["math"] + configs["vec"] + configs["map"] + configs["encoding"] + configs["strconv"]:
-        rc = scaffold_contrib(cfg, "stdlib-extern", dry_run=args.dry_run)
+        rc = scaffold_contrib(cfg, "stdlib-extern", dry_run=args.dry_run, no_webdocs=args.no_webdocs)
         report.add(cfg, "stdlib-extern", rc)
 
     for cfg in configs["pure"]:
-        rc = scaffold_contrib(cfg, "stdlib-pure", dry_run=args.dry_run)
+        rc = scaffold_contrib(cfg, "stdlib-pure", dry_run=args.dry_run, no_webdocs=args.no_webdocs)
         report.add(cfg, "stdlib-pure", rc)
 
     if not report.results:
