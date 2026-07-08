@@ -205,9 +205,4 @@ extern fn log2_f64(x: f64) -> f64
 // [contrib-dev:trunc_f64:math]
 extern fn trunc_f64(x: f64) -> f64
 // [/contrib-dev:trunc_f64:math]
-// [contrib-dev:trunc_f64:math:alias]
-fn trunc(x: f64) -> f64 {
-    return trunc_f64(x)
-}
-// [/contrib-dev:trunc_f64:math:alias]
 

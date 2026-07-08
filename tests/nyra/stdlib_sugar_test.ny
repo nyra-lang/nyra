@@ -29,7 +29,7 @@ fn test_string_builder() {
 }
 
 fn test_fs_aliases() {
-    let p = "/tmp/nyra_sugar_demo.txt"
+    let p = "nyra_sugar_demo.txt"
     assert_eq(spit(p, "hello"), 0)
     assert_eq(strcmp(slurp(p), "hello"), 0)
     assert_eq(path(p).exists(), 1)

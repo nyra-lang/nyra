@@ -146,8 +146,13 @@ pub(super) fn llvm_value_operand(reg: &str) -> String {
     }
 }
 
-/// Nyra `fn` names that collide with MSVC UCRT globals when emitted as LLVM symbols.
-const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &["atoi", "atof", "atol", "atoll"];
+/// Nyra `fn` names that collide with MSVC UCRT / libm globals when emitted as LLVM symbols.
+const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
+    "atoi", "atof", "atol", "atoll",
+    // libm short aliases in stdlib/math.ny — rt_math.c __builtin_* may call these CRT names.
+    "sin", "cos", "tan", "sqrt", "pow", "log", "exp", "ceil", "floor", "round", "trunc", "hypot",
+    "asin", "acos", "atan", "atan2", "log10", "log2",
+];
 
 /// LLVM link symbol for a Nyra-defined function (may differ from the source name on Windows).
 pub(super) fn llvm_fn_link_name(name: &str, target_triple: &str) -> String {
@@ -189,6 +194,14 @@ mod llvm_fn_link_name_tests {
         assert_eq!(
             llvm_fn_link_name("atoi", "x86_64-pc-windows-gnu"),
             "nyra_atoi"
+        );
+        assert_eq!(
+            llvm_fn_link_name("ceil", "x86_64-pc-windows-gnu"),
+            "nyra_ceil"
+        );
+        assert_eq!(
+            llvm_fn_link_name("sqrt", "x86_64-pc-windows-gnu"),
+            "nyra_sqrt"
         );
     }
 
