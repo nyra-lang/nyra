@@ -109,4 +109,34 @@ run_tls_fixture() {
 run_tls_fixture tls_native
 run_tls_fixture tls_openssl
 
+# --- Fixture: comptime module import ---
+COMPTIME_FIX="$ROOT/tests/conformance/fixtures/comptime_smoke"
+log "CONF-LANG fixture: nyra test $COMPTIME_FIX"
+comptime_log="$ROOT/target/.nyra-conformance-comptime-smoke.out"
+: >"$comptime_log"
+if ! "$NYRA" test "$COMPTIME_FIX" 2>&1 | tr -d '\r' | tee "$comptime_log" >&2; then
+  fail "nyra test $COMPTIME_FIX"
+fi
+if ! grep -q 'tests passed' "$comptime_log"; then
+  fail "nyra test $COMPTIME_FIX (no tests passed line)"
+fi
+rm -f "$comptime_log"
+nyra_stats_pass
+
+# --- Fixture: no_std must check (freestanding subset, no print) ---
+NO_STD_FIX="$ROOT/tests/conformance/fixtures/no_std_smoke/main.ny"
+log "CONF-LANG fixture: nyra check $NO_STD_FIX (expect success)"
+if ! "$NYRA" check "$NO_STD_FIX" >/dev/null 2>&1; then
+  fail "nyra check $NO_STD_FIX (expected success)"
+fi
+log "ok (checked): ${NO_STD_FIX#"$ROOT"/}"
+nyra_stats_pass
+
+# --- Optional: live HTTPS against the public internet (hard gate) ---
+if [[ "${NYRA_CONF_TLS_LIVE:-0}" == "1" ]]; then
+  run_tls_fixture tls_live
+else
+  log "CONF-TLS live: skipped (set NYRA_CONF_TLS_LIVE=1 to enable hard live HTTPS gate)"
+fi
+
 log "ok — language conformance (pass + fail + fixtures)"

@@ -47,3 +47,47 @@ test fn conf_tls_007_last_error_idle() {
     let err = tls_last_error()
     assert_bool(strlen(err) >= 0)
 }
+
+// CONF-TLS-008 - tls_require reports failure when stack is unavailable (deterministic).
+test fn conf_tls_008_tls_require_callable() {
+    if tls_ready() {
+        assert_bool(tls_require("CONF-TLS-008"))
+    } else {
+        assert_bool(!tls_require("CONF-TLS-008"))
+        assert_bool(strlen(tls_last_error()) > 0)
+    }
+}
+
+// CONF-TLS-009 - malformed chunked body must not leak raw chunk sizes as body prefix.
+test fn conf_tls_009_chunked_empty_payload() {
+    let raw = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n"
+    let body = body_from_raw(raw)
+    assert_str_eq(body, "")
+}
+
+// CONF-TLS-010 - HTTPS client returns structured JSON error on refused localhost port.
+test fn conf_tls_010_connect_refused_json_error() {
+    assert_bool(tls_ready())
+    let body = get("https://127.0.0.1:1/")
+    assert_bool(strstr_pos(body, "{\"error\":") == 0)
+    assert_bool(strlen(body) > 12)
+    if strcmp(substring(body, 0, 3), "22f") == 0 {
+        test_fail("CONF-TLS-010: body still looks chunked (undecoded)")
+    }
+}
+
+// CONF-TLS-011 - invalid host still yields structured error, not empty success.
+test fn conf_tls_011_invalid_host_json_error() {
+    assert_bool(tls_ready())
+    let body = get("https://invalid.nyra-conf-test.invalid/")
+    assert_bool(strstr_pos(body, "{\"error\":") == 0)
+    assert_bool(strlen(body) > 12)
+}
+
+// CONF-TLS-012 - tls_last_error callable after failed HTTPS attempts.
+test fn conf_tls_012_last_error_after_failure() {
+    let _ = get("https://127.0.0.1:1/")
+    let err = tls_last_error()
+    assert_bool(strlen(err) >= 0)
+    assert_eq(tls_available(), 1)
+}
