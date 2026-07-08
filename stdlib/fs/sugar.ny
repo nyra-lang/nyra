@@ -13,11 +13,11 @@ fn spit_append(path: string, content: string) -> i32 {
     return append_file(path, content)
 }
 
-fn mkdir(path: string) -> i32 {
+fn make_dir(path: string) -> i32 {
     return create_dir(path)
 }
 
-fn mkdir_all(path: string) -> i32 {
+fn make_dir_all(path: string) -> i32 {
     return create_dir_all(path)
 }
 
