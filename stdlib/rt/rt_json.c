@@ -548,3 +548,193 @@ void *json_decode_ptr_token(const char *json, const char *key) {
     return (void *)(intptr_t)v;
 }
 
+
+
+/* Top-level object keys (StrVec). Empty vec if not an object. */
+void *json_top_keys(const char *json) {
+    void *v = vec_str_new();
+    if (!v || !json) {
+        return v;
+    }
+    const char *p = json;
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+        p++;
+    }
+    if (*p != '{') {
+        return v;
+    }
+    p++;
+    while (*p) {
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') {
+            p++;
+        }
+        if (*p == '}' || !*p) {
+            break;
+        }
+        if (*p != '"') {
+            break;
+        }
+        p++;
+        const char *start = p;
+        while (*p && *p != '"') {
+            if (*p == '\\' && p[1]) {
+                p += 2;
+                continue;
+            }
+            p++;
+        }
+        if (*p != '"') {
+            break;
+        }
+        char *key = dup_slice(start, (size_t)(p - start));
+        if (key) {
+            vec_str_push(v, key);
+            free(key);
+        }
+        p++;
+        while (*p && *p != ':') {
+            p++;
+        }
+        if (*p != ':') {
+            break;
+        }
+        p++;
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+            p++;
+        }
+        /* skip value */
+        if (*p == '"') {
+            p++;
+            while (*p && *p != '"') {
+                if (*p == '\\' && p[1]) {
+                    p += 2;
+                    continue;
+                }
+                p++;
+            }
+            if (*p == '"') {
+                p++;
+            }
+        } else if (*p == '{' || *p == '[') {
+            char open = *p;
+            char close = open == '{' ? '}' : ']';
+            int depth = 0;
+            int in_string = 0;
+            while (*p) {
+                char c = *p;
+                if (in_string) {
+                    if (c == '"' && p[-1] != '\\') {
+                        in_string = 0;
+                    }
+                    p++;
+                    continue;
+                }
+                if (c == '"') {
+                    in_string = 1;
+                    p++;
+                    continue;
+                }
+                if (c == open) {
+                    depth++;
+                } else if (c == close) {
+                    depth--;
+                    if (depth == 0) {
+                        p++;
+                        break;
+                    }
+                }
+                p++;
+            }
+        } else {
+            while (*p && *p != ',' && *p != '}') {
+                p++;
+            }
+        }
+    }
+    return v;
+}
+
+/* Raw JSON value text for a top-level (or nested via find_key) key. */
+char *json_raw_get(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    if (!p) {
+        return NULL;
+    }
+    const char *start = p;
+    if (*p == '"') {
+        p++;
+        while (*p && *p != '"') {
+            if (*p == '\\' && p[1]) {
+                p += 2;
+                continue;
+            }
+            p++;
+        }
+        if (*p == '"') {
+            p++;
+        }
+        return dup_slice(start, (size_t)(p - start));
+    }
+    if (*p == '{' || *p == '[') {
+        char open = *p;
+        char close = open == '{' ? '}' : ']';
+        int depth = 0;
+        int in_string = 0;
+        while (*p) {
+            char c = *p;
+            if (in_string) {
+                if (c == '"' && p[-1] != '\\') {
+                    in_string = 0;
+                }
+                p++;
+                continue;
+            }
+            if (c == '"') {
+                in_string = 1;
+                p++;
+                continue;
+            }
+            if (c == open) {
+                depth++;
+            } else if (c == close) {
+                depth--;
+                if (depth == 0) {
+                    p++;
+                    break;
+                }
+            }
+            p++;
+        }
+        return dup_slice(start, (size_t)(p - start));
+    }
+    if (strncmp(p, "true", 4) == 0) {
+        return dup_slice(p, 4);
+    }
+    if (strncmp(p, "false", 5) == 0) {
+        return dup_slice(p, 5);
+    }
+    if (strncmp(p, "null", 4) == 0) {
+        return dup_slice(p, 4);
+    }
+    while (*p && *p != ',' && *p != '}' && *p != ']' && *p != ' ' && *p != '\n' && *p != '\r' && *p != '\t') {
+        p++;
+    }
+    return dup_slice(start, (size_t)(p - start));
+}
+
+/* Kind: 0=null/invalid, 1=object, 2=array, 3=string, 4=number, 5=bool */
+int json_value_kind(const char *json) {
+    if (!json) {
+        return 0;
+    }
+    while (*json == ' ' || *json == '\t' || *json == '\n' || *json == '\r') {
+        json++;
+    }
+    if (*json == '{') return 1;
+    if (*json == '[') return 2;
+    if (*json == '"') return 3;
+    if (*json == '-' || (*json >= '0' && *json <= '9')) return 4;
+    if (strncmp(json, "true", 4) == 0 || strncmp(json, "false", 5) == 0) return 5;
+    if (strncmp(json, "null", 4) == 0) return 0;
+    return 0;
+}

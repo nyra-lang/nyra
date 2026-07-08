@@ -179,7 +179,8 @@ fn main() -&gt; void {
     print(map_str_i32_contains(m, &quot;score&quot;))
     map_str_i32_free(m)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>String keys, string values — <code>map_str_str_*</code></h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>String keys, string values — <code>map_str_str_*</code></h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -210,7 +211,8 @@ fn main() -&gt; void {
     print(map_str_str_get(m, &quot;lang&quot;))
     map_str_str_free(m)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -243,7 +245,8 @@ fn main() -&gt; void {
     print(map_i32_i32_contains(m, 42))
     map_i32_i32_free(m)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Stdlib wrappers (recommended)</h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Stdlib wrappers (recommended)</h3>
       <p>Import <code>stdlib/map.ny</code> for <code>HashMap_str_i32</code> and <code>HashMap_str_str</code> — method syntax and automatic cleanup via <code>Drop</code>. The low-level <code>map_*</code> names stay stable for <code>extern fn</code> and FFI.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -265,7 +268,8 @@ fn main() -&gt; void {
     scores = scores.insert(&quot;ada&quot;, 100)
     print(scores.get(&quot;ada&quot;))
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><h2>Runnable example</h2><!-- NYRA_SNIPPET_START -->
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Runnable example</h2><!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -297,7 +301,8 @@ fn main() -&gt; void {
     print(map_str_i32_contains(handle, &quot;score&quot;))
     map_str_i32_free(handle)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><div class="callout">
+</div>
+<!-- NYRA_SNIPPET_END --><div class="callout">
 <strong>Try it</strong>
 <pre><code>nyra run examples/syntax/hashmap.ny</code></pre>
 <p><strong>Expected output:</strong></p>

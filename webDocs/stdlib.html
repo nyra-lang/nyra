@@ -212,7 +212,8 @@
           <tr><td><code>stdlib/net/udp.ny</code></td><td><code>UdpSocket_bind</code>, <code>send</code>, <code>recv</code></td><td>Core-stable</td></tr>
           <tr><td><code>stdlib/encoding/csv.ny</code></td><td><code>csv_parse_line</code>, <code>csv_format_row</code></td><td>Core-stable (quoted fields)</td></tr>
           <tr><td><code>stdlib/archive/zip.ny</code></td><td><code>zip_pack</code>, <code>zip_unpack</code></td><td>Core-stable (ZIP store method)</td></tr>
-          <tr><td><code>stdlib/db/sql.ny</code></td><td><code>Sql_open</code> (<code>sqlite</code>, <code>postgres</code>, <code>mysql</code>)</td><td>SQLite native; PG/MySQL stubs</td></tr>
+          <tr><td><code>stdlib/db/sql.ny</code></td><td><code>Sql_open</code>, <code>.exec</code>, <code>.query_rows</code>, <code>.find(qb)</code> — sqlite / postgres / mysql</td></tr>
+          <tr><td><code>stdlib/db/query.ny</code></td><td><strong>Query builder.</strong> <code>qb().select().from().where().include().lookup().unwind().order().limit().to_sql()</code></td></tr>
           <tr><td><code>stdlib/mime/mod.ny</code></td><td><code>mime_write_multipart</code>, <code>mime_content_type_multipart</code></td><td>Core-stable</td></tr>
           <tr><td><code>stdlib/crypto/rsa.ny</code></td><td><code>rsa_encrypt_pem</code>, <code>rsa_sign_sha256_pem</code></td><td>OpenSSL when available</td></tr>
           <tr><td><code>stdlib/crypto/x509.ny</code></td><td><code>x509_subject</code>, <code>x509_valid_now</code></td><td>OpenSSL when available</td></tr>
@@ -246,7 +247,7 @@
         <tbody>
           <tr><td>SHA-256, HMAC, AES</td><td><code>stdlib/crypto</code></td><td>Alternative crypto backends</td></tr>
           <tr><td>gzip / zip</td><td><code>stdlib/compress</code></td><td>Specialized codecs</td></tr>
-          <tr><td>SQLite / Postgres / Redis</td><td><code>stdlib/db/*</code></td><td>ORMs, query builders</td></tr>
+          <tr><td>SQLite / Postgres / Redis</td><td><code>stdlib/db/*</code></td><td>Full Postgres/MySQL rowsets; richer ORMs</td></tr>
           <tr><td>WebSocket</td><td><code>stdlib/net/websocket</code></td><td>Protocol adapters, hubs</td></tr>
           <tr><td>Full JSON / TOML / YAML</td><td><code>json/</code>, <code>serialize/</code></td><td>Custom schema tooling</td></tr>
         </tbody>
@@ -256,8 +257,8 @@
       <table>
         <thead><tr><th>Import</th><th>Types / API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/vec.ny</code></td><td><code>Vec_i32_new()</code>, <code>v.push(x)</code>, <code>v.len()</code>, <code>vec_len(v)</code></td></tr>
-          <tr><td><code>stdlib/vec_str.ny</code></td><td><code>StrVec</code>, <code>StrVec_from_argv</code>, <code>argv()</code>, <code>StrVec_from_lines</code>, <code>Vec_str_join</code> — CLI args, JSON keys, line lists</td></tr>
+          <tr><td><code>stdlib/vec.ny</code></td><td><code>vec()</code> / <code>VecI32</code> — <code>push</code>, <code>filter</code>, <code>map</code>, <code>find</code>, <code>contains</code>, <code>reduce</code></td></tr>
+          <tr><td><code>stdlib/vec_str.ny</code></td><td><code>strs()</code> / <code>StrVec</code> — <code>joined</code>, <code>filter</code>, <code>map</code>, <code>find</code>, <code>contains</code>, <code>argv()</code></td></tr>
           <tr><td><code>stdlib/map.ny</code></td><td><code>HashMap_str_i32</code>, <code>HashMap_str_str</code> — <code>insert</code>/<code>remove</code> return <code>self</code> (refcounted; safe <code>store = store.insert(...)</code> and <code>TtlCache_put</code> chains)</td></tr>
           <tr><td><code>stdlib/parser/</code></td><td><code>SourceLoc</code>, <code>ParseCursor</code>, <code>Comb_take_while</code>, <code>Comb_or_literal</code>, <code>Comb_many</code>, <code>AstRow</code> — parser building blocks</td></tr>
           <tr><td><code>stdlib/collections/vec_pod.ny</code></td><td><code>Vec&lt;T&gt;</code> POD vectors — synthesized <code>Vec_{Struct}_*</code> for Copy structs</td></tr>
@@ -274,7 +275,7 @@
           <tr><td><code>stdlib/collections/advanced.ny</code></td><td><code>BTreeMap_str_i32</code>, <code>BTreeSet_str</code>, <code>Deque_i32</code>, <code>PriorityQueue_i32</code></td></tr>
           <tr><td><code>stdlib/gui/</code></td><td><code>TextBuffer</code>, <code>ScrollState</code>, <code>FilePicker</code>, <code>Syntax_line_kind</code> — raylib UI helpers</td></tr>
           <tr><td><code>stdlib/games/</code></td><td><code>Grid2D_i32</code>, <code>EcsWorld</code>, <code>VoxelChunk_i32</code>, <code>Gfx3D_orbit_position</code>, <code>GameAudioSession</code> — game grids, ECS, voxels, 3D math, audio paths; optional <code>raylib_audio</code> / <code>raylib_gfx</code></td></tr>
-          <tr><td><code>stdlib/strings/builder.ny</code></td><td><code>StringBuilder_new</code>, <code>push</code>, <code>push_char</code>, <code>build</code></td></tr>
+          <tr><td><code>stdlib/strings/builder.ny</code></td><td><code>sb()</code>, <code>.push</code>/<code>.build</code>, <code>cat</code>/<code>cat3</code>/<code>cat4</code>, <code>StringBuilder_*</code></td></tr>
         </tbody>
       </table>
       <pre><code>import "stdlib/vec.ny"
@@ -313,7 +314,7 @@ fn main() {
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/fs.ny</code> / <code>stdlib/fs/mod.ny</code></td><td><code>read_file</code>, <code>write_file</code>, <code>append_file</code>, <code>exists</code>, <code>create_dir</code>, <code>remove_file</code></td></tr>
+          <tr><td><code>stdlib/fs.ny</code> / <code>stdlib/fs/mod.ny</code></td><td><code>slurp</code>/<code>spit</code>/<code>mkdir</code>/<code>rm</code>/<code>ls</code>, <code>read_file</code>, <code>write_file</code>, <code>exists</code></td></tr>
           <tr><td><code>stdlib/path.ny</code></td><td><code>Path_new</code>, <code>join</code>, <code>extension</code>, <code>file_name</code>, <code>parent</code></td></tr>
           <tr><td><code>stdlib/url/mod.ny</code></td><td><code>Url_parse</code>, <code>url_host</code>, <code>url_path</code></td></tr>
         </tbody>
@@ -333,7 +334,7 @@ fn main() {
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/net/http/mod.ny</code></td><td><strong>Primary.</strong> <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>, <code>HttpResponse</code>, <code>Router</code>, <code>Server_listen</code>, CORS, keep-alive</td></tr>
+          <tr><td><code>stdlib/net/http/mod.ny</code></td><td><strong>Primary.</strong> <code>fetch(url)</code> → <code>HttpResponse</code>; <code>req().header(…).json(…).post(url)</code>; <code>get</code> body-only; headers, <code>FormData</code>, cookies, abort, redirects, <code>Router</code></td></tr>
           <tr><td><code>stdlib/net/tcp.ny</code></td><td><code>TcpListener</code>, <code>TcpStream</code>, <code>tcp_connect</code>, <code>tcp_connect_timeout</code>, <code>tcp_accept_wait</code></td></tr>
           <tr><td><code>stdlib/net/dns.ny</code></td><td><code>dns_lookup</code> → <code>StrVec</code> of IP addresses</td></tr>
           <tr><td><code>stdlib/net/icmp.ny</code></td><td><code>ping_tcp</code>, <code>ping_icmp</code>, <code>ping_icmp_system</code>, <code>ping_icmp_capable</code>, <code>ping_auto</code>, <code>ping_auto_verbose</code> (ICMP → system ping → TCP)</td></tr>
@@ -366,7 +367,7 @@ fn main() {
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/json/mod.ny</code></td><td><code>decode_string</code>, <code>decode_i32</code>, <code>encode_field</code>, <code>encode_i32</code>, <code>encode_object</code> (multi-key via <code>Vec_str</code> handles)</td></tr>
+          <tr><td><code>stdlib/json/mod.ny</code></td><td><code>jparse</code>/<code>jstr</code>/<code>jnum</code>/<code>obj</code>/<code>dict</code>, <code>JSON_parse_object</code>, <code>encode_field</code></td></tr>
           <tr><td><code>stdlib/serialize/mod.ny</code></td><td><code>encode_object</code>, <code>toml_encode_object</code>, <code>yaml_encode_object</code>; <code>serialize</code>/<code>deserialize</code> by <code>SerializeFormat</code></td></tr>
         </tbody>
       </table>
@@ -443,7 +444,7 @@ fn main() {
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/env/mod.ny</code></td><td><code>env_get</code>, <code>env_has</code>; <code>env_set</code> stub</td></tr>
+          <tr><td><code>stdlib/env/mod.ny</code></td><td><code>env</code>/<code>env_or</code>, <code>env_get</code>, <code>env_has</code>, <code>env_set</code></td></tr>
           <tr><td><code>stdlib/os/env.ny</code></td><td><code>os_getenv</code> (low-level)</td></tr>
           <tr><td><code>stdlib/config/mod.ny</code></td><td><code>config_load</code>, <code>config_get_env_or_file</code></td></tr>
         </tbody>

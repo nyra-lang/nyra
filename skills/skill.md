@@ -2144,7 +2144,7 @@ Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure
 |----------|------|
 | `response_ok_json(body)` | 200 JSON |
 | `response_created_json`, `response_not_found`, … | Status helpers |
-| `get(url)` / `fetch(url)` | HTTP GET → **body string**; HTTPS uses `tls` backend from `nyra.mod` |
+| `get(url)` / `fetch(url)` | HTTP GET; **`fetch` → `HttpResponse`**, **`get` → body string**; HTTPS uses `tls` backend from `nyra.mod` |
 | `post`, `put`, `patch`, `delete` | Verbs → `HttpResponse` |
 | `tls_last_error()` | TLS/connect error detail (`stdlib/tls.ny`, auto-prelude) |
 

@@ -1,4 +1,5 @@
 // SQLite — requires `link sqlite3` in nyra.mod when using this module.
+import "query.ny"
 
 struct SqliteDb {
     handle: ptr
@@ -59,6 +60,10 @@ impl SqliteDb {
             return ""
         }
         return rs.at(0, 0)
+    }
+
+    fn find(self, q: SqlQuery) -> SqliteRowset {
+        return self.query_rows(q.to_sql())
     }
 }
 

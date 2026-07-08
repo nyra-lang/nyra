@@ -140,8 +140,8 @@
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->
-      <h2>Architecture</h2>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h2>Architecture</h2>
       <pre><code>Application
       │
 stdlib/net/http  (get / post / …)
@@ -195,9 +195,20 @@ tls rustls</code></pre>
       <p>Resolve order: value in <code>nyra.mod</code> → else <code>features.tls</code> in <code>nyra.lock</code> → else <code>rustls</code>. If mod and lock disagree, Nyra reports a mismatch. Full <code>nyra.mod</code> syntax: <a href="packages.html#nyra-mod-syntax">packages → nyra.mod syntax</a>.</p>
       <p>CI covers all three backends in <code>make test-conformance</code> (<code>pass/tls</code> for rustls defaults; fixtures <code>tls_native</code> / <code>tls_openssl</code> for the others).</p>
       <p>Application code is identical for every backend:</p>
-      <pre><code>fn main() {
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
     print(get(&quot;https://example.com/&quot;))
-}</code></pre>
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(get(&quot;https://example.com/&quot;))
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
       <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem (network reset, cert error, …) — it does not ask you to install OpenSSL when using <code>rustls</code> or <code>native</code> on macOS/Windows.</p>
 
       <h2>Module layout</h2>
@@ -211,18 +222,46 @@ tls rustls</code></pre>
       <p>Routing and middleware helpers live in <code>mod.ny</code> / <code>server.ny</code> (no separate <code>router.ny</code> file).</p>
 
       <h2>HTTP client</h2>
-      <p>All verbs return <code>HttpResponse</code> except <code>get(url)</code> / <code>fetch(url)</code>, which return the response body as a <code>string</code>.</p>
+      <p><strong>Preferred (JS-like):</strong> one entry — <code>fetch(url)</code> returns <code>HttpResponse</code>. Put options on <code>req()</code>, then call the method with the URL (<code>.get</code> / <code>.post</code> / …). Body-only convenience remains <code>get(url) -&gt; string</code>.</p>
+      <pre><code>let resp = fetch("https://example.com/")
+print(resp.status, resp.text())
+
+let posted = req()
+    .header("Authorization", "Bearer tok")
+    .timeout(10000)
+    .json("{\"name\":\"Nyra\"}")
+    .post("https://example.com/api")
+
+let form_post = req()
+    .form(form().append("a", "1").append("b", "2"))
+    .post(url)</code></pre>
       <table>
-        <thead><tr><th>Function</th><th>Returns</th><th>Notes</th></tr></thead>
+        <thead><tr><th>API</th><th>Returns</th><th>Role</th></tr></thead>
         <tbody>
-          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only; HTTPS via selectable TLS backend (default rustls)</td></tr>
-          <tr><td><code>fetch(url)</code></td><td><code>string</code></td><td>Alias for <code>get</code></td></tr>
-          <tr><td><code>post(url, body)</code></td><td><code>HttpResponse</code></td><td><code>Content-Type: application/json</code></td></tr>
-          <tr><td><code>put(url, body)</code></td><td><code>HttpResponse</code></td><td>Full request/response</td></tr>
-          <tr><td><code>patch(url, body)</code></td><td><code>HttpResponse</code></td><td>PATCH support</td></tr>
-          <tr><td><code>delete(url)</code></td><td><code>HttpResponse</code></td><td>DELETE support</td></tr>
-          <tr><td><code>head(url)</code></td><td><code>HttpResponse</code></td><td>Status + headers, empty body</td></tr>
-          <tr><td><code>http_request(method, url, body, ct)</code></td><td><code>HttpResponse</code></td><td>Low-level core</td></tr>
+          <tr><td><code>fetch(url)</code></td><td><code>HttpResponse</code></td><td>Primary GET</td></tr>
+          <tr><td><code>req().header(…).timeout(…).json(…).post(url)</code></td><td><code>HttpResponse</code></td><td>Options + verb (like <code>fetch(url, {method, headers, body})</code>)</td></tr>
+          <tr><td><code>req().verb("PATCH").go(url)</code></td><td><code>HttpResponse</code></td><td>String method name + fire</td></tr>
+          <tr><td><code>post_json</code> / <code>post_form</code> / <code>get_json</code></td><td>response / map</td><td>Short helpers (optional)</td></tr>
+          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only</td></tr>
+          <tr><td><code>fetch_with(url, init)</code></td><td><code>HttpResponse</code></td><td>Explicit init object</td></tr>
+          <tr><td><code>post</code> / <code>put</code> / <code>patch</code> / <code>delete</code> / <code>head</code></td><td><code>HttpResponse</code></td><td>Legacy free verbs</td></tr>
+        </tbody>
+      </table>
+      <p>Long names like <code>http_post_form</code> still work as aliases — prefer the short path above.</p>
+
+      <h3>RequestInit · headers · forms · abort · redirects</h3>
+      <table>
+        <thead><tr><th>API</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><code>RequestInit_new</code> / <code>_header</code> / <code>_authorization</code> / <code>_cookie</code></td><td>Custom request headers</td></tr>
+          <tr><td><code>RequestInit_timeout</code> / <code>Client_with_timeout</code></td><td>Real connect/read timeout (<code>sys_set_timeout_ms</code>)</td></tr>
+          <tr><td><code>RequestInit_redirect</code> · <code>REDIRECT_FOLLOW</code>/<code>ERROR</code>/<code>MANUAL</code></td><td>Redirect policy</td></tr>
+          <tr><td><code>AbortController</code> / <code>AbortSignal</code></td><td>Cooperative cancel before/between hops</td></tr>
+          <tr><td><code>CookieJar</code></td><td>Store <code>Set-Cookie</code>, emit <code>Cookie</code></td></tr>
+          <tr><td><code>FormData</code> · <code>URLSearchParams</code> · urlencoded helpers</td><td>Form bodies</td></tr>
+          <tr><td><code>HeaderMap_*</code> · <code>HttpResponse.headers</code></td><td>Request/response header maps</td></tr>
+          <tr><td><code>HttpResponse_json</code> · <code>JSON_parse_object</code></td><td>Parse body / text to map</td></tr>
+          <tr><td><code>Blob</code> / <code>ArrayBuffer</code> / <code>BodyStream</code></td><td>Binary-ish body helpers over <code>bytes</code></td></tr>
         </tbody>
       </table>
 
@@ -251,13 +290,19 @@ fn main() -&gt; void {
         print(resp.body)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h2>HttpResponse</h2>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h2>HttpResponse</h2>
       <table>
-        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <thead><tr><th>Field / helper</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>status</code></td><td><code>i32</code></td><td>HTTP status code</td></tr>
           <tr><td><code>body</code></td><td><code>string</code></td><td>Response payload</td></tr>
           <tr><td><code>content_type</code></td><td><code>string</code></td><td>MIME type</td></tr>
+          <tr><td><code>headers</code></td><td><code>HashMap_str_str</code></td><td>Parsed response headers</td></tr>
+          <tr><td><code>HttpResponse_json(resp)</code></td><td><code>HashMap_str_str</code></td><td>Parse JSON object body</td></tr>
+          <tr><td><code>HttpResponse_text(resp)</code></td><td><code>string</code></td><td>Body text</td></tr>
+          <tr><td><code>HttpResponse_blob(resp)</code></td><td><code>Blob</code></td><td>Body as Blob</td></tr>
+          <tr><td><code>HttpResponse_array_buffer(resp)</code></td><td><code>ArrayBuffer</code></td><td>Body as ArrayBuffer</td></tr>
         </tbody>
       </table>
 
@@ -277,7 +322,8 @@ let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;:t
 let r = Router_add_get(router, &quot;/health&quot;, &quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;)
 let r2 = Router_add_post(r, &quot;/users&quot;, &quot;{\&quot;created\&quot;:true}&quot;)
 let r3 = Router_add_put(r2, &quot;/users/1&quot;, &quot;{\&quot;updated\&quot;:true}&quot;)</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Function</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>Router_new()</code></td><td>Empty router, default 404 JSON</td></tr>
@@ -303,7 +349,8 @@ Server_listen(s2, router)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let server = Server_with_router(&quot;127.0.0.1&quot;, 8080, router)
 let s2 = Server_enable_cors(server)
 Server_listen(s2, router)</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch (v1.2)</h3>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch (v1.2)</h3>
       <p>Register integer <strong>slots</strong> and pass a Nyra function <code>fn(i32, RequestContext) -&gt; HttpResponse</code>. Use for dynamic logic instead of static response bodies.</p>
       <!-- NYRA_SNIPPET_SKIP -->
       <!-- NYRA_SNIPPET_START -->
@@ -330,7 +377,8 @@ fn main() -&gt; void {
     let r = Router_add_slot_get(router, &quot;/health&quot;, 0)
     listen_and_serve_handlers(&quot;127.0.0.1&quot;, 8080, r, health_slot)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Arrow handler alternative (Extended): <code>(ctx: RequestContext) =&gt; response_ok_json("{\"status\":\"ok\"}")</code> when compiled with arrow support.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Arrow handler alternative (Extended): <code>(ctx: RequestContext) =&gt; response_ok_json("{\"status\":\"ok\"}")</code> when compiled with arrow support.</p>
       <table>
         <thead><tr><th>Function</th><th>Description</th></tr></thead>
         <tbody>

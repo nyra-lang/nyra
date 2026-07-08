@@ -82,6 +82,7 @@ def main() -> int:
 
     for name in (
         "stdlib_pure.json",
+        "stdlib_module.json",
         "stdlib_extern.json",
         "test_example.json",
         "pkg.json",
@@ -92,6 +93,7 @@ def main() -> int:
         data = json.loads((EXAMPLES / name).read_text(encoding="utf-8"))
         recipe = {
             "stdlib_pure.json": "stdlib-pure",
+            "stdlib_module.json": "stdlib-pure",
             "stdlib_extern.json": "stdlib-extern",
             "test_example.json": "test-example",
             "pkg.json": "pkg",
@@ -100,6 +102,8 @@ def main() -> int:
             "syntax_scaffold.json": "syntax-scaffold",
         }[name]
         spec_from_config(recipe, data)
+        if name == "stdlib_module.json":
+            assert data.get("pure_source") or data.get("source_file"), "module example needs pure_source"
 
     print("test-contrib-py: ok")
     return 0

@@ -207,6 +207,24 @@ impl Codegen {
                 .unwrap_or_else(|| "i32".to_string());
             self.call_returns.insert(f.name.clone(), ret);
         }
+        // Impl methods are no longer duplicated into `program.functions` at parse
+        // time (that shadowed free helpers with the same mangled name). Register
+        // them here for type/return lookup, but never overwrite a free function.
+        for imp in &program.impls {
+            for method in &imp.methods {
+                self.functions
+                    .entry(method.name.clone())
+                    .or_insert_with(|| method.clone());
+                if !self.call_returns.contains_key(&method.name) {
+                    let ret = method
+                        .return_type
+                        .clone()
+                        .map(|t| self.logical_call_ret_ty(&t))
+                        .unwrap_or_else(|| "i32".to_string());
+                    self.call_returns.insert(method.name.clone(), ret);
+                }
+            }
+        }
         for ti in &program.trait_impls {
             for method in &ti.methods {
                 self.functions

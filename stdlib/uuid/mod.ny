@@ -16,3 +16,7 @@ fn UUID_v4() -> string {
     let p3 = strcat(strcat(p2, "-"), d)
     return strcat(strcat(p3, "-"), e)
 }
+
+fn uuid() -> string {
+    return UUID_v4()
+}

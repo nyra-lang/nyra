@@ -119,7 +119,7 @@ fn is_chunked_transfer(raw: string) -> i32 {
     return 0
 }
 
-fn hex_digit(c: i32) -> i32 {
+fn http_hex_nibble(c: i32) -> i32 {
     if c >= 48 && c <= 57 {
         return c - 48
     }
@@ -146,7 +146,7 @@ fn str_to_i32_hex(s: string) -> i32 {
         if c == 59 {
             break
         }
-        let d = hex_digit(c)
+        let d = http_hex_nibble(c)
         if d < 0 {
             break
         }

@@ -190,7 +190,8 @@ nyra run .</code></pre>
   src/helper.ny
   nyra.mod
   target/debug/main</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h2 id="run"><code>nyra run</code></h2>
+</div>
+<!-- NYRA_SNIPPET_END -->      <h2 id="run"><code>nyra run</code></h2>
       <p><strong>Job:</strong> Fastest feedback — compile and run in one step while you edit code. If <code>nyra.mod</code> <code>require</code> lines changed, Nyra syncs first: fetches missing packages and removes orphaned ones from <code>.nyra/cache/</code> (like <code>cargo run</code>).</p>
       <pre><code>nyra run .                          # project with main.ny
 nyra run examples/syntax/hello.ny   # single file
@@ -239,7 +240,8 @@ test fn sum_works() {
 test fn sum_works() {
     assert_eq(1 + 2, 3)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <pre><code>nyra test .                              # all tests in project
+</div>
+<!-- NYRA_SNIPPET_END -->      <pre><code>nyra test .                              # all tests in project
 nyra test tests/conformance/pass         # language conformance (pass only)
 nyra test examples/smoke_test_test.ny    # one test file
 nyra test . --release                    # optimized test binary</code></pre>

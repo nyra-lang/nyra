@@ -345,6 +345,9 @@ void sys_close(int fd);
 /* since Nyra 0.3.0 */
 int sys_set_nonblock(int fd);
 
+/* since Nyra 1.41.0 */
+int sys_set_timeout_ms(int fd, int timeout_ms);
+
 /* since Nyra 1.3.3 */
 int rt_udp_bind(const char *host, int port);
 
@@ -407,6 +410,15 @@ char *json_encode_ptr_token(void *p);
 
 /* since Nyra 1.9.0 */
 void *json_decode_ptr_token(const char *json, const char *key);
+
+/* since Nyra 1.41.0 */
+void *json_top_keys(const char *json);
+
+/* since Nyra 1.41.0 */
+char *json_raw_get(const char *json, const char *key);
+
+/* since Nyra 1.41.0 */
+int json_value_kind(const char *json);
 
 /* since Nyra 1.3.2 */
 char *sha256_hex(const char *data);

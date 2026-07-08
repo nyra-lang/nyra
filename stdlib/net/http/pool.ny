@@ -7,7 +7,7 @@ import "../syscall.ny"
 import "types.ny"
 import "response.ny"
 import "request.ny"
-import "client.ny"
+import "headers.ny"
 
 const POOL_TLS_BASE = 1048576
 
@@ -116,15 +116,16 @@ fn HttpPool_request(pool: HttpPool, method: i32, url: string, body: string, cont
     }
     let status = http_status_from_header(raw)
     let resp_body = body_from_raw(raw)
+    let resp_headers = HeaderMap_parse_raw(raw)
     if wants_keep_alive(raw) == 1 {
         out = HttpPool { conns: out.conns.insert(key, handle) }
     } else {
         HttpPool_close_conn(handle)
         out = HttpPool { conns: out.conns.insert(key, -1) }
     }
-    let mut resp = HttpResponse { status: status, body: resp_body, content_type: content_type }
+    let mut resp = HttpResponse_with_headers(status, resp_body, content_type, resp_headers)
     if method == METHOD_HEAD {
-        resp = HttpResponse { status: status, body: "", content_type: "text/plain" }
+        resp = HttpResponse_with_headers(status, "", "text/plain", resp_headers)
     }
     return PoolResponse { pool: out, resp: resp }
 }

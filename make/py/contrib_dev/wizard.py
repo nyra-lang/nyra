@@ -283,7 +283,10 @@ def run_remove_wizard(*, title: str = "Remove scaffold") -> str:
 
 
 def spec_from_config(recipe: str, data: dict):
-    if recipe in ("stdlib-pure", "1"):
+    if recipe in ("stdlib-pure", "1", "stdlib-module"):
+        pure_source = data.get("pure_source")
+        if pure_source is None and data.get("source_file"):
+            pure_source = Path(data["source_file"]).read_text(encoding="utf-8")
         return StdlibFnSpec(
             fn_name=data["fn_name"],
             args=[ArgSpec.parse(a) for a in data.get("args", [])],
@@ -291,6 +294,8 @@ def spec_from_config(recipe: str, data: dict):
             ny_module=data["ny_module"],
             wrap_extern=data.get("wrap_extern"),
             pure_body=data.get("pure_body"),
+            pure_source=pure_source,
+            example_topic=data.get("example_topic"),
         )
     if recipe in ("stdlib-extern", "2"):
         return StdlibFnSpec(

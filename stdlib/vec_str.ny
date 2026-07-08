@@ -8,6 +8,7 @@ extern fn vec_str_free(v: ptr) -> void
 extern fn vec_str_from_argv(start_index: i32) -> ptr
 extern fn strlen(s: &string) -> i32
 extern fn strcat(a: &string, b: &string) -> string
+extern fn strcmp(a: &string, b: &string) -> i32
 
 fn Vec_str_new() -> ptr {
     return vec_str_new()
@@ -81,6 +82,14 @@ fn argv() -> StrVec {
     return StrVec_from_argv(1)
 }
 
+fn strs() -> StrVec {
+    return StrVec_new()
+}
+
+fn lines(text: string) -> StrVec {
+    return StrVec_from_lines(text)
+}
+
 fn StrVec_join_lines(vec: StrVec) -> string {
     return Vec_str_join_lines(vec.handle)
 }
@@ -101,6 +110,98 @@ impl StrVec {
 
     fn len(self) -> i32 {
         return Vec_str_len(self.handle)
+    }
+
+    fn joined(self, sep: string) -> string {
+        return Vec_str_join(self.handle, sep)
+    }
+
+    fn contains(self, needle: string) -> i32 {
+        let n = Vec_str_len(self.handle)
+        let mut i = 0
+        while i < n {
+            if strcmp(Vec_str_get(self.handle, i), needle) == 0 {
+                return 1
+            }
+            i = i + 1
+        }
+        return 0
+    }
+
+    fn includes(self, needle: string) -> i32 {
+        return self.contains(needle)
+    }
+
+    fn first(self, fallback: string) -> string {
+        if Vec_str_len(self.handle) == 0 {
+            return fallback
+        }
+        return Vec_str_get(self.handle, 0)
+    }
+
+    fn last(self, fallback: string) -> string {
+        let n = Vec_str_len(self.handle)
+        if n == 0 {
+            return fallback
+        }
+        return Vec_str_get(self.handle, n - 1)
+    }
+
+    fn find(self, pred: fn(string) -> i32, fallback: string) -> string {
+        let n = Vec_str_len(self.handle)
+        let mut i = 0
+        while i < n {
+            let x = Vec_str_get(self.handle, i)
+            if pred(x) != 0 {
+                return x
+            }
+            i = i + 1
+        }
+        return fallback
+    }
+
+    fn filter(self, pred: fn(string) -> i32) -> StrVec {
+        let out = vec_str_new()
+        let n = Vec_str_len(self.handle)
+        let mut i = 0
+        while i < n {
+            let x = Vec_str_get(self.handle, i)
+            if pred(x) != 0 {
+                vec_str_push(out, x)
+            }
+            i = i + 1
+        }
+        return StrVec { handle: out }
+    }
+
+    fn map(self, f: fn(string) -> string) -> StrVec {
+        let out = vec_str_new()
+        let n = Vec_str_len(self.handle)
+        let mut i = 0
+        while i < n {
+            vec_str_push(out, f(Vec_str_get(self.handle, i)))
+            i = i + 1
+        }
+        return StrVec { handle: out }
+    }
+
+    fn find_eq(self, needle: string, fallback: string) -> string {
+        if self.contains(needle) == 1 {
+            return needle
+        }
+        return fallback
+    }
+
+    fn index_of(self, needle: string) -> i32 {
+        let n = Vec_str_len(self.handle)
+        let mut i = 0
+        while i < n {
+            if strcmp(Vec_str_get(self.handle, i), needle) == 0 {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
     }
 }
 

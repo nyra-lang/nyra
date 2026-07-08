@@ -834,6 +834,13 @@ tier = "stable"
 since = "0.3.0"
 
 [[symbol]]
+name = "sys_set_timeout_ms"
+c_sig = "int sys_set_timeout_ms(int fd, int timeout_ms)"
+module = "rt_net.c"
+tier = "stable"
+since = "1.41.0"
+
+[[symbol]]
 name = "rt_udp_bind"
 c_sig = "int rt_udp_bind(const char *host, int port)"
 module = "rt_net.c"
@@ -979,6 +986,27 @@ c_sig = "void *json_decode_ptr_token(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
 since = "1.9.0"
+
+[[symbol]]
+name = "json_top_keys"
+c_sig = "void *json_top_keys(const char *json)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.41.0"
+
+[[symbol]]
+name = "json_raw_get"
+c_sig = "char *json_raw_get(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.41.0"
+
+[[symbol]]
+name = "json_value_kind"
+c_sig = "int json_value_kind(const char *json)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.41.0"
 
 [[symbol]]
 name = "race_runtime_init"

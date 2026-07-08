@@ -168,7 +168,8 @@
 import &quot;lib/api.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;src/helpers.ny&quot;
 import &quot;lib/api.ny&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Public items from imported files merge into one program. Use <code>pub</code> / <code>priv</code> on functions, structs, enums, and <code>const</code> to control what importers can see (default: public).</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Public items from imported files merge into one program. Use <code>pub</code> / <code>priv</code> on functions, structs, enums, and <code>const</code> to control what importers can see (default: public).</p>
 
       <h2>Import alias &amp; qualified names</h2>
       <p>Since <strong>v1.37.0</strong>, rename an import and call through <code>::</code> (desugars to <code>alias__symbol</code>):</p>
@@ -188,7 +189,8 @@ fn main() {
 fn main() -&gt; void {
     print(h::greet(&quot;nyra&quot;))
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Without <code>as</code>, public symbols keep their original names. <code>priv</code> items stay in the defining file only.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Without <code>as</code>, public symbols keep their original names. <code>priv</code> items stay in the defining file only.</p>
 
       <h2>Running a project</h2>
       <table>
@@ -239,7 +241,8 @@ fn main() { print(compute()) }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
 import &quot;logic.ny&quot;
 fn main() -&gt; void { print(compute()) }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <footer class="site-footer">
+</div>
+<!-- NYRA_SNIPPET_END -->      <footer class="site-footer">
         <a href="imports.html">Imports guide →</a> ·
         <a href="methods.html">Built-in methods →</a>
       </footer>

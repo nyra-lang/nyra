@@ -48,6 +48,8 @@ def pure_fn_body(spec: StdlibFnSpec) -> str:
 
 
 def pure_fn_block(spec: StdlibFnSpec, marker: str) -> str:
+    if spec.pure_source:
+        return wrap_scaffold(spec.pure_source.rstrip() + "\n", marker)
     ret_ann = "" if spec.returns == NyraType.VOID else f" -> {nyra_type_annotation(spec.returns, ref=False)}"
     lines = [
         marker_start(marker),

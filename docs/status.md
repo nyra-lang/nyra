@@ -71,7 +71,7 @@
 |--------|--------|
 | Collections, fs, strings, time | Shipped |
 | crypto (SHA/HMAC/AES) | Shipped |
-| net/http, tcp, websocket, udp | Shipped |
+| net/http, tcp, websocket, udp | Shipped — JS-like `fetch`/`req().post(url)`, collections HOFs, SQL `qb()` builder (v1.45) |
 | db/sqlite | Shipped (`link sqlite3`) |
 | db/postgres, db/mysql | Native when libpq/mysqlclient linked |
 | env_get / **env_set** | Shipped (POSIX + Windows) |

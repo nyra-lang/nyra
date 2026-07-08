@@ -155,7 +155,8 @@
     x = 2
     print(x)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><h2>Shared read-only borrow</h2><!-- NYRA_SNIPPET_START -->
+</div>
+<!-- NYRA_SNIPPET_END --><h2>Shared read-only borrow</h2><!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -173,7 +174,8 @@
     print(*r)
     print(msg)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Borrows expire at the <strong>last use</strong> (non-lexical lifetimes). Rules:</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Borrows expire at the <strong>last use</strong> (non-lexical lifetimes). Rules:</p>
       <ul>
         <li>Many <code>&amp;T</code> OR one <code>&amp;mut T</code> at a time</li>
         <li>Cannot use a moved value after move</li>

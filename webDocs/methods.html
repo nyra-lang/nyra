@@ -370,7 +370,8 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
       <p><strong>Platform:</strong> <code>spawn</code> is unavailable on <code>wasm32-wasi</code> (compile error). Native Linux, macOS, and Windows only.</p>
 
       <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>

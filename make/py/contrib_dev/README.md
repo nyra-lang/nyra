@@ -21,12 +21,26 @@ After questions: **PREVIEW + confirm** → then **MONITOR** (TOOL DID / YOU DO /
 ```bash
 make contribute                    # interactive add — tiger logo + menu
 make contribute-list               # list wired scaffolds
-make contribute-remove ARGS='-i'   # remove by marker
+make contribute-remove ARGS='-i'   # remove by marker (skips webDocs by default)
 make contribute-patch ARGS='--marker test_example:foo --config make/py/contrib_dev/examples/test_example.json'
 
 # Non-interactive add with JSON spec:
-make contribute ARGS='add --recipe stdlib-extern --config make/py/contrib_dev/examples/stdlib_extern.json'
+make contribute ARGS='add --recipe stdlib-pure --config make/py/contrib_dev/examples/stdlib_pure.json --no-webdocs'
+
+# Multi-fn / struct module (put full Nyra source in pure_source):
+make contribute ARGS='add --recipe stdlib-pure --config make/py/contrib_dev/examples/stdlib_module.json --force --no-webdocs'
 ```
+
+**Speed tip:** `contribute-remove` / `contribute-patch` default to `--no-webdocs`. Use `NYRA_CONTRIBUTE_SKIP_WEBDOCS=1` for CI/scripts.
+
+## Pain points fixed (for future contributors)
+
+| Problem | Fix |
+|---------|-----|
+| One-fn-only pure scaffold | `pure_source` embeds full structs/fns into the module file |
+| Remove/list hung on huge trees | `discover.py` skips `target`, `webDocs`, `vendor`, `Apps`, caches |
+| Remove always rebuilt webDocs | make targets pass `--no-webdocs` by default |
+| Patch did not refresh docs optionally | `--no-webdocs` on patch; opt-in regenerates |
 
 ## Menu
 
@@ -37,6 +51,7 @@ make contribute ARGS='add --recipe stdlib-extern --config make/py/contrib_dev/ex
 ├─────────────────────────────────────────────┤
 │ 1. Stdlib Pure Function (Pattern A)         │
 │    Nyra fn in stdlib — no new C             │
+│    (also: multi-fn modules via pure_source) │
 │ 2. Stdlib Extern + C (Pattern B)            │
 │    extern fn + rt/*.c + runtime_map         │
 │ 3. Built-in Method (.method)                │
@@ -56,7 +71,7 @@ make contribute ARGS='add --recipe stdlib-extern --config make/py/contrib_dev/ex
 
 | # | Recipe | What TOOL wires | What YOU implement |
 |---|--------|-----------------|-------------------|
-| 1 | `stdlib-pure` | `fn` in `stdlib/**/*.ny` + test + example | fn body |
+| 1 | `stdlib-pure` | `fn`/`pure_source` in `stdlib/**/*.ny` + test + example | fn body / module body |
 | 2 | `stdlib-extern` | `extern fn` + `stdlib/rt/*.c` + `runtime_map.rs` (+ optional ABI) | C implementation |
 | 3 | `builtin` | Delegates to `make add-builtin` | C + compiler wiring |
 | 4 | `test-example` | `tests/nyra/*_test.ny` + `examples/<topic>/` pair | assertions + demo |
@@ -67,49 +82,18 @@ make contribute ARGS='add --recipe stdlib-extern --config make/py/contrib_dev/ex
 
 Wizard copy (WHY/TOOL/YOU per question) lives in `wizard_guide.py` — keep in sync with CONTRIBUTING.md.
 
-## Subcommands
-
-| Command | Make target | Purpose |
-|---------|-------------|---------|
-| `add` | `make contribute` | Create scaffold (default) |
-| `list` | `make contribute-list` | Show all `[contrib-dev:…]` markers |
-| `remove` | `make contribute-remove` | Remove scaffold by marker |
-| `patch` | `make contribute-patch` | Remove + re-add with updated spec |
-
 ## JSON examples (`examples/`)
 
 | File | Recipe |
 |------|--------|
-| `stdlib_pure.json` | 1 |
+| `stdlib_pure.json` | 1 (single fn) |
+| `stdlib_module.json` | 1 (`pure_source` multi-fn) |
 | `stdlib_extern.json` | 2 |
 | `test_example.json` | 4 |
 | `pkg.json` | 5 |
 | `cli.json` | 6 |
 | `conformance.json` | 7 |
 | `syntax_scaffold.json` | 8 |
-
-## File map
-
-| Path | Purpose |
-|------|---------|
-| `../contribute.py` | Hub CLI |
-| `wizard_guide.py` | WHY/TOOL/YOU copy per recipe + step |
-| `discover.py` | Scan repo for wired markers |
-| `remove.py` | Remove scaffolds |
-| `patch_recipe.py` | Remove + re-add |
-| `spec.py` | Recipe data models |
-| `wizard.py` | Interactive prompts + preview/confirm |
-| `templates.py` | Nyra / C / Rust templates |
-| `patch.py` | `[contrib-dev:…]` file patching |
-| `monitor.py` | Terminal monitor output |
-| `tiger_banner.py` | Static ASCII tiger logo |
-| `recipes/*.py` | One module per menu item |
-
-## CI
-
-```bash
-make test-contrib-py   # py_compile + JSON spec smoke (in test-preflight)
-```
 
 ## Related
 

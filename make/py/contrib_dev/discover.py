@@ -21,7 +21,19 @@ SCAN_DIRS = (
     ROOT / "grammar",
 )
 
-SKIP_DIR_NAMES = {"target", "node_modules", ".git", ".nyra-cache", "__pycache__"}
+SKIP_DIR_NAMES = {
+    "target",
+    "node_modules",
+    ".git",
+    ".nyra-cache",
+    "__pycache__",
+    "webDocs",
+    "vendor",
+    "Apps",
+    "dist",
+    "build",
+    ".ll",
+}
 
 
 @dataclass(frozen=True)

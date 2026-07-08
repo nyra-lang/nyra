@@ -8,7 +8,7 @@ import "handler.ny"
 
 fn Http_builtin_dispatch(ctx: RequestContext) -> HttpResponse {
     if ctx.method == METHOD_OPTIONS {
-        return HttpResponse { status: STATUS_NO_CONTENT, body: "", content_type: "text/plain" }
+        return response_no_content()
     }
     if strcmp(ctx.path, "/health") == 0 {
         return response_ok_json("{\"ok\":true}")

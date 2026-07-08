@@ -1,8 +1,8 @@
-import "../../../stdlib/http.ny"
+import "../../../stdlib/net/http/mod.ny"
 
 fn main() {
-    let body = fetch("http://example.com/")
-    if body != "" {
+    let resp = fetch("http://example.com/")
+    if strlen(resp.text()) > 0 {
         print(1)
     } else {
         print(0)

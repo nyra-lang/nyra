@@ -125,7 +125,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `date_now` | `void date_now(int *out)` | `rt_time.c` | 1.3.0 | — |
 | `error_stack_trace` | `char *error_stack_trace(void)` | `rt_error.c` | 1.40.0 | `stdlib/error.ny` |
 | `f64_to_string` | `char *f64_to_string(double n)` | `rt_strings.c` | 1.3.3 | `stdlib/strconv/mod.ny` |
-| `file_exists` | `int file_exists(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
+| `file_exists` | `int file_exists(const char *path)` | `rt_fs.c` | 1.1.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/gui/picker.ny`, `stdlib/path.ny` |
 | `file_size` | `long long file_size(const char *path)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
 | `flate_compress_hex` | `char *flate_compress_hex(const char *data)` | `rt_gzip.c` | 1.3.3 | `stdlib/compress/flate.ny` |
 | `flate_decompress_hex` | `char *flate_decompress_hex(const char *hex)` | `rt_gzip.c` | 1.3.3 | `stdlib/compress/flate.ny` |
@@ -142,7 +142,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `http_download_file` | `int http_download_file(const char *url, const char *path)` | `rt_http.c` | 1.38.0 | `stdlib/http/download.ny` |
 | `http_get` | `char *http_get(const char *url)` | `rt_http.c` | 0.3.0 | — |
 | `http_status` | `int http_status(const char *response_header)` | `rt_http.c` | 0.3.0 | — |
-| `i32_to_string` | `char *i32_to_string(int n)` | `rt_strings.c` | 0.2.0 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/strconv/mod.ny`, `stdlib/strings.ny`, `stdlib/time/date.ny` |
+| `i32_to_string` | `char *i32_to_string(int n)` | `rt_strings.c` | 0.2.0 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/strconv/mod.ny`, `stdlib/strings/builder.ny`, `stdlib/strings.ny`, `stdlib/time/date.ny` |
 | `i64_to_string` | `char *i64_to_string(long long n)` | `rt_strings.c` | 1.17.0 | `stdlib/strings.ny` |
 | `instant_elapsed_ms` | `int instant_elapsed_ms(int64_t start)` | `rt_time.c` | 1.1.0 | `stdlib/time/instant.ny` |
 | `instant_now` | `int64_t instant_now(void)` | `rt_time.c` | 1.1.0 | `stdlib/time/date.ny`, `stdlib/time/instant.ny` |
@@ -176,7 +176,10 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `json_has_key` | `int json_has_key(const char *json, const char *key)` | `rt_json.c` | 1.40.0 | `stdlib/json/mod.ny` |
 | `json_has_string` | `int json_has_string(const char *json, const char *key)` | `rt_json.c` | 1.40.0 | `stdlib/json/mod.ny` |
 | `json_join_raw_array` | `char *json_join_raw_array(void *handle)` | `rt_json.c` | 1.38.0 | `stdlib/json/mod.ny` |
+| `json_raw_get` | `char *json_raw_get(const char *json, const char *key)` | `rt_json.c` | 1.41.0 | `stdlib/json/mod.ny` |
 | `json_split_array_elements` | `void *json_split_array_elements(const char *array_json)` | `rt_json.c` | 1.38.0 | `stdlib/json/jsonl.ny`, `stdlib/json/mod.ny` |
+| `json_top_keys` | `void *json_top_keys(const char *json)` | `rt_json.c` | 1.41.0 | `stdlib/json/mod.ny` |
+| `json_value_kind` | `int json_value_kind(const char *json)` | `rt_json.c` | 1.41.0 | `stdlib/json/mod.ny` |
 | `list_dir` | `char *list_dir(const char *path)` | `rt_fs.c` | 1.3.0 | `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
 | `map_i32_i32_contains` | `int map_i32_i32_contains(void *handle, int key)` | `rt_map.c` | 1.39.0 | — |
 | `map_i32_i32_free` | `void map_i32_i32_free(void *handle)` | `rt_map.c` | 1.39.0 | — |
@@ -245,7 +248,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `rand_u32` | `uint32_t rand_u32(void)` | `rt_random.c` | 1.39.0 | — |
 | `rand_u64` | `uint64_t rand_u64(void)` | `rt_random.c` | 1.39.0 | — |
 | `random_hex` | `char *random_hex(int byte_count)` | `rt_random.c` | 1.1.0 | `stdlib/crypto/random.ny`, `stdlib/uuid/mod.ny` |
-| `read_file` | `char *read_file(const char *path)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny` |
+| `read_file` | `char *read_file(const char *path)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/path.ny` |
 | `read_file_limit` | `char *read_file_limit(const char *path, int max_bytes)` | `rt_fs.c` | 1.13.0 | `stdlib/fs/file.ny` |
 | `regex_compile` | `void *regex_compile(const char *pattern)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
 | `regex_free` | `void regex_free(void *handle)` | `rt_regex.c` | 1.3.0 | `stdlib/strings/regex.ny` |
@@ -278,21 +281,21 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `rt_tcp_read` | `char *rt_tcp_read(int fd, int max_bytes)` | `rt_net.c` | 0.3.0 | — |
 | `rt_tcp_write` | `int rt_tcp_write(int fd, const char *data)` | `rt_net.c` | 0.3.0 | — |
 | `rt_tls_accept` | `int rt_tls_accept(int listener_handle)` | `rt_tls.c` | 1.3.3 | `stdlib/tls.ny` |
-| `rt_tls_close` | `void rt_tls_close(int handle)` | `rt_tls.c` | 1.0.0 | `stdlib/tls.ny` |
-| `rt_tls_connect` | `int rt_tls_connect(const char *host, int port)` | `rt_tls.c` | 1.0.0 | `stdlib/tls.ny` |
-| `rt_tls_connect_ca` | `int rt_tls_connect_ca(const char *host, int port, const char *ca_path)` | `rt_tls.c` | 1.20.0 | `stdlib/tls.ny` |
-| `rt_tls_connect_ex` | `int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer)` | `rt_tls.c` | 2.5.0 | — |
-| `rt_tls_connect_verify` | `int rt_tls_connect_verify(const char *host, int port)` | `rt_tls.c` | 2.5.0 | `stdlib/tls.ny` |
+| `rt_tls_close` | `void rt_tls_close(int handle)` | `rt-tls/src/lib.rs` | 1.0.0 | `stdlib/tls.ny` |
+| `rt_tls_connect` | `int rt_tls_connect(const char *host, int port)` | `rt-tls/src/lib.rs` | 1.0.0 | `stdlib/tls.ny` |
+| `rt_tls_connect_ca` | `int rt_tls_connect_ca(const char *host, int port, const char *ca_path)` | `rt-tls/src/lib.rs` | 1.20.0 | `stdlib/tls.ny` |
+| `rt_tls_connect_ex` | `int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer)` | `rt-tls/src/lib.rs` | 2.5.0 | — |
+| `rt_tls_connect_verify` | `int rt_tls_connect_verify(const char *host, int port)` | `rt-tls/src/lib.rs` | 2.5.0 | `stdlib/tls.ny` |
 | `rt_tls_gen_self_signed` | `int rt_tls_gen_self_signed(const char *cert_path, const char *key_path, const char *common_name)` | `rt_tls.c` | 1.15.0 | `stdlib/net/tls_dev.ny` |
-| `rt_tls_last_error` | `const char *rt_tls_last_error(void)` | `rt_tls.c` | 1.20.0 | `stdlib/tls.ny` |
+| `rt_tls_last_error` | `const char *rt_tls_last_error(void)` | `rt-tls/src/lib.rs` | 1.20.0 | `stdlib/tls.ny` |
 | `rt_tls_listen` | `int rt_tls_listen(const char *cert_pem_path, const char *key_pem_path, const char *host, int port)` | `rt_tls.c` | 1.3.3 | `stdlib/tls.ny` |
 | `rt_tls_listener_close` | `void rt_tls_listener_close(int listener_handle)` | `rt_tls.c` | 1.3.3 | `stdlib/tls.ny` |
-| `rt_tls_read` | `char *rt_tls_read(int handle, int max_bytes)` | `rt_tls.c` | 1.0.0 | `stdlib/tls.ny` |
-| `rt_tls_upgrade_client` | `int rt_tls_upgrade_client(int plain_fd, const char *hostname)` | `rt_tls.c` | 1.14.0 | `stdlib/tls.ny` |
-| `rt_tls_upgrade_client_ex` | `int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer)` | `rt_tls.c` | 1.20.0 | `stdlib/tls.ny` |
-| `rt_tls_upgrade_client_verify` | `int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname)` | `rt_tls.c` | 2.5.0 | `stdlib/tls.ny` |
+| `rt_tls_read` | `char *rt_tls_read(int handle, int max_bytes)` | `rt-tls/src/lib.rs` | 1.0.0 | `stdlib/tls.ny` |
+| `rt_tls_upgrade_client` | `int rt_tls_upgrade_client(int plain_fd, const char *hostname)` | `rt-tls/src/lib.rs` | 1.14.0 | `stdlib/tls.ny` |
+| `rt_tls_upgrade_client_ex` | `int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer)` | `rt-tls/src/lib.rs` | 1.20.0 | `stdlib/tls.ny` |
+| `rt_tls_upgrade_client_verify` | `int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname)` | `rt-tls/src/lib.rs` | 2.5.0 | `stdlib/tls.ny` |
 | `rt_tls_validate_pem_files` | `int rt_tls_validate_pem_files(const char *cert_pem_path, const char *key_pem_path)` | `rt_tls.c` | 1.20.0 | `stdlib/tls.ny` |
-| `rt_tls_write` | `int rt_tls_write(int handle, const char *data)` | `rt_tls.c` | 1.0.0 | `stdlib/tls.ny` |
+| `rt_tls_write` | `int rt_tls_write(int handle, const char *data)` | `rt-tls/src/lib.rs` | 1.0.0 | `stdlib/tls.ny` |
 | `rt_udp_bind` | `int rt_udp_bind(const char *host, int port)` | `rt_net.c` | 1.3.3 | `stdlib/net/udp.ny` |
 | `rt_udp_close` | `void rt_udp_close(int fd)` | `rt_net.c` | 1.3.3 | `stdlib/net/udp.ny` |
 | `rt_udp_recv` | `char *rt_udp_recv(int fd, int max_bytes)` | `rt_net.c` | 1.3.3 | `stdlib/net/udp.ny` |
@@ -390,6 +393,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `sys_recv` | `char *sys_recv(int fd, int max_bytes)` | `rt_net.c` | 0.3.0 | `stdlib/net/syscall.ny` |
 | `sys_send` | `int sys_send(int fd, const char *data)` | `rt_net.c` | 0.3.0 | `stdlib/net/syscall.ny` |
 | `sys_set_nonblock` | `int sys_set_nonblock(int fd)` | `rt_net.c` | 0.3.0 | `stdlib/net/syscall.ny` |
+| `sys_set_timeout_ms` | `int sys_set_timeout_ms(int fd, int timeout_ms)` | `rt_net.c` | 1.41.0 | `stdlib/net/syscall.ny` |
 | `tan_f64` | `double tan_f64(double x)` | `rt_math.c` | 1.16.0 | `stdlib/math.ny` |
 | `tar_create` | `int tar_create(const char *archive, void *paths_vec)` | `rt_tar.c` | 1.3.0 | `stdlib/archive/tar.ny` |
 | `tar_extract` | `int tar_extract(const char *archive, const char *out_dir)` | `rt_tar.c` | 1.3.0 | `stdlib/archive/tar.ny` |
@@ -421,7 +425,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `waitgroup_free` | `void waitgroup_free(void *wg)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/waitgroup.ny` |
 | `waitgroup_new` | `void *waitgroup_new(void)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/waitgroup.ny` |
 | `waitgroup_wait` | `void waitgroup_wait(void *wg)` | `rt_sync.c` | 1.3.3 | `stdlib/sync/waitgroup.ny` |
-| `write_file` | `int write_file(const char *path, const char *content)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny` |
+| `write_file` | `int write_file(const char *path, const char *content)` | `rt_fs.c` | 0.2.0 | `stdlib/compress/mod.ny`, `stdlib/fs/file.ny`, `stdlib/path.ny` |
 | `ws_accept_handshake` | `int ws_accept_handshake(int listener_fd)` | `rt_websocket.c` | 1.11.0 | `stdlib/net/websocket.ny` |
 | `ws_accept_tls_handshake` | `int ws_accept_tls_handshake(int tls_listener_handle)` | `rt_websocket.c` | 1.14.0 | `stdlib/net/websocket.ny` |
 | `ws_close` | `void ws_close(int fd)` | `rt_websocket.c` | 1.3.3 | `stdlib/net/websocket.ny` |

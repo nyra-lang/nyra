@@ -6,7 +6,7 @@ Run from the **repository root** (`Nyra/`):
 nyra run examples/projects/http_hello/
 ```
 
-Prints `1` when `fetch("http://example.com/")` returns a non-empty body (needs network).
+Prints `1` when `fetch("http://example.com/").text()` is non-empty (needs network).
 
 Local one-shot server demo:
 

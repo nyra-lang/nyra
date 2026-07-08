@@ -202,7 +202,8 @@ let t = spawn:thread {
     heavy_blocking_work()
 }
 t.join()</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Task vs thread:</strong> tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use <code>spawn</code> / <code>spawn:task</code> for high fan-out (thousands+ jobs). Use <code>spawn:thread</code> when you need a real thread or blocking syscall isolation. Captures must be <code>Send</code> in both modes.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Task vs thread:</strong> tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use <code>spawn</code> / <code>spawn:task</code> for high fan-out (thousands+ jobs). Use <code>spawn:thread</code> when you need a real thread or blocking syscall isolation. Captures must be <code>Send</code> in both modes.</p>
       <p>Lowering: codegen emits a closure entry + <code>spawn_task_capture</code> (tasks) or <code>spawn_capture</code> (threads). Captures are packed into a struct and copied to the heap. Dropped handles without <code>.join()</code> detach (tasks keep running on the pool; threads are <code>pthread_detach</code>ed).</p>
 
       <h3 id="allow-extended"><code>allow_extended</code> (file directive)</h3>
@@ -266,7 +267,8 @@ fn main() -&gt; void {
         print(&quot;background&quot;)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Full runnable examples: <a href="methods.html#join-handle">Built-in methods → JoinHandle</a> · <a href="methods.html#ex-spawn-join"><code>.join()</code> example</a>.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p>Full runnable examples: <a href="methods.html#join-handle">Built-in methods → JoinHandle</a> · <a href="methods.html#ex-spawn-join"><code>.join()</code> example</a>.</p>
 
       <h2 id="parallel-for">parallel for</h2>
       <p>Use <code>parallel for</code> when iterations are <strong>independent</strong>. Each variant below follows: <strong>name → explanation → example → output</strong>. Full runnable programs: <a href="methods.html#ex-parallel">methods gallery</a> · <code>examples/builtins/parallel/</code>.</p>
@@ -293,7 +295,8 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (iteration lines may appear in any order; <code>999</code> is always last):</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (iteration lines may appear in any order; <code>999</code> is always last):</p>
       <pre><code>0
 1
 3
@@ -321,7 +324,8 @@ fn main() -&gt; void {
         work(i)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Depends on <code>work(i)</code>; the loop is fork-join — code after the loop runs only when every iteration completes.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Depends on <code>work(i)</code>; the loop is fork-join — code after the loop runs only when every iteration completes.</p>
       <p>Gallery: <a href="methods.html#ex-parallel-task-max"><code>parallel:task(max = N)</code></a> · Run: <code>nyra run examples/builtins/parallel/parallel_task_max.ny</code></p>
 
       <h3 id="parallel-thread-max">Name: <code>parallel:thread(max = N)</code></h3>
@@ -344,7 +348,8 @@ fn main() -&gt; void {
         work(i)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (sample with <code>print(i)</code>; order non-deterministic):</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (sample with <code>print(i)</code>; order non-deterministic):</p>
       <pre><code>2
 3
 0
@@ -406,7 +411,8 @@ fn main() -&gt; void {
         run()
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
       <pre><code>Time: 0.1 ms
 Memory: 0.0 B
 CPU: 98%</code></pre>
@@ -428,7 +434,8 @@ progress(label = &quot;parser tests&quot;) for item in tests {
 progress(label = &quot;parser tests&quot;) for item in tests {
     run(item)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (each iteration):</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (each iteration):</p>
       <pre><code>[#####-------] 43%
 Running parser tests...</code></pre>
       <p>Full example with body output: <a href="methods.html#ex-progress"><code>progress for</code> gallery</a>.</p>
@@ -452,7 +459,8 @@ Running parser tests...</code></pre>
         print(n)   // n captured by value (Copy)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <table>
+</div>
+<!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Capture kind</th><th>Compiler rule</th></tr></thead>
         <tbody>
           <tr><td><code>Copy</code> (<code>i32</code>, <code>bool</code>)</td><td>Copied into capture struct</td></tr>

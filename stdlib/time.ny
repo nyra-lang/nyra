@@ -7,3 +7,5 @@
 
 extern fn time_start(label: string) -> void
 extern fn time_end(label: string) -> void
+
+import "time/sugar.ny"

@@ -199,9 +199,12 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 def cmd_patch(args: argparse.Namespace) -> int:
     marker = args.marker
+    want_webdocs = not getattr(args, "no_webdocs", False)
     if not marker and args.config:
         data = load_json_config(args.config)
         recipe = args.recipe or data.get("recipe", "stdlib-extern")
+        if recipe == "stdlib-module":
+            recipe = "stdlib-pure"
         spec = spec_from_config(recipe, data)
         marker = spec.marker
         apply_fn = APPLY_BY_SLUG.get(recipe)
@@ -209,6 +212,8 @@ def cmd_patch(args: argparse.Namespace) -> int:
             raise SystemExit(f"Cannot patch recipe {recipe!r}")
         result = patch_apply(marker=marker, apply_fn=apply_fn, spec=spec, force=True)
         print_recipe_monitor(result)
+        if result.ok() and want_webdocs:
+            regen_webdocs()
         return 0 if result.ok() else 1
 
     if not marker:
@@ -217,6 +222,8 @@ def cmd_patch(args: argparse.Namespace) -> int:
     if not wired:
         raise SystemExit(f"No wired scaffold for marker {marker!r}")
     recipe = wired[0].recipe
+    if recipe == "stdlib":
+        recipe = "stdlib-pure"
     apply_fn = APPLY_BY_SLUG.get(recipe)
     if not apply_fn:
         raise SystemExit(f"Patch not supported for recipe {recipe!r} — re-run add with --force")
@@ -228,6 +235,8 @@ def cmd_patch(args: argparse.Namespace) -> int:
         spec = resolve_spec(choice, None, True)
     result = patch_apply(marker=marker, apply_fn=apply_fn, spec=spec, force=True)
     print_recipe_monitor(result)
+    if result.ok() and want_webdocs:
+        regen_webdocs()
     return 0 if result.ok() else 1
 
 
@@ -266,6 +275,11 @@ def main() -> int:
     patch_p.add_argument("--marker", help="Existing marker to patch")
     patch_p.add_argument("--recipe", help="Recipe slug when using --config")
     patch_p.add_argument("--config", help="Updated JSON spec")
+    patch_p.add_argument(
+        "--no-webdocs",
+        action="store_true",
+        help="Skip regenerating webDocs after patch (recommended; webDocs is slow)",
+    )
     patch_p.set_defaults(func=cmd_patch)
 
     args = parser.parse_args(argv)

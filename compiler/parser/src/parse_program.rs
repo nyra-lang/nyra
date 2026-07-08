@@ -208,14 +208,14 @@ impl Parser {
                 }
                 TokenKind::Impl => {
                     if let Some(ti) = self.parse_trait_impl() {
-                        for m in &ti.methods {
-                            functions.push(m.clone());
-                        }
+                        // Methods stay on the trait_impl — codegen emits them from
+                        // `program.trait_impls` when no free function of the same
+                        // mangled name exists. Pushing them into `functions` here
+                        // used to shadow real free helpers (e.g. sugar.ny
+                        // `RequestInit_timeout` overwriting `fetch.ny`) when a
+                        // module was loaded before its imports finished merging.
                         trait_impls.push(ti);
                     } else if let Some(i) = self.parse_impl() {
-                        for m in &i.methods {
-                            functions.push(m.clone());
-                        }
                         impls.push(i);
                     }
                 }

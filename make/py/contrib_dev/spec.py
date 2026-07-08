@@ -42,13 +42,18 @@ class StdlibFnSpec:
     abi_since: str = "1.0.0"
     wrap_extern: str | None = None
     pure_body: str | None = None
+    # Free-form Nyra source for multi-fn / struct modules (stdlib-module recipe).
+    # When set, fn_name is used only as the marker slug (not a single fn).
+    pure_source: str | None = None
+    # Optional shared test/example topic override for module scaffolds.
+    example_topic: str | None = None
 
     def __post_init__(self) -> None:
         self.fn_name = self.fn_name.strip()
         if not self.fn_name:
             raise ValueError("function name is required")
         self.ny_module = normalize_ny_module(self.ny_module)
-        if self.rt_module is None and self.wrap_extern is None:
+        if self.pure_source is None and self.rt_module is None and self.wrap_extern is None:
             self.rt_module = guess_rt_module(self.ny_module)
 
     @property
