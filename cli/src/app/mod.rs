@@ -119,6 +119,8 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
                 let spec = TargetSpec::host();
                 let path = crate::prebuilt_rt::ensure_prebuilt_runtime(&spec)?;
                 println!("{}", path.display());
+                let tls = crate::prebuilt_tls::ensure_prebuilt_tls(&spec)?;
+                println!("{}", tls.display());
                 Ok(())
             }
             InternalCommands::Daemon { background } => crate::daemon::serve(background),

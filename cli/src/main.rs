@@ -3,6 +3,7 @@ mod c_cache;
 mod c_lib;
 mod llvm_obj;
 mod prebuilt_rt;
+mod prebuilt_tls;
 mod ui;
 mod cc;
 mod llvm_tools;

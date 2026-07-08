@@ -116,16 +116,18 @@ compiler/codegen/src/
 
 ```
 myapp/
-  main.ny
-  nyra.mod
-  nyra.lock
-  nyra.sum
-  src/                 # application modules
+  main.ny          # entry: fn main()
+  nyra.mod         # manifest: module / require / link
+  nyra.lock        # pinned versions
+  nyra.sum         # checksums
+  src/             # application modules
     *.ny
-  target/debug/        # build output (gitignored)
+  .nyra/cache/     # fetched packages (after sync / run)
+  target/debug/    # build output (gitignored)
 ```
 
-`nyra pkg init` scaffolds `main.ny` and lockfiles.
+`nyra pkg init` / `nyrapkg init` scaffolds `main.ny` + `nyra.mod` + empty lockfiles.
+`nyra run` / `nyra build` auto-sync `require` packages (fetch missing, prune removed — like Cargo) when `nyrapkg` is available.
 
 ## Where to start contributing
 

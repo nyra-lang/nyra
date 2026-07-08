@@ -27,7 +27,17 @@ pub(crate) fn pkg_command(cmd: PkgCommands) -> Result<(), String> {
             delegate_nyrapkg(args)
         }
         PkgCommands::Add { module } => delegate_nyrapkg(vec!["add".into(), module]),
-        PkgCommands::Install { module } => delegate_nyrapkg(vec!["install".into(), module]),
+        PkgCommands::Install { module } => match module {
+            Some(m) => delegate_nyrapkg(vec!["install".into(), m]),
+            None => delegate_nyrapkg(vec!["install".into()]),
+        },
+        PkgCommands::Sync { path } => {
+            let mut args = vec!["sync".to_string()];
+            if let Some(p) = path {
+                args.push(p.display().to_string());
+            }
+            delegate_nyrapkg(args)
+        }
         PkgCommands::Verify { path } => {
             let mut args = vec!["verify".to_string()];
             if let Some(p) = path {

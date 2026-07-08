@@ -2149,6 +2149,7 @@ link-source vendor/shim.c
 - **`link`** / **`link-arg`** merge into project `nyra.mod` on install.
 - **`link-source`** compiles package `.c` files at `nyra build` (no manual `clang`).
 - Lock: `nyra.lock` + `nyra.sum` pin exact versions; `nyra pkg verify` checks constraints.
+- Manual `require` in `nyra.mod` + `nyra run .` / `nyra build .` auto-syncs: fetches missing packages and removes ones deleted from `nyra.mod` (like Cargo). Or `nyrapkg sync` / bare `nyrapkg install`.
 - **`nyra pkg prune`** — auto-fix unused code (like `cargo fix` for lint warnings). See [NyraPkg prune](https://nyra-lang.github.io/docs/packages.html#prune).
 - Native C libraries (e.g. `-lsqlite3`) must exist on the system; NyraPkg ships bindings + shims, not OS packages.
 
@@ -2291,8 +2292,8 @@ Spec: [tooling → conformance](https://nyra-lang.github.io/docs/tooling.html#co
 ```
 myapp/
   main.ny
-  nyra.mod          # optional: module, require, link, link-source
-  nyra.lock         # pinned deps (after nyra pkg install)
+  nyra.mod          # module, require, link, link-source
+  nyra.lock         # pinned deps (auto-updated on run/build or nyrapkg sync)
   nyra.sum          # checksums
   .nyra/cache/      # installed packages
   src/
@@ -2301,7 +2302,7 @@ myapp/
     debug/main
 ```
 
-Run: `nyra run .` from project directory.
+Run: `nyra run .` from project directory. Missing `require` packages are fetched automatically (like Cargo).
 
 ## Unsafe & no_std (v0.5.0)
 

@@ -115,7 +115,7 @@ fn HttpPool_request(pool: HttpPool, method: i32, url: string, body: string, cont
         return PoolResponse { pool: out, resp: response_internal_error() }
     }
     let status = http_status_from_header(raw)
-    let resp_body = http_body_from_response(raw)
+    let resp_body = body_from_raw(raw)
     if wants_keep_alive(raw) == 1 {
         out = HttpPool { conns: out.conns.insert(key, handle) }
     } else {

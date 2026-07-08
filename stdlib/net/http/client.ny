@@ -30,10 +30,22 @@ fn http_request(method: i32, url: string, body: string, content_type: string) ->
     let req = strcat(strcat(hdr, "Connection: close\r\n\r\n"), body)
     let raw = transport_roundtrip(parsed, req)
     if strlen(raw) == 0 {
-        return response_internal_error()
+        let detail = tls_last_error()
+        if strlen(detail) > 0 {
+            return HttpResponse {
+                status: 0,
+                body: strcat("{\"error\":\"", strcat(detail, "\"}")),
+                content_type: "application/json"
+            }
+        }
+        return HttpResponse {
+            status: 0,
+            body: "{\"error\":\"request failed\"}",
+            content_type: "application/json"
+        }
     }
     let status = http_status_from_header(raw)
-    let resp_body = http_body_from_response(raw)
+    let resp_body = body_from_raw(raw)
     if method == METHOD_HEAD {
         return HttpResponse { status: status, body: "", content_type: "text/plain" }
     }
@@ -43,15 +55,30 @@ fn http_request(method: i32, url: string, body: string, content_type: string) ->
 fn transport_roundtrip(parsed: HttpUrl, req: string) -> string {
     if parsed.secure {
         if !tls_ready() {
-            print("HTTPS unavailable — install OpenSSL (brew install openssl / apt install libssl-dev)")
+            let detail = tls_last_error()
+            if strlen(detail) > 0 {
+                print(strcat("HTTPS failed: ", detail))
+            } else {
+                print("HTTPS failed: TLS is unavailable")
+            }
             return ""
         }
         let handle = tls_connect_verify(parsed.host, parsed.port)
         if handle < 0 {
+            let detail = tls_last_error()
+            if strlen(detail) > 0 {
+                print(strcat("HTTPS connect failed: ", detail))
+            } else {
+                print("HTTPS connect failed")
+            }
             return ""
         }
         if tls_write(handle, req) != 0 {
+            let detail = tls_last_error()
             tls_close(handle)
+            if strlen(detail) > 0 {
+                print(strcat("HTTPS write failed: ", detail))
+            }
             return ""
         }
         let raw = tls_read(handle, 65536)

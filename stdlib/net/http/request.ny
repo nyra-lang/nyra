@@ -137,7 +137,16 @@ fn str_to_i32_hex(s: string) -> i32 {
     let mut i = 0
     let mut v = 0
     while i < n {
-        let d = hex_digit(char_at(s, i))
+        let c = char_at(s, i)
+        // Skip whitespace; stop at chunk-extension separator ';'.
+        if c == 32 || c == 9 {
+            i = i + 1
+            continue
+        }
+        if c == 59 {
+            break
+        }
+        let d = hex_digit(c)
         if d < 0 {
             break
         }

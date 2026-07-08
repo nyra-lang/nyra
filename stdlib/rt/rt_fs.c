@@ -303,6 +303,13 @@ static int remove_dir_all_inner(const char *path) {
 }
 #else
 static int remove_dir_all_inner(const char *path) {
+    struct stat st;
+    if (lstat(path, &st) != 0) {
+        return -1;
+    }
+    if (!S_ISDIR(st.st_mode)) {
+        return unlink(path) == 0 ? 0 : -1;
+    }
     DIR *d = opendir(path);
     if (!d) {
         return -1;

@@ -147,10 +147,11 @@
 nyrapkg init</code></pre>
       <p data-i18n="pages.getting-started.p_2">This creates:</p>
       <ul>
-        <li data-i18n-html="pages.getting-started.li_mod"><code>nyra.mod</code> — module manifest</li>
-        <li data-i18n-html="pages.getting-started.li_lock"><code>nyra.lock</code> / <code>nyra.sum</code> — dependency lock &amp; checksums</li>
+        <li data-i18n-html="pages.getting-started.li_mod"><code>nyra.mod</code> — module manifest (<code>module</code> name, later <code>require</code> / <code>link</code>)</li>
+        <li data-i18n-html="pages.getting-started.li_lock"><code>nyra.lock</code> / <code>nyra.sum</code> — dependency lock &amp; checksums (empty until you add packages)</li>
         <li data-i18n-html="pages.getting-started.li_main"><code>main.ny</code> — entry point with a Hello World sample</li>
       </ul>
+      <p data-i18n-html="pages.getting-started.p_files_detail">See <a href="packages.html#project-files">NyraPkg → project files</a> for what each file does, and <a href="packages.html#manual-require">how to add a library by hand</a> in <code>nyra.mod</code>. <code>nyra run .</code> / <code>nyra build .</code> auto-fetch missing <code>require</code> packages (like Cargo).</p>
 
       <h2 data-i18n="pages.getting-started.h2_3">3. Run the program</h2>
       <p data-i18n-html="pages.getting-started.p_3">From the <strong>project root</strong> (directory containing <code>main.ny</code>):</p>

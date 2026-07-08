@@ -1,4 +1,5 @@
-// TLS — OpenSSL-backed HTTPS client + server (linked when OpenSSL is available).
+// TLS — HTTPS client via selectable backend (`tls rustls|native|openssl` in nyra.mod).
+// Default: bundled rustls (`libnyra_rt_tls.a`). TLS *server* may still use OpenSSL when available.
 extern fn tls_available() -> i32
 extern fn rt_tls_connect(host: string, port: i32) -> i32
 extern fn rt_tls_connect_verify(host: string, port: i32) -> i32
@@ -52,10 +53,12 @@ fn tls_require(feature: string) -> bool {
     if tls_ready() {
         return true
     }
-    print(strcat(
-        strcat(feature, ": OpenSSL not available — "),
-        "install OpenSSL (brew install openssl / apt install libssl-dev)"
-    ))
+    let detail = tls_last_error()
+    if strlen(detail) > 0 {
+        print(strcat(strcat(feature, ": "), detail))
+    } else {
+        print(strcat(feature, ": TLS is unavailable"))
+    }
     return false
 }
 

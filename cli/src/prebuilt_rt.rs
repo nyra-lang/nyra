@@ -55,8 +55,11 @@ fn compute_rt_sources_stamp() -> Result<u64, String> {
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| {
+            let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
             p.extension().and_then(|x| x.to_str()) == Some("c")
                 && !p.to_string_lossy().contains(".inc.")
+                // Optional OpenSSL client — linked only for `tls openssl`.
+                && name != "rt_tls_openssl_client.c"
         })
         .collect();
     entries.sort();
@@ -105,8 +108,10 @@ fn build_prebuilt_runtime(spec: &TargetSpec) -> Result<PathBuf, String> {
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| {
+            let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
             p.extension().and_then(|x| x.to_str()) == Some("c")
                 && !p.to_string_lossy().contains(".inc.")
+                && name != "rt_tls_openssl_client.c"
         })
         .collect();
     sources.sort();

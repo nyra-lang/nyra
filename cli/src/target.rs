@@ -321,6 +321,7 @@ pub struct LinkTargetFlags {
     pub uses_rt_random: bool,
     pub uses_rt_net: bool,
     pub needs_openssl: bool,
+    pub needs_rustls_tls: bool,
     pub needs_zlib: bool,
     pub needs_libm: bool,
 }
@@ -533,6 +534,10 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 }
                 cmd.arg("-lssl").arg("-lcrypto");
             }
+            if rt.needs_rustls_tls {
+                cmd.arg("-framework").arg("Security");
+                cmd.arg("-framework").arg("CoreFoundation");
+            }
             if rt.needs_zlib {
                 cmd.arg("-lz");
             }
@@ -550,6 +555,9 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             }
             if rt.needs_openssl {
                 cmd.arg("-lssl").arg("-lcrypto");
+            }
+            if rt.needs_rustls_tls {
+                // rustls / ring pull System/m/c via clang defaults; nothing extra typically.
             }
             if rt.needs_zlib {
                 cmd.arg("-lz");
@@ -586,6 +594,11 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                     }
                 }
                 cmd.arg("-lssl").arg("-lcrypto");
+            }
+            if rt.needs_rustls_tls {
+                cmd.arg("-lbcrypt");
+                cmd.arg("-lcrypt32");
+                cmd.arg("-lntdll");
             }
             if rt.needs_zlib {
                 for prefix in zlib_prefixes() {

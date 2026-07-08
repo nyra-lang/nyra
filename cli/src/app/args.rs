@@ -436,8 +436,13 @@ pub(crate) enum PkgCommands {
         module: String,
     },
     /// Fetch package and update lock files (delegates to `nyrapkg`).
+    /// Omit `module` to sync existing `require` lines only (`nyrapkg install` / `sync`).
     Install {
-        module: String,
+        module: Option<String>,
+    },
+    /// Fetch all `require` lines from `nyra.mod` and rewrite lock files (delegates to `nyrapkg`).
+    Sync {
+        path: Option<PathBuf>,
     },
     /// Verify lock files and checksums (delegates to `nyrapkg`).
     Verify {

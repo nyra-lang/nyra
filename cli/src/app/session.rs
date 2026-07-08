@@ -11,15 +11,33 @@ use compiler::{
     save_manifest, save_signatures, write_cached_fingerprint, write_runtime_cache, CompileOptions,
     Compiler, CrateManifest, IncrementalContext,
 };
-use pkg::{build_link_crate, resolve_project_native_link};
+use pkg::{build_link_crate, needs_dependency_sync, resolve_project_native_link};
 
 use crate::app::args::{OptFlags, StabilityFlags, TargetArgs};
 use crate::artifacts::{self, profile_name};
 use crate::link::{self, LinkProfile};
+use crate::nyrapkg;
 use crate::pgo;
 use crate::target::{TargetSpec, validate_native_cpu};
 use crate::ui::{format_build_elapsed, build_profile_detail, Ui};
 use crate::timings::{BuildTimings, TimedStage};
+
+/// Sync `nyra.mod` requires: fetch missing packages and prune removed ones
+/// (like `cargo run` / `cargo build`) before compile/link.
+fn ensure_project_dependencies(path: &Path) -> Result<(), String> {
+    let root = project_root(path);
+    if !needs_dependency_sync(&root)? {
+        return Ok(());
+    }
+    eprintln!(
+        "    Syncing dependencies for {} …",
+        root.join("nyra.mod").display()
+    );
+    nyrapkg::run_nyrapkg(&[
+        "sync".to_string(),
+        root.display().to_string(),
+    ])
+}
 
 pub(crate) fn apply_lto_full(mut profile: LinkProfile, lto_full: bool) -> LinkProfile {
     if lto_full {
@@ -52,12 +70,14 @@ pub(crate) fn base_link_profile(
     flags.release = release;
     flags.pgo = false;
     let (link_libs, link_search_paths, link_args, link_sources) = resolve_native_link(path, &flags)?;
+    let tls_backend = pkg::resolve_tls_backend(&project_root(path))?;
     Ok(apply_lto_full(
         flags
             .link_profile(spec.is_cross)?
             .with_debug(debug_symbols)
             .with_cdylib(cdylib)
             .with_freestanding(freestanding)
+            .with_tls_backend(tls_backend)
             .with_native_link(link_libs, link_search_paths, link_args, link_sources),
         lto_full,
     ))
@@ -511,6 +531,9 @@ pub(crate) fn compile_and_link(
     let entry_id = artifacts::entry_cache_id(&layout);
     std::fs::create_dir_all(&layout.profile_dir).map_err(|e| e.to_string())?;
 
+    // Cargo-like: sync nyra.mod requires into .nyra/cache before link merge / imports.
+    ensure_project_dependencies(path)?;
+
     let options_key = options_cache_key(
         &spec.triple_for_codegen(),
         release,
@@ -530,6 +553,7 @@ pub(crate) fn compile_and_link(
         .map(|prev| current_crates.dirty_since(prev))
         .unwrap_or_default();
     let (link_libs, link_search_paths, link_args, link_sources) = resolve_native_link(path, opt)?;
+    let tls_backend = pkg::resolve_tls_backend(&project_root(path))?;
     let link_hash = link_cache_key(
         &options_key,
         debug_symbols,
@@ -537,6 +561,7 @@ pub(crate) fn compile_and_link(
         &link_libs,
         &link_args,
         &link_sources,
+        tls_backend.as_str(),
     );
 
     if !cfg.force_rebuild
@@ -643,6 +668,7 @@ pub(crate) fn compile_and_link(
                 .with_debug(debug_symbols)
                 .with_cdylib(cdylib)
                 .with_freestanding(freestanding)
+                .with_tls_backend(tls_backend)
                 .with_native_link(link_libs, link_search_paths, link_args, link_sources),
             lto_full,
         )

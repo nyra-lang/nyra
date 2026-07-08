@@ -31,8 +31,8 @@ if command -v python3 >/dev/null 2>&1; then
   info "==> Regenerating docs/bindings.md..."
   python3 "$ROOT/make/py/gen-bindings-doc.py"
 fi
-info "==> Building release cli..."
-cargo build --release -p cli
+info "==> Building release cli + rustls TLS runtime..."
+cargo build --release -p cli -p nyra-rt-tls
 
 info "==> Installing to PATH (cargo install --force)..."
 cargo install --path cli --force
@@ -63,6 +63,19 @@ for sub in os net core http; do
     cp -R "stdlib/$sub/." "$STD_DEST/$sub/"
   fi
 done
+
+# Bundle rustls TLS client for HTTPS without OpenSSL / Rust on the user machine.
+TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
+TLS_SRC="target/release/libnyra_rt_tls.a"
+if [ -f "$TLS_SRC" ]; then
+  mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
+  cp -f "$TLS_SRC" "$STD_DEST/prebuilt/$TRIPLE/libnyra_rt_tls.a"
+  mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
+  cp -f "$TLS_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls.a"
+  info "==> Installed libnyra_rt_tls.a for $TRIPLE"
+else
+  die "missing $TLS_SRC after cargo build -p nyra-rt-tls"
+fi
 
 if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh" ]; then
   info "==> Building dev runtime archive (fast debug links)..."

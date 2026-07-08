@@ -116,6 +116,8 @@ fn http_status_from_header(header: string) -> i32 {
 }
 
 fn http_body_from_response(raw: string) -> string {
+    // Prefer chunked-aware decode (body_from_raw in request.ny). Kept for
+    // callers that only import response.ny — strip headers only; no chunk decode.
     let sep = strstr_pos(raw, "\r\n\r\n")
     if sep < 0 {
         return raw

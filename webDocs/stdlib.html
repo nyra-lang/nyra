@@ -216,7 +216,7 @@
           <tr><td><code>stdlib/mime/mod.ny</code></td><td><code>mime_write_multipart</code>, <code>mime_content_type_multipart</code></td><td>Core-stable</td></tr>
           <tr><td><code>stdlib/crypto/rsa.ny</code></td><td><code>rsa_encrypt_pem</code>, <code>rsa_sign_sha256_pem</code></td><td>OpenSSL when available</td></tr>
           <tr><td><code>stdlib/crypto/x509.ny</code></td><td><code>x509_subject</code>, <code>x509_valid_now</code></td><td>OpenSSL when available</td></tr>
-          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_listen</code>, <code>tls_accept</code> (server)</td><td>OpenSSL when available</td></tr>
+          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_listen</code>, <code>tls_accept</code> (server)</td><td>Server helpers: OpenSSL when available; HTTPS <em>client</em> default is rustls</td></tr>
           <tr><td><code>stdlib/net/smtp.ny</code></td><td><code>Smtp_send</code></td><td>Core-stable SMTP client</td></tr>
           <tr><td><code>stdlib/net/mail.ny</code></td><td><code>Mail_send</code>, <code>Mail_message</code></td><td>Core-stable</td></tr>
           <tr><td><code>stdlib/net/rpc.ny</code></td><td><code>rpc_encode</code>, JSON-RPC 2.0</td><td>Core-stable</td></tr>
@@ -352,8 +352,8 @@ fn main() {
           <tr><td><code>stdlib/net/rpc.ny</code></td><td><code>rpc_encode</code>, JSON-RPC 2.0 helpers</td></tr>
           <tr><td><code>stdlib/net.ny</code></td><td>Re-exports TCP + <code>net/http</code></td></tr>
           <tr><td><code>stdlib/http/mod.ny</code></td><td>Legacy re-export of <code>net/http</code> + <code>HttpServer</code></td></tr>
-          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_connect_verify</code>, <code>tls_connect_ca</code>, <code>tls_upgrade_fd</code> (STARTTLS), <code>tls_listen</code>, <code>tls_validate_pem</code>, <code>tls_last_error</code>, <code>tls_require</code></td></tr>
-          <tr><td><code>stdlib/net/tls_dev.ny</code></td><td><code>tls_dev_ensure</code>, <code>tls_listen_dev</code> — local self-signed cert/key (needs OpenSSL)</td></tr>
+          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_connect_verify</code>, <code>tls_connect_ca</code>, <code>tls_upgrade_fd</code> (STARTTLS), <code>tls_listen</code>, <code>tls_validate_pem</code>, <code>tls_last_error</code>, <code>tls_require</code> — client default <strong>rustls</strong> (<code>tls</code> in <code>nyra.mod</code>)</td></tr>
+          <tr><td><code>stdlib/net/tls_dev.ny</code></td><td><code>tls_dev_ensure</code>, <code>tls_listen_dev</code> — local self-signed cert/key (<code>tls openssl</code>)</td></tr>
           <tr><td><code>stdlib/net/tls_prod.ny</code></td><td><code>tls_listen_prod</code>, <code>tls_connect_prod</code>, <code>tls_upgrade_prod</code> — production cert paths via <code>NYRA_TLS_CERT</code> / <code>NYRA_TLS_KEY</code></td></tr>
           <tr><td><code>stdlib/mime/mod.ny</code></td><td><code>mime_write_multipart</code>, <code>mime_content_type_multipart</code></td></tr>
           <tr><td><code>stdlib/text/template</code></td><td><code>template_execute</code> — <code>{{key}}</code> substitution</td></tr>

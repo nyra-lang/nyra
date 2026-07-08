@@ -563,13 +563,27 @@ impl RuntimeProfile {
         })
     }
 
+    /// OpenSSL is only required for RSA/X509 helpers and TLS *server* (optional).
+    /// HTTPS clients use the bundled rustls staticlib (`needs_rustls_tls`).
     pub fn needs_openssl(&self) -> bool {
+        self.symbols.iter().any(|s| {
+            s.starts_with("rsa_")
+                || s.starts_with("x509_")
+                || s == "rt_tls_listen"
+                || s == "rt_tls_accept"
+                || s == "rt_tls_listener_close"
+                || s == "rt_tls_gen_self_signed"
+                || s == "rt_tls_validate_pem_files"
+                || s == "ws_accept_tls_handshake"
+        })
+    }
+
+    /// Client TLS / WS saw symbols that need `libnyra_rt_tls.a` (rustls).
+    pub fn needs_rustls_tls(&self) -> bool {
         self.symbols.iter().any(|s| {
             s.starts_with("tls_")
                 || s.starts_with("ws_")
                 || s.starts_with("rt_tls_")
-                || s.starts_with("rsa_")
-                || s.starts_with("x509_")
         })
     }
 
@@ -1044,13 +1058,23 @@ mod tests {
     }
 
     #[test]
-    fn tls_and_ws_still_require_openssl() {
+    fn tls_client_uses_rustls_not_openssl() {
         let mut p = RuntimeProfile::default();
         p.symbols.insert("tls_available".into());
-        assert!(p.needs_openssl());
+        assert!(p.needs_rustls_tls());
+        assert!(!p.needs_openssl());
         p.symbols.clear();
         p.symbols.insert("ws_connect".into());
+        assert!(p.needs_rustls_tls());
+        assert!(!p.needs_openssl());
+    }
+
+    #[test]
+    fn tls_server_still_may_need_openssl() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("rt_tls_listen".into());
         assert!(p.needs_openssl());
+        assert!(p.needs_rustls_tls());
     }
 
     #[test]

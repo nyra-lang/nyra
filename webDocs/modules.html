@@ -145,14 +145,16 @@
 
       <h2>Project layout</h2>
       <div class="file-tree">myapp/
-  <span class="hl">main.ny</span>      ← entry point
-  nyra.mod         ← package manifest
-  nyra.lock
-  nyra.sum
+  <span class="hl">main.ny</span>      ← entry point (fn main)
+  nyra.mod         ← package manifest (require / link)
+  nyra.lock        ← pinned versions
+  nyra.sum         ← checksums
+  .nyra/cache/     ← fetched packages (after install or auto-sync)
   src/
     helpers.ny
-  lib/
-    api.ny</div>
+  target/          ← build output (nyra build / run)
+    debug/main</div>
+      <p>After <code>nyrapkg init</code>, only <code>main.ny</code>, <code>nyra.mod</code>, <code>nyra.lock</code>, and <code>nyra.sum</code> exist. Full file roles: <a href="packages.html#project-files">NyraPkg → project files</a>.</p>
 
       <h2>Importing source files</h2>
       <p>Paths are <strong>relative to the file</strong> that contains the <code>import</code>:</p>
@@ -213,11 +215,13 @@ fn main() -&gt; void {
 
       <h2>nyra.mod</h2>
       <pre><code>module example.local
+version 1.0.0
 
-require (
-    https://github.com/example/ny-lib
-)</code></pre>
-      <p>See <a href="packages.html">nyrapkg</a> for Git dependencies.</p>
+require ny-sqlite ^0.1.0
+require https://github.com/example/ny-lib
+
+link sqlite3</code></pre>
+      <p>Edit <code>require</code> lines by hand or via <code>nyrapkg add</code>. Then <code>nyra run .</code> auto-syncs (fetch missing packages, prune removed ones) — or run <code>nyrapkg sync</code>. Details: <a href="packages.html#manual-require">NyraPkg → manual require</a>.</p>
 
       <h2>Quick pattern: split UI and logic</h2>
       <pre><code><span class="file-label">logic.ny</span>fn compute() -> i32 { return 100 }</code></pre>

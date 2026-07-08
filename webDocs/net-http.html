@@ -130,7 +130,7 @@
     </aside>
     <main class="content">
       <h1>net/http</h1>
-      <p class="lead">Modern HTTP/1.1 client and routed server for Nyra — inspired by Go’s <code>net/http</code>, built on native TCP + optional TLS.</p>
+      <p class="lead">Modern HTTP/1.1 client and routed server for Nyra — inspired by Go’s <code>net/http</code>, built on native TCP + selectable TLS backends.</p>
 
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -140,7 +140,49 @@
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h2>Architecture</h2>
+</div><!-- NYRA_SNIPPET_END -->
+      <h2>Architecture</h2>
+      <pre><code>Application
+      │
+stdlib/net/http  (get / post / …)
+      │
+stdlib/tls.ny    (stable rt_tls_* ABI)
+      │
+ ┌────┴────┬──────────┐
+rustls   native    openssl
+(default) (OS TLS) (optional)
+      │
+     TCP</code></pre>
+      <p>HTTPS works out of the box with the <strong>bundled rustls</strong> client — no OpenSSL install required. Choose a backend in <code>nyra.mod</code>; <code>nyra.lock</code> pins the resolved choice under <code>features.tls</code>.</p>
+
+      <h2>TLS backends</h2>
+      <pre><code># nyra.mod
+module example.local
+tls rustls      # default — prebuilt libnyra_rt_tls.a
+# tls native    # OS TLS (SChannel / Secure Transport) — planned
+# tls openssl   # system OpenSSL (optional client + server helpers)</code></pre>
+      <pre><code>// nyra.lock (fragment)
+{
+  "features": { "tls": "rustls" },
+  "require": []
+}</code></pre>
+      <table>
+        <thead><tr><th>Backend</th><th>Status</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>rustls</code></td><td>Stable (default)</td><td>Shipped as <code>libnyra_rt_tls.a</code>; system CA store; no extra deps</td></tr>
+          <tr><td><code>native</code></td><td>Planned</td><td>Windows SChannel · macOS Secure Transport · Linux uses OpenSSL-compatible paths</td></tr>
+          <tr><td><code>openssl</code></td><td>Optional</td><td>Requires OpenSSL headers/libs; also used for TLS server cert helpers</td></tr>
+        </tbody>
+      </table>
+      <p>Application code is identical for every backend:</p>
+      <pre><code>import &quot;stdlib/net/http/mod.ny&quot;
+
+fn main() {
+    print(get(&quot;https://example.com&quot;))
+}</code></pre>
+      <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem — it does not ask you to install OpenSSL when using <code>rustls</code>.</p>
+
+      <h2>Module layout</h2>
       <pre><code>stdlib/net/http/
   mod.ny         — public entry (Router, listen_and_serve_handlers, client verbs)
   types.ny       — HttpRequest, HttpResponse, Server, Client, Router
@@ -155,7 +197,7 @@
       <table>
         <thead><tr><th>Function</th><th>Returns</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only; HTTPS auto via TLS</td></tr>
+          <tr><td><code>get(url)</code></td><td><code>string</code></td><td>Body only; HTTPS via selectable TLS backend (default rustls)</td></tr>
           <tr><td><code>fetch(url)</code></td><td><code>string</code></td><td>Alias for <code>get</code></td></tr>
           <tr><td><code>post(url, body)</code></td><td><code>HttpResponse</code></td><td><code>Content-Type: application/json</code></td></tr>
           <tr><td><code>put(url, body)</code></td><td><code>HttpResponse</code></td><td>Full request/response</td></tr>
@@ -329,7 +371,7 @@ fn main() -&gt; void {
         <tbody>
           <tr><td><code>stdlib/net/udp.ny</code></td><td><code>UdpSocket_bind</code>, <code>send</code>, <code>recv</code></td></tr>
           <tr><td><code>stdlib/net/websocket.ny</code></td><td><code>WebSocket_connect</code>, <code>send</code>, <code>recv</code> (client, RFC 6455 text)</td></tr>
-          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_listen</code>, <code>tls_accept</code> (OpenSSL)</td></tr>
+          <tr><td><code>stdlib/tls.ny</code></td><td><code>tls_connect</code>, <code>tls_listen</code>, <code>tls_accept</code> (backends via <code>tls</code> in <code>nyra.mod</code>)</td></tr>
           <tr><td><code>stdlib/net/smtp.ny</code></td><td><code>Smtp_send</code></td></tr>
           <tr><td><code>stdlib/net/mail.ny</code></td><td><code>Mail_send</code>, <code>Mail_message</code></td></tr>
           <tr><td><code>stdlib/net/rpc.ny</code></td><td>JSON-RPC 2.0 helpers</td></tr>
