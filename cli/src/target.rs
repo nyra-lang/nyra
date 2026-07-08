@@ -603,9 +603,12 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 cmd.arg("-lssl").arg("-lcrypto");
             }
             if rt.needs_rustls_tls || rt.needs_native_tls {
+                // rustls/native staticlibs pull Rust std, which needs Userenv for home_dir.
                 cmd.arg("-lbcrypt");
                 cmd.arg("-lcrypt32");
                 cmd.arg("-lntdll");
+                cmd.arg("-luserenv");
+                cmd.arg("-ladvapi32");
             }
             if rt.needs_native_tls {
                 // SChannel (native-tls):
