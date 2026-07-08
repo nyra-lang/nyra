@@ -91,7 +91,13 @@ runs:
         "ZLIB_ROOT=$zlibRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
         if (Test-Path (Join-Path $msysUcrt 'include\stdlib.h')) {
           "NYRA_SYSROOT=$msysUcrt" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=$msysUcrt\bin\gcc.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
         }
+
+    - name: Rust Windows GNU target
+      if: inputs.platform == 'windows'
+      shell: bash
+      run: rustup target add x86_64-pc-windows-gnu
 
     - name: System dependencies (Linux)
       if: inputs.platform == 'linux'

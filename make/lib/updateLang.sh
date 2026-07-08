@@ -32,7 +32,22 @@ if command -v python3 >/dev/null 2>&1; then
   python3 "$ROOT/make/py/gen-bindings-doc.py"
 fi
 info "==> Building release cli + TLS runtimes (rustls + native)..."
-cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native
+HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
+NYRA_LINK_TRIPLE="$HOST_TRIPLE"
+TLS_CARGO_TRIPLE="$HOST_TRIPLE"
+if [ "$(uname -s 2>/dev/null || echo unknown)" = "MINGW"* ] || [ "$(uname -s 2>/dev/null || echo unknown)" = "MSYS"* ] || [ "${OS:-}" = "Windows_NT" ]; then
+  NYRA_LINK_TRIPLE="x86_64-pc-windows-gnu"
+  if [ "$HOST_TRIPLE" != "$NYRA_LINK_TRIPLE" ]; then
+    TLS_CARGO_TRIPLE="$NYRA_LINK_TRIPLE"
+  fi
+fi
+cargo build --release -p cli
+if [ "$TLS_CARGO_TRIPLE" = "$HOST_TRIPLE" ]; then
+  cargo build --release -p nyra-rt-tls -p nyra-rt-tls-native
+else
+  rustup target add "$TLS_CARGO_TRIPLE"
+  cargo build --release -p nyra-rt-tls -p nyra-rt-tls-native --target "$TLS_CARGO_TRIPLE"
+fi
 
 info "==> Installing to PATH (cargo install --force)..."
 cargo install --path cli --force
@@ -65,10 +80,15 @@ for sub in os net core http; do
 done
 
 # Bundle rustls + native TLS clients for HTTPS without requiring Rust on the user machine.
-TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
+TRIPLE="$NYRA_LINK_TRIPLE"
 find_tls_src() {
   lib="$1"
-  for dir in target/release; do
+  if [ "$TLS_CARGO_TRIPLE" = "$HOST_TRIPLE" ]; then
+    search_dirs="target/release"
+  else
+    search_dirs="target/$TLS_CARGO_TRIPLE/release"
+  fi
+  for dir in $search_dirs; do
     for name in "lib${lib}.a" "${lib}.lib"; do
       if [ -f "$dir/$name" ]; then
         printf '%s' "$dir/$name"
@@ -78,7 +98,10 @@ find_tls_src() {
   done
   return 1
 }
-if [ "$(uname -s 2>/dev/null || echo unknown)" = "MINGW"* ] || [ "$(uname -s 2>/dev/null || echo unknown)" = "MSYS"* ] || [ "${OS:-}" = "Windows_NT" ]; then
+if [ "$NYRA_LINK_TRIPLE" != "${NYRA_LINK_TRIPLE%-windows-gnu}" ]; then
+  TLS_DEST_NAME="libnyra_rt_tls.a"
+  TLS_NATIVE_DEST_NAME="libnyra_rt_tls_native.a"
+elif [ "$(uname -s 2>/dev/null || echo unknown)" = "MINGW"* ] || [ "$(uname -s 2>/dev/null || echo unknown)" = "MSYS"* ] || [ "${OS:-}" = "Windows_NT" ]; then
   TLS_DEST_NAME="nyra_rt_tls.lib"
   TLS_NATIVE_DEST_NAME="nyra_rt_tls_native.lib"
 else

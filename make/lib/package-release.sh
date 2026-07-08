@@ -61,12 +61,23 @@ echo "Building cli for $TRIPLE ..."
 
 HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
 
+# Nyra links user programs with MinGW; TLS staticlibs must match that triple.
+NYRA_LINK_TRIPLE="$TRIPLE"
+TLS_CARGO_TRIPLE="$TRIPLE"
+if [ "$IS_WINDOWS" -eq 1 ]; then
+  NYRA_LINK_TRIPLE="x86_64-pc-windows-gnu"
+  if [ "$HOST_TRIPLE" != "$NYRA_LINK_TRIPLE" ]; then
+    TLS_CARGO_TRIPLE="$NYRA_LINK_TRIPLE"
+  fi
+fi
+
 find_staticlib() {
   lib="$1"
-  if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
+  triple="${2:-$TLS_CARGO_TRIPLE}"
+  if [ "$triple" = "$HOST_TRIPLE" ]; then
     search_dir="target/release"
   else
-    search_dir="target/$TRIPLE/release"
+    search_dir="target/$triple/release"
   fi
   for name in "lib${lib}.a" "${lib}.lib"; do
     if [ -f "$search_dir/$name" ]; then
@@ -78,7 +89,9 @@ find_staticlib() {
 }
 
 prebuilt_tls_name() {
-  if [ "$IS_WINDOWS" -eq 1 ]; then
+  if [ "$NYRA_LINK_TRIPLE" != "${NYRA_LINK_TRIPLE%-windows-gnu}" ]; then
+    printf '%s' "libnyra_rt_tls.a"
+  elif [ "$IS_WINDOWS" -eq 1 ]; then
     printf '%s' "nyra_rt_tls.lib"
   else
     printf '%s' "libnyra_rt_tls.a"
@@ -86,7 +99,9 @@ prebuilt_tls_name() {
 }
 
 prebuilt_tls_native_name() {
-  if [ "$IS_WINDOWS" -eq 1 ]; then
+  if [ "$NYRA_LINK_TRIPLE" != "${NYRA_LINK_TRIPLE%-windows-gnu}" ]; then
+    printf '%s' "libnyra_rt_tls_native.a"
+  elif [ "$IS_WINDOWS" -eq 1 ]; then
     printf '%s' "nyra_rt_tls_native.lib"
   else
     printf '%s' "libnyra_rt_tls_native.a"
@@ -94,7 +109,7 @@ prebuilt_tls_native_name() {
 }
 
 if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
-  cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native
+  cargo build --release -p cli
   if [ "$IS_WINDOWS" -eq 1 ]; then
     cp "target/release/nyra.exe" "$STAGE/bin/nyra.exe"
   else
@@ -102,12 +117,19 @@ if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
   fi
 else
   rustup target add "$TRIPLE" 2>/dev/null || true
-  cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native --target "$TRIPLE"
+  cargo build --release -p cli --target "$TRIPLE"
   if [ "$IS_WINDOWS" -eq 1 ]; then
     cp "target/$TRIPLE/release/nyra.exe" "$STAGE/bin/nyra.exe"
   else
     cp "target/$TRIPLE/release/nyra" "$STAGE/bin/nyra"
   fi
+fi
+
+if [ "$TLS_CARGO_TRIPLE" = "$HOST_TRIPLE" ]; then
+  cargo build --release -p nyra-rt-tls -p nyra-rt-tls-native
+else
+  rustup target add "$TLS_CARGO_TRIPLE" 2>/dev/null || true
+  cargo build --release -p nyra-rt-tls -p nyra-rt-tls-native --target "$TLS_CARGO_TRIPLE"
 fi
 
 TLS_LIB="$(find_staticlib nyra_rt_tls)" || true
@@ -119,17 +141,17 @@ rm -rf "$STAGE/share/stdlib/target" 2>/dev/null || true
 
 # Ship prebuilt rustls + native TLS clients.
 if [ -n "$TLS_LIB" ]; then
-  mkdir -p "$STAGE/share/stdlib/prebuilt/$TRIPLE"
-  cp "$TLS_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/$(prebuilt_tls_name)"
-  echo "Bundled $(prebuilt_tls_name) for $TRIPLE"
+  mkdir -p "$STAGE/share/stdlib/prebuilt/$NYRA_LINK_TRIPLE"
+  cp "$TLS_LIB" "$STAGE/share/stdlib/prebuilt/$NYRA_LINK_TRIPLE/$(prebuilt_tls_name)"
+  echo "Bundled $(prebuilt_tls_name) for $NYRA_LINK_TRIPLE"
 else
   echo "error: missing nyra_rt_tls staticlib — HTTPS client would not work offline" >&2
   exit 1
 fi
 if [ -n "$TLS_NATIVE_LIB" ]; then
-  mkdir -p "$STAGE/share/stdlib/prebuilt/$TRIPLE"
-  cp "$TLS_NATIVE_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/$(prebuilt_tls_native_name)"
-  echo "Bundled $(prebuilt_tls_native_name) for $TRIPLE"
+  mkdir -p "$STAGE/share/stdlib/prebuilt/$NYRA_LINK_TRIPLE"
+  cp "$TLS_NATIVE_LIB" "$STAGE/share/stdlib/prebuilt/$NYRA_LINK_TRIPLE/$(prebuilt_tls_native_name)"
+  echo "Bundled $(prebuilt_tls_native_name) for $NYRA_LINK_TRIPLE"
 else
   echo "error: missing nyra_rt_tls_native staticlib — tls native would not work offline" >&2
   exit 1

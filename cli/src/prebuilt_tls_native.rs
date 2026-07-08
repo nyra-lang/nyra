@@ -39,10 +39,30 @@ pub fn prebuilt_native_tls_dir(spec: &TargetSpec) -> PathBuf {
 }
 
 pub fn prebuilt_native_tls_archive(spec: &TargetSpec) -> PathBuf {
-    prebuilt_native_tls_dir(spec).join(staticlib_archive::prebuilt_basename(CRATE_LIB_NAME))
+    let triple = spec.triple_for_codegen();
+    prebuilt_native_tls_dir(spec)
+        .join(staticlib_archive::prebuilt_basename(CRATE_LIB_NAME, &triple))
+}
+
+fn remove_stale_msvc_tls_artifacts(spec: &TargetSpec) {
+    let triple = spec.triple_for_codegen();
+    if !staticlib_archive::is_windows_gnu_link_triple(&triple) {
+        return;
+    }
+    let dir = prebuilt_native_tls_dir(spec);
+    for name in [
+        format!("{CRATE_LIB_NAME}.lib"),
+        format!("lib{CRATE_LIB_NAME}.lib"),
+    ] {
+        let path = dir.join(name);
+        if path.is_file() {
+            let _ = fs::remove_file(path);
+        }
+    }
 }
 
 pub fn ensure_prebuilt_native_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
+    remove_stale_msvc_tls_artifacts(spec);
     let dest = prebuilt_native_tls_archive(spec);
     if dest.is_file() {
         return Ok(dest);
@@ -97,7 +117,9 @@ fn find_cargo_archive(spec: &TargetSpec) -> Option<PathBuf> {
 }
 
 fn build_and_install(spec: &TargetSpec) -> Result<PathBuf, String> {
-    let dest_name = staticlib_archive::prebuilt_basename(CRATE_LIB_NAME);
+    let host = TargetSpec::host().triple_for_codegen();
+    let triple = spec.triple_for_codegen();
+    let dest_name = staticlib_archive::prebuilt_basename(CRATE_LIB_NAME, &triple);
     let root = workspace_root().ok_or_else(|| {
         format!(
             "{dest_name} not found under {} and Nyra source tree unavailable — \
@@ -105,17 +127,14 @@ fn build_and_install(spec: &TargetSpec) -> Result<PathBuf, String> {
             prebuilt_native_tls_dir(spec).display()
         )
     })?;
-    let host = TargetSpec::host().triple_for_codegen();
-    let triple = spec.triple_for_codegen();
+    staticlib_archive::ensure_rust_target(&triple)?;
     let mut cmd = Command::new("cargo");
     cmd.arg("build")
         .arg("-p")
         .arg(CARGO_PACKAGE)
         .arg("--release")
         .current_dir(&root);
-    if triple != host {
-        cmd.arg("--target").arg(&triple);
-    }
+    staticlib_archive::append_cargo_target_args(&mut cmd, &triple, &host);
     let output = cmd
         .output()
         .map_err(|e| format!("failed to run cargo build -p {CARGO_PACKAGE}: {e}"))?;

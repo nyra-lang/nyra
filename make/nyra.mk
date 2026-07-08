@@ -1,8 +1,8 @@
 # Nyra CLI binary — build once, reuse across smoke/test targets.
-# Also build TLS staticlibs so HTTPS conformance (rustls + native) can link in CI.
+# TLS staticlibs must match the MinGW link triple on Windows (not MSVC host).
 $(NYRA_BIN):
 	@printf 'make: building nyra cli + TLS runtimes...\n'
-	@cargo build -q -p cli -p nyra-rt-tls -p nyra-rt-tls-native
+	@bash "$(MAKE_LIB)/build-cli-tls.sh"
 
 .PHONY: build-cli build-compiler-ffi ensure-nyra
 build-compiler-ffi:
