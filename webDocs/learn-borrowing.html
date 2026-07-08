@@ -154,7 +154,7 @@
     print(x)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
-    let mut x: i32 = 1
+    mut x = 1
     let r = &amp;mut x
     print(*r)
     unsafe {
@@ -162,8 +162,7 @@
     }
     print(x)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 5</code></pre>
 </section><section class="doc-ex">
@@ -187,8 +186,7 @@
     print(*r)
     print(msg)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
+</div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello
 hello</code></pre>
 </section><nav class="lesson-nav" aria-label="Learn navigation">

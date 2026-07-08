@@ -3660,7 +3660,7 @@ since = "1.46.0"
 # [contrib-dev:vec_i32_remove_at:vec]
 [[symbol]]
 name = "vec_i32_remove_at"
-c_sig = "intvec_i32_remove_at(void * handle, int index)"
+c_sig = "int vec_i32_remove_at(void * handle, int index)"
 module = "rt_vec.c"
 tier = "experimental"
 since = "1.46.0"

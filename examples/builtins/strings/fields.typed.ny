@@ -1,3 +1,4 @@
 fn main() -> void {
-    print("hello".fields())
+    let words = "a b c".fields()
+    print(words.len())
 }

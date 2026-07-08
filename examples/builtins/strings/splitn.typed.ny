@@ -1,3 +1,4 @@
 fn main() -> void {
-    print("hello".splitn(",", 1))
+    let parts = "hello".splitn(",", 1)
+    print(parts.len())
 }

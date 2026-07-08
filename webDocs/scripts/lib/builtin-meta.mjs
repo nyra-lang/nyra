@@ -136,7 +136,7 @@ export function methodLabel(relPlain) {
   if (folder === "vec.ny" || folder === "vec") {
     const vecLabels = {
       vec_i32_insert: "VecI32.insert()",
-      vec_i32_remove_at: "VecI32.remove_at()",
+      vec_i32_remove_at: "VecI32.remove()",
       vec_i32_clear: "VecI32.clear()",
       vec_i32_reverse: "VecI32.reverse()",
       vec_i32_sort: "VecI32.sort()",

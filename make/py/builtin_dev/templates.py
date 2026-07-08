@@ -321,6 +321,31 @@ def example_ny(spec: BuiltinSpec) -> str:
         sample = '"Hello World"'
     else:
         sample = '"hello"'
+    if spec.returns == NyraType.VEC_STR:
+        if spec.args:
+            arg_vals = []
+            for a in spec.args:
+                if a.nyra_type == NyraType.STRING:
+                    if a.name in ("suffix", "prefix"):
+                        arg_vals.append('".txt"')
+                    elif a.name == "needle":
+                        arg_vals.append('"ell"')
+                    elif a.name == "sep":
+                        arg_vals.append('","')
+                    else:
+                        arg_vals.append('"arg"')
+                else:
+                    arg_vals.append("1")
+            lines.append(
+                f"    let parts = {sample}.{profile_method}({', '.join(arg_vals)})"
+            )
+        else:
+            sample = '"a b c"' if spec.method == "fields" else sample
+            lines.append(f"    let parts = {sample}.{profile_method}()")
+        lines.append("    print(parts.len())")
+        lines.append("}")
+        lines.append("")
+        return "\n".join(lines)
     if spec.args:
         arg_vals = []
         for a in spec.args:
