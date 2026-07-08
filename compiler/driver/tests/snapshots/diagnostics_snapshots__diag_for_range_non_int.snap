@@ -2,10 +2,12 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: For range start must be i32
+error[E024]: `for` range start must be an integer
   --> <source>:1:1
-error: For range end must be i32
+   = help: example: `for i in 0..10 { ... }`
+error[E024]: `for` range end must be an integer
   --> <source>:1:1
+   = help: example: `for i in 0..10 { ... }`
 warning[W003]: unused variable `i`
   --> <source>:1:1
    = help: prefix with `_` if intentional: `let _i = ...`

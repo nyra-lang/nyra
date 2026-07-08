@@ -1,10 +1,11 @@
 use ast::*;
-use errors::{ErrorKind, NyraError, Span};
+use errors::Span;
 use types::Type;
 
 use crate::TypeChecker;
 use crate::TypeEnv;
 use crate::VarInfo;
+use crate::diagnostics;
 
 pub fn array_method_borrows_receiver(method: &str) -> bool {
     matches!(method, "length" | "len" | "sort" | "sort_by")
@@ -19,44 +20,22 @@ impl TypeChecker {
                 ..
             } => {
                 if params.len() != 2 {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!(
-                            "'.sort_by' comparator expects 2 parameters, got {}",
-                            params.len()
-                        ),
-                    ));
+                    diagnostics::sort_by_wrong_arity(self, params.len(), sp.clone());
                     return;
                 }
                 if params[0] != *elem || params[1] != *elem {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!(
-                            "'.sort_by' comparator must be fn({:?}, {:?}) -> i32",
-                            elem, elem
-                        ),
-                    ));
+                    diagnostics::sort_by_param_mismatch(self, elem, sp.clone());
                 }
                 let ret = return_type
                     .as_ref()
                     .map(|t| t.as_ref())
                     .unwrap_or(&Type::Void);
                 if *ret != Type::Integer(ast::IntKind::I32) {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        "'.sort_by' comparator must return i32 (<0, 0, or >0)",
-                    ));
+                    diagnostics::sort_by_return_mismatch(self, sp.clone());
                 }
             }
             _ => {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
-                    sp.clone(),
-                    "'.sort_by' expects a comparator fn(element, element) -> i32",
-                ));
+                diagnostics::sort_by_expects_fn(self, sp.clone());
             }
         }
     }
@@ -69,11 +48,7 @@ impl TypeChecker {
         sp: &Span,
     ) -> Type {
         if a.params.len() != 2 {
-            self.errors.push(NyraError::new(
-                ErrorKind::Type,
-                sp.clone(),
-                format!("'.sort_by' comparator expects 2 parameters, got {}", a.params.len()),
-            ));
+            diagnostics::sort_by_wrong_arity(self, a.params.len(), sp.clone());
         }
         let mut inner = TypeEnv {
             variables: env.variables.clone(),
@@ -108,11 +83,7 @@ impl TypeChecker {
             }
         };
         if ret_ty != Type::Integer(ast::IntKind::I32) && ret_ty != Type::Unknown {
-            self.errors.push(NyraError::new(
-                ErrorKind::Type,
-                sp.clone(),
-                "'.sort_by' comparator must return i32 (<0, 0, or >0)",
-            ));
+            diagnostics::sort_by_return_mismatch(self, sp.clone());
         }
         Type::FnPtr {
             lifetime_params: vec![],
@@ -134,11 +105,7 @@ impl TypeChecker {
         let Some(n) = *len else {
             if mc.method == "length" || mc.method == "len" || mc.method == "sort" || mc.method == "sort_by"
             {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
-                    sp.clone(),
-                    format!("'.{}' requires a fixed-size array", mc.method),
-                ));
+                diagnostics::array_method_requires_fixed(self, &mc.method, sp.clone());
             }
             return None;
         };
@@ -146,31 +113,16 @@ impl TypeChecker {
         match mc.method.as_str() {
             "length" | "len" => {
                 if !mc.args.is_empty() {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.{}' expects no arguments", mc.method),
-                    ));
+                    diagnostics::wrong_arity(self, &format!(".{}", mc.method), 0, mc.args.len(), sp.clone());
                 }
                 Some(Type::Integer(ast::IntKind::I32))
             }
             "sort" => {
                 if !mc.args.is_empty() {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        "'.sort' expects no arguments",
-                    ));
+                    diagnostics::wrong_arity(self, ".sort", 0, mc.args.len(), sp.clone());
                 }
                 if !matches!(elem.as_ref(), Type::Integer(ast::IntKind::I32) | Type::F32 | Type::F64) {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!(
-                            "'.sort' on arrays supports i32 and f64 elements, got {:?}",
-                            elem
-                        ),
-                    ));
+                    diagnostics::array_sort_unsupported_elem(self, elem, sp.clone());
                     return Some(Type::Unknown);
                 }
                 Some(Type::Array {
@@ -180,11 +132,7 @@ impl TypeChecker {
             }
             "sort_by" => {
                 if mc.args.len() != 1 {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("'.sort_by' expects 1 argument, got {}", mc.args.len()),
-                    ));
+                    diagnostics::wrong_arity(self, ".sort_by", 1, mc.args.len(), sp.clone());
                 } else if let Expression::ArrowFn(a) = &mc.args[0] {
                     self.check_sort_by_arrow(a, elem, env, sp);
                 } else {

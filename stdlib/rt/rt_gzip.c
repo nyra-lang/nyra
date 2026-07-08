@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#if defined(_WIN32)
+/* MSYS2 zlib zconf.h enables HAVE_UNISTD_H; LLVM clang on CI may not resolve it. */
+#undef HAVE_UNISTD_H
+#endif
 #include <zlib.h>
 
 static const char nyra_hex_digits[] = "0123456789abcdef";

@@ -66,6 +66,15 @@ pub(crate) struct OptFlags {
     /// Print compiler diagnostics including escape analysis (`Variable x → NoEscape`).
     #[arg(long, short = 'v')]
     pub(crate) verbose: bool,
+    /// Print analysis / codegen / link timings after build or run.
+    #[arg(long)]
+    pub(crate) timings: bool,
+    /// Prefer a running `nyra internal daemon` when its socket is present.
+    #[arg(long)]
+    pub(crate) use_daemon: bool,
+    /// Do not connect to a running compiler daemon.
+    #[arg(long, conflicts_with = "use_daemon")]
+    pub(crate) no_daemon: bool,
     /// Link native library `-lfoo` (repeatable).
     #[arg(long = "link-lib", value_name = "LIB")]
     pub(crate) link_lib: Vec<String>,
@@ -303,6 +312,24 @@ pub(crate) enum Commands {
         #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
         clang_args: Vec<String>,
     },
+    /// Internal toolchain hooks (not stable).
+    #[command(hide = true)]
+    Internal {
+        #[command(subcommand)]
+        cmd: InternalCommands,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum InternalCommands {
+    /// Build O0 prebuilt runtime archive for fast debug links.
+    BuildPrebuiltRt,
+    /// Keep compiler warm on a Unix socket (dev speed).
+    Daemon {
+        /// Run in foreground (default). Use `--background` to detach.
+        #[arg(long)]
+        background: bool,
+    },
 }
 
 #[derive(Subcommand)]
@@ -400,31 +427,60 @@ pub(crate) enum BindCommands {
 
 #[derive(Subcommand)]
 pub(crate) enum PkgCommands {
-    Init { path: Option<PathBuf> },
-    /// Add a dependency (registry name, git URL, or local package).
-    Add { module: String },
-    /// Alias for `add` — fetch package into `.nyra/cache/` and update lock files.
-    Install { module: String },
+    /// Scaffold `nyra.mod` + `main.ny` (delegates to `nyrapkg`).
+    Init {
+        path: Option<PathBuf>,
+    },
+    /// Add a dependency (delegates to `nyrapkg`).
+    Add {
+        module: String,
+    },
+    /// Fetch package and update lock files (delegates to `nyrapkg`).
+    /// Omit `module` to sync existing `require` lines only (`nyrapkg install` / `sync`).
+    Install {
+        module: Option<String>,
+    },
+    /// Fetch all `require` lines from `nyra.mod` and rewrite lock files (delegates to `nyrapkg`).
+    Sync {
+        path: Option<PathBuf>,
+    },
+    /// Verify lock files and checksums (delegates to `nyrapkg`).
+    Verify {
+        path: Option<PathBuf>,
+    },
+    /// Print nyrapkg and nyra versions (delegates to `nyrapkg`).
+    Version,
+    /// Show install paths (delegates to `nyrapkg`).
+    Which,
+    /// Install this nyrapkg binary to `~/.nyra/bin` (delegates to `nyrapkg`).
+    Bootstrap,
+    /// Update nyrapkg from GitHub releases (delegates to `nyrapkg`).
+    #[command(name = "self-update")]
+    SelfUpdate {
+        version: Option<String>,
+    },
+    /// nyrapkg self-management (delegates to `nyrapkg`).
+    #[command(name = "self")]
+    SelfCmd {
+        #[command(subcommand)]
+        cmd: PkgSelfCommands,
+    },
+    /// Toolchain helpers (delegates to `nyrapkg`).
+    Toolchain {
+        #[command(subcommand)]
+        cmd: PkgToolchainCommands,
+    },
+    /// Update nyra or nyrapkg (delegates to `nyrapkg`).
+    Update {
+        target: String,
+        version: Option<String>,
+    },
     Build {
         path: Option<PathBuf>,
         #[command(flatten)]
         opt: OptFlags,
         #[command(flatten)]
         target_args: TargetArgs,
-    },
-    Verify { path: Option<PathBuf> },
-    Publish {
-        name: String,
-        version: String,
-        git_url: String,
-        #[arg(long, default_value = "http://127.0.0.1:9470")]
-        registry: String,
-        #[arg(long, default_value = "nyra-dev-token")]
-        token: String,
-    },
-    Login {
-        #[arg(long, default_value = "nyra-dev-token")]
-        token: String,
     },
     /// Generate bindings into the current package (`vendor/bindings/`).
     Bind {
@@ -441,6 +497,22 @@ pub(crate) enum PkgCommands {
         /// Report what would change without editing files.
         #[arg(long)]
         check: bool,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum PkgSelfCommands {
+    /// Update nyrapkg from GitHub releases.
+    Update {
+        version: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum PkgToolchainCommands {
+    /// Update the Nyra compiler under `~/.nyra`.
+    Update {
+        version: Option<String>,
     },
 }
 

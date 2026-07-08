@@ -1,6 +1,7 @@
 import "sqlite.ny"
 import "postgres.ny"
 import "mysql.ny"
+import "query.ny"
 
 struct SqlDb {
     driver: string
@@ -51,10 +52,15 @@ impl SqlDb {
                 postgres_close(self.handle)
             } else {
                 if strcmp(self.driver, "mysql") == 0 {
-                    mysql_close(self.handle)
+                    nyra_mysql_close(self.handle)
                 }
             }
         }
+    }
+
+    // Run a built query: qb().select(...).from(...).find on this connection.
+    fn find(self, q: SqlQuery) -> SqliteRowset {
+        return self.query_rows(q.to_sql())
     }
 }
 

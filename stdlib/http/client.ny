@@ -1,9 +1,6 @@
 import "../net/http/client.ny"
 
-fn http_get(url: string) -> string {
-    return get(url)
-}
-
-fn fetch(url: string) -> string {
+// Legacy path: body-only. Prefer `stdlib/net/http/mod.ny` → `fetch(url) -> HttpResponse`.
+fn fetch_text(url: string) -> string {
     return get(url)
 }

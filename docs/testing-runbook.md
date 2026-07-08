@@ -4,23 +4,29 @@ Operational guide for CI failures, regressions, and tier promotion.
 
 ## CI pipeline stages
 
-1. **lint** — `cargo fmt --check`, `cargo clippy -D warnings`
-2. **test-linux** — `make test-all` with `TEST_SAN=1`, `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=ci`, cross-compile (linux + mingw windows), compiletest ~2.8k files
-3. **test-macos** — `make test-all-macos` (platform core + native hello build/run)
-4. **test-windows** — `make test-all-windows` (platform core + native Windows build, package smoke, DAP)
-4. **weekly** — `--profile full` compiletest (~10k) + extended fuzz
+Staged workflow in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): **build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native** on each OS, then Windows-only package/DAP extras. Weekly schedule runs extended fuzz on Linux.
 
-Local mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
+| Stage | Gates (matrix per OS) |
+|-------|------------------------|
+| **0 build** | `make test-platform-ci-build` |
+| **1 fast** | `test-optional-types`, `test-conformance`, `test-cargo-workspace` |
+| **2 medium** | `test-nyra-lang`, `smoke-stdlib-priority` |
+| **3 heavy** | `smoke-stdlib`, `smoke-stdlib-runtime`, `test-runtime-smoke` |
+| **4 native** | `make test-all-{linux,macos,windows}-native` |
+
+Local full mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
 
 **Gate order:** `test-all` runs **fast → slow** so simple failures surface before heavy compiletest (~3k CI files), fuzz smoke (5×60s), cross-compile, and optional sanitizer/perf/nightly-fuzz gates. Subsets: `make test-all-core-fast`, `make test-all-core-slow`.
 
 **CI platforms (every push/PR):**
 
-| OS | Workflow job | Make target | Scope |
-|----|--------------|-------------|--------|
-| **Linux** | `test-linux` | `make test-all` | Full suite (compiletest, fuzz, cross, san/perf) |
-| **macOS** | `test-macos` | `make test-all-macos` | Platform core + native build/run smoke |
-| **Windows** | `test-windows` | `make test-all-windows` | Platform core + native build smoke + package/DAP |
+| OS | Workflow jobs | Native smoke | Extras |
+|----|---------------|--------------|--------|
+| **Linux** | `build-linux`, `tier1-linux`, `tier2-linux`, `tier3-linux`, `native-linux` | `make test-all-linux-native` | Weekly `fuzz` job (full compiletest + nightly fuzz) |
+| **macOS** | `build-macos`, `tier1-macos`, … | `make test-all-macos-native` | — |
+| **Windows** | `build-windows`, `tier1-windows`, … | `make test-all-windows-native` | `windows-package`, `windows-dap` |
+
+Monolithic local targets: `make test-all-linux`, `make test-all-macos`, `make test-all-windows` (platform core + native smoke).
 
 ## Detection principles
 
@@ -28,6 +34,8 @@ Local mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUIT
 |-------|---------|
 | Per-crate unit tests | Single-pass bugs (lexer, parser, borrowck, …) |
 | Driver integration | End-to-end compile + IR substrings |
+| **webDocs snippets** (`make test-webdocs-snippets`) | Doc examples that compile in `check` but fail at link/run |
+| **Compiletest `run/`** | End-to-end stdout for language features (e.g. `print(*r)`) |
 | Example corpus | All `examples/` entry points |
 | insta snapshots | Unintended IR/diagnostic text changes |
 | Conformance (`CONF-*`) | Spec-like behavior contracts |
@@ -41,7 +49,7 @@ Local mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUIT
 `cargo build --workspace` compiles `nyra-c-bindgen`, which links against **libclang**. On Ubuntu/Debian install development headers, not only the `clang` compiler:
 
 ```bash
-sudo apt-get install -y clang lld libclang-dev llvm-dev
+sudo apt-get install -y clang lld libclang-dev llvm-dev libsqlite3-dev zlib1g-dev libssl-dev
 ```
 
 CI uses the same packages in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).

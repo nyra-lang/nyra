@@ -1,0 +1,6 @@
+{
+  "name": "my_contract",
+  "mode": "pass",
+  "area": "edge",
+  "description": "Example conformance contract"
+}

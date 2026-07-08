@@ -10,3 +10,4 @@ description = "Nyra parser"
 ast = { path = "../ast" }
 errors = { path = "../errors" }
 lexer = { path = "../lexer" }
+types = { path = "../types" }

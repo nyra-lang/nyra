@@ -14,6 +14,8 @@ Cursor loads **`.cursor/rules/nyra-guidelines.mdc`** automatically (`alwaysApply
 
 | File | Purpose |
 |------|---------|
+| `docs/contributor-map.md` | What to change → where to go (flowchart + test placement) |
+| `docs/make-and-generators.md` | Makefile targets + `make/py/` Python generators (incl. builtin-dev) |
 | `.cursor/rules/nyra-guidelines.mdc` | Always-on agent rule |
 | `Makefile` | Contributor test/build entry (`make help`) |
 | `skills/guidelines.md` | Same checklist (human-readable) |

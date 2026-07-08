@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Installation — Nyra Docs</title>
+  <meta name="description" content="Install Nyra from GitHub releases on macOS, Linux, and Windows (WSL or build from source).">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="install">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a class="active" href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.install.h1">Install Nyra</h1>
+      <p class="lead" data-i18n-html="pages.install.lead">
+        Install the Nyra toolchain from a <strong>GitHub release tag</strong>, set up your environment,
+        and run your first project on <strong>macOS</strong>, <strong>Linux</strong>, or <strong>Windows</strong>.
+      </p>
+      <p>
+        <strong data-i18n="pages.install.repoLabel">Repository:</strong>
+        <a href="https://github.com/nyra-lang/nyra">github.com/nyra-lang/nyra</a><br>
+        <strong data-i18n="pages.install.releasesLabel">Releases (tags):</strong>
+        <a href="https://github.com/nyra-lang/nyra/releases">github.com/nyra-lang/nyra/releases</a>
+      </p>
+
+      <div class="callout warning">
+        <strong data-i18n="pages.install.calloutTitle">Public repository required for the one-line installer</strong>
+        <span data-i18n-html="pages.install.calloutBody">The repo must be <strong>public</strong> (or you must be logged in) to download release assets and to use the
+        <code>curl | sh</code> installer. Private repos require manual download from the Releases page while signed in,
+        or building from source.</span>
+      </div>
+
+      <nav class="toc">
+        <div class="toc-title" data-i18n="pages.install.tocTitle">On this page</div>
+        <ul>
+          <li><a href="#requirements" data-i18n="pages.install.toc_1">1. Requirements</a></li>
+          <li><a href="#release-tag" data-i18n="pages.install.toc_2">2. Pick a release tag</a></li>
+          <li><a href="#layout" data-i18n="pages.install.toc_3">3. Install layout</a></li>
+          <li><a href="#macos" data-i18n="pages.install.toc_4">4. macOS</a></li>
+          <li><a href="#linux" data-i18n="pages.install.toc_5">5. Linux</a></li>
+          <li><a href="#windows" data-i18n="pages.install.toc_6">6. Windows</a></li>
+          <li><a href="#first-project" data-i18n="pages.install.toc_7">7. First project</a></li>
+          <li><a href="#upgrade" data-i18n="pages.install.toc_8">8. Upgrade</a></li>
+          <li><a href="#source" data-i18n="pages.install.toc_9">9. Build from source</a></li>
+          <li><a href="#uninstall" data-i18n="pages.install.toc_10">10. Uninstall</a></li>
+          <li><a href="#troubleshooting" data-i18n="pages.install.toc_11">11. Troubleshooting</a></li>
+          <li><a href="#quick-ref" data-i18n="pages.install.toc_qr">Quick reference</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="requirements" data-i18n="pages.install.h2_req">1. Requirements (all platforms)</h2>
+      <table>
+        <thead><tr><th>Tool</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><strong>clang</strong></td><td>Links your <code>.ny</code> programs with the Nyra C runtime</td></tr>
+          <tr><td><strong>tar</strong></td><td>Extract release archives (macOS/Linux)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 data-i18n="pages.install.h3_clang">clang install hints</h3>
+      <table>
+        <thead><tr><th>OS</th><th>Install</th></tr></thead>
+        <tbody>
+          <tr><td><strong>macOS</strong></td><td><code>xcode-select --install</code> (Command Line Tools)</td></tr>
+          <tr><td><strong>Linux (Debian/Ubuntu)</strong></td><td><code>sudo apt update &amp;&amp; sudo apt install clang</code></td></tr>
+          <tr><td><strong>Linux (Fedora)</strong></td><td><code>sudo dnf install clang</code></td></tr>
+          <tr><td><strong>Windows (native)</strong></td><td><a href="https://releases.llvm.org/">LLVM for Windows</a> — add <code>clang</code> to <code>PATH</code>, or use <strong>WSL2</strong> (recommended in <a href="#windows">§6</a>)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Cross-compilation toolchains (optional)</h3>
+      <p>To build for another OS (e.g. release a Windows <code>.exe</code> from macOS), install a cross linker/sysroot in addition to <code>clang</code>:</p>
+      <table>
+        <thead><tr><th>Goal</th><th>Typical setup</th></tr></thead>
+        <tbody>
+          <tr><td>macOS → Linux</td><td><code>brew install messense/macos-cross-toolchains/aarch64-unknown-linux-gnu</code> (or x86_64 variant)</td></tr>
+          <tr><td>macOS / Linux → Windows</td><td>MinGW-w64 + clang (<code>brew install mingw-w64</code> on macOS)</td></tr>
+          <tr><td>→ macOS from Linux/Windows</td><td><strong>osxcross</strong> + Apple SDK (advanced)</td></tr>
+          <tr><td>→ Wasm</td><td>Homebrew <code>llvm</code> (Apple clang lacks <code>wasm32-wasi</code>)</td></tr>
+        </tbody>
+      </table>
+      <p>Then: <code>nyra build . --release --for windows</code>. See <a href="targets.html">Compilation targets</a>.</p>
+
+      <h2 id="release-tag" data-i18n="pages.install.h2_tag">2. Pick a release tag</h2>
+      <ol>
+        <li>Open <a href="https://github.com/nyra-lang/nyra/releases">Releases</a>.</li>
+        <li>Choose a version (e.g. <strong>v1.38.0</strong>).</li>
+        <li>Under <strong>Assets</strong>, download the file that matches your <strong>CPU</strong> and <strong>OS</strong> (see table).</li>
+      </ol>
+      <table>
+        <thead><tr><th>Your machine</th><th>Release asset</th></tr></thead>
+        <tbody>
+          <tr><td>Mac, Apple Silicon (M1/M2/M3)</td><td><code>nyra-aarch64-darwin.tar.gz</code></td></tr>
+          <tr><td>Mac, Intel</td><td><code>nyra-x86_64-darwin.tar.gz</code></td></tr>
+          <tr><td>Linux, 64-bit Intel/AMD</td><td><code>nyra-x86_64-linux.tar.gz</code></td></tr>
+          <tr><td>Linux, 64-bit ARM (e.g. Raspberry Pi 4/5, ARM cloud)</td><td><code>nyra-aarch64-linux.tar.gz</code></td></tr>
+          <tr><td><strong>Windows (native)</strong></td><td><em>No prebuilt yet</em> — use <a href="#windows">Windows</a> below</td></tr>
+        </tbody>
+      </table>
+      <p>Optional: verify checksums using <code>SHA256SUMS</code> on the same release page.</p>
+
+      <h2 id="layout" data-i18n="pages.install.h2_layout">3. Install layout</h2>
+      <p>After extracting, you should have:</p>
+      <pre><code>~/.nyra/          (recommended; or any folder you choose)
+  bin/nyra
+  share/stdlib/nyra_rt.c
+  version           # e.g. 1.0.0</code></pre>
+      <p>Set these environment variables (add to your shell profile so they persist):</p>
+      <pre><code>export NYRA_HOME="$HOME/.nyra"
+export PATH="$NYRA_HOME/bin:$PATH"</code></pre>
+
+      <h2 id="macos" data-i18n="pages.install.h2_macos">4. macOS</h2>
+      <h3>Option A — One-line installer (easiest)</h3>
+      <p>Requires a <strong>public</strong> repo and <code>curl</code>:</p>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></pre>
+      <p>Pin a specific tag:</p>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh -s -- --version 1.0.0</code></pre>
+      <p>Reload shell:</p>
+      <pre><code>source ~/.zshrc    # or ~/.bashrc
+nyra --version</code></pre>
+
+      <h3>Option B — Manual install from a release tag</h3>
+      <ol class="steps">
+        <li>Download <code>nyra-aarch64-darwin.tar.gz</code> or <code>nyra-x86_64-darwin.tar.gz</code> from <a href="https://github.com/nyra-lang/nyra/releases">Releases</a>.</li>
+        <li>Extract:</li>
+      </ol>
+      <pre><code>mkdir -p ~/.nyra
+tar -xzf ~/Downloads/nyra-aarch64-darwin.tar.gz -C ~/.nyra</code></pre>
+      <ol class="steps" start="3">
+        <li>Add to <code>~/.zshrc</code> (or <code>~/.bash_profile</code>):</li>
+      </ol>
+      <pre><code>export NYRA_HOME="$HOME/.nyra"
+export PATH="$NYRA_HOME/bin:$PATH"</code></pre>
+      <ol class="steps" start="4">
+        <li>If macOS blocks the binary (<code>killed</code> on first run):</li>
+      </ol>
+      <pre><code>xattr -cr ~/.nyra/bin/nyra</code></pre>
+      <ol class="steps" start="5">
+        <li>Verify:</li>
+      </ol>
+      <pre><code>source ~/.zshrc
+nyra --version</code></pre>
+
+      <h2 id="linux" data-i18n="pages.install.h2_linux">5. Linux</h2>
+      <h3>Option A — One-line installer</h3>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh
+# or pin version:
+curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh -s -- --version 1.0.0
+source ~/.bashrc   # or ~/.zshrc
+nyra --version</code></pre>
+
+      <h3>Option B — Manual install from a release tag</h3>
+      <ol class="steps">
+        <li>Install clang: <code>sudo apt install clang</code> (or your distro equivalent).</li>
+        <li>Download <code>nyra-x86_64-linux.tar.gz</code> or <code>nyra-aarch64-linux.tar.gz</code> from <a href="https://github.com/nyra-lang/nyra/releases">Releases</a>.</li>
+        <li>Extract and configure:</li>
+      </ol>
+      <pre><code>mkdir -p ~/.nyra
+tar -xzf ~/Downloads/nyra-x86_64-linux.tar.gz -C ~/.nyra
+echo 'export NYRA_HOME="$HOME/.nyra"' >> ~/.bashrc
+echo 'export PATH="$NYRA_HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+nyra --version</code></pre>
+
+      <h2 id="windows" data-i18n="pages.install.h2_win">6. Windows</h2>
+      <p>Prebuilt Windows binaries ship on every release tag as <code>nyra-x86_64-windows.zip</code>.</p>
+
+      <h3>Option A — PowerShell installer (recommended)</h3>
+      <pre><code>irm https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.ps1 | iex
+# or pin version:
+.\scripts\install.ps1 -Version 1.1.0
+nyra --version</code></pre>
+      <p>Requires <strong>clang</strong> (LLVM for Windows) on <code>PATH</code> to link <code>.ny</code> programs.</p>
+
+      <h3>Option B — Manual zip from Releases</h3>
+      <ol class="steps">
+        <li>Download <code>nyra-x86_64-windows.zip</code> from <a href="https://github.com/nyra-lang/nyra/releases">Releases</a>.</li>
+        <li>Extract to e.g. <code>%USERPROFILE%\.nyra</code>.</li>
+        <li>Add <code>%USERPROFILE%\.nyra\bin</code> to <code>PATH</code> and set <code>NYRA_HOME</code>.</li>
+        <li>Dot-source <code>env.ps1</code> in the zip or open a new terminal after the installer updated user PATH.</li>
+      </ol>
+
+      <h3>Option C — WSL2 (Ubuntu)</h3>
+      <ol class="steps">
+        <li>Install <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL2</a> and Ubuntu.</li>
+        <li>Inside WSL, install clang: <code>sudo apt install clang curl tar</code>.</li>
+        <li>Follow <a href="#linux">Linux (§5)</a> — installer or manual tarball <code>nyra-x86_64-linux.tar.gz</code>.</li>
+        <li>Create projects under your Linux home (e.g. <code>~/projects/myapp</code>).</li>
+      </ol>
+
+      <h3>Alternative — Build from source (native Windows)</h3>
+      <ol class="steps">
+        <li>Install <a href="https://rustup.rs/">Rust</a> and <strong>clang</strong> (LLVM) on Windows.</li>
+        <li>Clone the repo (same tag you want, e.g. <code>v1.0.0</code>):</li>
+      </ol>
+      <pre><code>git clone https://github.com/nyra-lang/nyra.git
+cd nyra
+git checkout v1.0.0
+cargo build --release -p nyra-cli</code></pre>
+      <ol class="steps" start="3">
+        <li>Use the built CLI and point runtime at the repo <code>stdlib</code>:</li>
+      </ol>
+      <pre><code>$env:PATH = "$PWD\target\release;$env:PATH"
+$env:NYRA_HOME = "$PWD"
+.\target\release\nyra.exe --version</code></pre>
+      <ol class="steps" start="4">
+        <li>Run examples from the repo root:</li>
+      </ol>
+      <pre><code>.\target\release\nyra.exe run examples\syntax\hello.ny</code></pre>
+      <div class="callout">
+        Native Windows support is evolving; WSL2 matches the Linux release workflow today.
+      </div>
+
+      <h2 id="install-nyrapkg">Install nyrapkg (package manager)</h2>
+      <p>Dependency management uses the standalone <strong>nyrapkg</strong> tool (<a href="packages.html">guide</a> · <a href="https://github.com/nyra-lang/pkg">github.com/nyra-lang/pkg</a>), installed alongside <code>nyra</code> under <code>~/.nyra/bin/</code>:</p>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh
+nyrapkg --version</code></pre>
+      <p>From source: <code>nyra build --release -o nyrapkg .</code> in the pkg repo, then <code>nyrapkg bootstrap</code>.</p>
+
+      <h2 id="first-project" data-i18n="pages.install.h2_first">7. First project (all platforms)</h2>
+      <p>Once <code>nyra --version</code> works (e.g. <code>nyra 1.0.0</code>):</p>
+      <pre><code>mkdir myapp
+cd myapp
+nyrapkg init</code></pre>
+      <p>This creates:</p>
+      <ul>
+        <li><code>nyra.mod</code>, <code>nyra.lock</code>, <code>nyra.sum</code></li>
+        <li><code>main.ny</code> with a Hello, world program</li>
+      </ul>
+      <p>Run it:</p>
+      <pre><code>nyra run main.ny</code></pre>
+      <p>Expected output:</p>
+      <pre><code>Hello, world!</code></pre>
+      <div class="callout warning">
+        <strong>Multi-file projects</strong>
+        For apps with <code>import</code>, run from the project root:
+        <code>nyra run .</code> — see <a href="modules.html">Modules</a> and <a href="getting-started.html">Getting started</a>.
+      </div>
+      <p>Other useful commands:</p>
+      <pre><code>nyra check
+nyra build
+nyra build --release
+nyra fmt --write main.ny</code></pre>
+
+      <h2 id="upgrade" data-i18n="pages.install.h2_up">8. Upgrade to a newer tag</h2>
+      <ol>
+        <li>Open <a href="https://github.com/nyra-lang/nyra/releases">Releases</a> and pick a newer tag (e.g. <code>v0.1.2</code>).</li>
+        <li><strong>macOS/Linux:</strong> re-run the install script with <code>--version</code>, or download the new <code>.tar.gz</code> and extract over <code>~/.nyra</code>.</li>
+        <li>Confirm: <code>nyra --version</code>.</li>
+      </ol>
+
+      <h2 id="source" data-i18n="pages.install.h2_src">9. Build from source (contributors)</h2>
+      <p>If you work on the compiler itself:</p>
+      <pre><code>git clone https://github.com/nyra-lang/nyra.git
+cd nyra
+cargo build --release -p nyra-cli
+export PATH="$PWD/target/release:$PATH"
+nyra run examples/syntax/hello.ny</code></pre>
+      <p>Or:</p>
+      <pre><code>cargo install --path cli</code></pre>
+      <p>Local iteration: <code>./scripts/dev-install.sh</code> from the repo root.</p>
+
+      <h2 id="uninstall" data-i18n="pages.install.h2_un">10. Uninstall</h2>
+      <pre><code>rm -rf ~/.nyra</code></pre>
+      <p>Remove the <code>NYRA_HOME</code> / <code>PATH</code> lines from <code>~/.zshrc</code>, <code>~/.bashrc</code>, or <code>~/.bash_profile</code>.</p>
+
+      <h2 id="troubleshooting" data-i18n="pages.install.h2_tr">11. Troubleshooting</h2>
+      <table>
+        <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>clang not found</code></td><td>Install clang (see <a href="#requirements">§1</a>)</td></tr>
+          <tr><td><code>release asset not found</code></td><td>Tag not published yet, wrong arch asset, or private repo without login</td></tr>
+          <tr><td><code>Runtime not found</code></td><td>Set <code>export NYRA_HOME=~/.nyra</code> and ensure <code>share/stdlib/nyra_rt.c</code> exists</td></tr>
+          <tr><td><code>zsh: killed</code> (macOS)</td><td><code>xattr -cr ~/.nyra/bin/nyra</code></td></tr>
+          <tr><td><code>Failed to read main.ny</code></td><td>Run <code>nyrapkg init</code> first, or create <code>main.ny</code></td></tr>
+          <tr><td>404 on <code>raw.githubusercontent.com</code></td><td>Repo is private — use Releases download or make repo public</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="quick-ref" data-i18n="pages.install.h2_qr">Quick reference</h2>
+      <table>
+        <thead><tr><th>Step</th><th>Command</th></tr></thead>
+        <tbody>
+          <tr><td>Latest install (mac/Linux, public repo)</td><td><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/nyra/main/scripts/install.sh | sh</code></td></tr>
+          <tr><td>Pin version</td><td><code>... | sh -s -- --version 1.0.0</code></td></tr>
+          <tr><td>Package manager</td><td><code>curl -fsSL https://raw.githubusercontent.com/nyra-lang/pkg/main/scripts/install.sh | sh</code></td></tr>
+          <tr><td>New project</td><td><code>nyrapkg init &amp;&amp; nyra run .</code></td></tr>
+          <tr><td>Releases page</td><td><a href="https://github.com/nyra-lang/nyra/releases">github.com/nyra-lang/nyra/releases</a></td></tr>
+        </tbody>
+      </table>
+
+      <p class="text-muted" style="color: var(--text-muted); font-size: 0.9rem;">
+        Canonical source: <a href="https://github.com/nyra-lang/nyra/blob/main/install.md"><code>install.md</code></a> in the repository.
+      </p>
+
+      <footer class="site-footer">
+        <a href="getting-started.html">Getting started →</a> ·
+        <a href="index.html">Overview</a>
+      </footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

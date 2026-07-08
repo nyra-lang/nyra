@@ -1,0 +1,108 @@
+name: Nyra CI setup
+description: Rust toolchain, cache, and OS dependencies for Nyra CI jobs (run actions/checkout first).
+
+inputs:
+  platform:
+    description: Runner OS family — macos, windows, or linux
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: dtolnay/rust-toolchain@stable
+
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Cache Homebrew (macOS)
+      if: inputs.platform == 'macos'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Cellar/llvm
+          /opt/homebrew/Cellar/sqlite
+          /opt/homebrew/Cellar/z3
+          /opt/homebrew/Cellar/zlib
+          /opt/homebrew/opt/llvm
+          /opt/homebrew/opt/sqlite
+          /opt/homebrew/opt/z3
+          /opt/homebrew/opt/zlib
+        key: brew-nyra-macos-${{ hashFiles('.github/workflows/ci.yml', '.github/actions/nyra-ci-setup/action.yml') }}
+        restore-keys: |
+          brew-nyra-macos-
+
+    - name: System dependencies (macOS)
+      if: inputs.platform == 'macos'
+      shell: bash
+      run: brew install llvm sqlite z3 zlib
+
+    - name: macOS LLVM paths
+      if: inputs.platform == 'macos'
+      shell: bash
+      run: |
+        echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
+
+    - name: Install LLVM (Windows)
+      if: inputs.platform == 'windows'
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "18.1.8"
+
+    - name: System dependencies (Windows)
+      if: inputs.platform == 'windows'
+      shell: pwsh
+      run: |
+        $msysUcrt = 'C:\msys64\ucrt64'
+        $pacman = 'C:\msys64\usr\bin\pacman.exe'
+        if (Test-Path $pacman) {
+          & $pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-openssl
+        }
+
+        $zlibRoot = $null
+        $zlibCandidates = @(
+          $msysUcrt,
+          'C:\vcpkg\installed\x64-windows'
+        )
+        if ($env:VCPKG_INSTALLATION_ROOT) {
+          $zlibCandidates += (Join-Path $env:VCPKG_INSTALLATION_ROOT 'installed\x64-windows')
+        }
+        foreach ($root in $zlibCandidates) {
+          if (Test-Path (Join-Path $root 'include\zlib.h')) {
+            $zlibRoot = $root
+            break
+          }
+        }
+        if (-not $zlibRoot) {
+          $vcpkg = Join-Path $env:VCPKG_INSTALLATION_ROOT 'vcpkg.exe'
+          if (-not (Test-Path $vcpkg)) { $vcpkg = 'C:\vcpkg\vcpkg.exe' }
+          if (Test-Path $vcpkg) {
+            & $vcpkg install zlib:x64-windows
+            foreach ($root in $zlibCandidates) {
+              if (Test-Path (Join-Path $root 'include\zlib.h')) {
+                $zlibRoot = $root
+                break
+              }
+            }
+          }
+        }
+        if (-not $zlibRoot) {
+          Write-Error 'zlib headers not found (need MSYS2 ucrt64 or vcpkg)'
+        }
+        "ZLIB_ROOT=$zlibRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        if (Test-Path (Join-Path $msysUcrt 'include\stdlib.h')) {
+          "NYRA_SYSROOT=$msysUcrt" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=$msysUcrt\bin\gcc.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        }
+
+    - name: Rust Windows GNU target
+      if: inputs.platform == 'windows'
+      shell: bash
+      run: rustup target add x86_64-pc-windows-gnu
+
+    - name: System dependencies (Linux)
+      if: inputs.platform == 'linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          clang lld libclang-dev llvm-dev libsqlite3-dev zlib1g-dev libssl-dev python3

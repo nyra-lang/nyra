@@ -16,6 +16,7 @@ impl TypeChecker {
     ) -> Result<Type, Vec<Type>> {
         let hints: Vec<Type> = hints
             .into_iter()
+            .map(Self::normalize_string_param_hint)
             .filter(|t| *t != Type::Unknown && *t != Type::Generic("_".into()))
             .collect();
         if hints.is_empty() {
@@ -138,6 +139,13 @@ impl TypeChecker {
         }
     }
 
+    fn normalize_string_param_hint(ty: Type) -> Type {
+        match ty {
+            Type::Ref { inner, .. } if *inner == Type::String => Type::String,
+            other => other,
+        }
+    }
+
     fn pick_struct_by_hint_count(hints: &[Type], structs: &[Type]) -> Option<Type> {
         use std::collections::HashMap;
         let mut counts: HashMap<&str, usize> = HashMap::new();
@@ -217,7 +225,10 @@ impl TypeChecker {
                 Statement::For(f) => {
                     self.collect_return_param_hints(&f.body, param, returns_param, literal_types);
                 }
-                Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+                Statement::Spawn(s) => {
+                    self.collect_return_param_hints(&s.body, param, returns_param, literal_types);
+                }
+                Statement::Unsafe(b) | Statement::Benchmark(b) => {
                     self.collect_return_param_hints(b, param, returns_param, literal_types);
                 }
                 _ => {}
@@ -286,7 +297,8 @@ impl TypeChecker {
                 .args
                 .iter()
                 .any(|e| self.expr_uses_struct_receiver(param, e)),
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => self.stmt_uses_struct_receiver_in_block(param, &s.body),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 self.stmt_uses_struct_receiver_in_block(param, b)
             }
             _ => false,
@@ -325,13 +337,13 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.expr_uses_struct_receiver(param, &i.condition)
-                    || self.expr_uses_struct_receiver(param, &i.then_expr)
-                    || self.expr_uses_struct_receiver(param, &i.else_expr)
+                    || self.block_uses_struct_receiver(param, &i.then_block)
+                    || self.block_uses_struct_receiver(param, &i.else_block)
             }
             Expression::Match(m) => {
                 self.expr_uses_struct_receiver(param, &m.scrutinee)
                     || m.arms.iter().any(|a| {
-                        self.expr_uses_struct_receiver(param, &a.body)
+                        self.block_uses_struct_receiver(param, &a.body)
                             || a.guard
                                 .as_ref()
                                 .is_some_and(|g| self.expr_uses_struct_receiver(param, g))
@@ -512,7 +524,10 @@ impl TypeChecker {
                 }
                 self.collect_fn_value_hints_in_block(&f.body, callee, param_index, hints);
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => {
+                self.collect_fn_value_hints_in_block(&s.body, callee, param_index, hints);
+            }
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 self.collect_fn_value_hints_in_block(b, callee, param_index, hints);
             }
             _ => {}
@@ -562,8 +577,8 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.collect_fn_value_hints_in_expr(&i.condition, callee, param_index, hints);
-                self.collect_fn_value_hints_in_expr(&i.then_expr, callee, param_index, hints);
-                self.collect_fn_value_hints_in_expr(&i.else_expr, callee, param_index, hints);
+                for_each_expr_in_block(&i.then_block, &mut |e| self.collect_fn_value_hints_in_expr(e, callee, param_index, hints));
+                for_each_expr_in_block(&i.else_block, &mut |e| self.collect_fn_value_hints_in_expr(e, callee, param_index, hints));
             }
             Expression::Grouped(inner) => {
                 self.collect_fn_value_hints_in_expr(inner, callee, param_index, hints);
@@ -650,7 +665,10 @@ impl TypeChecker {
                 }
                 self.collect_call_site_hints_in_block(&f.body, callee, param_index, hints, locals);
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => {
+                self.collect_call_site_hints_in_block(&s.body, callee, param_index, hints, locals);
+            }
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 self.collect_call_site_hints_in_block(b, callee, param_index, hints, locals);
             }
             _ => {}
@@ -712,8 +730,8 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.collect_call_site_hints_in_expr(&i.condition, callee, param_index, hints, locals);
-                self.collect_call_site_hints_in_expr(&i.then_expr, callee, param_index, hints, locals);
-                self.collect_call_site_hints_in_expr(&i.else_expr, callee, param_index, hints, locals);
+                for_each_expr_in_block(&i.then_block, &mut |e| self.collect_call_site_hints_in_expr(e, callee, param_index, hints, locals));
+                for_each_expr_in_block(&i.else_block, &mut |e| self.collect_call_site_hints_in_expr(e, callee, param_index, hints, locals));
             }
             Expression::Grouped(inner) => {
                 self.collect_call_site_hints_in_expr(inner, callee, param_index, hints, locals);
@@ -966,8 +984,8 @@ impl TypeChecker {
             }
             Expression::If(i) => {
                 self.expr_mentions_param(&i.condition, param)
-                    || self.expr_mentions_param(&i.then_expr, param)
-                    || self.expr_mentions_param(&i.else_expr, param)
+                    || self.block_mentions_param(&i.then_block, param)
+                    || self.block_mentions_param(&i.else_block, param)
             }
             Expression::Grouped(inner) => self.expr_mentions_param(inner, param),
             _ => false,
@@ -1058,7 +1076,8 @@ impl TypeChecker {
                     out.push(t);
                 }
             }
-            Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => out.extend(self.collect_param_type_hints(name, &s.body)),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 out.extend(self.collect_param_type_hints(name, b));
             }
             Statement::Defer(e) => {
@@ -1145,8 +1164,7 @@ impl TypeChecker {
                 Some(Type::Struct(sl.name.clone()))
             }
             Expression::If(i) => self
-                .infer_expr_type_hint(&i.then_expr, env)
-                .or_else(|| self.infer_expr_type_hint(&i.else_expr, env)),
+                .infer_block_type_hint(&i.then_block, env).or_else(|| self.infer_block_type_hint(&i.else_block, env)),
             Expression::Binary(b) => self
                 .infer_expr_type_hint(&b.left, env)
                 .or_else(|| self.infer_expr_type_hint(&b.right, env)),
@@ -1161,6 +1179,11 @@ impl TypeChecker {
     fn expr_bare_param(expr: &Expression) -> Option<&str> {
         match expr {
             Expression::Variable { name, .. } => Some(name.as_str()),
+            Expression::Unary(u)
+                if matches!(u.op, UnaryOp::Ref | UnaryOp::RefMut | UnaryOp::Deref) =>
+            {
+                Self::expr_bare_param(&u.operand)
+            }
             Expression::MethodCall(m)
                 if m.method == "clone" && m.args.is_empty() && !m.optional =>
             {
@@ -1175,23 +1198,25 @@ impl TypeChecker {
         param_name: &str,
         call: &CallExpr,
     ) -> Option<Type> {
+        if call.callee == "strcat" && call.args.len() == 2 {
+            if Self::expr_is_param_name(&call.args[0], param_name)
+                || Self::expr_is_param_name(&call.args[1], param_name)
+            {
+                return Some(Type::String);
+            }
+        }
+        if call.callee == "strcmp" && call.args.len() == 2 {
+            if Self::expr_is_param_name(&call.args[0], param_name)
+                || Self::expr_is_param_name(&call.args[1], param_name)
+            {
+                return Some(Type::String);
+            }
+        }
         if let Some(sig) = self.env.functions.get(&call.callee) {
             for (arg, expected) in call.args.iter().zip(sig.params.iter()) {
                 if Self::expr_is_param_name(arg, param_name) && *expected != Type::Unknown {
-                    return Some(expected.clone());
+                    return Some(Self::normalize_string_param_hint(expected.clone()));
                 }
-            }
-        }
-        if call.callee == "strcat" && call.args.len() == 2 {
-            if Self::expr_is_param_name(&call.args[1], param_name)
-                && matches!(&call.args[0], Expression::Literal(Literal::String(_)))
-            {
-                return Some(Type::String);
-            }
-            if Self::expr_is_param_name(&call.args[0], param_name)
-                && matches!(&call.args[1], Expression::Literal(Literal::String(_)))
-            {
-                return Some(Type::String);
             }
         }
         let i32 = Type::Integer(ast::IntKind::I32);
@@ -1239,5 +1264,35 @@ impl TypeChecker {
             _ => {}
         }
         None
+    }
+
+    fn block_uses_struct_receiver(&self, param: &str, block: &Block) -> bool {
+        let mut found = false;
+        for_each_expr_in_block(block, &mut |e| {
+            if self.expr_uses_struct_receiver(param, e) {
+                found = true;
+            }
+        });
+        found
+    }
+
+    fn block_mentions_param(&self, block: &Block, param: &str) -> bool {
+        let mut found = false;
+        for_each_expr_in_block(block, &mut |e| {
+            if self.expr_mentions_param(e, param) {
+                found = true;
+            }
+        });
+        found
+    }
+
+    fn infer_block_type_hint(&self, block: &Block, env: &super::TypeEnv) -> Option<Type> {
+        let mut last = None;
+        for_each_expr_in_block(block, &mut |e| {
+            if let Some(ty) = self.infer_expr_type_hint(e, env) {
+                last = Some(ty);
+            }
+        });
+        last
     }
 }

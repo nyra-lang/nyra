@@ -1,4 +1,7 @@
 // Advanced OS: affinity, clocks, USB, serial, signals, mqueue, HW crypto, permissions.
+#if defined(__linux__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

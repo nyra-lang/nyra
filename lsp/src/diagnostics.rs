@@ -14,6 +14,14 @@ pub fn diagnostic_from_error(
     let primary_uri = file_uri(&e.span.file);
 
     let mut related = Vec::new();
+    for label in &e.labels {
+        push_related(
+            &mut related,
+            file_uri(&label.span.file),
+            span_to_lsp_range(&label.span),
+            label.label.clone(),
+        );
+    }
     if let Some(label) = &e.label {
         push_related(&mut related, primary_uri.clone(), primary_range, format!("= {label}"));
     }

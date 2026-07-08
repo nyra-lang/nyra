@@ -14,11 +14,11 @@ fi
 COMP="$ROOT/examples/comparison"
 
 last_line() {
-  "$@" 2>/dev/null | grep -v '^incremental:' | tail -1 | tr -d '\r'
+  "$@" 2>/dev/null | grep -vE '^[[:space:]]*(Compiling|Finished)[[:space:]]|^[[:space:]]*nyra[[:space:]]+|^incremental:' | tail -1 | tr -d '\r'
 }
 
 nyra_out() {
-  "$@" 2>/dev/null | grep -v '^incremental:'
+  "$@" 2>/dev/null | grep -vE '^[[:space:]]*(Compiling|Finished)[[:space:]]|^[[:space:]]*nyra[[:space:]]+|^incremental:'
 }
 
 check() {

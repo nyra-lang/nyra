@@ -491,22 +491,57 @@ tier = "experimental"
 since = "1.3.3"
 
 [[symbol]]
-name = "mysql_close"
-c_sig = "void mysql_close(void *handle)"
+name = "nyra_mysql_close"
+c_sig = "void nyra_mysql_close(void *handle)"
 module = "rt_db.c"
 tier = "experimental"
 since = "1.3.3"
 
 [[symbol]]
 name = "spawn_capture"
-c_sig = "int spawn_capture(void (*body)(void *), void *data, int64_t nbytes)"
+c_sig = "void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes)"
 module = "rt_spawn.c"
 tier = "stable"
 since = "0.2.0"
 
 [[symbol]]
+name = "spawn_join"
+c_sig = "int spawn_join(void *handle)"
+module = "rt_spawn.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_handle_drop"
+c_sig = "void spawn_handle_drop(void *handle)"
+module = "rt_spawn.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_task_capture"
+c_sig = "void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes)"
+module = "rt_task_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_task_join"
+c_sig = "int spawn_task_join(void *handle)"
+module = "rt_task_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "spawn_task_handle_drop"
+c_sig = "void spawn_task_handle_drop(void *handle)"
+module = "rt_task_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
 name = "parallel_for_range"
-c_sig = "void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent)"
+c_sig = "void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
 module = "rt_parallel.c"
 tier = "stable"
 since = "1.3.0"
@@ -538,6 +573,13 @@ c_sig = "void spawn(void)"
 module = "rt_async.c"
 tier = "stable"
 since = "0.2.0"
+
+[[symbol]]
+name = "error_stack_trace"
+c_sig = "char *error_stack_trace(void)"
+module = "rt_error.c"
+tier = "stable"
+since = "1.40.0"
 
 [[symbol]]
 name = "async_await"
@@ -792,6 +834,13 @@ tier = "stable"
 since = "0.3.0"
 
 [[symbol]]
+name = "sys_set_timeout_ms"
+c_sig = "int sys_set_timeout_ms(int fd, int timeout_ms)"
+module = "rt_net.c"
+tier = "stable"
+since = "1.41.0"
+
+[[symbol]]
 name = "rt_udp_bind"
 c_sig = "int rt_udp_bind(const char *host, int port)"
 module = "rt_net.c"
@@ -832,6 +881,41 @@ c_sig = "int http_status(const char *response_header)"
 module = "rt_http.c"
 tier = "stable"
 since = "0.3.0"
+
+[[symbol]]
+name = "http_download_file"
+c_sig = "int http_download_file(const char *url, const char *path)"
+module = "rt_http.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "json_has_key"
+c_sig = "int json_has_key(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
+name = "json_has_string"
+c_sig = "int json_has_string(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
+name = "json_has_i32"
+c_sig = "int json_has_i32(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
+
+[[symbol]]
+name = "json_has_bool"
+c_sig = "int json_has_bool(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.40.0"
 
 [[symbol]]
 name = "json_get_string"
@@ -902,6 +986,27 @@ c_sig = "void *json_decode_ptr_token(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
 since = "1.9.0"
+
+[[symbol]]
+name = "json_top_keys"
+c_sig = "void *json_top_keys(const char *json)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.41.0"
+
+[[symbol]]
+name = "json_raw_get"
+c_sig = "char *json_raw_get(const char *json, const char *key)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.41.0"
+
+[[symbol]]
+name = "json_value_kind"
+c_sig = "int json_value_kind(const char *json)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.41.0"
 
 [[symbol]]
 name = "race_runtime_init"
@@ -1081,35 +1186,35 @@ since = "1.18.0"
 [[symbol]]
 name = "tls_available"
 c_sig = "int tls_available(void)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_connect"
 c_sig = "int rt_tls_connect(const char *host, int port)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_read"
 c_sig = "char *rt_tls_read(int handle, int max_bytes)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_write"
 c_sig = "int rt_tls_write(int handle, const char *data)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_close"
 c_sig = "void rt_tls_close(int handle)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
@@ -1305,7 +1410,7 @@ since = "1.20.0"
 [[symbol]]
 name = "rt_tls_upgrade_client"
 c_sig = "int rt_tls_upgrade_client(int plain_fd, const char *hostname)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.14.0"
 
@@ -1350,6 +1455,13 @@ c_sig = "double rand_f64(void)"
 module = "rt_random.c"
 tier = "stable"
 since = "1.16.0"
+
+[[symbol]]
+name = "rand_f64_range"
+c_sig = "double rand_f64_range(double min_val, double max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
 
 [[symbol]]
 name = "sin_f64"
@@ -1744,6 +1856,34 @@ tier = "stable"
 since = "1.1.0"
 
 [[symbol]]
+name = "create_dir_all"
+c_sig = "int create_dir_all(const char *path)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "remove_dir_all"
+c_sig = "int remove_dir_all(const char *path)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "copy_dir"
+c_sig = "int copy_dir(const char *src, const char *dst)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "copy_dir_contents"
+c_sig = "int copy_dir_contents(const char *src, const char *dst)"
+module = "rt_fs.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
 name = "str_to_upper"
 c_sig = "char *str_to_upper(const char *s)"
 module = "rt_strings.c"
@@ -1987,6 +2127,48 @@ c_sig = "int rand_range(int min_val, int max_val)"
 module = "rt_random.c"
 tier = "stable"
 since = "1.1.0"
+
+[[symbol]]
+name = "rand_i64"
+c_sig = "int64_t rand_i64(void)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_range_i64"
+c_sig = "int64_t rand_range_i64(int64_t min_val, int64_t max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_u32"
+c_sig = "uint32_t rand_u32(void)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_range_u32"
+c_sig = "uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_u64"
+c_sig = "uint64_t rand_u64(void)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "rand_range_u64"
+c_sig = "uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val)"
+module = "rt_random.c"
+tier = "stable"
+since = "1.39.0"
 
 [[symbol]]
 name = "random_hex"
@@ -2712,9 +2894,23 @@ tier = "stable"
 since = "2.5.0"
 
 [[symbol]]
+name = "json_join_raw_array"
+c_sig = "char *json_join_raw_array(void *handle)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
+name = "json_split_array_elements"
+c_sig = "void *json_split_array_elements(const char *array_json)"
+module = "rt_json.c"
+tier = "stable"
+since = "1.38.0"
+
+[[symbol]]
 name = "rt_tls_upgrade_client_verify"
 c_sig = "int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "2.5.0"
 
@@ -2728,7 +2924,7 @@ since = "2.5.0"
 [[symbol]]
 name = "rt_tls_connect_verify"
 c_sig = "int rt_tls_connect_verify(const char *host, int port)"
-module = "rt_tls.c" 
+module = "rt-tls/src/lib.rs" 
 tier = "stable"
 since = "2.5.0"
 
@@ -2771,7 +2967,7 @@ since = "2.5.0"
 [[symbol]]
 name = "rt_tls_connect_ex"
 c_sig = "int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "2.5.0"
 
@@ -2925,21 +3121,21 @@ since = "1.20.0"
 [[symbol]]
 name = "rt_tls_connect_ca"
 c_sig = "int rt_tls_connect_ca(const char *host, int port, const char *ca_path)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.20.0"
 
 [[symbol]]
 name = "rt_tls_last_error"
 c_sig = "const char *rt_tls_last_error(void)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.20.0"
 
 [[symbol]]
 name = "rt_tls_upgrade_client_ex"
 c_sig = "int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.20.0"
 
@@ -2949,3 +3145,731 @@ c_sig = "int rt_tls_validate_pem_files(const char *cert_pem_path, const char *ke
 module = "rt_tls.c"
 tier = "stable"
 since = "1.20.0"
+
+[[symbol]]
+name = "arena_new"
+c_sig = "void *arena_new(long long capacity)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "arena_alloc"
+c_sig = "void *arena_alloc(void *arena, long long nbytes)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "arena_reset"
+c_sig = "void arena_reset(void *arena)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "arena_free"
+c_sig = "void arena_free(void *arena)"
+module = "rt_arena.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_unregister"
+c_sig = "int io_unregister(int fd)"
+module = "rt_async.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_available"
+c_sig = "int32_t io_uring_available(void)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_pending"
+c_sig = "int io_uring_pending(void)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_wait_once"
+c_sig = "int io_uring_wait_once(int timeout_ms)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_register_read"
+c_sig = "int32_t io_uring_register_read(int32_t fd, int32_t promise)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_uring_unregister_read"
+c_sig = "int32_t io_uring_unregister_read(int32_t fd)"
+module = "rt_io_uring.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_create"
+c_sig = "int32_t io_pool_create(int32_t workers)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_shutdown"
+c_sig = "void io_pool_shutdown(int32_t pool)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_submit_wait_readable"
+c_sig = "int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_submit_read"
+c_sig = "int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "io_pool_queue_depth"
+c_sig = "int32_t io_pool_queue_depth(int32_t pool)"
+module = "rt_io_pool.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "parallel_any_range"
+c_sig = "int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
+module = "rt_parallel.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "parallel_find_range"
+c_sig = "int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
+module = "rt_parallel.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "parallel_all_range"
+c_sig = "int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
+module = "rt_parallel.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_new"
+c_sig = "void *map_i32_i32_new(void)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_insert"
+c_sig = "void map_i32_i32_insert(void *handle, int key, int value)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_get"
+c_sig = "int map_i32_i32_get(void *handle, int key)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_contains"
+c_sig = "int map_i32_i32_contains(void *handle, int key)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_free"
+c_sig = "void map_i32_i32_free(void *handle)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "map_i32_i32_retain"
+c_sig = "void map_i32_i32_retain(void *handle)"
+module = "rt_map.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_new"
+c_sig = "void *str_buf_new(void)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_append"
+c_sig = "void str_buf_append(void *handle, const char *piece)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_append_char"
+c_sig = "void str_buf_append_char(void *handle, int ch)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_build"
+c_sig = "char *str_buf_build(void *handle)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "str_buf_drop"
+c_sig = "void str_buf_drop(void *handle)"
+module = "rt_str_buf.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_create"
+c_sig = "int32_t shm_create(const char *name, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_open_existing"
+c_sig = "int32_t shm_open_existing(const char *name, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_map"
+c_sig = "void *shm_map(int32_t fd, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_unmap"
+c_sig = "int32_t shm_unmap(void *addr, int64_t nbytes)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_close_fd"
+c_sig = "int32_t shm_close_fd(int32_t fd)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "shm_unlink_region"
+c_sig = "int32_t shm_unlink_region(const char *name)"
+module = "rt_shm.c"
+tier = "stable"
+since = "1.39.0"
+
+[[symbol]]
+name = "hw_mem_map_file"
+c_sig = "void *hw_mem_map_file(const char *path, int64_t nbytes, int32_t writable)"
+module = "rt_hw.c"
+tier = "experimental"
+since = "1.39.0"
+
+[[symbol]]
+name = "hw_mem_sync"
+c_sig = "int32_t hw_mem_sync(void *addr, int64_t nbytes)"
+module = "rt_hw.c"
+tier = "experimental"
+since = "1.39.0"
+
+# [builtin-dev:strip_suffix:string]
+[[symbol]]
+name = "str_strip_suffix"
+c_sig = "char *str_strip_suffix(const char *s, const char *suffix)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.0.0"
+# [/builtin-dev:strip_suffix:string]
+
+# [builtin-dev:to_snake_case:string]
+[[symbol]]
+name = "str_to_snake_case"
+c_sig = "char *str_to_snake_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_snake_case:string]
+
+# [builtin-dev:to_lowercase:string]
+[[symbol]]
+name = "str_to_lowercase"
+c_sig = "char *str_to_lowercase(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_lowercase:string]
+
+# [builtin-dev:to_titlecase:string]
+[[symbol]]
+name = "str_to_titlecase"
+c_sig = "char *str_to_titlecase(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_titlecase:string]
+
+# [builtin-dev:to_capitalize:string]
+[[symbol]]
+name = "str_to_capitalize"
+c_sig = "char *str_to_capitalize(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_capitalize:string]
+
+# [builtin-dev:to_camel_case:string]
+[[symbol]]
+name = "str_to_camel_case"
+c_sig = "char *str_to_camel_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_camel_case:string]
+
+# [builtin-dev:to_kebab_case:string]
+[[symbol]]
+name = "str_to_kebab_case"
+c_sig = "char *str_to_kebab_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_kebab_case:string]
+
+# [builtin-dev:to_pascal_case:string]
+[[symbol]]
+name = "str_to_pascal_case"
+c_sig = "char *str_to_pascal_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_pascal_case:string]
+
+# [builtin-dev:to_screaming_snake_case:string]
+[[symbol]]
+name = "str_to_screaming_snake_case"
+c_sig = "char *str_to_screaming_snake_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_screaming_snake_case:string]
+
+# [builtin-dev:to_train_case:string]
+[[symbol]]
+name = "str_to_train_case"
+c_sig = "char *str_to_train_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_train_case:string]
+
+# [builtin-dev:to_dot_case:string]
+[[symbol]]
+name = "str_to_dot_case"
+c_sig = "char *str_to_dot_case(const char *s)"
+module = "rt_strings.c"
+tier = "stable"
+since = "1.40.3"
+# [/builtin-dev:to_dot_case:string]
+
+# [builtin-dev:strip_prefix:string]
+[[symbol]]
+name = "str_strip_prefix"
+c_sig = "char *str_strip_prefix(const char *s, const char * prefix)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.0.0"
+# [/builtin-dev:strip_prefix:string]
+
+# [contrib-dev:ceil_f64:math]
+[[symbol]]
+name = "ceil_f64"
+c_sig = "doubleceil_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:ceil_f64:math]
+
+# [contrib-dev:clamp_f64:math]
+[[symbol]]
+name = "clamp_f64"
+c_sig = "doubleclamp_f64(double x, double lo, double hi)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:clamp_f64:math]
+
+# [contrib-dev:exp_f64:math]
+[[symbol]]
+name = "exp_f64"
+c_sig = "doubleexp_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:exp_f64:math]
+
+# [contrib-dev:floor_f64:math]
+[[symbol]]
+name = "floor_f64"
+c_sig = "doublefloor_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:floor_f64:math]
+
+# [contrib-dev:log_f64:math]
+[[symbol]]
+name = "log_f64"
+c_sig = "doublelog_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:log_f64:math]
+
+# [contrib-dev:pow_f64:math]
+[[symbol]]
+name = "pow_f64"
+c_sig = "doublepow_f64(double base, double exp)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:pow_f64:math]
+
+# [contrib-dev:round_f64:math]
+[[symbol]]
+name = "round_f64"
+c_sig = "doubleround_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:round_f64:math]
+
+# [contrib-dev:sqrt_f64:math]
+[[symbol]]
+name = "sqrt_f64"
+c_sig = "doublesqrt_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:sqrt_f64:math]
+
+# [builtin-dev:index:string]
+[[symbol]]
+name = "str_index"
+c_sig = "intstr_index(const char *s, const char * needle)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:index:string]
+
+# [builtin-dev:is_empty:string]
+[[symbol]]
+name = "str_is_empty"
+c_sig = "intstr_is_empty(const char *s)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:is_empty:string]
+
+# [builtin-dev:last_index:string]
+[[symbol]]
+name = "str_last_index"
+c_sig = "intstr_last_index(const char *s, const char * needle)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:last_index:string]
+
+# [builtin-dev:repeat:string]
+[[symbol]]
+name = "str_repeat"
+c_sig = "char *str_repeat(const char *s, int count)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:repeat:string]
+
+# [builtin-dev:trim_end:string]
+[[symbol]]
+name = "str_trim_end"
+c_sig = "char *str_trim_end(const char *s)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:trim_end:string]
+
+# [builtin-dev:trim_start:string]
+[[symbol]]
+name = "str_trim_start"
+c_sig = "char *str_trim_start(const char *s)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:trim_start:string]
+
+# [contrib-dev:vec_i32_clear:vec]
+[[symbol]]
+name = "vec_i32_clear"
+c_sig = "voidvec_i32_clear(void * handle)"
+module = "rt_vec.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:vec_i32_clear:vec]
+
+# [contrib-dev:vec_i32_insert:vec]
+[[symbol]]
+name = "vec_i32_insert"
+c_sig = "voidvec_i32_insert(void * handle, int index, int value)"
+module = "rt_vec.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:vec_i32_insert:vec]
+
+# [contrib-dev:vec_i32_remove_at:vec]
+[[symbol]]
+name = "vec_i32_remove_at"
+c_sig = "int vec_i32_remove_at(void * handle, int index)"
+module = "rt_vec.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:vec_i32_remove_at:vec]
+
+# [contrib-dev:vec_i32_reverse:vec]
+[[symbol]]
+name = "vec_i32_reverse"
+c_sig = "voidvec_i32_reverse(void * handle)"
+module = "rt_vec.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:vec_i32_reverse:vec]
+
+# [contrib-dev:vec_i32_sort:vec]
+[[symbol]]
+name = "vec_i32_sort"
+c_sig = "voidvec_i32_sort(void * handle)"
+module = "rt_vec.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:vec_i32_sort:vec]
+
+# [contrib-dev:map_str_i32_clear:map]
+[[symbol]]
+name = "map_str_i32_clear"
+c_sig = "void map_str_i32_clear(void * m)"
+module = "rt_map.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:map_str_i32_clear:map]
+
+# [contrib-dev:map_str_i32_len:map]
+[[symbol]]
+name = "map_str_i32_len"
+c_sig = "int map_str_i32_len(void * m)"
+module = "rt_map.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:map_str_i32_len:map]
+
+# [contrib-dev:map_str_i32_values:map]
+[[symbol]]
+name = "map_str_i32_values"
+c_sig = "void *map_str_i32_values(void * m)"
+module = "rt_map.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:map_str_i32_values:map]
+
+# [contrib-dev:map_str_str_clear:map]
+[[symbol]]
+name = "map_str_str_clear"
+c_sig = "void map_str_str_clear(void * m)"
+module = "rt_map_str_str.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:map_str_str_clear:map]
+
+# [contrib-dev:map_str_str_len:map]
+[[symbol]]
+name = "map_str_str_len"
+c_sig = "int map_str_str_len(void * m)"
+module = "rt_map_str_str.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:map_str_str_len:map]
+
+# [contrib-dev:map_str_str_values:map]
+[[symbol]]
+name = "map_str_str_values"
+c_sig = "void *map_str_str_values(void * m)"
+module = "rt_map_str_str.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:map_str_str_values:map]
+
+# [builtin-dev:splitn:string]
+[[symbol]]
+name = "str_splitn"
+c_sig = "void *str_splitn(const char *s, const char * sep, int n)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:splitn:string]
+
+# [builtin-dev:count:string]
+[[symbol]]
+name = "str_count"
+c_sig = "intstr_count(const char *s, const char * needle)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:count:string]
+
+# [builtin-dev:fields:string]
+[[symbol]]
+name = "str_fields"
+c_sig = "void *str_fields(const char *s)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:fields:string]
+
+# [builtin-dev:pad_end:string]
+[[symbol]]
+name = "str_pad_end"
+c_sig = "char *str_pad_end(const char *s, int width, const char * pad)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:pad_end:string]
+
+# [builtin-dev:pad_start:string]
+[[symbol]]
+name = "str_pad_start"
+c_sig = "char *str_pad_start(const char *s, int width, const char * pad)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:pad_start:string]
+
+# [builtin-dev:split_once:string]
+[[symbol]]
+name = "str_before_sep"
+c_sig = "char *str_before_sep(const char *s, const char * sep)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/builtin-dev:split_once:string]
+
+# [contrib-dev:acos_f64:math]
+[[symbol]]
+name = "acos_f64"
+c_sig = "doubleacos_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:acos_f64:math]
+
+# [contrib-dev:asin_f64:math]
+[[symbol]]
+name = "asin_f64"
+c_sig = "doubleasin_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:asin_f64:math]
+
+# [contrib-dev:atan_f64:math]
+[[symbol]]
+name = "atan_f64"
+c_sig = "doubleatan_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:atan_f64:math]
+
+# [contrib-dev:hypot_f64:math]
+[[symbol]]
+name = "hypot_f64"
+c_sig = "doublehypot_f64(double x, double y)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:hypot_f64:math]
+
+# [contrib-dev:log10_f64:math]
+[[symbol]]
+name = "log10_f64"
+c_sig = "doublelog10_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:log10_f64:math]
+
+# [contrib-dev:log2_f64:math]
+[[symbol]]
+name = "log2_f64"
+c_sig = "doublelog2_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:log2_f64:math]
+
+# [contrib-dev:trunc_f64:math]
+[[symbol]]
+name = "trunc_f64"
+c_sig = "doubletrunc_f64(double x)"
+module = "rt_math.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:trunc_f64:math]
+
+# [contrib-dev:hex_decode:encoding_mod]
+[[symbol]]
+name = "hex_decode"
+c_sig = "char *hex_decode(const char * hex)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:hex_decode:encoding_mod]
+
+# [contrib-dev:str_to_bool:strconv_mod]
+[[symbol]]
+name = "str_to_bool"
+c_sig = "int str_to_bool(const char * s)"
+module = "rt_strings.c"
+tier = "experimental"
+since = "1.46.0"
+# [/contrib-dev:str_to_bool:strconv_mod]
+

@@ -45,15 +45,32 @@ gate_make() {
   local target="$1"
   local label="${2:-$target}"
   local log ec
+  local gate_logs_dir="${TEST_ALL_GATE_LOGS_DIR:-$ROOT/target/.nyra-test-all-gate-logs}"
 
   progress_begin "$label"
-  log="$(mktemp "${TMPDIR:-/tmp}/nyra-gate.XXXXXX")"
+  mkdir -p "$gate_logs_dir"
+  log="$gate_logs_dir/$(printf '%s' "$label" | tr ' /:' '___').log"
   set +e
-  NYRA_TEST_ALL=1 NYRA_TEST_ALL_PROGRESS_FILE="${NYRA_TEST_ALL_PROGRESS_FILE:-}" \
-    TEST_ALL_LOG="${TEST_ALL_LOG:-}" \
-    make -C "$ROOT" "$target" 2>&1 | tee "$log"
-  ec=${PIPESTATUS[0]}
+  if [[ "${NYRA_TEST_ALL:-}" == "1" ]]; then
+    NYRA_TEST_ALL=1 \
+      TEST_ALL_FAILURES_FILE="${TEST_ALL_FAILURES_FILE:-}" \
+      TEST_ALL_LOG="${TEST_ALL_LOG:-}" \
+      NYRA_TEST_ALL_PROGRESS_FILE="${NYRA_TEST_ALL_PROGRESS_FILE:-}" \
+      make -C "$ROOT" "$target" >"$log" 2>&1
+    ec=$?
+  else
+    NYRA_TEST_ALL=1 NYRA_TEST_ALL_PROGRESS_FILE="${NYRA_TEST_ALL_PROGRESS_FILE:-}" \
+      TEST_ALL_LOG="${TEST_ALL_LOG:-}" \
+      make -C "$ROOT" "$target" 2>&1 | tee "$log"
+    ec=${PIPESTATUS[0]}
+  fi
   set -e
+  if [[ -n "${TEST_ALL_LOG:-}" ]]; then
+    {
+      printf '\n===== gate: %s (exit %s) =====\n' "$label" "$ec"
+      cat "$log"
+    } >>"$TEST_ALL_LOG"
+  fi
   if (( ec == 0 )); then
     progress_end "$label" ok
     rm -f "$log"
@@ -61,7 +78,6 @@ gate_make() {
   fi
   progress_end "$label" fail
   record_failure "$label (make $target)" "$(cat "$log")"
-  rm -f "$log"
   return 0
 }
 
@@ -69,13 +85,29 @@ gate_cmd() {
   local label="$1"
   shift
   local log ec
+  local gate_logs_dir="${TEST_ALL_GATE_LOGS_DIR:-$ROOT/target/.nyra-test-all-gate-logs}"
 
   progress_begin "$label"
-  log="$(mktemp "${TMPDIR:-/tmp}/nyra-gate.XXXXXX")"
+  mkdir -p "$gate_logs_dir"
+  log="$gate_logs_dir/$(printf '%s' "$label" | tr ' /:' '___').log"
   set +e
-  NYRA_TEST_ALL=1 "$@" 2>&1 | tee "$log"
-  ec=${PIPESTATUS[0]}
+  if [[ "${NYRA_TEST_ALL:-}" == "1" ]]; then
+    NYRA_TEST_ALL=1 \
+      TEST_ALL_FAILURES_FILE="${TEST_ALL_FAILURES_FILE:-}" \
+      TEST_ALL_LOG="${TEST_ALL_LOG:-}" \
+      "$@" >"$log" 2>&1
+    ec=$?
+  else
+    NYRA_TEST_ALL=1 "$@" 2>&1 | tee "$log"
+    ec=${PIPESTATUS[0]}
+  fi
   set -e
+  if [[ -n "${TEST_ALL_LOG:-}" ]]; then
+    {
+      printf '\n===== gate: %s (exit %s) =====\n' "$label" "$ec"
+      cat "$log"
+    } >>"$TEST_ALL_LOG"
+  fi
   if (( ec == 0 )); then
     progress_end "$label" ok
     rm -f "$log"
@@ -83,7 +115,6 @@ gate_cmd() {
   fi
   progress_end "$label" fail
   record_failure "$label ($*)" "$(cat "$log")"
-  rm -f "$log"
   return 0
 }
 
@@ -104,7 +135,7 @@ gate_failure_count() {
 }
 
 gate_summary() {
-  local n
+  local n gate_logs_dir="${TEST_ALL_GATE_LOGS_DIR:-$ROOT/target/.nyra-test-all-gate-logs}"
   n="$(gate_failure_count)"
   if [[ -n "${NYRA_TEST_ALL_PROGRESS_FILE:-}" ]]; then
     ROOT="$ROOT" TEST_ALL_LOG="${TEST_ALL_LOG:-}" \
@@ -113,9 +144,13 @@ gate_summary() {
   fi
   if [[ "$n" -gt 0 ]]; then
     printf '\n'
-    printf 'make: FAIL test-all finished with %s failed gate(s) at %s\n' \
+    printf 'make: FAIL test-all finished with %s failed gate(s)/test(s) at %s\n' \
       "$n" "$(date '+%Y-%m-%d %H:%M:%S')"
-    printf 'make: failure log: %s\n\n' "$TEST_ALL_FAILURES_FILE"
+    printf 'make: failure log: %s\n' "$TEST_ALL_FAILURES_FILE"
+    if [[ -d "$gate_logs_dir" ]] && ls "$gate_logs_dir"/*.log >/dev/null 2>&1; then
+      printf 'make: per-gate logs: %s/\n' "$gate_logs_dir"
+    fi
+    printf '\n'
     cat "$TEST_ALL_FAILURES_FILE"
     return 1
   fi

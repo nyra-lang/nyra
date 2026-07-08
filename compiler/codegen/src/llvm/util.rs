@@ -30,6 +30,38 @@ pub(super) fn array_elem_from_ty(ty: &str) -> Option<String> {
     Some(rest.trim_end_matches(']').to_string())
 }
 
+pub(super) fn llvm_type_size_bytes(ty: &str) -> i64 {
+    if let (Some(len), Some(elem)) = (array_len_from_ty(ty), array_elem_from_ty(ty)) {
+        return (len as i64) * llvm_type_size_bytes(&elem);
+    }
+    if ty.starts_with('<') && ty.contains(" x ") {
+        if let Some(inner) = ty
+            .trim_start_matches('<')
+            .split(" x ")
+            .nth(1)
+            .map(|s| s.trim_end_matches('>'))
+        {
+            if let Ok(lanes) = ty
+                .trim_start_matches('<')
+                .split(" x ")
+                .next()
+                .unwrap_or("")
+                .parse::<i64>()
+            {
+                return lanes * llvm_type_size_bytes(inner);
+            }
+        }
+    }
+    llvm_field_size_align(ty).1
+}
+
+pub(super) fn llvm_type_align_bytes(ty: &str) -> i64 {
+    if ty.starts_with('<') {
+        return 16;
+    }
+    llvm_field_size_align(ty).0
+}
+
 /// Size and alignment of one LLVM field type for spawn/closure capture layout.
 fn llvm_field_size_align(ty: &str) -> (i64, i64) {
     if let (Some(len), Some(elem)) = (array_len_from_ty(ty), array_elem_from_ty(ty)) {
@@ -40,7 +72,9 @@ fn llvm_field_size_align(ty: &str) -> (i64, i64) {
     }
     if ty == "ptr" || ty.ends_with('*') {
         (8, 8)
-    } else if ty == "i1" {
+    } else     if ty == "i1" {
+        (1, 1)
+    } else if ty == "i8" {
         (1, 1)
     } else if ty == "double" || ty == "f64" {
         (8, 8)
@@ -82,12 +116,11 @@ pub(super) fn is_string_builtin_method(method: &str) -> bool {
         method,
         "split" | "trim" | "contains" | "starts_with" | "ends_with" | "replace"
             | "replacen"
-            | "to_upper" | "to_lower"
-    )
+            | "to_upper" | "to_lower" | "strip_suffix" | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize" | "to_camel_case" | "to_kebab_case" | "to_pascal_case" | "to_screaming_snake_case" | "to_train_case" | "to_dot_case" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once")
 }
 
 pub(super) fn llvm_ptr_reg(reg: &str) -> String {
-    if reg.starts_with('%') {
+    if reg.starts_with('%') || reg.starts_with('@') || reg == "null" {
         reg.to_string()
     } else {
         format!("%{reg}")
@@ -113,6 +146,26 @@ pub(super) fn llvm_value_operand(reg: &str) -> String {
     }
 }
 
+/// Nyra `fn` names that collide with MSVC UCRT / libm globals when emitted as LLVM symbols.
+/// Nyra function names that collide with MSVC CRT / libm on Windows link.
+pub const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
+    "atoi", "atof", "atol", "atoll",
+    // libm short aliases in stdlib/math.ny — rt_math.c __builtin_* may call these CRT names.
+    "sin", "cos", "tan", "sqrt", "pow", "log", "exp", "ceil", "floor", "round", "trunc", "hypot",
+    "asin", "acos", "atan", "atan2", "log10", "log2",
+];
+
+/// LLVM link symbol for a Nyra-defined function (may differ from the source name on Windows).
+pub(super) fn llvm_fn_link_name(name: &str, target_triple: &str) -> String {
+    if target_triple.to_ascii_lowercase().contains("windows")
+        && WINDOWS_CRT_FN_COLLISIONS.contains(&name)
+    {
+        format!("nyra_{name}")
+    } else {
+        name.to_string()
+    }
+}
+
 pub(super) fn host_target_triple() -> String {
     let arch = match std::env::consts::ARCH {
         "x86_64" | "amd64" => "x86_64",
@@ -134,6 +187,32 @@ pub(super) fn host_target_triple() -> String {
 }
 
 #[cfg(test)]
+mod llvm_fn_link_name_tests {
+    use super::llvm_fn_link_name;
+
+    #[test]
+    fn windows_crt_collision_gets_nyra_prefix() {
+        assert_eq!(
+            llvm_fn_link_name("atoi", "x86_64-pc-windows-gnu"),
+            "nyra_atoi"
+        );
+        assert_eq!(
+            llvm_fn_link_name("ceil", "x86_64-pc-windows-gnu"),
+            "nyra_ceil"
+        );
+        assert_eq!(
+            llvm_fn_link_name("sqrt", "x86_64-pc-windows-gnu"),
+            "nyra_sqrt"
+        );
+    }
+
+    #[test]
+    fn unix_triple_keeps_source_name() {
+        assert_eq!(llvm_fn_link_name("atoi", "aarch64-apple-darwin"), "atoi");
+    }
+}
+
+#[cfg(test)]
 mod escape_tests {
     use super::escape_string;
 
@@ -148,12 +227,19 @@ mod escape_tests {
     pub(super) fn escape_string_escapes_ascii_controls() {
         assert_eq!(escape_string("a\\b\"c\nd"), "a\\\\b\\22c\\0Ad");
     }
-}
 
+    #[test]
+    pub(super) fn llvm_ptr_reg_formats_bare_ssa_numbers() {
+        assert_eq!(super::llvm_ptr_reg("0"), "%0");
+        assert_eq!(super::llvm_ptr_reg("%1"), "%1");
+        assert_eq!(super::llvm_ptr_reg("null"), "null");
+    }
+}
 
 use std::collections::{HashMap, HashSet};
 
 use ast::*;
+use types::monomorph_inst_name;
 
 pub(super) fn is_array_ty(ty: &str) -> bool {
     ty.starts_with('[')
@@ -162,8 +248,59 @@ pub(super) fn is_array_ty(ty: &str) -> bool {
 pub(super) fn llvm_storage_ty(ty: &str) -> &str {
     match ty {
         "char" => "i32",
-        "vec_str" => "ptr",
+        "string" | "vec_str" | "bytes" | "join_handle" => "ptr",
         _ => ty,
+    }
+}
+
+pub(super) fn is_float_llvm_ty(ty: &str) -> bool {
+    matches!(ty, "float" | "double" | "f32" | "f64")
+}
+
+pub(super) fn llvm_float_storage_ty(ty: &str) -> &str {
+    match ty {
+        "float" | "f32" => "float",
+        "double" | "f64" => "double",
+        _ => ty,
+    }
+}
+
+/// Typed zero for `add ty ZERO, val` materialization of literal SSA bindings.
+pub(super) fn llvm_typed_zero(storage_ty: &str) -> &'static str {
+    if is_float_llvm_ty(storage_ty) {
+        "0.0"
+    } else {
+        "0"
+    }
+}
+
+/// Integer `add` vs floating `fadd` when materializing literal SSA bindings.
+pub(super) fn llvm_scalar_materialize_op(storage_ty: &str) -> &'static str {
+    if is_float_llvm_ty(storage_ty) {
+        "fadd"
+    } else {
+        "add"
+    }
+}
+
+/// LLVM constant operand for materializing a scalar literal into SSA (`fadd ty 0.0, lit`).
+pub(super) fn llvm_materialize_scalar_literal(storage_ty: &str, raw: &str) -> String {
+    match llvm_float_storage_ty(storage_ty) {
+        "double" => {
+            if raw.contains('e') || raw.contains('E') {
+                raw.to_string()
+            } else {
+                llvm_float_const(raw.parse().unwrap_or(0.0), FloatKind::F64)
+            }
+        }
+        "float" => {
+            if raw.contains('e') || raw.contains('E') {
+                raw.to_string()
+            } else {
+                llvm_float_const(raw.parse().unwrap_or(0.0), FloatKind::F32)
+            }
+        }
+        _ => raw.to_string(),
     }
 }
 
@@ -198,6 +335,20 @@ pub(super) fn llvm_ptr(ty: &str) -> String {
     }
 }
 
+/// Element type when loading through a reference/pointer LLVM type (`i32*` → `i32`, `ptr` → `i32`).
+pub(super) fn llvm_pointee_ty(ty: &str) -> String {
+    let t = ty.trim_start_matches('%');
+    if t == "ptr" || t == "i8*" {
+        return "i32".into();
+    }
+    if let Some(base) = t.strip_suffix('*') {
+        if !base.is_empty() {
+            return base.to_string();
+        }
+    }
+    t.to_string()
+}
+
 pub(super) fn llvm_ty_to_ann(ty: &str) -> TypeAnnotation {
     if let Some(k) = IntKind::parse_name(ty) {
         return TypeAnnotation::Integer(k);
@@ -226,7 +377,11 @@ pub(super) fn is_struct_pointer_type(ty: &str) -> bool {
 }
 
 pub(super) fn struct_ptr_type(struct_ty: &str) -> String {
-    format!("{struct_ty}*")
+    if struct_ty.starts_with('%') {
+        format!("{struct_ty}*")
+    } else {
+        format!("%{struct_ty}*")
+    }
 }
 
 pub(super) fn struct_name_from_llvm_ty(ty: &str) -> Option<String> {
@@ -252,6 +407,7 @@ pub(super) fn llvm_type_ann_resolved(
         TypeAnnotation::Char => "i32".into(),
         TypeAnnotation::Bool => "i1".into(),
         TypeAnnotation::String => "ptr".into(),
+        TypeAnnotation::Bytes => "bytes".into(),
         TypeAnnotation::VecStr => "ptr".into(),
         TypeAnnotation::Ptr | TypeAnnotation::RawPtr { .. } => "ptr".into(),
         TypeAnnotation::Void => "void".into(),
@@ -282,12 +438,11 @@ pub(super) fn llvm_type_ann_resolved(
         TypeAnnotation::FnPtr { .. } => "ptr".into(),
         TypeAnnotation::DynTrait { trait_name, .. } => format!("%Dyn_{trait_name}"),
         TypeAnnotation::Applied { base, args } => {
-            let suffix: String = args
-                .iter()
-                .map(|a| llvm_type_ann_resolved(a, structs, enum_names))
-                .collect::<Vec<_>>()
-                .join("_");
-            format!("%{base}__{suffix}")
+            format!("%{}", monomorph_inst_name(base, args))
+        }
+        TypeAnnotation::Simd { elem, lanes } => {
+            let inner = llvm_type_ann_resolved(elem, structs, enum_names);
+            format!("<{lanes} x {inner}>")
         }
     }
 }

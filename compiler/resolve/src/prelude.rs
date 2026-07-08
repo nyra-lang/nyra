@@ -56,11 +56,17 @@ impl StdlibVirtualIndex {
 }
 
 /// Merge only stdlib modules needed by symbols referenced in `program` (fixed-point).
+///
+/// Important: modules are loaded with their **imports resolved** (`load_file_recursive`),
+/// not via `parse_file_only`. Sugar files like `net/http/sugar.ny` define mangled
+/// `impl` methods (`RequestInit_timeout`) that forward to free functions in sibling
+/// files (`fetch.ny`). Skipping those imports leaves only the wrapper and causes
+/// infinite recursion (runtime segfault / `program exited with status -1`).
 pub fn inject_lazy_stdlib_prelude(
     entry: &Path,
     program: &mut Program,
     visited: &mut HashSet<PathBuf>,
-    _errors: &mut Vec<NyraError>,
+    errors: &mut Vec<NyraError>,
 ) -> Result<(), String> {
     let index = StdlibVirtualIndex::build(Some(entry));
     if index.symbol_count() == 0 {
@@ -86,7 +92,7 @@ pub fn inject_lazy_stdlib_prelude(
         let to_load = index.files_for_symbols(missing.iter().map(String::as_str));
         let mut new_files: Vec<PathBuf> = to_load
             .into_iter()
-            .filter(|p| !loaded_stdlib.contains(p))
+            .filter(|p| !loaded_stdlib.contains(p) && !visited.contains(p))
             .collect();
         new_files.sort();
         if new_files.is_empty() {
@@ -95,7 +101,9 @@ pub fn inject_lazy_stdlib_prelude(
 
         for path in new_files {
             loaded_stdlib.insert(path.clone());
-            let sub = parse_file_only(&path).map_err(|e| e.to_string())?;
+            // Resolve sibling imports so free helpers land before impl wrappers
+            // with the same mangled name (codegen skips emit when the free fn exists).
+            let sub = crate::load_file_recursive(&path, visited, errors)?;
             merge::merge_program(program, sub, None);
         }
     }
@@ -145,7 +153,7 @@ mod tests {
     #[test]
     fn load_program_with_options_loads_strvec_for_cat() {
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let entry = repo.join("Apps/FileSystem/cat/main.ny");
+        let entry = repo.join("examples/zero_types_cli.ny");
         let loaded = crate::load_program_with_options(
             &entry,
             crate::LoadOptions {
@@ -158,19 +166,121 @@ mod tests {
             "missing StrVec_new with auto_prelude"
         );
         assert!(
-            loaded
-                .program
-                .functions
-                .iter()
-                .any(|f| f.name == "Cli_strip_flags"),
-            "missing Cli_strip_flags after load"
+            loaded.program.functions.iter().any(|f| f.name == "strip_flags"),
+            "missing strip_flags in zero_types_cli example"
         );
+    }
+
+    #[test]
+    fn lazy_prelude_loads_module_for_method_call_reference() {
+        // Regression: a stdlib function referenced ONLY via UFCS method-call
+        // syntax (`name.String_toUpperCase()`) must still pull in its defining
+        // module. Before the fix, `collect_program_uses` skipped method names,
+        // so `builtins_string.ny` was never merged and codegen emitted a call to
+        // an undefined `@String_toUpperCase` (linker error). Covers both
+        // zero-types and explicit-types spellings.
+        let dir = std::env::temp_dir()
+            .join(format!("nyra_prelude_method_call_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        for (label, src) in [
+            (
+                "zero_types",
+                "fn main() {\n    let name = \"hamdy\"\n    print(name.String_toUpperCase())\n}\n",
+            ),
+            (
+                "typed",
+                "fn main() {\n    let name: string = \"hamdy\"\n    print(name.String_toUpperCase())\n}\n",
+            ),
+        ] {
+            let entry = dir.join(format!("{label}.ny"));
+            std::fs::write(&entry, src).unwrap();
+
+            let mut visited = HashSet::new();
+            let mut errors = Vec::new();
+            let mut program = crate::parse_file_only(&entry).unwrap();
+            assert!(
+                !program
+                    .functions
+                    .iter()
+                    .any(|f| f.name == "String_toUpperCase"),
+                "[{label}] fixture must not define String_toUpperCase itself"
+            );
+
+            inject_lazy_stdlib_prelude(&entry, &mut program, &mut visited, &mut errors).unwrap();
+
+            assert!(
+                program
+                    .functions
+                    .iter()
+                    .any(|f| f.name == "String_toUpperCase"),
+                "[{label}] method-call reference must pull in builtins_string.ny \
+                 (String_toUpperCase); loaded string fns: {:?}",
+                program
+                    .functions
+                    .iter()
+                    .filter(|f| f.name.starts_with("String_"))
+                    .map(|f| f.name.as_str())
+                    .collect::<Vec<_>>()
+            );
+        }
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn lazy_prelude_http_sugar_keeps_free_helpers() {
+        // Regression: `req().timeout(n)` must pull sugar.ny WITH its imports
+        // (fetch.ny / response.ny). Otherwise mangled impl wrappers replace the
+        // free `RequestInit_timeout` / `HttpResponse_json` and recurse forever.
+        let dir = std::env::temp_dir()
+            .join(format!("nyra_prelude_http_sugar_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let entry = dir.join("main.ny");
+        std::fs::write(
+            &entry,
+            "fn main() {\n    let r = req().timeout(8000)\n    print(r.timeout_ms)\n}\n",
+        )
+        .unwrap();
+
+        let mut visited = HashSet::new();
+        let mut errors = Vec::new();
+        let mut program = crate::parse_file_only(&entry).unwrap();
+        inject_lazy_stdlib_prelude(&entry, &mut program, &mut visited, &mut errors).unwrap();
+
+        let timeout = program
+            .functions
+            .iter()
+            .find(|f| f.name == "RequestInit_timeout")
+            .expect("RequestInit_timeout free fn must be merged from fetch.ny");
+        // Free helper rebuilds the struct; the broken wrapper only calls itself.
+        let body = format!("{:?}", timeout.body);
+        assert!(
+            !body.contains("Call(") || body.contains("StructLiteral") || body.contains("headers"),
+            "expected real RequestInit_timeout body from fetch.ny, got: {body}"
+        );
+        assert!(
+            program
+                .impls
+                .iter()
+                .any(|i| i.type_name == "RequestInit"
+                    && i.methods.iter().any(|m| m.name == "RequestInit_timeout")),
+            "sugar impl wrapper should still be present (codegen skips emit when free fn exists)"
+        );
+        assert!(
+            program.functions.iter().any(|f| f.name == "req"),
+            "req() from sugar.ny must be present"
+        );
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
     fn lazy_prelude_loads_strvec_for_untyped_cat() {
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let entry = repo.join("Apps/FileSystem/cat/main.ny");
+        let entry = repo.join("examples/zero_types_cli.ny");
         assert!(entry.is_file());
 
         let mut visited = HashSet::new();

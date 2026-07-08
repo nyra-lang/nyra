@@ -32,10 +32,13 @@ pub fn ownership_of(
         | Type::Void
         | Type::Unknown
         | Type::Handle
+        | Type::JoinHandle
         | Type::VecStr
         | Type::Ptr
-        | Type::RawPtr { .. } => OwnershipKind::Copy,
-        Type::String => OwnershipKind::Move,
+        | Type::RawPtr { .. }
+        | Type::Simd { .. } => OwnershipKind::Copy,
+        Type::String | Type::Bytes => OwnershipKind::Move,
+        Type::Union(_) => OwnershipKind::Copy,
         Type::Ref { .. } | Type::Generic(_) | Type::ForAll { .. } | Type::FnPtr { .. } => {
             OwnershipKind::Copy
         }
@@ -69,6 +72,7 @@ pub fn ownership_of(
 pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "read_file",
     "strcat",
+    "str_buf_build",
     "i32_to_string",
     "i64_to_string",
     "array_i32_debug_string",
@@ -79,7 +83,6 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "substring",
     "str_to_upper",
     "str_to_lower",
-    "str_trim",
     "str_replace",
     "str_replacen",
     "str_split",
@@ -103,6 +106,26 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "pty_read_wait_raw",
     "stdin_read_line",
     "random_hex",
+    "str_strip_suffix",
+    "str_to_snake_case",
+    "str_to_lowercase",
+    "str_to_titlecase",
+    "str_to_capitalize",
+    "str_to_camel_case",
+    "str_to_kebab_case",
+    "str_to_pascal_case",
+    "str_to_screaming_snake_case",
+    "str_to_train_case",
+    "str_to_dot_case",
+    "str_strip_prefix",
+    "str_repeat",
+    "str_trim_end",
+    "str_trim_start",
+    "str_splitn",
+    "str_fields",
+    "str_pad_end",
+    "str_pad_start",
+    "str_before_sep",
 ];
 
 pub fn callee_returns_owned(callee: &str) -> bool {

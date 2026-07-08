@@ -7,7 +7,10 @@ pub const NYRA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 mod stability;
 mod features;
+mod incremental_codegen;
+mod signature_cache;
 mod cache;
+mod check_cache;
 mod crate_incremental;
 
 pub use features::FeatureSet;
@@ -16,8 +19,19 @@ pub use cache::{
     link_cache_key, mix_crate_manifest, options_cache_key, read_runtime_cache, write_cached_fingerprint,
     write_runtime_cache, BuildFingerprint,
 };
+pub use incremental_codegen::{
+    entry_path_for_compile, link_ir_modules, IncrementalContext, split_dev_codegen,
+};
+pub use signature_cache::{
+    build_signature_manifest, can_skip_typecheck_for_dirty, load_signatures, save_signatures,
+    SignatureManifest,
+};
+pub use check_cache::{
+    check_cache_key, is_check_cache_hit, write_check_cache,
+};
 pub use crate_incremental::{
-    load_manifest, save_manifest, CrateManifest, CrateUnit,
+    load_manifest, load_unit_ir, save_manifest, save_unit_ir, unit_ir_path, unit_object_path,
+    CrateManifest, CrateUnit,
 };
 
 use std::collections::HashSet;
@@ -68,6 +82,12 @@ pub struct CompileOptions {
     pub verbose_escape: bool,
     /// Skip merging the full stdlib prelude (smaller IR; use explicit `import "stdlib/…"`).
     pub no_prelude: bool,
+    /// Skip whole-program typecheck when dirty files only changed function bodies (dev).
+    pub skip_typecheck: bool,
+    /// Per-crate incremental codegen (dev multi-file builds).
+    pub incremental: Option<IncrementalContext>,
+    /// Skip lint + escape analysis for faster dev `nyra run` (debug builds).
+    pub dev_fast: bool,
 }
 
 
@@ -128,6 +148,7 @@ impl Compiler {
         file: &str,
         options: &CompileOptions,
     ) -> Result<CompileOutput, String> {
+        errors::register_source(file, source);
         let (tokens, lexer_errors) = Lexer::new(source, file).tokenize();
         if options.stop_after == Some(CompileStage::Lex) {
             return Ok(CompileOutput {
@@ -229,6 +250,10 @@ impl Compiler {
         }
 
         let mut program = program.clone();
+        let mut load_errors = load_errors;
+        if program.comptime {
+            load_errors.extend(const_eval::finalize_comptime_module(&mut program));
+        }
         expand_program(&mut program);
         let mut mono_errors = monomorphize_program(&mut program);
         synthesize_vec_pod_helpers(&mut program);
@@ -237,6 +262,7 @@ impl Compiler {
         synthesize_struct_json_helpers(&mut program);
         if !options.no_std
             && !program.no_std
+            && !program.comptime
             && !options.no_prelude
             && !options.freestanding
         {
@@ -272,6 +298,7 @@ impl Compiler {
         desugar_try(&mut program);
         coerce_auto_borrow(&mut program);
         fold_program_consts(&mut program);
+        let comptime_fn_errors = const_eval::fold_attributed_comptime_functions(&mut program);
 
         let mut warnings = if program.allow_extended {
             vec![]
@@ -289,26 +316,37 @@ impl Compiler {
         if options.no_std || program.no_std {
             type_checker.no_std = true;
         }
-        type_checker.check_program(&program);
-        if !type_checker.has_errors() {
-            type_checker.apply_inferred_signatures(&mut program);
-            type_checker.apply_anonymous_struct_literals(&mut program);
-            if type_checker.synthesized_anon_structs() {
-                synthesize_clone_impls(&mut program);
+        if !options.skip_typecheck {
+            type_checker.check_program(&program);
+            if !type_checker.has_errors() {
+                type_checker.apply_inferred_signatures(&mut program);
+                type_checker.apply_anonymous_struct_literals(&mut program);
+                if type_checker.synthesized_anon_structs() {
+                    synthesize_clone_impls(&mut program);
+                }
+                finish_async_desugar(&mut program, &type_checker);
+                synthesize_vec_pod_helpers(&mut program);
+                synthesize_vec_reloc_helpers(&mut program);
+                synthesize_vec_nested_helpers(&mut program);
+                synthesize_struct_json_helpers(&mut program);
             }
-            finish_async_desugar(&mut program, &type_checker);
-            synthesize_vec_pod_helpers(&mut program);
-            synthesize_vec_reloc_helpers(&mut program);
-            synthesize_vec_nested_helpers(&mut program);
-            synthesize_struct_json_helpers(&mut program);
         }
-        let mut type_errors = type_checker.errors.clone();
+        let mut type_errors = if options.skip_typecheck {
+            vec![]
+        } else {
+            type_checker.errors.clone()
+        };
         type_errors.extend(mono_errors);
+        type_errors.extend(comptime_fn_errors);
 
         if let Some(entry) = lint_entry {
-            warnings.extend(check_unused_imports(entry, Some(&program)));
+            if !options.dev_fast {
+                warnings.extend(check_unused_imports(entry, Some(&program)));
+            }
         }
-        warnings.extend(check_unused_variables(&program));
+        if !options.dev_fast {
+            warnings.extend(check_unused_variables(&program));
+        }
 
         if options.deny_warnings {
             for w in &mut warnings {
@@ -322,12 +360,12 @@ impl Compiler {
         borrow_check(&program, &own_ctx, &mut borrow_errors);
         check_lifetimes(&program, &own_ctx, &mut borrow_errors);
 
-        let escape_plan = if type_checker.has_errors() {
+        let escape_plan = if type_checker.has_errors() || options.dev_fast {
             ownership::EscapePlan::default()
         } else {
             analyze_escapes(&program)
         };
-        if options.verbose_escape && !type_checker.has_errors() {
+        if options.verbose_escape && !type_checker.has_errors() && !options.dev_fast {
             eprintln!("   Checking  escape analysis");
             for line in escape_plan.report_lines() {
                 eprintln!("   {line}");
@@ -335,7 +373,7 @@ impl Compiler {
         }
 
         let mut no_escape_errors = vec![];
-        if !type_checker.has_errors() {
+        if !type_checker.has_errors() && !options.dev_fast {
             ownership::check_no_escape(&program, &escape_plan, &mut no_escape_errors);
         }
         borrow_errors.extend(no_escape_errors);
@@ -354,7 +392,7 @@ impl Compiler {
             });
         }
 
-        if type_checker.has_errors() {
+        if type_checker.has_errors() && !options.skip_typecheck {
             return Ok(CompileOutput {
                 llvm_ir: None,
                 runtime_profile: RuntimeProfile::default(),
@@ -396,12 +434,59 @@ impl Compiler {
             });
         }
 
-        let mut codegen = Codegen::new(file);
-        codegen.set_target(&options.target);
-        codegen.set_drop_plan(drop_plan);
-        codegen.set_escape_plan(escape_plan.clone());
-        let ir = codegen.compile_program(&program);
-        let mut runtime_profile = codegen.take_runtime_profile();
+        if program.comptime {
+            return Ok(CompileOutput {
+                llvm_ir: None,
+                runtime_profile: RuntimeProfile::default(),
+                escape_plan,
+                lexer_errors: vec![],
+                parser_errors: vec![],
+                load_errors: vec![],
+                type_errors: vec![],
+                borrow_errors: vec![],
+                warnings,
+            });
+        }
+
+        let (ir, mut runtime_profile) = if options.dev_fast {
+            if let Some(ref inc) = options.incremental {
+                if inc.manifest.units.len() > 1 {
+                    if let Ok((ir, rt)) = split_dev_codegen(
+                        &program,
+                        file,
+                        options,
+                        &drop_plan,
+                        &escape_plan,
+                        inc,
+                    ) {
+                        return Ok(CompileOutput {
+                            llvm_ir: Some(ir),
+                            runtime_profile: rt,
+                            escape_plan,
+                            lexer_errors: vec![],
+                            parser_errors: vec![],
+                            load_errors,
+                            type_errors,
+                            borrow_errors,
+                            warnings,
+                        });
+                    }
+                }
+            }
+            let mut codegen = Codegen::new(file);
+            codegen.set_target(&options.target);
+            codegen.set_drop_plan(drop_plan.clone());
+            codegen.set_escape_plan(escape_plan.clone());
+            let ir = codegen.compile_program(&program);
+            (ir, codegen.take_runtime_profile())
+        } else {
+            let mut codegen = Codegen::new(file);
+            codegen.set_target(&options.target);
+            codegen.set_drop_plan(drop_plan);
+            codegen.set_escape_plan(escape_plan.clone());
+            let ir = codegen.compile_program(&program);
+            (ir, codegen.take_runtime_profile())
+        };
         if options.freestanding || program.no_std || options.no_std {
             runtime_profile = RuntimeProfile::default();
         }

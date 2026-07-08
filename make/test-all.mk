@@ -22,6 +22,7 @@ test-all-init:
 		$(MAKE_LIB)/test-all-progress.sh init
 	@printf 'make: live log: %s\n' "$(TEST_ALL_LOG)"
 	@printf 'make: failures log: %s\n' "$(TEST_ALL_FAILURES_FILE)"
+	@printf 'make: gate logs (on failure): %s/\n' "$(TEST_ALL_GATE_LOGS_DIR)"
 	@. $(MAKE_LIB)/test-stats.sh && nyra_stats_init
 
 test-all-core:
@@ -37,6 +38,7 @@ test-all-core-fast:
 	$(call log_phase,fast gates)
 	$(call run_gate,test-count,suite test count)
 	$(call run_gate,test-webdocs-tabs,webdocs code tabs)
+	$(call run_gate,test-webdocs-snippets,webdocs snippet run)
 	$(call run_gate,smoke-vscode-extension,vscode extension compile)
 	$(call run_gate,test-optional-types,optional types)
 	$(call run_gate,test-comparison-parity,comparison parity)

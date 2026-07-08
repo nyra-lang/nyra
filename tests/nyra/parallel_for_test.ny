@@ -13,8 +13,8 @@ test fn test_parallel_for_array() {
     }
 }
 
-test fn test_parallel_max_threads() {
-    parallel(max_threads = 2) for i in 0..8 {
+test fn test_parallel_max_workers() {
+    parallel(max = 2) for i in 0..8 {
         blackbox_i32(i)
     }
 }
@@ -39,6 +39,24 @@ test fn test_parallel_mode_balanced() {
 
 test fn test_parallel_threads_expr() {
     parallel(threads = cpu_count() - 1) for i in 0..8 {
+        blackbox_i32(i)
+    }
+}
+
+test fn test_parallel_task_default() {
+    parallel(max = 2) for i in 0..8 {
+        blackbox_i32(i)
+    }
+}
+
+test fn test_parallel_thread_backend() {
+    parallel:thread(max = 2) for i in 0..8 {
+        blackbox_i32(i)
+    }
+}
+
+test fn test_parallel_backend_option() {
+    parallel(backend = thread, threads = 2) for i in 0..8 {
         blackbox_i32(i)
     }
 }

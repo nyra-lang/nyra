@@ -1,4 +1,8 @@
-// Pseudo-terminal spawn + I/O (macOS/Linux). Linked on demand via nyra_pty_* symbols.
+// Pseudo-terminal spawn + I/O. POSIX + Windows ConPTY.
+#if defined(_WIN32)
+#include "rt_pty_win.inc.c"
+#else
+
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -418,3 +422,5 @@ void pty_flush_stdout(int master, int max_bytes, int timeout_ms) {
         }
     }
 }
+
+#endif /* !_WIN32 */

@@ -116,25 +116,28 @@ compiler/codegen/src/
 
 ```
 myapp/
-  main.ny
-  nyra.mod
-  nyra.lock
-  nyra.sum
-  src/                 # application modules
+  main.ny          # entry: fn main()
+  nyra.mod         # manifest: module / require / link
+  nyra.lock        # pinned versions
+  nyra.sum         # checksums
+  src/             # application modules
     *.ny
-  target/debug/        # build output (gitignored)
+  .nyra/cache/     # fetched packages (after sync / run)
+  target/debug/    # build output (gitignored)
 ```
 
-`nyra pkg init` scaffolds `main.ny` and lockfiles.
+`nyra pkg init` / `nyrapkg init` scaffolds `main.ny` + `nyra.mod` + empty lockfiles.
+`nyra run` / `nyra build` auto-sync `require` packages (fetch missing, prune removed — like Cargo) when `nyrapkg` is available.
 
 ## Where to start contributing
 
 | Task | Start here |
 |------|------------|
+| **Not sure where to go** | [`contributor-map.md`](contributor-map.md) — decision flowchart |
 | New `print` / I/O feature | `codegen/llvm/print.rs`, `stdlib/rt/rt_io.c` |
 | New syntax | `lexer/`, `parser/`, `ast/`, `compiler/driver/tests/` |
 | New CLI flag | `cli/src/app/args.rs`, `cli/src/app/session.rs` |
 | Docs | `webDocs/`, `docs/`, run `./scripts/build-webdocs.sh` |
 | Package manager | `pkg/src/`, `cli/src/commands/pkg.rs` |
 
-See also [CONTRIBUTING.md](../CONTRIBUTING.md) and [docs/spec-v1.md](spec-v1.md).
+See also [CONTRIBUTING.md](../CONTRIBUTING.md) and [docs/contributor-map.md](contributor-map.md).

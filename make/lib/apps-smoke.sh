@@ -4,13 +4,36 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
-
+# shellcheck source=test-all-collect.sh
+source "$ROOT/make/lib/test-all-collect.sh"
+ta_set_scope "apps-smoke"
 # shellcheck source=nyra-bin.sh
 source "$ROOT/make/lib/nyra-bin.sh"
 if [[ -z "${NYRA_BIN:-}" ]]; then nyra_export_cli; fi
 NYRA="${NYRA:-$NYRA_BIN}"
+
 log() { echo "apps-smoke: $*" >&2; }
-fail() { log "FAILED: $*"; exit 1; }
+fail() {
+  log "FAILED: $*"
+  ta_fail "$*" "" || exit 1
+}
+
+build_app() {
+  local label="$1"
+  local dir="$2"
+  local out=""
+  if [[ "${NYRA_TEST_ALL:-}" != "1" ]]; then
+    log "build $label"
+  fi
+  if ! out="$(cd "$dir" && $NYRA build . 2>&1)"; then
+    fail "$label build" "$out"
+    return 0
+  fi
+  if [[ -n "$out" && "${NYRA_TEST_ALL:-}" != "1" ]]; then
+    printf '%s\n' "$out"
+  fi
+  return 0
+}
 
 BASICS=(
   MergeSort
@@ -41,11 +64,12 @@ BASICS=(
 for app in "${BASICS[@]}"; do
   dir="$ROOT/Apps/Basics/$app"
   if [[ ! -f "$dir/main.ny" && ! -f "$dir/nyra.mod" ]]; then
-    log "skip Basics/$app (no project)"
+    if [[ "${NYRA_TEST_ALL:-}" != "1" ]]; then
+      log "skip Basics/$app (no project)"
+    fi
     continue
   fi
-  log "build Basics/$app"
-  (cd "$dir" && $NYRA build .) || fail "Basics/$app build"
+  build_app "Basics/$app" "$dir"
 done
 
 raylib_ok=0
@@ -71,11 +95,11 @@ GRAPHICS=(
 if [[ "$raylib_ok" -eq 1 ]]; then
   for app in "${GRAPHICS[@]}"; do
     dir="$ROOT/Apps/Graphics/$app"
-    log "build Graphics/$app"
-    (cd "$dir" && $NYRA build .) || fail "Graphics/$app build"
+    build_app "Graphics/$app" "$dir"
   done
 else
   log "skip Graphics/* (raylib not found — brew install raylib)"
 fi
 
+ta_finish "apps-smoke"
 log "ok — Apps smoke"

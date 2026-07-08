@@ -17,6 +17,22 @@ pub fn coded_parser_error(span: Span, message: impl AsRef<str>) -> NyraError {
     err
 }
 
+/// Deprecated parallel keys — prefer `max = N`.
+pub fn parallel_prefer_max(span: Span, key: &str) -> NyraError {
+    NyraError::coded(
+        P015_PARALLEL_PREFER_THREADS,
+        ErrorKind::Parser,
+        span,
+        format!("prefer `max` over `{key}` in `parallel(...)`"),
+    )
+    .note("caps worker count; use `parallel:task` / `parallel:thread` to pick the backend")
+}
+
+/// Back-compat alias for [`parallel_prefer_max`].
+pub fn parallel_prefer_max_threads(span: Span) -> NyraError {
+    parallel_prefer_max(span, "cores")
+}
+
 fn classify_parser_message(msg: &str) -> (&'static str, Option<&'static str>, Option<&'static str>) {
     match msg {
         "Expected parameter name" => (

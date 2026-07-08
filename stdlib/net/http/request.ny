@@ -119,7 +119,7 @@ fn is_chunked_transfer(raw: string) -> i32 {
     return 0
 }
 
-fn hex_digit(c: i32) -> i32 {
+fn http_hex_nibble(c: i32) -> i32 {
     if c >= 48 && c <= 57 {
         return c - 48
     }
@@ -137,7 +137,16 @@ fn str_to_i32_hex(s: string) -> i32 {
     let mut i = 0
     let mut v = 0
     while i < n {
-        let d = hex_digit(char_at(s, i))
+        let c = char_at(s, i)
+        // Skip whitespace; stop at chunk-extension separator ';'.
+        if c == 32 || c == 9 {
+            i = i + 1
+            continue
+        }
+        if c == 59 {
+            break
+        }
+        let d = http_hex_nibble(c)
         if d < 0 {
             break
         }
@@ -202,6 +211,7 @@ fn RequestContext_from_raw(raw: string) -> RequestContext {
         body: body_from_raw(raw),
         query: query_from_line(line),
         raw: raw,
+        params: HashMap_str_str_new(),
     }
 }
 

@@ -1,2 +1,2 @@
-// FFI / advanced only: normal Nyra code auto-drops owned strings at scope end.
-// Use `free` from core/mem.ny (ptr) for manual release.
+// Allocators — arena bump allocator for batch allocation patterns.
+// See `alloc/arena.ny` and `core/mem.ny` for malloc/free.

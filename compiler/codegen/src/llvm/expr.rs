@@ -19,8 +19,8 @@ use super::{
 use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
-    llvm_cmp_operand, llvm_float_const, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_cmp_operand, llvm_float_const, llvm_pointee_ty, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
+    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, llvm_value_operand, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -65,11 +65,11 @@ impl Codegen {
                 })
                 .unwrap_or_else(|| "i32".into()),
             Expression::Grouped(inner) => self.infer_expr_llvm_ty(inner, env),
-            Expression::If(i) => self.infer_expr_llvm_ty(&i.then_expr, env),
+            Expression::If(i) => self.infer_block_expr_llvm_ty(&i.then_block, env),
             Expression::Match(m) => m
                 .arms
                 .first()
-                .map(|a| self.infer_expr_llvm_ty(&a.body, env))
+                .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
                 .unwrap_or_else(|| "i32".into()),
             Expression::Binary(_) => "i32".into(),
             Expression::Unary(u) => match u.op {
@@ -147,43 +147,42 @@ impl Codegen {
                             if let Some(binding) = env.get(name) {
                                 let ty = Self::binding_ty(binding);
                                 let ptr_ty = llvm_ptr(ty);
-                                // `let mut` scalars are SSA registers; C out-params need a stack slot.
-                                if self.mut_ssa_locals.contains(name) {
-                                    if let Binding::Reg { reg, .. } = binding {
-                                        let llvm_ty = llvm_storage_ty(ty);
-                                        let slot = self.fresh("refmut");
-                                        self.emit(&format!(
-                                            "  %{slot} = alloca {llvm_ty}, align 8"
-                                        ));
-                                        let reg_ref = if reg.starts_with('%') {
-                                            reg.clone()
-                                        } else if reg.chars().all(|c| {
-                                            c.is_ascii_digit() || c == '-' || c == '.'
-                                        }) {
-                                            reg.clone()
-                                        } else {
-                                            format!("%{reg}")
-                                        };
-                                        self.emit(&format!(
-                                            "  store {llvm_ty} {reg_ref}, {} %{slot}",
-                                            llvm_ptr(llvm_ty)
-                                        ));
+                                // SSA scalars have no stable address; materialize a stack slot.
+                                if let Binding::Reg { reg, .. } = binding {
+                                    let ty = Self::binding_ty(binding);
+                                    // String/ptr SSA values are already pointers; &s is the ptr itself.
+                                    if ty == "ptr" || ty == "string" || ty == "bytes" {
                                         return ExprValue {
-                                            reg: format!("%{slot}"),
-                                            ty: ptr_ty,
+                                            reg: llvm_ptr_reg(reg),
+                                            ty: llvm_ptr("ptr"),
                                         };
                                     }
+                                    let llvm_ty = llvm_storage_ty(ty);
+                                    let slot = self.fresh("refslot");
+                                    self.emit(&format!(
+                                        "  %{slot} = alloca {llvm_ty}, align 8"
+                                    ));
+                                    let reg_ref = llvm_value_operand(reg);
+                                    self.emit(&format!(
+                                        "  store {llvm_ty} {reg_ref}, {} %{slot}",
+                                        llvm_ptr(llvm_ty)
+                                    ));
+                                    return ExprValue {
+                                        reg: format!("%{slot}"),
+                                        ty: ptr_ty,
+                                    };
                                 }
                                 let ptr_reg = match binding {
-                                    Binding::Stack { slot, .. } => format!("%{slot}"),
-                                    Binding::Reg { reg, .. } => {
-                                        if reg.starts_with('%') {
-                                            reg.clone()
-                                        } else {
-                                            format!("%{reg}")
-                                        }
+                                    Binding::Stack { slot, ty } if ty == "ptr" && u.op == UnaryOp::Ref => {
+                                        let loaded = self.fresh("ref");
+                                        self.emit(&format!(
+                                            "  %{loaded} = load ptr, ptr %{slot}"
+                                        ));
+                                        format!("%{loaded}")
                                     }
-                                    Binding::Param { index, .. } => index.to_string(),
+                                    Binding::Stack { slot, .. } => format!("%{slot}"),
+                                    Binding::Reg { .. } => unreachable!("Reg handled above"),
+                                    Binding::Param { index, .. } => format!("%{index}"),
                                     Binding::Closure(_) => "0".to_string(),
                                     Binding::PromotedStruct {
                                         struct_name,
@@ -211,13 +210,11 @@ impl Codegen {
                     UnaryOp::Deref => {
                         let inner = self.compile_expr(&u.operand, env);
                         let loaded = self.fresh("load");
-                        let (elem_ty, ptr_ty) = if inner.ty == "ptr" {
-                            ("i32".to_string(), "ptr".to_string())
+                        let elem_ty = llvm_pointee_ty(&inner.ty);
+                        let ptr_ty = if inner.ty == "ptr" {
+                            "ptr".to_string()
                         } else {
-                            (
-                                inner.ty.trim_start_matches('%').to_string(),
-                                llvm_ptr(&inner.ty),
-                            )
+                            llvm_ptr(&elem_ty)
                         };
                         let ptr_op = if inner.ty == "ptr" {
                             let p = self.materialize_ptr_reg(&inner.reg);
@@ -314,6 +311,15 @@ impl Codegen {
                     };
                 }
                 if let Some(v) = self.compile_math_intrinsic_call(call, env) {
+                    return v;
+                }
+                if let Some(v) = self.compile_random_builtin_call(call, env) {
+                    return v;
+                }
+                if let Some(v) = self.compile_layout_intrinsic_call(call, env) {
+                    return v;
+                }
+                if let Some(v) = self.compile_simd_intrinsic_call(call, env) {
                     return v;
                 }
                 if let Some(Binding::Closure(meta)) = env.get(&call.callee).cloned() {
@@ -438,7 +444,7 @@ impl Codegen {
                         let (reg, ty) = self.materialize_array_call_arg(&v);
                         arg_regs.push(reg);
                         arg_tys.push(ty);
-                    } else if v.ty == "ptr" {
+                    } else if v.ty == "ptr" || v.ty == "bytes" {
                         arg_regs.push(self.materialize_ptr_reg(&v.reg));
                         arg_tys.push("ptr".into());
                     } else {
@@ -447,7 +453,7 @@ impl Codegen {
                     }
                 }
                 let llvm_callee = if self.functions.contains_key(&call.callee) {
-                    call.callee.clone()
+                    self.llvm_fn_link_name(&call.callee)
                 } else {
                     self.runtime_callee(&call.callee)
                 };
@@ -612,6 +618,33 @@ impl Codegen {
             }
             Expression::TupleLiteral(elems) => self.compile_tuple_literal(elems, env),
             Expression::EnumVariant(ev) => self.compile_enum_variant(ev, env),
+            Expression::MethodCall(mc)
+                if mc.method == "to_string" && mc.args.is_empty() =>
+            {
+                let obj = self.compile_expr(&mc.object, env);
+                if obj.ty == "bytes" {
+                    let reg = self.fresh("bytes_to_str");
+                    let ptr = llvm_ptr_reg(&obj.reg);
+                    self.emit_runtime_call(
+                        "bytes_to_string",
+                        &format!("  %{reg} = call ptr @bytes_to_string(ptr {ptr})"),
+                    );
+                    return ExprValue {
+                        reg: format!("%{reg}"),
+                        ty: "ptr".into(),
+                    };
+                }
+                let callee = self.method_callee_name(&mc.object, &mc.method, env);
+                self.compile_expr(
+                    &Expression::Call(CallExpr {
+                        callee,
+                        type_args: vec![],
+                        args: vec![mc.object.clone()],
+                        span: mc.span.clone(),
+                    }),
+                    env,
+                )
+            }
             Expression::MethodCall(mc) if mc.method == "send" && mc.args.len() == 1 => {
                 if let Some(slot) = self.resolve_local_channel_slot(&mc.object, env) {
                     let val = self.compile_expr(&mc.args[0], env);
@@ -664,6 +697,18 @@ impl Codegen {
                         ty: "i32".into(),
                     };
                 }
+                if obj.ty == "bytes" {
+                    let reg = self.fresh("bytes_len");
+                    let ptr = llvm_ptr_reg(&obj.reg);
+                    self.emit_runtime_call(
+                        "bytes_len",
+                        &format!("  %{reg} = call i64 @bytes_len(ptr {ptr})"),
+                    );
+                    return ExprValue {
+                        reg: format!("%{reg}"),
+                        ty: "i64".into(),
+                    };
+                }
                 if obj.ty == "ptr" {
                     let reg = self.fresh("strlen");
                     let str_reg = if obj.reg.starts_with('%') {
@@ -711,7 +756,7 @@ impl Codegen {
                     let reg = self.fresh("str_clone");
                     self.emit_runtime_call(
                         "str_clone",
-                        &format!("  %{reg} = call ptr @str_clone(ptr {})", obj.reg),
+                        &format!("  %{reg} = call ptr @str_clone(ptr {})", llvm_ptr_reg(&obj.reg)),
                     );
                     return ExprValue {
                         reg: format!("%{reg}"),
@@ -732,10 +777,53 @@ impl Codegen {
                 )
             }
             Expression::MethodCall(mc) if mc.method == "sort" => {
-                self.compile_array_sort(mc, env)
+                if self.expr_receiver_struct_name(&mc.object, env).is_some() {
+                    let callee = self.method_callee_name(&mc.object, &mc.method, env);
+                    let mut args = vec![mc.object.clone()];
+                    args.extend(mc.args.clone());
+                    self.compile_expr(
+                        &Expression::Call(CallExpr {
+                            callee,
+                            type_args: vec![],
+                            args,
+                            span: mc.span.clone(),
+                        }),
+                        env,
+                    )
+                } else {
+                    self.compile_array_sort(mc, env)
+                }
             }
             Expression::MethodCall(mc) if mc.method == "sort_by" => {
-                self.compile_array_sort_by(mc, env)
+                if self.expr_receiver_struct_name(&mc.object, env).is_some() {
+                    let callee = self.method_callee_name(&mc.object, &mc.method, env);
+                    let mut args = vec![mc.object.clone()];
+                    args.extend(mc.args.clone());
+                    self.compile_expr(
+                        &Expression::Call(CallExpr {
+                            callee,
+                            type_args: vec![],
+                            args,
+                            span: mc.span.clone(),
+                        }),
+                        env,
+                    )
+                } else {
+                    self.compile_array_sort_by(mc, env)
+                }
+            }
+            Expression::MethodCall(mc) if mc.method == "join" && mc.args.is_empty() => {
+                let obj = self.compile_expr(&mc.object, env);
+                let kind = if let Expression::Variable { name, .. } = &mc.object {
+                    self.drop_plan.join_handle_kind(&self.current_func, name)
+                } else {
+                    ast::SpawnKind::Task
+                };
+                self.emit_spawn_join(&obj.reg, kind);
+                ExprValue {
+                    reg: "0".into(),
+                    ty: "void".into(),
+                }
             }
             Expression::MethodCall(mc) => {
                 let callee = self.method_callee_name(&mc.object, &mc.method, env);
@@ -751,6 +839,11 @@ impl Codegen {
                     env,
                 )
             }
+            Expression::Spawn { kind, body, .. } => {
+                let mut spawn_drop = DropState::new(&self.current_func);
+                self.compile_spawn(*kind, body, env, &mut spawn_drop)
+            }
+            Expression::ParallelSearch(ps) => self.compile_parallel_search(ps, env),
             Expression::Grouped(inner) => self.compile_expr(inner, env),
             Expression::Await(inner) => {
                 let inner_v = self.compile_expr(inner, env);
@@ -823,6 +916,10 @@ impl Codegen {
                 }
             }
             Expression::Invalid => ExprValue {
+                reg: "0".into(),
+                ty: "i32".into(),
+            },
+            Expression::ComptimeBlock { .. } => ExprValue {
                 reg: "0".into(),
                 ty: "i32".into(),
             },

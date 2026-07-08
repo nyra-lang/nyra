@@ -65,6 +65,9 @@ mod comments;
 #[path = "conformance/trait.rs"]
 mod trait_dispatch;
 
+#[path = "conformance/comptime.rs"]
+mod comptime;
+
 #[path = "conformance/trait_bounds.rs"]
 mod trait_bounds;
 
@@ -73,3 +76,6 @@ mod struct_serde;
 
 #[path = "conformance/windows.rs"]
 mod windows;
+
+#[path = "conformance/tls.rs"]
+mod tls;

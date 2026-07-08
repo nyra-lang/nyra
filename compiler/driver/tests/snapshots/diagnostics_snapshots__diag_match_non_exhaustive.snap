@@ -2,5 +2,9 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: Non-exhaustive match: missing variant 'B'
-  --> test.ny:4:19
+error[E023]: non-exhaustive match: missing variant `B`
+  --> diag_match_non_exhaustive.ny:4:19
+   |
+  4 |     let n = match e { E.A => 1 }
+   |                   ^
+   = help: add a match arm for this variant, or use `_` as a wildcard

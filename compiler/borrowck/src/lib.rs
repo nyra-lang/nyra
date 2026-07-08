@@ -11,14 +11,28 @@ use ownership::{
 use types::Type;
 
 mod diag;
-use diag::{record_move_origin, use_after_move_error, DiagCtx, MoveOrigin, move_candidate};
+use diag::{
+    borrow_active_error, cannot_borrow_moved, cannot_borrow_mut_alias,
+    cannot_borrow_while_mut_borrowed, manual_free_warning, move_while_borrowed, record_move_origin,
+    use_after_move_error, use_moved_value_error, DiagCtx, MoveOrigin, move_candidate,
+};
 
 fn builtin_method_borrows_receiver(method: &str) -> bool {
+    // All `String_*` stdlib helpers take `&string`, so UFCS calls
+    // (`name.String_toUpperCase()`) borrow rather than move the receiver.
+    if method.starts_with("String_") {
+        return true;
+    }
     matches!(
         method,
         "clone" | "length" | "len" | "split" | "trim" | "contains" | "starts_with"
             | "ends_with" | "replace" | "replacen" | "to_upper" | "to_lower" | "sort"
-            | "sort_by"
+            | "sort_by" | "strip_suffix"
+            // Case-conversion string builtins — all take `&string`.
+            | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize"
+            | "to_camel_case" | "to_kebab_case" | "to_pascal_case"
+            | "to_screaming_snake_case" | "to_train_case" | "to_dot_case"
+            | "includes" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once" 
     )
 }
 
@@ -194,14 +208,11 @@ fn check_statement(
             }
             if let Expression::ArrowFn(arrow) = &l.value {
                 if !state.borrowed_mut.is_empty() || !state.borrowed_imm.is_empty() {
-                    errors.push(
-                        NyraError::new(
-                            ErrorKind::BorrowCheck,
-                            expr_span(&l.value),
-                            "closure while references are active",
-                        )
-                        .note("Finish using borrows before creating a capturing closure"),
-                    );
+                    errors.push(borrow_active_error(
+                        "closure while references are active",
+                        expr_span(&l.value),
+                        "finish using borrows before creating a capturing closure",
+                    ));
                 }
                 let outer = state.outer_vars();
                 check_sync_closure_captures(arrow, &outer, arrow.span.clone(), ctx, errors);
@@ -248,10 +259,12 @@ fn check_statement(
             }
             if let Some(v) = variable_name(&a.value) {
                 if state.moved.contains_key(v) {
-                    errors.push(NyraError::new(
-                        ErrorKind::BorrowCheck,
+                    errors.push(use_moved_value_error(
+                        v,
                         a.span.clone(),
-                        format!("Use of moved value '{v}'"),
+                        state.moved.get(v),
+                        diag,
+                        &state.type_of(v, ctx),
                     ));
                 }
             }
@@ -273,6 +286,8 @@ fn check_statement(
         Statement::If(i) => {
             let _ = uses_moved(&i.condition, state, ctx, diag, errors);
             register_borrows_from_expr(&i.condition, stmt_idx, state, errors);
+            // Condition borrows (e.g. strcmp(&a, &b)) end before branch bodies.
+            state.clear_borrows();
             let mut then_s = state.fork();
             check_block(&i.then_block, &mut then_s, ctx, diag, errors);
             if let Some(e) = &i.else_block {
@@ -287,6 +302,7 @@ fn check_statement(
         Statement::While(w) => {
             let _ = uses_moved(&w.condition, state, ctx, diag, errors);
             register_borrows_from_expr(&w.condition, stmt_idx, state, errors);
+            state.clear_borrows();
             let mut loop_s = state.fork();
             check_block(&w.body, &mut loop_s, ctx, diag, errors);
             state.clear_borrows();
@@ -298,12 +314,11 @@ fn check_statement(
             });
             if f.parallel.is_some() {
                 if !state.borrowed_mut.is_empty() || !state.borrowed_imm.is_empty() {
-                    errors.push(NyraError::new(
-                        ErrorKind::BorrowCheck,
-                        Span::default(),
+                    errors.push(borrow_active_error(
                         "`parallel for` while references are active",
-                    )
-                    .note("Finish using borrows before `parallel for`"));
+                        Span::default(),
+                        "finish using borrows before `parallel for`",
+                    ));
                 }
                 let outer = state.outer_vars();
                 check_parallel_for_captures(&f.body, &outer, Span::default(), ctx, errors);
@@ -329,19 +344,18 @@ fn check_statement(
             }
             check_expr_moves(e, stmt_idx, state, ctx, diag, errors);
         }
-        Statement::Spawn(body) => {
+        Statement::Spawn(sp) => {
             if !state.borrowed_mut.is_empty() || !state.borrowed_imm.is_empty() {
-                errors.push(NyraError::new(
-                    ErrorKind::BorrowCheck,
-                    Span::default(),
+                errors.push(borrow_active_error(
                     "spawn while references are active",
-                )
-                .note("Finish using borrows before spawn"));
+                    Span::default(),
+                    "finish using borrows before spawn",
+                ));
             }
             let outer = state.outer_vars();
-            check_spawn_captures(body, &outer, Span::default(), ctx, errors);
+            check_spawn_captures(&sp.body, &outer, Span::default(), ctx, errors);
             let declared: std::collections::HashSet<String> = outer.keys().cloned().collect();
-            for name in ownership::collect_captures(body, &declared) {
+            for name in ownership::collect_captures(&sp.body, &declared) {
                 if ctx.kind_of(outer.get(&name).unwrap_or(&Type::Unknown)).is_move() {
                     state.moved.insert(
                         name.clone(),
@@ -349,7 +363,7 @@ fn check_statement(
                     );
                 }
             }
-            check_block(body, state, ctx, diag, errors);
+            check_block(&sp.body, state, ctx, diag, errors);
             state.clear_borrows();
         }
         Statement::Benchmark(body) => {
@@ -428,16 +442,7 @@ fn check_nyra_free_call(
     };
     state.manually_freed.insert(name.clone());
     if state.ownership_of_var(name, ctx).is_move() && !state.moved.contains_key(name) {
-        errors.push(
-            NyraError::new(
-                ErrorKind::BorrowCheck,
-                call.span.clone(),
-                format!(
-                    "manual free('{name}') on owned value; Nyra auto-drops at scope end (double-free risk)"
-                ),
-            )
-            .note("Remove free unless this is FFI escape hatch code"),
-        );
+        errors.push(manual_free_warning(name, call.span.clone()));
     }
 }
 
@@ -492,14 +497,11 @@ fn check_expr_moves(
                 if let Expression::ArrowFn(arrow) = arg {
                     if arrow_has_captures(arrow) {
                         if !state.borrowed_mut.is_empty() || !state.borrowed_imm.is_empty() {
-                            errors.push(
-                                NyraError::new(
-                                    ErrorKind::BorrowCheck,
-                                    arrow.span.clone(),
-                                    "closure while references are active",
-                                )
-                                .note("Finish using borrows before passing a capturing closure"),
-                            );
+                            errors.push(borrow_active_error(
+                                "closure while references are active",
+                                arrow.span.clone(),
+                                "finish using borrows before passing a capturing closure",
+                            ));
                         }
                         let outer = state.outer_vars();
                         check_sync_closure_captures(arrow, &outer, arrow.span.clone(), ctx, errors);
@@ -522,6 +524,40 @@ fn check_expr_moves(
                     try_move_on_call(arg, &mc.method, &mc.span, state, ctx, errors);
                 }
             }
+            if mc.method == "join" {
+                try_move_on_call(&mc.object, "join", &mc.span, state, ctx, errors);
+            }
+        }
+        Expression::Spawn { body, .. } => {
+            if !state.borrowed_mut.is_empty() || !state.borrowed_imm.is_empty() {
+                errors.push(borrow_active_error(
+                    "spawn while references are active",
+                    Span::default(),
+                    "finish using borrows before spawn",
+                ));
+            }
+            let outer = state.outer_vars();
+            check_spawn_captures(body, &outer, Span::default(), ctx, errors);
+            let declared: std::collections::HashSet<String> = outer.keys().cloned().collect();
+            for cap in ownership::collect_captures(body, &declared) {
+                if ctx.kind_of(outer.get(&cap).unwrap_or(&Type::Unknown)).is_move() {
+                    state.moved.insert(
+                        cap.clone(),
+                        record_move_origin(&cap, Span::default(), None, Span::default(), false),
+                    );
+                }
+            }
+        }
+        Expression::ParallelSearch(ps) => {
+            if !state.borrowed_mut.is_empty() || !state.borrowed_imm.is_empty() {
+                errors.push(borrow_active_error(
+                    "parallel search while references are active",
+                    Span::default(),
+                    "finish using borrows before parallel search",
+                ));
+            }
+            let outer = state.outer_vars();
+            check_parallel_for_captures(&ps.body, &outer, Span::default(), ctx, errors);
         }
         _ => {}
     }
@@ -545,11 +581,7 @@ fn try_move_on_call(
         return;
     }
     if state.borrowed_imm.contains(name) || state.borrowed_mut.contains(name) {
-        errors.push(NyraError::new(
-            ErrorKind::BorrowCheck,
-            expr_span(arg),
-            format!("Cannot move '{name}' while borrowed"),
-        ));
+        errors.push(move_while_borrowed(name, expr_span(arg)));
         return;
     }
     state.moved.insert(
@@ -572,6 +604,9 @@ fn register_borrows_from_expr(
         },
         Expression::Binary(b) => {
             register_borrows_from_expr(&b.left, stmt_idx, state, errors);
+            if matches!(b.op, BinaryOp::And | BinaryOp::Or) {
+                state.expire_borrows_before(stmt_idx + 1);
+            }
             register_borrows_from_expr(&b.right, stmt_idx, state, errors);
         }
         Expression::Call(c) => {
@@ -587,8 +622,8 @@ fn register_borrows_from_expr(
         }
         Expression::If(i) => {
             register_borrows_from_expr(&i.condition, stmt_idx, state, errors);
-            register_borrows_from_expr(&i.then_expr, stmt_idx, state, errors);
-            register_borrows_from_expr(&i.else_expr, stmt_idx, state, errors);
+            for_each_expr_in_block(&i.then_block, &mut |e| register_borrows_from_expr(e, stmt_idx, state, errors));
+            for_each_expr_in_block(&i.else_block, &mut |e| register_borrows_from_expr(e, stmt_idx, state, errors));
         }
         Expression::Match(m) => {
             register_borrows_from_expr(&m.scrutinee, stmt_idx, state, errors);
@@ -596,7 +631,7 @@ fn register_borrows_from_expr(
                 if let Some(g) = &arm.guard {
                     register_borrows_from_expr(g, stmt_idx, state, errors);
                 }
-                register_borrows_from_expr(&arm.body, stmt_idx, state, errors);
+                for_each_expr_in_block(&arm.body, &mut |e| register_borrows_from_expr(e, stmt_idx, state, errors));
             }
         }
         Expression::Await(inner) => register_borrows_from_expr(inner, stmt_idx, state, errors),
@@ -646,28 +681,16 @@ fn register_borrow(
     };
     let sp = expr_span(operand);
     if state.moved.contains_key(name) {
-        errors.push(NyraError::new(
-            ErrorKind::BorrowCheck,
-            sp.clone(),
-            format!("Cannot borrow moved value '{name}'"),
-        ));
+        errors.push(cannot_borrow_moved(name, sp.clone()));
         return;
     }
     if mutable {
         if state.borrowed_imm.contains(name) || state.borrowed_mut.contains(name) {
-            errors.push(NyraError::new(
-                ErrorKind::BorrowCheck,
-                sp,
-                format!("Cannot borrow '{name}' as mutable (&mut aliasing rule)"),
-            ));
+            errors.push(cannot_borrow_mut_alias(name, sp));
             return;
         }
     } else if state.borrowed_mut.contains(name) {
-        errors.push(NyraError::new(
-            ErrorKind::BorrowCheck,
-            sp,
-            format!("Cannot borrow '{name}' while mutably borrowed"),
-        ));
+        errors.push(cannot_borrow_while_mut_borrowed(name, sp));
         return;
     }
     // Temporary expression borrows end at the current statement (NLL).
@@ -822,13 +845,13 @@ fn visit_expr(
         Expression::Match(m) => {
             visit_expr(&m.scrutinee, state, ctx, diag, errors, found);
             for arm in &m.arms {
-                visit_expr(&arm.body, state, ctx, diag, errors, found);
+                for_each_expr_in_block(&arm.body, &mut |e| visit_expr(e, state, ctx, diag, errors, found));
             }
         }
         Expression::If(i) => {
             visit_expr(&i.condition, state, ctx, diag, errors, found);
-            visit_expr(&i.then_expr, state, ctx, diag, errors, found);
-            visit_expr(&i.else_expr, state, ctx, diag, errors, found);
+            for_each_expr_in_block(&i.then_block, &mut |e| visit_expr(e, state, ctx, diag, errors, found));
+            for_each_expr_in_block(&i.else_block, &mut |e| visit_expr(e, state, ctx, diag, errors, found));
         }
         Expression::Index(ix) => {
             visit_expr(&ix.object, state, ctx, diag, errors, found);

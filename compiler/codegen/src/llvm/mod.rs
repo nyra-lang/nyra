@@ -29,12 +29,13 @@ mod parallel;
 mod program;
 mod progress;
 mod spawn;
+mod simd;
 mod stmt;
 mod store;
 mod strings;
 mod trait_objects;
 mod types_map;
-mod util;
+pub(crate) mod util;
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 
@@ -93,6 +94,8 @@ pub struct Codegen {
     local_channel_type_emitted: bool,
     /// `let mut` scalars promoted to SSA (name → update binding on assign, no alloca).
     mut_ssa_locals: HashSet<String>,
+    /// Locals whose current `ptr` value came from heap allocation (safe to `free` on reassignment).
+    heap_string_bindings: HashSet<String>,
     /// Locals proven to stay >= 0 for i32 (loop counters, positive `%` chains).
     non_negative_vars: HashSet<String>,
     /// `let mut` SSA scalars initialized from a non-negative literal (e.g. `mut acc = 0`).
@@ -101,16 +104,32 @@ pub struct Codegen {
     loop_stack: Vec<LoopPhiContext>,
     /// LLVM block label for the most recently emitted basic block.
     current_block: String,
+    /// Monotonic parallel helper index per function (expression-site `parallel any/find/all`).
+    func_par_idx: usize,
+    /// Monotonic spawn-body index per function. Drives the emitted `__spawn_<fn>_<n>`
+    /// symbol so statement spawns and expression spawns (which use independent
+    /// `DropState`s) can never collide on the same LLVM function name.
+    func_spawn_idx: usize,
     /// LLVM attribute groups for `#[inline]` / `#[hot]` / `#[cold]` functions.
     fn_attr_sets: Vec<String>,
     /// Struct types declared with `repr(C)` (C ABI at FFI boundaries).
     repr_c_structs: HashSet<String>,
+    /// Union field layouts by name.
+    union_fields: HashMap<String, Vec<(String, TypeAnnotation)>>,
+    /// Struct layout metadata for `size_of` / `align_of` intrinsics.
+    struct_layout_infos: HashMap<String, types::StructInfo>,
+    union_layout_infos: HashMap<String, types::UnionInfo>,
+    repr_c_unions: HashSet<String>,
+    /// Per-enum variant payload LLVM types (heterogeneous enums).
+    enum_variant_payload_llvm: HashMap<String, HashMap<String, String>>,
     /// Names of `extern fn` symbols (calls into native C libraries).
     extern_fn_names: HashSet<String>,
     /// Nyra `extern fn` name → linked C runtime symbol (e.g. `strlen` → `strlen`).
     extern_c_symbols: HashMap<String, String>,
     /// C symbols already emitted as `declare` (avoid duplicate LLVM declarations).
     declared_c_syms: HashSet<String>,
+    /// Integer variable → Nyra `IntKind` (for generic `random` dispatch).
+    local_int_kinds: HashMap<String, IntKind>,
     /// LLVM intrinsic `declare` lines (math builtins).
     intrinsic_decl_lines: Vec<String>,
     intrinsic_decls: HashSet<String>,

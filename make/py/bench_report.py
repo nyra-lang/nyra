@@ -16,9 +16,6 @@ LANG_COLORS = {
     "Go": "#00a8cc",
     "C": "#7eb6ff",
     "C++": "#00599c",
-    "Node": "#6bbd5b",
-    "Python": "#5b9bd5",
-    "Java": "#e76f00",
 }
 LANG_ORDER = [
     "Nyra (typed)",
@@ -27,9 +24,6 @@ LANG_ORDER = [
     "Go",
     "C",
     "C++",
-    "Node",
-    "Python",
-    "Java",
 ]
 SUITE_ORDER = [
     "cpu_bound",
@@ -43,6 +37,7 @@ SUITE_ORDER = [
     "arithmetic",
     "loop",
     "loop_nofold",
+    "comptime_table",
     "fib",
     "nested",
     "struct_sum",
@@ -60,6 +55,7 @@ SUITE_INFO = {
     "arithmetic": "Two integer adds",
     "loop": "Linear sum 0..N-1 (N=10M)",
     "loop_nofold": "Loop with anti-constant-fold blackbox",
+    "comptime_table": "Lookup table build + sum (Nyra-comptime = compile-time fold)",
     "fib": "Iterative Fibonacci (35 steps)",
     "nested": "2D nested loop (200×200)",
     "struct_sum": "Field accumulation (500k) — struct vs locals",
@@ -312,7 +308,7 @@ def build_report(rows: list[dict], meta: dict) -> str:
     <nav class="legend">{legend_html}</nav>
     <nav class="toc-nav">{suite_toc}</nav>
     {''.join(suite_sections)}
-    <p class="note">GPU columns show peak samples from <code>nvidia-smi</code> during each run (— on CPU-only / Apple Silicon). CPU% ≈ (user+sys)/wall; can exceed 100% on multi-core. Set <code>BENCH_LANGS=all</code> to include C, C++, Node, Python, Java. Re-run: <code>./scripts/bench.sh</code></p>
+    <p class="note">GPU columns show peak samples from <code>nvidia-smi</code> during each run (— on CPU-only / Apple Silicon). CPU% ≈ (user+sys)/wall; can exceed 100% on multi-core. Compared languages: Nyra, C, C++, Go, Rust. Re-run: <code>./scripts/bench.sh</code></p>
   </main>
 </body>
 </html>

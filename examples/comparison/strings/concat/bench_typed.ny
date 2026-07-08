@@ -1,5 +1,5 @@
-extern fn strcat(a: string, b: string) -> string
-extern fn strlen(s: string) -> i32
+extern fn strcat(a: &string, b: &string) -> string
+extern fn strlen(s: &string) -> i32
 
 extern fn blackbox_i32(x: i32) -> i32
 

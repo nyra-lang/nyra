@@ -20,7 +20,8 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    llvm_typed_zero, llvm_scalar_materialize_op, llvm_materialize_scalar_literal, llvm_float_storage_ty,
+    is_float_llvm_ty, llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -104,6 +105,7 @@ impl Codegen {
                         self.enum_locals.insert(l.name.clone(), en.clone());
                     }
                 }
+                self.register_call_moves(&l.value, env, drop_state);
                 let mut val = if let Expression::StructLiteral(sl) = &l.value {
                     self.compile_struct_literal(sl, env, self.binding_no_escape(&l.name))
                 } else {
@@ -135,8 +137,11 @@ impl Codegen {
                 }
                 let needs_drop_stack = self.drop_plan.is_owned_in(&drop_state.func, &l.name)
                     || self.drop_plan.needs_struct_drop_in(&drop_state.func, &l.name)
-                    || self.drop_plan.is_enum_payload_in(&drop_state.func, &l.name);
-                let storage_ty = if val.ty.starts_with('%') {
+                    || self.drop_plan.is_enum_payload_in(&drop_state.func, &l.name)
+                    || self.drop_plan.is_join_handle_in(&drop_state.func, &l.name);
+                let storage_ty = if is_float_llvm_ty(&val.ty) {
+                    llvm_float_storage_ty(&val.ty).to_string()
+                } else if val.ty.starts_with('%') {
                     val.ty.clone()
                 } else {
                     llvm_storage_ty(&val.ty).to_string()
@@ -163,14 +168,23 @@ impl Codegen {
                     let reg = if val.reg.starts_with('%') {
                         let tmp = self.fresh("ssa");
                         self.emit(&format!(
-                            "  %{tmp} = add {storage_ty} 0, {}",
-                            val.reg
+                            "  %{tmp} = {} {storage_ty} {}, {}",
+                            llvm_scalar_materialize_op(&storage_ty),
+                            llvm_typed_zero(&storage_ty),
+                            llvm_materialize_scalar_literal(&storage_ty, &val.reg)
                         ));
                         tmp
                     } else if val.reg.chars().all(|c| {
                         c.is_ascii_digit() || c == '-' || c == '.'
                     }) {
-                        val.reg.clone()
+                        let tmp = self.fresh("ssa");
+                        self.emit(&format!(
+                            "  %{tmp} = {} {storage_ty} {}, {}",
+                            llvm_scalar_materialize_op(&storage_ty),
+                            llvm_typed_zero(&storage_ty),
+                            llvm_materialize_scalar_literal(&storage_ty, &val.reg)
+                        ));
+                        tmp
                     } else {
                         val.reg.trim_start_matches('%').to_string()
                     };
@@ -257,6 +271,14 @@ impl Codegen {
                             },
                         );
                     } else {
+                        let mut val = val;
+                        if l.mutable
+                            && val.ty == "ptr"
+                            && matches!(&l.value, Expression::Literal(Literal::String(_)))
+                        {
+                            val = self.heap_clone_string(val);
+                            self.heap_string_bindings.insert(l.name.clone());
+                        }
                         let storage_ty = llvm_storage_ty(&val.ty).to_string();
                         let alloca = self.fresh("alloca");
                         self.emit(&format!("  %{alloca} = alloca {storage_ty}"));
@@ -286,10 +308,31 @@ impl Codegen {
                         },
                     );
                 } else {
+                    let storage_ty = if is_float_llvm_ty(&val.ty) {
+                        llvm_float_storage_ty(&val.ty).to_string()
+                    } else {
+                        llvm_storage_ty(&val.ty).to_string()
+                    };
+                    let reg = if val.reg.starts_with('%') {
+                        val.reg.trim_start_matches('%').to_string()
+                    } else if val.reg.chars().all(|c| {
+                        c.is_ascii_digit() || c == '-' || c == '.'
+                    }) {
+                        let tmp = self.fresh("ssa");
+                        self.emit(&format!(
+                            "  %{tmp} = {} {storage_ty} {}, {}",
+                            llvm_scalar_materialize_op(&storage_ty),
+                            llvm_typed_zero(&storage_ty),
+                            llvm_materialize_scalar_literal(&storage_ty, &val.reg)
+                        ));
+                        tmp
+                    } else {
+                        val.reg.trim_start_matches('%').to_string()
+                    };
                     env.insert(
                         l.name.clone(),
                         Binding::Reg {
-                            reg: val.reg.trim_start_matches('%').to_string(),
+                            reg,
                             ty: val.ty.clone(),
                         },
                     );
@@ -307,6 +350,9 @@ impl Codegen {
                 {
                     scope_owned.push(l.name.clone());
                 }
+                if self.rvalue_produces_heap_string(&l.value) {
+                    self.heap_string_bindings.insert(l.name.clone());
+                }
                 if let Expression::Variable { name, .. } = &l.value {
                     if self.drop_plan.is_owned_in(&drop_state.func, name) {
                         drop_state.mark_moved(name);
@@ -316,11 +362,26 @@ impl Codegen {
                     self.mark_non_negative_i32(&l.name);
                 }
                 if let Some(ty_ann) = &l.ty {
+                    self.track_local_int_kind_ann(&l.name, ty_ann);
                     if let Some(en) = self.resolved_enum_name(ty_ann) {
                         self.enum_locals.insert(l.name.clone(), en);
                     }
                     if matches!(ty_ann, TypeAnnotation::FnPtr { .. }) {
                         self.register_fn_ptr_local(&l.name, ty_ann, env);
+                    }
+                } else if let Expression::Literal(Literal::IntKind(_, k)) = &l.value {
+                    self.track_local_int_kind(&l.name, *k);
+                } else if let Expression::Call(c) = &l.value {
+                    if c.callee == "random" {
+                        if let Some(TypeAnnotation::Integer(k)) = c.type_args.first() {
+                            self.track_local_int_kind(&l.name, *k);
+                        } else if c.args.len() == 2 {
+                            let k0 = self.infer_random_int_kind(&c.args[0], env);
+                            let k1 = self.infer_random_int_kind(&c.args[1], env);
+                            self.track_local_int_kind(&l.name, IntKind::unify(k0, k1));
+                        } else {
+                            self.track_local_int_kind(&l.name, IntKind::I32);
+                        }
                     }
                 } else if let Expression::ArrowFn(arrow) = &l.value {
                     if !arrow_has_captures(arrow) {
@@ -945,8 +1006,9 @@ impl Codegen {
                 );
                 false
             }
-            Statement::Spawn(body) => {
-                self.compile_spawn(body, env, drop_state);
+            Statement::Spawn(sp) => {
+                let handle = self.compile_spawn(sp.kind, &sp.body, env, drop_state);
+                self.emit_spawn_handle_drop(&handle.reg, sp.kind);
                 false
             }
             Statement::Unsafe(body) => {

@@ -28,6 +28,12 @@ fn infer_expr_ann(expr: &Expression, env: &HashMap<String, TypeAnnotation>) -> O
         },
         Expression::Grouped(inner) => infer_expr_ann(inner, env),
         Expression::StructLiteral(s) => Some(TypeAnnotation::Struct(s.name.clone())),
+        Expression::ArrayLiteral(al) if al.spreads.is_empty() && !al.elems.is_empty() => {
+            infer_expr_ann(&al.elems[0], env).map(|elem| TypeAnnotation::Array {
+                elem: Box::new(elem),
+                len: Some(al.elems.len()),
+            })
+        }
         _ => None,
     }
 }
@@ -122,8 +128,12 @@ fn rewrite_expr_calls(
         Expression::Grouped(g) => rewrite_expr_calls(g, env, generics),
         Expression::If(i) => {
             rewrite_expr_calls(&mut i.condition, env, generics);
-            rewrite_expr_calls(&mut i.then_expr, env, generics);
-            rewrite_expr_calls(&mut i.else_expr, env, generics);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| {
+                rewrite_expr_calls(e, env, generics);
+            });
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| {
+                rewrite_expr_calls(e, env, generics);
+            });
         }
         Expression::Match(m) => {
             rewrite_expr_calls(&mut m.scrutinee, env, generics);
@@ -131,7 +141,7 @@ fn rewrite_expr_calls(
                 if let Some(g) = &mut arm.guard {
                     rewrite_expr_calls(g, env, generics);
                 }
-                rewrite_expr_calls(&mut arm.body, env, generics);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| rewrite_expr_calls(e, env, generics));
             }
         }
         Expression::Await(e) => rewrite_expr_calls(e, env, generics),
@@ -245,10 +255,10 @@ fn rewrite_stmt_calls(
                 rewrite_expr_calls(c, env, generics);
             }
         }
-        Statement::Spawn(b) => {
+        Statement::Spawn(s) => {
             let mut body_env = env.clone();
-            for s in &mut b.statements {
-                rewrite_stmt_calls(s, &mut body_env, generics);
+            for stmt in &mut s.body.statements {
+                rewrite_stmt_calls(stmt, &mut body_env, generics);
             }
         }
         Statement::Benchmark(b) => {
@@ -274,6 +284,15 @@ pub fn infer_generic_call_sites(program: &mut Program) {
         .collect();
     if generics.is_empty() {
         return;
+    }
+    let mut const_env = HashMap::new();
+    for c in &mut program.consts {
+        rewrite_expr_calls(&mut c.value, &const_env, &generics);
+        if let Some(ty) = &c.ty {
+            const_env.insert(c.name.clone(), ty.clone());
+        } else if let Some(ann) = infer_expr_ann(&c.value, &const_env) {
+            const_env.insert(c.name.clone(), ann);
+        }
     }
     for f in &mut program.functions {
         let mut env = HashMap::new();

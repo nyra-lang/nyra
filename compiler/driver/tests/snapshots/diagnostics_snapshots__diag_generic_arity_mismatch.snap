@@ -3,6 +3,12 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[P006]: Invalid expression
-  --> test.ny:2:22
+  --> diag_generic_arity_mismatch.ny:2:22
+   |
+  2 | fn main() { print(id<i32, i32>(1)) }
+   |                      ^^^
 error[P006]: Invalid expression
-  --> test.ny:2:27
+  --> diag_generic_arity_mismatch.ny:2:27
+   |
+  2 | fn main() { print(id<i32, i32>(1)) }
+   |                           ^^^

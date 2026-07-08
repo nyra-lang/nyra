@@ -44,11 +44,27 @@ nyra_progress_bar() {
 }
 
 nyra_progress_gate_list() {
+  if [[ "${NYRA_PROGRESS_PROFILE:-}" == "platform" ]]; then
+    cat <<'GATES'
+build-workspace
+test-cargo-workspace
+test-conformance
+test-nyra-lang
+test-optional-types
+smoke-stdlib
+smoke-stdlib-runtime
+smoke-stdlib-priority
+test-runtime-smoke
+platform-native-smoke
+GATES
+    return
+  fi
   cat <<'GATES'
 build-workspace
 build-cli
 test-count
 test-webdocs-tabs
+test-webdocs-snippets
 smoke-vscode-extension
 test-optional-types
 test-comparison-parity
@@ -105,7 +121,14 @@ nyra_progress_init() {
   printf '%s\n' "0 $total 0 $started" >"$NYRA_TEST_ALL_PROGRESS_FILE"
 }
 
+nyra_progress_ensure() {
+  if [[ ! -f "$NYRA_TEST_ALL_PROGRESS_FILE" ]]; then
+    nyra_progress_init
+  fi
+}
+
 nyra_progress_read() {
+  nyra_progress_ensure
   # shellcheck disable=SC2034
   read -r NYRA_PROGRESS_CURRENT NYRA_PROGRESS_TOTAL NYRA_PROGRESS_FAILED NYRA_PROGRESS_STARTED \
     <"$NYRA_TEST_ALL_PROGRESS_FILE"
@@ -124,9 +147,15 @@ nyra_progress_header() {
   local root="${1:-}"
   local total
   total="$(nyra_progress_total)"
-  nyra_progress_log '+----------------------------------------------------------+'
-  nyra_progress_log '|  NYRA TEST SUITE                                         |'
-  nyra_progress_log '+----------------------------------------------------------+'
+  if [[ "${NYRA_PROGRESS_PROFILE:-}" == "platform" ]]; then
+    nyra_progress_log '+----------------------------------------------------------+'
+    nyra_progress_log '|  NYRA PLATFORM TEST SUITE (macOS / Windows CI)           |'
+    nyra_progress_log '+----------------------------------------------------------+'
+  else
+    nyra_progress_log '+----------------------------------------------------------+'
+    nyra_progress_log '|  NYRA TEST SUITE                                         |'
+    nyra_progress_log '+----------------------------------------------------------+'
+  fi
   if [[ -n "$root" ]]; then
     nyra_progress_log "  root:  $root"
   fi

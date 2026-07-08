@@ -14,7 +14,7 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                     MatchArm {
                         pattern: MatchPattern::Qualified("Option".into(), "None".into()),
                         guard: None,
-                        body: right,
+                        body: block_from_expr(right),
                     },
                     MatchArm {
                         pattern: MatchPattern::QualifiedBind(
@@ -23,10 +23,10 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                             MatchPayloadPattern::Bind(bind.clone()),
                         ),
                         guard: None,
-                        body: Expression::Variable {
+                        body: block_from_expr(Expression::Variable {
                             name: bind,
                             span: span.clone(),
-                        },
+                        }),
                     },
                 ],
                 span,
@@ -52,12 +52,12 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                     MatchArm {
                         pattern: MatchPattern::Qualified("Option".into(), "None".into()),
                         guard: None,
-                        body: Expression::EnumVariant(EnumVariantExpr {
+                        body: block_from_expr(Expression::EnumVariant(EnumVariantExpr {
                             enum_name: Some("Option".into()),
                             variant: "None".into(),
                             args: vec![],
                             span: span.clone(),
-                        }),
+                        })),
                     },
                     MatchArm {
                         pattern: MatchPattern::QualifiedBind(
@@ -66,12 +66,12 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                             MatchPayloadPattern::Bind(bind.clone()),
                         ),
                         guard: None,
-                        body: Expression::EnumVariant(EnumVariantExpr {
+                        body: block_from_expr(Expression::EnumVariant(EnumVariantExpr {
                             enum_name: Some("Option".into()),
                             variant: "Some".into(),
                             args: vec![inner_field],
                             span: span.clone(),
-                        }),
+                        })),
                     },
                 ],
                 span,
@@ -102,12 +102,12 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                     MatchArm {
                         pattern: MatchPattern::Qualified("Option".into(), "None".into()),
                         guard: None,
-                        body: Expression::EnumVariant(EnumVariantExpr {
+                        body: block_from_expr(Expression::EnumVariant(EnumVariantExpr {
                             enum_name: Some("Option".into()),
                             variant: "None".into(),
                             args: vec![],
                             span: span.clone(),
-                        }),
+                        })),
                     },
                     MatchArm {
                         pattern: MatchPattern::QualifiedBind(
@@ -116,12 +116,12 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                             MatchPayloadPattern::Bind(bind.clone()),
                         ),
                         guard: None,
-                        body: Expression::EnumVariant(EnumVariantExpr {
+                        body: block_from_expr(Expression::EnumVariant(EnumVariantExpr {
                             enum_name: Some("Option".into()),
                             variant: "Some".into(),
                             args: vec![inner_call],
                             span: span.clone(),
-                        }),
+                        })),
                     },
                 ],
                 span,
@@ -197,15 +197,15 @@ fn desugar_expr(expr: &Expression, counter: &mut usize) -> Expression {
                 .map(|a| MatchArm {
                     pattern: a.pattern.clone(),
                     guard: a.guard.as_ref().map(|g| desugar_expr(g, counter)),
-                    body: desugar_expr(&a.body, counter),
+                    body: desugar_block(&a.body, counter),
                 })
                 .collect(),
             span: m.span.clone(),
         })),
         Expression::If(i) => Expression::If(Box::new(IfExpr {
             condition: desugar_expr(&i.condition, counter),
-            then_expr: desugar_expr(&i.then_expr, counter),
-            else_expr: desugar_expr(&i.else_expr, counter),
+            then_block: desugar_block(&i.then_block, counter),
+            else_block: desugar_block(&i.else_block, counter),
             span: i.span.clone(),
         })),
         Expression::Index(ix) => Expression::Index(Box::new(IndexExpr {
@@ -403,7 +403,8 @@ fn infer_nullish_option_types_block(stmts: &mut [Statement]) {
             }
             Statement::While(w) => infer_nullish_option_types_block(&mut w.body.statements),
             Statement::For(f) => infer_nullish_option_types_block(&mut f.body.statements),
-            Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+            Statement::Spawn(s) => infer_nullish_option_types_block(&mut s.body.statements),
+            Statement::Unsafe(b) | Statement::Benchmark(b) => {
                 infer_nullish_option_types_block(&mut b.statements);
             }
             _ => {}

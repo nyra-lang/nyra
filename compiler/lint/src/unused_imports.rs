@@ -275,13 +275,14 @@ fn collect_stmt_uses(stmt: &ast::Statement, uses: &mut HashSet<String>) {
             }
         }
         Statement::Defer(e) => collect_expr_uses(e, uses),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_uses(b, uses),
+        Statement::Spawn(s) => collect_block_uses(&s.body, uses),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_uses(b, uses),
         Statement::Asm { .. } | Statement::Import(_) | Statement::Break { .. } | Statement::Continue { .. } => {}
     }
 }
 
 fn collect_expr_uses(expr: &ast::Expression, uses: &mut HashSet<String>) {
-    use ast::Expression;
+    use ast::{for_each_expr_in_block, Expression};
     match expr {
         Expression::Variable { name, .. } => {
             uses.insert(name.clone());
@@ -332,13 +333,13 @@ fn collect_expr_uses(expr: &ast::Expression, uses: &mut HashSet<String>) {
                 if let Some(g) = &arm.guard {
                     collect_expr_uses(g, uses);
                 }
-                collect_expr_uses(&arm.body, uses);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_expr_uses(e, uses));
             }
         }
         Expression::If(i) => {
             collect_expr_uses(&i.condition, uses);
-            collect_expr_uses(&i.then_expr, uses);
-            collect_expr_uses(&i.else_expr, uses);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_expr_uses(e, uses));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_expr_uses(e, uses));
         }
         Expression::Index(i) => {
             collect_expr_uses(&i.object, uses);
@@ -368,6 +369,12 @@ fn collect_expr_uses(expr: &ast::Expression, uses: &mut HashSet<String>) {
             ast::ArrowBody::Expr(e) => collect_expr_uses(e, uses),
             ast::ArrowBody::Block(b) => collect_block_uses(b, uses),
         },
+        Expression::ComptimeBlock { body, .. } => collect_block_uses(body, uses),
+        Expression::Spawn { body, .. } => collect_block_uses(body, uses),
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_expr_uses(e, uses));
+            collect_block_uses(&ps.body, uses);
+        }
         Expression::Literal(_) | Expression::Invalid => {}
     }
 }

@@ -1,14 +1,51 @@
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use sha2::{Digest, Sha256};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum TlsBackend {
+    #[default]
+    Rustls,
+    Native,
+    Openssl,
+}
+
+impl TlsBackend {
+    pub fn parse(s: &str) -> Result<Self, String> {
+        match s.trim().to_ascii_lowercase().as_str() {
+            "rustls" => Ok(Self::Rustls),
+            "native" | "native-tls" | "nativetls" => Ok(Self::Native),
+            "openssl" | "ssl" => Ok(Self::Openssl),
+            other => Err(format!(
+                "unknown tls backend '{other}' (expected rustls, native, or openssl)"
+            )),
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Rustls => "rustls",
+            Self::Native => "native",
+            Self::Openssl => "openssl",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct LockFeatures {
+    #[serde(default)]
+    pub tls: Option<TlsBackend>,
+}
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LockFile {
     pub version: u32,
     pub module: String,
+    #[serde(default)]
+    pub features: LockFeatures,
     pub require: Vec<LockEntry>,
 }
 
@@ -34,6 +71,7 @@ impl LockFile {
         Self {
             version: 1,
             module: module.into(),
+            features: LockFeatures::default(),
             require: vec![],
         }
     }
@@ -90,44 +128,6 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
     let mut h = Sha256::new();
     h.update(bytes);
     format!("{:x}", h.finalize())
-}
-
-pub fn fetch_git(url: &str, rev: &str, dest: &Path) -> Result<(), String> {
-    if dest.exists() {
-        let status = Command::new("git")
-            .args(["-C", dest.to_str().unwrap(), "fetch", "--depth", "1", "origin", rev])
-            .status()
-            .map_err(|e| format!("git fetch failed: {e}"))?;
-        if !status.success() {
-            return Err(format!("git fetch failed for {}", dest.display()));
-        }
-        let checkout = Command::new("git")
-            .args(["-C", dest.to_str().unwrap(), "checkout", rev])
-            .status()
-            .map_err(|e| e.to_string())?;
-        if !checkout.success() {
-            return Err(format!("git checkout {rev} failed"));
-        }
-        return Ok(());
-    }
-    fs::create_dir_all(dest.parent().unwrap_or(dest)).map_err(|e| e.to_string())?;
-    let status = Command::new("git")
-        .args([
-            "clone",
-            "--depth",
-            "1",
-            "--branch",
-            rev,
-            url,
-            &dest.to_string_lossy(),
-        ])
-        .status()
-        .map_err(|e| format!("git clone failed: {e}"))?;
-    if status.success() {
-        Ok(())
-    } else {
-        Err(format!("git clone {url} failed"))
-    }
 }
 
 pub fn cache_module_path(module: &str) -> PathBuf {

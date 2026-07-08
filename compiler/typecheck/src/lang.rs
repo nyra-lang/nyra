@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use ast::*;
 use ast::expr_span;
-use errors::{ErrorKind, NyraError};
+use super::diagnostics;
 use types::{enum_pattern_matches, EnumInfo, EnumVariantInfo, Type};
 
 use crate::{TypeChecker, TypeEnv, VarInfo};
@@ -46,6 +46,7 @@ impl TypeChecker {
             TypeAnnotation::Char => Type::Char,
             TypeAnnotation::Bool => Type::Bool,
             TypeAnnotation::String => Type::String,
+            TypeAnnotation::Bytes => Type::Bytes,
             TypeAnnotation::VecStr => Type::VecStr,
             TypeAnnotation::Ptr => Type::Ptr,
             TypeAnnotation::RawPtr { inner } => Type::RawPtr {
@@ -55,10 +56,16 @@ impl TypeChecker {
             TypeAnnotation::Struct(n) => {
                 if self.enums.contains_key(n) {
                     Type::Enum(n.clone())
+                } else if self.unions.contains_key(n) {
+                    Type::Union(n.clone())
                 } else {
                     Type::Struct(n.clone())
                 }
             }
+            TypeAnnotation::Simd { elem, lanes } => Type::Simd {
+                elem: Box::new(self.type_from_ann(elem)),
+                lanes: *lanes,
+            },
             TypeAnnotation::Enum(n) => Type::Enum(n.clone()),
             TypeAnnotation::Array { elem, len } => Type::Array {
                 elem: Box::new(self.type_from_ann(elem)),
@@ -132,45 +139,25 @@ impl TypeChecker {
                         MatchPattern::Wildcard => has_wildcard = true,
                         MatchPattern::Variant(v) => {
                             if !variant_names.iter().any(|x| x == v) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    msp.clone(),
-                                    format!("Unknown variant '{v}' for enum '{enum_name}'"),
-                                ));
+                                diagnostics::unknown_match_variant(self, v, enum_name, msp.clone());
                             } else {
                                 covered.insert(v.clone());
                             }
                         }
                         MatchPattern::Qualified(en, v) => {
                             if !enum_pattern_matches(en, enum_name) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    msp.clone(),
-                                    format!("Pattern enum '{en}' does not match scrutinee '{enum_name}'"),
-                                ));
+                                diagnostics::match_enum_mismatch(self, en, enum_name, msp.clone());
                             } else if !variant_names.iter().any(|x| x == v) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    msp.clone(),
-                                    format!("Unknown variant '{v}'"),
-                                ));
+                                diagnostics::unknown_match_variant(self, v, enum_name, msp.clone());
                             } else {
                                 covered.insert(v.clone());
                             }
                         }
                         MatchPattern::QualifiedBind(en, v, payload) => {
                             if !enum_pattern_matches(en, enum_name) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    msp.clone(),
-                                    format!("Pattern enum '{en}' does not match scrutinee '{enum_name}'"),
-                                ));
+                                diagnostics::match_enum_mismatch(self, en, enum_name, msp.clone());
                             } else if !variant_names.iter().any(|x| x == v) {
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Type,
-                                    msp.clone(),
-                                    format!("Unknown variant '{v}'"),
-                                ));
+                                diagnostics::unknown_match_variant(self, v, enum_name, msp.clone());
                             } else {
                                 covered.insert(v.clone());
                                 let payload_ty = info
@@ -186,41 +173,33 @@ impl TypeChecker {
                             }
                         }
                         MatchPattern::Literal(_) => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
+                            diagnostics::match_unsupported_pattern(
+                                self,
+                                "string literal patterns require a string scrutinee",
                                 msp.clone(),
-                                "String literal patterns require a string scrutinee",
-                            ));
+                            );
                         }
                         MatchPattern::Or(_) => {}
                         MatchPattern::Struct(_, _) | MatchPattern::Tuple(_) => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                msp.clone(),
+                            diagnostics::match_unsupported_pattern(
+                                self,
                                 "struct/tuple match patterns are not supported on enum scrutinee",
-                            ));
+                                msp.clone(),
+                            );
                         }
                     }
                     if let Some(g) = &arm.guard {
                         let gt = self.check_expr(g, &mut arm_env);
                         if gt != Type::Bool && gt != Type::Unknown {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                msp.clone(),
-                                "match guard must be bool",
-                            ));
+                            diagnostics::match_guard_must_be_bool(self, msp.clone());
                         }
                     }
-                    arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                    arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
                 }
                 if !has_wildcard {
                     for v in &variant_names {
                         if !covered.contains(v) {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                msp.clone(),
-                                format!("Non-exhaustive match: missing variant '{v}'"),
-                            ));
+                            diagnostics::match_non_exhaustive(self, v, msp.clone());
                         }
                     }
                 }
@@ -232,39 +211,35 @@ impl TypeChecker {
                     MatchPattern::Wildcard => has_wildcard = true,
                     MatchPattern::Literal(_) => {}
                     MatchPattern::Variant(v) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
+                        diagnostics::match_unsupported_pattern(
+                            self,
+                            &format!("unknown variant `{v}` for string match"),
                             msp.clone(),
-                            format!("Unknown variant '{v}' for string match"),
-                        ));
+                        );
                     }
                     MatchPattern::Qualified(en, v) | MatchPattern::QualifiedBind(en, v, _) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
+                        diagnostics::match_unsupported_pattern(
+                            self,
+                            &format!("enum pattern `{en}.{v}` does not match string scrutinee"),
                             msp.clone(),
-                            format!("Enum pattern '{en}.{v}' does not match string scrutinee"),
-                        ));
+                        );
                     }
                     MatchPattern::Or(_) => {}
                     MatchPattern::Struct(_, _) | MatchPattern::Tuple(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
+                        diagnostics::match_unsupported_pattern(
+                            self,
                             "struct/tuple patterns do not match string scrutinee",
-                        ));
+                            msp.clone(),
+                        );
                     }
                 }
                 if let Some(g) = &arm.guard {
                     let gt = self.check_expr(g, &mut arm_env);
                     if gt != Type::Bool && gt != Type::Unknown {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
-                            "match guard must be bool",
-                        ));
+                        diagnostics::match_guard_must_be_bool(self, msp.clone());
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         } else if let Type::Struct(struct_name) = &scrutinee_ty {
             for arm in &m.arms {
@@ -273,82 +248,81 @@ impl TypeChecker {
                     MatchPattern::Wildcard => has_wildcard = true,
                     MatchPattern::Struct(pat_name, fields) => {
                         if pat_name != struct_name {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                msp.clone(),
-                                format!(
-                                    "Struct pattern '{pat_name}' does not match scrutinee '{struct_name}'"
+                            diagnostics::match_unsupported_pattern(
+                                self,
+                                &format!(
+                                    "struct pattern `{pat_name}` does not match scrutinee `{struct_name}`"
                                 ),
-                            ));
+                                msp.clone(),
+                            );
                         } else {
                             has_wildcard = true;
-                            if let Some(info) = self.structs.get(struct_name) {
+                            if let Some(info) = self.structs.get(struct_name).cloned() {
                                 for field_pat in fields {
-                                    let bind = field_pat
-                                        .bind
-                                        .as_deref()
-                                        .unwrap_or(field_pat.field.as_str());
-                                    if bind == "_" {
-                                        continue;
-                                    }
-                                    if let Some(ft) = info.fields.get(&field_pat.field) {
-                                        arm_env.variables.insert(
-                                            bind.to_string(),
-                                            VarInfo {
-                                                ty: ft.clone(),
-                                                mutable: false,
-                                            },
-                                        );
-                                    } else {
-                                        self.errors.push(NyraError::new(
-                                            ErrorKind::Type,
-                                            msp.clone(),
-                                            format!(
-                                                "Struct '{struct_name}' has no field '{}'",
-                                                field_pat.field
-                                            ),
-                                        ));
-                                    }
+                                let bind = field_pat
+                                    .bind
+                                    .as_deref()
+                                    .unwrap_or(field_pat.field.as_str());
+                                if bind == "_" {
+                                    continue;
+                                }
+                                if let Some(ft) = info.fields.get(&field_pat.field) {
+                                    arm_env.variables.insert(
+                                        bind.to_string(),
+                                        VarInfo {
+                                            ty: ft.clone(),
+                                            mutable: false,
+                                        },
+                                    );
+                                } else {
+                                    let known: Vec<String> =
+                                        info.fields.keys().cloned().collect();
+                                    let field = field_pat.field.clone();
+                                    let sname = struct_name.clone();
+                                    diagnostics::unknown_struct_field(
+                                        self,
+                                        &sname,
+                                        &field,
+                                        &known,
+                                        msp.clone(),
+                                    );
                                 }
                             }
                         }
+                        }
                     }
                     MatchPattern::Literal(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
+                        diagnostics::match_unsupported_pattern(
+                            self,
+                            "string literal patterns require a string scrutinee",
                             msp.clone(),
-                            "String literal patterns require a string scrutinee",
-                        ));
+                        );
                     }
                     MatchPattern::Variant(_)
                     | MatchPattern::Qualified(_, _)
                     | MatchPattern::QualifiedBind(_, _, _)
                     | MatchPattern::Or(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
+                        diagnostics::match_unsupported_pattern(
+                            self,
                             "enum patterns do not match struct scrutinee",
-                        ));
+                            msp.clone(),
+                        );
                     }
                     MatchPattern::Tuple(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
+                        diagnostics::match_unsupported_pattern(
+                            self,
                             "tuple patterns do not match struct scrutinee",
-                        ));
+                            msp.clone(),
+                        );
                     }
                 }
                 if let Some(g) = &arm.guard {
                     let gt = self.check_expr(g, &mut arm_env);
                     if gt != Type::Bool && gt != Type::Unknown {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
-                            "match guard must be bool",
-                        ));
+                        diagnostics::match_guard_must_be_bool(self, msp.clone());
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         } else if let Type::Tuple { elems } = &scrutinee_ty {
             for arm in &m.arms {
@@ -357,15 +331,15 @@ impl TypeChecker {
                     MatchPattern::Wildcard => has_wildcard = true,
                     MatchPattern::Tuple(binds) => {
                         if binds.len() != elems.len() {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Type,
-                                msp.clone(),
-                                format!(
-                                    "Tuple pattern length {} does not match scrutinee length {}",
+                            diagnostics::match_unsupported_pattern(
+                                self,
+                                &format!(
+                                    "tuple pattern length {} does not match scrutinee length {}",
                                     binds.len(),
                                     elems.len()
                                 ),
-                            ));
+                                msp.clone(),
+                            );
                         } else {
                             has_wildcard = true;
                             for (bind_pat, elem_ty) in binds.iter().zip(elems.iter()) {
@@ -382,35 +356,31 @@ impl TypeChecker {
                         }
                     }
                     MatchPattern::Literal(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
+                        diagnostics::match_unsupported_pattern(
+                            self,
+                            "string literal patterns require a string scrutinee",
                             msp.clone(),
-                            "String literal patterns require a string scrutinee",
-                        ));
+                        );
                     }
                     MatchPattern::Struct(_, _)
                     | MatchPattern::Variant(_)
                     | MatchPattern::Qualified(_, _)
                     | MatchPattern::QualifiedBind(_, _, _)
                     | MatchPattern::Or(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
+                        diagnostics::match_unsupported_pattern(
+                            self,
                             "pattern does not match tuple scrutinee",
-                        ));
+                            msp.clone(),
+                        );
                     }
                 }
                 if let Some(g) = &arm.guard {
                     let gt = self.check_expr(g, &mut arm_env);
                     if gt != Type::Bool && gt != Type::Unknown {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
-                            "match guard must be bool",
-                        ));
+                        diagnostics::match_guard_must_be_bool(self, msp.clone());
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         } else {
             for arm in &m.arms {
@@ -427,25 +397,21 @@ impl TypeChecker {
                         );
                     }
                     MatchPattern::Literal(_) => {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
+                        diagnostics::match_unsupported_pattern(
+                            self,
+                            "string literal patterns require a string scrutinee",
                             msp.clone(),
-                            "String literal patterns require a string scrutinee",
-                        ));
+                        );
                     }
                     _ => {}
                 }
                 if let Some(g) = &arm.guard {
                     let gt = self.check_expr(g, &mut arm_env);
                     if gt != Type::Bool && gt != Type::Unknown {
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Type,
-                            msp.clone(),
-                            "match guard must be bool",
-                        ));
+                        diagnostics::match_guard_must_be_bool(self, msp.clone());
                     }
                 }
-                arm_types.push(self.check_expr(&arm.body, &mut arm_env));
+                arm_types.push(self.check_block_expr_value(&arm.body, &mut arm_env, &msp));
             }
         }
 
@@ -484,11 +450,11 @@ impl TypeChecker {
         arm_env: &mut TypeEnv,
     ) {
         let Type::Enum(inner_enum) = payload_ty else {
-            self.errors.push(NyraError::new(
-                ErrorKind::Type,
-                msp.clone(),
+            diagnostics::match_unsupported_pattern(
+                self,
                 "nested enum pattern requires an enum payload",
-            ));
+                msp.clone(),
+            );
             return;
         };
         let Some(info) = self.enums.get(inner_enum).cloned() else {
@@ -498,36 +464,16 @@ impl TypeChecker {
         match pat {
             MatchPattern::Qualified(en, v) => {
                 if !en.is_empty() && !enum_pattern_matches(en, inner_enum) {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        msp.clone(),
-                        format!(
-                            "Pattern enum '{en}' does not match payload enum '{inner_enum}'"
-                        ),
-                    ));
+                    diagnostics::match_enum_mismatch(self, en, inner_enum, msp.clone());
                 } else if !variant_names.iter().any(|x| x == v) {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        msp.clone(),
-                        format!("Unknown variant '{v}' for enum '{inner_enum}'"),
-                    ));
+                    diagnostics::unknown_match_variant(self, v, inner_enum, msp.clone());
                 }
             }
             MatchPattern::QualifiedBind(en, v, inner_payload) => {
                 if !en.is_empty() && !enum_pattern_matches(en, inner_enum) {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        msp.clone(),
-                        format!(
-                            "Pattern enum '{en}' does not match payload enum '{inner_enum}'"
-                        ),
-                    ));
+                    diagnostics::match_enum_mismatch(self, en, inner_enum, msp.clone());
                 } else if !variant_names.iter().any(|x| x == v) {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        msp.clone(),
-                        format!("Unknown variant '{v}' for enum '{inner_enum}'"),
-                    ));
+                    diagnostics::unknown_match_variant(self, v, inner_enum, msp.clone());
                 } else {
                     let inner_payload_ty = info
                         .variants
@@ -542,11 +488,11 @@ impl TypeChecker {
                 }
             }
             _ => {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
-                    msp.clone(),
+                diagnostics::match_unsupported_pattern(
+                    self,
                     "invalid nested match pattern on enum payload",
-                ));
+                    msp.clone(),
+                );
             }
         }
     }

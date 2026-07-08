@@ -5,8 +5,71 @@
 //! 2. Same directory as discovered `opt`
 //! 3. `PATH`, Homebrew `llvm`, `xcrun`, fixed prefixes
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::{Mutex, OnceLock};
+
+static BREW_LLVM_PREFIX: OnceLock<Option<PathBuf>> = OnceLock::new();
+static LLVM_TOOL_CACHE: Mutex<Option<HashMap<String, Option<String>>>> = Mutex::new(None);
+static CLANG_CACHE: OnceLock<String> = OnceLock::new();
+static DISK_CACHE_LOADED: OnceLock<()> = OnceLock::new();
+
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+struct DiskToolCache {
+    brew_llvm_prefix: Option<String>,
+    tools: HashMap<String, Option<String>>,
+}
+
+fn disk_cache_path() -> PathBuf {
+    dirs::home_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(".nyra")
+        .join("cache")
+        .join("llvm-tools.json")
+}
+
+fn load_disk_cache() -> DiskToolCache {
+    let path = disk_cache_path();
+    let Ok(text) = std::fs::read_to_string(&path) else {
+        return DiskToolCache::default();
+    };
+    serde_json::from_str(&text).unwrap_or_default()
+}
+
+fn save_disk_cache(cache: &DiskToolCache) {
+    let path = disk_cache_path();
+    if let Some(parent) = path.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    if let Ok(json) = serde_json::to_string(cache) {
+        let _ = std::fs::write(path, json);
+    }
+}
+
+fn ensure_disk_cache_loaded() {
+    DISK_CACHE_LOADED.get_or_init(|| {
+        let disk = load_disk_cache();
+        if let Some(prefix) = disk.brew_llvm_prefix {
+            let _ = BREW_LLVM_PREFIX.set(Some(PathBuf::from(prefix)));
+        }
+        let mut guard = LLVM_TOOL_CACHE.lock().expect("llvm tool cache");
+        *guard = Some(disk.tools);
+    });
+}
+
+fn persist_tool_cache() {
+    let brew = BREW_LLVM_PREFIX.get().and_then(|p| p.as_ref().map(|b| b.to_string_lossy().into_owned()));
+    let tools = LLVM_TOOL_CACHE
+        .lock()
+        .expect("llvm tool cache")
+        .clone()
+        .unwrap_or_default();
+    save_disk_cache(&DiskToolCache {
+        brew_llvm_prefix: brew,
+        tools,
+    });
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct ToolchainInfo {
@@ -35,14 +98,13 @@ fn tool_runs(path: &Path) -> bool {
 }
 
 fn find_on_path(names: &[String]) -> Option<String> {
-    for name in names {
-        if Command::new(name)
-            .arg("--version")
-            .output()
-            .map(|o| o.status.success())
-            .unwrap_or(false)
-        {
-            return Some(name.clone());
+    let paths = std::env::var_os("PATH")?;
+    for dir in std::env::split_paths(&paths) {
+        for name in names {
+            let path = dir.join(name);
+            if path.is_file() && tool_runs(&path) {
+                return Some(path.to_string_lossy().into_owned());
+            }
         }
     }
     None
@@ -76,7 +138,7 @@ fn find_in_dirs(base: &str, dirs: &[PathBuf]) -> Option<String> {
     for dir in dirs {
         for name in &names {
             let path = dir.join(name);
-            if tool_runs(&path) {
+            if path.is_file() && tool_runs(&path) {
                 return Some(path.to_string_lossy().into_owned());
             }
         }
@@ -84,24 +146,25 @@ fn find_in_dirs(base: &str, dirs: &[PathBuf]) -> Option<String> {
     None
 }
 
-fn brew_llvm_bin(tool: &str) -> Option<PathBuf> {
-    let output = Command::new("brew")
-        .args(["--prefix", "llvm"])
-        .output()
-        .ok()?;
-    if !output.status.success() {
-        return None;
-    }
-    let prefix = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if prefix.is_empty() {
-        return None;
-    }
-    let path = PathBuf::from(prefix).join("bin").join(tool);
-    if path.is_file() {
-        Some(path)
-    } else {
-        None
-    }
+fn brew_llvm_prefix() -> Option<PathBuf> {
+    ensure_disk_cache_loaded();
+    BREW_LLVM_PREFIX
+        .get_or_init(|| {
+            let output = Command::new("brew")
+                .args(["--prefix", "llvm"])
+                .output()
+                .ok()?;
+            if !output.status.success() {
+                return None;
+            }
+            let prefix = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if prefix.is_empty() {
+                None
+            } else {
+                Some(PathBuf::from(prefix))
+            }
+        })
+        .clone()
 }
 
 fn xcrun_tool(tool: &str) -> Option<PathBuf> {
@@ -120,7 +183,7 @@ fn xcrun_tool(tool: &str) -> Option<PathBuf> {
     }
 }
 
-fn find_llvm_tool(base: &str) -> Option<String> {
+fn find_llvm_tool_uncached(base: &str) -> Option<String> {
     let names = tool_candidates(base);
     let bundled_dirs = llvm_bin_search_paths();
     if let Some(found) = find_in_dirs(base, &bundled_dirs) {
@@ -129,12 +192,16 @@ fn find_llvm_tool(base: &str) -> Option<String> {
     if let Some(found) = find_on_path(&names) {
         return Some(found);
     }
-    for name in &names {
-        if let Some(path) = brew_llvm_bin(name) {
-            if tool_runs(&path) {
+    if let Some(prefix) = brew_llvm_prefix() {
+        let bin = prefix.join("bin");
+        for name in &names {
+            let path = bin.join(name);
+            if path.is_file() && tool_runs(&path) {
                 return Some(path.to_string_lossy().into_owned());
             }
         }
+    }
+    for name in &names {
         if let Some(path) = xcrun_tool(name) {
             if tool_runs(&path) {
                 return Some(path.to_string_lossy().into_owned());
@@ -152,6 +219,31 @@ fn find_llvm_tool(base: &str) -> Option<String> {
     None
 }
 
+fn find_llvm_tool(base: &str) -> Option<String> {
+    ensure_disk_cache_loaded();
+    let mut guard = LLVM_TOOL_CACHE.lock().expect("llvm tool cache");
+    if guard.is_none() {
+        *guard = Some(HashMap::new());
+    }
+    let cache = guard.as_mut().expect("llvm tool cache init");
+    if let Some(hit) = cache.get(base) {
+        return hit.clone();
+    }
+    drop(guard);
+    let found = find_llvm_tool_uncached(base);
+    let mut guard = LLVM_TOOL_CACHE.lock().expect("llvm tool cache");
+    if guard.is_none() {
+        *guard = Some(HashMap::new());
+    }
+    guard
+        .as_mut()
+        .expect("llvm tool cache init")
+        .insert(base.to_string(), found.clone());
+    drop(guard);
+    persist_tool_cache();
+    found
+}
+
 pub fn find_llvm_opt() -> Option<String> {
     find_llvm_tool("opt")
         .or_else(|| find_llvm_tool("llvm-opt"))
@@ -163,6 +255,17 @@ pub fn find_llvm_profdata() -> Option<String> {
 
 pub fn find_lld() -> Option<String> {
     find_llvm_tool("lld")
+}
+
+pub fn find_llvm_nm() -> Option<String> {
+    find_llvm_tool("llvm-nm")
+}
+
+pub fn find_ar() -> PathBuf {
+    find_llvm_tool("llvm-ar")
+        .or_else(|| find_llvm_tool("ar"))
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("ar"))
 }
 
 pub fn find_wasm_ld() -> Option<String> {
@@ -192,22 +295,97 @@ fn resolve_executable(name: &str) -> Option<PathBuf> {
 }
 
 pub fn find_clang() -> String {
-    let bundled_dirs = llvm_bin_search_paths();
-    if let Some(found) = find_in_dirs("clang", &bundled_dirs) {
-        return found;
+    CLANG_CACHE
+        .get_or_init(|| {
+            let bundled_dirs = llvm_bin_search_paths();
+            if let Some(found) = find_in_dirs("clang", &bundled_dirs) {
+                return found;
+            }
+            if let Some(opt) = find_llvm_opt() {
+                let opt_path = PathBuf::from(&opt);
+                if let Some(bin_dir) = opt_path.parent() {
+                    for name in ["clang", "clang-21", "clang-20", "clang-19", "clang-18"] {
+                        let candidate = bin_dir.join(name);
+                        if tool_runs(&candidate) {
+                            return candidate.to_string_lossy().into_owned();
+                        }
+                    }
+                }
+            }
+            find_llvm_tool("clang").unwrap_or_else(|| "clang".into())
+        })
+        .clone()
+}
+
+fn sanitize_env_path(raw: &str) -> String {
+    let mut s = raw.trim().trim_end_matches('\r').to_string();
+    if s.starts_with('\u{feff}') {
+        s = s.trim_start_matches('\u{feff}').to_string();
     }
-    if let Some(opt) = find_llvm_opt() {
-        let opt_path = PathBuf::from(&opt);
-        if let Some(bin_dir) = opt_path.parent() {
-            for name in ["clang", "clang-21", "clang-20", "clang-19", "clang-18"] {
-                let candidate = bin_dir.join(name);
-                if tool_runs(&candidate) {
-                    return candidate.to_string_lossy().into_owned();
+    s
+}
+
+fn find_mingw_gcc_in_prefix(prefix: &Path) -> Option<String> {
+    for name in ["gcc.exe", "x86_64-w64-mingw32-gcc.exe"] {
+        let path = prefix.join("bin").join(name);
+        if path.is_file() {
+            return Some(path.to_string_lossy().into_owned());
+        }
+    }
+    None
+}
+
+/// MSYS2 ucrt64/mingw64 gcc for compiling rt `.c` on Windows (LLVM clang mishandles MinGW `-isystem` headers).
+pub fn find_mingw_gcc() -> Option<String> {
+    if !cfg!(target_os = "windows") {
+        return None;
+    }
+    let mut prefixes = Vec::new();
+    if let Ok(v) = std::env::var("NYRA_SYSROOT") {
+        let v = sanitize_env_path(&v);
+        if !v.is_empty() {
+            prefixes.push(PathBuf::from(v));
+        }
+    }
+    for p in [r"C:\msys64\ucrt64", r"C:\msys64\mingw64"] {
+        prefixes.push(PathBuf::from(p));
+    }
+    for prefix in prefixes {
+        if let Some(gcc) = find_mingw_gcc_in_prefix(&prefix) {
+            return Some(gcc);
+        }
+    }
+    // Fallback: gcc may be on PATH (CI adds ucrt64/bin) even when sysroot layout differs.
+    if let Ok(output) = Command::new("where").arg("gcc.exe").output() {
+        if output.status.success() {
+            let first = String::from_utf8_lossy(&output.stdout)
+                .lines()
+                .next()
+                .map(sanitize_env_path)
+                .filter(|s| !s.is_empty());
+            if let Some(path) = first {
+                let p = PathBuf::from(&path);
+                if p.is_file() {
+                    return Some(path);
                 }
             }
         }
     }
-    find_llvm_tool("clang").unwrap_or_else(|| "clang".into())
+    None
+}
+
+/// MinGW `ld` for linking gnu objects on a Windows host (avoid LLVM `lld-link`/MSVC).
+pub fn find_mingw_ld() -> Option<String> {
+    let gcc = find_mingw_gcc()?;
+    let gcc_path = PathBuf::from(&gcc);
+    let bin = gcc_path.parent()?;
+    for name in ["ld.exe", "x86_64-w64-mingw32-ld.exe"] {
+        let path = bin.join(name);
+        if path.is_file() {
+            return Some(path.to_string_lossy().into_owned());
+        }
+    }
+    None
 }
 
 pub fn toolchain_info() -> ToolchainInfo {
@@ -271,7 +449,27 @@ pub fn sanitize_ir_for_clang(content: &str) -> String {
     let mut out = content.replace(" captures(none)", "");
     out = out.replace(" captures(all)", "");
     out = out.replace(" captures(ret)", "");
-    out
+    for (from, to) in [
+        ("ptr 0,", "ptr %0,"),
+        ("ptr 0)", "ptr %0)"),
+        ("phi ptr [0,", "phi ptr [%0,"),
+    ] {
+        if out.contains(from) {
+            out = out.replace(from, to);
+        }
+    }
+    // Codegen occasionally double-prefixes SSA names (%%1) when a register already includes '%'.
+    let mut fixed = String::with_capacity(out.len());
+    let mut chars = out.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '%' && chars.peek() == Some(&'%') {
+            chars.next();
+            fixed.push('%');
+        } else {
+            fixed.push(c);
+        }
+    }
+    fixed
 }
 
 pub fn require_llvm_opt() -> Result<String, String> {
@@ -307,6 +505,28 @@ mod tests {
         let cleaned = sanitize_ir_for_clang(raw);
         assert!(!cleaned.contains("captures("));
         assert!(cleaned.contains("readonly"));
+    }
+
+    #[test]
+    fn sanitize_fixes_opaque_ptr_zero_operands() {
+        let raw = "  %call = call i32 @find_host_end(ptr 0, i32 %x, i32 %y)";
+        let cleaned = sanitize_ir_for_clang(raw);
+        assert!(cleaned.contains("ptr %0,"));
+        assert!(!cleaned.contains("ptr 0,"));
+    }
+
+    #[test]
+    fn sanitize_fixes_double_percent_ssa() {
+        let raw = "  store i32 %%1, i32* %closure.gep.91";
+        let cleaned = sanitize_ir_for_clang(raw);
+        assert!(cleaned.contains("store i32 %1,"));
+        assert!(!cleaned.contains("%%"));
+    }
+
+    #[test]
+    fn sanitize_env_path_strips_bom_and_cr() {
+        assert_eq!(sanitize_env_path("\u{feff}C:\\msys64\\ucrt64\r"), "C:\\msys64\\ucrt64");
+        assert_eq!(sanitize_env_path("  C:\\foo  "), "C:\\foo");
     }
 
     #[test]

@@ -8,6 +8,7 @@
 #include <sys/sysctl.h>
 #include <sys/mount.h>
 #include <sys/mman.h>
+#include <fcntl.h>
 #include <mach/mach.h>
 #include <net/if.h>
 #include <net/if_dl.h>
@@ -23,10 +24,21 @@
 #include <sys/statvfs.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <fcntl.h>
 #include <net/if.h>
 #include <ifaddrs.h>
 #include <dirent.h>
 #elif defined(_WIN32)
+#ifndef WINVER
+#define WINVER 0x0600
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
 #include <windows.h>
 #include <iphlpapi.h>
 #endif
@@ -86,7 +98,9 @@ int32_t hw_cpu_logical_cores(void) {
     long n = sysconf(_SC_NPROCESSORS_ONLN);
     return n > 0 ? (int32_t)n : -1;
 #elif defined(_WIN32)
-    return (int32_t)GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    return (int32_t)si.dwNumberOfProcessors;
 #else
     return -1;
 #endif
@@ -263,6 +277,55 @@ int32_t hw_mem_unmap(void *addr, int64_t nbytes) {
 int32_t hw_dma_available(void) {
     /* True DMA requires kernel drivers; not exposed in normal userspace. */
     return 0;
+}
+
+void *hw_mem_map_file(const char *path, int64_t nbytes, int32_t writable) {
+    if (!path || !path[0] || nbytes <= 0) {
+        return NULL;
+    }
+#if defined(__APPLE__) || defined(__linux__)
+    int flags = writable ? O_RDWR : O_RDONLY;
+    int fd = open(path, flags);
+    if (fd < 0) {
+        return NULL;
+    }
+    int prot = PROT_READ | (writable ? PROT_WRITE : 0);
+    void *p = mmap(NULL, (size_t)nbytes, prot, MAP_SHARED, fd, 0);
+    close(fd);
+    return p == MAP_FAILED ? NULL : p;
+#elif defined(_WIN32)
+    HANDLE hf = CreateFileA(path, writable ? (GENERIC_READ | GENERIC_WRITE) : GENERIC_READ,
+                            FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hf == INVALID_HANDLE_VALUE) {
+        return NULL;
+    }
+    HANDLE hm = CreateFileMappingA(hf, NULL, writable ? PAGE_READWRITE : PAGE_READONLY,
+                                   0, 0, NULL);
+    CloseHandle(hf);
+    if (!hm) {
+        return NULL;
+    }
+    void *p = MapViewOfFile(hm, writable ? FILE_MAP_WRITE : FILE_MAP_READ, 0, 0, (SIZE_T)nbytes);
+    CloseHandle(hm);
+    return p;
+#else
+    (void)writable;
+    return NULL;
+#endif
+}
+
+int32_t hw_mem_sync(void *addr, int64_t nbytes) {
+    if (!addr || nbytes <= 0) {
+        return -1;
+    }
+#if defined(__APPLE__) || defined(__linux__)
+    return msync(addr, (size_t)nbytes, MS_SYNC) == 0 ? 0 : -1;
+#else
+    (void)addr;
+    (void)nbytes;
+    return -1;
+#endif
 }
 
 // --- Storage ---

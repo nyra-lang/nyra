@@ -8,6 +8,8 @@ description = "Nyra compile-time constant evaluation"
 
 [dependencies]
 ast = { path = "../ast" }
+errors = { path = "../errors" }
+monomorph = { path = "../monomorph" }
 
 [dev-dependencies]
 lexer = { path = "../lexer" }

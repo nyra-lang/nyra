@@ -26,12 +26,13 @@ fn BTreePaged_node_key(id: i32) -> string {
 
 fn BTreePaged_join(vec: StrVec) -> string {
     let n = vec.len()
-    let mut out = ""
-    let mut i = 0
+    if n == 0 {
+        return ""
+    }
+    let mut out = vec.get(0)
+    let mut i = 1
     while i < n {
-        if i > 0 {
-            out = strcat(out, "\x1f")
-        }
+        out = strcat(out, "\x1f")
         out = strcat(out, vec.get(i))
         i = i + 1
     }

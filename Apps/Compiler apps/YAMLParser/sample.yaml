@@ -1,7 +1,0 @@
-name: nyra
-version: 1
-tags:
-  - compiler
-  - llvm
-package:
-  module: core

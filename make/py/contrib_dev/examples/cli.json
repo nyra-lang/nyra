@@ -1,0 +1,5 @@
+{
+  "name": "my_cmd",
+  "kind": "subcommand",
+  "description": "Example CLI subcommand scaffold"
+}

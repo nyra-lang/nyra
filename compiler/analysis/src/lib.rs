@@ -15,7 +15,8 @@ pub use workspace::{span_to_lsp_range, SymbolLocation, WorkspaceIndex};
 use std::collections::HashSet;
 
 use ast::{
-    expr_span, Expression, Function, LetStmt, Param, Program, Statement, StructDef, TypeAnnotation,
+    expr_span, for_each_expr_in_block, Expression, Function, LetStmt, Param, Program, Statement,
+    StructDef, TypeAnnotation,
 };
 use errors::Span;
 use expand::expand_program;
@@ -363,7 +364,8 @@ fn collect_stmt_symbols(stmt: &Statement, out: &mut Vec<Symbol>) {
                 collect_expr_refs(c, out);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_symbols(b, out),
+        Statement::Spawn(s) => collect_block_symbols(&s.body, out),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_symbols(b, out),
         _ => {}
     }
 }
@@ -441,7 +443,7 @@ fn collect_expr_refs(expr: &Expression, out: &mut Vec<Symbol>) {
         Expression::Match(m) => {
             collect_expr_refs(&m.scrutinee, out);
             for arm in &m.arms {
-                collect_expr_refs(&arm.body, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_expr_refs(e, out));
                 if let Some(g) = &arm.guard {
                     collect_expr_refs(g, out);
                 }
@@ -449,8 +451,8 @@ fn collect_expr_refs(expr: &Expression, out: &mut Vec<Symbol>) {
         }
         Expression::If(i) => {
             collect_expr_refs(&i.condition, out);
-            collect_expr_refs(&i.then_expr, out);
-            collect_expr_refs(&i.else_expr, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_expr_refs(e, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_expr_refs(e, out));
         }
         Expression::Index(ix) => {
             collect_expr_refs(&ix.object, out);
@@ -481,6 +483,12 @@ fn collect_expr_refs(expr: &Expression, out: &mut Vec<Symbol>) {
             ast::ArrowBody::Expr(e) => collect_expr_refs(e, out),
             ast::ArrowBody::Block(b) => collect_block_symbols(b, out),
         },
+        Expression::ComptimeBlock { body, .. } => collect_block_symbols(body, out),
+        Expression::Spawn { body, .. } => collect_block_symbols(body, out),
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_expr_refs(e, out));
+            collect_block_symbols(&ps.body, out);
+        }
         Expression::Literal(_) | Expression::Invalid => {}
     }
     let _ = expr_span(expr);

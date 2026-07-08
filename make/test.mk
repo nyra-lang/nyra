@@ -4,7 +4,7 @@
 .PHONY: test-nyra-lang test-conformance test-optional-types test-examples-corpus
 .PHONY: test-fuzz-smoke test-fuzz-nightly sync-fuzz-corpus test-fuzz-stress
 .PHONY: test-sanitizer test-race-tsan test-race-native test-perf
-.PHONY: test-comparison-parity test-webdocs-tabs test-abi-roundtrip test-preflight
+.PHONY: test-comparison-parity test-webdocs-tabs test-webdocs-snippets test-webdocs-snippets-full test-abi-roundtrip test-preflight test-triage
 .PHONY: update-suite-stderr
 
 build-workspace:
@@ -27,7 +27,11 @@ test-compiletest: suite-clean ensure-nyra
 		python3 $(MAKE_PY)/gen-suite-tests.py --profile $(NYRA_SUITE_PROFILE); \
 		$(MAKE_LIB)/test-count.sh; \
 	fi
-	@cargo test -p compiler suite_ -- --nocapture
+	@if [ "$${NYRA_TEST_ALL:-}" = "1" ]; then \
+		cargo test -p compiler suite_; \
+	else \
+		cargo test -p compiler suite_ -- --nocapture; \
+	fi
 	$(call log_ok,compiletest suite)
 
 test-count:
@@ -77,11 +81,21 @@ test-comparison-parity: ensure-nyra
 test-webdocs-tabs:
 	@$(MAKE_LIB)/check-webdocs-code-tabs.sh
 
+test-webdocs-snippets: ensure-nyra
+	@$(MAKE_LIB)/check-webdocs-snippets.sh
+
+test-webdocs-snippets-full: ensure-nyra
+	@NYRA_WEBDOCS_FULL=1 $(MAKE_LIB)/check-webdocs-snippets.sh
+
 test-abi-roundtrip: ensure-nyra
 	@$(MAKE_LIB)/abi-roundtrip.sh
 
 test-preflight:
 	@$(MAKE_LIB)/test-preflight.sh
+
+# ~5–15 min: common CI breakages in one report (target/.nyra-test-all-failures).
+test-triage:
+	@$(MAKE_LIB)/test-triage.sh
 
 update-suite-stderr:
 	@$(MAKE_LIB)/update-suite-stderr.sh

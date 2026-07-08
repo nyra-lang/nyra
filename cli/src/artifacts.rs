@@ -130,7 +130,7 @@ pub fn layout(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::target::{TargetArch, TargetFlags, TargetOs, resolve};
+    use crate::target::{TargetArch, TargetFlags, TargetOs, TargetSpec, resolve};
     use std::fs;
 
     #[test]
@@ -158,14 +158,25 @@ mod tests {
 
     #[test]
     fn cross_windows_uses_triple_subdir_and_exe() {
-        let spec = resolve(&TargetFlags {
-            for_os: Some("windows".into()),
-            ..Default::default()
-        })
-        .unwrap();
+        // Opposite arch from host so layout is cross on every CI runner (incl. Windows ARM64/MSVC
+        // where gnu/msvc same-arch triples would otherwise look native).
+        let host = TargetSpec::host();
+        let (triple, arch) = match host.arch {
+            TargetArch::Aarch64 => ("x86_64-pc-windows-msvc", TargetArch::X86_64),
+            _ => ("aarch64-pc-windows-msvc", TargetArch::Aarch64),
+        };
+        let spec = TargetSpec {
+            triple: triple.into(),
+            os: TargetOs::Windows,
+            arch,
+            is_cross: true,
+            is_wasm: false,
+        };
         let layout = layout(Path::new("."), true, None, &spec, false);
-        assert!(layout.profile_dir.ends_with("release"));
-        assert!(layout.profile_dir.to_string_lossy().contains("windows"));
+        assert_eq!(
+            layout.profile_dir,
+            project_root(Path::new(".")).join(format!("target/{triple}/release"))
+        );
         assert!(layout.bin_path.to_string_lossy().ends_with("main.exe"));
     }
 

@@ -2,13 +2,24 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: Invalid character '@'
+error[L004]: Expected identifier after '@'
   --> p.ny:1:21
-error[P006]: Invalid expression
-  --> p.ny:1:23
-error[P008]: Expected '}' to close block
-  --> p.ny:1:24
+   |
+  1 | fn main() { let x = @ }
+   |                     ^
+   = label: `@` must be followed by an identifier
+   = help: example: `@derive(Clone)` or `@inline`
+error[E002]: undefined variable ``
+  --> p.ny:1:21
+   |
+  1 | fn main() { let x = @ }
+   |                     ^
+   = label: `` is not in scope
 warning[W003]: unused variable `x`
   --> p.ny:1:17
+   |
+  1 | fn main() { let x = @ }
+   |                 ^^^^^
+   = label: declared here but never read
    = help: prefix with `_` if intentional: `let _x = ...`
    = help: or remove the binding if `x` is not needed

@@ -1,9 +1,10 @@
 //! Trait object dispatch signatures and static trait method resolution.
 
 use ast::*;
-use errors::{ErrorKind, NyraError, Span};
+use errors::Span;
 
 use super::{FunctionSignature, TypeChecker, TypeEnv};
+use super::diagnostics;
 use types::Type;
 
 impl TypeChecker {
@@ -118,27 +119,19 @@ impl TypeChecker {
             };
             let expected_args = sig.params.len().saturating_sub(1);
             if mc.args.len() != expected_args {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
+                diagnostics::wrong_arity(
+                    self,
+                    &format!("{}::{}", trait_name, mc.method),
+                    expected_args,
+                    mc.args.len(),
                     sp.clone(),
-                    format!(
-                        "Method '{}' on trait '{}' expects {} argument(s), found {}",
-                        mc.method,
-                        trait_name,
-                        expected_args,
-                        mc.args.len()
-                    ),
-                ));
+                );
             }
             for (arg, p) in mc.args.iter().zip(sig.params.iter().skip(1)) {
                 let at = self.check_expr(arg, env);
                 let expected = self.type_from_ann(&p.ty);
                 if at != expected && at != Type::Unknown && expected != Type::Unknown {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Type,
-                        sp.clone(),
-                        format!("Method '{}' argument mismatch", mc.method),
-                    ));
+                    diagnostics::method_arg_mismatch(self, &mc.method, sp.clone());
                 }
             }
             return sig

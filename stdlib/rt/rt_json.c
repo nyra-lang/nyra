@@ -32,6 +32,46 @@ static const char *find_key_colon(const char *json, const char *key) {
     return strchr(k + strlen(pattern), ':');
 }
 
+static const char *json_value_start(const char *json, const char *key) {
+    const char *colon = find_key_colon(json, key);
+    if (!colon) {
+        return NULL;
+    }
+    const char *p = colon + 1;
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+        p++;
+    }
+    return p;
+}
+
+int json_has_key(const char *json, const char *key) {
+    return find_key_colon(json, key) ? 1 : 0;
+}
+
+int json_has_string(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    return (p && *p == '"') ? 1 : 0;
+}
+
+int json_has_i32(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    if (!p) {
+        return 0;
+    }
+    if (*p == '-') {
+        p++;
+    }
+    return (*p >= '0' && *p <= '9') ? 1 : 0;
+}
+
+int json_has_bool(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    if (!p) {
+        return 0;
+    }
+    return (strncmp(p, "true", 4) == 0 || strncmp(p, "false", 5) == 0) ? 1 : 0;
+}
+
 /* Minimal JSON string field extractor for {"key":"value"} objects. */
 char *json_get_string(const char *json, const char *key) {
     const char *colon = find_key_colon(json, key);
@@ -123,6 +163,26 @@ char *json_get_object(const char *json, const char *key) {
     return NULL;
 }
 
+static int json_value_is_integer(const char *v) {
+    if (!v || !*v) {
+        return 0;
+    }
+    const char *p = v;
+    if (*p == '-') {
+        p++;
+        if (!*p) {
+            return 0;
+        }
+    }
+    if (*p < '0' || *p > '9') {
+        return 0;
+    }
+    while (*p >= '0' && *p <= '9') {
+        p++;
+    }
+    return *p == '\0';
+}
+
 char *json_encode_object(void *keys_vec, void *values_vec) {
     if (!keys_vec || !values_vec) {
         return NULL;
@@ -150,7 +210,7 @@ char *json_encode_object(void *keys_vec, void *values_vec) {
             out = tmp;
         }
         int is_nested = (v[0] == '{' || v[0] == '[');
-        int is_num = (v[0] >= '0' && v[0] <= '9') || v[0] == '-';
+        int is_num = json_value_is_integer(v);
         int is_bool = (strcmp(v, "true") == 0 || strcmp(v, "false") == 0);
         char *part = NULL;
         if (is_nested || is_num || is_bool) {
@@ -286,6 +346,40 @@ char *json_encode_str_array(void *handle) {
     return done;
 }
 
+/* Join JSON object literals into a raw array: [{...},{...}] without extra quoting. */
+char *json_join_raw_array(void *handle) {
+    if (!handle) {
+        return dup_slice("[]", 2);
+    }
+    int n = vec_str_len(handle);
+    if (n <= 0) {
+        return dup_slice("[]", 2);
+    }
+    char *out = (char *)malloc(2);
+    if (!out) {
+        return NULL;
+    }
+    out[0] = '[';
+    out[1] = '\0';
+    for (int i = 0; i < n; i++) {
+        const char *part = vec_str_get(handle, i);
+        if (!part) {
+            part = "";
+        }
+        if (i > 0) {
+            char *tmp = str_cat(out, ",");
+            free(out);
+            out = tmp;
+        }
+        char *tmp2 = str_cat(out, part);
+        free(out);
+        out = tmp2;
+    }
+    char *done = str_cat(out, "]");
+    free(out);
+    return done;
+}
+
 void *json_decode_str_array(const char *array_json) {
     void *v = vec_str_new();
     if (!v || !array_json) {
@@ -324,6 +418,73 @@ void *json_decode_str_array(const char *array_json) {
             p++;
         }
         while (*p && *p != ',' && *p != ']') {
+            p++;
+        }
+    }
+    return v;
+}
+
+void *json_split_array_elements(const char *array_json) {
+    void *v = vec_str_new();
+    if (!v || !array_json) {
+        return v;
+    }
+    const char *p = array_json;
+    while (*p && *p != '[') {
+        p++;
+    }
+    if (*p != '[') {
+        return v;
+    }
+    p++;
+    while (*p) {
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') {
+            p++;
+        }
+        if (*p == ']' || !*p) {
+            break;
+        }
+        const char *start = p;
+        int depth = 0;
+        int in_string = 0;
+        while (*p) {
+            char c = *p;
+            if (in_string) {
+                if (c == '"' && p > start && p[-1] != '\\') {
+                    in_string = 0;
+                }
+                p++;
+                continue;
+            }
+            if (c == '"') {
+                in_string = 1;
+                p++;
+                continue;
+            }
+            if (c == '{' || c == '[') {
+                depth++;
+            } else if (c == '}' || c == ']') {
+                if (depth == 0) {
+                    break;
+                }
+                depth--;
+            } else if (c == ',' && depth == 0) {
+                break;
+            }
+            p++;
+        }
+        size_t len = (size_t)(p - start);
+        while (len > 0 && (start[len - 1] == ' ' || start[len - 1] == '\t')) {
+            len--;
+        }
+        if (len > 0) {
+            char *slice = dup_slice(start, len);
+            if (slice) {
+                vec_str_push(v, slice);
+                free(slice);
+            }
+        }
+        if (*p == ',') {
             p++;
         }
     }
@@ -385,4 +546,195 @@ void *json_decode_ptr_token(const char *json, const char *key) {
         return NULL;
     }
     return (void *)(intptr_t)v;
+}
+
+
+
+/* Top-level object keys (StrVec). Empty vec if not an object. */
+void *json_top_keys(const char *json) {
+    void *v = vec_str_new();
+    if (!v || !json) {
+        return v;
+    }
+    const char *p = json;
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+        p++;
+    }
+    if (*p != '{') {
+        return v;
+    }
+    p++;
+    while (*p) {
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') {
+            p++;
+        }
+        if (*p == '}' || !*p) {
+            break;
+        }
+        if (*p != '"') {
+            break;
+        }
+        p++;
+        const char *start = p;
+        while (*p && *p != '"') {
+            if (*p == '\\' && p[1]) {
+                p += 2;
+                continue;
+            }
+            p++;
+        }
+        if (*p != '"') {
+            break;
+        }
+        char *key = dup_slice(start, (size_t)(p - start));
+        if (key) {
+            vec_str_push(v, key);
+            free(key);
+        }
+        p++;
+        while (*p && *p != ':') {
+            p++;
+        }
+        if (*p != ':') {
+            break;
+        }
+        p++;
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+            p++;
+        }
+        /* skip value */
+        if (*p == '"') {
+            p++;
+            while (*p && *p != '"') {
+                if (*p == '\\' && p[1]) {
+                    p += 2;
+                    continue;
+                }
+                p++;
+            }
+            if (*p == '"') {
+                p++;
+            }
+        } else if (*p == '{' || *p == '[') {
+            char open = *p;
+            char close = open == '{' ? '}' : ']';
+            int depth = 0;
+            int in_string = 0;
+            while (*p) {
+                char c = *p;
+                if (in_string) {
+                    if (c == '"' && p[-1] != '\\') {
+                        in_string = 0;
+                    }
+                    p++;
+                    continue;
+                }
+                if (c == '"') {
+                    in_string = 1;
+                    p++;
+                    continue;
+                }
+                if (c == open) {
+                    depth++;
+                } else if (c == close) {
+                    depth--;
+                    if (depth == 0) {
+                        p++;
+                        break;
+                    }
+                }
+                p++;
+            }
+        } else {
+            while (*p && *p != ',' && *p != '}') {
+                p++;
+            }
+        }
+    }
+    return v;
+}
+
+/* Raw JSON value text for a top-level (or nested via find_key) key. */
+char *json_raw_get(const char *json, const char *key) {
+    const char *p = json_value_start(json, key);
+    if (!p) {
+        return NULL;
+    }
+    const char *start = p;
+    if (*p == '"') {
+        p++;
+        while (*p && *p != '"') {
+            if (*p == '\\' && p[1]) {
+                p += 2;
+                continue;
+            }
+            p++;
+        }
+        if (*p == '"') {
+            p++;
+        }
+        return dup_slice(start, (size_t)(p - start));
+    }
+    if (*p == '{' || *p == '[') {
+        char open = *p;
+        char close = open == '{' ? '}' : ']';
+        int depth = 0;
+        int in_string = 0;
+        while (*p) {
+            char c = *p;
+            if (in_string) {
+                if (c == '"' && p[-1] != '\\') {
+                    in_string = 0;
+                }
+                p++;
+                continue;
+            }
+            if (c == '"') {
+                in_string = 1;
+                p++;
+                continue;
+            }
+            if (c == open) {
+                depth++;
+            } else if (c == close) {
+                depth--;
+                if (depth == 0) {
+                    p++;
+                    break;
+                }
+            }
+            p++;
+        }
+        return dup_slice(start, (size_t)(p - start));
+    }
+    if (strncmp(p, "true", 4) == 0) {
+        return dup_slice(p, 4);
+    }
+    if (strncmp(p, "false", 5) == 0) {
+        return dup_slice(p, 5);
+    }
+    if (strncmp(p, "null", 4) == 0) {
+        return dup_slice(p, 4);
+    }
+    while (*p && *p != ',' && *p != '}' && *p != ']' && *p != ' ' && *p != '\n' && *p != '\r' && *p != '\t') {
+        p++;
+    }
+    return dup_slice(start, (size_t)(p - start));
+}
+
+/* Kind: 0=null/invalid, 1=object, 2=array, 3=string, 4=number, 5=bool */
+int json_value_kind(const char *json) {
+    if (!json) {
+        return 0;
+    }
+    while (*json == ' ' || *json == '\t' || *json == '\n' || *json == '\r') {
+        json++;
+    }
+    if (*json == '{') return 1;
+    if (*json == '[') return 2;
+    if (*json == '"') return 3;
+    if (*json == '-' || (*json >= '0' && *json <= '9')) return 4;
+    if (strncmp(json, "true", 4) == 0 || strncmp(json, "false", 5) == 0) return 5;
+    if (strncmp(json, "null", 4) == 0) return 0;
+    return 0;
 }

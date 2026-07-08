@@ -8,7 +8,7 @@ fn main() {
     }
 
     // 2. Cap workers (may use fewer when iteration count is small).
-    parallel(max_threads = 4) for i in 0..64 {
+    parallel(max = 4) for i in 0..64 {
         blackbox_i32(i)
     }
 
@@ -33,7 +33,7 @@ fn main() {
     }
 
     let nums = [10, 20, 30, 40]
-    parallel(max_threads = 2) for n in nums {
+    parallel(max = 2) for n in nums {
         blackbox_i32(n)
     }
 

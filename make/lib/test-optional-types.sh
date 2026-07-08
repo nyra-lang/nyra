@@ -24,13 +24,23 @@ check_file() {
   fi
 }
 
+normalize_text_out() {
+  # Windows runners emit CRLF from print(); normalize before comparing expected output.
+  printf '%s' "$1" | tr -d '\r'
+}
+
 run_file() {
   local label="$1"
   local path="$2"
   local expect="${3:-}"
-  local out
-  out="$("${NYRA[@]}" run "$path" 2>/dev/null || true)"
+  local out="" err_file="" ec=0
+  err_file="$(mktemp)"
+  out="$(normalize_text_out "$("${NYRA[@]}" run "$path" 2>"$err_file")")" || ec=$?
+  if ((ec != 0)); then
+    fail "run $label (exit $ec): $(tr -d '\r' <"$err_file")"
+  fi
   if [[ -n "$expect" ]]; then
+    expect="$(normalize_text_out "$expect")"
     if [[ "$out" != "$expect" ]]; then
       fail "run $label: expected $(printf %q "$expect") got $(printf %q "$out")"
     fi
@@ -50,7 +60,7 @@ while IFS= read -r -d '' plain; do
   if [[ -f "$typed" ]]; then
     check_file "${rel%.ny}.typed.ny" "$typed"
   fi
-done < <(find "$ROOT/examples/builtins" -name '*.ny' ! -name '*.typed.ny' -print0)
+done < <(find "$ROOT/examples/builtins" -type f -name '*.ny' ! -name '*.typed.ny' -print0)
 
 log "checking syntax examples (easy + typed)"
 while IFS= read -r -d '' plain; do
@@ -60,7 +70,7 @@ while IFS= read -r -d '' plain; do
   if [[ -f "$typed" ]]; then
     check_file "${rel%.ny}.typed.ny" "$typed"
   fi
-done < <(find "$ROOT/examples/syntax" -name '*.ny' ! -name '*.typed.ny' -print0)
+done < <(find "$ROOT/examples/syntax" -type f -name '*.ny' ! -name '*.typed.ny' -print0)
 
 # Spot-run a few deterministic builtins in both styles
 run_file "strings/split.ny" "$ROOT/examples/builtins/strings/split.ny" $'3\na\nb\nc'

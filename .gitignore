@@ -99,6 +99,6 @@ lcov.info
 # Local dev / accidental dumps (do not commit)
 # -----------------------------------------------------------------------------
 root_git_status_sb.txt
-scripts/test-all.txt
 
-WebDocs/
+
+ccomit.txt

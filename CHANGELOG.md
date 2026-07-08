@@ -1,5 +1,181 @@
 # Changelog
 
+## v1.45.0 (2026-07-08)
+
+**Collections HOFs + SQL query builder**
+
+- **VecI32 / StrVec** — `contains`/`includes`, `first`/`last`, `find`/`find_eq`/`index_of`, `filter`, `map`, `reduce` (i32)
+- **SQL builder** — `qb()` / `qb_from(table)` with `.select` / `.from` / `.where` / `.and` / `.include` (JOIN) / `.lookup` / `.unwind` (LEFT JOIN) / `.order` / `.limit` / `.distinct` / `.to_sql()`; writers `sql_insert` / `sql_update` / `sql_delete` / `sql_quote`
+- **DB** — `SqlDb.find(q)` / `SqliteDb.find(q)` run a built query
+- **Tests** — `tests/nyra/collection_qb_test.ny`
+
+## v1.44.1 (2026-07-08)
+
+**Auto-prelude: resolve imports when lazy-loading stdlib**
+
+- **Fixed** — `inject_lazy_stdlib_prelude` used `parse_file_only`, so modules like `net/http/sugar.ny` were merged without sibling imports. Also, the parser duplicated mangled `impl` methods into `program.functions`, so wrappers like `RequestInit_timeout` could replace the real free helpers from `fetch.ny` → infinite recursion / `program exited with status -1` under auto-import with no explicit `import`s.
+- **Now** — auto-loaded files resolve their imports like explicit ones, and `impl` methods stay on `program.impls` (codegen emits them only when no free function of the same name exists). `req().timeout(…).get(url)` works with zero import lines.
+
+## v1.44.0 (2026-07-08)
+
+**HTTP naming — one primary path like JS `fetch`**
+
+- **Primary** — `fetch(url) -> HttpResponse` (was body `string`); body-only stays as `get(url)` / `resp.text()`
+- **One configure object** — `req().header(...).timeout(...).json(...).post(url)` (also `.get` / `.put` / `.patch` / `.delete` / `.head` / `.go`)
+- **String verbs** — `req().verb("POST")…` via `method_from_name`
+- **Short helpers** — `post_json` / `post_form` / `put_json` / `patch_json` / `get_json` (no `http_` prefix)
+- **Compat** — `http_post_json`, `.send(url)`, and body-only `fetch_text(url)` still exist; do **not** redefine `fetch` in legacy `stdlib/http*` (that collided with `net/http` and broke codegen)
+- **Docs/examples** — preferred style is `fetch` + `req().…verb(url)`, not long per-verb names
+
+## v1.43.0 (2026-07-08)
+
+**Language-wide short APIs (less code, same power)**
+
+- **JSON** — `jparse`, `jstringify`, `jstr`/`jraw`/`jobj`/`jnum`/`jbool`, `obj()`/`dict()`/`dict_i32()` (shared; no longer HTTP-only)
+- **Strings** — `sb().push(...).build()`, `cat`/`cat3`/`cat4`
+- **Collections** — `strs()`/`.joined(sep)`, `vec()`/`vec_range()` method-bearing `VecI32`
+- **FS/Path** — `slurp`/`spit`/`mkdir`/`mkdir_all`/`rm`/`rm_rf`/`ls`; `path(p).read()`/`.write()`/`.exists()`
+- **Time** — `now()`, `ms(n).sleep()`
+- **Env / process / uuid / encoding / errors** — `env`/`env_or`, `cmd`, `uuid`, `b64`/`b64d`, `err_io` + `Error.context()`/`.format()`/`.show()`
+- **Tests** — `tests/nyra/stdlib_sugar_test*.ny`
+
+## v1.42.0 (2026-07-08)
+
+**HTTP ergonomics — JS/Go-short style**
+
+- **Added** — fluent chaining: `req().header(...).timeout(...).send(url)`, `form().append(...).urlencoded()`, `params().set(...).to_string()`, `cookies().set(...)`, `resp.json()` / `resp.text()` / `resp.is_ok()`
+- **Added** — short constructors `req()`, `form()`, `params()`, `cookies()`, `headers()`
+- **Added** — one-liner verbs `http_get`, `http_get_json`, `http_post_json`, `http_post_form`, `http_put_json`, `http_patch_json`, `http_delete`
+- **Added** — JSON field helpers `jstr` / `jraw` / `jobj` / `jnum` (auto-unquote string values)
+- **Tests/examples** — `tests/nyra/http_sugar_test*.ny`, shortened `examples/net/fetch_apis*.ny`
+
+## v1.41.0 (2026-07-08)
+
+**HTTP fetch surface + contributor hub fixes**
+
+- **Added** — custom request headers (`RequestInit` / `HeaderMap`), response header map on `HttpResponse`, `FormData`, `URLSearchParams`, `application/x-www-form-urlencoded` helpers
+- **Added** — `HttpResponse_json` / `JSON_parse_object` (object → `HashMap_str_str`), full RFC 3986 `url_encode` / `url_decode`
+- **Added** — real connect/read timeouts via `sys_set_timeout_ms` + `Client.timeout_ms` / `RequestInit_timeout`
+- **Added** — `AbortController` / `AbortSignal`, `CookieJar`, redirect modes (`FOLLOW` / `ERROR` / `MANUAL`), `Blob` / `ArrayBuffer` / `BodyStream`
+- **Added** — `fetch_with(url, init)` alongside existing `get`/`post`/`put`/`patch`/`delete`
+- **Fixed** — `make contribute-remove`/`patch` no longer hang regenerating webDocs by default; discover skips bulky trees; `pure_source` scaffolds multi-fn stdlib modules
+- **Tests/examples** — `tests/nyra/http_fetch_apis_test*.ny`, `examples/net/fetch_apis*.ny`
+
+## v1.40.3 (2026-07-07)
+
+
+**JS-style string methods**
+
+- **Added** — JS-style method syntax for stdlib string helpers: `name.toUpperCase()` now dispatches (UFCS) to the free function `String_toUpperCase(name)`, and likewise `toLowerCase`, `includes`, `stripSuffix`, etc. The fully-qualified spelling `name.String_toUpperCase()` also works. The typechecker resolves a `string` receiver method to `String_<method>` (or the bare name) when such a free function exists, codegen lowers the call accordingly, and the borrow checker treats these receivers as borrowed (`&string`) rather than moved. Intrinsic methods (`trim`, `split`, `to_upper`, …) remain compiler-lowered and are unaffected.
+- **Fixed** — stdlib helpers referenced only via method-call syntax are now recorded as used, so the lazy stdlib prelude merges their defining module. Previously such a call was skipped by `collect_program_uses`, so `builtins_string.ny` was never loaded and codegen emitted a call to an undefined symbol (`use of undefined value '@String_toUpperCase'` at link time); the error only vanished by coincidence when another plain call pulled the same module in.
+- **Tests** — `resolve` regression tests `symbols::method_call_name_is_recorded_as_use`, `symbols::js_style_method_maps_to_string_prefixed_use`, `symbols::intrinsic_method_does_not_pull_stdlib_helper`, and `prelude::lazy_prelude_loads_module_for_method_call_reference` (zero-types and explicit-types spellings); end-to-end `tests/nyra/string_js_methods_test.ny` and `tests/nyra/string_js_methods_typed_test.ny`. All run under `make test-all` / CI (`cargo test --workspace` + the `nyra test tests/nyra` gate).
+
+## v1.40.0 (2026-07-03)
+
+**Batteries-included errors and async**
+
+- **Added** — official application error path in `stdlib/error.ny`: `Error`, context/cause formatting, stack trace hook, and `Result<T, Error>` helpers for common fallible pipelines.
+- **Added** — fallible stdlib wrappers for file and JSON work (`read_text`, `write_text`, `append_text`, `json_string`, `json_i32`, `json_bool`) so apps can compose I/O + parsing with `?` without third-party packages.
+- **Added** — official async runtime facade in `stdlib/async/mod.ny` (`NyraRuntime_default`, `NyraRuntime_run_until`, `sleep_ms_async`, `await_i32`) over Nyra's in-tree executor.
+- **Fixed** — `?` and LLVM lowering for `Result<string, Error>` / struct error payloads, including string payload ownership when unwrapping with `?`.
+- **Runtime** — `rt_error.c` adds `error_stack_trace`; `rt_json.c` adds JSON field-type probes for safe fallible wrappers.
+- **Tests/examples** — `error_stdlib_test*`, `async_runtime_facade_test*`, `examples/errors_official*`, and `examples/async_runtime_official*`.
+
+## v1.39.0 (2026-07-01)
+
+**Systems-level language features**
+
+- **Added** — C-style `union` with `repr(C)`, `align(N)`, and `packed` layout attributes
+- **Added** — compile-time `size_of<T>()` and `align_of<T>()` intrinsics (`stdlib/mem/layout.ny`)
+- **Fixed** — heterogeneous enum payloads (`Ok(string)` + `Err(i32)`) with union slot layout and tag-discriminated drop
+- **Added** — first-class `bytes` type (distinct from `string`); indexing and `.to_string()`
+- **Added** — `StackBuffer` stack-only buffers (`stdlib/buf/stack.ny`) with return-type escape rejection
+- **Added** — portable SIMD vectors (`i32x4`, `f32x4`, `f64x2`) and platform intrinsics (`stdlib/simd/`)
+- **Added** — arena bump allocator (`stdlib/alloc/arena.ny`, `rt_arena.c`)
+- **Tests** — `union_test`, `layout_align_test`, `enum_hetero_payload_test`, `bytes_type_test`, `stack_buffer_test`, `simd_test`, `arena_test`, `systems_features_test`
+- **Conformance** — `CONF-LANG-010` … `CONF-LANG-013`
+- **Added** — metaprogramming guide: comptime + macros + struct JSON synthesis (`examples/toolchain/metaprogramming.ny`, `stdlib/meta/mod.ny`)
+- **Changed** — `random()` / `random(min, max)` and `random_f64()` / `random_f64(min, max)` are compiler builtins; removed `Random()` and `random_range`; integer return type follows bounds or type args (`i32`, `i64`, `u64`, …)
+- **Added** — `JoinHandle` and `.join()` for `spawn` expression form; statement `spawn { }` remains fire-and-forget
+- **Added** — `spawn:task` (default `spawn`) lightweight task pool (`rt_task_pool.c`) and `spawn:thread` for dedicated OS threads (`pthread` / `CreateThread`)
+- **Tests** — `spawn_join_test.ny`; examples `spawn_join.ny`, `spawn_thread.ny`
+- **Runtime** — `spawn_capture` returns `void*` handle; `spawn_join` / `spawn_handle_drop`; `spawn_task_capture` / `spawn_task_join` / `spawn_task_handle_drop`
+
+## v1.38.0 (2026-06-28)
+
+**Comptime — Zig-style power (optional)**
+
+- **Added** — comptime **strings** (literals, concat, equality) and **string literal match** arms
+- **Added** — `.len()` on comptime arrays and strings; `[elem; N]` / `[elem; param]` array repeat
+- **Added** — mutable comptime updates: `table[i] = v`, `s.field = v` (requires `let mut`); immutable `let` reassignment rejected
+- **Added** — integer literal match patterns (`match n { 0 => …, 7 => … }`)
+- **Added** — comptime modules retain exported **`pub struct` / `pub enum`** definitions
+- **Added** — example `comptime_power.ny`; tests `tests/nyra/comptime/power_test*`
+- **Docs** — `skills/skill.md` comptime philosophy and expanded capability list
+
+## v1.37.5 (2026-06-28)
+
+**Comptime — structs, enums, and tuples**
+
+- **Added** — comptime struct literals, field access, spread (`{ ...s, x: 1 }`), and struct match patterns
+- **Added** — comptime enum values with single or multi-arg payloads (`Opt.Some(42)`)
+- **Added** — comptime tuple literals and tuple match patterns
+- **Added** — examples `comptime_struct_enum.ny`; tests `tests/nyra/comptime/struct_enum_test*`
+- **Docs** — `skills/skill.md` struct/enum/tuple comptime support
+
+## v1.37.4 (2026-06-28)
+
+**Comptime — `match` expressions**
+
+- **Added** — comptime evaluation for `match` on enums, bools, and integers (with `_ if guard` arms)
+- **Added** — comptime enum values (`Status.Ok`, payload variants with one argument)
+- **Added** — `true` / `false` as bool match patterns in the parser
+- **Added** — examples `comptime_match.ny`; tests `tests/nyra/comptime/match_test*`
+- **Docs** — `skills/skill.md` match section
+
+## v1.37.3 (2026-06-28)
+
+**Comptime — `comptime { }` blocks and loop control**
+
+- **Added** — `comptime { ... }` block expressions fold to a compile-time value
+- **Added** — `while`, `break`, and `continue` in comptime evaluation (including inside `#[comptime]` functions and comptime modules)
+- **Fixed** — fold `comptime { }` in `const` initializers even when no `#[comptime]` functions are present
+- **Added** — examples `comptime_block_loops.ny`; tests `tests/nyra/comptime/loops_test*`
+- **Docs** — `skills/skill.md` updated
+
+## v1.37.2 (2026-06-28)
+
+**Comptime — `#[comptime]` on single functions**
+
+- **Added** — `#[comptime]` attribute on individual functions in normal files; calls fold at compile time and the function is stripped from the binary
+- **Fixed** — typed `const` folding preserves declared integer kind (`i64`, etc.) after comptime evaluation
+- **Added** — examples `examples/toolchain/comptime_fn_attr.ny` (+ `.typed.ny`); tests under `tests/nyra/comptime/fn_attr*`
+- **Docs** — `skills/skill.md` documents file-level `comptime` vs `#[comptime]`
+
+## v1.37.1 (2026-06-28)
+
+**Comptime — `for x in arr` and generic calls**
+
+- **Added** — comptime evaluation for `for x in arr` over fixed arrays and array literals/spreads/index
+- **Added** — generic function calls in comptime modules (monomorph before const fold)
+- **Changed** — monomorph collects and rewrites generic calls in top-level `const` initializers
+- **Updated** — examples/tests for for-in + generics in comptime
+
+## v1.37.0 (2026-06-28)
+
+**Comptime modules — optional compile-time evaluation**
+
+- **Added** — `comptime` file directive (first line only): entire unit is evaluated at compile time; export `pub const` to runtime code via `import`
+- **Added** — comptime interpreter: pure functions, `for i in start..end`, integer/bool folding, `if`/`return`/`let mut`
+- **Added** — examples `examples/toolchain/comptime_tables.ny` (+ `.typed.ny`) and `comptime_import_main.ny`; tests under `tests/nyra/comptime/`
+- **Docs** — `skills/skill.md` comptime section
+- **Fixed** — Windows CI link: stop passing `-lpthread` on MSVC (Win32 rt uses native threads; fixes LNK1181)
+- **Fixed** — `nyra test` / link tests use `.exe` output names on Windows hosts
+- **Fixed** — `cross_windows_uses_triple_subdir_and_exe` uses a non-host Windows triple so it passes on Windows MSVC runners
+- **Fixed** — MSVC deprecation noise in `rt_args.c`, `rt_time.c`, `rt_tls.c` (`_strdup`, `memcpy` instead of `strncpy`)
+- **Fixed** — flaky `async_state_machine_spawn_test` / macOS CI: nested `spawn`/`unsafe` poll loops no longer complete the outer async promise early (`async_state_machine.rs`)
+- **Fixed** — thread-safe async sleep timers (`rt_async.c`: lock `g_timers` in `register_timer` / `process_timers`)
+
 ## v1.36.18 (2026-06-28)
 
 **skills — sync from webDocs nyra-skill.md**
@@ -220,7 +396,7 @@
 
 ### Note
 
-Enum variants with **different payload types** (e.g. `Ok(Option)` + `Err(i32)`) still share one LLVM payload slot — use homogeneous payloads or nested `match` until union layout lands.
+Enum variants with **different payload types** now use a max-size union payload slot with tag-discriminated drop (e.g. `Result<string, i32>`).
 
 ## v1.32.0 (2026-06-24)
 

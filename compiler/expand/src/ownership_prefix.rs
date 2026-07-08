@@ -42,8 +42,8 @@ fn desugar_expr(expr: &mut Expression) {
         }
         Expression::If(i) => {
             desugar_expr(&mut i.condition);
-            desugar_expr(&mut i.then_expr);
-            desugar_expr(&mut i.else_expr);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| desugar_expr(e));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| desugar_expr(e));
         }
         Expression::Match(m) => {
             desugar_expr(&mut m.scrutinee);
@@ -51,7 +51,7 @@ fn desugar_expr(expr: &mut Expression) {
                 if let Some(g) = &mut arm.guard {
                     desugar_expr(g);
                 }
-                desugar_expr(&mut arm.body);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| desugar_expr(e));
             }
         }
         Expression::Await(e) => desugar_expr(e),
@@ -135,9 +135,14 @@ fn desugar_stmt(stmt: &mut Statement) {
                 desugar_expr(c);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
-            for s in &mut b.statements {
-                desugar_stmt(s);
+        Statement::Spawn(s) => {
+            for stmt in &mut s.body.statements {
+                desugar_stmt(stmt);
+            }
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
+            for stmt in &mut b.statements {
+                desugar_stmt(stmt);
             }
         }
         _ => {}

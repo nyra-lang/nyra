@@ -5,7 +5,7 @@ use std::path::Path;
 
 use compiler::{set_color_choice, ColorChoice};
 
-use crate::app::args::{Cli, ColorArgs, Commands, OptFlags, StabilityFlags};
+use crate::app::args::{Cli, ColorArgs, Commands, InternalCommands, OptFlags, StabilityFlags};
 use crate::app::session::{build, compile_and_link, project_root, run_file};
 use crate::commands::{bind, check, explain, fmt, ide, pkg, test, toolchain};
 use crate::debug;
@@ -114,6 +114,19 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
             verbose,
             clang_args,
         } => crate::cc::run_cc(&target_args, print_toolchain, verbose, &clang_args),
+        Commands::Internal { cmd } => match cmd {
+            InternalCommands::BuildPrebuiltRt => {
+                let spec = TargetSpec::host();
+                let path = crate::prebuilt_rt::ensure_prebuilt_runtime(&spec)?;
+                println!("{}", path.display());
+                let tls = crate::prebuilt_tls::ensure_prebuilt_tls(&spec)?;
+                println!("{}", tls.display());
+                let tls_native = crate::prebuilt_tls_native::ensure_prebuilt_native_tls(&spec)?;
+                println!("{}", tls_native.display());
+                Ok(())
+            }
+            InternalCommands::Daemon { background } => crate::daemon::serve(background),
+        },
     }
 }
 

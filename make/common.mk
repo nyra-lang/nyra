@@ -9,8 +9,14 @@ TARGET_DIR := $(ROOT)/target
 NYRA_BIN := $(TARGET_DIR)/debug/nyra
 TEST_ALL_LOG := $(TARGET_DIR)/test-all.txt
 TEST_ALL_FAILURES_FILE := $(TARGET_DIR)/.nyra-test-all-failures
+TEST_ALL_GATE_LOGS_DIR := $(TARGET_DIR)/.nyra-test-all-gate-logs
 NYRA_TEST_ALL_PROGRESS_FILE := $(TARGET_DIR)/.nyra-test-all-progress
 NYRA_TEST_STATS_FILE ?= $(TARGET_DIR)/.nyra-test-all-stats
+
+export TEST_ALL_FAILURES_FILE
+export TEST_ALL_LOG
+export TEST_ALL_GATE_LOGS_DIR
+export NYRA_TEST_ALL_PROGRESS_FILE
 
 export NYRA_ROOT := $(ROOT)
 export NYRA_BIN

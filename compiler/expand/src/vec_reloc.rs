@@ -148,6 +148,7 @@ fn make_fn(name: &str, params: Vec<Param>, ret: Option<TypeAnnotation>, body: Bl
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
         doc: None,
     }
 }
@@ -219,8 +220,8 @@ fn scalar_to_storage_expr(value: Expression, ty: &TypeAnnotation, span: &Span) -
     if matches!(ty, TypeAnnotation::Bool) {
         Expression::If(Box::new(IfExpr {
             condition: value,
-            then_expr: Expression::Literal(Literal::Int(1)),
-            else_expr: Expression::Literal(Literal::Int(0)),
+            then_block: block_from_expr(Expression::Literal(Literal::Int(1))),
+            else_block: block_from_expr(Expression::Literal(Literal::Int(0))),
             span: span.clone(),
         }))
     } else {

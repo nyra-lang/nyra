@@ -66,8 +66,8 @@ fn desugar_expr(expr: &mut Expression) {
         }
         Expression::If(i) => {
             desugar_expr(&mut i.condition);
-            desugar_expr(&mut i.then_expr);
-            desugar_expr(&mut i.else_expr);
+            for_each_expr_in_block_mut(&mut i.then_block, &mut |e| desugar_expr(e));
+            for_each_expr_in_block_mut(&mut i.else_block, &mut |e| desugar_expr(e));
         }
         Expression::Match(m) => {
             desugar_expr(&mut m.scrutinee);
@@ -75,7 +75,7 @@ fn desugar_expr(expr: &mut Expression) {
                 if let Some(g) = &mut arm.guard {
                     desugar_expr(g);
                 }
-                desugar_expr(&mut arm.body);
+                for_each_expr_in_block_mut(&mut arm.body, &mut |e| desugar_expr(e));
             }
             desugar_match_expr(m);
         }
@@ -183,7 +183,7 @@ mod tests {
                     MatchPattern::Qualified("Color".into(), "Blue".into()),
                 ]),
                 guard: None,
-                body: Expression::Literal(Literal::Int(1)),
+                body: block_from_expr(Expression::Literal(Literal::Int(1))),
             }],
             span: Span::default(),
         };

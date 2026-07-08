@@ -1,0 +1,19 @@
+[package]
+name = "nyra-rt-tls"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Nyra TLS client ABI backed by rustls (linked into user programs; no OpenSSL required)"
+
+[lib]
+name = "nyra_rt_tls"
+crate-type = ["staticlib"]
+test = false
+
+[dependencies]
+libc = "0.2"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-native-certs = "0.8"
+rustls-pemfile = "2"
+rustls-pki-types = "1"

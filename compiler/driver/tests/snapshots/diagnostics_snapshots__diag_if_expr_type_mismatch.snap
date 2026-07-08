@@ -2,5 +2,6 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: If expression branches must have the same type
+error[E003]: if expression branches must have the same type
   --> <source>:1:1
+   = help: make both branches return the same type, or add an explicit annotation

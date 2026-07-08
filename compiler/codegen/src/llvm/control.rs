@@ -18,9 +18,10 @@ use super::{
 };
 use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
-    escape_string, host_target_triple, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
-    llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
-    llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
+    escape_string, host_target_triple, is_float_llvm_ty, is_string_builtin_method, llvm_arith_rhs,
+    llvm_binop_operand, llvm_cmp_operand, llvm_float_storage_ty, llvm_ptr, llvm_ptr_reg,
+    llvm_scalar_materialize_op, llvm_storage_ty, llvm_string_len, llvm_struct_size_bytes,
+    llvm_typed_zero, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
 
@@ -53,7 +54,16 @@ impl Codegen {
                 continue;
             }
             let src = Self::reg_operand_from_binding(binding);
-            self.emit(&format!("  %{latch} = add {ty} 0, {src}"));
+            let storage_ty = if is_float_llvm_ty(ty) {
+                llvm_float_storage_ty(ty)
+            } else {
+                llvm_storage_ty(ty)
+            };
+            self.emit(&format!(
+                "  %{latch} = {} {storage_ty} {}, {src}",
+                llvm_scalar_materialize_op(storage_ty),
+                llvm_typed_zero(storage_ty),
+            ));
         }
     }
 
@@ -71,8 +81,17 @@ impl Codegen {
                 continue;
             };
             let src = Self::reg_operand_from_binding(binding);
+            let storage_ty = if is_float_llvm_ty(ty) {
+                llvm_float_storage_ty(ty)
+            } else {
+                llvm_storage_ty(ty)
+            };
             let incoming = self.fresh("loop.in");
-            self.emit(&format!("  %{incoming} = add {ty} 0, {src}"));
+            self.emit(&format!(
+                "  %{incoming} = {} {storage_ty} {}, {src}",
+                llvm_scalar_materialize_op(storage_ty),
+                llvm_typed_zero(storage_ty),
+            ));
             let edge = format!(", [%{incoming}, %{backedge_label}]");
             for line in self.ir_body_mut() {
                 if line.contains(&format!("%{phi_reg} = phi")) {
@@ -247,16 +266,17 @@ impl Codegen {
                 .or_else(|| else_end.get(name))
                 .map(|(_, ty)| ty.clone())
                 .unwrap_or_else(|| "i32".into());
+            let default_op = if ty == "ptr" { "null" } else { "0" };
             let then_op = then_end
                 .get(name)
                 .map(|(op, _)| op.clone())
                 .or_else(|| pre_if.get(name).map(|(op, _)| op.clone()))
-                .unwrap_or_else(|| "0".into());
+                .unwrap_or_else(|| default_op.into());
             let else_op = else_end
                 .get(name)
                 .map(|(op, _)| op.clone())
                 .or_else(|| pre_if.get(name).map(|(op, _)| op.clone()))
-                .unwrap_or_else(|| "0".into());
+                .unwrap_or_else(|| default_op.into());
             let phi_reg = self.fresh("if.phi");
             self.emit(&format!(
                 "  %{phi_reg} = phi {ty} [{then_op}, %{then_pred}], [{else_op}, %{else_pred}]"
@@ -317,24 +337,38 @@ impl Codegen {
                     .get(&en)
                     .cloned()
                     .unwrap_or_else(|| payload.ty.clone());
+                let variant_payload_ty = self
+                    .enum_variant_payload_llvm
+                    .get(&en)
+                    .and_then(|m| m.get(&ev.variant))
+                    .cloned()
+                    .unwrap_or_else(|| payload.ty.clone());
                 let pay_gep = self.fresh("gep");
                 self.emit(&format!(
                     "  %{pay_gep} = getelementptr inbounds %{en}, %{en}* %{alloca}, i32 0, i32 1"
                 ));
-                let store_val = if payload.ty.ends_with('*') && payload_ty.starts_with('%') {
+                let store_val = if payload.ty.ends_with('*') && variant_payload_ty.starts_with('%') {
                     let loaded = self.fresh("load");
                     self.emit(&format!(
-                        "  %{loaded} = load {payload_ty}, {payload_ty}* {}",
+                        "  %{loaded} = load {variant_payload_ty}, {variant_payload_ty}* {}",
                         self.reg_op(&payload)
                     ));
                     format!("%{loaded}")
                 } else {
                     self.reg_op(&payload)
                 };
-                self.emit(&format!(
-                    "  store {payload_ty} {store_val}, {} %{pay_gep}",
-                    llvm_ptr(&payload_ty)
-                ));
+                if variant_payload_ty != payload_ty {
+                    let bc = self.fresh("bc");
+                    self.emit(&format!("  %{bc} = bitcast ptr %{pay_gep} to ptr"));
+                    self.emit(&format!(
+                        "  store {variant_payload_ty} {store_val}, ptr %{bc}"
+                    ));
+                } else {
+                    self.emit(&format!(
+                        "  store {payload_ty} {store_val}, {} %{pay_gep}",
+                        super::util::llvm_ptr(&payload_ty)
+                    ));
+                }
             }
             return ExprValue {
                 reg: alloca,
@@ -353,8 +387,10 @@ impl Codegen {
         env: &Env,
     ) -> ExprValue {
         let cond = self.compile_expr(&i.condition, env);
-        let then_v = self.compile_expr(&i.then_expr, env);
-        let else_v = self.compile_expr(&i.else_expr, env);
+        let mut then_drop = DropState::default();
+        let then_v = self.compile_block_as_expr(&i.then_block, env, &mut then_drop);
+        let mut else_drop = DropState::default();
+        let else_v = self.compile_block_as_expr(&i.else_block, env, &mut else_drop);
         let merge = self.fresh_label("if.expr");
         let then_l = self.fresh_label("if.then");
         let else_l = self.fresh_label("if.else");
@@ -396,12 +432,18 @@ impl Codegen {
         env: &Env,
     ) -> ExprValue {
         let scrutinee = self.compile_expr(&m.scrutinee, env);
-        let result_ty = m
+        let match_enum_name = self.match_scrutinee_enum(&m.scrutinee, &scrutinee, env);
+        let mut result_ty = m
             .arms
             .iter()
-            .map(|a| self.infer_expr_llvm_ty(&a.body, env))
+            .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
             .find(|ty| ty != "void")
             .unwrap_or_else(|| "i32".into());
+        if result_ty == "i32" {
+            if let Some(payload_ty) = self.infer_match_payload_result_ty(m, match_enum_name.as_deref()) {
+                result_ty = payload_ty;
+            }
+        }
         let result_ty = struct_value_type(&result_ty);
         let result_alloca = self.fresh("alloca");
         self.emit(&format!("  %{result_alloca} = alloca {result_ty}"));
@@ -419,7 +461,7 @@ impl Codegen {
             } else {
                 next_l.clone()
             };
-            let enum_name = self.match_scrutinee_enum(&m.scrutinee, &scrutinee, env);
+            let enum_name = match_enum_name.clone();
             let resolve_enum = |pattern: &str| -> String {
                 enum_name
                     .as_ref()
@@ -549,7 +591,8 @@ impl Codegen {
                 ));
                 self.emit(&format!("{guard_ok}:"));
             }
-            let val = self.compile_expr(&arm.body, &arm_env);
+            let mut arm_drop = DropState::default();
+            let val = self.compile_block_as_expr(&arm.body, &arm_env, &mut arm_drop);
             self.emit_struct_store(&val, &result_alloca, &result_ty);
             self.emit(&format!("  br label %{end_l}"));
             if !is_last {
@@ -580,23 +623,45 @@ impl Codegen {
         &mut self,
         scrutinee: &ExprValue,
         enum_name: &str,
+        variant: Option<&str>,
     ) -> ExprValue {
         if !self.enum_has_payload.get(enum_name).copied().unwrap_or(false) {
             return scrutinee.clone();
         }
-        let payload_ty = self
+        let slot_ty = self
             .enum_payload_llvm
             .get(enum_name)
             .cloned()
             .unwrap_or_else(|| "i32".into());
+        let payload_ty = variant
+            .and_then(|v| {
+                self.enum_variant_payload_llvm
+                    .get(enum_name)
+                    .and_then(|m| m.get(v))
+                    .cloned()
+            })
+            .unwrap_or_else(|| slot_ty.clone());
         let ptr = self.enum_scrutinee_ptr(scrutinee);
         let pay_gep = self.fresh("gep");
         self.emit(&format!(
             "  %{pay_gep} = getelementptr inbounds %{enum_name}, %{enum_name}* {ptr}, i32 0, i32 1"
         ));
+        if payload_ty != slot_ty {
+            let bc = self.fresh("bc");
+            self.emit(&format!("  %{bc} = bitcast ptr %{pay_gep} to ptr"));
+            let out = self.fresh("load");
+            self.emit(&format!(
+                "  %{out} = load {payload_ty}, ptr %{bc}"
+            ));
+            return ExprValue {
+                reg: format!("%{out}"),
+                ty: payload_ty,
+            };
+        }
         let loaded = self.fresh("load");
         self.emit(&format!(
-            "  %{loaded} = load {payload_ty}, {payload_ty}* %{pay_gep}"
+            "  %{loaded} = load {slot_ty}, {} %{pay_gep}",
+            super::util::llvm_ptr(&slot_ty)
         ));
         ExprValue {
             reg: format!("%{loaded}"),
@@ -633,7 +698,7 @@ impl Codegen {
     ) {
         match payload {
             MatchPayloadPattern::Bind(name) => {
-                let val = self.load_variant_payload_value(scrutinee, enum_name);
+                let val = self.load_variant_payload_value(scrutinee, enum_name, Some(_variant));
                 arm_env.insert(
                     name.clone(),
                     Binding::Reg {
@@ -647,7 +712,7 @@ impl Codegen {
                 self.emit(&format!("  br label %{ok_l}"));
             }
             MatchPayloadPattern::Nested(pat) => {
-                let val = self.load_variant_payload_value(scrutinee, enum_name);
+                let val = self.load_variant_payload_value(scrutinee, enum_name, Some(_variant));
                 self.compile_pattern_on_enum_value(pat, &val, ok_l, fail_l, arm_env);
             }
         }
@@ -665,7 +730,7 @@ impl Codegen {
     ) {
         match payload {
             MatchPayloadPattern::Bind(name) => {
-                let inner = self.load_variant_payload_value(val, enum_name);
+                let inner = self.load_variant_payload_value(val, enum_name, Some(_variant));
                 arm_env.insert(
                     name.clone(),
                     Binding::Reg {
@@ -679,7 +744,7 @@ impl Codegen {
                 self.emit(&format!("  br label %{ok_l}"));
             }
             MatchPayloadPattern::Nested(pat) => {
-                let inner = self.load_variant_payload_value(val, enum_name);
+                let inner = self.load_variant_payload_value(val, enum_name, Some(_variant));
                 self.compile_pattern_on_enum_value(pat, &inner, ok_l, fail_l, arm_env);
             }
         }
@@ -828,6 +893,43 @@ impl Codegen {
                 },
             );
         }
+    }
+
+    fn infer_match_payload_result_ty(
+        &self,
+        m: &MatchExpr,
+        scrutinee_enum: Option<&str>,
+    ) -> Option<String> {
+        for arm in &m.arms {
+            let MatchPattern::QualifiedBind(en, variant, payload) = &arm.pattern else {
+                continue;
+            };
+            let MatchPayloadPattern::Bind(bind) = payload else {
+                continue;
+            };
+            let Some(Statement::Expression(expr)) = arm.body.statements.last() else {
+                continue;
+            };
+            let returns_bound_payload = match expr {
+                Expression::Variable { name, .. } => name == bind,
+                Expression::MethodCall(call) if call.method == "clone" => {
+                    matches!(&call.object, Expression::Variable { name, .. } if name == bind)
+                }
+                _ => false,
+            };
+            if !returns_bound_payload {
+                continue;
+            }
+            let enum_name = scrutinee_enum
+                .filter(|scrutinee| enum_pattern_matches(en, scrutinee))
+                .unwrap_or_else(|| en.as_str());
+            if let Some(payloads) = self.enum_variant_payload_llvm.get(enum_name) {
+                if let Some(ty) = payloads.get(variant) {
+                    return Some(ty.clone());
+                }
+            }
+        }
+        None
     }
 
     fn match_scrutinee_enum(

@@ -1,5 +1,9 @@
 import "../../strings.ny"
+import "../../map.ny"
+import "../../json/mod.ny"
 import "types.ny"
+import "headers.ny"
+import "body.ny"
 
 fn status_text(code: i32) -> string {
     if code == 200 { return "OK" }
@@ -16,15 +20,15 @@ fn status_text(code: i32) -> string {
 }
 
 fn response_text(status: i32, body: string) -> HttpResponse {
-    return HttpResponse { status: status, body: body, content_type: "text/plain; charset=utf-8" }
+    return HttpResponse_new(status, body, "text/plain; charset=utf-8")
 }
 
 fn response_json(status: i32, body: string) -> HttpResponse {
-    return HttpResponse { status: status, body: body, content_type: "application/json; charset=utf-8" }
+    return HttpResponse_new(status, body, "application/json; charset=utf-8")
 }
 
 fn response_html(status: i32, body: string) -> HttpResponse {
-    return HttpResponse { status: status, body: body, content_type: "text/html; charset=utf-8" }
+    return HttpResponse_new(status, body, "text/html; charset=utf-8")
 }
 
 fn response_ok_json(body: string) -> HttpResponse {
@@ -36,7 +40,7 @@ fn response_created_json(body: string) -> HttpResponse {
 }
 
 fn response_no_content() -> HttpResponse {
-    return HttpResponse { status: STATUS_NO_CONTENT, body: "", content_type: "text/plain" }
+    return HttpResponse_new(STATUS_NO_CONTENT, "", "text/plain")
 }
 
 fn response_not_found() -> HttpResponse {
@@ -74,9 +78,10 @@ fn build_response(resp: HttpResponse, keep_alive: i32) -> string {
     } else {
         "Connection: close\r\n"
     }
+    let extra = HeaderMap_format(resp.headers)
     let hdr = strcat(
         strcat(
-            strcat(strcat(ct, "\r\n"), strcat(cl, "\r\n")),
+            strcat(strcat(strcat(ct, "\r\n"), strcat(cl, "\r\n")), extra),
             conn
         ),
         "\r\n"
@@ -116,9 +121,27 @@ fn http_status_from_header(header: string) -> i32 {
 }
 
 fn http_body_from_response(raw: string) -> string {
+    // Prefer chunked-aware decode (body_from_raw in request.ny). Kept for
+    // callers that only import response.ny — strip headers only; no chunk decode.
     let sep = strstr_pos(raw, "\r\n\r\n")
     if sep < 0 {
         return raw
     }
     return substring(raw, sep + 4, strlen(raw) - (sep + 4))
+}
+
+fn response_json_object(resp: HttpResponse) -> HashMap_str_str {
+    return JSON_parse_object(resp.body)
+}
+
+fn HttpResponse_json(resp: HttpResponse) -> HashMap_str_str {
+    return JSON_parse_object(resp.body)
+}
+
+fn HttpResponse_array_buffer(resp: HttpResponse) -> ArrayBuffer {
+    return ArrayBuffer_from_string(resp.body)
+}
+
+fn HttpResponse_blob(resp: HttpResponse) -> Blob {
+    return Blob_from_string(resp.body, resp.content_type)
 }

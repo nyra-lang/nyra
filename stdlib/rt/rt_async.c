@@ -10,6 +10,12 @@ int async_future_done(int handle);
 void *async_future_ptr_value(int handle);
 
 #if defined(_WIN32)
+#ifndef WINVER
+#define WINVER 0x0600
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -26,13 +32,18 @@ typedef struct {
 } NyraTask;
 
 static CRITICAL_SECTION g_table_cs;
-static int g_table_init = 0;
+static INIT_ONCE g_table_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK table_lock_init_once(PINIT_ONCE once, PVOID param, PVOID *ctx) {
+    (void)once;
+    (void)param;
+    (void)ctx;
+    InitializeCriticalSection(&g_table_cs);
+    return TRUE;
+}
 
 static void table_lock_init(void) {
-    if (!g_table_init) {
-        InitializeCriticalSection(&g_table_cs);
-        g_table_init = 1;
-    }
+    InitOnceExecuteOnce(&g_table_once, table_lock_init_once, NULL, NULL);
 }
 
 #define TASK_LOCK(t) EnterCriticalSection(&(t)->cs)
@@ -50,13 +61,18 @@ static void table_lock_init(void) {
 #define IO_UNLOCK() LeaveCriticalSection(&g_io_cs)
 
 static CRITICAL_SECTION g_io_cs;
-static int g_io_cs_init = 0;
+static INIT_ONCE g_io_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK io_lock_init_once(PINIT_ONCE once, PVOID param, PVOID *ctx) {
+    (void)once;
+    (void)param;
+    (void)ctx;
+    InitializeCriticalSection(&g_io_cs);
+    return TRUE;
+}
 
 static void io_lock_init(void) {
-    if (!g_io_cs_init) {
-        InitializeCriticalSection(&g_io_cs);
-        g_io_cs_init = 1;
-    }
+    InitOnceExecuteOnce(&g_io_once, io_lock_init_once, NULL, NULL);
 }
 
 static int64_t nyra_now_ms(void) {
@@ -110,7 +126,9 @@ static int64_t nyra_now_ms(void) {
 
 #endif
 
-int spawn_capture(void (*body)(void *), void *data, long long nbytes);
+void *spawn_capture(void (*body)(void *), void *data, long long nbytes);
+int spawn_join(void *handle);
+void spawn_handle_drop(void *handle);
 int io_wait_once(int timeout_ms);
 
 #define NYRA_MAX_TASKS 4096
@@ -155,19 +173,47 @@ static struct {
 static int g_io_n = 0;
 #endif
 
+static void timers_lock(void) {
+#if defined(_WIN32)
+    table_lock_init();
+    EnterCriticalSection(&g_table_cs);
+#else
+    pthread_mutex_lock(&g_table_mu);
+#endif
+}
+
+static void timers_unlock(void) {
+#if defined(_WIN32)
+    LeaveCriticalSection(&g_table_cs);
+#else
+    pthread_mutex_unlock(&g_table_mu);
+#endif
+}
+
 static int process_timers(void) {
     int64_t now = nyra_now_ms();
     int fired = 0;
+    int ids[NYRA_MAX_TIMERS];
+    int values[NYRA_MAX_TIMERS];
+    int pending = 0;
+
+    timers_lock();
     for (int i = 0; i < NYRA_MAX_TIMERS; i++) {
         if (!g_timers[i].active) {
             continue;
         }
         if (now >= g_timers[i].deadline_ms) {
-            int tid = g_timers[i].task_id;
+            ids[pending] = g_timers[i].task_id;
+            values[pending] = g_timers[i].value;
+            pending++;
             g_timers[i].active = 0;
-            async_promise_complete(tid, g_timers[i].value);
-            fired++;
         }
+    }
+    timers_unlock();
+
+    for (int i = 0; i < pending; i++) {
+        async_promise_complete(ids[i], values[i]);
+        fired++;
     }
     return fired;
 }
@@ -177,22 +223,42 @@ static int register_timer(int task_id, int delay_ms) {
         return -1;
     }
     int64_t deadline = nyra_now_ms() + (int64_t)delay_ms;
+    timers_lock();
     for (int i = 0; i < NYRA_MAX_TIMERS; i++) {
         if (!g_timers[i].active) {
             g_timers[i].task_id = task_id;
             g_timers[i].deadline_ms = deadline;
             g_timers[i].value = delay_ms;
             g_timers[i].active = 1;
+            timers_unlock();
             return 0;
         }
     }
+    timers_unlock();
     return -1;
 }
+
+#if defined(_WIN32)
+static void executor_yield_ms(int timeout_ms) {
+    if (timeout_ms > 0) {
+        SwitchToThread();
+        Sleep((DWORD)timeout_ms);
+    }
+}
+#endif
 
 int runtime_executor_tick(int timeout_ms) {
     int io = io_wait_once(timeout_ms);
     int timers = process_timers();
-    return io + timers;
+    int work = io + timers;
+#if defined(_WIN32)
+    /* Cooperative poll loops call tick with no registered I/O; yield so spawn
+     * threads can run (Windows CI busy-spins forever otherwise). */
+    if (work == 0 && timeout_ms > 0) {
+        executor_yield_ms(timeout_ms);
+    }
+#endif
+    return work;
 }
 
 int runtime_executor_run_until(int handle, int timeout_ms) {
@@ -618,6 +684,38 @@ int io_register(int fd, int task_id) {
 #endif
 }
 
+int io_unregister(int fd) {
+#ifdef __APPLE__
+    if (g_kq < 0 || fd < 0) {
+        return -1;
+    }
+    struct kevent ev;
+    EV_SET(&ev, (uintptr_t)fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+    return kevent(g_kq, &ev, 1, NULL, 0, NULL) == 0 ? 0 : -1;
+#elif defined(__linux__)
+    if (g_epoll < 0 || fd < 0) {
+        return -1;
+    }
+    struct epoll_event ev;
+    return epoll_ctl(g_epoll, EPOLL_CTL_DEL, fd, &ev) == 0 ? 0 : -1;
+#elif defined(_WIN32)
+    io_lock_init();
+    IO_LOCK();
+    for (int i = 0; i < g_io_n; i++) {
+        if (g_io_tab[i].fd == fd) {
+            g_io_tab[i].active = 0;
+            IO_UNLOCK();
+            return 0;
+        }
+    }
+    IO_UNLOCK();
+    return -1;
+#else
+    (void)fd;
+    return -1;
+#endif
+}
+
 int io_wait_once(int timeout_ms) {
 #ifdef __APPLE__
     if (g_kq < 0) {
@@ -635,6 +733,14 @@ int io_wait_once(int timeout_ms) {
     async_promise_complete(task_id, (int)ev.ident);
     return 1;
 #elif defined(__linux__)
+    extern int io_uring_pending(void);
+    extern int io_uring_wait_once(int timeout_ms);
+    if (io_uring_pending() > 0) {
+        int uring_fired = io_uring_wait_once(timeout_ms);
+        if (uring_fired > 0) {
+            return uring_fired;
+        }
+    }
     if (g_epoll < 0) {
         return 0;
     }
@@ -701,5 +807,8 @@ static void nyra_spawn_noop(void *data) {
 }
 
 void spawn(void) {
-    spawn_capture(nyra_spawn_noop, NULL, 0);
+    void *h = spawn_capture(nyra_spawn_noop, NULL, 0);
+    if (h) {
+        spawn_handle_drop(h);
+    }
 }

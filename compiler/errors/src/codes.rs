@@ -12,6 +12,32 @@ pub const E009_INVALID_ASSIGN_TARGET: &str = "E009";
 pub const E010_BORROW_WHILE_ASSIGNED: &str = "E010";
 pub const E011_USE_WHILE_BORROWED: &str = "E011";
 pub const E012_USE_AFTER_MOVE: &str = "E012";
+pub const E013_UNDEFINED_FUNCTION: &str = "E013";
+pub const E014_UNKNOWN_FIELD: &str = "E014";
+pub const E015_OPERATOR_MISMATCH: &str = "E015";
+pub const E016_UNSAFE_REQUIRED: &str = "E016";
+pub const E017_NOT_CALLABLE: &str = "E017";
+pub const E018_UNKNOWN_METHOD: &str = "E018";
+pub const E019_BOOL_CONDITION: &str = "E019";
+pub const E020_CONTROL_FLOW: &str = "E020";
+pub const E021_PLATFORM_UNSUPPORTED: &str = "E021";
+pub const E022_RETURN_MISMATCH: &str = "E022";
+pub const E023_MATCH: &str = "E023";
+pub const E024_FOR_IN: &str = "E024";
+pub const E025_DESTRUCTURE: &str = "E025";
+pub const E026_BLOCK_VALUE: &str = "E026";
+pub const E027_INTEGER_RANGE: &str = "E027";
+pub const E028_BORROW_ACTIVE: &str = "E028";
+pub const E029_MOVE_WHILE_BORROWED: &str = "E029";
+pub const E030_MANUAL_FREE: &str = "E030";
+pub const E031_ARRAY: &str = "E031";
+pub const E032_ENUM: &str = "E032";
+pub const E033_CAST: &str = "E033";
+pub const E034_FFI: &str = "E034";
+pub const E035_LIFETIME: &str = "E035";
+pub const E036_SEND_SYNC: &str = "E036";
+pub const E037_PARALLEL: &str = "E037";
+pub const E038_CONST_EVAL: &str = "E038";
 
 pub const W001_EXTENDED_TIER: &str = "W001";
 pub const W002_UNUSED_IMPORT: &str = "W002";
@@ -45,8 +71,16 @@ pub const P012_EXPECTED_ARROW_FAT_ARROW: &str = "P012";
 pub const P013_EXPECTED_CLOSE_PAREN: &str = "P013";
 /// Parser: missing `]` after array / index.
 pub const P014_EXPECTED_CLOSE_BRACKET: &str = "P014";
+/// Parser: prefer `max` over deprecated `max_threads` / `cores` in `parallel(...)`.
+pub const P015_PARALLEL_PREFER_THREADS: &str = "P015";
 /// Parser: other / unclassified syntax error.
 pub const P099_UNEXPECTED: &str = "P099";
 
 /// Lexer: invalid character or token.
 pub const L001_INVALID_TOKEN: &str = "L001";
+/// Lexer: unclosed string, comment, or character literal.
+pub const L002_UNCLOSED: &str = "L002";
+/// Lexer: invalid numeric literal.
+pub const L003_INVALID_NUMBER: &str = "L003";
+/// Lexer: invalid attribute or macro syntax.
+pub const L004_INVALID_ATTRIBUTE: &str = "L004";

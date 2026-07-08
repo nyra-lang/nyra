@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Imports guide — Nyra Docs</title>
+  <meta name="description" content="How to import functions, structs, constants, and enums across Nyra source files.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="imports">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a class="active" href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.imports.h1">Imports guide</h1>
+      <p class="lead" data-i18n-html="pages.imports.lead">
+        Split your app into multiple <code>.ny</code> files and share functions, types, and constants
+        with <code>import "path.ny"</code> — then build from the project root.
+      </p>
+
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <ul>
+          <li><a href="#how-it-works">How imports work</a></li>
+          <li><a href="#functions">Importing functions</a></li>
+          <li><a href="#structs">Importing structs</a></li>
+          <li><a href="#enums">Importing enums</a></li>
+          <li><a href="#consts">Importing constants</a></li>
+          <li><a href="#stdlib">Standard library files</a></li>
+          <li><a href="#rules">Rules &amp; pitfalls</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="how-it-works">How imports work</h2>
+      <p>
+        When you run <code>nyra run .</code> or <code>nyra build .</code>, the compiler starts at
+        <code>main.ny</code> and recursively loads every <code>import "…"</code> it finds. All definitions
+        are <strong>merged into one program</strong> with a single global namespace (like compiling one big file).
+      </p>
+      <pre class="pipeline">main.ny
+  import "src/util.ny"     ──►  util.ny
+  import "models/user.ny"  ──►  user.ny (may import more)
+         │
+         ▼
+  Merged program → typecheck → borrow → LLVM</pre>
+
+      <div class="callout warning">
+        <strong>Always use project mode for multi-file apps</strong>
+        <code>nyra run main.ny</code> compiles <em>only</em> that file and <strong>does not</strong> follow imports.
+        Use <code>nyra run .</code> from the directory that contains <code>main.ny</code>.
+      </div>
+
+      <h3>Path rules</h3>
+      <table>
+        <thead><tr><th>Import string</th><th>Resolved from</th></tr></thead>
+        <tbody>
+          <tr><td><code>"src/foo.ny"</code></td><td>Relative to the file containing the <code>import</code></td></tr>
+          <tr><td><code>"types.ny"</code></td><td>Same directory as the importing file</td></tr>
+          <tr><td><code>"stdlib/vec.ny"</code></td><td><code>$NYRA_HOME/share/stdlib/</code>, install tree, or repo <code>stdlib/</code> — works from any project depth</td></tr>
+          <tr><td><code>"std/json/mod"</code></td><td>Alias for <code>stdlib/json/mod.ny</code> (extension optional)</td></tr>
+          <tr><td><code>"stdlib/prelude.ny"</code></td><td>Bundle: vec, map, strings/ops, log</td></tr>
+          <tr><td><code>"pkg/ny-sqlite"</code></td><td><code>.nyra/cache/ny-sqlite/</code> after <code>nyrapkg install ny-sqlite@^0.1.0</code> (see <a href="packages.html">nyrapkg</a>)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="functions">Importing functions</h2>
+      <p>Define functions in a module file; call them from <code>main.ny</code> after importing.</p>
+
+      <div class="file-tree">myapp/
+  <span class="hl">main.ny</span>
+  src/
+    <span class="hl">math.ny</span></div>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>src/math.ny
+fn double(x){
+    return x * 2
+}
+
+fn triple(x) {
+    return x * 3
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>src/math.ny
+fn double(x: i32){
+    return x * 2
+}
+
+fn triple(x: i32) -&gt; i32 {
+    return x * 3
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import &quot;src/math.ny&quot;
+
+fn main() {
+    print(double(5))   // 10
+    print(triple(5))   // 15
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import &quot;src/math.ny&quot;
+
+fn main() -&gt; void {
+    print(double(5))   // 10
+    print(triple(5))   // 15
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
+nyra run .</code></pre>
+
+      <p>There is no <code>export</code> keyword per function — every top-level <code>fn</code> in an imported file is visible (unless name collisions; see <a href="#rules">rules</a>).</p>
+
+      <h2 id="structs">Importing structs</h2>
+      <p>Structs live in one file; other files import that file to use the type and its fields.</p>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>models/point.ny
+struct Point {
+    x: i32
+    y: i32
+}
+
+fn origin() {
+    return Point { x: 0, y: 0 }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>models/point.ny
+struct Point {
+    x: i32
+    y: i32
+}
+
+fn origin() -&gt; Point {
+    return Point { x: 0, y: 0 }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import &quot;models/point.ny&quot;
+
+fn main() {
+    let p = origin()
+    print(p.x)
+    print(p.y)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import &quot;models/point.ny&quot;
+
+fn main() -&gt; void {
+    let p = origin()
+    print(p.x)
+    print(p.y)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Split types and operations (calculator pattern)</h3>
+      <p>Real project in the Nyra repo: <code>examples/projects/calculator/</code></p>
+
+      <pre><code><span class="file-label">types.ny</span>struct Calculator {
+    value: i32
+}</code></pre>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>ops.ny
+import &quot;types.ny&quot;
+
+fn add_calc(c, n) {
+    return Calculator { value: c.value + n }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>ops.ny
+import &quot;types.ny&quot;
+
+fn add_calc(c: Calculator, n: i32) -&gt; Calculator {
+    return Calculator { value: c.value + n }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import &quot;types.ny&quot;
+import &quot;ops.ny&quot;
+
+fn main() {
+    let c = Calculator { value: 0 }
+    let c2 = add_calc(c, 10)
+    print(c2.value)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import &quot;types.ny&quot;
+import &quot;ops.ny&quot;
+
+fn main() -&gt; void {
+    let c = Calculator { value: 0 }
+    let c2 = add_calc(c, 10)
+    print(c2.value)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="enums">Importing enums</h2>
+      <p>Enum definitions merge like functions. Use <code>Type.Variant</code> syntax after import.</p>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>colors.ny
+enum Status {
+    Ok
+    Err
+}
+
+fn is_ok(s) {
+    return match s {
+        Status.Ok =&gt; true
+        Status.Err =&gt; false
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>colors.ny
+enum Status {
+    Ok
+    Err
+}
+
+fn is_ok(s: Status) -&gt; i32 {
+    return match s {
+        Status.Ok =&gt; true
+        Status.Err =&gt; false
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import &quot;colors.ny&quot;
+
+fn main() {
+    let s = Status.Ok
+    print(is_ok(s))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import &quot;colors.ny&quot;
+
+fn main() -&gt; void {
+    let s = Status.Ok
+    print(is_ok(s))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="consts">Importing constants</h2>
+      <p>Top-level <code>const</code> bindings in imported files are merged into the program.</p>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>config.nyconst MAX_USERS = 100
+const APP_NAME = &quot;MyApp&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>config.nyconst MAX_USERS = 100
+const APP_NAME = &quot;MyApp&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import &quot;config.ny&quot;
+
+fn main() {
+    print(MAX_USERS)
+    print(APP_NAME)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import &quot;config.ny&quot;
+
+fn main() -&gt; void {
+    print(MAX_USERS)
+    print(APP_NAME)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="stdlib">Standard library files</h2>
+      <p>Runtime helpers are declared in <code>stdlib/*.ny</code> and backed by the Nyra C runtime. Builtins <code>print</code>, <code>time_start</code>/<code>time_end</code>, <code>mem_start</code>/<code>mem_end</code> need <strong>no import</strong>.</p>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import &quot;stdlib/fs.ny&quot;
+
+fn main() {
+    let s = read_file(&quot;data.txt&quot;)
+    print(s)
+    // compiler auto-drops s — no free needed
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import &quot;stdlib/fs.ny&quot;
+
+fn main() -&gt; void {
+    let s = read_file(&quot;data.txt&quot;)
+    print(s)
+    // compiler auto-drops s — no free needed
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Use short paths — no <code>../../../stdlib/...</code> from examples:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/prelude.ny&quot;
+import &quot;stdlib/async.ny&quot;
+import &quot;stdlib/json/mod.ny&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/prelude.ny&quot;
+import &quot;stdlib/async.ny&quot;
+import &quot;stdlib/json/mod.ny&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full function list: <a href="stdlib.html">Standard library</a>. Refresh installed stdlib with <code>./scripts/updateLang.sh</code> after upgrades.</p>
+
+      <h2 id="rules">Rules &amp; pitfalls</h2>
+      <table>
+        <thead><tr><th>Topic</th><th>Guidance</th></tr></thead>
+        <tbody>
+          <tr><td>Duplicate names</td><td>Two imported files must not define the same <code>fn</code> / <code>struct</code> name; merge keeps the first</td></tr>
+          <tr><td><code>fn main</code></td><td>Only one entry — keep it in <code>main.ny</code></td></tr>
+          <tr><td>Import cycles</td><td>Avoid <code>a.ny</code> imports <code>b.ny</code> and <code>b.ny</code> imports <code>a.ny</code></td></tr>
+          <tr><td>Variables</td><td><code>let</code> inside functions is local — not “exported”. Share data via <code>const</code>, functions, or structs</td></tr>
+          <tr><td>Mutable globals</td><td>Not supported as imports; use functions that return state</td></tr>
+          <tr><td>Run command</td><td><code>nyra run .</code> not <code>nyra run main.ny</code> for multi-file</td></tr>
+        </tbody>
+      </table>
+
+      <div class="compare-grid">
+        <div>
+          <div class="label">Works</div>
+          <pre><code>nyra run .
+nyra build .
+nyra check .</code></pre>
+        </div>
+        <div>
+          <div class="label">Single-file only</div>
+          <pre><code>nyra run main.ny
+# imports ignored</code></pre>
+        </div>
+      </div>
+
+      <p>More runnable snippets: <a href="methods.html">Built-in methods</a>.</p>
+      <footer class="site-footer"><a href="methods.html">Built-in methods →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

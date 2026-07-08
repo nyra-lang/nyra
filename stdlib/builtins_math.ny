@@ -1,6 +1,6 @@
 import "math.ny"
 
-extern fn rand_range(min_val: i32, max_val: i32) -> i32
+extern fn rand_f64() -> f64
 
 // Math-style helpers (JS-like naming adapted to Nyra function names).
 fn Math_round(x: i32) -> i32 {
@@ -15,10 +15,9 @@ fn Math_ceil(x: i32) -> i32 {
     return x
 }
 
-// Returns a pseudo-random f64 in [0, 1).
+// Returns a pseudo-random f64 in [0, 1) — ChaCha20 (53-bit precision).
 fn Math_random() -> f64 {
-    let n = rand_range(0, 999999)
-    return n / 1000000.0
+    return rand_f64()
 }
 
 fn Math_max(a: i32, b: i32) -> i32 {

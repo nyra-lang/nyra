@@ -201,6 +201,22 @@ fn main() {
 }
 
 #[test]
+fn conf_inf_012b_strcmp_body_only_ref() {
+    let out = compile(
+        r#"fn f(flag) {
+    if strcmp("x", flag) == 0 {
+        return 1
+    }
+    return 0
+}
+fn main() {
+    print(0)
+}"#,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+}
+
+#[test]
 fn conf_inf_014_cat_run_files_get() {
     let out = compile(
         r#"struct StrVec { handle: ptr }
@@ -328,7 +344,7 @@ fn main() {
 
 #[test]
 fn conf_inf_013_filesystem_cat_untyped() {
-    let out = crate::common::compile_project_rel("Apps/FileSystem/cat");
+    let out = crate::common::compile_example("zero_types_cli.ny");
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
 }
 

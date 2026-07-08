@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>C Bindgen — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="c-bindgen">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1>C Bindgen</h1>
+      <p class="lead">Automatic <strong>C header → Nyra <code>extern fn</code></strong> bindings via libclang — call SQLite, zlib, OpenSSL, and the rest of the C ecosystem without hand-written FFI.</p>
+
+      <h2>Quick start</h2>
+      <pre><code># Easiest — known system libraries (raylib, zlib, sqlite3, sdl2)
+nyra pkg c add raylib
+nyra pkg c remove raylib
+nyra pkg c list
+
+# Advanced — any header path
+nyra bind c /path/to/header.h --lib foo --update-mod
+nyra pkg bind c vendor/api.h --lib mylib --update-mod</code></pre>
+
+      <p>Default output: <code>vendor/bindings/{header-stem}.ny</code> with <strong>every bindable function</strong> from the header. Use <code>--export SYM</code> only if you want a smaller file; delete unused lines manually anytime.</p>
+
+      <h2 id="pkg-c"><code>nyra pkg c</code> — one command per library</h2>
+      <p>The recommended way to add system C libraries to a NyraPkg project. No manual <code>-I</code> paths, no Homebrew keg paths, no hand-editing <code>nyra.mod</code>.</p>
+
+      <pre><code>nyrapkg init &amp;&amp; cd myapp
+
+nyra pkg c add raylib     # brew install + full bind + nyra.mod
+nyra pkg c add zlib
+nyra pkg c add sqlite3
+nyra pkg c add sdl2
+
+nyra pkg c list           # what's installed in this project
+nyra pkg c remove raylib  # delete bindings + unlink nyra.mod
+
+import "vendor/bindings/raylib.ny"</code></pre>
+
+      <h3>What <code>add</code> does automatically</h3>
+      <table>
+        <thead><tr><th>Step</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Install</td><td><code>brew install …</code> on macOS (or show <code>apt install</code> hint on Linux)</td></tr>
+          <tr><td>Discover</td><td>Resolve keg-only paths (<code>$(brew --prefix raylib)/include</code>)</td></tr>
+          <tr><td>Bindgen</td><td>Full header → <code>vendor/bindings/{name}.ny</code> (all bindable symbols)</td></tr>
+          <tr><td>Keywords</td><td>C params like <code>in</code>, <code>type</code> → <code>in_</code>, <code>type_</code></td></tr>
+          <tr><td>Link</td><td>Append <code>link …</code> and <code>link -L …/lib</code> to <code>nyra.mod</code></td></tr>
+          <tr><td>Track</td><td>Write <code>vendor/bindings/c-libs.toml</code> for clean <code>remove</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Built-in catalog</h3>
+      <table>
+        <thead><tr><th><code>nyra pkg c add …</code></th><th>Homebrew</th><th>Linux (apt)</th><th>Import</th></tr></thead>
+        <tbody>
+          <tr><td><code>raylib</code></td><td><code>brew install raylib</code></td><td><code>libraylib-dev</code></td><td><code>vendor/bindings/raylib.ny</code></td></tr>
+          <tr><td><code>zlib</code></td><td><code>brew install zlib</code></td><td><code>zlib1g-dev</code></td><td><code>vendor/bindings/zlib.ny</code></td></tr>
+          <tr><td><code>sqlite3</code> (alias <code>sqlite</code>)</td><td><code>brew install sqlite</code></td><td><code>libsqlite3-dev</code></td><td><code>vendor/bindings/sqlite3.ny</code></td></tr>
+          <tr><td><code>sdl2</code></td><td><code>brew install sdl2</code></td><td><code>libsdl2-dev</code></td><td><code>vendor/bindings/SDL.ny</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Flags</h3>
+      <table>
+        <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>--path DIR</code></td><td>Project root (default <code>.</code>)</td></tr>
+          <tr><td><code>--no-install</code></td><td>Skip <code>brew install</code>; fail if library missing</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Manifest (<code>vendor/bindings/c-libs.toml</code>)</h3>
+      <pre><code># Managed by nyra pkg c add|remove
+
+[raylib]
+bindings = "vendor/bindings/raylib.ny"
+link = "raylib"
+header = "/opt/homebrew/opt/raylib/include/raylib.h"
+link_search = ["/opt/homebrew/opt/raylib/lib"]</code></pre>
+      <p>Re-running <code>nyra pkg c add raylib</code> refreshes bindings. Unknown libraries still work via <a href="#bind-c">manual <code>nyra pkg bind c</code></a>.</p>
+
+      <h3>Prerequisites</h3>
+      <pre><code>brew install llvm    # libclang for bindgen
+nyra toolchain install   # alternative</code></pre>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;vendor/bindings/zlib.ny&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;vendor/bindings/zlib.ny&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="why-c">Why Nyra + C libraries</h2>
+      <p>Nyra targets the same niche as Rust or Go calling native code: <strong>your app logic stays in Nyra</strong>, mature C libraries do the heavy lifting (compression, crypto, databases, OS APIs). C Bindgen removes hand-written <code>extern fn</code> boilerplate — one command turns a <code>.h</code> file into typed Nyra bindings plus <code>nyra.mod</code> link lines.</p>
+      <table>
+        <thead><tr><th>Step</th><th>Command / file</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>nyra pkg c add raylib</code></td><td>Install + bind + link (one command)</td></tr>
+          <tr><td>2</td><td><code>import "vendor/bindings/raylib.ny"</code></td><td>Call C from Nyra like any module</td></tr>
+          <tr><td>3</td><td><code>nyra run .</code></td><td>Links native lib and runs</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="tutorial-zlib">Tutorial: zlib</h2>
+      <p><strong>Recommended:</strong></p>
+      <pre><code>nyrapkg init &amp;&amp; cd myapp
+nyra pkg c add zlib
+nyra run .</code></pre>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;vendor/bindings/zlib.ny&quot;
+
+fn main() {
+    print(zlibVersion())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;vendor/bindings/zlib.ny&quot;
+
+fn main() -&gt; void {
+    print(zlibVersion())
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <details>
+        <summary>Manual bind (advanced — custom headers or unknown libraries)</summary>
+      <p>On Apple Silicon, Homebrew installs zlib as <strong>keg-only</strong> under <code>/opt/homebrew/opt/zlib</code>.</p>
+
+      <h3>1 — Prerequisites</h3>
+      <pre><code>brew install zlib llvm
+nyrapkg init
+cd myapp</code></pre>
+
+      <h3>2 — Generate bindings</h3>
+      <p>Pass include paths so libclang finds system headers (<code>stddef.h</code>, etc.) and the zlib header:</p>
+      <pre><code>SDK=$(xcrun --show-sdk-path)
+
+nyra pkg bind c /opt/homebrew/opt/zlib/include/zlib.h --lib z \
+  -I /opt/homebrew/opt/zlib/include \
+  -I "$SDK/usr/include" \
+  -I "$(brew --prefix llvm)/lib/clang/$(ls $(brew --prefix llvm)/lib/clang | tail -1)/include" \
+  -o vendor/bindings/zlib.ny</code></pre>
+      <p>Emits <strong>all ~267</strong> zlib functions. C parameter names that clash with Nyra keywords (e.g. <code>in</code>) are auto-renamed to <code>in_</code>. Optional: pass <code>--export zlibVersion</code> (repeatable) to emit only symbols you need.</p>
+      <p>Preview without writing files:</p>
+      <pre><code>nyra pkg bind c /opt/homebrew/opt/zlib/include/zlib.h --lib z \
+  -I /opt/homebrew/opt/zlib/include -I "$SDK/usr/include" \
+  --export zlibVersion --stdout</code></pre>
+
+      <h3>3 — Fix <code>nyra.mod</code> link paths</h3>
+      <p>With <code>nyra pkg c add</code> this is automatic. For manual bind, ensure <code>link -L</code> points at the <strong>lib</strong> directory:</p>
+      <pre><code>module example.local
+
+link z
+link -L /opt/homebrew/opt/zlib/lib</code></pre>
+      <p>Linux (Debian/Ubuntu): <code>link -L /usr/lib/x86_64-linux-gnu</code> · Intel Mac Homebrew: <code>/usr/local/opt/zlib/lib</code>.</p>
+
+      <h3>4 — Call zlib from Nyra</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;vendor/bindings/zlib.ny&quot;
+
+fn main() {
+    print(&quot;Hello, World!&quot;)
+    print(zlibVersion())   // e.g. &quot;1.3.2&quot;
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;vendor/bindings/zlib.ny&quot;
+
+fn main() -&gt; void {
+    print(&quot;Hello, World!&quot;)
+    print(zlibVersion())   // e.g. &quot;1.3.2&quot;
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>5 — Run</h3>
+      <pre><code>nyra run .</code></pre>
+      <p><strong>Expected output:</strong></p>
+      <pre><code>Hello, World!
+1.3.2</code></pre>
+
+      <h3>Project layout after bindgen</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>myapp/
+  main.ny
+  nyra.mod              # link z + link -L …/lib
+  vendor/
+    bindings/
+      zlib.ny           # auto-generated extern fn + repr(C) structs</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>myapp/
+  main.ny
+  nyra.mod              # link z + link -L …/lib
+  vendor/
+    bindings/
+      zlib.ny           # auto-generated extern fn + repr(C) structs</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      </details>
+
+      <h2 id="tutorial-sqlite">Tutorial: SQLite</h2>
+      <pre><code>nyra pkg c add sqlite3
+
+import "vendor/bindings/sqlite3.ny"
+
+fn main() {
+    print(sqlite3_libversion())
+}</code></pre>
+      <p>Alternatively: <code>nyrapkg install ny-sqlite@^0.1.0</code> — see <a href="packages.html">nyrapkg</a>.</p>
+
+      <h2 id="tutorial-raylib">Tutorial: Raylib graphics &amp; games 🎮</h2>
+      <p><a href="https://www.raylib.com/">Raylib</a> — 2D/3D games in C. One command gives you the <strong>full</strong> API (~556 functions):</p>
+      <pre><code>nyra pkg c add raylib
+import "vendor/bindings/raylib.ny"</code></pre>
+      <p>Homebrew path pitfalls (<code>/opt/homebrew/include/raylib.h</code> vs keg-only) are handled automatically.</p>
+
+      <h3>Game loop example</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;vendor/bindings/raylib.ny&quot;
+
+fn main() {
+    InitWindow(800, 450, &quot;Nyra + Raylib&quot;)
+    SetTargetFPS(60)
+
+    let r = 255
+    let g = 255
+    let b = 255
+    let a = 255
+    let white = Color { r: r, g: g, b: b, a: a }
+    let r2 = 255
+    let g2 = 0
+    let b2 = 0
+    let a2 = 255
+    let red = Color { r: r2, g: g2, b: b2, a: a2 }
+
+    while !WindowShouldClose() {
+        BeginDrawing()
+        ClearBackground(white)
+        DrawText(&quot;Nyra is Drawing Graphics!&quot;, 190, 200, 20, red)
+        DrawCircle(400, 300, 50.0, red)
+        EndDrawing()
+    }
+
+    CloseWindow()
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;vendor/bindings/raylib.ny&quot;
+
+fn main() -&gt; void {
+    InitWindow(800, 450, &quot;Nyra + Raylib&quot;)
+    SetTargetFPS(60)
+
+    let r: i32 = 255
+    let g: i32 = 255
+    let b: i32 = 255
+    let a: i32 = 255
+    let white = Color { r: r, g: g, b: b, a: a }
+    let r2: i32 = 255
+    let g2: i32 = 0
+    let b2: i32 = 0
+    let a2: i32 = 255
+    let red = Color { r: r2, g: g2, b: b2, a: a2 }
+
+    while !WindowShouldClose() {
+        BeginDrawing()
+        ClearBackground(white)
+        DrawText(&quot;Nyra is Drawing Graphics!&quot;, 190, 200, 20, red)
+        DrawCircle(400, 300, 50.0, red)
+        EndDrawing()
+    }
+
+    CloseWindow()
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Colors:</strong> Raylib’s <code>Color</code> uses <code>u8</code> fields — use <code>let r: u8 = 255</code> or build via <code>GetColor(hex as u32)</code>. Nyra does not parse <code>0xFF0000FF</code> integer literals yet; use decimal + <code>as u32</code> or struct fields.</p>
+
+      <h3>5 — Run</h3>
+      <pre><code>nyra run .</code></pre>
+      <p>Opens an 800×450 window with text and a red circle at 60 FPS. Runnable example: <code>examples/c_raylib/</code>.</p>
+
+      <h3>Other simple graphics C libraries</h3>
+      <ul>
+        <li><strong>SDL2</strong> — 2D pixels and input; bind <code>SDL.h</code> with <code>--lib SDL2</code></li>
+        <li><strong>stb_image</strong> — single-header PNG load/save; use <code>link-source vendor/stb_image_impl.c</code></li>
+      </ul>
+
+      <h2 id="tutorial-linux">Linux quick reference</h2>
+      <pre><code># Debian / Ubuntu — install dev packages first
+sudo apt install libraylib-dev zlib1g-dev libsqlite3-dev llvm-dev
+
+nyra pkg c add raylib
+nyra pkg c add zlib
+
+# Or manual bind
+nyra pkg bind c /usr/include/zlib.h --lib z -o vendor/bindings/zlib.ny</code></pre>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <table>
+        <thead><tr><th>Error</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>'stddef.h' file not found</code></td><td>Add <code>-I "$SDK/usr/include"</code> (macOS) or install <code>llvm-dev</code> / system headers (Linux)</td></tr>
+          <tr><td><code>library not found for -lz</code></td><td>Add <code>link -L /opt/homebrew/opt/zlib/lib</code> to <code>nyra.mod</code></td></tr>
+          <tr><td><code>Expected parameter name</code> (e.g. <code>in</code>)</td><td>C param is a Nyra keyword — use <code>--export SYM</code> or <code>--prefix</code> to limit symbols</td></tr>
+          <tr><td>Wrong <code>link -L</code> for include dirs</td><td>Remove auto-added include <code>link -L</code> lines; keep only the <code>.lib</code> / <code>.dylib</code> directory</td></tr>
+          <tr><td><code>header not found: /opt/homebrew/include/…</code></td><td>Keg-only formula — use <code>$(brew --prefix NAME)/include/header.h</code> (e.g. raylib, zlib)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Your own C code (<code>link-source</code>)</h2>
+      <p>When you write C alongside Nyra (not only a prebuilt system lib):</p>
+      <pre><code>vendor/
+  api.h              # C header
+  api_impl.c         # your C implementation
+  bindings/api.ny    # from bindgen or hand-written extern fn
+
+# nyra.mod
+link-source vendor/api_impl.c</code></pre>
+      <p><code>nyra build</code> compiles <code>link-source</code> files to cached <code>.o</code> objects automatically. See <code>examples/c_bindgen/</code>.</p>
+
+      <h2>What gets generated</h2>
+      <ul>
+        <li><code>repr(C)</code> structs for C structs with ABI-safe fields (<code>i32</code>, <code>ptr</code>, …)</li>
+        <li><code>extern fn</code> declarations for each bindable C function</li>
+        <li><code>link …</code> lines for <code>nyra.mod</code> (with <code>--update-mod</code>)</li>
+        <li><code>vendor/bindings/shim.c</code> + <code>link-source</code> when a signature needs a simplified wrapper (opaque struct returns, etc.)</li>
+      </ul>
+
+      <h2>Example output</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Point repr(C) {
+    x: i32
+    y: i32
+}
+
+extern fn make_point(x, y) -&gt; Point
+extern fn geom_add(a, b) -&gt; i32</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Point repr(C) {
+    x: i32
+    y: i32
+}
+
+extern fn make_point(x, y) -&gt; Point
+extern fn geom_add(a, b) -&gt; i32</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2>CLI reference</h2>
+      <table>
+        <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>--lib NAME</code></td><td>Append <code>link NAME</code> to <code>nyra.mod</code> (repeatable)</td></tr>
+          <tr><td><code>-I DIR</code></td><td>Clang include path (repeatable)</td></tr>
+          <tr><td><code>-D MACRO</code></td><td>Preprocessor define (repeatable)</td></tr>
+          <tr><td><code>-o FILE</code></td><td>Output <code>.ny</code> path</td></tr>
+          <tr><td><code>--prefix P</code></td><td>Only functions starting with <code>P</code></td></tr>
+          <tr><td><code>--export SYM</code></td><td>Optional shrink filter — default binds <strong>all</strong> symbols</td></tr>
+          <tr><td><code>--shim</code></td><td>Experimental C wrappers for ~25 complex Raylib-style signatures</td></tr>
+          <tr><td><code>--no-shim</code></td><td>Disable shims even when <code>--shim</code> is set</td></tr>
+          <tr><td><code>--update-mod</code></td><td>Append missing <code>link</code> / <code>link-source</code> lines</td></tr>
+          <tr><td><code>--stdout</code></td><td>Print bindings; do not write files</td></tr>
+          <tr><td><code>--no-shim</code></td><td>Skip auto C shim generation</td></tr>
+          <tr><td><code>--project DIR</code></td><td>Project root (<code>nyra bind c</code> only)</td></tr>
+          <tr><td><code>--path DIR</code></td><td>Project root (<code>nyra pkg bind c</code>)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Type mapping (C → Nyra)</h2>
+      <p>Integer mappings use Nyra’s full <code>i8</code>–<code>i128</code> / <code>u8</code>–<code>u128</code> families (optional annotations in your code). See <a href="learn-data-types.html">Data types</a>.</p>
+      <table>
+        <thead><tr><th>C</th><th>Nyra</th></tr></thead>
+        <tbody>
+          <tr><td><code>void</code></td><td><code>void</code></td></tr>
+          <tr><td><code>signed char</code></td><td><code>i8</code></td></tr>
+          <tr><td><code>unsigned char</code></td><td><code>u8</code></td></tr>
+          <tr><td><code>short</code></td><td><code>i16</code></td></tr>
+          <tr><td><code>unsigned short</code></td><td><code>u16</code></td></tr>
+          <tr><td><code>int</code></td><td><code>i32</code></td></tr>
+          <tr><td><code>unsigned</code> / <code>unsigned int</code></td><td><code>u32</code></td></tr>
+          <tr><td><code>long</code> / <code>long long</code></td><td><code>i64</code></td></tr>
+          <tr><td><code>unsigned long</code> / <code>unsigned long long</code></td><td><code>u64</code></td></tr>
+          <tr><td><code>float</code> / <code>double</code></td><td><code>f64</code></td></tr>
+          <tr><td><code>bool</code> / <code>_Bool</code></td><td><code>bool</code></td></tr>
+          <tr><td><code>const char *</code></td><td><code>string</code></td></tr>
+          <tr><td>C struct (complete, ABI-safe fields)</td><td><code>repr(C) struct Name { … }</code></td></tr>
+          <tr><td>C enum</td><td><code>i32</code></td></tr>
+          <tr><td>pointers, fn pointers</td><td><code>ptr</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Performance</h2>
+      <ul>
+        <li><strong>Nyra compiler</strong> — unchanged; bindings are just <code>extern fn</code> declarations.</li>
+        <li><strong>At run time</strong> — each call is a direct native FFI jump; overhead is negligible vs the C library work (e.g. SQLite, zlib).</li>
+        <li><strong>Shims</strong> — when bindgen emits <code>vendor/bindings/shim.c</code>, one extra C wrapper call for complex signatures only.</li>
+      </ul>
+      <p>C library speed is the library’s own speed — Nyra does not interpret or sandbox it.</p>
+
+      <h2>Ownership, escape analysis &amp; safety</h2>
+      <p>Nyra’s safety rules apply to <strong>your Nyra code</strong> at the FFI boundary, not inside third-party C:</p>
+      <table>
+        <thead><tr><th>Mechanism</th><th>FFI behavior</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Typecheck</strong></td><td><code>extern fn</code> params/returns must use allowed ABI types (<code>i8</code>…<code>u128</code>, <code>string</code>, <code>ptr</code>, <code>repr(C)</code> struct, …).</td></tr>
+          <tr><td><strong>Move / auto-drop</strong></td><td><code>string</code> returned from C is heap-owned; Nyra auto-frees at scope end (same as <code>read_file</code>).</td></tr>
+          <tr><td><strong><code>ptr</code></strong></td><td>Copy opaque handle — you manage C-side <code>free</code> / <code>close</code> (e.g. <code>sqlite3_close</code>).</td></tr>
+          <tr><td><strong>Escape analysis</strong></td><td>Classifies Nyra locals passed into <code>extern fn</code> (e.g. <code>ArgEscape</code>); does <em>not</em> analyze C library internals.</td></tr>
+          <tr><td><strong>Borrow checker</strong></td><td>Applies to Nyra variables you pass across the boundary.</td></tr>
+        </tbody>
+      </table>
+      <p>See <a href="ffi-abi.html">FFI &amp; ABI</a> · <a href="escape-analysis.html">Escape analysis</a> · <a href="memory.html">Memory &amp; ownership</a>.</p>
+
+      <h2>Workflow</h2>
+      <ol>
+        <li>Vendor or point at the C header (<code>vendor/foo.h</code>).</li>
+        <li>Run <code>nyra pkg bind c vendor/foo.h --lib foo --update-mod</code>.</li>
+        <li><code>import "vendor/bindings/foo.ny"</code> and call C APIs from Nyra.</li>
+        <li>Re-run bindgen when the upstream header changes.</li>
+      </ol>
+
+      <h2>Example projects</h2>
+      <table>
+        <thead><tr><th>Example</th><th>What it shows</th><th>Run</th></tr></thead>
+        <tbody>
+          <tr><td><code>examples/c_bindgen/</code></td><td>Custom C header + <code>link-source</code> shim</td><td><code>cd examples/c_bindgen &amp;&amp; nyra run .</code></td></tr>
+          <tr><td><code>examples/ffi/call_libc/</code></td><td>Hand-written <code>extern fn</code> to libc</td><td><code>cd examples/ffi/call_libc &amp;&amp; nyra run .</code></td></tr>
+          <tr><td><a href="#tutorial-raylib">Raylib tutorial</a> above</td><td>2D window + game loop via C Bindgen</td><td><code>cd examples/c_raylib &amp;&amp; nyra run .</code></td></tr>
+          <tr><td><code>examples/c_raylib/</code></td><td>Raylib graphics demo</td><td><code>brew install raylib &amp;&amp; nyra run .</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>See also</h2>
+      <ul>
+        <li><a href="ffi-abi.html">FFI &amp; ABI</a> — boundary types and <code>repr(C)</code></li>
+        <li><a href="packages.html">nyrapkg</a> — <code>link</code> and <code>link-source</code></li>
+        <li><a href="tooling.html">Toolchain</a> — <code>nyra cc</code>, <code>nyra toolchain install</code></li>
+        <li><code>docs/c-bindgen.md</code> in the repository</li>
+      </ul>
+
+      <footer class="site-footer"><a href="packages.html">nyrapkg →</a></footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 use std::collections::HashSet;
 
 use ast::*;
-use errors::{ErrorKind, NyraError, Span};
+use errors::{ErrorKind, NyraError, Span, E033_CAST};
 
 fn mangle_type_ann(base: &str, args: &[TypeAnnotation]) -> String {
     if args.is_empty() {
@@ -69,7 +69,8 @@ pub fn validate_function_bounds(
         for bound in required {
             if !trait_impl_exists(trait_impls, &concrete, bound) {
                 return Some(
-                    NyraError::new(
+                    NyraError::coded(
+                        E033_CAST,
                         ErrorKind::Type,
                         span.clone(),
                         format!(
@@ -77,7 +78,7 @@ pub fn validate_function_bounds(
                             func.name
                         ),
                     )
-                    .note(format!("add `impl {bound} for {concrete}`")),
+                    .help(format!("add `impl {bound} for {concrete}`")),
                 );
             }
         }
@@ -114,8 +115,12 @@ fn collect_generic_calls_from_expr(
         Expression::Grouped(g) => collect_generic_calls_from_expr(g, originals, trait_impls, out),
         Expression::If(i) => {
             collect_generic_calls_from_expr(&i.condition, originals, trait_impls, out);
-            collect_generic_calls_from_expr(&i.then_expr, originals, trait_impls, out);
-            collect_generic_calls_from_expr(&i.else_expr, originals, trait_impls, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| {
+                collect_generic_calls_from_expr(e, originals, trait_impls, out);
+            });
+            for_each_expr_in_block(&i.else_block, &mut |e| {
+                collect_generic_calls_from_expr(e, originals, trait_impls, out);
+            });
         }
         Expression::Match(m) => {
             collect_generic_calls_from_expr(&m.scrutinee, originals, trait_impls, out);
@@ -123,7 +128,7 @@ fn collect_generic_calls_from_expr(
                 if let Some(g) = &arm.guard {
                     collect_generic_calls_from_expr(g, originals, trait_impls, out);
                 }
-                collect_generic_calls_from_expr(&arm.body, originals, trait_impls, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_generic_calls_from_expr(e, originals, trait_impls, out));
             }
         }
         Expression::Await(e) => collect_generic_calls_from_expr(e, originals, trait_impls, out),
@@ -208,7 +213,12 @@ fn collect_from_stmt(
                 collect_from_stmt(s, originals, trait_impls, out);
             }
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => {
+            for stmt in &s.body.statements {
+                collect_from_stmt(stmt, originals, trait_impls, out);
+            }
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             for s in &b.statements {
                 collect_from_stmt(s, originals, trait_impls, out);
             }

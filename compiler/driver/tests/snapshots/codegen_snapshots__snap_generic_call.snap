@@ -1,5 +1,6 @@
 ---
 source: compiler/driver/tests/codegen_snapshots.rs
+assertion_line: 156
 expression: normalize_ir(& ir)
 ---
 source_filename = "test.ny"

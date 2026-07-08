@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Types &amp; data — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="types">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a class="active" href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.types.h1">Types &amp; data</h1>
+      <p class="lead" data-i18n-html="pages.types.lead">Built-in types, user-defined structs and enums, arrays, and references.</p>
+
+      <div class="callout" id="optional-types">
+        <strong>All types are optional.</strong> Write <code>let x = 42</code> or <code>let x: i32 = 42</code> — same program. Annotations are erased at compile time (zero runtime cost). Use them when they help readers or when inference is ambiguous.
+      </div>
+
+      <h2>Complete type catalog</h2>
+      <table>
+        <thead><tr><th>Type</th><th>Ownership</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>i8</code> … <code>i128</code></td><td>Copy</td><td>Signed integers; <code>i32</code> default for <code>42</code> literals</td></tr>
+          <tr><td><code>u8</code> … <code>u128</code></td><td>Copy</td><td>Unsigned integers</td></tr>
+          <tr><td><code>isize</code>, <code>usize</code></td><td>Copy</td><td>Pointer-sized integers (64-bit on common targets)</td></tr>
+          <tr><td><code>f32</code></td><td>Copy</td><td>IEEE-754 single; literals <code>1.5f32</code> or <code>let x: f32 = 1.5</code></td></tr>
+          <tr><td><code>f64</code></td><td>Copy</td><td>IEEE-754 double; literals <code>3.14</code>, <code>1e-3</code> (default for floats)</td></tr>
+          <tr><td><code>char</code></td><td>Copy</td><td>Unicode scalar; literals <code>'a'</code>, <code>'\n'</code>, <code>'\u{41}'</code></td></tr>
+          <tr><td><code>bool</code></td><td>Copy</td><td><code>true</code> / <code>false</code></td></tr>
+          <tr><td><code>string</code></td><td>Move</td><td>UTF-8 bytes; literals static, heap APIs auto-dropped</td></tr>
+          <tr><td><code>VecStr</code></td><td>Copy (handle)</td><td>Split result from <code>.split(sep)</code>; iterable <code>string</code> parts; auto-freed at scope end</td></tr>
+          <tr><td><code>void</code></td><td>—</td><td>No return value</td></tr>
+          <tr><td><code>ptr</code></td><td>Copy</td><td>Opaque FFI handle (maps, channels, <code>malloc</code>); <code>Send</code></td></tr>
+          <tr><td><code>*T</code>, <code>*const T</code>, <code>*mut T</code></td><td>Copy</td><td>Typed raw pointer for <code>unsafe</code> systems code; <code>!Send</code> / <code>!Sync</code></td></tr>
+          <tr><td><code>&amp;T</code> / <code>&amp;mut T</code></td><td>Borrow</td><td>Immutable / mutable reference to <code>T</code></td></tr>
+          <tr><td><code>&amp;'a T</code></td><td>Borrow</td><td>Reference with explicit lifetime (Extended tier)</td></tr>
+          <tr><td><code>[T; N]</code></td><td>Depends on <code>T</code></td><td>Fixed-size array, e.g. <code>[i32; 4]</code></td></tr>
+          <tr><td><code>(T, U, …)</code></td><td>Depends on fields</td><td>Tuple — fixed arity product type</td></tr>
+          <tr><td><code>Vec&lt;T&gt;</code></td><td>Depends on <code>T</code></td><td>Generic growable vector (stdlib); monomorphized at compile time</td></tr>
+          <tr><td><code>StructName</code></td><td>Copy or Move</td><td>User struct; auto-Copy when all fields Copy</td></tr>
+          <tr><td><code>EnumName</code></td><td>Copy</td><td>User enum — tag + optional payload</td></tr>
+          <tr><td><code>option</code> / <code>result</code></td><td>Copy</td><td>Built-in enum tags (<code>Option.Some</code>, <code>Result.Ok</code>, …)</td></tr>
+          <tr><td><code>for&lt;'a&gt; fn(...)</code></td><td>—</td><td>Higher-ranked function pointer type (Extended tier)</td></tr>
+          <tr><td><code>T</code> (generic)</td><td>—</td><td>Type parameter on <code>fn id&lt;T&gt;(x: T) -&gt; T</code>; inferred at call site</td></tr>
+        </tbody>
+      </table>
+      <p>Ownership rules: <a href="memory.html">Memory &amp; ownership</a> · <a href="ownership-ux.html">Ownership UX</a> (auto-borrow, auto-Copy) · Quick lookup: <a href="reference.html#types">Language reference → Type names</a></p>
+
+      <h2>Built-in scalars</h2>
+      <p>Full Rust-style integer families: <code>i8</code>–<code>i128</code>, <code>u8</code>–<code>u128</code>, plus <code>isize</code> / <code>usize</code>. All are optional — omit annotations and Nyra infers <code>i32</code> for integer literals and <code>f64</code> for floats.</p>
+
+      <h2><code>VecStr</code> (split lists)</h2>
+      <p><code>string.split(sep)</code> returns a <code>VecStr</code> — a heap-owned list of substring parts. You can iterate with <code>for part in parts</code> or annotate explicitly:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let parts = &quot;api,ui,docs&quot;.split(&quot;,&quot;)
+for part in parts {
+    print(part)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let parts: VecStr = &quot;api,ui,docs&quot;.split(&quot;,&quot;)
+for part in parts {
+    print(part)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Inferred without annotation; <code>VecStr</code> is optional sugar for documentation and APIs. See <a href="learn-for.html">For loops</a> and <a href="stdlib.html#builtins-strings">built-in string methods</a>.</p>
+
+      <h2>Structs</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    // Anonymous object literal — compiler infers struct shape
+    let p = { x: 1, y: 2 }
+    let q = p              // Copy when all fields are Copy
+    print(p.x)
+
+    // Optional: declare struct for organization / impl / FFI
+    // struct Point { x: i32, y: i32 }
+    // let p = Point { x: 1, y: 2 }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    // Anonymous object literal — compiler infers struct shape
+    let p = { x: 1, y: 2 }
+    let q = p              // Copy when all fields are Copy
+    print(p.x)
+
+    // Optional: declare struct for organization / impl / FFI
+    // struct Point { x: i32, y: i32 }
+    // let p: Point = Point { x: 1, y: 2 }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Anonymous <code>{ field: value }</code> literals infer a compile-time struct (same LLVM layout as <code>Point { ... }</code>). Declare <code>struct Point</code> when you want a named type for <code>impl</code>, FFI, or clarity. <strong>Literal</strong> fields are comma-separated (<code>{ x: 1, y: 2 }</code>); <strong>struct definitions</strong> use newlines between fields. Constructor sugar: <code>Point(1, 2)</code> or <code>User("Ada")</code> desugars to struct literals (RFC 0006). Structs with any Move field (e.g. <code>string</code>) are Move.</p>
+
+      <h2>Enums</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>enum Color {
+    Red
+    Green
+    Blue
+}
+
+fn main() {
+    let c = Color.Red
+    let tag = match c {
+        Color.Red =&gt; 1
+        Color.Green =&gt; 2
+        Color.Blue =&gt; 3
+    }
+    print(tag)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>enum Color {
+    Red
+    Green
+    Blue
+}
+
+fn main() -&gt; void {
+    let c = Color.Red
+    let tag = match c {
+        Color.Red =&gt; 1
+        Color.Green =&gt; 2
+        Color.Blue =&gt; 3
+    }
+    print(tag)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Variant names use the form <code>Type.Variant</code> (e.g. <code>Color.Red</code>).</p>
+
+      <h2>Arrays &amp; slices</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let buf = [1, 2, 3, 4]
+let first = buf[0]</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let buf: [i32; 4] = [1, 2, 3, 4]
+let first = buf[0]</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Fixed-size arrays use <code>[T; N]</code>. Slice type <code>[T]</code> is parsed and type-checked (MVP stack semantics). Growable <code>Vec&lt;T&gt;</code> lives in the stdlib — see <a href="learn-vectors.html">Vectors</a>.</p>
+
+      <h2>Tuples</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let pair = (42, &quot;ok&quot;)
+print(pair.0)
+print(pair.1)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let pair = (42, &quot;ok&quot;)
+print(pair.0)
+print(pair.1)</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Tuple fields are accessed with <code>.0</code>, <code>.1</code>, … See <a href="learn-tuples.html">Learn → Tuples</a>.</p>
+
+      <h2>References</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let x = 10
+let r = &amp;x
+let m = &amp;mut y   // y must be let mut</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let x: i32 = 10
+let r = &amp;x
+let m = &amp;mut y   // y must be let mut</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Borrow rules enforced at compile time. Cannot <code>return &amp;local</code>. See <a href="memory.html">Memory &amp; ownership</a>.</p>
+
+      <h2>Raw pointers (<code>ptr</code> vs <code>*T</code>)</h2>
+      <table>
+        <thead><tr><th>Type</th><th>Role</th><th>Send / Sync</th></tr></thead>
+        <tbody>
+          <tr><td><code>ptr</code></td><td>Opaque FFI handle (Vec internals, C addresses, <code>malloc</code>)</td><td><code>Send</code></td></tr>
+          <tr><td><code>*T</code></td><td>Typed raw pointer for systems code (MMIO, drivers, kernels)</td><td><code>!Send</code> / <code>!Sync</code></td></tr>
+          <tr><td><code>*const T</code> / <code>*mut T</code></td><td>Rust-style aliases for <code>*T</code> (same semantics today)</td><td><code>!Send</code> / <code>!Sync</code></td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn mmio_base(){
+    unsafe {
+        let addr = mmio_base()
+        return *addr
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn mmio_base(){
+    unsafe {
+        let addr = mmio_base()
+        return *addr
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Obtain a raw pointer from a stack binding: <code>&amp;x as *i32</code> (inside <code>unsafe</code>). Full rules: <a href="memory.html#unsafe">Memory → unsafe</a>.</p>
+
+      <h2>Literals</h2>
+      <ul>
+        <li>Integers: <code>42</code>, <code>1_000_000</code> (separators) → <code>i32</code></li>
+        <li>Floats: <code>3.14</code>, <code>19.99</code>, <code>1e-3</code> → <code>f64</code></li>
+        <li>Characters: <code>'a'</code>, <code>'\n'</code>, <code>'\u{41}'</code> → <code>char</code></li>
+        <li>Strings: <code>"hello"</code></li>
+        <li>Struct: <code>Point { x: 1, y: 2 }</code></li>
+        <li>Array: <code>[1, 2, 3]</code> with type <code>[T; N]</code></li>
+      </ul>
+
+      <h2>Built-in enum tags</h2>
+      <p><code>option</code>/<code>Option</code> and <code>result</code>/<code>Result</code> — tag-only in v0.2 (no stored payloads). See <a href="match.html">Match</a>.</p>
+
+      <h2>Generics</h2>
+      <p>Monomorphization in v0.2 — see <a href="generics.html">Generics</a>.</p>
+
+      <h2 id="systems-types">Systems &amp; stdlib types (Rust comparison)</h2>
+      <p>All annotations below are <strong>optional</strong>. Nyra infers types by default; add names when you want clarity or FFI boundaries.</p>
+      <table>
+        <thead><tr><th>Rust concept</th><th>Nyra</th><th>Status</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>fn(i32) -&gt; i32</code></td><td><code>fn(i32) -&gt; i32</code></td><td>✅ Language</td><td>Function pointers; closures that escape promote to <code>fn(...)</code></td></tr>
+          <tr><td><code>|x| x + 1</code></td><td><code>(x) =&gt; x + 1</code></td><td>✅ Extended</td><td>Arrow closures; captures by value (Copy/Move)</td></tr>
+          <tr><td><code>struct</code> / <code>enum</code></td><td><code>struct</code> / <code>enum</code></td><td>✅ Language</td><td>User ADTs; enum payloads with generics (Extended)</td></tr>
+          <tr><td><code>Option&lt;T&gt;</code></td><td><code>import "stdlib/option.ny"</code></td><td>✅ Stdlib</td><td><code>Option.Some(v)</code>, <code>??</code>, <code>?.</code></td></tr>
+          <tr><td><code>Result&lt;T,E&gt;</code></td><td><code>stdlib/option.ny</code> + <code>stdlib/result.ny</code></td><td>✅ Stdlib</td><td><code>?</code> operator for propagation</td></tr>
+          <tr><td><code>Vec&lt;T&gt;</code></td><td><code>Vec_i32</code>, <code>import "stdlib/vec.ny"</code></td><td>✅ Stdlib</td><td>Monomorph C-backed growable vector; generic <code>Vec&lt;T&gt;</code> syntax monomorphizes</td></tr>
+          <tr><td><code>HashMap&lt;K,V&gt;</code></td><td><code>HashMap_str_i32</code>, <code>HashMap_str_str</code></td><td>✅ Stdlib</td><td><code>import "stdlib/map.ny"</code></td></tr>
+          <tr><td><code>HashSet&lt;T&gt;</code></td><td><code>HashSet_str</code></td><td>✅ Stdlib</td><td><code>import "stdlib/collections/set.ny"</code></td></tr>
+          <tr><td><code>BTreeMap&lt;K,V&gt;</code></td><td><code>BTreeMap_str_i32</code></td><td>⚠️ Stub</td><td>MVP wrapper over hash map; real B-tree in apps (<code>Apps/Basics/BTree</code>)</td></tr>
+          <tr><td><code>Box&lt;T&gt;</code></td><td><code>stdlib/box.ny</code></td><td>⚠️ Partial</td><td>Generic <code>Box&lt;T&gt;</code> struct; heap API ships for <code>string</code></td></tr>
+          <tr><td><code>Arc&lt;T&gt;</code></td><td><code>stdlib/arc.ny</code></td><td>✅ Stdlib</td><td><code>Arc&lt;i32&gt;</code>, <code>Arc&lt;string&gt;</code></td></tr>
+          <tr><td><code>Mutex&lt;T&gt;</code> / <code>RwLock&lt;T&gt;</code></td><td><code>Mutex</code>, <code>RwLock</code>, <code>Mutex_i32</code></td><td>✅ Stdlib</td><td><code>import "stdlib/sync/mutex.ny"</code></td></tr>
+          <tr><td><code>AtomicI32</code> / <code>AtomicBool</code></td><td><code>Atomic_i32</code>, <code>AtomicBool</code></td><td>✅ Stdlib</td><td><code>import "stdlib/sync/atomic.ny"</code></td></tr>
+          <tr><td><code>Rc&lt;T&gt;</code></td><td>—</td><td>❌</td><td>Use <code>Arc</code> for shared ownership; single-thread Rc planned</td></tr>
+          <tr><td><code>Cell</code> / <code>RefCell</code></td><td>—</td><td>❌</td><td>Use <code>mut</code> + borrow checker, or <code>Mutex</code> across threads</td></tr>
+          <tr><td><code>PhantomData</code> / <code>Pin</code> / <code>Cow</code></td><td>—</td><td>❌</td><td>Advanced Rust-only; not required for Nyra MVP</td></tr>
+          <tr><td><code>!</code> (never)</td><td>—</td><td>❌</td><td>Use <code>void</code> or a concrete return type</td></tr>
+          <tr><td><code>()</code> unit</td><td><code>void</code></td><td>✅ Language</td><td>Inferred when a function has no <code>return</code></td></tr>
+        </tbody>
+      </table>
+      <p>Example tour: <code>examples/syntax/systems_types.ny</code> · Full stdlib matrix: <a href="stdlib.html">Standard library</a></p>
+
+      <footer class="site-footer"><a href="modules.html">Modules →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

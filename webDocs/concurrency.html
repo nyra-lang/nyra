@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Concurrency — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="concurrency">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a class="active" href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.concurrency.h1">Concurrency</h1>
+      <p class="lead" data-i18n-html="pages.concurrency.lead"><code>spawn</code> with capture lowering, <code>Send</code>/<code>Sync</code> checks, and pthread-backed channels.</p>
+
+      <nav class="toc">
+        <div class="toc-title">On this page</div>
+        <ul>
+          <li><a href="#spawn">spawn</a></li>
+          <li><a href="#allow-extended">allow_extended</a></li>
+          <li><a href="#join-handle">JoinHandle &amp; .join()</a></li>
+          <li><a href="#parallel-for">parallel for</a></li>
+          <li><a href="#progress-for">progress for</a></li>
+          <li><a href="#captures">Captures &amp; ownership</a></li>
+          <li><a href="#runtime">Runtime API</a></li>
+          <li><a href="#channels">Channels</a></li>
+          <li><a href="#scope">Spec scope</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="spawn">spawn</h2>
+      <p>Nyra offers two concurrency backends, selected with a suffix on <code>spawn</code>:</p>
+      <table>
+        <thead><tr><th>Syntax</th><th>Backend</th><th>When to use</th></tr></thead>
+        <tbody>
+          <tr><td><code>spawn { }</code> or <code>spawn:task { }</code></td><td><strong>Lightweight tasks</strong> (global worker pool, Tokio-style)</td><td>Default — many concurrent jobs; queue up to 65k tasks; workers ≈ <code>cpu_count()</code></td></tr>
+          <tr><td><code>spawn:thread { }</code></td><td><strong>OS thread</strong> (<code>pthread</code> / <code>CreateThread</code>)</td><td>Blocking work, long-running isolation, or when you need a real 1:1 thread</td></tr>
+        </tbody>
+      </table>
+      <p>Both forms support:</p>
+      <ul>
+        <li><strong>Statement</strong> — fire-and-forget (handle detached at end of statement).</li>
+        <li><strong>Expression</strong> — <code>let h = spawn { ... }</code> returns <code>JoinHandle</code>; call <code>h.join()</code> to wait (consumes handle).</li>
+      </ul>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>// Lightweight task (default) — queued on runtime pool
+spawn {
+    print(&quot;many tasks OK&quot;)
+}
+
+let h = spawn:task {
+    print(99)
+}
+h.join()
+
+// Dedicated OS thread — ~MB stack, true parallel isolation
+let t = spawn:thread {
+    heavy_blocking_work()
+}
+t.join()</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>// Lightweight task (default) — queued on runtime pool
+spawn {
+    print(&quot;many tasks OK&quot;)
+}
+
+let h = spawn:task {
+    print(99)
+}
+h.join()
+
+// Dedicated OS thread — ~MB stack, true parallel isolation
+let t = spawn:thread {
+    heavy_blocking_work()
+}
+t.join()</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Task vs thread:</strong> tasks are cheap (bytes–KB of bookkeeping, shared worker pool); OS threads cost ~MB of stack each. Use <code>spawn</code> / <code>spawn:task</code> for high fan-out (thousands+ jobs). Use <code>spawn:thread</code> when you need a real thread or blocking syscall isolation. Captures must be <code>Send</code> in both modes.</p>
+      <p>Lowering: codegen emits a closure entry + <code>spawn_task_capture</code> (tasks) or <code>spawn_capture</code> (threads). Captures are packed into a struct and copied to the heap. Dropped handles without <code>.join()</code> detach (tasks keep running on the pool; threads are <code>pthread_detach</code>ed).</p>
+
+      <h3 id="allow-extended"><code>allow_extended</code> (file directive)</h3>
+      <p><code>spawn</code> is a <strong>Stable Extended</strong> feature. Examples and production code that use <code>spawn</code> should start with:</p>
+      <pre><code>allow_extended</code></pre>
+      <ul>
+        <li><strong>What:</strong> a file-level directive (one line at the top), not a function attribute.</li>
+        <li><strong>Why:</strong> declares that this unit intentionally uses Extended-tier APIs (<code>spawn</code>, <code>parallel for</code>, <code>async</code>, <code>defer</code>, …).</li>
+        <li><strong>Effect:</strong> suppresses <code>warning[W001]</code> for Extended features in that file — helpful when building with stricter CI flags (<code>--deny-extended</code> gates Core-only crates).</li>
+        <li><strong>Not required</strong> for Core-only programs (no spawn/async/defer). Omit it in minimal tutorials that do not use Extended syntax.</li>
+      </ul>
+      <p>Without <code>allow_extended</code>, <code>spawn</code> may still compile in default builds (v1.39+ ships Extended in prebuilt releases), but keeping the directive makes intent explicit and keeps CI configurations predictable.</p>
+
+      <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>
+      <p>Two ways to use <code>spawn</code>:</p>
+      <table>
+        <thead><tr><th>Style</th><th>Example</th><th>Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Statement</strong></td><td><code>spawn { work() }</code></td><td>Start background work and <strong>return immediately</strong>. No handle; runtime detaches (fire-and-forget).</td></tr>
+          <tr><td><strong>Expression</strong></td><td><code>let h = spawn { work() }</code></td><td>Returns <code>JoinHandle</code> — an opaque token representing the in-flight task or thread.</td></tr>
+        </tbody>
+      </table>
+      <p><strong><code>.join()</code></strong> — method on <code>JoinHandle</code>; signature <code>h.join() -&gt; void</code> (no arguments).</p>
+      <ul>
+        <li><strong>Blocks</strong> the calling thread until the spawned body completes.</li>
+        <li><strong>Consumes</strong> the handle (move semantics) — after <code>h.join()</code>, <code>h</code> cannot be used again.</li>
+        <li>Works for both <code>spawn</code>/<code>spawn:task</code> (task pool) and <code>spawn:thread</code> (OS thread); codegen picks <code>spawn_task_join</code> or <code>spawn_join</code> automatically.</li>
+        <li>If a <code>JoinHandle</code> goes out of scope without <code>.join()</code>, the runtime <strong>detaches</strong> — same effect as the statement form.</li>
+      </ul>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    // Wait for task — output order: 99, then 0
+    let h = spawn {
+        print(99)
+    }
+    h.join()
+    print(0)
+
+    // Fire-and-forget — main does not wait
+    spawn {
+        print(&quot;background&quot;)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    // Wait for task — output order: 99, then 0
+    let h = spawn {
+        print(99)
+    }
+    h.join()
+    print(0)
+
+    // Fire-and-forget — main does not wait
+    spawn {
+        print(&quot;background&quot;)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full runnable examples: <a href="methods.html#join-handle">Built-in methods → JoinHandle</a> · <a href="methods.html#ex-spawn-join"><code>.join()</code> example</a>.</p>
+
+      <h2 id="parallel-for">parallel for</h2>
+      <p>Use <code>parallel for</code> when iterations are <strong>independent</strong>. Each variant below follows: <strong>name → explanation → example → output</strong>. Full runnable programs: <a href="methods.html#ex-parallel">methods gallery</a> · <code>examples/builtins/parallel/</code>.</p>
+
+      <h3 id="parallel-task">Name: <code>parallel for</code> / <code>parallel:task</code></h3>
+      <p><strong>Explanation:</strong> Default backend is the <strong>global task pool</strong> (same workers as <code>spawn</code>). Fork-join: the loop body runs on pooled workers; <code>main</code> continues only after all iterations finish. Requires <code>allow_extended</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel for i in 0..4 {
+        print(i)
+    }
+    print(999)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (iteration lines may appear in any order; <code>999</code> is always last):</p>
+      <pre><code>0
+1
+3
+2
+999</code></pre>
+      <p>Gallery: <a href="methods.html#ex-parallel"><code>parallel for</code></a> · Run: <code>nyra run examples/builtins/parallel/parallel_task.ny</code></p>
+
+      <h3 id="parallel-task-max">Name: <code>parallel:task(max = N)</code></h3>
+      <p><strong>Explanation:</strong> Explicit task-pool alias with a worker cap. Prefer <code>max = N</code> over deprecated <code>max_threads</code> — avoids confusion with <code>parallel:thread</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel:task(max = 4) for i in 0..1000 {
+        work(i)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel:task(max = 4) for i in 0..1000 {
+        work(i)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Depends on <code>work(i)</code>; the loop is fork-join — code after the loop runs only when every iteration completes.</p>
+      <p>Gallery: <a href="methods.html#ex-parallel-task-max"><code>parallel:task(max = N)</code></a> · Run: <code>nyra run examples/builtins/parallel/parallel_task_max.ny</code></p>
+
+      <h3 id="parallel-thread-max">Name: <code>parallel:thread(max = N)</code></h3>
+      <p><strong>Explanation:</strong> OS-thread fork-join per chunk (~MB stack). Use for blocking I/O or when you need real thread isolation. Backend is chosen by <code>:thread</code>, not by the <code>max</code> key.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    parallel:thread(max = 4) for i in 0..1000 {
+        work(i)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    parallel:thread(max = 4) for i in 0..1000 {
+        work(i)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (sample with <code>print(i)</code>; order non-deterministic):</p>
+      <pre><code>2
+3
+0
+1
+999</code></pre>
+      <p>Gallery: <a href="methods.html#ex-parallel-thread"><code>parallel:thread</code></a> · Run: <code>nyra run examples/builtins/parallel/parallel_thread.ny</code></p>
+
+      <h3>Backend summary</h3>
+      <table>
+        <thead><tr><th>Syntax</th><th>Backend</th><th>When</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>parallel for</code> / <code>parallel:task</code></td><td>Task pool (default)</td><td>Most CPU-bound parallel loops</td><td><a href="methods.html#ex-parallel">gallery</a></td></tr>
+          <tr><td><code>parallel:thread</code> / <code>backend = thread</code></td><td>OS thread fork-join</td><td>Blocking syscalls, isolation</td><td><a href="methods.html#ex-parallel-thread">gallery</a></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Worker options</h3>
+      <table>
+        <thead><tr><th>Option</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>max = N</code></td><td>At most N workers</td><td><code>parallel(max = 4) for i in 0..n { … }</code></td></tr>
+          <tr><td><code>threads = N</code></td><td>Exactly N workers</td><td><a href="methods.html#ex-parallel-exact">gallery</a></td></tr>
+          <tr><td><code>cpu = P%</code></td><td>P percent of logical CPUs</td><td><code>parallel(cpu = 80%) for i in 0..n { … }</code></td></tr>
+          <tr><td><code>mode = …</code></td><td><code>auto</code>, <code>balanced</code>, <code>max_performance</code>, <code>background</code></td><td><code>parallel(mode = balanced) for i in 0..n { … }</code></td></tr>
+        </tbody>
+      </table>
+      <p>Legacy keys <code>max_threads</code>, <code>max_workers</code>, <code>cores</code> still parse with a deprecation note — use <code>max</code>.</p>
+      <p>Built-in <code>cpu_count()</code> — gallery: <a href="methods.html#ex-cpu-count"><code>cpu_count()</code></a>. Extended introspection: <code>stdlib/os/cpu.ny</code> (<code>cpu_logical_cores()</code>, AVX, brand).</p>
+      <table>
+        <thead><tr><th>Rule</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>No <code>break</code></td><td>Iterations run concurrently; there is no ordered early exit</td></tr>
+          <tr><td>No mutation of outer variables</td><td>Would be a data race without explicit locks</td></tr>
+          <tr><td>Captures must be <code>Send</code></td><td>Same thread-safety rules as <code>spawn</code></td></tr>
+          <tr><td>Range or fixed array / string / <code>vec_str</code></td><td>Iterable length must be known before workers start</td></tr>
+        </tbody>
+      </table>
+      <p>On <code>wasm32-wasi</code>, <code>parallel for</code> runs sequentially (no pthreads).</p>
+
+      <h2 id="benchmark-block">benchmark { }</h2>
+      <p><strong>Name:</strong> <code>benchmark { … }</code><br>
+      <strong>Explanation:</strong> Prints wall time, RSS delta, and CPU% for a block. Requires <code>allow_extended</code>.<br>
+      <strong>Example:</strong> <a href="methods.html#ex-benchmark">methods gallery</a> · <code>nyra run examples/builtins/benchmark/benchmark.ny</code></p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+fn main() {
+    benchmark {
+        run()
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+fn main() -&gt; void {
+    benchmark {
+        run()
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong></p>
+      <pre><code>Time: 0.1 ms
+Memory: 0.0 B
+CPU: 98%</code></pre>
+
+      <h2 id="progress-for">progress for</h2>
+      <p><strong>Name:</strong> <code>progress(label = "…") for x in items { … }</code><br>
+      <strong>Explanation:</strong> Sequential loop with built-in progress bar — not parallel. Optional <code>label</code>; cannot combine with <code>parallel for</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>allow_extended
+progress(label = &quot;parser tests&quot;) for item in tests {
+    run(item)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>allow_extended
+progress(label = &quot;parser tests&quot;) for item in tests {
+    run(item)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output</strong> (each iteration):</p>
+      <pre><code>[#####-------] 43%
+Running parser tests...</code></pre>
+      <p>Full example with body output: <a href="methods.html#ex-progress"><code>progress for</code> gallery</a>.</p>
+
+      <h2 id="captures">Captures &amp; ownership</h2>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let n = 42
+    spawn {
+        print(n)   // n captured by value (Copy)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let n: i32 = 42
+    spawn {
+        print(n)   // n captured by value (Copy)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>Capture kind</th><th>Compiler rule</th></tr></thead>
+        <tbody>
+          <tr><td><code>Copy</code> (<code>i32</code>, <code>bool</code>)</td><td>Copied into capture struct</td></tr>
+          <tr><td><code>Move</code> (<code>string</code>, structs)</td><td>Must be <code>Send</code>; marked moved in parent scope</td></tr>
+          <tr><td>Active <code>&amp;</code> / <code>&amp;mut</code></td><td>Compile error</td></tr>
+        </tbody>
+      </table>
+      <p>Full Send/Sync rules: <a href="memory.html#send-sync">Memory → Send / Sync</a>.</p>
+
+      <h2 id="runtime">Runtime API</h2>
+      <table>
+        <thead><tr><th>Symbol</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><code>spawn_capture(body, data, nbytes)</code></td><td><code>spawn:thread</code> — create joinable OS thread; returns <code>JoinHandle</code></td></tr>
+          <tr><td><code>spawn_join(handle)</code></td><td>Block until OS thread completes</td></tr>
+          <tr><td><code>spawn_handle_drop(handle)</code></td><td>Detach OS thread if handle dropped without <code>.join()</code></td></tr>
+          <tr><td><code>spawn_task_capture(body, data, nbytes)</code></td><td><code>spawn</code> / <code>spawn:task</code> — enqueue on global task pool; returns <code>JoinHandle</code></td></tr>
+          <tr><td><code>spawn_task_join(handle)</code></td><td>Block until pooled task completes</td></tr>
+          <tr><td><code>spawn_task_handle_drop(handle)</code></td><td>Fire-and-forget task (no wait)</td></tr>
+          <tr><td><code>parallel_for_range(...)</code></td><td>Fork-join parallel loop</td></tr>
+          <tr><td><code>progress_update(cur, total, label)</code></td><td>Draw progress bar + status line</td></tr>
+          <tr><td><code>progress_finish()</code></td><td>Final newline after <code>progress for</code></td></tr>
+          <tr><td><code>spawn()</code></td><td>Legacy no-arg stub (empty spawn)</td></tr>
+        </tbody>
+      </table>
+      <p>Provided by the Nyra runtime. Not available on <code>wasm32-wasi</code> (stub only).</p>
+
+      <h2 id="channels">Channels</h2>
+      <p>Typed channel wrappers live in <code>stdlib/sync/channel.ny</code> and are safe to share across threads.</p>
+      <p>Stdlib wrappers: <a href="stdlib.html#sync">stdlib → Sync, context &amp; async channels</a> (<code>Channel_i32</code>, <code>Mutex</code>, <code>Context_with_timeout</code>).</p>
+      <table>
+        <thead><tr><th>Runtime symbol</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><code>channel_new()</code></td><td>Create channel; returns handle</td></tr>
+          <tr><td><code>channel_send(ch, value)</code></td><td>Send <code>i32</code></td></tr>
+          <tr><td><code>channel_recv(ch)</code></td><td>Blocking receive</td></tr>
+          <tr><td><code>channel_free(ch)</code></td><td>Release channel memory</td></tr>
+        </tbody>
+      </table>
+      <p>Declare <code>extern</code> in your module or see <a href="stdlib.html#channels">Standard library → Channels</a>.</p>
+
+      <h2 id="scope">Spec 1.0 scope</h2>
+      <table>
+        <thead><tr><th>In 1.0</th><th>Deferred</th></tr></thead>
+        <tbody>
+          <tr><td><code>spawn { }</code> + C channels</td><td><code>async</code> / <code>await</code></td></tr>
+          <tr><td><code>parallel for</code> (fork-join pool)</td><td>Full goroutine scheduler RFC</td></tr>
+          <tr><td>Blocking I/O via runtime</td><td>Full goroutine scheduler RFC</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Send / Sync</strong>
+        The compiler checks <code>spawn</code> captures: values must be <code>Send</code>, shared references need <code>Sync</code> inner types, and active borrows are rejected. See <a href="memory.html#send-sync">Memory → Send / Sync</a>.
+      </div>
+
+      <footer class="site-footer"><a href="stdlib.html">Standard library →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

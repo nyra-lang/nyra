@@ -1,8 +1,10 @@
 use std::collections::{HashMap, HashSet};
 
 use ast::*;
-use errors::{ErrorKind, NyraError, Span};
+use errors::{NyraError, Span};
+
 use crate::context::OwnershipCtx;
+use crate::diag;
 use types::Type;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -51,11 +53,19 @@ impl<'a> Checker<'a> {
                 send: true,
                 sync: true,
             },
+            Type::JoinHandle => ThreadSafety {
+                send: true,
+                sync: false,
+            },
             Type::RawPtr { .. } => ThreadSafety {
                 send: false,
                 sync: false,
             },
-            Type::String => ThreadSafety {
+            Type::String | Type::Bytes => ThreadSafety {
+                send: true,
+                sync: true,
+            },
+            Type::Simd { .. } | Type::Union(_) => ThreadSafety {
                 send: true,
                 sync: true,
             },
@@ -157,24 +167,10 @@ pub fn check_program(program: &Program, ctx: &OwnershipCtx, errors: &mut Vec<Nyr
 fn check_struct_attrs(s: &StructDef, ctx: &OwnershipCtx, errors: &mut Vec<NyraError>) {
     let derived = derived_thread_safety_of_struct(&s.name, ctx);
     if s.attrs.send && !derived.send {
-        errors.push(NyraError::new(
-            ErrorKind::BorrowCheck,
-            Span::default(),
-            format!(
-                "struct '{}' is marked Send but field types are not all Send",
-                s.name
-            ),
-        ));
+        errors.push(diag::struct_send_attr_mismatch(&s.name, Span::default()));
     }
     if s.attrs.sync && !derived.sync {
-        errors.push(NyraError::new(
-            ErrorKind::BorrowCheck,
-            Span::default(),
-            format!(
-                "struct '{}' is marked Sync but field types are not all Sync",
-                s.name
-            ),
-        ));
+        errors.push(diag::struct_sync_attr_mismatch(&s.name, Span::default()));
     }
 }
 
@@ -234,43 +230,18 @@ fn check_thread_captures(
             continue;
         };
         if !is_send(ty, ctx) {
-            errors.push(
-                NyraError::new(
-                    ErrorKind::BorrowCheck,
-                    span.clone(),
-                    format!("cannot use {context}: captured value '{name}' is not Send"),
-                )
-                .note("Only Send types may cross thread boundaries"),
-            );
+            errors.push(diag::capture_not_send(&name, context, span.clone()));
         }
         if matches!(ty, Type::Ref { mutable: false, .. }) {
             let inner = ref_inner(ty);
             if !is_sync(&inner, ctx) {
-                errors.push(
-                    NyraError::new(
-                        ErrorKind::BorrowCheck,
-                        span.clone(),
-                        format!(
-                            "cannot use {context}: shared reference '{name}' requires Sync inner type"
-                        ),
-                    )
-                    .note("Immutable references captured across threads need T: Sync"),
-                );
+                errors.push(diag::shared_ref_requires_sync(&name, context, span.clone()));
             }
         }
         if matches!(ty, Type::Ref { mutable: true, .. }) {
             let inner = ref_inner(ty);
             if !is_send(&inner, ctx) {
-                errors.push(
-                    NyraError::new(
-                        ErrorKind::BorrowCheck,
-                        span.clone(),
-                        format!(
-                            "cannot use {context}: mutable reference '{name}' requires Send inner type"
-                        ),
-                    )
-                    .note("Mutable references captured across threads need T: Send"),
-                );
+                errors.push(diag::mut_ref_requires_send(&name, context, span.clone()));
             }
         }
     }
@@ -299,14 +270,7 @@ pub fn check_sync_closure_captures(
             continue;
         };
         if matches!(ty, Type::Ref { .. }) {
-            errors.push(
-                NyraError::new(
-                    ErrorKind::BorrowCheck,
-                    span.clone(),
-                    "cannot capture reference in closure; use owned value or copy type".to_string(),
-                )
-                .note(format!("Captured variable '{name}' has reference type")),
-            );
+            errors.push(diag::closure_cannot_capture_ref(&name, span.clone()));
         }
     }
 }

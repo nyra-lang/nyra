@@ -26,6 +26,14 @@ impl Parser {
 
     pub fn parse(mut self) -> (Program, Vec<NyraError>) {
         skip_newlines(&self.tokens, &mut self.position);
+        let mut comptime = false;
+        if let TokenKind::Identifier(ref name) = self.current_kind() {
+            if name == "comptime" {
+                comptime = true;
+                self.advance();
+                skip_newlines(&self.tokens, &mut self.position);
+            }
+        }
         let mut module = None;
         if check(&self.tokens, self.position, &TokenKind::Module) {
             module = self.parse_module_decl();
@@ -33,6 +41,7 @@ impl Parser {
         let mut imports = Vec::new();
         let mut consts = Vec::new();
         let mut structs = Vec::new();
+        let mut unions = Vec::new();
         let mut enums = Vec::new();
         let mut traits = Vec::new();
         let mut trait_impls = Vec::new();
@@ -59,6 +68,13 @@ impl Parser {
                     }
                     "allow_extended" if !allow_extended => {
                         allow_extended = true;
+                        self.advance();
+                        continue;
+                    }
+                    "comptime" => {
+                        self.parse_error_here(
+                            "`comptime` must appear once at the top of the file (before imports and declarations)",
+                        );
                         self.advance();
                         continue;
                     }
@@ -106,6 +122,12 @@ impl Parser {
                             structs.push(s);
                         }
                     }
+                    Some(Token { kind: TokenKind::Union, .. }) => {
+                        if let Some(u) = self.parse_union() {
+                            self.parsed_struct_names.push(u.name.clone());
+                            unions.push(u);
+                        }
+                    }
                     Some(Token { kind: TokenKind::Enum, .. }) => {
                         if let Some(e) = self.parse_enum() {
                             self.parsed_enum_names.push(e.name.clone());
@@ -119,7 +141,7 @@ impl Parser {
                     }
                     _ => {
                         self.parse_error_here(
-                            "Expected `fn`, `struct`, `enum`, or `const` after `pub`/`priv`",
+                            "Expected `fn`, `struct`, `union`, `enum`, or `const` after `pub`/`priv`",
                         );
                         synchronize(&self.tokens, &mut self.position);
                     }
@@ -152,10 +174,20 @@ impl Parser {
                     self.pending_fn_attrs.cold = true;
                     self.advance();
                 }
+                TokenKind::AttrComptime => {
+                    self.pending_fn_attrs.comptime = true;
+                    self.advance();
+                }
                 TokenKind::Struct => {
                     if let Some(s) = self.parse_struct() {
                         self.parsed_struct_names.push(s.name.clone());
                         structs.push(s);
+                    }
+                }
+                TokenKind::Union => {
+                    if let Some(u) = self.parse_union() {
+                        self.parsed_struct_names.push(u.name.clone());
+                        unions.push(u);
                     }
                 }
                 TokenKind::Enum => {
@@ -176,14 +208,14 @@ impl Parser {
                 }
                 TokenKind::Impl => {
                     if let Some(ti) = self.parse_trait_impl() {
-                        for m in &ti.methods {
-                            functions.push(m.clone());
-                        }
+                        // Methods stay on the trait_impl — codegen emits them from
+                        // `program.trait_impls` when no free function of the same
+                        // mangled name exists. Pushing them into `functions` here
+                        // used to shadow real free helpers (e.g. sugar.ny
+                        // `RequestInit_timeout` overwriting `fetch.ny`) when a
+                        // module was loaded before its imports finished merging.
                         trait_impls.push(ti);
                     } else if let Some(i) = self.parse_impl() {
-                        for m in &i.methods {
-                            functions.push(m.clone());
-                        }
                         impls.push(i);
                     }
                 }
@@ -243,10 +275,12 @@ impl Parser {
             Program {
                 module,
                 no_std,
+                comptime,
                 allow_extended,
                 imports,
                 consts,
                 structs,
+                unions,
                 enums,
                 traits,
                 trait_impls,

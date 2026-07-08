@@ -339,12 +339,12 @@ impl EscapeGraph {
             Statement::Expression(e) | Statement::Defer(e) => {
                 self.analyze_expr_escapes(e, scope);
             }
-            Statement::Spawn(body) => {
-                let caps = collect_captures(body, scope);
+            Statement::Spawn(sp) => {
+                let caps = collect_captures(&sp.body, scope);
                 for name in caps {
                     self.mark(&name, EscapeState::GlobalEscape);
                 }
-                self.analyze_block(body, scope);
+                self.analyze_block(&sp.body, scope);
             }
             Statement::Unsafe(body) => self.analyze_block(body, scope),
             Statement::Benchmark(body) => self.analyze_block(body, scope),
@@ -395,13 +395,13 @@ impl EscapeGraph {
             }
             Expression::If(i) => {
                 self.analyze_expr_escapes(&i.condition, scope);
-                self.analyze_expr_escapes(&i.then_expr, scope);
-                self.analyze_expr_escapes(&i.else_expr, scope);
+                for_each_expr_in_block(&i.then_block, &mut |e| self.analyze_expr_escapes(e, scope));
+                for_each_expr_in_block(&i.else_block, &mut |e| self.analyze_expr_escapes(e, scope));
             }
             Expression::Match(m) => {
                 self.analyze_expr_escapes(&m.scrutinee, scope);
                 for arm in &m.arms {
-                    self.analyze_expr_escapes(&arm.body, scope);
+                    for_each_expr_in_block(&arm.body, &mut |e| self.analyze_expr_escapes(e, scope));
                     if let Some(g) = &arm.guard {
                         self.analyze_expr_escapes(g, scope);
                     }
@@ -454,6 +454,12 @@ impl EscapeGraph {
                     ArrowBody::Expr(e) => self.analyze_expr_escapes(e, scope),
                     ArrowBody::Block(b) => self.analyze_block(b, scope),
                 }
+            }
+            Expression::ComptimeBlock { body, .. } => self.analyze_block(body, scope),
+            Expression::Spawn { body, .. } => self.analyze_block(body, scope),
+            Expression::ParallelSearch(ps) => {
+                ps.for_each_expr(|e| self.analyze_expr_escapes(e, scope));
+                self.analyze_block(&ps.body, scope);
             }
             Expression::EnumVariant(v) => {
                 for a in &v.args {
@@ -647,13 +653,13 @@ fn collect_vars(expr: &Expression, out: &mut Vec<String>) {
         Expression::Grouped(inner) => collect_vars(inner, out),
         Expression::If(i) => {
             collect_vars(&i.condition, out);
-            collect_vars(&i.then_expr, out);
-            collect_vars(&i.else_expr, out);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_vars(e, out));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_vars(e, out));
         }
         Expression::Match(m) => {
             collect_vars(&m.scrutinee, out);
             for arm in &m.arms {
-                collect_vars(&arm.body, out);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_vars(e, out));
                 if let Some(g) = &arm.guard {
                     collect_vars(g, out);
                 }
@@ -676,6 +682,22 @@ fn collect_vars(expr: &Expression, out: &mut Vec<String>) {
                 }
             }
         },
+        Expression::ComptimeBlock { body, .. } => {
+            for stmt in &body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
+        Expression::Spawn { body, .. } => {
+            for stmt in &body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_vars(e, out));
+            for stmt in &ps.body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
         Expression::EnumVariant(v) => {
             for a in &v.args {
                 collect_vars(a, out);
@@ -729,7 +751,12 @@ fn collect_vars_from_stmt(stmt: &Statement, out: &mut Vec<String>) {
             }
         }
         Statement::Expression(e) | Statement::Defer(e) => collect_vars(e, out),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => {
+        Statement::Spawn(s) => {
+            for stmt in &s.body.statements {
+                collect_vars_from_stmt(stmt, out);
+            }
+        }
+        Statement::Unsafe(b) | Statement::Benchmark(b) => {
             for s in &b.statements {
                 collect_vars_from_stmt(s, out);
             }

@@ -13,9 +13,10 @@ declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
 define i32 @main() {
 entry:
+  %ssa.N = add i32 0, 1
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 1)
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %ssa.N)
   %fmt.N = getelementptr inbounds i8, ptr @.str.N, i64 0
-  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 1)
+  call i32 (ptr, ...) @printf(ptr %fmt.N, i32 %ssa.N)
   ret i32 0
 }

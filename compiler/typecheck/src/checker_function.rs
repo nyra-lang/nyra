@@ -3,11 +3,26 @@
 use ast::*;
 use errors::{ErrorKind, NyraError};
 
+use super::diagnostics;
 use super::helpers::{block_has_return, collect_return_types_from_block, unify_return_types};
 use super::{FunctionSignature, TypeChecker, TypeEnv, VarInfo};
 use types::{self, Type};
 
 impl TypeChecker {
+    fn is_stack_buffer_type(ty: &Type) -> bool {
+        match ty {
+            Type::Struct(n) if n.starts_with("StackBuffer_") => true,
+            _ => false,
+        }
+    }
+
+    fn is_stack_buffer_ref(ty: &Type) -> bool {
+        match ty {
+            Type::Ref { inner, .. } => Self::is_stack_buffer_type(inner),
+            _ => false,
+        }
+    }
+
     pub(super) fn function_return_type(&mut self, func: &Function) -> Type {
         let param_anns = self.resolve_inferred_param_anns(func);
         let param_types: Vec<Type> = param_anns.iter().map(|a| self.type_from_ann(a)).collect();
@@ -86,17 +101,7 @@ impl TypeChecker {
             return ty;
         }
         if !returns.is_empty() {
-            self.errors.push(
-                NyraError::new(
-                    ErrorKind::Type,
-                    func.span.clone(),
-                    format!(
-                        "Function '{}' has incompatible return types; add an explicit return type",
-                        func.name
-                    ),
-                )
-                .note("Example: `fn run() -> i32 { return 1 }`"),
-            );
+            diagnostics::function_incompatible_returns(self, &func.name, func.span.clone());
             return Type::Unknown;
         }
         Type::Void
@@ -165,7 +170,10 @@ impl TypeChecker {
                 Statement::For(f) => {
                     Self::collect_param_field_return_types(&f.body, param, info, out);
                 }
-                Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+                Statement::Spawn(s) => {
+                    Self::collect_param_field_return_types(&s.body, param, info, out);
+                }
+                Statement::Unsafe(b) | Statement::Benchmark(b) => {
                     Self::collect_param_field_return_types(b, param, info, out);
                 }
                 _ => {}
@@ -199,7 +207,10 @@ impl TypeChecker {
                 Statement::For(f) => {
                     Self::collect_struct_literal_return_types(&f.body, out);
                 }
-                Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+                Statement::Spawn(s) => {
+                    Self::collect_struct_literal_return_types(&s.body, out);
+                }
+                Statement::Unsafe(b) | Statement::Benchmark(b) => {
                     Self::collect_struct_literal_return_types(b, out);
                 }
                 _ => {}
@@ -225,7 +236,8 @@ impl TypeChecker {
                 }
                 Statement::While(w) => Self::collect_ctor_binding_vars(&w.body, ctor, out),
                 Statement::For(f) => Self::collect_ctor_binding_vars(&f.body, ctor, out),
-                Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+                Statement::Spawn(s) => Self::collect_ctor_binding_vars(&s.body, ctor, out),
+                Statement::Unsafe(b) | Statement::Benchmark(b) => {
                     Self::collect_ctor_binding_vars(b, ctor, out);
                 }
                 _ => {}
@@ -263,7 +275,12 @@ impl TypeChecker {
                         return true;
                     }
                 }
-                Statement::Unsafe(b) | Statement::Spawn(b) | Statement::Benchmark(b) => {
+                Statement::Spawn(s) => {
+                    if Self::block_returns_bound_var(&s.body, vars) {
+                        return true;
+                    }
+                }
+                Statement::Unsafe(b) | Statement::Benchmark(b) => {
                     if Self::block_returns_bound_var(b, vars) {
                         return true;
                     }
@@ -334,6 +351,10 @@ impl TypeChecker {
         }
     }
 
+    pub(super) fn infer_name_type_in_block(&self, name: &str, block: &Block) -> Option<Type> {
+        Self::unify_param_type_hints(self.collect_param_type_hints(name, block)).ok()
+    }
+
     pub(super) fn infer_name_type_in_stmt(&self, name: &str, stmt: &Statement) -> Option<Type> {
         Self::unify_param_type_hints({
             let mut hints = Vec::new();
@@ -347,14 +368,7 @@ impl TypeChecker {
         match expr {
             Expression::Call(c) if c.callee == "strcat" && c.args.len() == 2 => {
                 let (left, right) = (&c.args[0], &c.args[1]);
-                if Self::expr_is_param_name(left, name)
-                    && matches!(right, Expression::Literal(Literal::String(_)))
-                {
-                    return Some(Type::String);
-                }
-                if Self::expr_is_param_name(right, name)
-                    && matches!(left, Expression::Literal(Literal::String(_)))
-                {
+                if Self::expr_is_param_name(left, name) || Self::expr_is_param_name(right, name) {
                     return Some(Type::String);
                 }
                 c.args
@@ -451,16 +465,25 @@ impl TypeChecker {
             }
             Expression::If(i) => self
                 .infer_name_type_in_expr(name, &i.condition)
-                .or_else(|| self.infer_name_type_in_expr(name, &i.then_expr))
-                .or_else(|| self.infer_name_type_in_expr(name, &i.else_expr)),
+                .or_else(|| self.infer_name_type_in_block(name, &i.then_block))
+                .or_else(|| self.infer_name_type_in_block(name, &i.else_block)),
             Expression::Match(m) => {
                 if Self::expr_is_param_name(&m.scrutinee, name) {
                     if let Some(ty) = self.infer_enum_type_from_match(m) {
                         return Some(ty);
                     }
+                    if let Some(ty) = self.infer_string_type_from_match(m) {
+                        return Some(ty);
+                    }
+                    if let Some(ty) = self.infer_struct_type_from_match(m) {
+                        return Some(ty);
+                    }
+                    if let Some(ty) = self.infer_tuple_type_from_match(m) {
+                        return Some(ty);
+                    }
                 }
                 for arm in &m.arms {
-                    if let Some(t) = self.infer_name_type_in_expr(name, &arm.body) {
+                    if let Some(t) = self.infer_name_type_in_block(name, &arm.body) {
                         return Some(t);
                     }
                     if let Some(ref guard) = arm.guard {
@@ -567,6 +590,56 @@ impl TypeChecker {
         enums.dedup();
         if enums.len() == 1 {
             Some(Type::Enum(enums[0].clone()))
+        } else {
+            None
+        }
+    }
+
+    fn infer_string_type_from_match(&self, m: &MatchExpr) -> Option<Type> {
+        let has_string_lit = m
+            .arms
+            .iter()
+            .any(|arm| matches!(arm.pattern, MatchPattern::Literal(_)));
+        if has_string_lit {
+            Some(Type::String)
+        } else {
+            None
+        }
+    }
+
+    fn infer_struct_type_from_match(&self, m: &MatchExpr) -> Option<Type> {
+        let mut names: Vec<String> = m
+            .arms
+            .iter()
+            .filter_map(|arm| match &arm.pattern {
+                MatchPattern::Struct(name, _) if self.structs.contains_key(name) => {
+                    Some(name.clone())
+                }
+                _ => None,
+            })
+            .collect();
+        names.sort();
+        names.dedup();
+        if names.len() == 1 {
+            Some(Type::Struct(names[0].clone()))
+        } else {
+            None
+        }
+    }
+
+    fn infer_tuple_type_from_match(&self, m: &MatchExpr) -> Option<Type> {
+        let mut arities = Vec::new();
+        for arm in &m.arms {
+            if let MatchPattern::Tuple(binds) = &arm.pattern {
+                arities.push(binds.len());
+            }
+        }
+        arities.sort();
+        arities.dedup();
+        if arities.len() == 1 {
+            Some(Type::Tuple {
+                elems: vec![Type::Unknown; arities[0]],
+            })
         } else {
             None
         }
@@ -703,13 +776,15 @@ impl TypeChecker {
 
     pub(super) fn check_function(&mut self, func: &Function) {
         if func.is_async && self.target_is_wasm() {
-            self.errors.push(NyraError::new(
-                ErrorKind::Type,
-                func.span.clone(),
-                "async functions are not available on wasm32 targets".to_string(),
-            ));
+            diagnostics::platform_unavailable(self, "async functions", "wasm32", func.span.clone());
         }
         self.check_export_fn_abi(func);
+        if let Some(ann) = &func.return_type {
+            let ret_ty = self.type_from_ann(ann);
+            if Self::is_stack_buffer_ref(&ret_ty) {
+                diagnostics::stack_buffer_return_forbidden(self, func.span.clone());
+            }
+        }
         let mut local = TypeEnv {
             variables: self.env.variables.clone(),
             functions: self.env.functions.clone(),
@@ -828,17 +903,7 @@ impl TypeChecker {
             && !func.is_test
             && ret != Type::Void
         {
-            self.errors.push(
-                NyraError::new(
-                    ErrorKind::Type,
-                    func.span.clone(),
-                    format!(
-                        "Function '{}' is missing a return value; add `return` or declare `-> void`",
-                        func.name
-                    ),
-                )
-                .note("Example: `fn run() -> void { print(1) }`"),
-            );
+            diagnostics::function_missing_return(self, &func.name, func.span.clone());
         }
     }
 }

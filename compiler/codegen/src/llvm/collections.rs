@@ -169,6 +169,23 @@ impl Codegen {
     ) -> ExprValue {
         let obj = self.compile_expr(&ix.object, env);
         let idx = self.compile_expr(&ix.index, env);
+        if obj.ty == "bytes" {
+            self.record_runtime("byte_at");
+            let ptr = self.materialize_ptr_reg(&obj.reg);
+            let idx64 = self.fresh("idx64");
+            self.emit(&format!(
+                "  %{idx64} = sext {} to i64",
+                Self::llvm_i32_operand(&idx.reg)
+            ));
+            let reg = self.fresh("byte");
+            self.emit(&format!(
+                "  %{reg} = call i32 @byte_at(ptr {ptr}, i64 %{idx64})"
+            ));
+            return ExprValue {
+                reg: format!("%{reg}"),
+                ty: "i32".into(),
+            };
+        }
         if let Some(len) = array_len_from_ty(&obj.ty) {
             self.emit_array_bounds_check(&Self::llvm_i32_operand(&idx.reg), len);
         }

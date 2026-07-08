@@ -2,10 +2,24 @@
 description: Mandatory Nyra workflow — tests, examples, webDocs, test-all.sh (always apply)
 alwaysApply: true
 ---
-
+## any update should be support macOS , windows , Linux 
+**Not sure which folder to edit?** See [`docs/contributor-map.md`](../docs/contributor-map.md).
 # Nyra change guidelines (mandatory)
 
 Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, or user-visible behavior — without waiting for the user to ask.
+
+## Cross-impact warning (mandatory)
+
+**Any code change can break something elsewhere.** A fix in one module, pipeline stage, or test suite is not done until validation that there are no regressions in other subsystems impacted by the change.
+
+Before finishing:
+
+- Trace **who else calls or depends on** what you changed (compiler stages, expand passes, stdlib, CLI, snapshots, compiletest, Nyra integration tests).
+- Run **more than the test that failed** — at minimum the suites that touch the same subsystem; for compiler/stdlib work prefer `make test-all` or `cargo test --workspace` plus affected Nyra tests.
+- If you updated snapshots or relaxed/f tightened comptime or typecheck behavior, re-run **fail suites** (`tests/suite/fail/`) and related gates — a local green test is not enough if another gate still fails.
+- Do **not** ship a narrow workaround that fixes one file while silently breaking borrowck, typecheck, codegen IR, or unrelated examples.
+
+**Goal:** never fix a problem in one place while introducing a new problem somewhere else.
 
 ## Checklist (complete before finishing)
 
@@ -13,7 +27,7 @@ Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, 
    - **Special note:** Nyra is by default a zero-types language, like GoLang and JavaScript; this means no types, no structs, no enums, etc, unless the programmer wants to add them for better organization. 
    - **You MUST ensure all language/compiler tests are run both in zero-types mode and with explicit types.** Always cover both ways: programs should run with zero types and also with explicit types, with no issues arising for the user in either style. If a programmer chooses to use one or the other, both must work perfectly and consistently.
 2. **Examples** — Add or update an example under `examples/` demonstrating new or changed behavior, showing both zero-types and explicit types usages where applicable.
-3. **No regressions** — Confirm the change does not break unrelated features.
+3. **No regressions** — Confirm the change does not break unrelated features (see **Cross-impact warning** above: run broad enough tests and check dependent code paths).
 4. **webDocs** — Update `webDocs/` (and `webDocs/nyra-skill.md` if syntax/stdlib/CLI changed); run `node webDocs/scripts/build-nyra-skill.mjs` and `node webDocs/scripts/build-search-index.mjs` when HTML or skill content changed.
 5. **Makefile** — If you add a new test gate, wire it into the root `Makefile` (`make test-all` dependencies).
 6. **Project Structure** — Keep project files small, well-organized, and professionally divided. As the project grows, this structure should make future updates, development, and enhancements easy for developers, and prevent problems with large, unwieldy files.
@@ -30,6 +44,12 @@ Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, 
    - **Major update** — a significant, user-facing feature, stdlib addition, ABI/toolchain change, or breaking behavior worth calling out in release notes.
    - Skip version bumps for: refactors, internal-only cleanup, comment/docs-only edits (unless docs ship a new public behavior), CI/Makefile tweaks, test-only changes, and small incremental work that does not fix a bug or deliver a notable feature.
    - When you do bump: patch for fixes (`1.x.Y`), minor for notable features (`1.Y.0`); update `CHANGELOG.md` with a concise entry; see `agents/skill.md` if present.
+
+## AI Agent Regression Monitoring (History Log)
+
+As an AI agent, you must ensure the long-term stability and reliability of the system by converting every bug or failure you identify and resolve into a *permanent regression test*. This log serves as an evolving source of truth for the system’s resilience: if you discover a defect, design a targeted test that reproduces it, and make sure it gets added immediately. This way, the test suite acts as an AI memory, persistently encoding learnings to prevent regressions. Over time, this strategy will transform the language into a robust, self-healing platform.
+
+
 ## Scope
 
 | Change type            | Required                                                                            |
@@ -44,8 +64,10 @@ Apply on **every** task that touches the compiler, stdlib, CLI, runtime, tests, 
 - Release & webDocs workflow: `agents/skill.md`
 - Human-readable copy: `skills/guidelines.md`
 
-> **ملحوظة مهمة**: لابد من اختبار اللغة في وضعية zero types (بدون أنواع) وفي وضعية الأنواع (مع أنواع صريحة) بنفس الوقت في الاختبارات، والتأكد أن المبرمج يمكنه إختيار أي منهما دون مواجهة مشاكل.
+> **Important Note**: The language must be tested in both zero-types mode (without explicit types) and explicit types mode in tests, and it must be ensured that the programmer can choose either mode without facing problems.
 
-> **تحديث النسخة**: لا تُرفع نسخة اللغة (`Cargo.toml` / `CHANGELOG`) مع كل تغيير — فقط عند إصلاح مشكلة حقيقية في الكود أو عند تحديث كبير ومهم يستحق ذكره في release notes.
+> **Side-effect Warning**: Any change in the project can break behavior elsewhere. Do not close the task after just fixing the test or file that failed—run broader tests (including `make test-all` when needed) and make sure the fix does not introduce new problems in borrow checking, type checking, code generation, compile tests, or other examples.
+
+> **Version Update**: Do not bump the language version (`Cargo.toml` / `CHANGELOG`) with every change—only when a real issue in the code is fixed or when a major, significant update is delivered that deserves mention in the release notes.
 
 Do not duplicate these rules elsewhere; edit `.cursor/rules/nyra-guidelines.mdc` or `skills/guidelines.md`.

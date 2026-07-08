@@ -11,7 +11,6 @@ mod coerce;
 mod main_argv;
 mod nullish;
 mod ownership_prefix;
-mod string_borrow;
 mod struct_ctors;
 mod struct_serde;
 mod trait_objects;
@@ -163,10 +162,10 @@ fn expand_stmt(stmt: &Statement, macros: &HashMap<String, MacroDef>) -> Statemen
             nf.map_exprs_mut(|e| *e = expand_expr(e, macros));
             Statement::For(nf)
         }
-        Statement::Spawn(body) => {
-            let mut b = body.clone();
-            expand_block_stmts(&mut b.statements, macros);
-            Statement::Spawn(b)
+        Statement::Spawn(s) => {
+            let mut sp = s.clone();
+            expand_block_stmts(&mut sp.body.statements, macros);
+            Statement::Spawn(sp)
         }
         Statement::Benchmark(body) => {
             let mut b = body.clone();
@@ -203,7 +202,6 @@ pub fn expand_program(program: &mut Program) {
     trait_objects::synthesize_trait_object_structs(program);
     future_structs::synthesize_future_structs(program);
     clone::synthesize_clone_impls(program);
-    string_borrow::desugar_string_borrow_builtins(program);
     infer_nullish_option_types(program);
     desugar_nullish(program);
     let map: HashMap<String, MacroDef> = program
@@ -239,7 +237,8 @@ pub fn finish_async_desugar(program: &mut Program, checker: &TypeChecker) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ast::{Expression, Literal, Statement};
+    use ast::{Expression, Literal, Statement, UnaryOp};
+    use coerce::coerce_auto_borrow;
 
     fn parse_and_expand(src: &str) -> Program {
         let (tokens, _) = lexer::Lexer::new(src, "t.ny").tokenize();
@@ -331,15 +330,18 @@ fn main() {
     }
 
     #[test]
-    fn desugar_substring_clones_source_binding() {
-        let src = r#"fn main() {
+    fn substring_reuses_binding_via_auto_borrow() {
+        let src = r#"extern fn substring(s: &string, start: i32, len: i32) -> string
+fn main() {
     let s = "abcdef"
     let a = substring(s, 0, 2)
     let b = substring(s, 2, 2)
     print(a)
     print(b)
 }"#;
-        let program = parse_and_expand(src);
+        let mut program = parse_and_expand(src);
+        monomorph::monomorphize_program(&mut program);
+        coerce_auto_borrow(&mut program);
         let main = &program.functions[0];
         let substring_calls: Vec<_> = main
             .body
@@ -355,8 +357,11 @@ fn main() {
         for call in substring_calls {
             if let Expression::Call(c) = call {
                 assert!(
-                    matches!(c.args[0], Expression::MethodCall(_)),
-                    "substring arg should be auto-cloned"
+                    matches!(
+                        &c.args[0],
+                        Expression::Unary(u) if u.op == UnaryOp::Ref
+                    ),
+                    "substring should auto-borrow source binding"
                 );
             }
         }
@@ -380,5 +385,19 @@ fn main() {
             let_stmt.expect("let f").value,
             Expression::Variable { ref name, .. } if name.starts_with("__arrow_")
         ));
+    }
+}
+
+#[cfg(test)]
+mod async_is_async_tests {
+    use super::*;
+    #[test]
+    fn give_keeps_is_async_after_expand() {
+        let src = r#"async fn give() -> i32 { return 7 }"#;
+        let (tokens, _) = lexer::Lexer::new(src, "t.ny").tokenize();
+        let (mut program, _) = parser::Parser::new(tokens).parse();
+        assert!(program.functions[0].is_async);
+        expand_program(&mut program);
+        assert!(program.functions[0].is_async, "expand stripped is_async");
     }
 }

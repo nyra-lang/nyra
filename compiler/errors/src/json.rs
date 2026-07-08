@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 
-use crate::{NyraError, Severity};
+use crate::{DiagnosticLabel, NyraError, Severity};
 
 /// Structured diagnostic for machine output (`nyra diag --json`).
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -21,8 +21,33 @@ pub struct DiagnosticJson {
     pub notes: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub helps: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub labels: Vec<DiagnosticLabelJson>,
     pub kind: String,
     pub severity: String,
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+pub struct DiagnosticLabelJson {
+    pub file: String,
+    pub line: usize,
+    pub column: usize,
+    pub end_line: usize,
+    pub end_column: usize,
+    pub label: String,
+}
+
+impl From<&DiagnosticLabel> for DiagnosticLabelJson {
+    fn from(l: &DiagnosticLabel) -> Self {
+        DiagnosticLabelJson {
+            file: l.span.file.clone(),
+            line: l.span.start.line,
+            column: l.span.start.column,
+            end_line: l.span.end.line,
+            end_column: l.span.end.column,
+            label: l.label.clone(),
+        }
+    }
 }
 
 impl From<&NyraError> for DiagnosticJson {
@@ -38,6 +63,7 @@ impl From<&NyraError> for DiagnosticJson {
             label: e.label.clone(),
             notes: e.notes.clone(),
             helps: e.helps.clone(),
+            labels: e.labels.iter().map(DiagnosticLabelJson::from).collect(),
             kind: format!("{:?}", e.kind),
             severity: match e.severity {
                 Severity::Error => "Error".into(),

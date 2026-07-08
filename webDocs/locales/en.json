@@ -1,0 +1,644 @@
+{
+  "ui": {
+    "themeToggle": "Toggle light/dark theme",
+    "menuOpen": "Open navigation menu",
+    "menuClose": "Close navigation menu",
+    "searchOpen": "Search documentation (Ctrl+K)"
+  },
+  "search": {
+    "placeholder": "Search all docs… (Ctrl+K)",
+    "hint": "↑↓ navigate · Enter open · Esc close",
+    "emptyShort": "Type to search all pages and sections",
+    "loading": "Index loading…",
+    "noResults": "No results — try another word",
+    "results": "{n} results",
+    "resultsOne": "1 result",
+    "nav": "Navigation",
+    "ariaLabel": "Search documentation"
+  },
+  "nav": {
+    "start": "Start",
+    "languageSection": "Advanced",
+    "dataStructuresSection": "Nyra Data Structures",
+    "learnSection": "Learn Nyra",
+    "guides": "Guides",
+    "ecosystem": "Ecosystem",
+    "overview": "Nyra HOME",
+    "gettingStarted": "Getting started",
+    "install": "Installation",
+    "learningPath": "Learning path",
+    "aiSkill": "AI skill file",
+    "search": "Search",
+    "learnIntro": "Nyra Intro",
+    "learnGetStarted": "Nyra Get Started",
+    "learnSyntax": "Nyra Syntax",
+    "learnOutput": "Nyra Output",
+    "learnComments": "Nyra Comments",
+    "learnVariables": "Nyra Variables",
+    "learnDataTypes": "Nyra Data Types",
+    "learnConstants": "Nyra Constants",
+    "learnOperators": "Nyra Operators",
+    "learnBooleans": "Nyra Booleans",
+    "learnIfElse": "Nyra If..Else",
+    "learnMatch": "Nyra Match",
+    "learnLoops": "Nyra Loops",
+    "learnWhile": "Nyra While Loops",
+    "learnFor": "Nyra For Loops",
+    "learnFunctions": "Nyra Functions",
+    "learnScope": "Nyra Scope",
+    "learnStrings": "Nyra Strings",
+    "learnOwnership": "Nyra Ownership",
+    "learnBorrowing": "Nyra Borrowing",
+    "learnDataStructures": "Nyra Data Structures",
+    "learnArrays": "Nyra Arrays",
+    "learnVectors": "Nyra Vectors",
+    "learnTuples": "Nyra Tuples",
+    "learnHashMap": "Nyra HashMap",
+    "learnStructs": "Nyra Structs",
+    "learnEnums": "Nyra Enums",
+    "backend": "Backend & HTTP",
+    "osHardware": "OS, files & hardware",
+    "basics": "Language basics",
+    "syntax": "Syntax",
+    "types": "Types & data",
+    "reference": "Language reference",
+    "keywords": "Nyra Keywords",
+    "spec": "Language spec",
+    "generics": "Generics",
+    "comptime": "Comptime",
+    "match": "Match",
+    "modules": "Modules",
+    "imports": "Imports guide",
+    "memory": "Memory & ownership",
+    "async": "Async",
+    "traits": "Traits & macros",
+    "stdlib": "Standard library",
+    "methods": "Built-in methods",
+    "concurrency": "Concurrency",
+    "integration": "Integration",
+    "examples": "Example apps",
+    "dungeon": "Dungeon Steps app",
+    "tooling": "Toolchain",
+    "languageVsEcosystem": "Language vs Ecosystem",
+    "performance": "Performance",
+    "pgo": "PGO",
+    "escapeAnalysis": "Escape analysis",
+    "diagnostics": "Diagnostics",
+    "ffi": "FFI & ABI",
+    "targets": "Targets",
+    "editor": "Editor setup",
+    "packages": "nyrapkg",
+    "roadmap": "Roadmap",
+    "changelog": "Changelog",
+    "sitemap": "Sitemap"
+  },
+  "common": {
+    "tagline": "Fast · Safe · Minimal",
+    "footerLicense": "Nyra · Proprietary · All Rights Reserved ·",
+    "backOverview": "← Overview",
+    "backGettingStarted": "← Getting started",
+    "backExamples": "← Example apps",
+    "contribBannerText": "We’re looking for contributors — help build Nyra.",
+    "contribBannerCta": "Contribute",
+    "contribBannerDismiss": "Dismiss contributors banner",
+    "footerBrand": "Nyra",
+    "footerTagline": "Fast · Safe · Minimal — systems language with LLVM under the hood.",
+    "footerExplore": "Explore",
+    "footerCommunity": "Community",
+    "footerHome": "Home",
+    "footerInstall": "Install",
+    "footerLearning": "Learning path",
+    "footerStdlib": "Standard library",
+    "footerRoadmap": "Roadmap",
+    "footerGithub": "GitHub",
+    "footerContribute": "Contribute",
+    "footerChangelog": "Changelog",
+    "footerSitemap": "Sitemap",
+    "footerAria": "Site footer"
+  },
+  "pages": {
+    "index": {
+      "metaTitle": "Nyra — Programming Language Documentation",
+      "pill": "Documentation v1.40.x",
+      "titleSub": "Programming Language",
+      "tagline": "Fast like a panther. Sharp by design.",
+      "lead": "Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.",
+      "mvpBannerTitle": "Production-ready — Core + Stable Extended",
+      "mvpBannerBody": "<strong>Core</strong> and <strong>Stable Extended</strong> are semver-stable: async/await, <code>?</code>, spawn, traits, serde, and enum payloads ship without W001. Prebuilt Linux, macOS, and Windows releases. A few advanced areas (multi-trait <code>dyn</code>, exotic generic serde) are still maturing — see <a href=\"roadmap.html\">Roadmap</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>.",
+      "chipFast": "Fast",
+      "chipSafe": "Safe",
+      "chipMinimal": "Minimal",
+      "chipLlvm": "LLVM native",
+      "installNyraLabel": "Nyra compiler",
+      "installPkgLabel": "nyrapkg (package manager)",
+      "installHint": "Then: <code>source ~/.zshrc</code> · <a href=\"install.html\">full install guide</a>",
+      "btnStart": "Get started",
+      "btnInstall": "Install",
+      "btnReference": "Reference app",
+      "ariaGithub": "GitHub repository",
+      "aboutTitle": "What is Nyra?",
+      "aboutDesc": "Production-ready systems language — readable surface, strict core, LLVM-native speed.",
+      "aboutSourceH": "Source",
+      "aboutSourceP": "Programs live in <code>.ny</code> files. A Nyra frontend emits <strong>LLVM IR</strong>, then <strong>clang</strong> links the Nyra runtime for I/O and runtime helpers.",
+      "aboutPhilH": "Philosophy",
+      "aboutPhilP": "Go-like control flow and a small keyword set, Rust-like compile-time memory rules, and native speed from LLVM optimizations.",
+      "aboutCliH": "One CLI",
+      "aboutCliP": "<code>nyra run</code>, <code>build</code>, <code>test</code>, <code>fmt</code>, and <code>pkg</code> — one toolchain from hello world to release binaries.",
+      "aboutCliLink": "Toolchain docs →",
+      "pillarsTitle": "Design pillars",
+      "pillarsDesc": "What we borrow — and what ships today.",
+      "pillarEase": "Ease",
+      "pillarSafety": "Safety",
+      "pillarSpeed": "Speed",
+      "pillarTooling": "Tooling",
+      "pillarAsync": "Async",
+      "pillarGoCli": "Go-style CLI",
+      "pillarEaseP": "Flat syntax, <code>fn main</code>, minimal boilerplate",
+      "pillarSafetyP": "Ownership, auto-drop, NLL borrows — no GC, no leaks in normal code",
+      "pillarSafetyLink": "Memory & ownership →",
+      "pillarSpeedP": "<code>nyra build --release</code>, thin LTO, IR <code>opt</code>",
+      "pillarToolingP": "run, build, test, fmt, pkg in one binary",
+      "pillarAsyncP": "<code>spawn</code> with captures, <code>Send</code>/<code>Sync</code>, pthread channels",
+      "pipelineTitle": "Compilation pipeline",
+      "pipelineDesc": "From source to native executable.",
+      "pipeSource": "Source",
+      "pipeFrontend": "Frontend",
+      "pipeDetailFrontend": "Lexer · Parser · Types · Ownership · Borrow · Lifetimes · Send/Sync",
+      "pipeDetailOpt": "opt passes",
+      "pipeFinal": "Native binary",
+      "pipeDetailFinal": "clang + Nyra runtime",
+      "exploreTitle": "Explore the docs",
+      "exploreDesc": "Pick a path — beginner to reference app.",
+      "bentoStart": "Start here",
+      "bentoBasics": "Learn the language",
+      "bentoBeginner": "New to programming?",
+      "bentoRef": "Reference",
+      "cardGettingP": "Create a project, run Hello World, understand <code>nyra run .</code>",
+      "cardBasicsP": "Variables, functions, loops, structs, enums, imports — with examples",
+      "cardBeginnerP": "Eight step-by-step lessons — first program through a mini project",
+      "cardDungeonP": "Full multi-file app — imports, match, tests",
+      "cardInstallP": "macOS, Linux, Windows — releases & tags",
+      "cardExamplesP": "Calculator, greet, enums — copy & run",
+      "cardImportsP": "Functions, structs, enums, consts",
+      "cardLanguageP": "Variables, loops, match, functions",
+      "cardToolingP": "build, test, fmt, release flags",
+      "bentoApi": "API reference",
+      "cardStdlibP": "Strong stdlib — collections, FS, HTTP/TCP, crypto, DB, serde, WebSocket <strong>in-tree</strong>",
+      "cardReferenceP": "Keywords, operators, ownership quick ref",
+      "cardMemoryP": "Ownership, Drop plan, leak prevention, NLL, Send/Sync — with examples",
+      "cardSpecP": "Normative Spec 1.0 (v0.2 freeze)",
+      "cardLearningPathP": "Zero to full app — step by step",
+      "aiSkillTitle": "For AI assistants",
+      "aiSkillDesc": "Download the canonical Nyra reference for Cursor, ChatGPT, Claude, and other LLMs.",
+      "aiSkillBody": "Single file <code>nyra-skill.md</code> — syntax, ownership, stdlib, PGO, escape analysis, stability tiers, and anti-hallucination guardrails (v1.36.x).",
+      "aiSkillDownload": "Download nyra-skill.md",
+      "aiSkillGuide": "Usage guide",
+      "resultTitle": "Result & error handling",
+      "resultDesc": "Stable Extended <code>Result</code> payloads with <code>?</code> propagation for fallible pipelines.",
+      "resultTodayH": "Shipped (Stable Extended)",
+      "resultTodayP": "The <code>?</code> operator, generic <code>Result&lt;T,E&gt;</code> via <code>import \"stdlib/option.ny\"</code>, and tests such as <code>tests/nyra/result_propagate_test.ny</code>.",
+      "resultMissingH": "Still maturing",
+      "resultMissingP": "Multi-trait <code>dyn A + B</code> objects and some exotic generic serde cases — see roadmap production gates.",
+      "resultProdH": "Production readiness",
+      "resultProdP": "Ready for production error-handling in CLI tools and servers on Core + Stable Extended.",
+      "resultExampleLink": "Result reference & example →",
+      "statusTitle": "Project status",
+      "statusBody": "Nyra is <strong>production-ready</strong> on Core + Stable Extended (async, <code>?</code>, spawn, traits, serde). Prebuilt releases for Linux, macOS, and Windows. See <a href=\"roadmap.html\">Roadmap</a>, <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>, and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability policy</a>."
+    },
+    "getting-started": {
+      "metaTitle": "Getting started — Nyra Docs",
+      "h1": "Getting started",
+      "lead": "Install Nyra, create a file, and run a program.",
+      "h2_1": "1. Install Nyra",
+      "p_1": "You need <strong>clang</strong> on your PATH. See <a href=\"install.html\">Installation</a> for macOS, Linux, and Windows (including WSL).",
+      "h2_2": "2. Create a project",
+      "p_2": "This creates:",
+      "li_mod": "<code>nyra.mod</code> — module manifest (<code>module</code> name; optional <code>tls</code>, <code>require</code>, <code>link</code>). Syntax: <a href=\"packages.html#nyra-mod-syntax\">nyra.mod reference</a>",
+      "li_lock": "<code>nyra.lock</code> / <code>nyra.sum</code> — dependency lock &amp; checksums (empty until you add packages)",
+      "li_main": "<code>main.ny</code> — entry point with a Hello World sample",
+      "p_files_detail": "See <a href=\"packages.html#project-files\">NyraPkg → project files</a> for what each file does, <a href=\"packages.html#nyra-mod-syntax\">nyra.mod syntax</a>, and <a href=\"packages.html#manual-require\">how to add or remove a library by hand</a>. HTTPS backends: <a href=\"net-http.html#tls-backends\">TLS backends</a>. <code>nyra run .</code> / <code>nyra build .</code> auto-sync <code>require</code> packages (fetch missing, prune removed — like Cargo).",
+      "h2_3": "3. Run the program",
+      "p_3": "From the <strong>project root</strong> (directory containing <code>main.ny</code>):",
+      "p_expected": "Expected output:",
+      "calloutTitle": "Use <code>nyra run .</code> for projects",
+      "calloutBody": "<code>nyra run main.ny</code> compiles a <em>single file</em> and does not load <code>import</code> dependencies. Multi-file apps must use <code>nyra run .</code> or <code>nyra build .</code>. See <a href=\"modules.html\">Modules</a>.",
+      "h2_4": "4. Edit <code>main.ny</code>",
+      "h2_build": "5. Build a binary",
+      "p_build": "Binaries are written under <code>target/debug/</code> or <code>target/release/</code> (like Rust). Path defaults to <code>.</code> when omitted.",
+      "h2_5": "6. Type-check without running",
+      "h2_6": "7. Add another source file",
+      "p_greet_create": "Create <code>src/greet.ny</code>:",
+      "p_greet_update": "Update <code>main.ny</code>:",
+      "h2_next": "Next steps",
+      "next_0": "<a href=\"beginner-01-first-program.html\">Beginner track — Lesson 1</a> — step-by-step from your first program (recommended for new programmers)",
+      "next_1": "<a href=\"methods.html\">Built-in methods</a> — every builtin with a usage example",
+      "next_2": "<a href=\"learn-intro.html\">Learn Nyra</a> — step-by-step tutorials with runnable code",
+      "next_3": "<a href=\"imports.html\">Imports guide</a> — functions, structs, constants across files",
+      "next_4": "<a href=\"language-basics.html\">Language basics</a> — variables, functions, loops, structs, imports",
+      "next_5": "<a href=\"types.html\">Types &amp; data</a> — structs, enums, arrays",
+      "next_6": "<a href=\"tooling.html\">Toolchain</a> — <code>test</code>, <code>fmt</code>, release builds",
+      "next_7": "<a href=\"stdlib.html\">Standard library</a> — batteries-included design and implementation status",
+      "next_8": "<a href=\"reference.html\">Language reference</a> — keywords, operators, ownership",
+      "next_9": "<a href=\"memory.html\">Memory &amp; ownership</a> — NLL, lifetimes, Drop, Send/Sync",
+      "next_10": "<a href=\"concurrency.html\">Concurrency</a> — spawn captures and channels"
+    },
+    "install": {
+      "metaTitle": "Install Nyra — Nyra Docs",
+      "h1": "Install Nyra",
+      "lead": "Install the Nyra toolchain from a GitHub release on macOS, Linux, or Windows.",
+      "repoLabel": "Repository:",
+      "releasesLabel": "Releases (tags):",
+      "calloutTitle": "Public repository required for the one-line installer",
+      "calloutBody": "The repo must be <strong>public</strong> (or you must be logged in) to download release assets and to use the <code>curl | sh</code> installer. Private repos require manual download from the Releases page while signed in, or building from source.",
+      "tocTitle": "On this page",
+      "toc_1": "1. Requirements",
+      "toc_2": "2. Pick a release tag",
+      "toc_3": "3. Install layout",
+      "toc_4": "4. macOS",
+      "toc_5": "5. Linux",
+      "toc_6": "6. Windows",
+      "toc_7": "7. First project",
+      "toc_8": "8. Upgrade",
+      "toc_9": "9. Build from source",
+      "toc_10": "10. Uninstall",
+      "toc_11": "11. Troubleshooting",
+      "toc_qr": "Quick reference",
+      "h2_req": "1. Requirements (all platforms)",
+      "h3_clang": "clang install hints",
+      "th_tool": "Tool",
+      "th_why": "Why",
+      "th_os": "OS",
+      "th_install": "Install",
+      "td_clang_why": "Links your <code>.ny</code> programs with the Nyra C runtime",
+      "td_tar_why": "Extract release archives (macOS/Linux)",
+      "h2_tag": "2. Pick a release tag",
+      "li_tag_1": "Open <a href=\"https://github.com/nyra-lang/nyra/releases\">Releases</a>.",
+      "li_tag_2": "Choose a version (e.g. <strong>v1.0.0</strong> — includes <code>nyra pkg init</code> + <code>main.ny</code> scaffold).",
+      "li_tag_3": "Under <strong>Assets</strong>, download the file that matches your <strong>CPU</strong> and <strong>OS</strong> (see table).",
+      "th_machine": "Your machine",
+      "th_asset": "Release asset",
+      "p_checksum": "Optional: verify checksums using <code>SHA256SUMS</code> on the same release page.",
+      "h2_layout": "3. Install layout",
+      "p_layout": "After extracting, you should have:",
+      "p_env": "Set these environment variables (add to your shell profile so they persist):",
+      "h2_macos": "4. macOS",
+      "h3_mac_a": "Option A — One-line installer (easiest)",
+      "p_mac_a": "Requires a <strong>public</strong> repo and <code>curl</code>:",
+      "p_mac_pin": "Pin a specific tag:",
+      "p_mac_reload": "Reload shell:",
+      "h3_mac_b": "Option B — Manual install from a release tag",
+      "h2_linux": "5. Linux",
+      "h3_linux_a": "Option A — One-line installer",
+      "h3_linux_b": "Option B — Manual install from a release tag",
+      "h2_win": "6. Windows",
+      "p_win": "Prebuilt Windows binaries are <strong>not</strong> published yet. Use one of these paths:",
+      "h3_wsl": "Recommended — WSL2 (Ubuntu)",
+      "h3_win_src": "Alternative — Build from source (native Windows)",
+      "callout_wsl": "Native Windows support is evolving; WSL2 matches the Linux release workflow today.",
+      "h2_first": "7. First project (all platforms)",
+      "p_first": "Once <code>nyra --version</code> works (e.g. <code>nyra 1.0.0</code>):",
+      "p_creates": "This creates:",
+      "li_mod": "<code>nyra.mod</code>, <code>nyra.lock</code>, <code>nyra.sum</code>",
+      "li_main": "<code>main.ny</code> with a Hello, world program",
+      "p_run": "Run it:",
+      "callout_multi": "<strong>Multi-file projects</strong>",
+      "callout_multi_body": "For apps with <code>import</code>, run from the project root: <code>nyra run .</code> — see <a href=\"modules.html\">Modules</a> and <a href=\"getting-started.html\">Getting started</a>.",
+      "p_other": "Other useful commands:",
+      "h2_up": "8. Upgrade to a newer tag",
+      "h2_src": "9. Build from source (contributors)",
+      "p_src": "If you work on the compiler itself:",
+      "p_src_or": "Or:",
+      "p_dev": "Local iteration: <code>./scripts/dev-install.sh</code> from the repo root.",
+      "h2_un": "10. Uninstall",
+      "p_un": "Remove the <code>NYRA_HOME</code> / <code>PATH</code> lines from <code>~/.zshrc</code>, <code>~/.bashrc</code>, or <code>~/.bash_profile</code>.",
+      "h2_tr": "11. Troubleshooting",
+      "th_problem": "Problem",
+      "th_fix": "Fix",
+      "h2_qr": "Quick reference",
+      "th_step": "Step",
+      "th_cmd": "Command",
+      "p_canonical": "Canonical source: <a href=\"https://github.com/nyra-lang/nyra/blob/main/install.md\"><code>install.md</code></a> in the repository.",
+      "footer_next": "Getting started →"
+    },
+    "language": {
+      "metaTitle": "Language syntax — Nyra Docs",
+      "h1": "Language syntax",
+      "lead": "Core syntax for Nyra v0.2.x — indentation-friendly blocks, minimal keywords. New to Nyra? Start with <a href=\"language-basics.html\">Language basics</a>."
+    },
+    "language-basics": {
+      "metaTitle": "Language basics — Nyra Docs",
+      "h1": "Language basics",
+      "lead": "Short reference: variables, print, if, loops, and functions."
+    },
+    "types": {
+      "metaTitle": "Types & data — Nyra Docs",
+      "h1": "Types & data",
+      "lead": "Built-in types, user-defined structs and enums, arrays, and references."
+    },
+    "modules": {
+      "metaTitle": "Modules & projects — Nyra Docs",
+      "h1": "Modules & projects",
+      "lead": "Organize code with `import`, `module`, and `main.ny` projects."
+    },
+    "imports": {
+      "metaTitle": "Imports guide — Nyra Docs",
+      "h1": "Imports guide",
+      "lead": "Split your app into multiple `.ny` files and share functions, types, and constants with `import \"path.ny\"` — then build from the project root."
+    },
+    "examples": {
+      "metaTitle": "Example applications — Nyra Docs",
+      "h1": "Example applications",
+      "lead": "Copy-paste friendly mini apps that show how real Nyra projects are structured. Each example lists files, code, and the command to run."
+    },
+    "dungeon-steps": {
+      "metaTitle": "Dungeon Steps — Nyra Docs",
+      "h1": "Dungeon Steps",
+      "lead": "A small but **complete multi-file app** in the Nyra repository. Use it as a map from “I read the syntax page” to “I can structure a real project.”"
+    },
+    "tooling": {
+      "metaTitle": "Toolchain — Nyra Docs",
+      "h1": "Toolchain",
+      "lead": "The <code>nyra</code> CLI — every command with a <strong>job</strong> and a copy-paste example: <code>run</code>, <code>build</code>, <code>check</code>, <code>test</code>, <code>fmt</code>, <code>diag</code>, <code>watch</code>, <code>debug</code>, <code>lsp</code>, <code>dap</code>, <code>ide</code>, and <code>pkg</code>."
+    },
+    "languageVsEcosystem": {
+      "metaTitle": "Language vs Ecosystem — Nyra Docs",
+      "h1": "Language vs Ecosystem",
+      "lead": "Nyra is a <strong>general-purpose language</strong>. Frameworks and packages complete it for each domain — the compiler does not bake in backend-only stacks."
+    },
+    "packages": {
+      "metaTitle": "nyrapkg — Nyra Docs",
+      "h1": "nyrapkg",
+      "lead": "Standalone package manager for Nyra — manifests, lockfiles, and dependencies. Repository: <a href=\"https://github.com/nyra-lang/pkg\">github.com/nyra-lang/pkg</a>."
+    },
+    "memory": {
+      "metaTitle": "Memory & ownership — Nyra Docs",
+      "h1": "Memory & ownership",
+      "lead": "NLL borrow checking, lifetimes, HRTB, custom Drop, Send/Sync, and automatic heap drop."
+    },
+    "stdlib": {
+      "metaTitle": "Standard library — Nyra Docs",
+      "h1": "Standard library",
+      "lead": "Short <code>stdlib/</code> reference — builtins on <a href=\"methods.html\">methods</a>; modules below."
+    },
+    "methods": {
+      "metaTitle": "Built-in methods — Nyra Docs",
+      "h1": "Built-in methods",
+      "lead": "Quick lookup for builtins and method syntax — full examples in the gallery below."
+    },
+    "reference": {
+      "metaTitle": "Language reference — Nyra Docs",
+      "h1": "Language reference",
+      "lead": "Keywords, operators, literals, and quick lookup — everything the lexer and parser accept today."
+    },
+    "keywords": {
+      "metaTitle": "Nyra Keywords — Nyra Docs",
+      "h1": "Nyra Keywords",
+      "lead": "Every <strong>reserved word</strong> and <strong>type name</strong> the lexer treats as a keyword — plus how to reuse those names as variables with a leading <code>@</code>, and how compiler <strong>attributes</strong> differ (<code>#[…]</code>, not <code>@</code>)."
+    },
+    "spec": {
+      "metaTitle": "Language specification — Nyra Docs",
+      "h1": "Language specification",
+      "lead": "Normative Spec 1.0 freeze (v0.3.0)."
+    },
+    "generics": {
+      "metaTitle": "Generics — Nyra Docs",
+      "h1": "Generics",
+      "lead": "Type parameters and monomorphization."
+    },
+    "comptime": {
+      "metaTitle": "Comptime — Nyra Docs",
+      "h1": "Comptime evaluation",
+      "lead": "Optional compile-time evaluation — lookup tables, string routing, and generated constants with <strong>zero runtime cost</strong>."
+    },
+    "match": {
+      "metaTitle": "Match — Nyra Docs",
+      "h1": "Match expressions",
+      "lead": "Exhaustiveness, guards, tag-only enums."
+    },
+    "async": {
+      "metaTitle": "Async — Nyra Docs",
+      "h1": "Async & await",
+      "lead": "Async functions and await (Stable Extended)."
+    },
+    "traits-macros": {
+      "metaTitle": "Traits & macros — Nyra Docs",
+      "h1": "Traits & macros",
+      "lead": "Trait definitions, <code>impl Drop for Type</code>, and macro expansion."
+    },
+    "performance": {
+      "metaTitle": "Performance — Nyra Docs",
+      "h1": "Performance toolchain",
+      "lead": "LLVM opt, release flags, LTO, benchmarks."
+    },
+    "pgo": {
+      "metaTitle": "Profile-Guided Optimization (PGO) — Nyra Docs",
+      "h1": "Profile-Guided Optimization (PGO)",
+      "lead": "Ship a <strong>release binary tuned to how your program actually runs</strong> — one command, no manual LLVM steps. Nyra instruments, trains, merges profiles, and rebuilds for you."
+    },
+    "escapeAnalysis": {
+      "metaTitle": "Escape analysis — Nyra Docs",
+      "h1": "Escape analysis",
+      "lead": "Nyra proves which values stay local at compile time, then <strong>promotes them to the stack</strong>, inlines sequential channels without mutexes, and honors <code>#[no_escape]</code> on references."
+    },
+    "diagnostics": {
+      "metaTitle": "Diagnostics — Nyra Docs",
+      "h1": "Diagnostics",
+      "lead": "Structured errors and nyra diag --json."
+    },
+    "ffi-abi": {
+      "metaTitle": "FFI & ABI — Nyra Docs",
+      "h1": "FFI & ABI",
+      "lead": "Stable C ABI and heap ownership at the boundary."
+    },
+    "targets": {
+      "metaTitle": "Targets — Nyra Docs",
+      "h1": "Compilation targets",
+      "lead": "Native, cross-compilation (<code>--for</code>), and wasm32-wasi."
+    },
+    "editor-setup": {
+      "metaTitle": "Editor setup — Nyra Docs",
+      "h1": "Editor setup",
+      "lead": "VS Code / Cursor: official extension, <code>nyra lsp</code>, and <code>nyra dap</code> debugging."
+    },
+    "integration": {
+      "metaTitle": "Integration — Nyra Docs",
+      "h1": "Integration guides",
+      "lead": "Embedding Nyra in other stacks."
+    },
+    "osHardware": {
+      "metaTitle": "OS, files & hardware — Nyra Docs",
+      "h1": "OS, files & hardware",
+      "lead": "Read and write files, detect the operating system, query environment variables, and reach specialized hardware through the stdlib, FFI, or language bridge."
+    },
+    "learning-path": {
+      "metaTitle": "Learning path — Nyra Docs",
+      "h1": "Learning path",
+      "lead": "Structured path from zero to a full multi-file app."
+    },
+    "beginner-track": {
+      "metaTitle": "Beginner track — Nyra Docs",
+      "h1": "Beginner track",
+      "lead": "Step-by-step lessons for your first programs in Nyra — no prior experience required."
+    },
+    "ai-skill": {
+      "metaTitle": "AI skill file — Nyra Docs",
+      "h1": "AI skill file",
+      "lead": "Download <code>nyra-skill.md</code> — the canonical Nyra reference for AI assistants: syntax, types, functions, loops, structs, imports, ownership, stdlib, and anti-hallucination rules."
+    },
+    "changelog": {
+      "metaTitle": "Changelog — Nyra Docs",
+      "h1": "Changelog",
+      "lead": "Spec freeze history and releases."
+    },
+    "sitemap": {
+      "metaTitle": "Sitemap — Nyra Docs",
+      "h1": "Sitemap",
+      "lead": "All documentation pages."
+    },
+    "concurrency": {
+      "metaTitle": "Concurrency — Nyra Docs",
+      "h1": "Concurrency",
+      "lead": "<code>spawn</code> with capture lowering, <code>Send</code>/<code>Sync</code> checks, and pthread-backed channels."
+    },
+    "roadmap": {
+      "metaTitle": "Roadmap & status — Nyra Docs",
+      "h1": "Roadmap & status",
+      "lead": "Nyra 1.x — Core and Stable Extended are semver-stable. See <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability-v1.md</a>."
+    },
+    "learn-intro": {
+      "h1": "Nyra Intro",
+      "lead": "What Nyra is and how to read this track.",
+      "metaTitle": "Nyra Intro — Nyra Docs"
+    },
+    "learn-get-started": {
+      "h1": "Get Started",
+      "lead": "Install Nyra and run your first file.",
+      "metaTitle": "Get Started — Nyra Docs"
+    },
+    "learn-syntax": {
+      "h1": "Nyra Syntax",
+      "lead": "Blocks, statements, and naming.",
+      "metaTitle": "Nyra Syntax — Nyra Docs"
+    },
+    "learn-output": {
+      "h1": "Output",
+      "lead": "Print text or numbers with <code>print</code>.",
+      "metaTitle": "Output — Nyra Docs"
+    },
+    "learn-comments": {
+      "h1": "Comments",
+      "lead": "Comment code with <code>//</code> or <code>/* */</code>.",
+      "metaTitle": "Comments — Nyra Docs"
+    },
+    "learn-variables": {
+      "h1": "Variables",
+      "lead": "Bind a name to a value with <code>let</code> and <code>let mut</code>.",
+      "metaTitle": "Variables — Nyra Docs"
+    },
+    "learn-data-types": {
+      "h1": "Data Types",
+      "lead": "Core built-in types.",
+      "metaTitle": "Data Types — Nyra Docs"
+    },
+    "learn-constants": {
+      "h1": "Constants",
+      "lead": "Compile-time values with <code>const</code>.",
+      "metaTitle": "Constants — Nyra Docs"
+    },
+    "learn-operators": {
+      "h1": "Operators",
+      "lead": "Arithmetic, comparison, and logic.",
+      "metaTitle": "Operators — Nyra Docs"
+    },
+    "learn-booleans": {
+      "h1": "Booleans",
+      "lead": "The <code>bool</code> type: <code>true</code> and <code>false</code>.",
+      "metaTitle": "Booleans — Nyra Docs"
+    },
+    "learn-if-else": {
+      "h1": "If..Else",
+      "lead": "Branch on a condition.",
+      "metaTitle": "If..Else — Nyra Docs"
+    },
+    "learn-match": {
+      "h1": "Match",
+      "lead": "Match on enum values.",
+      "metaTitle": "Match — Nyra Docs"
+    },
+    "learn-loops": {
+      "h1": "Loops",
+      "lead": "Overview of <code>while</code> and <code>for</code>.",
+      "metaTitle": "Loops — Nyra Docs"
+    },
+    "learn-while": {
+      "h1": "While",
+      "lead": "Repeat while the condition is true.",
+      "metaTitle": "While — Nyra Docs"
+    },
+    "learn-for": {
+      "h1": "For",
+      "lead": "Iterate a numeric range.",
+      "metaTitle": "For — Nyra Docs"
+    },
+    "learn-functions": {
+      "h1": "Functions",
+      "lead": "Define reusable functions.",
+      "metaTitle": "Functions — Nyra Docs"
+    },
+    "learn-scope": {
+      "h1": "Scope",
+      "lead": "Where a variable is visible.",
+      "metaTitle": "Scope — Nyra Docs"
+    },
+    "learn-strings": {
+      "h1": "Strings",
+      "lead": "Strings, templates, and printing.",
+      "metaTitle": "Strings — Nyra Docs"
+    },
+    "learn-ownership": {
+      "h1": "Ownership",
+      "lead": "Copy vs Move.",
+      "metaTitle": "Ownership — Nyra Docs"
+    },
+    "learn-borrowing": {
+      "h1": "Borrowing",
+      "lead": "Temporary access with <code>&amp;T</code> and <code>&amp;mut T</code>.",
+      "metaTitle": "Borrowing — Nyra Docs"
+    },
+    "learn-data-structures": {
+      "h1": "Data Structures",
+      "lead": "Arrays, vectors, tuples, maps, structs, enums.",
+      "metaTitle": "Data Structures — Nyra Docs"
+    },
+    "learn-arrays": {
+      "h1": "Arrays",
+      "lead": "Fixed-size arrays and indexing.",
+      "metaTitle": "Arrays — Nyra Docs"
+    },
+    "learn-vectors": {
+      "h1": "Vectors",
+      "lead": "Growable lists with <code>vec()</code>.",
+      "metaTitle": "Vectors — Nyra Docs"
+    },
+    "learn-tuples": {
+      "h1": "Tuples",
+      "lead": "Group values of different types.",
+      "metaTitle": "Tuples — Nyra Docs"
+    },
+    "learn-hashmap": {
+      "h1": "HashMap",
+      "lead": "Key → value maps via stdlib.",
+      "metaTitle": "HashMap — Nyra Docs"
+    },
+    "learn-structs": {
+      "h1": "Structs",
+      "lead": "Custom types with named fields.",
+      "metaTitle": "Structs — Nyra Docs"
+    },
+    "learn-enums": {
+      "h1": "Enums",
+      "lead": "Named variants with <code>match</code>.",
+      "metaTitle": "Enums — Nyra Docs"
+    }
+  }
+}

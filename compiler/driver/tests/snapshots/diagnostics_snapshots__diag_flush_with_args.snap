@@ -3,4 +3,8 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(& out)
 ---
 error[E007]: function `flush` expects 0 arguments, found 1
-  --> test.ny:1:20
+  --> diag_flush_with_args.ny:1:20
+   |
+  1 | fn main() { flush(1) }
+   |                    ^
+   = label: wrong number of arguments

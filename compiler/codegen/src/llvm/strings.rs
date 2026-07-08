@@ -93,6 +93,18 @@ impl Codegen {
         }
     }
 
+    pub(super) fn rvalue_produces_heap_string(&self, expr: &Expression) -> bool {
+        match expr {
+            Expression::Call(c) => callee_returns_owned(&c.callee),
+            Expression::MethodCall(mc) => matches!(
+                mc.method.as_str(),
+                "trim" | "to_upper" | "to_lower" | "replace" | "replacen"
+            ),
+            Expression::TemplateLiteral(_) => true,
+            _ => false,
+        }
+    }
+
     pub(super) fn emit_strcat(&mut self, left: &ExprValue, right: &ExprValue) -> ExprValue {
         let a = self.materialize_ptr_reg(&left.reg);
         let b = self.materialize_ptr_reg(&right.reg);
@@ -250,7 +262,7 @@ impl Codegen {
             ));
             format!("%{tmp}")
         } else {
-            reg.to_string()
+            llvm_ptr_reg(reg)
         }
     }
 
@@ -365,7 +377,385 @@ impl Codegen {
                     ty: "ptr".into(),
                 }
             }
-            _ => ExprValue {
+            
+            // [builtin-dev:strip_suffix:string]
+            "strip_suffix" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("strip_suffix");
+                // arg 0: suffix
+                self.emit_runtime_call(
+                    "str_strip_suffix",
+                    &format!("  %{reg} = call ptr @str_strip_suffix(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:strip_suffix:string]
+            
+            // [builtin-dev:to_snake_case:string]
+            "to_snake_case" => {
+                let reg = self.fresh("to_snake_case");
+                self.emit_runtime_call(
+                    "str_to_snake_case",
+                    &format!("  %{reg} = call ptr @str_to_snake_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_snake_case:string]
+            
+            
+            // [builtin-dev:to_lowercase:string]
+            "to_lowercase" => {
+                let reg = self.fresh("to_lowercase");
+                self.emit_runtime_call(
+                    "str_to_lowercase",
+                    &format!("  %{reg} = call ptr @str_to_lowercase(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_lowercase:string]
+            
+            // [builtin-dev:to_titlecase:string]
+            "to_titlecase" => {
+                let reg = self.fresh("to_titlecase");
+                self.emit_runtime_call(
+                    "str_to_titlecase",
+                    &format!("  %{reg} = call ptr @str_to_titlecase(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_titlecase:string]
+            
+            // [builtin-dev:to_capitalize:string]
+            "to_capitalize" => {
+                let reg = self.fresh("to_capitalize");
+                self.emit_runtime_call(
+                    "str_to_capitalize",
+                    &format!("  %{reg} = call ptr @str_to_capitalize(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_capitalize:string]
+            
+            // [builtin-dev:to_camel_case:string]
+            "to_camel_case" => {
+                let reg = self.fresh("to_camel_case");
+                self.emit_runtime_call(
+                    "str_to_camel_case",
+                    &format!("  %{reg} = call ptr @str_to_camel_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_camel_case:string]
+            
+            // [builtin-dev:to_kebab_case:string]
+            "to_kebab_case" => {
+                let reg = self.fresh("to_kebab_case");
+                self.emit_runtime_call(
+                    "str_to_kebab_case",
+                    &format!("  %{reg} = call ptr @str_to_kebab_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_kebab_case:string]
+            
+            // [builtin-dev:to_pascal_case:string]
+            "to_pascal_case" => {
+                let reg = self.fresh("to_pascal_case");
+                self.emit_runtime_call(
+                    "str_to_pascal_case",
+                    &format!("  %{reg} = call ptr @str_to_pascal_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_pascal_case:string]
+            
+            // [builtin-dev:to_screaming_snake_case:string]
+            "to_screaming_snake_case" => {
+                let reg = self.fresh("to_screaming_snake_case");
+                self.emit_runtime_call(
+                    "str_to_screaming_snake_case",
+                    &format!("  %{reg} = call ptr @str_to_screaming_snake_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_screaming_snake_case:string]
+            
+            // [builtin-dev:to_train_case:string]
+            "to_train_case" => {
+                let reg = self.fresh("to_train_case");
+                self.emit_runtime_call(
+                    "str_to_train_case",
+                    &format!("  %{reg} = call ptr @str_to_train_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_train_case:string]
+            
+            // [builtin-dev:to_dot_case:string]
+            "to_dot_case" => {
+                let reg = self.fresh("to_dot_case");
+                self.emit_runtime_call(
+                    "str_to_dot_case",
+                    &format!("  %{reg} = call ptr @str_to_dot_case(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:to_dot_case:string]
+            
+            
+            // [builtin-dev:strip_prefix:string]
+            "strip_prefix" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("strip_prefix");
+                // arg 0: prefix
+                self.emit_runtime_call(
+                    "str_strip_prefix",
+                    &format!("  %{reg} = call ptr @str_strip_prefix(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:strip_prefix:string]
+            
+            // [builtin-dev:index:string]
+            "index" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("index");
+                // arg 0: needle
+                self.emit_runtime_call(
+                    "str_index",
+                    &format!("  %{reg} = call i32 @str_index(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:index:string]
+            
+            // [builtin-dev:is_empty:string]
+            "is_empty" => {
+                let reg = self.fresh("is_empty");
+                self.emit_runtime_call(
+                    "str_is_empty",
+                    &format!("  %{reg} = call i32 @str_is_empty(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:is_empty:string]
+            
+            // [builtin-dev:last_index:string]
+            "last_index" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("last_index");
+                // arg 0: needle
+                self.emit_runtime_call(
+                    "str_last_index",
+                    &format!("  %{reg} = call i32 @str_last_index(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:last_index:string]
+            
+            // [builtin-dev:repeat:string]
+            "repeat" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_value_operand(&arg0.reg);
+                let reg = self.fresh("repeat");
+                // arg 0: count
+                self.emit_runtime_call(
+                    "str_repeat",
+                    &format!("  %{reg} = call ptr @str_repeat(ptr {str_reg}, i32 {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:repeat:string]
+            
+            // [builtin-dev:trim_end:string]
+            "trim_end" => {
+                let reg = self.fresh("trim_end");
+                self.emit_runtime_call(
+                    "str_trim_end",
+                    &format!("  %{reg} = call ptr @str_trim_end(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:trim_end:string]
+            
+            // [builtin-dev:trim_start:string]
+            "trim_start" => {
+                let reg = self.fresh("trim_start");
+                self.emit_runtime_call(
+                    "str_trim_start",
+                    &format!("  %{reg} = call ptr @str_trim_start(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:trim_start:string]
+            
+            // [builtin-dev:splitn:string]
+            "splitn" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let arg1 = self.compile_expr(&mc.args[1], env);
+                let arg1_reg = llvm_value_operand(&arg1.reg);
+                let reg = self.fresh("splitn");
+                // arg 0: sep
+                // arg 1: n
+                self.emit_runtime_call(
+                    "str_splitn",
+                    &format!("  %{reg} = call ptr @str_splitn(ptr {str_reg}, ptr {arg0_reg}, i32 {arg1_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "vec_str".into(),
+                }
+            }
+            // [/builtin-dev:splitn:string]
+            
+            // [builtin-dev:count:string]
+            "count" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("count");
+                // arg 0: needle
+                self.emit_runtime_call(
+                    "str_count",
+                    &format!("  %{reg} = call i32 @str_count(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:count:string]
+            
+            // [builtin-dev:fields:string]
+            "fields" => {
+                let reg = self.fresh("fields");
+                self.emit_runtime_call(
+                    "str_fields",
+                    &format!("  %{reg} = call ptr @str_fields(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "vec_str".into(),
+                }
+            }
+            // [/builtin-dev:fields:string]
+            
+            // [builtin-dev:pad_end:string]
+            "pad_end" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_value_operand(&arg0.reg);
+                let arg1 = self.compile_expr(&mc.args[1], env);
+                let arg1_reg = llvm_ptr_reg(&arg1.reg);
+                let reg = self.fresh("pad_end");
+                // arg 0: width
+                // arg 1: pad
+                self.emit_runtime_call(
+                    "str_pad_end",
+                    &format!("  %{reg} = call ptr @str_pad_end(ptr {str_reg}, i32 {arg0_reg}, ptr {arg1_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:pad_end:string]
+            
+            // [builtin-dev:pad_start:string]
+            "pad_start" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_value_operand(&arg0.reg);
+                let arg1 = self.compile_expr(&mc.args[1], env);
+                let arg1_reg = llvm_ptr_reg(&arg1.reg);
+                let reg = self.fresh("pad_start");
+                // arg 0: width
+                // arg 1: pad
+                self.emit_runtime_call(
+                    "str_pad_start",
+                    &format!("  %{reg} = call ptr @str_pad_start(ptr {str_reg}, i32 {arg0_reg}, ptr {arg1_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:pad_start:string]
+            
+            // [builtin-dev:split_once:string]
+            "split_once" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("split_once");
+                // arg 0: sep
+                self.emit_runtime_call(
+                    "str_before_sep",
+                    &format!("  %{reg} = call ptr @str_before_sep(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:split_once:string]
+            
+_ => ExprValue {
                 reg: "0".into(),
                 ty: "i32".into(),
             },
@@ -435,6 +825,12 @@ impl Codegen {
                 return callee.clone();
             }
             return format!("{struct_name}_{method}");
+        }
+        // JS-style UFCS on strings: `name.toUpperCase()` → `String_toUpperCase(name)`.
+        // Only remap when the `String_<method>` free function actually exists.
+        let prefixed = format!("String_{method}");
+        if self.functions.contains_key(&prefixed) {
+            return prefixed;
         }
         method.to_string()
     }
@@ -536,4 +932,3 @@ impl Codegen {
         }
     }
 }
-

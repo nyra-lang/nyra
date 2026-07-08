@@ -13,6 +13,12 @@
 #include <string.h>
 
 #if defined(_WIN32)
+#define nyra_rt_strdup _strdup
+#else
+#define nyra_rt_strdup strdup
+#endif
+
+#if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

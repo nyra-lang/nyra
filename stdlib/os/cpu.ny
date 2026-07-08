@@ -6,10 +6,8 @@ extern fn hw_cpu_has_avx() -> i32
 extern fn hw_cpu_has_avx2() -> i32
 extern fn hw_cpu_brand() -> string
 
-// Logical CPUs available to the process (scheduling hint for parallel loops).
-fn cpu_count() -> i32 {
-    return hw_cpu_logical_cores()
-}
+// Logical CPUs — prefer the compiler builtin `cpu_count()` (no import).
+// Import this module for extended CPU introspection (brand, AVX, cache line, …).
 
 fn cpu_physical_cores() -> i32 {
     return hw_cpu_physical_cores()

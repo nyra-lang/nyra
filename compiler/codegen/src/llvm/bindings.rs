@@ -66,7 +66,10 @@ impl Codegen {
             self.emit(&format!(
                 "  %{gep} = getelementptr inbounds {ty}, {ty}* %{alloca}, i32 0, i32 {idx}"
             ));
-            let reg_op = llvm_value_operand(reg);
+            let reg_op = self.reg_op(&ExprValue {
+                reg: reg.clone(),
+                ty: fty.clone(),
+            });
             let store_val = self.coerce_value_reg_to_type(&reg_op, fty, &llvm_ft);
             self.emit(&format!(
                 "  store {llvm_ft} {store_val}, {} %{gep}",
@@ -93,7 +96,11 @@ impl Codegen {
                     };
                 }
                 ExprValue {
-                    reg: llvm_value_operand(reg),
+                    reg: if ty == "ptr" {
+                        llvm_ptr_reg(reg)
+                    } else {
+                        llvm_value_operand(reg)
+                    },
                     ty: ty.clone(),
                 }
             }
@@ -323,8 +330,10 @@ impl Codegen {
 
     pub(super) fn reg_operand_from_binding(binding: &Binding) -> String {
         match binding {
-            Binding::Reg { reg, .. } => {
-                if reg.chars().all(|c| c.is_ascii_digit() || c == '-') {
+            Binding::Reg { reg, ty } => {
+                if ty == "ptr" {
+                    llvm_ptr_reg(reg)
+                } else if reg.chars().all(|c| c.is_ascii_digit() || c == '-') {
                     reg.clone()
                 } else if reg.starts_with('%') {
                     reg.clone()
@@ -332,6 +341,7 @@ impl Codegen {
                     format!("%{reg}")
                 }
             }
+            Binding::Param { index, ty } if ty == "ptr" => format!("%{index}"),
             _ => "0".into(),
         }
     }

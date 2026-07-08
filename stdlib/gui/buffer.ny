@@ -1,10 +1,10 @@
-extern fn strlen(s: string) -> i32
-extern fn strcat(a: string, b: string) -> string
+extern fn strlen(s: &string) -> i32
+extern fn strcat(a: &string, b: &string) -> string
 extern fn str_push_char(s: string, ch: i32) -> string
 extern fn str_pop(s: string) -> string
-extern fn substring(s: string, start: i32, len: i32) -> string
-extern fn char_at(s: string, i: i32) -> i32
-extern fn strcmp(a: string, b: string) -> i32
+extern fn substring(s: &string, start: i32, len: i32) -> string
+extern fn char_at(s: &string, i: i32) -> i32
+extern fn strcmp(a: &string, b: &string) -> i32
 
 struct TextBuffer {
     text: string

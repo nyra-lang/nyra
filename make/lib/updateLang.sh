@@ -31,11 +31,34 @@ if command -v python3 >/dev/null 2>&1; then
   info "==> Regenerating docs/bindings.md..."
   python3 "$ROOT/make/py/gen-bindings-doc.py"
 fi
-info "==> Building release cli..."
+info "==> Building release cli + TLS runtimes (rustls + native)..."
+HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
+NYRA_LINK_TRIPLE="$HOST_TRIPLE"
+TLS_CARGO_TRIPLE="$HOST_TRIPLE"
+if [ "$(uname -s 2>/dev/null || echo unknown)" = "MINGW"* ] || [ "$(uname -s 2>/dev/null || echo unknown)" = "MSYS"* ] || [ "${OS:-}" = "Windows_NT" ]; then
+  NYRA_LINK_TRIPLE="x86_64-pc-windows-gnu"
+  if [ "$HOST_TRIPLE" != "$NYRA_LINK_TRIPLE" ]; then
+    TLS_CARGO_TRIPLE="$NYRA_LINK_TRIPLE"
+  fi
+fi
 cargo build --release -p cli
+if [ "$TLS_CARGO_TRIPLE" = "$HOST_TRIPLE" ]; then
+  cargo build --release -p nyra-rt-tls -p nyra-rt-tls-native
+else
+  rustup target add "$TLS_CARGO_TRIPLE"
+  cargo build --release -p nyra-rt-tls -p nyra-rt-tls-native --target "$TLS_CARGO_TRIPLE"
+fi
 
 info "==> Installing to PATH (cargo install --force)..."
 cargo install --path cli --force
+
+# Always copy the freshly built binary from cargo's install dir, not
+# `command -v nyra` (PATH may prefer an older ~/.nyra/bin/nyra and cp would
+# no-op with "identical (not copied)" while leaving the stale binary active).
+CARGO_NYRA="${CARGO_HOME:-$HOME/.cargo}/bin/nyra"
+if [ ! -x "$CARGO_NYRA" ]; then
+  die "expected cargo-installed nyra at $CARGO_NYRA"
+fi
 
 NYRA_HOME="${NYRA_HOME:-$HOME/.nyra}"
 STD_DEST="$NYRA_HOME/share/stdlib"
@@ -56,11 +79,70 @@ for sub in os net core http; do
   fi
 done
 
-if command -v nyra >/dev/null 2>&1; then
-  info ""
-  info "Done. Active binary:"
-  info "  $(command -v nyra)"
-  nyra -V 2>/dev/null || nyra --version 2>/dev/null || true
+# Bundle rustls + native TLS clients for HTTPS without requiring Rust on the user machine.
+TRIPLE="$NYRA_LINK_TRIPLE"
+find_tls_src() {
+  lib="$1"
+  if [ "$TLS_CARGO_TRIPLE" = "$HOST_TRIPLE" ]; then
+    search_dirs="target/release"
+  else
+    search_dirs="target/$TLS_CARGO_TRIPLE/release"
+  fi
+  for dir in $search_dirs; do
+    for name in "lib${lib}.a" "${lib}.lib"; do
+      if [ -f "$dir/$name" ]; then
+        printf '%s' "$dir/$name"
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+if [ "$NYRA_LINK_TRIPLE" != "${NYRA_LINK_TRIPLE%-windows-gnu}" ]; then
+  TLS_DEST_NAME="libnyra_rt_tls.a"
+  TLS_NATIVE_DEST_NAME="libnyra_rt_tls_native.a"
+elif [ "$(uname -s 2>/dev/null || echo unknown)" = "MINGW"* ] || [ "$(uname -s 2>/dev/null || echo unknown)" = "MSYS"* ] || [ "${OS:-}" = "Windows_NT" ]; then
+  TLS_DEST_NAME="nyra_rt_tls.lib"
+  TLS_NATIVE_DEST_NAME="nyra_rt_tls_native.lib"
 else
-  die "nyra not on PATH after install. Ensure \$HOME/.cargo/bin is in PATH."
+  TLS_DEST_NAME="libnyra_rt_tls.a"
+  TLS_NATIVE_DEST_NAME="libnyra_rt_tls_native.a"
 fi
+TLS_SRC="$(find_tls_src nyra_rt_tls)" || TLS_SRC=""
+TLS_NATIVE_SRC="$(find_tls_src nyra_rt_tls_native)" || TLS_NATIVE_SRC=""
+if [ -n "$TLS_SRC" ]; then
+  mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
+  cp -f "$TLS_SRC" "$STD_DEST/prebuilt/$TRIPLE/$TLS_DEST_NAME"
+  mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
+  cp -f "$TLS_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/$TLS_DEST_NAME"
+  info "==> Installed $TLS_DEST_NAME for $TRIPLE"
+else
+  die "missing nyra_rt_tls staticlib after cargo build -p nyra-rt-tls"
+fi
+if [ -n "$TLS_NATIVE_SRC" ]; then
+  mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
+  cp -f "$TLS_NATIVE_SRC" "$STD_DEST/prebuilt/$TRIPLE/$TLS_NATIVE_DEST_NAME"
+  mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
+  cp -f "$TLS_NATIVE_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/$TLS_NATIVE_DEST_NAME"
+  info "==> Installed $TLS_NATIVE_DEST_NAME for $TRIPLE"
+else
+  die "missing nyra_rt_tls_native staticlib after cargo build -p nyra-rt-tls-native"
+fi
+
+if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh" ]; then
+  info "==> Building dev runtime archive (fast debug links)..."
+  bash "$ROOT/make/lib/build-prebuilt-rt.sh" "$CARGO_NYRA"
+fi
+
+NYRA_BIN_DIR="$NYRA_HOME/bin"
+mkdir -p "$NYRA_BIN_DIR"
+cp -f "$CARGO_NYRA" "$NYRA_BIN_DIR/nyra"
+installed_ver="$("$NYRA_BIN_DIR/nyra" --version 2>/dev/null | sed 's/^nyra //')"
+if [ -n "$installed_ver" ]; then
+  printf '%s\n' "$installed_ver" > "$NYRA_HOME/version"
+fi
+info "==> Linked dev binary into $NYRA_BIN_DIR/nyra"
+info ""
+info "Done. Active binary:"
+info "  $NYRA_BIN_DIR/nyra"
+"$NYRA_BIN_DIR/nyra" -V 2>/dev/null || "$NYRA_BIN_DIR/nyra" --version 2>/dev/null || true

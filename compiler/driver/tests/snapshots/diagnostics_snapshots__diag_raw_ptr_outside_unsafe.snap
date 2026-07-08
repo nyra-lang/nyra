@@ -3,7 +3,17 @@ source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
 error[E003]: type mismatch: variable `p` expected *i32 but found i32
-  --> test.ny:2:9
+  --> diag_raw_ptr_outside_unsafe.ny:2:9
+   |
+  2 |     let p: *i32 = 0
+   |         ^
    = help: change the type annotation or the value assigned to `p`
-error: Deref of raw pointer requires unsafe
-  --> test.ny:3:15
+error[E016]: `deref of raw pointer` requires unsafe
+  --> diag_raw_ptr_outside_unsafe.ny:3:15
+   |
+  3 |     let v = *p
+   |               ^
+   = label: this operation can violate memory safety
+   |
+  4 |     print(v)
+   = help: wrap the operation in an `unsafe` block or function

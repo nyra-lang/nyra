@@ -15,7 +15,7 @@ LATEST = ROOT / "examples" / "comparison" / "results" / "latest.txt"
 START = "<!-- BENCH:START -->"
 END = "<!-- BENCH:END -->"
 
-LANG_ORDER = ["Nyra", "Nyra-typed", "C", "C++", "Go", "Rust", "Node", "Python", "Java"]
+LANG_ORDER = ["Nyra", "Nyra-typed", "C", "C++", "Go", "Rust"]
 LANG_DISPLAY = {
     "Nyra": "Nyra (Zero Types)",
     "Nyra-typed": "Nyra (Explicit Types)",
@@ -99,7 +99,7 @@ def build_section(rows: list[dict], meta: dict[str, str]) -> str:
         "",
         "## Performance benchmarks",
         "",
-        "Nyra is compared against **C, C++, Go, Rust, Node, Python, and Java** on the same",
+        "Nyra is compared against **C, C++, Go, and Rust** on the same",
         "programs under [`examples/comparison/`](examples/comparison/). **Lower runtime and RAM are better.**",
         "Compile time is excluded; numbers are mean wall-clock over timed runs.",
         "",

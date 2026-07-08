@@ -2,5 +2,6 @@
 source: compiler/driver/tests/diagnostics_snapshots.rs
 expression: format_all_errors(&out)
 ---
-error: Type mismatch in arithmetic operation
+error[E015]: type mismatch in `arithmetic` operation
   --> <source>:1:1
+   = note: arithmetic operators require compatible numeric operands (i32, f32, f64, or char)

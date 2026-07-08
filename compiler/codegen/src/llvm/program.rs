@@ -27,6 +27,27 @@ use super::util::{
 
 impl Codegen {
     pub fn compile_program(&mut self, program: &Program) -> String {
+        self.compile_program_with_filter(program, None)
+    }
+
+    /// Emit type/extern infrastructure and only the functions listed in `filter` (if any).
+    pub fn compile_program_with_filter(
+        &mut self,
+        program: &Program,
+        function_filter: Option<&HashSet<String>>,
+    ) -> String {
+        self.compile_program_inner(program, function_filter)
+    }
+
+    fn should_emit_function(name: &str, filter: Option<&HashSet<String>>) -> bool {
+        filter.is_none_or(|set| set.contains(name))
+    }
+
+    fn compile_program_inner(
+        &mut self,
+        program: &Program,
+        function_filter: Option<&HashSet<String>>,
+    ) -> String {
         self.enum_names = program.enums.iter().map(|e| e.name.clone()).collect();
         for ti in &program.trait_impls {
             if ti.trait_name == "Drop" || ti.trait_name == "Clone" {
@@ -53,16 +74,73 @@ impl Codegen {
             let has_payload = e.variants.iter().any(|v| !v.fields.is_empty());
             self.enum_has_payload.insert(e.name.clone(), has_payload);
             if has_payload {
-                if let Some(payload_ann) = e.variants.iter().find_map(|v| v.fields.first()) {
-                    let payload_llvm = self.llvm_type_of(payload_ann);
-                    self.enum_payload_llvm
-                        .insert(e.name.clone(), payload_llvm.clone());
-                    self.emit(&format!(
-                        "%{} = type {{ i32, {} }}",
-                        e.name, payload_llvm
-                    ));
+                let mut variant_payloads: HashMap<String, String> = HashMap::new();
+                let mut max_size = 4i64;
+                for v in &e.variants {
+                    if let Some(payload_ann) = v.fields.first() {
+                        let payload_llvm = self.llvm_type_of(payload_ann);
+                        variant_payloads.insert(v.name.clone(), payload_llvm.clone());
+                        let sz = super::util::llvm_type_size_bytes(&payload_llvm);
+                        max_size = max_size.max(sz);
+                    }
                 }
+                let slot_ty = format!("[{} x i8]", max_size);
+                self.enum_payload_llvm
+                    .insert(e.name.clone(), slot_ty.clone());
+                self.enum_variant_payload_llvm
+                    .insert(e.name.clone(), variant_payloads);
+                self.emit(&format!(
+                    "%{} = type {{ i32, {} }}",
+                    e.name, slot_ty
+                ));
             }
+        }
+        let mut unions: Vec<_> = program.unions.iter().collect();
+        unions.sort_by(|a, b| a.name.cmp(&b.name));
+        for u in unions {
+            if !u.type_params.is_empty() {
+                continue;
+            }
+            let fields: Vec<(String, TypeAnnotation)> = u
+                .fields
+                .iter()
+                .map(|f| (f.name.clone(), f.ty.clone()))
+                .collect();
+            self.union_fields.insert(u.name.clone(), fields.clone());
+            let mut field_anns = HashMap::new();
+            let mut field_order = Vec::new();
+            let mut union_fields_map = HashMap::new();
+            for (name, ann) in &fields {
+                field_anns.insert(name.clone(), ann.clone());
+                field_order.push(name.clone());
+                union_fields_map.insert(name.clone(), types::Type::Unknown);
+            }
+            self.union_layout_infos.insert(
+                u.name.clone(),
+                types::UnionInfo {
+                    fields: union_fields_map,
+                    field_anns,
+                    field_order,
+                    repr_c: u.attrs.repr_c,
+                    align: u.attrs.align,
+                    packed: u.attrs.packed,
+                },
+            );
+            if u.attrs.repr_c {
+                self.repr_c_unions.insert(u.name.clone());
+            }
+            let mut max_size = 1i64;
+            let mut max_align = 1i64;
+            for (_, ty) in &fields {
+                let llvm_ty = self.llvm_type_of(ty);
+                max_size = max_size.max(super::util::llvm_type_size_bytes(&llvm_ty));
+                max_align = max_align.max(super::util::llvm_type_align_bytes(&llvm_ty));
+            }
+            if let Some(a) = u.attrs.align {
+                max_align = max_align.max(a as i64);
+            }
+            let slot_ty = format!("[{} x i8]", max_size);
+            self.emit(&format!("%{} = type {{ {} }}", u.name, slot_ty));
         }
         let mut structs: Vec<_> = program.structs.iter().collect();
         structs.sort_by(|a, b| a.name.cmp(&b.name));
@@ -73,6 +151,25 @@ impl Codegen {
                 .map(|f| (f.name.clone(), f.ty.clone()))
                 .collect();
             self.struct_fields.insert(s.name.clone(), fields.clone());
+            let mut field_anns = HashMap::new();
+            let mut field_order = Vec::new();
+            let mut struct_fields_map = HashMap::new();
+            for (name, ann) in &fields {
+                field_anns.insert(name.clone(), ann.clone());
+                field_order.push(name.clone());
+                struct_fields_map.insert(name.clone(), types::Type::Unknown);
+            }
+            self.struct_layout_infos.insert(
+                s.name.clone(),
+                types::StructInfo {
+                    fields: struct_fields_map,
+                    field_anns,
+                    field_order,
+                    repr_c: s.attrs.repr_c,
+                    align: s.attrs.align,
+                    packed: s.attrs.packed,
+                },
+            );
             if s.attrs.repr_c {
                 self.repr_c_structs.insert(s.name.clone());
             }
@@ -97,7 +194,7 @@ impl Codegen {
             let ret = ext
                 .return_type
                 .clone()
-                .map(|t| self.llvm_return_type_of(&t))
+                .map(|t| self.logical_call_ret_ty(&t))
                 .unwrap_or_else(|| "void".to_string());
             self.call_returns.insert(ext.name.clone(), ret);
         }
@@ -106,9 +203,27 @@ impl Codegen {
             let ret = f
                 .return_type
                 .clone()
-                .map(|t| self.llvm_return_type_of(&t))
+                .map(|t| self.logical_call_ret_ty(&t))
                 .unwrap_or_else(|| "i32".to_string());
             self.call_returns.insert(f.name.clone(), ret);
+        }
+        // Impl methods are no longer duplicated into `program.functions` at parse
+        // time (that shadowed free helpers with the same mangled name). Register
+        // them here for type/return lookup, but never overwrite a free function.
+        for imp in &program.impls {
+            for method in &imp.methods {
+                self.functions
+                    .entry(method.name.clone())
+                    .or_insert_with(|| method.clone());
+                if !self.call_returns.contains_key(&method.name) {
+                    let ret = method
+                        .return_type
+                        .clone()
+                        .map(|t| self.logical_call_ret_ty(&t))
+                        .unwrap_or_else(|| "i32".to_string());
+                    self.call_returns.insert(method.name.clone(), ret);
+                }
+            }
         }
         for ti in &program.trait_impls {
             for method in &ti.methods {
@@ -222,11 +337,17 @@ impl Codegen {
         let mut compile_order: Vec<&Function> = program
             .functions
             .iter()
-            .filter(|f| !types::is_math_intrinsic_fn(&f.name))
+            .filter(|f| {
+                !types::is_math_intrinsic_fn(&f.name)
+                    && !types::is_simd_intrinsic_fn(&f.name)
+                    && !types::is_layout_intrinsic_fn(&f.name)
+            })
             .collect();
         compile_order.sort_by(|a, b| a.name.cmp(&b.name));
         for func in compile_order {
-            self.compile_function(func);
+            if Self::should_emit_function(&func.name, function_filter) {
+                self.compile_function(func);
+            }
         }
 
         let mut extra_methods: Vec<&Function> = Vec::new();
@@ -246,7 +367,9 @@ impl Codegen {
         }
         extra_methods.sort_by(|a, b| a.name.cmp(&b.name));
         for method in extra_methods {
-            self.compile_function(method);
+            if Self::should_emit_function(&method.name, function_filter) {
+                self.compile_function(method);
+            }
         }
 
         self.sync_runtime_symbols_from_ir();
@@ -316,11 +439,16 @@ impl Codegen {
         };
         let mut ret_ty = if func.is_async {
             "i32".to_string()
+        } else if let Some(ref t) = func.return_type {
+            self.llvm_return_type_of(t)
         } else {
-            func.return_type
-                .clone()
-                .map(|t| self.llvm_return_type_of(&t))
-                .unwrap_or(default_ret)
+            let has_return = func.body.statements.iter().any(|s| matches!(s, Statement::Return(_)));
+            if has_return {
+                let ann = self.infer_block_return_ann(&func.body);
+                self.llvm_return_type_of(&ann)
+            } else {
+                default_ret
+            }
         };
         // C entry expects `int main()`; `void @main` leaves an undefined exit code on macOS.
         if func.name == "main" && ret_ty == "void" {
@@ -347,10 +475,11 @@ impl Codegen {
 
         let linkage = if func.exported { "define " } else { "define " };
         let fn_attrs = self.fn_attr_ref(func);
+        let link_name = self.llvm_fn_link_name(&func.name);
         self.emit(&format!(
             "{linkage}{} @{}({}){fn_attrs} {{",
             ret_ty,
-            func.name,
+            link_name,
             params.join(", ")
         ));
         self.emit("entry:");
@@ -364,15 +493,20 @@ impl Codegen {
         }
 
         self.enum_locals.clear();
+        self.local_int_kinds.clear();
         self.current_fn_ptrs.clear();
         self.no_escape_stack_safe.clear();
         self.mut_ssa_locals.clear();
+        self.heap_string_bindings.clear();
         self.non_negative_vars.clear();
         self.zero_init_ssa_vars.clear();
         self.loop_stack.clear();
         self.current_func = func.name.clone();
+        self.func_par_idx = 0;
+        self.func_spawn_idx = 0;
         let mut env: Env = HashMap::new();
         for (i, param) in func.params.iter().enumerate() {
+            self.track_local_int_kind_ann(&param.name, &param.ty);
             let ty = self.llvm_param_type_of(&param.ty);
             if is_array_ty(&ty) {
                 let slot = self.fresh("param");

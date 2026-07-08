@@ -94,6 +94,8 @@ pub struct LinkProfile {
     pub race_native: bool,
     /// AddressSanitizer (`-fsanitize=address`) for heap/stack use-after-free detection.
     pub sanitize: bool,
+    /// HTTPS / TLS client backend from `nyra.mod` / `nyra.lock` (`rustls` default).
+    pub tls_backend: pkg::TlsBackend,
 }
 
 impl LinkProfile {
@@ -144,7 +146,13 @@ impl LinkProfile {
             race: false,
             race_native: false,
             sanitize: false,
+            tls_backend: pkg::TlsBackend::Rustls,
         })
+    }
+
+    pub fn with_tls_backend(mut self, backend: pkg::TlsBackend) -> Self {
+        self.tls_backend = backend;
+        self
     }
 
     pub fn with_sanitize(mut self, sanitize: bool) -> Self {
@@ -179,6 +187,22 @@ impl LinkProfile {
         self.link_args = args;
         self.link_sources = sources;
         self
+    }
+
+    /// Dev fast path: host O0 link can use the prebuilt runtime archive.
+    pub fn can_use_prebuilt_runtime(&self, spec: &TargetSpec) -> bool {
+        !self.freestanding
+            && self.lto == LtoMode::Off
+            && self.opt_level == OptLevel::O0
+            && !self.pgo_generate
+            && self.pgo_use.is_none()
+            && !self.race
+            && !self.sanitize
+            && !self.race_native
+            && !self.cdylib
+            && !self.native_cpu
+            && !spec.is_cross
+            && !spec.is_wasm
     }
 
     pub fn with_debug(mut self, debug: bool) -> Self {
@@ -270,7 +294,7 @@ pub fn optimize_llvm_ir(
     };
 
     let ll_out = work_dir.join("out.opt.ll");
-    let passes = if let Some(ref prof) = profile.pgo_use {
+    let passes = if let Some(ref _prof) = profile.pgo_use {
         format!("{},pgo-instr-use", profile.opt_level.llvm_passes())
     } else {
         profile.opt_level.llvm_passes().to_string()
@@ -373,6 +397,34 @@ fn link_target_spec(target: &str) -> TargetSpec {
     }
 }
 
+/// Temp link artifact path. On Windows keep a `.exe` suffix so lld writes a PE where we expect it
+/// (`foo.exe` → `with_extension("nyra-link-tmp")` would otherwise become `foo.nyra-link-tmp` and
+/// the linker may emit `foo.nyra-link-tmp.exe`, breaking rename).
+fn link_temp_path(bin_path: &Path, spec: &TargetSpec) -> PathBuf {
+    if spec.is_windows() {
+        let stem = bin_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("out");
+        bin_path.with_file_name(format!("{stem}.nyra-link-tmp.exe"))
+    } else {
+        bin_path.with_extension("nyra-link-tmp")
+    }
+}
+
+fn resolve_link_output(link_tmp: &Path, spec: &TargetSpec) -> PathBuf {
+    if link_tmp.is_file() {
+        return link_tmp.to_path_buf();
+    }
+    if spec.is_windows() {
+        let with_exe = PathBuf::from(format!("{}.exe", link_tmp.display()));
+        if with_exe.is_file() {
+            return with_exe;
+        }
+    }
+    link_tmp.to_path_buf()
+}
+
 pub fn link_binary(
     ll_path: &Path,
     bin_path: &Path,
@@ -381,13 +433,51 @@ pub fn link_binary(
     target: &str,
     runtime_profile: &RuntimeProfile,
 ) -> Result<(), String> {
+    link_binary_with_options(
+        ll_path,
+        bin_path,
+        profile,
+        work_dir,
+        target,
+        runtime_profile,
+        false,
+    )
+}
+
+pub fn link_binary_with_options(
+    ll_path: &Path,
+    bin_path: &Path,
+    profile: &LinkProfile,
+    work_dir: &Path,
+    target: &str,
+    runtime_profile: &RuntimeProfile,
+    timings: bool,
+) -> Result<(), String> {
+    use std::time::Instant;
+    let trace = timings && std::env::var_os("NYRA_LINK_TRACE").is_some();
+    let step = || Instant::now();
+    let lap = |label: &str, start: Instant| {
+        if trace {
+            eprintln!("    link {label}: {:.2}s", start.elapsed().as_secs_f64());
+        }
+    };
+    let t0 = if trace { Some(step()) } else { None };
     let spec = link_target_spec(target);
     let triple_for_opt = if target.is_empty() {
         String::new()
     } else {
         target.to_string()
     };
-    let ll_link = optimize_llvm_ir(ll_path, work_dir, profile, &triple_for_opt)?;
+    let ll_work = work_dir.join("link.ll");
+    if ll_path != ll_work {
+        fs::copy(ll_path, &ll_work).map_err(|e| format!("copy {}: {e}", ll_path.display()))?;
+    }
+    sanitize_ir_file(&ll_work)?;
+    let ll_link = optimize_llvm_ir(&ll_work, work_dir, profile, &triple_for_opt)?;
+    if let Some(t) = t0 {
+        lap("ir-prep", t);
+    }
+    let t1 = if trace { Some(step()) } else { None };
     let mut rt_modules = resolve_runtime_modules_installed(runtime_profile, target)?;
 
     if profile.cdylib {
@@ -410,28 +500,145 @@ pub fn link_binary(
         profile,
         &spec,
     )?;
-    rt_modules = filter_runtime_modules_superseded_by_link_objects(rt_modules, &link_objects)?;
+    if let Some(t) = t1 {
+        lap("resolve-rt", t);
+    }
+    let t2 = if trace { Some(step()) } else { None };
+
+    let use_prebuilt = profile.can_use_prebuilt_runtime(&spec) && !runtime_profile.is_empty();
+    let prebuilt_rt = if use_prebuilt {
+        match crate::prebuilt_rt::ensure_prebuilt_runtime(&spec) {
+            Ok(path) => match prebuilt_runtime_satisfies_profile(&path, runtime_profile) {
+                Ok(true) => Some(path),
+                Ok(false) => {
+                    eprintln!(
+                        "note: prebuilt runtime missing required symbols; compiling rt modules"
+                    );
+                    None
+                }
+                Err(err) => {
+                    eprintln!("note: prebuilt runtime could not be verified ({err}); compiling rt modules");
+                    None
+                }
+            },
+            Err(err) => {
+                eprintln!("note: prebuilt runtime unavailable ({err}); compiling rt modules");
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    let rt_objects = if prebuilt_rt.is_some() {
+        Vec::new()
+    } else {
+        rt_modules = filter_runtime_modules_superseded_by_link_objects(rt_modules, &link_objects)?;
+        crate::c_cache::compile_link_sources(&rt_modules, work_dir, profile, &spec)?
+    };
+    if let Some(t) = t2 {
+        if trace {
+            eprintln!(
+                "    link rt-modules: {:.2}s (prebuilt={}, rt_mods={}, rt_objs={})",
+                t.elapsed().as_secs_f64(),
+                prebuilt_rt.is_some(),
+                rt_modules.len(),
+                rt_objects.len()
+            );
+        }
+    }
+    let t3 = if trace { Some(step()) } else { None };
 
     let clang = llvm_tools::find_clang();
     let mut cmd = Command::new(&clang);
-    cmd.arg(&ll_link);
-    for rt in &rt_modules {
-        cmd.arg(rt);
+    let mut t_clang_prep = t3;
+    if let Some(ref prebuilt) = prebuilt_rt {
+        let user_obj =
+            crate::llvm_obj::compile_cached_user_object(&ll_link, work_dir, profile, &spec)?;
+        if let Some(t) = t_clang_prep.take() {
+            lap("user-obj", t);
+        }
+        cmd.arg(&user_obj);
+        cmd.arg(prebuilt);
+    } else {
+        cmd.arg(&ll_link);
+        for obj in &rt_objects {
+            cmd.arg(obj);
+        }
+        if let Some(t) = t_clang_prep.take() {
+            lap("user-ir", t);
+        }
     }
+    let t_cmd = if trace { Some(step()) } else { None };
     for obj in &link_objects {
         cmd.arg(obj);
+    }
+    if runtime_profile.needs_rustls_tls() {
+        match profile.tls_backend {
+            pkg::TlsBackend::Rustls => {
+                let tls_lib = crate::prebuilt_tls::ensure_prebuilt_tls(&spec)?;
+                cmd.arg(&tls_lib);
+            }
+            pkg::TlsBackend::Native => {
+                let tls_lib = crate::prebuilt_tls_native::ensure_prebuilt_native_tls(&spec)?;
+                cmd.arg(&tls_lib);
+            }
+            pkg::TlsBackend::Openssl => {
+                // Compile optional OpenSSL client unit instead of rustls/native staticlib.
+                let rt_dir = compiler::runtime_map::stdlib_rt_dir();
+                let src = rt_dir.join("rt_tls_openssl_client.c");
+                if !src.is_file() {
+                    return Err(format!(
+                        "tls openssl selected but missing {}",
+                        src.display()
+                    ));
+                }
+                let objs = crate::c_cache::compile_link_sources(
+                    &[src],
+                    work_dir,
+                    profile,
+                    &spec,
+                )?;
+                for obj in objs {
+                    cmd.arg(obj);
+                }
+            }
+        }
     }
     let rt_flags = LinkTargetFlags {
         needs_pthread: runtime_profile.needs_pthread(),
         uses_rt_os: runtime_profile.modules().contains("rt_os.c"),
         uses_rt_hw: runtime_profile.modules().contains("rt_hw.c"),
         uses_rt_os_adv: runtime_profile.modules().contains("rt_os_adv.c"),
-        uses_rt_net: runtime_profile.modules().contains("rt_net.c"),
-        needs_openssl: runtime_profile.needs_openssl(),
+        uses_rt_random: runtime_profile.modules().contains("rt_random.c"),
+        uses_rt_net: runtime_profile.uses_ws2_32(&spec.triple),
+        needs_openssl: runtime_profile.needs_openssl()
+            || (runtime_profile.needs_rustls_tls()
+                && matches!(profile.tls_backend, pkg::TlsBackend::Openssl))
+            || (runtime_profile.needs_rustls_tls()
+                && matches!(profile.tls_backend, pkg::TlsBackend::Native)
+                && spec.is_linux()),
+        needs_rustls_tls: runtime_profile.needs_rustls_tls()
+            && matches!(profile.tls_backend, pkg::TlsBackend::Rustls),
+        needs_native_tls: runtime_profile.needs_rustls_tls()
+            && matches!(profile.tls_backend, pkg::TlsBackend::Native),
         needs_zlib: runtime_profile.needs_zlib(),
         needs_libm: runtime_profile.needs_libm(),
     };
     apply_target_link_flags(&mut cmd, &spec, &rt_flags);
+    // Dev O0: skip lld discovery (~4s cold on macOS when Homebrew llvm isn't linked yet).
+    let use_lld = profile.opt_level != OptLevel::O0 && llvm_tools::find_lld().is_some();
+    if spec.is_windows() {
+        if cfg!(target_os = "windows") {
+            if let Some(ld) = llvm_tools::find_mingw_ld() {
+                cmd.arg(format!("-fuse-ld={ld}"));
+            }
+        } else if use_lld {
+            cmd.arg("-fuse-ld=lld");
+        }
+    } else if use_lld {
+        cmd.arg("-fuse-ld=lld");
+    }
 
     cmd.arg(profile.opt_level.clang_flag());
 
@@ -497,15 +704,18 @@ pub fn link_binary(
     }
 
     if runtime_profile_needs_compiler_ffi(runtime_profile) {
-        if let Some(dir) = compiler_ffi_lib_dir() {
-            cmd.arg(format!("-L{}", dir.display()));
-            #[cfg(target_os = "macos")]
-            cmd.arg(format!("-Wl,-rpath,{}", dir.display()));
-            cmd.arg("-lnyra_compiler");
-        }
+        let dir = compiler_ffi_link_dir().ok_or_else(|| {
+            "compiler FFI required but libnyra_compiler was not found \
+             (run `cargo build -p compiler-ffi` or `cargo build --workspace`)"
+                .to_string()
+        })?;
+        cmd.arg(format!("-L{}", dir.display()));
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        cmd.arg(format!("-Wl,-rpath,{}", dir.display()));
+        cmd.arg("-lnyra_compiler");
     }
 
-    let link_tmp = bin_path.with_extension("nyra-link-tmp");
+    let link_tmp = link_temp_path(bin_path, &spec);
     if link_tmp.exists() {
         let _ = fs::remove_file(&link_tmp);
     }
@@ -526,29 +736,53 @@ pub fn link_binary(
         cmd.arg(arg);
     }
 
+    if let Some(t) = t_cmd {
+        lap("cmd-setup", t);
+    }
+
+    let t4 = if trace { Some(step()) } else { None };
     let status = cmd
         .output()
         .map_err(|e| format!("Failed to invoke clang: {e}"))?;
+    if let Some(t) = t4 {
+        lap("clang", t);
+    }
 
     if !status.status.success() {
         let _ = fs::remove_file(&link_tmp);
         let stderr = String::from_utf8_lossy(&status.stderr);
         let stdout = String::from_utf8_lossy(&status.stdout);
-        let detail = if stderr.is_empty() {
-            stdout.trim().to_string()
-        } else {
-            stderr.trim().to_string()
-        };
+        let mut detail = stderr.trim().to_string();
+        let stdout_trim = stdout.trim();
+        if !stdout_trim.is_empty() {
+            if !detail.is_empty() {
+                detail.push('\n');
+            }
+            detail.push_str(stdout_trim);
+        }
         if detail.is_empty() {
             return Err(format!("clang failed to link LLVM IR ({clang})"));
         }
         return Err(format!("clang failed to link LLVM IR ({clang}): {detail}"));
     }
 
-    fs::rename(&link_tmp, bin_path).map_err(|e| {
+    let linked = resolve_link_output(&link_tmp, &spec);
+    if !linked.is_file() {
         let _ = fs::remove_file(&link_tmp);
+        return Err(format!(
+            "clang link succeeded but output is missing (expected {})",
+            linked.display()
+        ));
+    }
+    fs::rename(&linked, bin_path).map_err(|e| {
+        let _ = fs::remove_file(&linked);
         format!("failed to install {}: {e}", bin_path.display())
     })?;
+    if runtime_profile_needs_compiler_ffi(runtime_profile) {
+        if let Some(dir) = compiler_ffi_link_dir() {
+            let _ = stage_compiler_ffi_runtime(&dir, bin_path);
+        }
+    }
     if profile.cdylib {
         ensure_macos_cdylib_install_name(bin_path, &spec)?;
     }
@@ -617,22 +851,23 @@ fn demangle_linker_symbol(sym: &str) -> String {
 }
 
 fn object_exported_symbols(path: &Path) -> Result<HashSet<String>, String> {
-    let output = if cfg!(target_os = "macos") {
+    let path_s = path.to_str().ok_or("non-utf8 object path")?;
+    let output = if let Some(llvm_nm) = llvm_tools::find_llvm_nm() {
+        Command::new(&llvm_nm)
+            .args(["--extern-only", "--defined-only", "-g", path_s])
+            .output()
+    } else if cfg!(target_os = "macos") {
         Command::new("nm")
-            .args(["-gU", path.to_str().ok_or("non-utf8 object path")?])
+            .args(["-gU", path_s])
             .output()
     } else {
         Command::new("nm")
-            .args([
-                "-g",
-                "--defined-only",
-                path.to_str().ok_or("non-utf8 object path")?,
-            ])
+            .args(["-g", "--defined-only", path_s])
             .output()
     }
     .map_err(|e| format!("nm {}: {e}", path.display()))?;
 
-    if !output.status.success() {
+     if !output.status.success() {
         return Err(format!(
             "nm failed for {}: {}",
             path.display(),
@@ -648,6 +883,24 @@ fn object_exported_symbols(path: &Path) -> Result<HashSet<String>, String> {
         }
     }
     Ok(out)
+}
+
+fn prebuilt_runtime_satisfies_profile(
+    archive: &Path,
+    profile: &RuntimeProfile,
+) -> Result<bool, String> {
+    let map = compiler::runtime_map::symbol_module_map();
+    let required: Vec<&str> = profile
+        .symbols
+        .iter()
+        .map(String::as_str)
+        .filter(|sym| map.contains_key(sym))
+        .collect();
+    if required.is_empty() {
+        return Ok(true);
+    }
+    let exported = object_exported_symbols(archive)?;
+    Ok(required.iter().all(|sym| exported.contains(*sym)))
 }
 
 fn c_source_exported_symbols(path: &Path) -> Result<HashSet<String>, String> {
@@ -688,28 +941,128 @@ fn runtime_profile_needs_compiler_ffi(profile: &RuntimeProfile) -> bool {
     })
 }
 
-fn compiler_ffi_lib_dir() -> Option<PathBuf> {
+fn compiler_ffi_search_dirs() -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
+    let mut push_dir = |d: PathBuf| {
+        if d.is_dir() && !dirs.iter().any(|x| x == &d) {
+            dirs.push(d);
+        }
+    };
+    let mut push_profile = |root: PathBuf, profile: &str| {
+        let base = root.join("target").join(profile);
+        push_dir(base.join("deps"));
+        push_dir(base);
+    };
     if let Ok(root) = std::env::var("NYRA_ROOT") {
-        let dir = PathBuf::from(root).join("target/debug");
-        if dir.join(compiler_ffi_lib_name()).is_file() {
-            return Some(dir);
+        let root = PathBuf::from(root);
+        push_profile(root.clone(), "debug");
+        push_profile(root, "release");
+    }
+    if let Ok(target) = std::env::var("CARGO_TARGET_DIR") {
+        let target = PathBuf::from(target);
+        push_profile(target.clone(), "debug");
+        push_profile(target, "release");
+    }
+    let ws = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+    push_profile(ws.clone(), "debug");
+    push_profile(ws, "release");
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            push_dir(parent.join("deps"));
+            push_dir(parent.to_path_buf());
         }
     }
-    let exe_dir = std::env::current_exe().ok()?.parent()?.to_path_buf();
-    if exe_dir.join(compiler_ffi_lib_name()).is_file() {
-        return Some(exe_dir);
+    dirs
+}
+
+fn compiler_ffi_artifact_names() -> Vec<String> {
+    let mut names: Vec<String> = compiler_ffi_dll_names()
+        .iter()
+        .map(|s| (*s).to_string())
+        .collect();
+    if cfg!(target_os = "windows") {
+        names.push("libnyra_compiler.dll.a".into());
+        names.push("nyra_compiler.dll.lib".into());
+    }
+    names
+}
+
+fn compiler_ffi_link_dir() -> Option<PathBuf> {
+    for dir in compiler_ffi_search_dirs() {
+        for name in compiler_ffi_artifact_names() {
+            if dir.join(&name).is_file() {
+                return Some(dir);
+            }
+        }
+        if let Ok(entries) = fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let name = entry.file_name().to_string_lossy().to_string();
+                if name.starts_with("libnyra_compiler")
+                    && (name.ends_with(".dylib")
+                        || name.ends_with(".dll")
+                        || name.ends_with(".so")
+                        || name.ends_with(".dll.a")
+                        || name.ends_with(".dll.lib"))
+                {
+                    return Some(dir);
+                }
+            }
+        }
     }
     None
 }
 
-fn compiler_ffi_lib_name() -> &'static str {
-    if cfg!(target_os = "macos") {
-        "libnyra_compiler.dylib"
-    } else if cfg!(target_os = "windows") {
-        "nyra_compiler.dll"
-    } else {
-        "libnyra_compiler.so"
+fn compiler_ffi_runtime_artifact(dir: &Path) -> Option<PathBuf> {
+    for name in compiler_ffi_dll_names() {
+        let path = dir.join(name);
+        if path.is_file() {
+            return Some(path);
+        }
     }
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let name = path.file_name()?.to_string_lossy();
+            if name.starts_with("libnyra_compiler")
+                && (name.ends_with(".dylib") || name.ends_with(".dll") || name.ends_with(".so"))
+            {
+                return Some(path);
+            }
+        }
+    }
+    None
+}
+
+fn compiler_ffi_dll_names() -> &'static [&'static str] {
+    if cfg!(target_os = "macos") {
+        &["libnyra_compiler.dylib"]
+    } else if cfg!(target_os = "windows") {
+        &["libnyra_compiler.dll", "nyra_compiler.dll"]
+    } else {
+        &["libnyra_compiler.so"]
+    }
+}
+
+fn stage_compiler_ffi_runtime(_lib_dir: &Path, bin_path: &Path) -> Result<(), String> {
+    let dest_dir = bin_path.parent().unwrap_or_else(|| Path::new("."));
+    for dir in compiler_ffi_search_dirs() {
+        let Some(src) = compiler_ffi_runtime_artifact(&dir) else {
+            continue;
+        };
+        let file_name = src.file_name().ok_or("compiler FFI path has no file name")?;
+        let dst = dest_dir.join(file_name);
+        if src != dst {
+            fs::copy(&src, &dst).map_err(|e| {
+                format!(
+                    "copy compiler FFI {} → {}: {e}",
+                    src.display(),
+                    dst.display()
+                )
+            })?;
+        }
+        return Ok(());
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -769,6 +1122,115 @@ mod link_source_filter_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::target::TargetSpec;
+    use std::process::Stdio;
+    #[cfg(windows)]
+    use std::time::Duration;
+
+    fn format_exit_status(status: &std::process::ExitStatus) -> String {
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::ExitStatusExt;
+            if let Some(code) = status.code() {
+                return format!("exit={code}");
+            }
+            if let Some(sig) = status.signal() {
+                return format!("signal={sig}");
+            }
+        }
+        #[cfg(not(unix))]
+        {
+            if let Some(code) = status.code() {
+                return format!("exit={code}");
+            }
+        }
+        "exit=unknown".into()
+    }
+
+    fn run_linked_test_binary(program: &Path) -> std::process::Output {
+        let mut cmd = std::process::Command::new(program);
+        cmd.stdin(Stdio::null());
+        #[cfg(not(windows))]
+        {
+            return cmd
+                .output()
+                .unwrap_or_else(|e| panic!("failed to run {}: {e}", program.display()));
+        }
+        #[cfg(windows)]
+        {
+            cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+            let timeout = Duration::from_secs(60);
+            let mut child = cmd
+                .spawn()
+                .unwrap_or_else(|e| panic!("failed to spawn {}: {e}", program.display()));
+            let start = std::time::Instant::now();
+            let status = loop {
+                match child.try_wait() {
+                    Ok(Some(status)) => break status,
+                    Ok(None) => {
+                        if start.elapsed() >= timeout {
+                            let _ = child.kill();
+                            let _ = child.wait();
+                            panic!(
+                                "process {} timed out after {:?}",
+                                program.display(),
+                                timeout
+                            );
+                        }
+                        std::thread::sleep(Duration::from_millis(50));
+                    }
+                    Err(e) => panic!("failed to wait on {}: {e}", program.display()),
+                }
+            };
+            let mut stdout = Vec::new();
+            let mut stderr = Vec::new();
+            if let Some(mut out) = child.stdout.take() {
+                use std::io::Read;
+                out.read_to_end(&mut stdout).ok();
+            }
+            if let Some(mut err) = child.stderr.take() {
+                use std::io::Read;
+                err.read_to_end(&mut stderr).ok();
+            }
+            std::process::Output {
+                status,
+                stdout,
+                stderr,
+            }
+        }
+    }
+
+    #[test]
+    fn link_temp_path_keeps_exe_suffix_on_windows() {
+        let spec = TargetSpec {
+            triple: "x86_64-pc-windows-msvc".into(),
+            os: crate::target::TargetOs::Windows,
+            arch: crate::target::TargetArch::X86_64,
+            is_cross: false,
+            is_wasm: false,
+        };
+        let bin = Path::new("out/async.exe");
+        assert_eq!(
+            link_temp_path(bin, &spec),
+            PathBuf::from("out/async.nyra-link-tmp.exe")
+        );
+        let bin_no_ext = Path::new("out/input");
+        assert_eq!(
+            link_temp_path(bin_no_ext, &spec),
+            PathBuf::from("out/input.nyra-link-tmp.exe")
+        );
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn link_temp_path_non_windows_uses_extension() {
+        let spec = TargetSpec::host();
+        let bin = Path::new("out/async");
+        assert_eq!(
+            link_temp_path(bin, &spec),
+            PathBuf::from("out/async.nyra-link-tmp")
+        );
+    }
 
     #[test]
     fn release_defaults_to_o3_thin_lto() {
@@ -784,6 +1246,41 @@ mod tests {
         assert_eq!(p.opt_level, OptLevel::O2);
         assert_eq!(p.lto, LtoMode::Off);
         assert!(p.llvm_ir_opt);
+    }
+
+    #[test]
+    fn prebuilt_runtime_validation_requires_profile_symbols() {
+        let work = std::env::temp_dir().join(format!("nyra_prebuilt_syms_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&work);
+        fs::create_dir_all(&work).unwrap();
+        let src = work.join("rt_stub.c");
+        let obj = work.join("rt_stub.o");
+        let archive = work.join("libnyra_rt_dev.a");
+        fs::write(&src, "int hw_mem_page_size(void) { return 4096; }\n").unwrap();
+
+        let clang = llvm_tools::find_clang();
+        assert!(std::process::Command::new(&clang)
+            .args(["-c", src.to_str().unwrap(), "-o", obj.to_str().unwrap()])
+            .status()
+            .unwrap()
+            .success());
+        let ar = llvm_tools::find_ar();
+        assert!(std::process::Command::new(&ar)
+            .arg("rcs")
+            .arg(&archive)
+            .arg(&obj)
+            .status()
+            .unwrap()
+            .success());
+
+        let mut profile = RuntimeProfile::default();
+        profile.symbols.insert("hw_mem_page_size".into());
+        assert!(prebuilt_runtime_satisfies_profile(&archive, &profile).unwrap());
+
+        profile.symbols.insert("io_pool_create".into());
+        assert!(!prebuilt_runtime_satisfies_profile(&archive, &profile).unwrap());
+
+        let _ = fs::remove_dir_all(&work);
     }
 
     #[test]
@@ -833,7 +1330,8 @@ mod tests {
         let _ = std::fs::remove_dir_all(&work);
         std::fs::create_dir_all(&work).unwrap();
         let ll = work.join("input.ll");
-        let bin = work.join("input");
+        let spec = crate::target::TargetSpec::host();
+        let bin = work.join(format!("input{}", spec.exe_extension()));
         std::fs::write(&ll, out.llvm_ir.unwrap()).unwrap();
         let profile = LinkProfile::default();
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();
@@ -852,6 +1350,54 @@ mod tests {
         let out = String::from_utf8_lossy(&run.stdout);
         assert!(out.contains("fast"), "stdout: {out}");
         let _ = std::fs::remove_dir_all(&work);
+    }
+
+    #[test]
+    fn async_link_profile_rt_objects_have_unique_symbols() {
+        use compiler::{load_program_with_options, parse_source, set_diagnostic_root, LoadOptions};
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../tests/nyra/async_state_machine_string_test.ny");
+        let loaded = load_program_with_options(&path, LoadOptions { auto_prelude: true }).unwrap();
+        let mut program = loaded.program;
+        program.functions.retain(|f| f.name != "main");
+        let harness_main = parse_source(
+            "fn main() {\n    test_state_machine_string_return()\n}",
+            "harness.ny",
+        )
+        .unwrap();
+        program.functions.extend(harness_main.functions);
+        set_diagnostic_root(path.parent().unwrap());
+        let out = compiler::Compiler::compile_program(
+            &program,
+            &path.to_string_lossy(),
+            &compiler::CompileOptions::default(),
+            Some(&path),
+            loaded.errors,
+        )
+        .unwrap();
+        let mods =
+            compiler::runtime_map::resolve_runtime_modules_installed(&out.runtime_profile, "")
+                .unwrap();
+        let work =
+            std::env::temp_dir().join(format!("nyra_rt_obj_syms_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&work);
+        fs::create_dir_all(&work).unwrap();
+        let spec = crate::target::TargetSpec::host();
+        let profile = LinkProfile::default();
+        let objects = crate::c_cache::compile_link_sources(&mods, &work, &profile, &spec).unwrap();
+        let mut owner: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+        for (obj, src) in objects.iter().zip(mods.iter()) {
+            let syms = object_exported_symbols(obj).unwrap();
+            for sym in syms {
+                if let Some(prev) = owner.insert(sym.clone(), src.display().to_string()) {
+                    panic!(
+                        "duplicate runtime symbol `{sym}` in {} and {prev}",
+                        src.display()
+                    );
+                }
+            }
+        }
+        let _ = fs::remove_dir_all(&work);
     }
 
     #[test]
@@ -890,13 +1436,20 @@ mod tests {
         let _ = std::fs::remove_dir_all(&work);
         std::fs::create_dir_all(&work).unwrap();
         let ll = work.join("async.ll");
-        let bin = work.join("async");
+        let spec = crate::target::TargetSpec::host();
+        let bin = work.join(format!("async{}", spec.exe_extension()));
         std::fs::write(&ll, out.llvm_ir.unwrap()).unwrap();
         let profile = LinkProfile::default();
         link_binary(&ll, &bin, &profile, &work, "", &out.runtime_profile).unwrap();
         assert!(bin.is_file());
-        let run = std::process::Command::new(&bin).output().unwrap();
-        assert!(run.status.success(), "stderr: {}", String::from_utf8_lossy(&run.stderr));
+        let run = run_linked_test_binary(&bin);
+        assert!(
+            run.status.success(),
+            "{} stdout={:?} stderr={:?}",
+            format_exit_status(&run.status),
+            String::from_utf8_lossy(&run.stdout),
+            String::from_utf8_lossy(&run.stderr)
+        );
         let _ = std::fs::remove_dir_all(&work);
     }
 }

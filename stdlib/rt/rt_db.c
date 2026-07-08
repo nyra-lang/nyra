@@ -101,7 +101,10 @@ int32_t mysql_exec(void *handle, const char *sql) {
 #endif
 }
 
-void mysql_close(void *handle) {
+/* Named `nyra_mysql_close` (not `mysql_close`) so the definition never clashes
+ * with libmysqlclient's own `void mysql_close(MYSQL *)` from <mysql/mysql.h>
+ * (which is in scope when NYRA_HAVE_MYSQL is set). Same rationale as nyra_atoi. */
+void nyra_mysql_close(void *handle) {
     if (!handle) {
         return;
     }

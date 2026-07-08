@@ -4,11 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Nyra package manager library (v0.4)"
+description = "Nyra manifest parsing, lockfile verification, and native link resolution"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
-dirs = "5"
 nyra-bindgen = { path = "../bindgen" }

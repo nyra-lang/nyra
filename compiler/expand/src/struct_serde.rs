@@ -37,6 +37,37 @@ fn vec_str_field(field_ty: &TypeAnnotation) -> bool {
     }
 }
 
+fn vec_struct_elem_name(field_ty: &TypeAnnotation) -> Option<String> {
+    match vec_collection_elem(field_ty)? {
+        TypeAnnotation::Struct(name) => Some(name.clone()),
+        _ => None,
+    }
+}
+
+fn serde_var(name: &str, span: &Span) -> Expression {
+    Expression::Variable {
+        name: name.into(),
+        span: span.clone(),
+    }
+}
+
+fn serde_int(n: i64, _span: &Span) -> Expression {
+    Expression::Literal(Literal::Int(n))
+}
+
+fn serde_call(callee: &str, args: Vec<Expression>, span: &Span) -> Expression {
+    Expression::Call(CallExpr {
+        callee: callee.into(),
+        type_args: vec![],
+        args,
+        span: span.clone(),
+    })
+}
+
+fn serde_str(s: &str, span: &Span) -> Expression {
+    Expression::Literal(Literal::String(s.into()))
+}
+
 fn str_vec_handle_expr(self_field: Expression, span: &Span) -> Expression {
     Expression::FieldAccess(Box::new(FieldAccessExpr {
         object: self_field,
@@ -108,8 +139,8 @@ fn encode_value_expr(field_ty: &TypeAnnotation, self_field: Expression, serde_st
         }),
         TypeAnnotation::Bool => Expression::If(Box::new(IfExpr {
             condition: self_field.clone(),
-            then_expr: Expression::Literal(Literal::String("true".into())),
-            else_expr: Expression::Literal(Literal::String("false".into())),
+            then_block: block_from_expr(Expression::Literal(Literal::String("true".into()))),
+            else_block: block_from_expr(Expression::Literal(Literal::String("false".into()))),
             span: span.clone(),
         })),
         TypeAnnotation::Struct(name) if serde_structs.contains(name) => Expression::Call(CallExpr {
@@ -177,6 +208,155 @@ fn encode_field_value(
             );
         }
     }
+    if let Some(struct_name) = vec_struct_elem_name(field_ty) {
+        if serde_structs.contains(&struct_name) {
+            let vec_prefix = format!("Vec_{struct_name}");
+            let enc_fn = format!("{struct_name}_json_encode");
+            let len_fn = format!("{vec_prefix}_len");
+            let get_fn = format!("{vec_prefix}_get");
+            let out_var = format!("__nyra_enc_{field_name}");
+            let i_var = format!("__nyra_enc_i_{field_name}");
+            let elem_var = format!("__nyra_enc_elem_{field_name}");
+            let mut stmts = vec![
+                Statement::Let(LetStmt {
+                    name: out_var.clone(),
+                    mutable: true,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: None,
+                    value: serde_str("[", span),
+                }),
+                Statement::Let(LetStmt {
+                    name: i_var.clone(),
+                    mutable: true,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: Some(TypeAnnotation::Integer(IntKind::I32)),
+                    value: serde_int(0, span),
+                }),
+            ];
+            let first_elem = Statement::If(IfStmt {
+                condition: Expression::Binary(Box::new(BinaryExpr {
+                    left: serde_call(&len_fn, vec![self_field.clone()], span),
+                    op: BinaryOp::Gt,
+                    right: serde_int(0, span),
+                    span: span.clone(),
+                })),
+                then_block: Block {
+                    statements: vec![
+                        Statement::Let(LetStmt {
+                            name: elem_var.clone(),
+                            mutable: false,
+                            destructure: vec![],
+                            span: span.clone(),
+                            ty: Some(TypeAnnotation::Struct(struct_name.clone())),
+                            value: serde_call(
+                                &get_fn,
+                                vec![self_field.clone(), serde_int(0, span)],
+                                span,
+                            ),
+                        }),
+                        Statement::Assign(AssignStmt {
+                            target: serde_var(&out_var, span),
+                            value: serde_call(
+                                "strcat",
+                                vec![
+                                    serde_var(&out_var, span),
+                                    serde_call(
+                                        &enc_fn,
+                                        vec![serde_var(&elem_var, span)],
+                                        span,
+                                    ),
+                                ],
+                                span,
+                            ),
+                            span: span.clone(),
+                        }),
+                        Statement::Assign(AssignStmt {
+                            target: serde_var(&i_var, span),
+                            value: serde_int(1, span),
+                            span: span.clone(),
+                        }),
+                    ],
+                },
+                else_block: None,
+            });
+            stmts.push(first_elem);
+            let mut loop_body = vec![
+                Statement::Let(LetStmt {
+                    name: elem_var.clone(),
+                    mutable: false,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: Some(TypeAnnotation::Struct(struct_name.clone())),
+                    value: serde_call(
+                        &get_fn,
+                        vec![self_field.clone(), serde_var(&i_var, span)],
+                        span,
+                    ),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&out_var, span),
+                    value: serde_call(
+                        "strcat",
+                        vec![
+                            serde_var(&out_var, span),
+                            serde_str(",", span),
+                        ],
+                        span,
+                    ),
+                    span: span.clone(),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&out_var, span),
+                    value: serde_call(
+                        "strcat",
+                        vec![
+                            serde_var(&out_var, span),
+                            serde_call(
+                                &enc_fn,
+                                vec![serde_var(&elem_var, span)],
+                                span,
+                            ),
+                        ],
+                        span,
+                    ),
+                    span: span.clone(),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&i_var, span),
+                    value: Expression::Binary(Box::new(BinaryExpr {
+                        left: serde_var(&i_var, span),
+                        op: BinaryOp::Add,
+                        right: serde_int(1, span),
+                        span: span.clone(),
+                    })),
+                    span: span.clone(),
+                }),
+            ];
+            stmts.push(Statement::While(WhileStmt {
+                condition: Expression::Binary(Box::new(BinaryExpr {
+                    left: serde_var(&i_var, span),
+                    op: BinaryOp::Lt,
+                    right: serde_call(&len_fn, vec![self_field.clone()], span),
+                    span: span.clone(),
+                })),
+                body: Block {
+                    statements: loop_body,
+                },
+            }));
+            stmts.push(Statement::Assign(AssignStmt {
+                target: serde_var(&out_var, span),
+                value: serde_call(
+                    "strcat",
+                    vec![serde_var(&out_var, span), serde_str("]", span)],
+                    span,
+                ),
+                span: span.clone(),
+            }));
+            return (stmts, serde_var(&out_var, span));
+        }
+    }
     (
         vec![],
         encode_value_expr(field_ty, self_field, serde_structs),
@@ -225,6 +405,132 @@ fn decode_field_value(
                 value: decoded,
             })];
             return (stmts, Expression::ArrayLiteral(ArrayLiteralExpr::from_elems(elems)));
+        }
+    }
+    if let Some(struct_name) = vec_struct_elem_name(field_ty) {
+        if serde_structs.contains(&struct_name) {
+            let vec_prefix = format!("Vec_{struct_name}");
+            let dec_fn = format!("{struct_name}_json_decode");
+            let push_fn = format!("{vec_prefix}_push");
+            let new_fn = format!("{vec_prefix}_new");
+            let arr_var = format!("__nyra_dec_arr_{field_name}");
+            let parts_var = format!("__nyra_dec_parts_{field_name}");
+            let vec_var = format!("__nyra_dec_vec_{field_name}");
+            let i_var = format!("__nyra_dec_i_{field_name}");
+            let elem_json_var = format!("__nyra_dec_elem_json_{field_name}");
+            let elem_var = format!("__nyra_dec_elem_{field_name}");
+            let arr_json = Expression::Call(CallExpr {
+                callee: "decode_array".into(),
+                type_args: vec![],
+                args: vec![
+                    serde_var("json", &span),
+                    Expression::Literal(Literal::String(field_name.into())),
+                ],
+                span: span.clone(),
+            });
+            let mut stmts = vec![
+                Statement::Let(LetStmt {
+                    name: arr_var.clone(),
+                    mutable: false,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: None,
+                    value: arr_json,
+                }),
+                Statement::Let(LetStmt {
+                    name: parts_var.clone(),
+                    mutable: false,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: Some(TypeAnnotation::Ptr),
+                    value: serde_call(
+                        "json_split_array_elements",
+                        vec![serde_var(&arr_var, &span)],
+                        &span,
+                    ),
+                }),
+                Statement::Let(LetStmt {
+                    name: vec_var.clone(),
+                    mutable: true,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: Some(TypeAnnotation::Applied {
+                        base: "Vec".into(),
+                        args: vec![TypeAnnotation::Struct(struct_name.clone())],
+                    }),
+                    value: serde_call(&new_fn, vec![], &span),
+                }),
+                Statement::Let(LetStmt {
+                    name: i_var.clone(),
+                    mutable: true,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: Some(TypeAnnotation::Integer(IntKind::I32)),
+                    value: serde_int(0, &span),
+                }),
+            ];
+            let mut loop_body = vec![
+                Statement::Let(LetStmt {
+                    name: elem_json_var.clone(),
+                    mutable: false,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: None,
+                    value: serde_call(
+                        "vec_str_get",
+                        vec![serde_var(&parts_var, &span), serde_var(&i_var, &span)],
+                        &span,
+                    ),
+                }),
+                Statement::Let(LetStmt {
+                    name: elem_var.clone(),
+                    mutable: false,
+                    destructure: vec![],
+                    span: span.clone(),
+                    ty: Some(TypeAnnotation::Struct(struct_name.clone())),
+                    value: serde_call(
+                        &dec_fn,
+                        vec![serde_var(&elem_json_var, &span)],
+                        &span,
+                    ),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&vec_var, &span),
+                    value: serde_call(
+                        &push_fn,
+                        vec![serde_var(&vec_var, &span), serde_var(&elem_var, &span)],
+                        &span,
+                    ),
+                    span: span.clone(),
+                }),
+                Statement::Assign(AssignStmt {
+                    target: serde_var(&i_var, &span),
+                    value: Expression::Binary(Box::new(BinaryExpr {
+                        left: serde_var(&i_var, &span),
+                        op: BinaryOp::Add,
+                        right: serde_int(1, &span),
+                        span: span.clone(),
+                    })),
+                    span: span.clone(),
+                }),
+            ];
+            stmts.push(Statement::While(WhileStmt {
+                condition: Expression::Binary(Box::new(BinaryExpr {
+                    left: serde_var(&i_var, &span),
+                    op: BinaryOp::Lt,
+                    right: serde_call("vec_str_len", vec![serde_var(&parts_var, &span)], &span),
+                    span: span.clone(),
+                })),
+                body: Block {
+                    statements: loop_body,
+                },
+            }));
+            stmts.push(Statement::Expression(serde_call(
+                "vec_str_free",
+                vec![serde_var(&parts_var, &span)],
+                &span,
+            )));
+            return (stmts, serde_var(&vec_var, &span));
         }
     }
     (
@@ -349,8 +655,8 @@ fn decode_value_expr(
                     right: Expression::Literal(Literal::Int(0)),
                     span: span.clone(),
                 })),
-                then_expr: Expression::Literal(Literal::Bool(true)),
-                else_expr: Expression::Literal(Literal::Bool(false)),
+                then_block: block_from_expr(Expression::Literal(Literal::Bool(true))),
+                else_block: block_from_expr(Expression::Literal(Literal::Bool(false))),
                 span,
             }))
         }
@@ -522,6 +828,7 @@ fn synthesize_json_encode(sdef: &StructDef, serde_structs: &HashSet<String>) -> 
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -574,6 +881,7 @@ fn synthesize_json_decode(sdef: &StructDef, serde_structs: &HashSet<String>) -> 
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -582,6 +890,9 @@ fn field_type_supported(field_ty: &TypeAnnotation, serde_structs: &HashSet<Strin
         return true;
     }
     if let Some(elem) = vec_collection_elem(field_ty) {
+        if let TypeAnnotation::Struct(name) = elem {
+            return serde_structs.contains(name);
+        }
         return matches!(elem, TypeAnnotation::Integer(_) | TypeAnnotation::String);
     }
     match field_ty {
@@ -736,6 +1047,7 @@ fn synthesize_bin_encode(sdef: &StructDef, serde_structs: &HashSet<String>, bin_
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 
@@ -764,8 +1076,8 @@ fn bin_write_field_expr(
     if matches!(field_ty, TypeAnnotation::Bool) {
         let as_i32 = Expression::If(Box::new(IfExpr {
             condition: self_field,
-            then_expr: Expression::Literal(Literal::Int(1)),
-            else_expr: Expression::Literal(Literal::Int(0)),
+            then_block: block_from_expr(Expression::Literal(Literal::Int(1))),
+            else_block: block_from_expr(Expression::Literal(Literal::Int(0))),
             span: span.clone(),
         }));
         return (
@@ -926,6 +1238,7 @@ fn synthesize_bin_decode(sdef: &StructDef, serde_structs: &HashSet<String>, bin_
         inline: false,
         hot: false,
         cold: false,
+        comptime: false,
     }
 }
 

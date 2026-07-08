@@ -27,14 +27,14 @@ fn expr_has_await(expr: &Expression) -> bool {
         Expression::Grouped(g) => expr_has_await(g),
         Expression::If(i) => {
             expr_has_await(&i.condition)
-                || expr_has_await(&i.then_expr)
-                || expr_has_await(&i.else_expr)
+                || block_has_await(&i.then_block)
+                || block_has_await(&i.else_block)
         }
         Expression::Match(m) => {
             expr_has_await(&m.scrutinee)
                 || m.arms.iter().any(|a| {
                     a.guard.as_ref().is_some_and(expr_has_await)
-                        || expr_has_await(&a.body)
+                        || block_has_await(&a.body)
                 })
         }
         Expression::Call(c) => c.args.iter().any(expr_has_await),
@@ -84,9 +84,17 @@ fn stmt_has_await(stmt: &Statement) -> bool {
                 ForKind::Iterable { iterable } => expr_has_await(iterable),
             }) || block_has_await(&f.body)
         }
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => block_has_await(b),
+        Statement::Spawn(s) => block_has_await(&s.body),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => block_has_await(b),
         _ => false,
     }
+}
+
+fn wrap_spawn_block(body: Block) -> Statement {
+    Statement::Spawn(SpawnStmt {
+        kind: SpawnKind::Thread,
+        body,
+    })
 }
 
 fn lower_nested_async_block(
@@ -102,6 +110,7 @@ fn lower_nested_async_block(
         builder.complete_fn.clone(),
         builder.result_kind,
     );
+    nested.finish_promise = false;
     nested.local_types = builder.local_types.clone();
     let (entry, _) = nested.lower_block(block, exit, checker)?;
     let hoisted = std::mem::take(&mut nested.hoisted);
@@ -206,6 +215,8 @@ struct CfgBuilder {
     complete_fn: String,
     result_kind: PollKind,
     local_types: HashMap<String, Type>,
+    /// When false (nested `spawn`/`unsafe` poll loops), exit without completing the outer promise.
+    finish_promise: bool,
 }
 
 impl CfgBuilder {
@@ -220,6 +231,7 @@ impl CfgBuilder {
             complete_fn,
             result_kind,
             local_types: HashMap::new(),
+            finish_promise: true,
         }
     }
 
@@ -250,6 +262,14 @@ impl CfgBuilder {
         stmt_assign(STATE_VAR, expr_int(target as i64, self.span.clone()), self.span.clone())
     }
 
+    fn finish(&self, value: Expression) -> Vec<Statement> {
+        if self.finish_promise {
+            self.complete(value)
+        } else {
+            vec![self.goto_state(COMPLETE_EXIT)]
+        }
+    }
+
     fn complete(&self, value: Expression) -> Vec<Statement> {
         vec![
             stmt_expr(expr_call(
@@ -273,16 +293,29 @@ impl CfgBuilder {
         self.poll_counter += 1;
         let poll_kind = poll_kind_for_expr(&inner, checker, &self.local_types);
         let handle_expr = await_handle_expr(&inner, checker, &self.local_types, self.span.clone());
-        let mut stmts = vec![stmt_let(&hname, handle_expr, self.span.clone())];
-        stmts.extend(build_poll_state(
+        let poll_state = self.alloc_state();
+        self.hoisted.push(stmt_let_mut(
+            &hname,
+            expr_int(0, self.span.clone()),
+            self.span.clone(),
+            true,
+        ));
+        self.push_state(
             state_id,
+            vec![
+                stmt_assign(&hname, handle_expr, self.span.clone()),
+                self.goto_state(poll_state),
+            ],
+        );
+        let stmts = build_poll_state(
+            poll_state,
             next_state,
             &hname,
             bind,
             self.span.clone(),
             poll_kind,
-        ));
-        self.push_state(state_id, stmts);
+        );
+        self.push_state(poll_state, stmts);
     }
 
     fn lower_block(
@@ -423,11 +456,16 @@ impl CfgBuilder {
                     );
                     cur = after;
                 }
-                Statement::Spawn(b) if block_has_await(b) => {
+                Statement::Spawn(sp) if block_has_await(&sp.body) => {
                     self.push_state(cur, flush(&mut prefix));
                     let after = self.alloc_state();
-                    let wrapped =
-                        lower_nested_async_block(self, b, COMPLETE_EXIT, Statement::Spawn, checker)?;
+                    let wrapped = lower_nested_async_block(
+                        self,
+                        &sp.body,
+                        COMPLETE_EXIT,
+                        wrap_spawn_block,
+                        checker,
+                    )?;
                     self.push_state(cur, vec![wrapped, self.goto_state(after)]);
                     cur = after;
                 }
@@ -456,13 +494,13 @@ impl CfgBuilder {
                     if let Some(Expression::Await(inner)) = &r.value {
                         let next = self.alloc_state();
                         self.emit_await(cur, *inner.clone(), None, next, checker);
-                        self.push_state(next, self.complete(expr_var("__nyra_await_result", self.span.clone())));
+                        self.push_state(next, self.finish(expr_var("__nyra_await_result", self.span.clone())));
                     } else {
                         let ret = r
                             .value
                             .clone()
                             .unwrap_or_else(|| expr_int(0, self.span.clone()));
-                        self.push_state(cur, self.complete(ret));
+                        self.push_state(cur, self.finish(ret));
                     }
                     return Some((entry, true));
                 }
@@ -488,7 +526,7 @@ impl CfgBuilder {
         self.push_state(cur, flush(&mut prefix));
         if cur != exit {
             if exit == COMPLETE_EXIT {
-                self.push_state(cur, self.complete(await_result_zero_expr(self.result_kind, self.span.clone())));
+                self.push_state(cur, self.finish(await_result_zero_expr(self.result_kind, self.span.clone())));
             } else {
                 self.push_state(cur, vec![self.goto_state(exit)]);
             }
@@ -771,7 +809,10 @@ pub fn try_desugar_state_machine(func: &mut Function, checker: &TypeChecker) -> 
                 expr_call("async_promise_new", vec![], span.clone()),
                 span.clone(),
             ),
-            Statement::Spawn(inner),
+            Statement::Spawn(SpawnStmt {
+                kind: SpawnKind::Thread,
+                body: inner,
+            }),
             Statement::Return(ReturnStmt {
                 value: Some(return_value),
             }),

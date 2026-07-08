@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use ast::{BinaryOp, Expression, ImplDef, Program, Statement, TypeAnnotation, UnaryOp};
+use ast::{for_each_expr_in_block, BinaryOp, Expression, ImplDef, Program, Statement, TypeAnnotation, UnaryOp};
 
 /// Top-level names exported by a compilation unit (for prelude index + lint).
 pub fn top_level_export_names(program: &Program) -> HashSet<String> {
@@ -32,6 +32,33 @@ pub fn top_level_export_names(program: &Program) -> HashSet<String> {
         names.insert(imp.type_name.clone());
     }
     names
+}
+
+/// Method names lowered intrinsically by codegen (string/array/handle builtins).
+/// These never dispatch to a stdlib free function, so a UFCS/JS-style prelude
+/// load must not be triggered for them (avoids pulling `builtins_string.ny` for
+/// `name.split()` / `name.trim()` etc.).
+fn is_intrinsic_method(method: &str) -> bool {
+    matches!(
+        method,
+        "split"
+            | "trim"
+            | "contains"
+            | "starts_with"
+            | "ends_with"
+            | "replace"
+            | "replacen"
+            | "to_upper"
+            | "to_lower"
+            | "strip_suffix"
+            | "len"
+            | "length"
+            | "clone"
+            | "sort"
+            | "sort_by"
+            | "join"
+            | "to_string"
+    )
 }
 
 /// Collect identifier and type names referenced by a program (expressions, types, impls).
@@ -141,9 +168,11 @@ fn collect_type_uses(ty: &TypeAnnotation, uses: &mut HashSet<String>) {
         | TypeAnnotation::Char
         | TypeAnnotation::Bool
         | TypeAnnotation::String
+        | TypeAnnotation::Bytes
         | TypeAnnotation::VecStr
         | TypeAnnotation::Ptr
         | TypeAnnotation::DynTrait { .. } => {}
+        TypeAnnotation::Simd { elem, .. } => collect_type_uses(elem, uses),
     }
 }
 
@@ -204,7 +233,8 @@ fn collect_stmt_uses(stmt: &Statement, uses: &mut HashSet<String>) {
             }
         }
         Statement::Defer(e) => collect_expr_uses(e, uses),
-        Statement::Spawn(b) | Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_uses(b, uses),
+        Statement::Spawn(s) => collect_block_uses(&s.body, uses),
+        Statement::Unsafe(b) | Statement::Benchmark(b) => collect_block_uses(b, uses),
         Statement::Asm { .. } | Statement::Import(_) | Statement::Break { .. } | Statement::Continue { .. } => {}
     }
 }
@@ -242,6 +272,20 @@ fn collect_expr_uses(expr: &Expression, uses: &mut HashSet<String>) {
             for a in &m.args {
                 collect_expr_uses(a, uses);
             }
+            // UFCS-style calls must pull in the stdlib module that defines the
+            // method. Intrinsic methods (`trim`, `split`, `to_upper`, …) are
+            // lowered directly by codegen and must NOT drag in stdlib free
+            // functions of the same name, so they are skipped here. For the rest
+            // we record the JS-style `String_<method>` mapping (`name.toUpperCase()`
+            // → `String_toUpperCase`) and, for the already-qualified spelling
+            // (`name.String_toUpperCase()`), the bare method name. Only real
+            // stdlib exports trigger a load, so unknown names are harmless.
+            if !is_intrinsic_method(&m.method) {
+                uses.insert(format!("String_{}", m.method));
+                if m.method.starts_with("String_") {
+                    uses.insert(m.method.clone());
+                }
+            }
             if matches!(m.method.as_str(), "get" | "push") {
                 uses.insert("StrVec".into());
             }
@@ -269,13 +313,13 @@ fn collect_expr_uses(expr: &Expression, uses: &mut HashSet<String>) {
                 if let Some(g) = &arm.guard {
                     collect_expr_uses(g, uses);
                 }
-                collect_expr_uses(&arm.body, uses);
+                for_each_expr_in_block(&arm.body, &mut |e| collect_expr_uses(e, uses));
             }
         }
         Expression::If(i) => {
             collect_expr_uses(&i.condition, uses);
-            collect_expr_uses(&i.then_expr, uses);
-            collect_expr_uses(&i.else_expr, uses);
+            for_each_expr_in_block(&i.then_block, &mut |e| collect_expr_uses(e, uses));
+            for_each_expr_in_block(&i.else_block, &mut |e| collect_expr_uses(e, uses));
         }
         Expression::Index(i) => {
             collect_expr_uses(&i.object, uses);
@@ -305,6 +349,12 @@ fn collect_expr_uses(expr: &Expression, uses: &mut HashSet<String>) {
             ast::ArrowBody::Expr(e) => collect_expr_uses(e, uses),
             ast::ArrowBody::Block(b) => collect_block_uses(b, uses),
         },
+        Expression::ComptimeBlock { body, .. } => collect_block_uses(body, uses),
+        Expression::Spawn { body, .. } => collect_block_uses(body, uses),
+        Expression::ParallelSearch(ps) => {
+            ps.for_each_expr(|e| collect_expr_uses(e, uses));
+            collect_block_uses(&ps.body, uses);
+        }
         Expression::Literal(_) | Expression::Invalid => {}
     }
 }
@@ -325,5 +375,71 @@ fn collect_match_pattern_uses(pattern: &ast::MatchPattern, uses: &mut HashSet<St
             }
         }
         ast::MatchPattern::Struct(_, _) | ast::MatchPattern::Tuple(_) => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn uses_of(tag: &str, src: &str) -> HashSet<String> {
+        let dir = std::env::temp_dir()
+            .join(format!("nyra_symbols_uses_{}_{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let entry = dir.join("main.ny");
+        std::fs::write(&entry, src).unwrap();
+        let program = crate::parse_file_only(&entry).unwrap();
+        let uses = collect_program_uses(&program);
+        let _ = std::fs::remove_dir_all(&dir);
+        uses
+    }
+
+    #[test]
+    fn method_call_name_is_recorded_as_use() {
+        // Regression: UFCS-style calls (`name.String_toUpperCase()`) must record
+        // the method name so the lazy stdlib prelude can load its defining
+        // module. Previously only plain `Call` callees were recorded, so a
+        // stdlib helper reached exclusively via method syntax was never loaded.
+        let uses = uses_of(
+            "method_call",
+            "fn main() {\n    let name = \"hamdy\"\n    print(name.String_toUpperCase())\n}\n",
+        );
+        assert!(
+            uses.contains("String_toUpperCase"),
+            "method name not recorded in program uses: {:?}",
+            uses
+        );
+    }
+
+    #[test]
+    fn js_style_method_maps_to_string_prefixed_use() {
+        // Regression: JS-style calls (`name.toUpperCase()`) must record the
+        // `String_<method>` mapping so the lazy stdlib prelude loads the module
+        // defining `String_toUpperCase`.
+        let uses = uses_of(
+            "js_style",
+            "fn main() {\n    let name = \"hamdy\"\n    print(name.toUpperCase())\n}\n",
+        );
+        assert!(
+            uses.contains("String_toUpperCase"),
+            "js-style method mapping not recorded in program uses: {:?}",
+            uses
+        );
+    }
+
+    #[test]
+    fn intrinsic_method_does_not_pull_stdlib_helper() {
+        // Intrinsic methods (`split`, `trim`, …) are lowered by codegen and must
+        // NOT drag in a same-named stdlib free function via the prelude.
+        let uses = uses_of(
+            "intrinsic",
+            "fn main() {\n    let name = \"a,b,c\"\n    print(name.split(\",\"))\n    print(name.trim())\n}\n",
+        );
+        assert!(
+            !uses.contains("String_split") && !uses.contains("split") && !uses.contains("trim"),
+            "intrinsic method should not be recorded as a prelude use: {:?}",
+            uses
+        );
     }
 }

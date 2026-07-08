@@ -3,6 +3,7 @@
 # Quick start:
 #   make help
 #   make test-preflight    # fast smoke (~1–3 min)
+#   make test-triage       # common CI failures in one report (~5–15 min)
 #   make test-all          # full suite (same as CI core)
 #   make install-dev       # build + install nyra from source
 
@@ -14,11 +15,14 @@ include make/test.mk
 include make/smoke.mk
 include make/build.mk
 include make/install.mk
+include make/release.mk
 include make/generators.mk
 include make/test-all.mk
 include make/test-platform.mk
+include make/test-platform-ci.mk
 include make/test-macos.mk
 include make/test-windows.mk
+include make/test-linux.mk
 
 .PHONY: help test build check fmt clean
 
@@ -27,18 +31,24 @@ help:
 		'Nyra Makefile — common targets' \
 		'' \
 		'  make test-all          Full test suite (fast gates first, heavy last; runs all gates even on failure)' \
+		'  make test-all-linux    Linux CI core (platform core + native build smoke)' \
 		'  make test-all-macos    macOS CI core (platform core + native build smoke)' \
 		'  make test-all-windows  Windows CI core (platform core + native build smoke)' \
 		'  make test-preflight    Fast pre-check before test-all' \
+		'  make test-triage       Common CI gates; all failures in target/.nyra-test-all-failures' \
 		'  make build-workspace   cargo build --workspace' \
 		'  make build-cli         Build target/debug/nyra only' \
 		'  make install-dev       Dev install (cargo install + stdlib sync)' \
+		'  make dist              Release tarball → dist/nyra-<arch>-<os>.tar.gz (GitHub upload)' \
+		'  make verify-dist       List dist/ tarball contents' \
 		'  make bench             Cross-language benchmarks' \
 		'  make gen-abi-header    Regenerate stdlib/nyra_rt.h' \
 		'  make gen-bindings-doc  Regenerate docs/bindings.md + webDocs/bindings.html' \
 		'  make build-webdocs     Regenerate webDocs search index + skill' \
 		'  make sync-webdocs-code-tabs  Sync doc code-tab pairs' \
 		'  make gen-suite-tests   Regenerate compiletest suite (GEN_SUITE_ARGS=--profile ci|full)' \
+		'  make contribute        Contributor hub (add/list/remove/patch scaffolds)' \
+		'  make test-contrib-py   Verify make/py/contrib_dev Python tooling' \
 		'' \
 		'Test subsets (test-all runs fast → slow):' \
 		'  make test-all-core-fast    Count + webdocs + optional-types (~1 min)' \

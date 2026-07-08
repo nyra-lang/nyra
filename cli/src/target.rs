@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::OnceLock;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TargetSpec {
@@ -61,6 +62,10 @@ impl TargetSpec {
 
     pub fn is_windows(&self) -> bool {
         self.os == TargetOs::Windows
+    }
+
+    pub fn is_linux(&self) -> bool {
+        self.os == TargetOs::Linux
     }
 
     pub fn exe_extension(&self) -> &'static str {
@@ -163,9 +168,17 @@ pub fn validate_native_cpu(spec: &TargetSpec, native_cpu: bool) -> Result<(), St
 /// Host triple at runtime (for codegen when `--target` is empty).
 pub fn detect_host_triple() -> String {
     if let Some(t) = clang_dumpmachine() {
-        return normalize_triple(&t);
+        return nyra_normalize_host_triple(&normalize_triple(&t));
     }
     triple_from_env_consts()
+}
+
+/// Nyra links against MinGW-w64 on Windows; LLVM on GHA reports `windows-msvc`.
+fn nyra_normalize_host_triple(t: &str) -> String {
+    if t.contains("windows-msvc") {
+        return t.replace("windows-msvc", "windows-gnu");
+    }
+    t.to_string()
 }
 
 fn clang_dumpmachine() -> Option<String> {
@@ -309,10 +322,71 @@ pub struct LinkTargetFlags {
     pub uses_rt_os: bool,
     pub uses_rt_hw: bool,
     pub uses_rt_os_adv: bool,
+    pub uses_rt_random: bool,
     pub uses_rt_net: bool,
     pub needs_openssl: bool,
+    pub needs_rustls_tls: bool,
+    pub needs_native_tls: bool,
     pub needs_zlib: bool,
     pub needs_libm: bool,
+}
+
+/// macOS SDK path for Homebrew LLVM clang (no Apple sysroot by default).
+fn detect_macos_sdk() -> Option<PathBuf> {
+    static SDK: OnceLock<Option<PathBuf>> = OnceLock::new();
+    SDK.get_or_init(|| {
+        if let Ok(sdk) = std::env::var("SDKROOT") {
+            if !sdk.is_empty() {
+                return Some(PathBuf::from(sdk));
+            }
+        }
+        let output = Command::new("xcrun").args(["--show-sdk-path"]).output().ok()?;
+        if !output.status.success() {
+            return None;
+        }
+        let sdk = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if sdk.is_empty() {
+            None
+        } else {
+            Some(PathBuf::from(sdk))
+        }
+    })
+    .clone()
+}
+
+/// MinGW-w64 sysroot for `*-pc-windows-gnu` (MSYS2 ucrt64/mingw64 on CI runners).
+pub fn mingw_sysroot_prefixes() -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    if let Ok(v) = std::env::var("NYRA_SYSROOT") {
+        if !v.is_empty() {
+            out.push(PathBuf::from(v));
+        }
+    }
+    for p in [r"C:\msys64\ucrt64", r"C:\msys64\mingw64"] {
+        out.push(PathBuf::from(p));
+    }
+    out
+}
+
+fn zlib_prefixes() -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    if let Ok(v) = std::env::var("ZLIB_ROOT") {
+        if !v.is_empty() {
+            out.push(std::path::PathBuf::from(v));
+        }
+    }
+    for p in [
+        "/opt/homebrew/opt/zlib",
+        "/usr/local/opt/zlib",
+        r"C:\msys64\ucrt64",
+        r"C:\msys64\mingw64",
+        r"C:\ProgramData\chocolatey\lib\zlib\tools",
+        r"C:\vcpkg\installed\x64-windows",
+        r"C:\tools\zlib",
+    ] {
+        out.push(std::path::PathBuf::from(p));
+    }
+    out
 }
 
 fn openssl_prefixes() -> Vec<std::path::PathBuf> {
@@ -329,6 +403,8 @@ fn openssl_prefixes() -> Vec<std::path::PathBuf> {
         "/opt/homebrew/opt/openssl",
         "/usr/local/opt/openssl@3",
         "/usr/local/opt/openssl",
+        r"C:\msys64\ucrt64",
+        r"C:\msys64\mingw64",
     ] {
         out.push(std::path::PathBuf::from(p));
     }
@@ -354,8 +430,9 @@ pub fn detect_wasi_sysroot() -> Option<PathBuf> {
 
 /// Flags for `clang -c` (target triple, sysroot, include paths — no linker args).
 pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
-    if !spec.triple.is_empty() {
-        cmd.arg("-target").arg(&spec.triple);
+    let triple = spec.triple_for_codegen();
+    if !triple.is_empty() {
+        cmd.arg("-target").arg(&triple);
     }
 
     if spec.is_wasm {
@@ -379,11 +456,50 @@ pub fn apply_target_compile_flags(cmd: &mut Command, spec: &TargetSpec) {
     }
 
     if spec.os == TargetOs::MacOs {
+        if let Some(sdk) = detect_macos_sdk() {
+            cmd.arg(format!("-isysroot{}", sdk.display()));
+        }
         for prefix in openssl_prefixes() {
             let inc = prefix.join("include");
             if inc.is_dir() {
                 cmd.arg(format!("-I{}", inc.display()));
             }
+        }
+    }
+
+    if spec.os == TargetOs::Windows {
+        for prefix in mingw_sysroot_prefixes() {
+            if prefix.join("include/stdlib.h").is_file() {
+                cmd.arg(format!("--sysroot={}", prefix.display()));
+                let gcc = prefix.join("bin/gcc.exe");
+                let cross = prefix.join("bin/x86_64-w64-mingw32-gcc.exe");
+                if gcc.is_file() || cross.is_file() {
+                    cmd.arg(format!("--gcc-toolchain={}", prefix.display()));
+                }
+                break;
+            }
+        }
+        /* Avoid MinGW inline snprintf/vsnprintf duplicated across rt .o files. */
+        cmd.arg("-D__USE_MINGW_ANSI_STDIO=0");
+    }
+
+    for prefix in zlib_prefixes() {
+        let inc = prefix.join("include");
+        if inc.is_dir() {
+            cmd.arg(format!("-I{}", inc.display()));
+        }
+    }
+}
+
+/// Flags for MSYS2 MinGW gcc when compiling rt `.c` on a Windows host.
+pub fn apply_windows_gcc_compile_flags(cmd: &mut Command) {
+    cmd.arg("-D__USE_MINGW_ANSI_STDIO=0");
+    cmd.arg("-DWINVER=0x0600");
+    cmd.arg("-D_WIN32_WINNT=0x0600");
+    for prefix in zlib_prefixes() {
+        let inc = prefix.join("include");
+        if inc.is_dir() {
+            cmd.arg(format!("-I{}", inc.display()));
         }
     }
 }
@@ -423,6 +539,10 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 }
                 cmd.arg("-lssl").arg("-lcrypto");
             }
+            if rt.needs_rustls_tls || rt.needs_native_tls {
+                cmd.arg("-framework").arg("Security");
+                cmd.arg("-framework").arg("CoreFoundation");
+            }
             if rt.needs_zlib {
                 cmd.arg("-lz");
             }
@@ -441,6 +561,11 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             if rt.needs_openssl {
                 cmd.arg("-lssl").arg("-lcrypto");
             }
+            // native-tls on Linux uses system OpenSSL; needs_openssl already covers tls openssl
+            // and Native when is_linux().
+            if rt.needs_rustls_tls {
+                // rustls / ring pull System/m/c via clang defaults; nothing extra typically.
+            }
             if rt.needs_zlib {
                 cmd.arg("-lz");
             }
@@ -449,9 +574,13 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             }
         }
         TargetOs::Windows => {
-            if rt.needs_pthread {
-                cmd.arg("-lpthread");
+            for prefix in mingw_sysroot_prefixes() {
+                let lib = prefix.join("lib");
+                if lib.is_dir() {
+                    cmd.arg(format!("-L{}", lib.display()));
+                }
             }
+            // Windows rt modules use native CRITICAL_SECTION / Win32 threads, not pthread.
             if rt.uses_rt_net {
                 cmd.arg("-lws2_32");
             }
@@ -459,8 +588,42 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 cmd.arg("-liphlpapi");
             }
             if rt.uses_rt_os_adv {
-                cmd.arg("-lbcrypt");
                 cmd.arg("-lsetupapi");
+            }
+            if rt.uses_rt_os_adv || rt.uses_rt_random {
+                cmd.arg("-lbcrypt");
+            }
+            if rt.needs_openssl {
+                for prefix in openssl_prefixes() {
+                    let lib = prefix.join("lib");
+                    if lib.is_dir() {
+                        cmd.arg(format!("-L{}", lib.display()));
+                    }
+                }
+                cmd.arg("-lssl").arg("-lcrypto");
+            }
+            if rt.needs_rustls_tls || rt.needs_native_tls {
+                // rustls/native staticlibs pull Rust std, which needs Userenv for home_dir.
+                cmd.arg("-lbcrypt");
+                cmd.arg("-lcrypt32");
+                cmd.arg("-lntdll");
+                cmd.arg("-luserenv");
+                cmd.arg("-ladvapi32");
+            }
+            if rt.needs_native_tls {
+                // SChannel (native-tls):
+                cmd.arg("-lsecur32");
+                cmd.arg("-lcrypt32");
+                cmd.arg("-lncrypt");
+            }
+            if rt.needs_zlib {
+                for prefix in zlib_prefixes() {
+                    let lib = prefix.join("lib");
+                    if lib.is_dir() {
+                        cmd.arg(format!("-L{}", lib.display()));
+                    }
+                }
+                cmd.arg("-lz");
             }
         }
         _ => {}
@@ -537,6 +700,14 @@ mod tests {
         let spec = TargetSpec::host();
         assert!(spec.triple.is_empty());
         assert!(!spec.is_cross);
+    }
+
+    #[test]
+    fn windows_msvc_triple_normalized_to_gnu() {
+        assert_eq!(
+            super::nyra_normalize_host_triple("x86_64-pc-windows-msvc"),
+            "x86_64-pc-windows-gnu"
+        );
     }
 
     #[test]

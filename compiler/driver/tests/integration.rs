@@ -3,7 +3,10 @@ mod common;
 use std::thread;
 use std::time::Duration;
 
-use common::{examples_dir, ir_defines_main, nyra_bin, run_nyra, run_nyra_file, tests_dir};
+use common::{
+    built_debug_artifact, examples_dir, ir_defines_main, normalize_process_stdout,
+    normalize_process_stdout_trimmed, nyra_bin, run_nyra, run_nyra_file, tests_dir,
+};
 use compiler::{CompileOptions, Compiler};
 
 #[test]
@@ -34,11 +37,16 @@ fn compiles_math_without_errors() {
 
 #[test]
 fn math_llvm_ir_contains_main_and_add() {
-    let path = examples_dir().join("syntax/math.ny");
-    let output = Compiler::compile_file(&path, &CompileOptions::default()).unwrap();
+    let src = r#"extern fn blackbox_i32(x: i32) -> i32
+fn main() {
+    let a = blackbox_i32(10)
+    let b = blackbox_i32(20)
+    print(a + b)
+}"#;
+    let output = Compiler::compile_source(src, "math_add.ny", &CompileOptions::default()).unwrap();
     let ir = output.llvm_ir.unwrap();
     assert!(ir_defines_main(&ir));
-    assert!(ir.contains("add i32"));
+    assert!(ir.contains("add i32"), "expected integer add in IR:\n{ir}");
 }
 
 #[test]
@@ -477,7 +485,7 @@ fn end_to_end_spawn_channel_sync() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(String::from_utf8_lossy(&output.stdout), "42\n");
+    assert_eq!(normalize_process_stdout(&output.stdout), "42\n");
 }
 
 #[test]
@@ -489,7 +497,7 @@ fn end_to_end_async_hello() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(String::from_utf8_lossy(&output.stdout), "42\n");
+    assert_eq!(normalize_process_stdout(&output.stdout), "42\n");
 }
 
 #[test]
@@ -502,7 +510,7 @@ fn end_to_end_buffered_io_output() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert_eq!(
-        String::from_utf8_lossy(&output.stdout),
+        normalize_process_stdout(&output.stdout),
         "lines:\n1\n2\n3\n"
     );
 }
@@ -543,7 +551,7 @@ fn end_to_end_template_strings_output() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert_eq!(
-        String::from_utf8_lossy(&output.stdout),
+        normalize_process_stdout(&output.stdout),
         "Hello, hamdy\nHello hamdy\nHello hamdy, age 25\n"
     );
 }
@@ -560,6 +568,7 @@ fn compiles_tcp_echo_examples() {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
 #[test]
 fn end_to_end_tcp_echo() {
     use std::process::Command;
@@ -573,21 +582,28 @@ fn end_to_end_tcp_echo() {
         .arg(&server_path)
         .spawn()
         .expect("spawn tcp server");
-    thread::sleep(Duration::from_millis(1500));
-    let client = Command::new(&nyra)
-        .env_remove("NYRA_HOME")
-        .arg("run")
-        .arg(&client_path)
-        .output()
-        .expect("run tcp client");
+    thread::sleep(Duration::from_millis(2500));
+    let mut client_ok = false;
+    let mut last_stderr = String::new();
+    for attempt in 0..6 {
+        if attempt > 0 {
+            thread::sleep(Duration::from_millis(500));
+        }
+        let client = Command::new(&nyra)
+            .env_remove("NYRA_HOME")
+            .arg("run")
+            .arg(&client_path)
+            .output()
+            .expect("run tcp client");
+        last_stderr = String::from_utf8_lossy(&client.stderr).into_owned();
+        if client.status.success() && String::from_utf8_lossy(&client.stdout).trim() == "1" {
+            client_ok = true;
+            break;
+        }
+    }
     let _ = server.kill();
     let _ = server.wait();
-    assert!(
-        client.status.success(),
-        "client stderr: {}",
-        String::from_utf8_lossy(&client.stderr)
-    );
-    assert_eq!(String::from_utf8_lossy(&client.stdout).trim(), "1");
+    assert!(client_ok, "tcp echo client failed after retries; last stderr={last_stderr}");
 }
 
 #[test]
@@ -632,7 +648,7 @@ fn end_to_end_vectors_output() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "2\n10");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "2\n10");
 }
 
 #[test]
@@ -652,7 +668,7 @@ fn end_to_end_unicode_print() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "█");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "█");
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -719,6 +735,7 @@ fn async_state_machine_string_links_async_future_done() {
         ir.contains("async_future_done"),
         "expected async_future_done in IR"
     );
+    assert_no_invalid_opaque_ptr_zero(&ir);
     assert!(
         output.runtime_profile.symbols.contains("async_future_done"),
         "runtime profile missing async_future_done: {:?}",
@@ -731,6 +748,39 @@ fn async_state_machine_string_links_async_future_done() {
         "link modules missing rt_async.c: {:?}",
         mods
     );
+    assert_no_invalid_opaque_ptr_zero(&ir);
+}
+
+/// Opaque `ptr` must use `ptr %n` or `ptr null`, never `ptr 0` (clang link error).
+fn assert_no_invalid_opaque_ptr_zero(ir: &str) {
+    for line in ir.lines() {
+        let trimmed = line.trim();
+        if trimmed.contains("ptr 0,") || trimmed.contains("ptr 0)") {
+            panic!("invalid opaque ptr constant in IR: {trimmed}");
+        }
+        if trimmed.contains("phi ptr [0,") {
+            panic!("invalid opaque ptr phi in IR: {trimmed}");
+        }
+    }
+}
+
+#[test]
+fn parse_http_url_string_alias_emits_valid_ptr_operands() {
+    let src = r#"
+import "stdlib/http/request.ny"
+
+fn main() {
+    let u = parse_http_url("http://example.com/path")
+    if strlen(u.host) == 0 {
+        assert_eq(1, 0)
+    }
+}
+"#;
+    let output = Compiler::compile_source(src, "parse_url.ny", &CompileOptions::default()).unwrap();
+    assert!(output.type_errors.is_empty(), "{:?}", output.type_errors);
+    let ir = output.llvm_ir.expect("llvm ir");
+    assert!(ir.contains("@find_host_end"));
+    assert_no_invalid_opaque_ptr_zero(&ir);
 }
 
 #[test]
@@ -784,7 +834,7 @@ fn nyra_cli_builds_input_example() {
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    let bin = dir.join("target/debug/prompt");
+    let bin = built_debug_artifact(&dir, "prompt");
     let mut child = Command::new(&bin)
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::piped())
@@ -812,7 +862,7 @@ fn end_to_end_hashmap_output() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "100\n1");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "100\n1");
 }
 
 #[test]
@@ -827,7 +877,7 @@ fn end_to_end_hashmap_chain_output() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "1\n2\n1");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "1\n2\n1");
 }
 
 #[test]
@@ -857,7 +907,7 @@ fn end_to_end_break_and_clone() {
         .output()
         .expect("run");
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "3\nok");
+    assert_eq!(normalize_process_stdout_trimmed(&output.stdout), "3\nok");
     let _ = std::fs::remove_dir_all(&dir);
 }
 

@@ -1,55 +1,30 @@
 use ast::{ExternFn, Function, Program, TypeAnnotation};
-use errors::{ErrorKind, NyraError, Span};
+use errors::Span;
 use types::Type;
 
 use crate::TypeChecker;
-
-const ABI_POLICY: &str = "See docs/abi-policy.md for allowed FFI boundary types.";
-
-const ABI_ALLOWED_MSG: &str =
-    "Allowed: i8–i128, u8–u128, isize, usize, f32, f64, bool, string, ptr, void, enum tags, [T; N], tuples, repr(C) structs, fn callbacks, and generic type params on export templates.";
+use crate::diagnostics;
 
 impl TypeChecker {
     pub(crate) fn check_export_instances(&mut self, program: &Program) {
         for inst in &program.export_instances {
             let Some(func) = program.functions.iter().find(|f| f.name == inst.fn_name) else {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
-                    Span::default(),
-                    format!(
-                        "export inst `{}` refers to unknown function",
-                        inst.fn_name
-                    ),
-                ));
+                diagnostics::ffi_export_inst_unknown_fn(self, &inst.fn_name, Span::default());
                 continue;
             };
             if !func.exported {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
-                    func.span.clone(),
-                    format!("export inst `{}` requires an exported function", inst.fn_name),
-                ));
+                diagnostics::ffi_export_inst_requires_exported(self, &inst.fn_name, func.span.clone());
             }
             if func.type_params.is_empty() {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
-                    func.span.clone(),
-                    format!(
-                        "export inst `{}` is only valid for generic exported functions",
-                        inst.fn_name
-                    ),
-                ));
+                diagnostics::ffi_export_inst_generic_only(self, &inst.fn_name, func.span.clone());
             } else if inst.type_args.len() != func.type_params.len() {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Type,
+                diagnostics::ffi_export_inst_wrong_type_args(
+                    self,
+                    &inst.fn_name,
+                    func.type_params.len(),
+                    inst.type_args.len(),
                     func.span.clone(),
-                    format!(
-                        "export inst `{}` expects {} type argument(s), got {}",
-                        inst.fn_name,
-                        func.type_params.len(),
-                        inst.type_args.len()
-                    ),
-                ));
+                );
             } else {
                 for arg in &inst.type_args {
                     self.check_abi_type_ann(
@@ -74,17 +49,7 @@ impl TypeChecker {
                 .iter()
                 .any(|inst| inst.fn_name == func.name);
             if !has_inst {
-                self.errors.push(
-                    NyraError::new(
-                        ErrorKind::Type,
-                        func.span.clone(),
-                        format!(
-                            "export fn `{}` is generic; add at least one `export inst {}<...>` for the FFI boundary",
-                            func.name, func.name
-                        ),
-                    )
-                    .note("Generic export templates are not linkable until monomorphized with `export inst`."),
-                );
+                diagnostics::ffi_generic_export_needs_inst(self, &func.name, func.span.clone());
             }
         }
     }
@@ -104,17 +69,7 @@ impl TypeChecker {
             return;
         }
         if !func.lifetime_params.is_empty() {
-            self.errors.push(
-                NyraError::new(
-                    ErrorKind::Type,
-                    func.span.clone(),
-                    format!(
-                        "export fn `{}` cannot have lifetime parameters",
-                        func.name
-                    ),
-                )
-                .note(ABI_POLICY),
-            );
+            diagnostics::ffi_export_has_lifetime_params(self, &func.name, func.span.clone());
         }
 
         let generic_template = !func.type_params.is_empty();
@@ -149,14 +104,7 @@ impl TypeChecker {
 
     fn check_export_generic_template_abi(&mut self, func: &Function) {
         if func.is_async {
-            self.errors.push(
-                NyraError::new(
-                    ErrorKind::Type,
-                    func.span.clone(),
-                    format!("export fn `{}` cannot be both async and generic", func.name),
-                )
-                .note("Monomorph with `export inst name<i32>` and call the sync instance from the host."),
-            );
+            diagnostics::ffi_export_async_and_generic(self, &func.name, func.span.clone());
         }
         for p in &func.params {
             self.check_abi_type_ann_for_generic(
@@ -181,19 +129,11 @@ impl TypeChecker {
             match ret {
                 TypeAnnotation::Integer(ast::IntKind::I32) | TypeAnnotation::Void => {}
                 _ => {
-                    self.errors.push(
-                        NyraError::new(
-                            ErrorKind::Type,
-                            func.span.clone(),
-                            format!(
-                                "export async fn `{}` must return i32 or void at the FFI boundary (got `{ret:?}`)",
-                                func.name,
-                                ret = ret
-                            ),
-                        )
-                        .note(
-                            "Async exports return an i32 promise handle; the host completes/awaits via async_poll / await.",
-                        ),
+                    diagnostics::ffi_export_async_return_invalid(
+                        self,
+                        &func.name,
+                        ret,
+                        func.span.clone(),
                     );
                 }
             }
@@ -208,31 +148,13 @@ impl TypeChecker {
         type_params: &[String],
     ) {
         if !self.abi_type_ann_allowed_generic(ann, type_params) {
-            self.errors.push(
-                NyraError::new(
-                    ErrorKind::Type,
-                    span.clone(),
-                    format!(
-                        "{context} uses type `{ann:?}` which is not allowed at the FFI boundary"
-                    ),
-                )
-                .note(format!("{ABI_ALLOWED_MSG} {ABI_POLICY}")),
-            );
+            diagnostics::ffi_type_not_allowed(self, context, ann, span.clone());
         }
     }
 
     fn check_abi_type_ann(&mut self, ann: &TypeAnnotation, span: &Span, context: &str, allow_generic: bool) {
         if !self.abi_type_ann_allowed(ann, allow_generic, &[]) {
-            self.errors.push(
-                NyraError::new(
-                    ErrorKind::Type,
-                    span.clone(),
-                    format!(
-                        "{context} uses type `{ann:?}` which is not allowed at the FFI boundary"
-                    ),
-                )
-                .note(format!("{ABI_ALLOWED_MSG} {ABI_POLICY}")),
-            );
+            diagnostics::ffi_type_not_allowed(self, context, ann, span.clone());
         }
     }
 
@@ -253,6 +175,7 @@ impl TypeChecker {
         | TypeAnnotation::Char
             | TypeAnnotation::Bool
             | TypeAnnotation::String
+            | TypeAnnotation::Bytes
             | TypeAnnotation::VecStr
             |             TypeAnnotation::Ptr
             | TypeAnnotation::RawPtr { .. }
@@ -315,10 +238,14 @@ impl TypeChecker {
                     })
                     .unwrap_or(false)
             }
+            TypeAnnotation::Ref { inner, mutable: false, .. } => {
+                self.abi_type_ann_allowed(inner, allow_generic, type_params)
+            }
             TypeAnnotation::Ref { .. }
             | TypeAnnotation::Lifetime(_)
             | TypeAnnotation::ForAll { .. }
-            | TypeAnnotation::DynTrait { .. } => false,
+            |             TypeAnnotation::DynTrait { .. } => false,
+            TypeAnnotation::Simd { .. } => true,
             // RawPtr allowed at boundary (lowers to opaque ptr)
         }
     }
@@ -350,6 +277,7 @@ impl TypeChecker {
             | Type::Char
             | Type::Bool
             | Type::String
+            | Type::Bytes
             | Type::Ptr
             | Type::RawPtr { .. }
             | Type::Void => true,
@@ -395,9 +323,26 @@ impl TypeChecker {
             Type::Generic(name) if allow_generic && type_params.iter().any(|p| p == name) => true,
             Type::Generic(_) if allow_generic => true,
             Type::Generic(_) => false,
+            Type::Simd { .. } => true,
+            Type::Union(name) => self
+                .unions
+                .get(name)
+                .map(|u| {
+                    u.repr_c
+                        && u.field_order.iter().all(|f| {
+                            u.fields.get(f).is_some_and(|t| {
+                                self.abi_type_allowed(t, allow_generic, type_params)
+                            })
+                        })
+                })
+                .unwrap_or(false),
+            Type::Ref { inner, mutable: false, .. } => {
+                self.abi_type_allowed(inner, allow_generic, type_params)
+            }
             Type::Ref { .. }
             | Type::ForAll { .. }
             | Type::Handle
+            | Type::JoinHandle
             | Type::VecStr
             | Type::Unknown => false,
         }
@@ -407,6 +352,7 @@ impl TypeChecker {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use errors::NyraError;
     use lexer::Lexer;
     use parser::Parser;
 

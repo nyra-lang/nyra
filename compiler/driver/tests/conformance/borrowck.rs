@@ -117,11 +117,33 @@ fn main() {
 }
 
 #[test]
-fn conf_bor_010_spawn_capture_send_field() {
+fn conf_bor_011_strcmp_condition_allows_body_use() {
     let out = compile(
-        r#"fn main() {
-    let n = 99
-    spawn { print(n) }
+        r#"extern fn strcmp(a: &string, b: &string) -> i32
+fn main() {
+    let a = "hello"
+    let b = "world"
+    if strcmp(a, b) == 0 {
+        print(a)
+    } else {
+        print(a)
+    }
+}"#,
+    );
+    assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);
+}
+
+#[test]
+fn conf_bor_012_strcmp_and_chain() {
+    let out = compile(
+        r#"extern fn strcmp(a: &string, b: &string) -> i32
+fn main() {
+    let a = "x"
+    let b = "y"
+    let c = "x"
+    if strcmp(a, b) == 0 && strcmp(a, c) == 0 {
+        print(a)
+    }
 }"#,
     );
     assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);

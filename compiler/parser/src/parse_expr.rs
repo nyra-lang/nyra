@@ -37,8 +37,8 @@ impl Parser {
         let span = merge_spans(&expr_span(&condition), &expr_span(&else_expr));
         Expression::If(Box::new(IfExpr {
             condition,
-            then_expr,
-            else_expr,
+            then_block: block_from_expr(then_expr),
+            else_block: block_from_expr(else_expr),
             span,
         }))
     }
@@ -277,7 +277,7 @@ impl Parser {
                 let operand = self.parse_unary();
                 self.make_unary(UnaryOp::Move, operand)
             }
-            TokenKind::Clone => {
+            TokenKind::Clone if self.looks_like_clone_operand() => {
                 self.advance();
                 let operand = self.parse_unary();
                 self.make_unary(UnaryOp::Clone, operand)
@@ -459,6 +459,22 @@ impl Parser {
                     span,
                 })
             }
+            TokenKind::Clone => {
+                let span = self.current_span();
+                self.advance();
+                self.parse_postfix(Expression::Variable {
+                    name: "clone".into(),
+                    span,
+                })
+            }
+            TokenKind::Module => {
+                let span = self.current_span();
+                self.advance();
+                self.parse_postfix(Expression::Variable {
+                    name: "module".into(),
+                    span,
+                })
+            }
             TokenKind::Identifier(name) => {
                 self.advance();
                 let mut name = name;
@@ -469,6 +485,15 @@ impl Parser {
                         name = format!("{name}__{member}");
                     } else {
                         self.parse_error_here("Expected name after '::'");
+                    }
+                }
+                if name == "comptime" {
+                    skip_newlines(&self.tokens, &mut self.position);
+                    if check(&self.tokens, self.position, &TokenKind::LBrace) {
+                        let start = self.prev_span();
+                        let body = self.parse_block();
+                        let span = merge_spans(&start, &self.prev_span());
+                        return self.parse_postfix(Expression::ComptimeBlock { body, span });
                     }
                 }
                 // `x => expr` — single inferred arrow param without parens
@@ -554,6 +579,36 @@ impl Parser {
                     self.parse_postfix(Expression::Variable { name, span })
                 }
             }
+            TokenKind::Parallel => {
+                let parsed = self.parse_parallel_loop();
+                if parsed.config.op == ParallelOp::Iterate {
+                    self.parse_error_here(
+                        "`parallel for` is a statement; use `parallel any for`, `parallel find for`, or `parallel all for` as an expression",
+                    );
+                    Expression::Invalid
+                } else {
+                    self.parse_postfix(Expression::ParallelSearch(Box::new(
+                        ParallelSearchExpr {
+                            config: parsed.config,
+                            var: parsed.var,
+                            kind: parsed.kind,
+                            body: parsed.body,
+                            span: parsed.span,
+                        },
+                    )))
+                }
+            }
+            TokenKind::Spawn => {
+                let start = self.current_span();
+                self.advance();
+                let kind = self.parse_spawn_kind();
+                let body = self.parse_block();
+                self.parse_postfix(Expression::Spawn {
+                    kind,
+                    body,
+                    span: merge_spans(&start, &self.prev_span()),
+                })
+            }
             TokenKind::LParen => {
                 let start = self.current_span();
                 self.advance();
@@ -634,12 +689,16 @@ impl Parser {
                 break;
             }
             let pattern = self.parse_match_pattern();
+            skip_newlines(&self.tokens, &mut self.position);
             let guard = if check(&self.tokens, self.position, &TokenKind::If) {
                 self.advance();
-                Some(self.parse_expression())
+                let g = self.parse_expression();
+                skip_newlines(&self.tokens, &mut self.position);
+                Some(g)
             } else {
                 None
             };
+            skip_newlines(&self.tokens, &mut self.position);
             consume(
                 &self.tokens,
                 &mut self.position,
@@ -669,12 +728,17 @@ impl Parser {
         }))
     }
 
-    fn parse_match_arm_body(&mut self) -> Expression {
-        let expr = self.parse_or();
+    fn parse_match_arm_body(&mut self) -> Block {
+        skip_newlines(&self.tokens, &mut self.position);
+        let block = if check(&self.tokens, self.position, &TokenKind::LBrace) {
+            self.parse_block()
+        } else {
+            block_from_expr(self.parse_or())
+        };
         if check(&self.tokens, self.position, &TokenKind::Comma) {
             self.advance();
         }
-        expr
+        block
     }
 
     fn is_spread_token(&self) -> bool {
@@ -707,14 +771,10 @@ impl Parser {
                 }
                 continue;
             }
-            let fname = match self.current_kind() {
-                TokenKind::Identifier(n) => {
-                    let n = n.clone();
-                    self.advance();
-                    n
-                }
-                _ => break,
-            };
+            let fname = self.parse_binding_name("Expected field name in struct literal");
+            if fname == "_invalid" {
+                break;
+            }
             consume(
                 &self.tokens,
                 &mut self.position,

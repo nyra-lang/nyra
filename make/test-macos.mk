@@ -2,10 +2,11 @@
 
 .PHONY: test-all-macos test-all-macos-native
 
+test-all-macos test-all-macos-native: export NYRA_PROGRESS_PROFILE := platform
+
 test-all-macos: test-platform-core
-	$(call log_step,macOS CI)
-	@$(MAKE) test-all-macos-native
-	$(call log_ok,macOS CI)
+	$(call run_gate,test-all-macos-native,native macOS build smoke)
+	@$(MAKE) test-platform-summary
 
 test-all-macos-native: ensure-nyra
 	$(call log_step,native macOS build smoke)

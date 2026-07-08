@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 COMP = ROOT / "examples" / "comparison"
 
 _spec = importlib.util.spec_from_file_location(
-    "snippet_types", ROOT / "scripts" / "snippet-types.py"
+    "snippet_types", ROOT / "make" / "py" / "snippet-types.py"
 )
 _st = importlib.util.module_from_spec(_spec)
 assert _spec and _spec.loader

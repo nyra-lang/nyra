@@ -1,6 +1,11 @@
 mod app;
 mod c_cache;
 mod c_lib;
+mod llvm_obj;
+mod prebuilt_rt;
+mod prebuilt_tls;
+mod prebuilt_tls_native;
+mod staticlib_archive;
 mod ui;
 mod cc;
 mod llvm_tools;
@@ -11,10 +16,13 @@ mod commands;
 mod debug;
 mod fmt;
 mod link;
+mod nyrapkg;
 mod pgo;
 mod target;
 mod toolchain;
 mod watch;
+mod timings;
+mod daemon;
 
 use clap::Parser as ClapParser;
 

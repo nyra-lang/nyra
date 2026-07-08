@@ -178,3 +178,45 @@ int map_str_str_remove(void *handle, const char *key) {
     }
     return 0;
 }
+
+// [contrib-dev:map_str_str_clear:map]
+void map_str_str_clear(void *handle) {
+    NyraMapStrStr *m = (NyraMapStrStr *)map_handle_inner(handle);
+    if (!m) {
+        return;
+    }
+    for (int i = 0; i < m->cap; i++) {
+        if (m->entries[i].used) {
+            free(m->entries[i].key);
+            free(m->entries[i].value);
+            m->entries[i].key = NULL;
+            m->entries[i].value = NULL;
+            m->entries[i].used = 0;
+        }
+    }
+    m->len = 0;
+}
+// [/contrib-dev:map_str_str_clear:map]
+
+// [contrib-dev:map_str_str_len:map]
+int map_str_str_len(void *handle) {
+    NyraMapStrStr *m = (NyraMapStrStr *)map_handle_inner(handle);
+    return m ? m->len : 0;
+}
+// [/contrib-dev:map_str_str_len:map]
+
+// [contrib-dev:map_str_str_values:map]
+void *map_str_str_values(void *handle) {
+    NyraMapStrStr *m = (NyraMapStrStr *)map_handle_inner(handle);
+    void *vec = vec_str_new();
+    if (!m || !vec) {
+        return vec;
+    }
+    for (int i = 0; i < m->cap; i++) {
+        if (m->entries[i].used && m->entries[i].value) {
+            vec_str_push(vec, m->entries[i].value);
+        }
+    }
+    return vec;
+}
+// [/contrib-dev:map_str_str_values:map]

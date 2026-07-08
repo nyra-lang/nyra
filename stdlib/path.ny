@@ -1,5 +1,9 @@
 import "strings.ny"
 
+extern fn read_file(path: string) -> string
+extern fn write_file(path: string, content: string) -> i32
+extern fn file_exists(path: string) -> i32
+
 fn basename_str(path: string) -> string {
     let n = strlen(path)
     let mut last = -1
@@ -24,13 +28,21 @@ fn Path_new(value: string) -> Path {
     return Path { value: value }
 }
 
+fn path(value: string) -> Path {
+    return Path_new(value)
+}
+
+fn Path_join(path: Path, segment: string) -> Path {
+    let base = path.value
+    let sep = "/"
+    let with_sep = strcat(base, sep)
+    let joined = strcat(with_sep, segment)
+    return Path { value: joined }
+}
+
 impl Path {
     fn join(self, segment: string) -> Path {
-        let base = self.value
-        let sep = "/"
-        let with_sep = strcat(base, sep)
-        let joined = strcat(with_sep, segment)
-        return Path { value: joined }
+        return Path_join(self, segment)
     }
 
     fn extension(self) -> string {
@@ -64,6 +76,18 @@ impl Path {
     fn as_string(self) -> string {
         return self.value
     }
+
+    fn read(self) -> string {
+        return read_file(self.value)
+    }
+
+    fn write(self, content: string) -> i32 {
+        return write_file(self.value, content)
+    }
+
+    fn exists(self) -> i32 {
+        return file_exists(self.value)
+    }
 }
 
 // PathBuf is an alias-style name for the same MVP type.
@@ -77,7 +101,7 @@ fn PathBuf_new(value: string) -> PathBuf {
 
 impl PathBuf {
     fn join(self, segment: string) -> PathBuf {
-        return PathBuf { inner: self.inner.join(segment) }
+        return PathBuf { inner: Path_join(self.inner, segment) }
     }
 
     fn as_string(self) -> string {

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Roadmap — Nyra Docs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="roadmap">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a class="active" href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.roadmap.h1">Roadmap &amp; status</h1>
+      <p class="lead" data-i18n-html="pages.roadmap.lead">Nyra 1.x — Core and Stable Extended are semver-stable. See <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a> and <a href="https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md">stability-v1.md</a>.</p>
+
+      <div class="callout callout-status" role="note">
+        <strong>Production-ready tier</strong>
+        <p>Ship CLI tools, servers, and native apps on Core + Stable Extended (<code>?</code>, enum payloads, spawn, async/await, traits, serde). Remaining gates: multi-trait <code>dyn</code> objects and advanced trait-object bounds — see <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a>.</p>
+      </div>
+
+      <h2>Version history</h2>
+      <table>
+        <thead><tr><th>Version</th><th>Highlights</th></tr></thead>
+        <tbody>
+          <tr><td><strong>v3.1.0</strong></td><td><code>f64</code> float type, mixed <code>i32</code>/<code>f64</code> promotion, <code>CONF-F64-*</code></td></tr>
+          <tr><td><strong>v3.0.0</strong></td><td>Auto-Copy structs, <code>#[derive(Copy)]</code> validation, <code>CONF-COPY-*</code></td></tr>
+          <tr><td><strong>v2.9.0</strong></td><td>Swift-style move diagnostics, <code>move</code>/<code>clone</code> prefixes, <code>CONF-DIAG-*</code></td></tr>
+          <tr><td><strong>v2.8.0</strong></td><td>Ownership UX: inference, auto-borrow, Clone, struct ctor sugar — <a href="ownership-ux.html">ownership-ux.html</a></td></tr>
+          <tr><td><strong>v1.0.0</strong></td><td><strong>Core semver-stable</strong>; Extended <code>warning[W001]</code> + <code>--deny-extended</code>; cross-compile shipped</td></tr>
+          <tr><td><strong>v0.1</strong></td><td>MVP pipeline: lexer → LLVM → clang</td></tr>
+          <tr><td><strong>v0.2.0</strong></td><td><strong>Spec 1.0 freeze</strong> — generics monomorph, async/await, traits, macros, defer, Copy/Move + auto-drop, Wasm target, NyraPkg MVP</td></tr>
+          <tr><td><strong>v0.3.0</strong></td><td>FFI (<code>ptr</code>, <code>repr(C)</code>, <code>--link-lib</code>, <code>--cdylib</code>); Nyra HTTP/TCP stdlib; NyraPkg native <code>link</code> lines</td></tr>
+          <tr><td><strong>v1.1.0</strong></td><td>NyraPkg semver + persistent registry; <code>link-source</code> auto-link</td></tr>
+          <tr><td><strong>v0.4.0</strong></td><td>Stable C ABI manifest; expanded FFI boundary types; <code>export async fn</code>; generic <code>export inst</code></td></tr>
+          <tr><td><strong>v0.5.0</strong></td><td><code>unsafe</code>, <code>*T</code>, <code>no_std</code>, <code>asm</code>; <code>stdlib/core/mem.ny</code> + <code>stdlib/os.ny</code> (syscalls, battery, platform)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Spec 1.0 decisions (shipped v0.2)</h2>
+      <ul>
+        <li>Modules: <code>import "path.ny"</code> + <code>nyra.mod</code></li>
+        <li>Concurrency: <code>spawn</code> with capture lowering, <code>Send</code>/<code>Sync</code>, channels, <code>async</code>/<code>await</code> (MVP)</li>
+        <li>Memory: Copy/Move, borrow checker, NLL, lifetimes, HRTB, custom <code>Drop</code>, auto-drop heap strings</li>
+        <li>Generics: monomorphization at compile time</li>
+        <li>Enums: tag-only variants (no ADT payloads)</li>
+      </ul>
+
+      <h2>Next (language core)</h2>
+      <ul>
+        <li><strong>char</strong> (RFC 0010) — shipped v3.2</li>
+        <li><strong>v0.8.x RC</strong> — stabilization: examples, benchmarks, Rust + Nyra conformance regression</li>
+        <li><strong>CONF-LANG</strong> — shipped v1.3: <code>tests/conformance/</code> (16 pass, 8 fail) · <a href="tooling.html#conformance">Toolchain docs</a></li>
+        <li>Enum payloads, pattern matching enhancements, control flow, async/await hardening</li>
+      </ul>
+
+      <h2>Still evolving</h2>
+      <ul>
+        <li>Full trait-object dispatch (basic trait bounds on generics shipped in v1.3)</li>
+        <li>Richer lifetime variance and region inference</li>
+        <li>Production async scheduler (executor v1.4 + linear state-machine v1.6 — nested <code>await</code> in control flow still evolving)</li>
+        <li>Full schema serde in stdlib (NyraPkg <code>ny-serde</code> today)</li>
+      </ul>
+
+      <h2>Shipped in v1.1 (Stable Extended)</h2>
+      <ul>
+        <li><strong><code>?</code> operator</strong> — Result/Option propagate · <code>tests/nyra/result_propagate_test.ny</code></li>
+        <li>Enum payloads, pattern matching on ADT variants</li>
+        <li><code>spawn { }</code> + channels (pthread / Win32)</li>
+        <li><code>impl Drop for T</code> without W001</li>
+        <li><strong>Windows prebuilt releases</strong> — <code>nyra-x86_64-windows.zip</code>, <code>scripts/install.ps1</code></li>
+        <li><strong>env_set</strong>, <strong>process</strong> on Windows; postgres/mysql native when <code>link pq</code> / <code>link mysqlclient</code></li>
+        <li>Full stdlib tree in release archives</li>
+      </ul>
+
+      <h2>Stability plan</h2>
+      <p>Six-phase roadmap toward 1.0: see <a href="changelog.html">Changelog</a> and <a href="spec.html">Language spec</a>.</p>
+
+      <h2>Contributing</h2>
+      <p>
+        Source and issues:
+        <a href="https://github.com/nyra-lang/nyra">github.com/nyra-lang/nyra</a>.
+        See <code>CONTRIBUTING.md</code> in the repo.
+      </p>
+
+      <footer class="site-footer"><a href="index.html">← Overview</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

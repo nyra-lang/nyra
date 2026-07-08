@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>OS, files &amp; hardware — Nyra Docs</title>
+  <meta name="description" content="Work with the filesystem, detect the operating system, read environment variables, and reach hardware through FFI, syscalls, or language bridge.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="os-hardware">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" data-i18n-title="ui.searchOpen" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" data-i18n-title="ui.themeToggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en" id="lang-en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar" id="lang-ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" data-i18n-aria-label="ui.menuOpen" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline" data-i18n="common.tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label" data-i18n="nav.start">Start</div>
+    <ul>
+      <li><a href="index.html" data-i18n="nav.overview">Nyra HOME</a></li>
+      <li><a href="install.html" data-i18n="nav.install">Installation</a></li>
+      <li><a href="learning-path.html" data-i18n="nav.learningPath">Learning path</a></li>
+      <li><a href="ai-skill.html" data-i18n="nav.aiSkill">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search" data-i18n="nav.search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.learnSection">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-intro.html" data-i18n="nav.learnIntro">Nyra Intro</a></li>
+      <li><a href="learn-get-started.html" data-i18n="nav.learnGetStarted">Nyra Get Started</a></li>
+      <li><a href="learn-syntax.html" data-i18n="nav.learnSyntax">Nyra Syntax</a></li>
+      <li><a href="learn-output.html" data-i18n="nav.learnOutput">Nyra Output</a></li>
+      <li><a href="learn-comments.html" data-i18n="nav.learnComments">Nyra Comments</a></li>
+      <li><a href="learn-variables.html" data-i18n="nav.learnVariables">Nyra Variables</a></li>
+      <li><a href="learn-data-types.html" data-i18n="nav.learnDataTypes">Nyra Data Types</a></li>
+      <li><a href="learn-constants.html" data-i18n="nav.learnConstants">Nyra Constants</a></li>
+      <li><a href="learn-operators.html" data-i18n="nav.learnOperators">Nyra Operators</a></li>
+      <li><a href="learn-booleans.html" data-i18n="nav.learnBooleans">Nyra Booleans</a></li>
+      <li><a href="learn-if-else.html" data-i18n="nav.learnIfElse">Nyra If..Else</a></li>
+      <li><a href="learn-match.html" data-i18n="nav.learnMatch">Nyra Match</a></li>
+      <li><a href="learn-loops.html" data-i18n="nav.learnLoops">Nyra Loops</a></li>
+      <li><a href="learn-while.html" data-i18n="nav.learnWhile">Nyra While Loops</a></li>
+      <li><a href="learn-for.html" data-i18n="nav.learnFor">Nyra For Loops</a></li>
+      <li><a href="learn-functions.html" data-i18n="nav.learnFunctions">Nyra Functions</a></li>
+      <li><a href="learn-scope.html" data-i18n="nav.learnScope">Nyra Scope</a></li>
+      <li><a href="learn-strings.html" data-i18n="nav.learnStrings">Nyra Strings</a></li>
+      <li><a href="learn-ownership.html" data-i18n="nav.learnOwnership">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html" data-i18n="nav.learnBorrowing">Nyra Borrowing</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.dataStructuresSection">Nyra Data Structures</div>
+    <ul>
+      <li><a href="learn-data-structures.html" data-i18n="nav.learnDataStructures">Nyra Data Structures</a></li>
+      <li><a href="learn-arrays.html" data-i18n="nav.learnArrays">Nyra Arrays</a></li>
+      <li><a href="learn-vectors.html" data-i18n="nav.learnVectors">Nyra Vectors</a></li>
+      <li><a href="learn-tuples.html" data-i18n="nav.learnTuples">Nyra Tuples</a></li>
+      <li><a href="learn-hashmap.html" data-i18n="nav.learnHashMap">Nyra HashMap</a></li>
+      <li><a href="learn-structs.html" data-i18n="nav.learnStructs">Nyra Structs</a></li>
+      <li><a href="learn-enums.html" data-i18n="nav.learnEnums">Nyra Enums</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.languageSection">Advanced</div>
+    <ul>
+      <li><a href="language-basics.html" data-i18n="nav.basics">Language basics</a></li>
+      <li><a href="language.html" data-i18n="nav.syntax">Syntax</a></li>
+      <li><a href="types.html" data-i18n="nav.types">Types &amp; data</a></li>
+      <li><a href="reference.html" data-i18n="nav.reference">Language reference</a></li>
+      <li><a href="keywords.html" data-i18n="nav.keywords">Nyra Keywords</a></li>
+      <li><a href="spec.html" data-i18n="nav.spec">Language spec</a></li>
+      <li><a href="generics.html" data-i18n="nav.generics">Generics</a></li>
+      <li><a href="comptime.html" data-i18n="nav.comptime">Comptime</a></li>
+      <li><a href="match.html" data-i18n="nav.match">Match</a></li>
+      <li><a href="modules.html" data-i18n="nav.modules">Modules</a></li>
+      <li><a href="imports.html" data-i18n="nav.imports">Imports guide</a></li>
+      <li><a href="memory.html" data-i18n="nav.memory">Memory &amp; ownership</a></li>
+      <li><a href="async.html" data-i18n="nav.async">Async</a></li>
+      <li><a href="traits-macros.html" data-i18n="nav.traits">Traits &amp; macros</a></li>
+      <li><a href="stdlib.html" data-i18n="nav.stdlib">Standard library</a></li>
+      <li><a href="methods.html" data-i18n="nav.methods">Built-in methods</a></li>
+      <li><a href="concurrency.html" data-i18n="nav.concurrency">Concurrency</a></li>
+      <li><a href="net-http.html">net/http API</a></li>
+      <li><a class="active" href="os-hardware.html" data-i18n="nav.osHardware">OS, files &amp; hardware</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label" data-i18n="nav.ecosystem">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html" data-i18n="nav.tooling">Toolchain</a></li>
+      <li><a href="performance.html" data-i18n="nav.performance">Performance</a></li>
+      <li><a href="pgo.html" data-i18n="nav.pgo">PGO</a></li>
+      <li><a href="escape-analysis.html" data-i18n="nav.escapeAnalysis">Escape analysis</a></li>
+      <li><a href="diagnostics.html" data-i18n="nav.diagnostics">Diagnostics</a></li>
+      <li><a href="ffi-abi.html" data-i18n="nav.ffi">FFI &amp; ABI</a></li>
+      <li><a href="targets.html" data-i18n="nav.targets">Targets</a></li>
+      <li><a href="editor-setup.html" data-i18n="nav.editor">Editor setup</a></li>
+      <li><a href="packages.html" data-i18n="nav.packages">NyraPkg</a></li>
+      <li><a href="roadmap.html" data-i18n="nav.roadmap">Roadmap</a></li>
+      <li><a href="changelog.html" data-i18n="nav.changelog">Changelog</a></li>
+      <li><a href="sitemap.html" data-i18n="nav.sitemap">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1 data-i18n="pages.osHardware.h1">OS, files &amp; hardware</h1>
+      <p class="lead" data-i18n-html="pages.osHardware.lead">Read and write files, detect the operating system, query environment variables, and reach specialized hardware through the stdlib, FFI, or language bridge.</p>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ul>
+          <li><a href="#run">Run your project</a></li>
+          <li><a href="#files">Filesystem</a></li>
+          <li><a href="#os">Operating system</a></li>
+          <li><a href="#subprocess">Run external commands</a></li>
+          <li><a href="#input">User input</a></li>
+          <li><a href="#hw-topology">Hardware topology</a></li>
+          <li><a href="#adv-cpu">Advanced CPU (affinity, clocks)</a></li>
+          <li><a href="#peripherals">USB &amp; serial</a></li>
+          <li><a href="#kernel-ipc">Signals &amp; message queues</a></li>
+          <li><a href="#security">HW crypto &amp; permissions</a></li>
+          <li><a href="#hardware">GPIO / FFI fallbacks</a></li>
+          <li><a href="#cheat-sheet">Cheat sheet</a></li>
+          <li><a href="#full-example">Full example</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="run">Run your project</h2>
+      <p>Any program that uses <code>import</code> must be built from the <strong>project directory</strong>, not as a lone file:</p>
+      <pre><code>cd myapp
+nyra run .</code></pre>
+      <div class="callout">
+        <strong>Use <code>nyra run .</code> for projects</strong>
+        <span><code>nyra run main.ny</code> compiles a single file and does <em>not</em> load imports. Multi-file apps and stdlib imports need <code>nyra run .</code> or <code>nyra build .</code>. See <a href="imports.html">Imports guide</a>.</span>
+      </div>
+      <p>Import stdlib modules with short paths from any project depth:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/fs.ny&quot;
+import &quot;stdlib/os.ny&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/fs.ny&quot;
+import &quot;stdlib/os.ny&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="files">Filesystem</h2>
+      <p><code>import "stdlib/fs.ny"</code> (or <code>stdlib/fs/mod.ny</code>) gives you the filesystem API. API reference: <a href="stdlib.html#fs">Stdlib → fs</a>.</p>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>write_file(path, content)</code></td><td>Create or overwrite a file</td></tr>
+          <tr><td><code>read_file(path)</code></td><td>Read entire file into a <code>string</code> (owned, auto-dropped)</td></tr>
+          <tr><td><code>append_file(path, content)</code></td><td>Append to an existing file</td></tr>
+          <tr><td><code>exists(path)</code></td><td>Returns <code>1</code> if path exists, else <code>0</code></td></tr>
+          <tr><td><code>create_dir(path)</code></td><td>Create a directory</td></tr>
+          <tr><td><code>remove_file(path)</code> / <code>remove_dir(path)</code></td><td>Delete file or directory</td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/fs.ny&quot;
+
+fn main() {
+    write_file(&quot;hello.txt&quot;, &quot;Written from Nyra\n&quot;)
+    if exists(&quot;hello.txt&quot;) == 1 {
+        let content = read_file(&quot;hello.txt&quot;)
+        print(content)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/fs.ny&quot;
+
+fn main() -&gt; void {
+    write_file(&quot;hello.txt&quot;, &quot;Written from Nyra\n&quot;)
+    if exists(&quot;hello.txt&quot;) == 1 {
+        let content = read_file(&quot;hello.txt&quot;)
+        print(content)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Example in repo: <code>examples/projects/read_file/main.ny</code></p>
+
+      <h2 id="os">Operating system</h2>
+      <p><code>import "stdlib/os.ny"</code> aggregates platform detection, environment, battery, POSIX-style I/O, and syscall helpers (macOS, Linux, Windows). See <a href="stdlib.html#os-detail">Stdlib → os</a>.</p>
+
+      <h3>Platform detection</h3>
+      <table>
+        <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td><code>platform_name()</code></td><td><code>"darwin"</code>, <code>"linux"</code>, or <code>"windows"</code></td></tr>
+          <tr><td><code>is_darwin()</code> / <code>is_linux()</code> / <code>is_windows()</code></td><td><code>bool</code> platform checks</td></tr>
+          <tr><td><code>platform_id()</code></td><td>Numeric constant (<code>PLATFORM_LINUX</code>, …)</td></tr>
+          <tr><td><code>page_size()</code></td><td>OS memory page size in bytes</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Process &amp; environment</h3>
+      <table>
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>os_getenv(name)</code></td><td>Read an environment variable. Use <code>os_getenv</code> — not <code>getenv</code> (libc name collision at link time).</td></tr>
+          <tr><td><code>os_getpid()</code></td><td>Current process ID</td></tr>
+          <tr><td><code>os_exit(code)</code></td><td>Terminate the process</td></tr>
+          <tr><td><code>battery_percent()</code></td><td>0–100 on laptops, or <code>-1</code> if unavailable</td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    print(platform_name())
+    print(os_getenv(&quot;HOME&quot;))
+    print(os_getpid())
+
+    if is_darwin() {
+        print(&quot;Running on macOS&quot;)
+    } else if is_linux() {
+        print(&quot;Running on Linux&quot;)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    print(platform_name())
+    print(os_getenv(&quot;HOME&quot;))
+    print(os_getpid())
+
+    if is_darwin() {
+        print(&quot;Running on macOS&quot;)
+    } else if is_linux() {
+        print(&quot;Running on Linux&quot;)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Run examples from the repo root:</p>
+      <pre><code>nyra run examples/os/platform/main.ny
+nyra run examples/os/battery/main.ny</code></pre>
+
+      <h3 id="subprocess">Run external commands</h3>
+      <p>To spawn another program (like Rust’s <code>Command</code>), use <code>stdlib/process.ny</code> — auto-prelude symbols <code>Command_new</code>, <code>.arg</code>, <code>.run</code>. Returns the child exit code; stdout/stderr inherit your terminal. For shell strings (pipes, globs), run <code>/bin/sh -c "…"</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let code = Command_new(&quot;ls&quot;).arg(&quot;-la&quot;).run()
+    print(code)
+
+    let sh = Command_new(&quot;/bin/sh&quot;).arg(&quot;-c&quot;).arg(&quot;uname -a&quot;).run()
+    print(sh)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let code = Command_new(&quot;ls&quot;).arg(&quot;-la&quot;).run()
+    print(code)
+
+    let sh = Command_new(&quot;/bin/sh&quot;).arg(&quot;-c&quot;).arg(&quot;uname -a&quot;).run()
+    print(sh)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full reference: <a href="stdlib.html#process">stdlib → Subprocess &amp; commands</a> · example <code>examples/process_command.ny</code>. To <strong>capture stdout</strong> as a string, use <code>stdlib/bridge/mod.ny</code> (<a href="#2-language-bridge-python-node-java">language bridge</a>).</p>
+
+      <h2 id="input">User input</h2>
+      <p><code>input("prompt")</code> is a builtin — no import required. It reads a line from stdin and returns a <code>string</code>. Full I/O builtins: <a href="stdlib.html#builtins-io">stdlib → Built-ins → I/O</a>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let name = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name)
+    print(`Hello, ${name}!`)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let name = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name)
+    print(`Hello, ${name}!`)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="low-level">Low-level: syscalls &amp; assembly</h2>
+      <p>For kernel-style or driver code, use the POSIX wrappers and raw syscall layer:</p>
+      <table>
+        <thead><tr><th>API</th><th>Module</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>os_read</code>, <code>os_write</code>, <code>os_close</code></td><td><code>stdlib/os/unistd.ny</code></td><td>File-descriptor I/O</td></tr>
+          <tr><td><code>os_syscall6(num, a0..a5)</code></td><td><code>stdlib/os/unistd.ny</code></td><td>Raw syscall with OS-specific number</td></tr>
+          <tr><td><code>SYS_*</code> constants</td><td><code>syscall_linux.ny</code> / <code>syscall_darwin.ny</code></td><td>Syscall numbers for <code>os_syscall6</code></td></tr>
+          <tr><td><code>unsafe { asm "nop" }</code></td><td>Nyra language</td><td>Inline assembly template</td></tr>
+          <tr><td><code>cpu_nop()</code>, <code>cpu_pause()</code></td><td><code>stdlib/os/asm.ny</code></td><td>Prebuilt asm helpers</td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    unsafe {
+        asm &quot;nop&quot;
+    }
+    cpu_nop()
+    print(os_getpid())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    unsafe {
+        asm &quot;nop&quot;
+    }
+    cpu_nop()
+    print(os_getpid())
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>For <code>no_std</code> / embedded / MMIO register access, see <a href="memory.html#unsafe">Memory → unsafe</a> and <code>stdlib/core/mem.ny</code> (<code>volatile_load_i32</code>, <code>*T</code> pointers). Example: <code>examples/os/asm/main.ny</code>.</p>
+
+      <h2 id="hw-topology">Hardware topology (stdlib/os)</h2>
+      <p>Since v1.3, <code>import "stdlib/os.ny"</code> also pulls hardware helpers:</p>
+      <table>
+        <thead><tr><th>Module</th><th>Key APIs</th></tr></thead>
+        <tbody>
+          <tr><td><code>cpu.ny</code></td><td><code>cpu_brand()</code>, physical/logical cores, cache line, <code>cpu_has_avx2()</code></td></tr>
+          <tr><td><code>memory.ny</code></td><td><code>mem_map_anonymous</code>, <code>mem_unmap</code>, <code>hw_page_size()</code>, <code>dma_available()</code></td></tr>
+          <tr><td><code>storage.ny</code></td><td><code>disk_fs_type</code>, <code>disk_total_bytes</code>, <code>disk_free_bytes</code></td></tr>
+          <tr><td><code>netif.ny</code></td><td><code>net_interface_count</code>, <code>net_interface_mac</code>, <code>net_interface_is_up</code></td></tr>
+          <tr><td><code>display.ny</code></td><td><code>display_width</code>, <code>display_height</code>, <code>display_refresh_hz</code>, brightness</td></tr>
+          <tr><td><code>power.ny</code></td><td><code>power_on_ac()</code>, <code>power_cpu_temp_centi_c()</code> + <code>battery_percent()</code></td></tr>
+          <tr><td><code>syscall_windows.ny</code></td><td>Windows Nt / VirtualAlloc constants</td></tr>
+        </tbody>
+      </table>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    print(cpu_brand())
+    print(cpu_logical_cores())
+    print(disk_fs_type(&quot;/&quot;))
+    print(net_interface_mac(0))
+    print(display_width())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    print(cpu_brand())
+    print(cpu_logical_cores())
+    print(disk_fs_type(&quot;/&quot;))
+    print(net_interface_mac(0))
+    print(display_width())
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Example: <code>nyra run examples/os/hw/main.ny</code></p>
+
+      <p>Example: <code>nyra run examples/os/hw/main.ny</code></p>
+
+      <h2 id="adv-cpu">Advanced CPU control</h2>
+      <p>Modules: <code>affinity.ny</code>, <code>clocks.ny</code></p>
+
+      <h3>CPU affinity</h3>
+      <p>Pin the <strong>current OS thread</strong> to a logical core — useful for real-time loops and reducing migration overhead.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let cores = cpu_logical_cores()
+    print(cores)
+    let ok = affinity_set_thread_cpu(0)   // 0 on success
+    print(ok)
+    print(affinity_get_thread_cpu())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let cores = cpu_logical_cores()
+    print(cores)
+    let ok = affinity_set_thread_cpu(0)   // 0 on success
+    print(ok)
+    print(affinity_get_thread_cpu())
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>Function</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>affinity_set_thread_cpu(n)</code></td><td>Linux <code>pthread_setaffinity_np</code>, macOS thread policy, Windows <code>SetThreadAffinityMask</code></td></tr>
+          <tr><td><code>affinity_get_thread_cpu()</code></td><td>Returns first pinned core or current CPU; <code>-1</code> if unknown</td></tr>
+        </tbody>
+      </table>
+
+      <h3>High-resolution clocks</h3>
+      <p>Cycle counters for micro-benchmarks and profilers. Returns <code>i64</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let t0 = clock_monotonic_ns()
+    // ... work ...
+    let elapsed = clock_elapsed_ns(t0)
+
+    let cycles = clock_rdtsc()   // RDTSC on x86_64, cntvct on ARM64
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let t0 = clock_monotonic_ns()
+    // ... work ...
+    let elapsed = clock_elapsed_ns(t0)
+
+    let cycles = clock_rdtsc()   // RDTSC on x86_64, cntvct on ARM64
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <table>
+        <thead><tr><th>Function</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>clock_rdtsc()</code></td><td><code>RDTSC</code> / ARM virtual counter</td></tr>
+          <tr><td><code>clock_monotonic_ns()</code></td><td><code>clock_gettime</code> / QPC</td></tr>
+          <tr><td><code>clock_elapsed_ns(start)</code></td><td>Helper using monotonic clock</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="peripherals">USB &amp; serial ports</h2>
+      <p>Modules: <code>usb.ny</code>, <code>serial.ny</code></p>
+
+      <h3>USB enumeration</h3>
+      <p>Lists devices via Linux sysfs (<code>/sys/bus/usb/devices</code>). macOS/Windows: use FFI or language bridge for full IOKit/SetupAPI access.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let n = usb_device_count()
+    print(n)
+    if n &gt; 0 {
+        print(usb_device_vid(0))    // vendor ID hex
+        print(usb_device_pid(0))    // product ID hex
+        print(usb_device_path(0))   // sysfs path on Linux
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let n = usb_device_count()
+    print(n)
+    if n &gt; 0 {
+        print(usb_device_vid(0))    // vendor ID hex
+        print(usb_device_pid(0))    // product ID hex
+        print(usb_device_path(0))   // sysfs path on Linux
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Serial (UART / COM)</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let port = &quot;/dev/ttyUSB0&quot;       // Windows: &quot;COM3&quot;
+    let h = serial_open(port, 115200)
+    if h &gt;= 0 {
+        serial_write(h, &quot;AT\r\n&quot;)
+        print(serial_read(h, 256))
+        serial_close(h)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let port = &quot;/dev/ttyUSB0&quot;       // Windows: &quot;COM3&quot;
+    let h = serial_open(port, 115200)
+    if h &gt;= 0 {
+        serial_write(h, &quot;AT\r\n&quot;)
+        print(serial_read(h, 256))
+        serial_close(h)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Typical paths: Linux <code>/dev/ttyUSB0</code>, macOS <code>/dev/cu.usbserial-*</code>, Windows <code>COM3</code>.</p>
+
+      <h2 id="kernel-ipc">Signals &amp; kernel IPC</h2>
+      <p>Modules: <code>signals.ny</code>, <code>mqueue.ny</code></p>
+
+      <h3>OS signal handling</h3>
+      <p>Nyra uses a <strong>poll model</strong>: a C handler sets a flag; your main loop calls <code>signal_poll</code>. Do not run Nyra code inside the Unix signal handler.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    signal_install(SIGINT)
+    let mut ticks = 0
+    while ticks &lt; 1 {
+        if signal_poll(SIGINT) {
+            print(&quot;Ctrl+C — shutting down&quot;)
+            break
+        }
+        ticks = ticks + 1
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    signal_install(SIGINT)
+    let mut ticks: i32 = 0
+    while ticks &lt; 1 {
+        if signal_poll(SIGINT) {
+            print(&quot;Ctrl+C — shutting down&quot;)
+            break
+        }
+        ticks = ticks + 1
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Constants: <code>SIGINT</code> (2), <code>SIGTERM</code> (15), <code>SIGSEGV</code> (11). <strong>Windows:</strong> supported for SIGINT/SIGTERM via console control events.</p>
+
+      <h3>Message queues (Linux/macOS/Windows)</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let mq = mqueue_open(&quot;nyra_demo&quot;, 8, 256)
+    mqueue_send(mq, &quot;payload&quot;)
+    print(mqueue_recv(mq, 256))
+    mqueue_close(mq)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let mq = mqueue_open(&quot;nyra_demo&quot;, 8, 256)
+    mqueue_send(mq, &quot;payload&quot;)
+    print(mqueue_recv(mq, 256))
+    mqueue_close(mq)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Linux:</strong> POSIX mqueue (<code>librt</code>). <strong>macOS:</strong> in-process best-effort queue (name ignored). <strong>Windows:</strong> mailslot best-effort queue (local IPC).</p>
+
+      <h2 id="security">Hardware crypto &amp; permissions</h2>
+      <p>Modules: <code>hw_crypto.ny</code>, <code>permissions.ny</code> — OS-level hardware RNG and privilege drop. For everyday app randomness (dice, shuffles, simulations), use <code>random()</code>, <code>random(min, max)</code>, <code>random_f64()</code> — ChaCha20 seeded from OS/hardware entropy. Import <a href="stdlib.html#random"><code>stdlib/random.ny</code></a> for <code>shuffle_pick</code>. For application crypto (SHA, HMAC, AES), use <a href="stdlib.html#crypto"><code>stdlib/crypto/mod.ny</code></a>.</p>
+
+      <h3>Everyday random vs hardware TRNG</h3>
+      <table>
+        <thead><tr><th>API</th><th>Module</th><th>Use when</th></tr></thead>
+        <tbody>
+          <tr><td><code>random(min, max)</code></td><td>builtin / <code>random.ny</code></td><td>Games, shuffles — ChaCha20 stream</td></tr>
+          <tr><td><code>random_bytes(n)</code></td><td><code>stdlib/crypto/random.ny</code></td><td>Hex-encoded random bytes (same ChaCha20 backend)</td></tr>
+          <tr><td><code>hw_random_bytes(n)</code></td><td><code>stdlib/os/hw_crypto.ny</code></td><td>Raw OS TRNG for keys, tokens, crypto seeds</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Hardware TRNG</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let raw = hw_random_bytes(32)
+    print(raw.len())
+    print(hw_secure_enclave_available())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let raw = hw_random_bytes(32)
+    print(raw.len())
+    print(hw_secure_enclave_available())
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full Secure Enclave / Intel SGX key sealing needs platform-specific FFI beyond this hook.</p>
+
+      <h3>Privilege dropping &amp; sandbox hints</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    print(perm_getuid())
+    print(perm_geteuid())
+    // perm_drop_to_uid(1000)   // needs root; drops to user 1000
+    // perm_chroot(&quot;/var/jail&quot;) // Linux/macOS: chroot (needs privileges). Windows: best-effort SetCurrentDirectory.
+    print(perm_sandbox_seatbelt_available())  // macOS Seatbelt present
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    print(perm_getuid())
+    print(perm_geteuid())
+    // perm_drop_to_uid(1000)   // needs root; drops to user 1000
+    // perm_chroot(&quot;/var/jail&quot;) // Linux/macOS: chroot (needs privileges). Windows: best-effort SetCurrentDirectory.
+    print(perm_sandbox_seatbelt_available())  // macOS Seatbelt present
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Combined advanced demo: <code>nyra run examples/os/adv/main.ny</code></p>
+
+      <h2 id="hardware">GPIO / specialized hardware (FFI)</h2>
+      <p>Nyra does <strong>not</strong> ship a GPIO or serial-port stdlib like Arduino. Use one of these patterns:</p>
+
+      <h3>1. FFI with a C library</h3>
+      <p>When a mature C API exists (<code>libusb</code>, <code>libserialport</code>, OpenSSL, SQLite, …), declare it with <code>extern fn</code> and link the native library:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>extern fn strlen(s){
+    print(strlen(&quot;hello&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn strlen(s){
+    print(strlen(&quot;hello&quot;))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>In <code>nyra.mod</code>:</p>
+      <pre><code>link usb-1.0
+link -L /opt/homebrew/lib</code></pre>
+      <p>Guides: <a href="ffi-abi.html">FFI &amp; ABI</a> · <a href="packages.html">NyraPkg</a> (<code>link</code>, <code>link-source</code>) · <code>examples/ffi/call_libc/</code></p>
+
+      <h3>2. Language bridge (Python / Node / Java)</h3>
+      <p>When the hardware library lives in pip, npm, or Maven, run a subprocess worker and exchange JSON lines:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/bridge/mod.ny&quot;
+
+fn main() {
+    let req = bridge_op_add(1, 2)
+    let out = bridge_exec_arg(&quot;python3&quot;, &quot;workers/bridge_worker.py&quot;, req)
+    print(bridge_result(out))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/bridge/mod.ny&quot;
+
+fn main() -&gt; void {
+    let req = bridge_op_add(1, 2)
+    let out = bridge_exec_arg(&quot;python3&quot;, &quot;workers/bridge_worker.py&quot;, req)
+    print(bridge_result(out))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>Extend workers to call <code>pyserial</code>, <code>RPi.GPIO</code>, <code>numpy</code>, etc. Nyra stays the orchestrator. See <code>examples/bridge/</code> and <a href="ffi-abi.html">FFI &amp; ABI</a>.</p>
+
+      <h3>3. Network-connected devices</h3>
+      <p>Hardware that speaks TCP or HTTP can be reached with the net stdlib — no native driver required:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/net/tcp.ny&quot;
+import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/tcp.ny&quot;
+import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>See <a href="net-http.html">net/http API</a>.</p>
+
+      <h3>4. Bare-metal / drivers (<code>no_std</code>)</h3>
+      <p>For kernels, firmware, or memory-mapped I/O:</p>
+      <ul>
+        <li><code>no_std</code> at top of file (or <code>--no-std</code> CLI flag)</li>
+        <li><code>import "stdlib/core/mem.ny"</code> for <code>malloc</code>, <code>memcpy</code>, volatile MMIO</li>
+        <li><code>*T</code> typed raw pointers inside <code>unsafe</code> blocks</li>
+      </ul>
+      <p>See <a href="targets.html">Compilation targets</a> (<code>--freestanding</code>).</p>
+
+      <h2 id="cheat-sheet">Cheat sheet</h2>
+      <table>
+        <thead><tr><th>Goal</th><th>Approach</th></tr></thead>
+        <tbody>
+          <tr><td>Create / read files</td><td><code>import "stdlib/fs.ny"</code></td></tr>
+          <tr><td>Detect OS, read env, battery</td><td><code>import "stdlib/os.ny"</code></td></tr>
+          <tr><td>Run shell / system command</td><td><code>Command_new</code> / <code>.run</code> — <a href="stdlib.html#process">stdlib/process</a></td></tr>
+          <tr><td>Capture subprocess stdout</td><td><code>stdlib/bridge/mod.ny</code></td></tr>
+          <tr><td>Prompt user on terminal</td><td><code>input("...")</code> builtin</td></tr>
+          <tr><td>Existing C library</td><td><code>extern fn</code> + <code>link</code> in <code>nyra.mod</code></td></tr>
+          <tr><td>Python / npm hardware libs</td><td><code>stdlib/bridge/mod.ny</code></td></tr>
+          <tr><td>CPU affinity / RDTSC</td><td><code>affinity.ny</code>, <code>clocks.ny</code></td></tr>
+          <tr><td>USB list / serial port</td><td><code>usb.ny</code>, <code>serial.ny</code></td></tr>
+          <tr><td>SIGINT / mqueue</td><td><code>signals.ny</code> + <code>mqueue.ny</code> (Linux POSIX; macOS/Windows best-effort)</td></tr>
+          <tr><td>Random / HW crypto</td><td><code>random.ny</code>, <code>hw_crypto.ny</code>, <code>permissions.ny</code></td></tr>
+          <tr><td>CPU topology / disk / netif</td><td><code>cpu.ny</code>, <code>storage.ny</code>, <code>netif.ny</code></td></tr>
+          <tr><td>Embedded / MMIO</td><td><code>no_std</code> + <code>stdlib/core/mem.ny</code></td></tr>
+          <tr><td>Device over network</td><td><code>stdlib/net/tcp.ny</code> or <code>net/http</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="full-example">Full example</h2>
+      <p>Combine filesystem, OS detection, user input, and battery into one project (<code>myapp/main.ny</code>):</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/fs.ny&quot;
+import &quot;stdlib/os.ny&quot;
+
+fn main() {
+    let name = &quot;Ada&quot;
+
+    let info = `OS: ${platform_name()}
+PID: ${os_getpid()}
+HOME: ${os_getenv(&quot;HOME&quot;)}
+User: ${name}
+`
+    write_file(&quot;system_info.txt&quot;, info)
+    print(read_file(&quot;system_info.txt&quot;))
+
+    let bat = battery_percent()
+    if bat &gt;= 0 {
+        print(`Battery: ${bat}%`)
+    }
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/fs.ny&quot;
+import &quot;stdlib/os.ny&quot;
+
+fn main() -&gt; void {
+    let name: string = &quot;Ada&quot;
+
+    let info = `OS: ${platform_name()}
+PID: ${os_getpid()}
+HOME: ${os_getenv(&quot;HOME&quot;)}
+User: ${name}
+`
+    write_file(&quot;system_info.txt&quot;, info)
+    print(read_file(&quot;system_info.txt&quot;))
+
+    let bat = battery_percent()
+    if bat &gt;= 0 {
+        print(`Battery: ${bat}%`)
+    }
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
+nyra run .</code></pre>
+
+      <h2>Related docs</h2>
+      <ul>
+        <li><a href="stdlib.html#fs">Stdlib → fs</a> · <a href="stdlib.html#os-detail">Stdlib → os</a></li>
+        <li><a href="ffi-abi.html">FFI &amp; ABI</a> · <a href="net-http.html">net/http</a></li>
+        <li><a href="memory.html#unsafe">Memory → unsafe</a> · <a href="methods.html">Built-in methods</a></li>
+      </ul>
+
+      <footer class="site-footer"><a href="stdlib.html">← Standard library</a> · <a href="ffi-abi.html">FFI &amp; ABI →</a></footer>
+    </main>
+  </div>
+    <script src="vendor/lunr.min.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/typed-transform.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

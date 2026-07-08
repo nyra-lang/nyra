@@ -2,8 +2,10 @@ use std::collections::HashMap;
 
 use ast::*;
 use ast::expr_span;
-use errors::{ErrorKind, NyraError};
+use errors::NyraError;
+
 use crate::context::OwnershipCtx;
+use crate::diag;
 use crate::subtype;
 use types::Type;
 
@@ -76,7 +78,8 @@ fn walk_hrtb_calls(block: &Block, sigs: &HashMap<String, Vec<Type>>, errors: &mu
                 walk_expr_hrtb(&w.condition, sigs, errors);
                 walk_hrtb_calls(&w.body, sigs, errors);
             }
-            Statement::Spawn(b) | Statement::Benchmark(b) => walk_hrtb_calls(b, sigs, errors),
+            Statement::Spawn(s) => walk_hrtb_calls(&s.body, sigs, errors),
+            Statement::Benchmark(b) => walk_hrtb_calls(b, sigs, errors),
             _ => {}
         }
     }
@@ -104,13 +107,7 @@ fn check_hrtb_arg(arg: &Expression, param_ty: &Type, errors: &mut Vec<NyraError>
     }
     if let Type::FnPtr { lifetime_params, .. } = inner.as_ref() {
         if !lifetime_params.is_empty() && lifetime_params.len() != lifetimes.len() {
-            errors.push(NyraError::new(
-                ErrorKind::BorrowCheck,
-                expr_span(arg),
-                format!(
-                    "function '{name}' is not compatible with higher-ranked parameter (lifetime arity mismatch)"
-                ),
-            ));
+            errors.push(diag::hrtb_lifetime_arity_mismatch(name, expr_span(arg)));
         }
     }
 }
@@ -207,11 +204,7 @@ fn validate_lifetime_params(func: &Function, sig: &ResolvedSig, errors: &mut Vec
 
     for lt in used.keys() {
         if !sig.lifetime_params.iter().any(|p| p == lt) && !lt.starts_with("'elided") {
-            errors.push(NyraError::new(
-                ErrorKind::BorrowCheck,
-                func.span.clone(),
-                format!("undeclared lifetime '{lt}' in function '{}'", func.name),
-            ));
+            errors.push(diag::undeclared_lifetime(lt, &func.name, func.span.clone()));
         }
     }
 
@@ -231,15 +224,7 @@ fn validate_lifetime_params(func: &Function, sig: &ResolvedSig, errors: &mut Vec
             .filter(|l| l.is_some())
             .count();
         if ref_inputs > 1 {
-            errors.push(NyraError::new(
-                ErrorKind::BorrowCheck,
-                func.span.clone(),
-                format!(
-                    "function '{}' returns a reference but lifetime elision is ambiguous; annotate with explicit lifetimes",
-                    func.name
-                ),
-            )
-            .note("When multiple reference parameters exist, specify the return lifetime explicitly, e.g. fn pick<'a>(a: &'a string, b: &'a string) -> &'a string"));
+            errors.push(diag::lifetime_elision_ambiguous(&func.name, func.span.clone()));
         }
     }
 }
@@ -272,23 +257,17 @@ fn check_returns(func: &Function, sig: &ResolvedSig, errors: &mut Vec<NyraError>
     };
 
     if returns_ref_to_local(&ret_expr) {
-        errors.push(NyraError::new(
-            ErrorKind::BorrowCheck,
-            func.span.clone(),
-            "cannot return reference to local variable; value does not live long enough",
-        ));
+        errors.push(diag::return_ref_to_local(func.span.clone()));
         return;
     }
 
     if let Some(source_lt) = lifetime_of_returned_ref(&ret_expr, func, sig) {
         if let Some(expected) = &sig.return_lifetime {
             if !lifetime_outlives(&source_lt, expected) && source_lt != *expected {
-                errors.push(NyraError::new(
-                    ErrorKind::BorrowCheck,
+                errors.push(diag::returned_lifetime_too_short(
+                    &source_lt,
+                    expected,
                     func.span.clone(),
-                    format!(
-                        "returned reference lifetime '{source_lt}' does not outlive required lifetime '{expected}'"
-                    ),
                 ));
             }
         }

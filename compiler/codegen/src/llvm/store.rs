@@ -20,6 +20,7 @@ use super::util::{
     array_elem_from_ty, array_len_from_ty, assign_target_name, collect_assigned_in_block,
     escape_string, host_target_triple, is_array_ty, is_string_builtin_method, llvm_arith_rhs, llvm_binop_operand,
     llvm_cmp_operand, llvm_ptr, llvm_ptr_reg, llvm_storage_ty, llvm_string_len,
+    llvm_value_operand,
     llvm_struct_size_bytes, llvm_type_ann_resolved, llvm_ty_to_ann, resolve_struct_field_name,
     struct_name_from_llvm_ty, struct_ptr_type, struct_value_type, is_struct_pointer_type,
 };
@@ -68,7 +69,12 @@ impl Codegen {
                 self.coerce_value_reg_to_type(&val.reg, &val.ty, field_ty)
             } else if val.ty == "double" {
                 val.reg.clone()
-            } else if val.reg.chars().all(|c| c.is_ascii_digit() || c == '-') {
+            } else if val.reg.chars().all(|c| c.is_ascii_digit() || c == '-')
+                && matches!(
+                    val.ty.as_str(),
+                    "i1" | "i8" | "i16" | "i32" | "i64" | "i128" | "char" | "float" | "double"
+                )
+            {
                 val.reg.clone()
             } else {
                 let reg_op = format!("%{}", val.reg.trim_start_matches('%'));
@@ -148,9 +154,14 @@ impl Codegen {
             ));
         } else {
             let store_ty = llvm_storage_ty(&val.ty);
+            let store_val = if store_ty == "ptr" {
+                llvm_ptr_reg(&val.reg)
+            } else {
+                llvm_value_operand(&val.reg)
+            };
             self.emit(&format!(
-                "  store {store_ty} {}, {} %{}",
-                val.reg, ptr_ty, dest_alloca
+                "  store {store_ty} {store_val}, {} %{}",
+                ptr_ty, dest_alloca
             ));
         }
     }

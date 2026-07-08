@@ -703,7 +703,7 @@ path = "examples/builtins/spawn/spawn.ny"
 mode = "file"
 tier = "core"
 run = false
-ir_contains = ["spawn_capture"]
+ir_contains = ["spawn_task_capture"]
 
 [[case]]
 id = "builtins_stdlib_array_push"

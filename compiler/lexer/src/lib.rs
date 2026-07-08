@@ -1,4 +1,4 @@
-use errors::{ErrorKind, NyraError, Position, Span};
+use errors::{coded_lexer_error, NyraError, Position, Span};
 
 use ast::{FloatKind, IntKind};
 
@@ -26,6 +26,7 @@ pub enum TokenKind {
     Import,
     Module,
     Struct,
+    Union,
     Impl,
     SelfKw,
     For,
@@ -80,6 +81,7 @@ pub enum TokenKind {
     TypeChar,
     TypeBool,
     TypeString,
+    TypeBytes,
     TypePtr,
     TypeVoid,
 
@@ -122,6 +124,8 @@ pub enum TokenKind {
     AttrHot,
     /// `#[cold]` — unlikely executed; LLVM `cold`.
     AttrCold,
+    /// `#[comptime]` — function is evaluated at compile time (see `comptime` file directive).
+    AttrComptime,
     LParen,
     RParen,
     LBrace,
@@ -151,6 +155,82 @@ pub struct TemplateLitToken {
 pub enum TemplateLitPart {
     Text(String),
     Interp(String),
+}
+
+fn word_to_token_kind(name: &str) -> TokenKind {
+    match name {
+        "let" => TokenKind::Let,
+        "mut" => TokenKind::Mut,
+        "fn" => TokenKind::Fn,
+        "if" => TokenKind::If,
+        "else" => TokenKind::Else,
+        "while" => TokenKind::While,
+        "break" => TokenKind::Break,
+        "continue" => TokenKind::Continue,
+        "return" => TokenKind::Return,
+        "true" => TokenKind::True,
+        "false" => TokenKind::False,
+        "print" => TokenKind::Print,
+        "import" => TokenKind::Import,
+        "module" => TokenKind::Module,
+        "struct" => TokenKind::Struct,
+        "union" => TokenKind::Union,
+        "impl" => TokenKind::Impl,
+        "self" => TokenKind::SelfKw,
+        "for" => TokenKind::For,
+        "const" => TokenKind::Const,
+        "extern" => TokenKind::Extern,
+        "export" => TokenKind::Export,
+        "pub" => TokenKind::Pub,
+        "priv" => TokenKind::Priv,
+        "inst" => TokenKind::Inst,
+        "enum" => TokenKind::Enum,
+        "match" => TokenKind::Match,
+        "spawn" => TokenKind::Spawn,
+        "benchmark" => TokenKind::Benchmark,
+        "parallel" => TokenKind::Parallel,
+        "progress" => TokenKind::Progress,
+        "in" => TokenKind::In,
+        "test" => TokenKind::Test,
+        "async" => TokenKind::Async,
+        "await" => TokenKind::Await,
+        "trait" => TokenKind::Trait,
+        "macro" => TokenKind::Macro,
+        "defer" => TokenKind::Defer,
+        "dyn" => TokenKind::Dyn,
+        "unsafe" => TokenKind::Unsafe,
+        "asm" => TokenKind::Asm,
+        "as" => TokenKind::As,
+        "move" => TokenKind::Move,
+        "clone" => TokenKind::Clone,
+        "no_std" => TokenKind::Identifier("no_std".into()),
+        name if IntKind::parse_name(name).is_some() => {
+            TokenKind::TypeInt(IntKind::parse_name(name).unwrap())
+        }
+        "f32" => TokenKind::TypeF32,
+        "f64" => TokenKind::TypeF64,
+        "char" => TokenKind::TypeChar,
+        "bool" => TokenKind::TypeBool,
+        "string" => TokenKind::TypeString,
+        "bytes" => TokenKind::TypeBytes,
+        "ptr" => TokenKind::TypePtr,
+        "void" => TokenKind::TypeVoid,
+        _ => TokenKind::Identifier(name.to_string()),
+    }
+}
+
+/// Whether an identifier must be written with a leading `@` (reserved word or type name).
+pub fn needs_raw_prefix(name: &str) -> bool {
+    !matches!(word_to_token_kind(name), TokenKind::Identifier(_))
+}
+
+/// Emit source text for an identifier, prefixing `@` when required.
+pub fn display_identifier(name: &str) -> String {
+    if needs_raw_prefix(name) {
+        format!("@{name}")
+    } else {
+        name.to_string()
+    }
 }
 
 pub struct Lexer {
@@ -376,6 +456,7 @@ impl Lexer {
                     '"' => self.read_string(),
                     '`' => self.read_template_literal(),
                     '#' => self.read_attribute_or_error(start),
+                    '@' => self.read_raw_identifier(start),
                     '\n' => {
                         self.advance();
                         TokenKind::Newline
@@ -384,8 +465,7 @@ impl Lexer {
                     c if c.is_ascii_alphabetic() || c == '_' => self.read_identifier_or_keyword(),
                     _ => {
                         let span = self.span_from(start);
-                        self.errors.push(NyraError::new(
-                            ErrorKind::Lexer,
+                        self.errors.push(coded_lexer_error(
                             span,
                             format!("Invalid character '{c}'"),
                         ));
@@ -468,8 +548,7 @@ impl Lexer {
                             Some(v) => value = v,
                             None => {
                                 overflow = true;
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Lexer,
+                                self.errors.push(coded_lexer_error(
                                     self.span_from(start),
                                     "Integer literal overflow",
                                 ));
@@ -487,8 +566,7 @@ impl Lexer {
                             self.advance();
                         }
                         _ => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Lexer,
+                            self.errors.push(coded_lexer_error(
                                 self.span_from(start),
                                 "Numeric separators '_' must appear between digits (not at the end or doubled)",
                             ));
@@ -551,8 +629,7 @@ impl Lexer {
                             continue;
                         }
                         _ => {
-                            self.errors.push(NyraError::new(
-                                ErrorKind::Lexer,
+                            self.errors.push(coded_lexer_error(
                                 self.span_from(start),
                                 "Numeric separators '_' must appear between hex digits (not at the end or doubled)",
                             ));
@@ -570,8 +647,7 @@ impl Lexer {
                             Some(v) => value = v,
                             None => {
                                 overflow = true;
-                                self.errors.push(NyraError::new(
-                                    ErrorKind::Lexer,
+                                self.errors.push(coded_lexer_error(
                                     self.span_from(start),
                                     "Integer literal overflow",
                                 ));
@@ -584,8 +660,7 @@ impl Lexer {
             }
         }
         if !has_digit {
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 self.span_from(start),
                 "Expected hex digits after 0x",
             ));
@@ -760,8 +835,7 @@ impl Lexer {
                     self.advance();
                     TokenKind::CharLit(cp)
                 } else {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Lexer,
+                    self.errors.push(coded_lexer_error(
                         self.span_from(start),
                         "Character literal must end with a single closing quote",
                     ));
@@ -769,8 +843,7 @@ impl Lexer {
                 }
             }
             _ => {
-                self.errors.push(NyraError::new(
-                    ErrorKind::Lexer,
+                self.errors.push(coded_lexer_error(
                     self.span_from(start),
                     "Invalid character literal",
                 ));
@@ -923,7 +996,7 @@ impl Lexer {
         TokenKind::TemplateLit(TemplateLitToken { parts })
     }
 
-    fn read_identifier_or_keyword(&mut self) -> TokenKind {
+    fn read_ident_text(&mut self) -> String {
         let mut name = String::new();
         while let Some(c) = self.peek() {
             if c.is_ascii_alphanumeric() || c == '_' {
@@ -933,71 +1006,32 @@ impl Lexer {
                 break;
             }
         }
-        match name.as_str() {
-            "let" => TokenKind::Let,
-            "mut" => TokenKind::Mut,
-            "fn" => TokenKind::Fn,
-            "if" => TokenKind::If,
-            "else" => TokenKind::Else,
-            "while" => TokenKind::While,
-            "break" => TokenKind::Break,
-            "continue" => TokenKind::Continue,
-            "return" => TokenKind::Return,
-            "true" => TokenKind::True,
-            "false" => TokenKind::False,
-            "print" => TokenKind::Print,
-            "import" => TokenKind::Import,
-            "module" => TokenKind::Module,
-            "struct" => TokenKind::Struct,
-            "impl" => TokenKind::Impl,
-            "self" => TokenKind::SelfKw,
-            "for" => TokenKind::For,
-            "const" => TokenKind::Const,
-            "extern" => TokenKind::Extern,
-            "export" => TokenKind::Export,
-            "pub" => TokenKind::Pub,
-            "priv" => TokenKind::Priv,
-            "inst" => TokenKind::Inst,
-            "enum" => TokenKind::Enum,
-            "match" => TokenKind::Match,
-            "spawn" => TokenKind::Spawn,
-            "benchmark" => TokenKind::Benchmark,
-            "parallel" => TokenKind::Parallel,
-            "progress" => TokenKind::Progress,
-            "in" => TokenKind::In,
-            "test" => TokenKind::Test,
-            "async" => TokenKind::Async,
-            "await" => TokenKind::Await,
-            "trait" => TokenKind::Trait,
-            "macro" => TokenKind::Macro,
-            "defer" => TokenKind::Defer,
-            "dyn" => TokenKind::Dyn,
-            "unsafe" => TokenKind::Unsafe,
-            "asm" => TokenKind::Asm,
-            "as" => TokenKind::As,
-            "move" => TokenKind::Move,
-            "clone" => TokenKind::Clone,
-            "no_std" => TokenKind::Identifier("no_std".into()),
-            name if IntKind::parse_name(name).is_some() => {
-                TokenKind::TypeInt(IntKind::parse_name(name).unwrap())
-            }
-            "f32" => TokenKind::TypeF32,
-            "f64" => TokenKind::TypeF64,
-            "char" => TokenKind::TypeChar,
-            "bool" => TokenKind::TypeBool,
-            "string" => TokenKind::TypeString,
-            "ptr" => TokenKind::TypePtr,
-            "void" => TokenKind::TypeVoid,
-            _ => TokenKind::Identifier(name),
+        name
+    }
+
+    fn read_identifier_or_keyword(&mut self) -> TokenKind {
+        let name = self.read_ident_text();
+        word_to_token_kind(&name)
+    }
+
+    /// `@name` — use a reserved word as an identifier (like Rust `r#name`).
+    fn read_raw_identifier(&mut self, start: Position) -> TokenKind {
+        self.advance(); // @
+        if !matches!(self.peek(), Some(c) if c.is_ascii_alphabetic() || c == '_') {
+            self.errors.push(coded_lexer_error(
+                self.span_from(start),
+                "Expected identifier after '@'",
+            ));
+            return TokenKind::Identifier(String::new());
         }
+        TokenKind::Identifier(self.read_ident_text())
     }
 
     fn read_attribute_or_error(&mut self, start: errors::Position) -> TokenKind {
         self.advance(); // #
         if self.peek() != Some('[') {
             let span = self.span_from(start);
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 span,
                 "Expected '[' after '#'",
             ));
@@ -1018,8 +1052,7 @@ impl Lexer {
             self.skip_whitespace_and_comments();
             if self.peek() != Some('(') {
                 let span = self.span_from(start);
-                self.errors.push(NyraError::new(
-                    ErrorKind::Lexer,
+                self.errors.push(coded_lexer_error(
                     span,
                     "Expected '(' after derive",
                 ));
@@ -1091,12 +1124,18 @@ impl Lexer {
             }
             return TokenKind::AttrCold;
         }
+        if name == "comptime" {
+            self.skip_whitespace_and_comments();
+            if self.peek() == Some(']') {
+                self.advance();
+            }
+            return TokenKind::AttrComptime;
+        }
         {
             let span = self.span_from(start);
-            self.errors.push(NyraError::new(
-                ErrorKind::Lexer,
+            self.errors.push(coded_lexer_error(
                 span,
-                format!("Unknown attribute '#[{name}]' (supported: derive, no_escape, inline, hot, cold)"),
+                format!("Unknown attribute '#[{name}]' (supported: derive, no_escape, inline, hot, cold, comptime)"),
             ));
             self.skip_to_attr_end();
             return TokenKind::AttrDerive(vec![]);
@@ -1192,8 +1231,7 @@ impl Lexer {
         loop {
             match self.peek() {
                 None => {
-                    self.errors.push(NyraError::new(
-                        ErrorKind::Lexer,
+                    self.errors.push(coded_lexer_error(
                         Span::new(self.file.clone(), start, self.current_position()),
                         "unclosed block comment",
                     ));
@@ -1467,5 +1505,52 @@ mod tests {
             })
             .expect("string literal");
         assert_eq!(lit, "\x1b\n\x1b");
+    }
+
+    #[test]
+    fn tokenizes_raw_identifiers_for_reserved_words() {
+        let (tokens, errs) = Lexer::new("let @module = 1\nlet @clone = @module", "raw.ny").tokenize();
+        assert!(errs.is_empty(), "{errs:?}");
+        let idents: Vec<_> = tokens
+            .iter()
+            .filter_map(|t| match &t.kind {
+                TokenKind::Identifier(s) => Some(s.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(idents, vec!["module", "clone", "module"]);
+    }
+
+    #[test]
+    fn raw_identifier_allows_type_names() {
+        let (tokens, errs) = Lexer::new("let @i32 = 0", "raw.ny").tokenize();
+        assert!(errs.is_empty(), "{errs:?}");
+        assert!(tokens.iter().any(|t| {
+            matches!(&t.kind, TokenKind::Identifier(s) if s == "i32")
+        }));
+        assert!(!tokens.iter().any(|t| matches!(t.kind, TokenKind::TypeInt(_))));
+    }
+
+    #[test]
+    fn rejects_bare_at_sign() {
+        let (_, errs) = Lexer::new("let x = @", "raw.ny").tokenize();
+        assert!(!errs.is_empty());
+        assert!(errs.iter().any(|e| e.message.contains("Expected identifier after '@'")));
+    }
+
+    #[test]
+    fn rejects_at_followed_by_digit() {
+        let (_, errs) = Lexer::new("let x = @1", "raw.ny").tokenize();
+        assert!(!errs.is_empty());
+        assert!(errs.iter().any(|e| e.message.contains("Expected identifier after '@'")));
+    }
+
+    #[test]
+    fn needs_raw_prefix_detects_keywords_and_types() {
+        assert!(needs_raw_prefix("clone"));
+        assert!(needs_raw_prefix("module"));
+        assert!(needs_raw_prefix("i32"));
+        assert!(!needs_raw_prefix("foo"));
+        assert!(!needs_raw_prefix("no_std"));
     }
 }

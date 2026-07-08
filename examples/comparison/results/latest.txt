@@ -1,12 +1,14 @@
 # Nyra comparison — runtime + memory benchmark
-# Generated: 2026-06-23T21:27:07Z
-# Runs per command: 5 (warmup 1 discarded)
-# Time: mean wall clock in milliseconds (lower is better)
+# Generated: 2026-07-01T14:51:55Z
+# Runs per command: 5 (warmup 1 discarded); micro=9 concurrency=11
+# Time: median wall clock in milliseconds (lower is better)
+# Nyra parity: Zero/Explicit measured interleaved per suite (same OS/thermal window)
+# Parity summary excludes startup-dominated suites (hello, arithmetic) — see HTML report
 # Memory: peak max RSS in KB during timed runs (lower is better)
 # Binary size: hello-world release / stripped / UPX (see binary-size.tsv)
 # Platform: Darwin arm64
-# Nyra build: release; cpu_bound_pgo=release+pgo; Nyra flags: --no-prelude, -march=native (host release default)
-# Isolation: languages run in isolation (BENCH_LANG_COOLDOWN=2s between langs)
+# Nyra build: release; cpu_bound_pgo=release+pgo; Nyra flags: --no-prelude (single-file suites), prelude (multi-file/struct_sum), -march=native
+# Isolation: Nyra variants per suite (interleaved pairs); other langs isolated (BENCH_LANG_COOLDOWN=2s)
 # Compiled langs: -O3 -flto=thin (Nyra --release, clang/clang++/rustc aligned)
 # Note: Nyra/C/C++/Go/Rust/Java = compiled; Node/Python = runtime interpreters
 
@@ -16,140 +18,167 @@ Nyra appears twice:
   • Nyra (Zero Types)
   • Nyra (Explicit Types)
 
-Both generate native code.
+Both generate native code. Zero/Explicit pairs are measured interleaved per suite
+(median wall time) so OS startup noise does not skew the comparison.
 
-The benchmark demonstrates that Zero Types introduces no measurable runtime overhead.
+The hot-path parity table (HTML) excludes hello/arithmetic where process spawn
+dominates and LLVM output is identical — see full matrix for all suites.
 
 | Suite        | Language               | Time (ms) | Memory     |
 |--------------|------------------------|-----------|------------|
-| hello        | Nyra (Zero Types)      |     2.1220 |    1040 KB |
-| arithmetic   | Nyra (Zero Types)      |     2.1551 |    1040 KB |
-| dungeon      | Nyra (Zero Types)      |     2.1290 |    1040 KB |
-| loop         | Nyra (Zero Types)      |  1179.0800 |    1040 KB |
-| fib          | Nyra (Zero Types)      |  1177.4480 |    1040 KB |
-| nested       | Nyra (Zero Types)      |    52.3344 |    1040 KB |
-| struct_sum   | Nyra (Zero Types)      |     2.0914 |    1040 KB |
-| loop_nofold  | Nyra (Zero Types)      |  1178.3440 |    1040 KB |
-| cpu_bound    | Nyra (Zero Types)      |   808.2440 |    1040 KB |
-| mix          | Nyra (Zero Types)      |  1527.7020 |    1040 KB |
-| escape_local_channel | Nyra (Zero Types)      |     3.6289 |    1040 KB |
-| escape_spawn_channel | Nyra (Zero Types)      |    51.4814 |    1072 KB |
-| escape_point_sroa | Nyra (Zero Types)      |     2.1064 |    1040 KB |
-| memory_alloc_struct | Nyra (Zero Types)      |    11.3199 |    1072 KB |
-| memory_free_struct | Nyra (Zero Types)      |    11.0756 |    1104 KB |
-| memory_arena | Nyra (Zero Types)      |     4.3540 |    1040 KB |
-| memory_ownership | Nyra (Zero Types)      |     3.7169 |    1040 KB |
-| strings_concat | Nyra (Zero Types)      |  1475.3800 | 3360208 KB |
-| strings_substring | Nyra (Zero Types)      |     4.2802 |    2624 KB |
-| strings_replace | Nyra (Zero Types)      |     5.1886 |    2624 KB |
-| strings_split | Nyra (Zero Types)      |     4.6796 |    2752 KB |
-| strings_utf8 | Nyra (Zero Types)      |     8.5089 |    1040 KB |
-| collections_hashmap | Nyra (Zero Types)      |    34.4784 |    8640 KB |
-| collections_hashset | Nyra (Zero Types)      |    34.4070 |    8672 KB |
-| collections_vec_push | Nyra (Zero Types)      |     3.9401 |    3056 KB |
-| collections_vec_pop | Nyra (Zero Types)      |     4.8806 |    3056 KB |
-| collections_sort | Nyra (Zero Types)      |     2.4734 |    1328 KB |
-| algorithms_qsort | Nyra (Zero Types)      |     2.4517 |    1040 KB |
-| algorithms_mergesort | Nyra (Zero Types)      |     2.2752 |    1040 KB |
-| algorithms_binary_search | Nyra (Zero Types)      |     2.1046 |    1040 KB |
-| algorithms_json_parse | Nyra (Zero Types)      |    15.9545 |    1040 KB |
-| algorithms_regex | Nyra (Zero Types)      |    18.5455 |    1136 KB |
-| concurrency_spawn_tasks | Nyra (Zero Types)      |    31.5212 |    1424 KB |
-| concurrency_channel_pingpong | Nyra (Zero Types)      |    51.0538 |    1072 KB |
-| concurrency_worker_pool | Nyra (Zero Types)      | 10793.2800 |    3248 KB |
-| concurrency_parallel_map | Nyra (Zero Types)      |     3.4450 |    1136 KB |
-| cpu_bound_pgo | Nyra (Zero Types)      |   814.0100 |    1040 KB |
-| hello        | Nyra (Explicit Types)  |     2.1564 |    1040 KB |
-| arithmetic   | Nyra (Explicit Types)  |     2.1813 |    1040 KB |
-| dungeon      | Nyra (Explicit Types)  |     2.0690 |    1040 KB |
-| loop         | Nyra (Explicit Types)  |  1182.1680 |    1040 KB |
-| fib          | Nyra (Explicit Types)  |  1177.5280 |    1040 KB |
-| nested       | Nyra (Explicit Types)  |    52.4884 |    1040 KB |
-| struct_sum   | Nyra (Explicit Types)  |     2.0816 |    1040 KB |
-| loop_nofold  | Nyra (Explicit Types)  |  1177.7120 |    1040 KB |
-| cpu_bound    | Nyra (Explicit Types)  |   808.8380 |    1040 KB |
-| mix          | Nyra (Explicit Types)  |  1528.7700 |    1040 KB |
-| memory_alloc_struct | Nyra (Explicit Types)  |    11.8550 |    1072 KB |
-| memory_free_struct | Nyra (Explicit Types)  |    11.8094 |    1072 KB |
-| memory_arena | Nyra (Explicit Types)  |     4.6841 |    1040 KB |
-| memory_ownership | Nyra (Explicit Types)  |     4.0945 |    1040 KB |
-| strings_concat | Nyra (Explicit Types)  |  1526.9020 | 3389952 KB |
-| strings_substring | Nyra (Explicit Types)  |     4.7069 |    2624 KB |
-| strings_replace | Nyra (Explicit Types)  |     5.5296 |    2624 KB |
-| strings_split | Nyra (Explicit Types)  |     4.6424 |    2624 KB |
-| strings_utf8 | Nyra (Explicit Types)  |     8.5726 |    1040 KB |
-| collections_hashmap | Nyra (Explicit Types)  |    34.8680 |    8768 KB |
-| collections_hashset | Nyra (Explicit Types)  |    34.5860 |    8640 KB |
-| collections_vec_push | Nyra (Explicit Types)  |     4.2276 |    3120 KB |
-| collections_vec_pop | Nyra (Explicit Types)  |     5.3084 |    3056 KB |
-| collections_sort | Nyra (Explicit Types)  |     2.5803 |    1296 KB |
-| algorithms_qsort | Nyra (Explicit Types)  |     2.4749 |    1040 KB |
-| algorithms_mergesort | Nyra (Explicit Types)  |     2.4933 |    1040 KB |
-| algorithms_binary_search | Nyra (Explicit Types)  |     2.3133 |    1040 KB |
-| algorithms_json_parse | Nyra (Explicit Types)  |    16.2291 |    1040 KB |
-| algorithms_regex | Nyra (Explicit Types)  |    18.8368 |    1072 KB |
-| concurrency_spawn_tasks | Nyra (Explicit Types)  |    31.5756 |    1456 KB |
-| concurrency_channel_pingpong | Nyra (Explicit Types)  |    51.8880 |    1072 KB |
-| concurrency_worker_pool | Nyra (Explicit Types)  | 10764.4000 |    3184 KB |
-| concurrency_parallel_map | Nyra (Explicit Types)  |     3.4203 |    1152 KB |
-| cpu_bound_pgo | Nyra (Explicit Types)  |   814.8640 |    1040 KB |
-| hello        | C                      |     2.3020 |    1040 KB |
-| arithmetic   | C                      |     2.4409 |    1072 KB |
-| dungeon      | C                      |     2.1721 |    1040 KB |
-| loop         | C                      |  1298.8840 |    1040 KB |
-| fib          | C                      |  1303.3520 |    1040 KB |
-| nested       | C                      |    57.8440 |    1040 KB |
-| struct_sum   | C                      |     2.1280 |    1040 KB |
-| loop_nofold  | C                      |  1295.3520 |    1056 KB |
-| cpu_bound    | C                      |   462.5680 |    1056 KB |
-| mix          | C                      |  1797.8000 |    1040 KB |
-| memory_alloc_struct | C                      |     4.0010 |    1040 KB |
-| memory_free_struct | C                      |     3.9026 |    1040 KB |
-| memory_arena | C                      |     3.9280 |    1040 KB |
-| memory_ownership | C                      |     4.0266 |    1040 KB |
-| hello        | C++                    |     2.2364 |    1040 KB |
-| arithmetic   | C++                    |     2.3370 |    1056 KB |
-| dungeon      | C++                    |     2.3036 |    1056 KB |
-| loop         | C++                    |  1295.2040 |    1056 KB |
-| fib          | C++                    |  1295.8100 |    1056 KB |
-| nested       | C++                    |    57.6682 |    1056 KB |
-| struct_sum   | C++                    |     2.1645 |    1056 KB |
-| loop_nofold  | C++                    |  1306.0240 |    1056 KB |
-| cpu_bound    | C++                    |   467.6940 |    1056 KB |
-| mix          | C++                    |  1803.3820 |    1056 KB |
-| hello        | Go                     |     3.0624 |    3600 KB |
-| arithmetic   | Go                     |     3.0902 |    3616 KB |
-| dungeon      | Go                     |     2.9256 |    3440 KB |
-| loop         | Go                     |  1308.2920 |    3584 KB |
-| fib          | Go                     |  1299.2120 |    3472 KB |
-| nested       | Go                     |    58.5008 |    3472 KB |
-| struct_sum   | Go                     |    28.7644 |    3664 KB |
-| loop_nofold  | Go                     |  1296.7100 |    3632 KB |
-| cpu_bound    | Go                     |   579.0500 |    3632 KB |
-| mix          | Go                     |  1806.1780 |    3632 KB |
-| memory_alloc_struct | Go                     |     5.4047 |    3600 KB |
-| memory_free_struct | Go                     |     5.0280 |    3552 KB |
-| memory_arena | Go                     |     5.3298 |    3600 KB |
-| memory_ownership | Go                     |     5.2583 |    3552 KB |
-| strings_concat | Go                     |   309.2760 |   17744 KB |
-| collections_hashmap | Go                     |     6.0268 |    3840 KB |
-| collections_vec_push | Go                     |     5.4004 |    8304 KB |
-| algorithms_json_parse | Go                     |     3.5428 |    3600 KB |
-| concurrency_spawn_tasks | Go                     |     3.2276 |    3552 KB |
-| concurrency_channel_pingpong | Go                     |    19.8266 |    3584 KB |
-| hello        | Rust                   |     2.6280 |    1264 KB |
-| arithmetic   | Rust                   |     2.5853 |    1200 KB |
-| dungeon      | Rust                   |     2.5663 |    1200 KB |
-| loop         | Rust                   |  1543.6780 |    1264 KB |
-| fib          | Rust                   |  1552.4160 |    1264 KB |
-| nested       | Rust                   |    68.8196 |    1264 KB |
-| struct_sum   | Rust                   |     2.5545 |    1200 KB |
-| loop_nofold  | Rust                   |  1544.6120 |    1264 KB |
-| cpu_bound    | Rust                   |   865.3800 |    1264 KB |
-| mix          | Rust                   |  1990.3540 |    1264 KB |
-| memory_alloc_struct | Rust                   |     4.6745 |    1264 KB |
-| collections_vec_push | Rust                   |     6.0170 |    3264 KB |
-| concurrency_channel_pingpong | Rust                   |    11.3840 |    3024 KB |
+| hello        | Nyra (Zero Types)      |     2.8385 |    1248 KB |
+| hello        | Nyra (Explicit Types)  |     2.7347 |    1248 KB |
+| arithmetic   | Nyra (Zero Types)      |     1.7535 |    1056 KB |
+| arithmetic   | Nyra (Explicit Types)  |     1.7746 |    1056 KB |
+| dungeon      | Nyra (Zero Types)      |     2.9239 |    1408 KB |
+| dungeon      | Nyra (Explicit Types)  |     2.8921 |    1408 KB |
+| loop         | Nyra (Zero Types)      |  1507.0000 |    1056 KB |
+| loop         | Nyra (Explicit Types)  |  1435.4149 |    1056 KB |
+| fib          | Nyra (Zero Types)      |  1492.2386 |    1056 KB |
+| fib          | Nyra (Explicit Types)  |  1437.3031 |    1088 KB |
+| nested       | Nyra (Zero Types)      |    53.8925 |    1120 KB |
+| nested       | Nyra (Explicit Types)  |    53.7138 |    1120 KB |
+| struct_sum   | Nyra (Zero Types)      |     3.2753 |    1440 KB |
+| struct_sum   | Nyra (Explicit Types)  |     3.3483 |    1440 KB |
+| loop_nofold  | Nyra (Zero Types)      |  1445.6772 |    1056 KB |
+| loop_nofold  | Nyra (Explicit Types)  |  1445.3030 |    1056 KB |
+| comptime_table | Nyra (Zero Types)      |     3.3990 |    1056 KB |
+| comptime_table | Nyra (Explicit Types)  |     3.4120 |    1056 KB |
+| comptime_table | Nyra (Comptime)        |     1.7501 |    1056 KB |
+| comptime_table | Nyra (Comptime + Types) |     1.7518 |    1056 KB |
+| cpu_bound    | Nyra (Zero Types)      |   824.5202 |    1056 KB |
+| cpu_bound    | Nyra (Explicit Types)  |   845.7964 |    1088 KB |
+| mix          | Nyra (Zero Types)      |  1902.0808 |    1056 KB |
+| mix          | Nyra (Explicit Types)  |  1937.3013 |    1056 KB |
+| escape_local_channel | Nyra (Zero Types)      |     3.6183 |    1056 KB |
+| escape_spawn_channel | Nyra (Zero Types)      |   137.7965 |    1552 KB |
+| escape_point_sroa | Nyra (Zero Types)      |     2.8875 |    1504 KB |
+| memory_alloc_struct | Nyra (Zero Types)      |    13.7532 |    1600 KB |
+| memory_alloc_struct | Nyra (Explicit Types)  |    13.8135 |    1600 KB |
+| memory_free_struct | Nyra (Zero Types)      |    12.2314 |    1280 KB |
+| memory_free_struct | Nyra (Explicit Types)  |    12.1550 |    1280 KB |
+| memory_arena | Nyra (Zero Types)      |     4.6558 |    1056 KB |
+| memory_arena | Nyra (Explicit Types)  |     4.8188 |    1056 KB |
+| memory_ownership | Nyra (Zero Types)      |     5.1473 |    1408 KB |
+| memory_ownership | Nyra (Explicit Types)  |     5.7096 |    1408 KB |
+| strings_concat | Nyra (Zero Types)      |   280.3797 |    4496 KB |
+| strings_concat | Nyra (Explicit Types)  |   284.8454 |    4560 KB |
+| strings_substring | Nyra (Zero Types)      |     4.3727 |    2720 KB |
+| strings_substring | Nyra (Explicit Types)  |     4.4529 |    2720 KB |
+| strings_replace | Nyra (Zero Types)      |     9.5628 |    1264 KB |
+| strings_replace | Nyra (Explicit Types)  |     7.9875 |    1264 KB |
+| strings_split | Nyra (Zero Types)      |     4.3498 |    2784 KB |
+| strings_split | Nyra (Explicit Types)  |     4.4815 |    2784 KB |
+| strings_utf8 | Nyra (Zero Types)      |     8.5858 |    1104 KB |
+| strings_utf8 | Nyra (Explicit Types)  |     8.8570 |    1104 KB |
+| collections_hashmap | Nyra (Zero Types)      |     3.2590 |    1888 KB |
+| collections_hashmap | Nyra (Explicit Types)  |     3.3080 |    1888 KB |
+| collections_hashset | Nyra (Zero Types)      |     4.6538 |    1904 KB |
+| collections_hashset | Nyra (Explicit Types)  |     3.8011 |    1904 KB |
+| collections_vec_push | Nyra (Zero Types)      |     3.8446 |    3136 KB |
+| collections_vec_push | Nyra (Explicit Types)  |     3.8013 |    3136 KB |
+| collections_vec_pop | Nyra (Zero Types)      |     4.6895 |    3136 KB |
+| collections_vec_pop | Nyra (Explicit Types)  |     4.6758 |    3136 KB |
+| collections_sort | Nyra (Zero Types)      |     2.1240 |    1376 KB |
+| collections_sort | Nyra (Explicit Types)  |     2.0937 |    1376 KB |
+| algorithms_qsort | Nyra (Zero Types)      |     1.9211 |    1056 KB |
+| algorithms_qsort | Nyra (Explicit Types)  |     1.9253 |    1056 KB |
+| algorithms_mergesort | Nyra (Zero Types)      |     1.9337 |    1056 KB |
+| algorithms_mergesort | Nyra (Explicit Types)  |     1.8854 |    1056 KB |
+| algorithms_binary_search | Nyra (Zero Types)      |     1.7623 |    1056 KB |
+| algorithms_binary_search | Nyra (Explicit Types)  |     1.7486 |    1056 KB |
+| algorithms_json_parse | Nyra (Zero Types)      |    16.2290 |    1104 KB |
+| algorithms_json_parse | Nyra (Explicit Types)  |    16.8470 |    1104 KB |
+| algorithms_regex | Nyra (Zero Types)      |    19.0232 |    1232 KB |
+| algorithms_regex | Nyra (Explicit Types)  |    18.9447 |    1232 KB |
+| concurrency_spawn_tasks | Nyra (Zero Types)      |    35.6302 |    8960 KB |
+| concurrency_spawn_tasks | Nyra (Explicit Types)  |    35.5509 |    8960 KB |
+| concurrency_channel_pingpong | Nyra (Zero Types)      |   127.3566 |    1440 KB |
+| concurrency_channel_pingpong | Nyra (Explicit Types)  |   141.9538 |    1440 KB |
+| concurrency_worker_pool | Nyra (Zero Types)      | 10765.0156 |    4368 KB |
+| concurrency_worker_pool | Nyra (Explicit Types)  | 10782.3877 |    4368 KB |
+| concurrency_parallel_map | Nyra (Zero Types)      |     2.8462 |    1168 KB |
+| concurrency_parallel_map | Nyra (Explicit Types)  |     2.8606 |    1168 KB |
+| cpu_bound_pgo | Nyra (Zero Types)      |   820.8022 |    1056 KB |
+| cpu_bound_pgo | Nyra (Explicit Types)  |   815.7148 |    1056 KB |
+| hello        | C                      |     3.5144 |    1056 KB |
+| arithmetic   | C                      |     2.3759 |    1056 KB |
+| dungeon      | C                      |     2.2176 |    1056 KB |
+| loop         | C                      |  1303.0582 |    1056 KB |
+| fib          | C                      |  1302.4585 |    1088 KB |
+| nested       | C                      |    58.4103 |    1120 KB |
+| struct_sum   | C                      |     2.3032 |    1056 KB |
+| loop_nofold  | C                      |  1297.7592 |    1072 KB |
+| comptime_table | C                      |     5.7788 |    1056 KB |
+| cpu_bound    | C                      |   461.3012 |    1136 KB |
+| mix          | C                      |  1794.5987 |    1056 KB |
+| memory_alloc_struct | C                      |     6.8127 |    1056 KB |
+| memory_free_struct | C                      |     4.3945 |    1056 KB |
+| memory_arena | C                      |     4.4071 |    1056 KB |
+| memory_ownership | C                      |     6.7770 |    1056 KB |
+| strings_concat | C                      |   352.1632 |    5680 KB |
+| collections_hashmap | C                      |     6.5778 |    1328 KB |
+| hello        | C++                    |     3.5728 |    1072 KB |
+| arithmetic   | C++                    |     3.2475 |    1088 KB |
+| dungeon      | C++                    |     2.7037 |    1088 KB |
+| loop         | C++                    |  1295.9259 |    1088 KB |
+| fib          | C++                    |  1295.1900 |    1088 KB |
+| nested       | C++                    |    57.9097 |    1088 KB |
+| struct_sum   | C++                    |     3.0815 |    1088 KB |
+| loop_nofold  | C++                    |  1304.3978 |    1088 KB |
+| comptime_table | C++                    |     6.3509 |    1056 KB |
+| cpu_bound    | C++                    |   459.2330 |    1088 KB |
+| mix          | C++                    |  1853.0122 |    1088 KB |
+| hello        | Go                     |     4.7252 |    3664 KB |
+| arithmetic   | Go                     |     2.7970 |    3648 KB |
+| dungeon      | Go                     |     4.3247 |    3600 KB |
+| loop         | Go                     |  1320.8935 |    3680 KB |
+| fib          | Go                     |  1301.3202 |    3744 KB |
+| nested       | Go                     |    59.5800 |    3808 KB |
+| struct_sum   | Go                     |    28.0802 |    3680 KB |
+| loop_nofold  | Go                     |  1296.6313 |    3632 KB |
+| comptime_table | Go                     |     9.3353 |    3648 KB |
+| cpu_bound    | Go                     |   569.5206 |    3648 KB |
+| mix          | Go                     |  1805.7755 |    3600 KB |
+| memory_alloc_struct | Go                     |    11.7482 |    3664 KB |
+| memory_free_struct | Go                     |    11.9450 |    3632 KB |
+| memory_arena | Go                     |     8.4324 |    3600 KB |
+| memory_ownership | Go                     |     8.8297 |    3648 KB |
+| strings_concat | Go                     |   298.6563 |   18064 KB |
+| strings_substring | Go                     |     5.8756 |    3728 KB |
+| strings_replace | Go                     |     6.5368 |    3584 KB |
+| strings_split | Go                     |     6.9053 |    3632 KB |
+| strings_utf8 | Go                     |    12.5910 |    3632 KB |
+| collections_hashmap | Go                     |     7.0882 |    3920 KB |
+| collections_hashset | Go                     |     9.5585 |    3920 KB |
+| collections_vec_push | Go                     |     9.3337 |    8176 KB |
+| collections_vec_pop | Go                     |     6.8076 |    8176 KB |
+| collections_sort | Go                     |    24.8332 |    4048 KB |
+| algorithms_qsort | Go                     |     3.6964 |    3600 KB |
+| algorithms_mergesort | Go                     |     3.0289 |    3648 KB |
+| algorithms_binary_search | Go                     |     5.1413 |    3472 KB |
+| algorithms_json_parse | Go                     |    11.0024 |    3584 KB |
+| algorithms_regex | Go                     |    15.7495 |    3872 KB |
+| concurrency_spawn_tasks | Go                     |     5.6698 |    4816 KB |
+| concurrency_channel_pingpong | Go                     |    17.7786 |    3776 KB |
+| concurrency_worker_pool | Go                     |     0.0000 |       0 KB |
+| concurrency_parallel_map | Go                     |    41.3287 |   11488 KB |
+| hello        | Rust                   |     3.9686 |    1216 KB |
+| arithmetic   | Rust                   |     2.1854 |    1216 KB |
+| dungeon      | Rust                   |     3.4192 |    1280 KB |
+| loop         | Rust                   |  1544.2063 |    1280 KB |
+| fib          | Rust                   |  1563.8855 |    1280 KB |
+| nested       | Rust                   |    69.1566 |    1280 KB |
+| struct_sum   | Rust                   |     3.8970 |    1216 KB |
+| loop_nofold  | Rust                   |  1543.0294 |    1280 KB |
+| comptime_table | Rust                   |     4.6151 |    1216 KB |
+| cpu_bound    | Rust                   |   861.3130 |    1280 KB |
+| mix          | Rust                   |  1998.1725 |    1280 KB |
+| memory_alloc_struct | Rust                   |     4.3952 |    1216 KB |
+| strings_concat | Rust                   |     5.5877 |    1472 KB |
+| collections_hashmap | Rust                   |     9.4100 |    1472 KB |
+| collections_vec_push | Rust                   |     5.9575 |    3280 KB |
+| concurrency_channel_pingpong | Rust                   |    10.8600 |    3328 KB |
 
 # Binary size — hello world (lower is better)
 # release: optimized build as produced by the toolchain
@@ -177,237 +206,250 @@ Nyra appears twice:
   • Nyra (Zero Types)
   • Nyra (Explicit Types)
 
-Both generate native code.
+Both generate native code. Zero/Explicit pairs are measured interleaved per suite
+(median wall time). Hot-path parity excludes hello/arithmetic (spawn-dominated).
 
-The benchmark demonstrates that Zero Types introduces no measurable runtime overhead.
+   Hot-path parity (excludes hello, arithmetic — spawn-dominated):
 
    Benchmark                      Zero Types         Explicit Types   Δ time
    --------------------------------------------------------------------------
-   hello                           2.12 ms              2.16 ms    +1.6%
-   arithmetic                      2.16 ms              2.18 ms    +1.2%
-   loop                        1,179.08 ms          1,182.17 ms    +0.3%
-   fib                         1,177.45 ms          1,177.53 ms       0%
-   nested                         52.33 ms             52.49 ms    +0.3%
-   struct                          2.09 ms              2.08 ms    -0.5%
-   dungeon                         2.13 ms              2.07 ms    -2.8%
-   cpu_bound                     808.24 ms            808.84 ms    +0.1%
-   mix                         1,527.70 ms          1,528.77 ms    +0.1%
-   loop_nofold                 1,178.34 ms          1,177.71 ms    -0.1%
-   memory_alloc_struct             11.32 ms             11.86 ms    +4.7%
-   memory_free_struct             11.08 ms             11.81 ms    +6.6%
-   memory_arena                    4.35 ms              4.68 ms    +7.6%
-   memory_ownership                3.72 ms              4.09 ms   +10.2%
-   strings_concat              1,475.38 ms          1,526.90 ms    +3.5%
-   strings_substring               4.28 ms              4.71 ms   +10.0%
-   strings_replace                 5.19 ms              5.53 ms    +6.6%
-   strings_split                   4.68 ms              4.64 ms    -0.8%
-   strings_utf8                    8.51 ms              8.57 ms    +0.7%
-   collections_hashmap             34.48 ms             34.87 ms    +1.1%
-   collections_hashset             34.41 ms             34.59 ms    +0.5%
-   collections_vec_push              3.94 ms              4.23 ms    +7.3%
-   collections_vec_pop              4.88 ms              5.31 ms    +8.8%
-   collections_sort                2.47 ms              2.58 ms    +4.3%
-   algorithms_qsort                2.45 ms              2.47 ms    +0.9%
-   algorithms_mergesort              2.28 ms              2.49 ms    +9.6%
-   algorithms_binary_search              2.10 ms              2.31 ms    +9.9%
-   algorithms_json_parse             15.95 ms             16.23 ms    +1.7%
-   algorithms_regex               18.55 ms             18.84 ms    +1.6%
-   concurrency_spawn_tasks             31.52 ms             31.58 ms    +0.2%
-   concurrency_channel_pingpong             51.05 ms             51.89 ms    +1.6%
-   concurrency_worker_pool         10,793.28 ms         10,764.40 ms    -0.3%
-   concurrency_parallel_map              3.44 ms              3.42 ms    -0.7%
-   cpu_bound_pgo                 814.01 ms            814.86 ms    +0.1%
+   loop                        1,507.00 ms          1,435.41 ms    -4.8%
+   fib                         1,492.24 ms          1,437.30 ms    -3.7%
+   nested                         53.89 ms             53.71 ms    -0.3%
+   struct                          3.28 ms              3.35 ms    +2.2%
+   dungeon                         2.92 ms              2.89 ms    -1.1%
+   cpu_bound                     824.52 ms            845.80 ms    +2.6%
+   mix                         1,902.08 ms          1,937.30 ms    +1.9%
+   loop_nofold                 1,445.68 ms          1,445.30 ms       0%
+   comptime_table                  3.40 ms              3.41 ms    +0.4%
+   memory_alloc_struct             13.75 ms             13.81 ms    +0.4%
+   memory_free_struct             12.23 ms             12.15 ms    -0.6%
+   memory_arena                    4.66 ms              4.82 ms    +3.5%
+   memory_ownership                5.15 ms              5.71 ms   +10.9%
+   strings_concat                280.38 ms            284.85 ms    +1.6%
+   strings_substring               4.37 ms              4.45 ms    +1.8%
+   strings_replace                 9.56 ms              7.99 ms   -16.5%
+   strings_split                   4.35 ms              4.48 ms    +3.0%
+   strings_utf8                    8.59 ms              8.86 ms    +3.2%
+   collections_hashmap              3.26 ms              3.31 ms    +1.5%
+   collections_hashset              4.65 ms              3.80 ms   -18.3%
+   collections_vec_push              3.84 ms              3.80 ms    -1.1%
+   collections_vec_pop              4.69 ms              4.68 ms    -0.3%
+   collections_sort                2.12 ms              2.09 ms    -1.4%
+   algorithms_qsort                1.92 ms              1.93 ms    +0.2%
+   algorithms_mergesort              1.93 ms              1.89 ms    -2.5%
+   algorithms_binary_search              1.76 ms              1.75 ms    -0.8%
+   algorithms_json_parse             16.23 ms             16.85 ms    +3.8%
+   algorithms_regex               19.02 ms             18.94 ms    -0.4%
+   concurrency_spawn_tasks             35.63 ms             35.55 ms    -0.2%
+   concurrency_channel_pingpong            127.36 ms            141.95 ms   +11.5%
+   concurrency_worker_pool         10,765.02 ms         10,782.39 ms    +0.2%
+   concurrency_parallel_map              2.85 ms              2.86 ms    +0.5%
+   cpu_bound_pgo                 820.80 ms            815.71 ms    -0.6%
 
    Same source algorithm in every row — only type annotations differ.
-   Median |Δ| across 34 benchmarks: 1.57% time, 0.00% memory.
-   Small non-zero deltas are run-to-run noise, not type overhead.
+   Median |Δ| across 33 hot-path benchmarks: 1.50% time.
+   Interleaved paired runs + median wall time (see report header).
+
+   Startup / I/O micro-benchmarks (informational — not used for parity median):
+
+   Benchmark                      Zero Types         Explicit Types   Δ time
+   --------------------------------------------------------------------------
+   hello                           2.84 ms              2.73 ms    -3.7%  ‡
+   arithmetic                      1.75 ms              1.77 ms    +1.2%  ‡
+   ‡ LLVM output identical; delta is process-spawn / OS noise, not type overhead.
 
    Benchmark                      Zero Types         Explicit Types   Δ memory
    ----------------------------------------------------------------------------
-   hello                             1.02 MB                1.02 MB         0%
-   arithmetic                        1.02 MB                1.02 MB         0%
-   loop                              1.02 MB                1.02 MB         0%
-   fib                               1.02 MB                1.02 MB         0%
-   nested                            1.02 MB                1.02 MB         0%
-   struct                            1.02 MB                1.02 MB         0%
-   dungeon                           1.02 MB                1.02 MB         0%
-   cpu_bound                         1.02 MB                1.02 MB         0%
-   mix                               1.02 MB                1.02 MB         0%
-   loop_nofold                       1.02 MB                1.02 MB         0%
-   memory_alloc_struct                1.05 MB                1.05 MB         0%
-   memory_free_struct                1.08 MB                1.05 MB      -2.9%
-   memory_arena                      1.02 MB                1.02 MB         0%
-   memory_ownership                  1.02 MB                1.02 MB         0%
-   strings_concat                 3281.45 MB             3310.50 MB      +0.9%
-   strings_substring                 2.56 MB                2.56 MB         0%
-   strings_replace                   2.56 MB                2.56 MB         0%
-   strings_split                     2.69 MB                2.56 MB      -4.7%
-   strings_utf8                      1.02 MB                1.02 MB         0%
-   collections_hashmap                8.44 MB                8.56 MB      +1.5%
-   collections_hashset                8.47 MB                8.44 MB      -0.4%
-   collections_vec_push                2.98 MB                3.05 MB      +2.1%
-   collections_vec_pop                2.98 MB                2.98 MB         0%
-   collections_sort                  1.30 MB                1.27 MB      -2.4%
-   algorithms_qsort                  1.02 MB                1.02 MB         0%
-   algorithms_mergesort                1.02 MB                1.02 MB         0%
-   algorithms_binary_search                1.02 MB                1.02 MB         0%
-   algorithms_json_parse                1.02 MB                1.02 MB         0%
-   algorithms_regex                  1.11 MB                1.05 MB      -5.6%
-   concurrency_spawn_tasks                1.39 MB                1.42 MB      +2.2%
-   concurrency_channel_pingpong                1.05 MB                1.05 MB         0%
-   concurrency_worker_pool                3.17 MB                3.11 MB      -2.0%
-   concurrency_parallel_map                1.11 MB                1.12 MB      +1.4%
-   cpu_bound_pgo                     1.02 MB                1.02 MB         0%
+   hello                             1.22 MB                1.22 MB         0% ‡
+   arithmetic                        1.03 MB                1.03 MB         0% ‡
+   loop                              1.03 MB                1.03 MB         0%
+   fib                               1.03 MB                1.06 MB      +3.0%
+   nested                            1.09 MB                1.09 MB         0%
+   struct                            1.41 MB                1.41 MB         0%
+   dungeon                           1.38 MB                1.38 MB         0%
+   cpu_bound                         1.03 MB                1.06 MB      +3.0%
+   mix                               1.03 MB                1.03 MB         0%
+   loop_nofold                       1.03 MB                1.03 MB         0%
+   comptime_table                    1.03 MB                1.03 MB         0%
+   memory_alloc_struct                1.56 MB                1.56 MB         0%
+   memory_free_struct                1.25 MB                1.25 MB         0%
+   memory_arena                      1.03 MB                1.03 MB         0%
+   memory_ownership                  1.38 MB                1.38 MB         0%
+   strings_concat                    4.39 MB                4.45 MB      +1.4%
+   strings_substring                 2.66 MB                2.66 MB         0%
+   strings_replace                   1.23 MB                1.23 MB         0%
+   strings_split                     2.72 MB                2.72 MB         0%
+   strings_utf8                      1.08 MB                1.08 MB         0%
+   collections_hashmap                1.84 MB                1.84 MB         0%
+   collections_hashset                1.86 MB                1.86 MB         0%
+   collections_vec_push                3.06 MB                3.06 MB         0%
+   collections_vec_pop                3.06 MB                3.06 MB         0%
+   collections_sort                  1.34 MB                1.34 MB         0%
+   algorithms_qsort                  1.03 MB                1.03 MB         0%
+   algorithms_mergesort                1.03 MB                1.03 MB         0%
+   algorithms_binary_search                1.03 MB                1.03 MB         0%
+   algorithms_json_parse                1.08 MB                1.08 MB         0%
+   algorithms_regex                  1.20 MB                1.20 MB         0%
+   concurrency_spawn_tasks                8.75 MB                8.75 MB         0%
+   concurrency_channel_pingpong                1.41 MB                1.41 MB         0%
+   concurrency_worker_pool                4.27 MB                4.27 MB         0%
+   concurrency_parallel_map                1.14 MB                1.14 MB         0%
+   cpu_bound_pgo                     1.03 MB                1.03 MB         0%
 
 ========================================================================
 FULL COMPARISON MATRIX — time + peak memory per cell
 ========================================================================
 
-   Benchmark                 Nyra-Z      Nyra-T           C         C++          Go        Rust
-   --------------------------------------------------------------------------------------------
-   hello                     2.12 *      2.16 †      2.30 †      2.24 †       3.06        2.63 
-                            1.02 MB     1.02 MB     1.02 MB     1.02 MB     3.52 MB     1.23 MB
+   Benchmark                 Nyra-Z      Nyra-TNyra (ComptiNyra (Compti           C         C++          Go        Rust
+   --------------------------------------------------------------------------------------------------------------------
+   hello                      2.84       2.73 *           —           —      3.51 †       3.57        4.73        3.97 
+                            1.22 MB     1.22 MB                             1.03 MB     1.05 MB     3.58 MB     1.19 MB
    (Minimal stdout I/O)
 
-   arithmetic                2.16 *      2.18 †       2.44        2.34        3.09        2.59 
-                            1.02 MB     1.02 MB     1.05 MB     1.03 MB     3.53 MB     1.17 MB
+   arithmetic                1.75 *      1.77 †           —           —      2.38 †       3.25        2.80        2.19 
+                            1.03 MB     1.03 MB                             1.03 MB     1.06 MB     3.56 MB     1.19 MB
    (Two integer adds)
 
-   loop                  1,179.08 *  1,182.17 †  1,298.88 †   1,295.20    1,308.29    1,543.68 
-                            1.02 MB     1.02 MB     1.02 MB     1.03 MB     3.50 MB     1.23 MB
+   loop                  1,507.00 †  1,435.41 †           —           —  1,303.06 †  1,295.93 *   1,320.89    1,544.21 
+                            1.03 MB     1.03 MB                             1.03 MB     1.06 MB     3.59 MB     1.25 MB
    (Modular sum 0..N-1 (N=375M, mod 1e9+7))
 
-   fib                   1,177.45 *  1,177.53 †  1,303.35 †   1,295.81    1,299.21    1,552.42 
-                            1.02 MB     1.02 MB     1.02 MB     1.03 MB     3.39 MB     1.23 MB
+   fib                   1,492.24 †   1,437.30            —           —   1,302.46   1,295.19 *   1,301.32    1,563.89 
+                            1.03 MB     1.06 MB                             1.06 MB     1.06 MB     3.66 MB     1.25 MB
    (Fibonacci swaps (375M steps, mod 1e9+7))
 
-   nested                   52.33 *     52.49 †     57.84 †      57.67       58.50       68.82 
-                            1.02 MB     1.02 MB     1.02 MB     1.03 MB     3.39 MB     1.23 MB
+   nested                    53.89      53.71 *           —           —      58.41      57.91 †      59.58       69.16 
+                            1.09 MB     1.09 MB                             1.09 MB     1.06 MB     3.72 MB     1.25 MB
    (2D nested loop (4000×4000, mod 1e9+7))
 
-   struct_sum                2.09 †      2.08 *      2.13 †       2.16       28.76        2.55 
-                            1.02 MB     1.02 MB     1.02 MB     1.03 MB     3.58 MB     1.17 MB
+   struct_sum                 3.28        3.35            —           —      2.30 *       3.08       28.08        3.90 
+                            1.41 MB     1.41 MB                             1.03 MB     1.06 MB     3.59 MB     1.19 MB
    (Struct field access hot loop (80M))
 
-   dungeon                   2.13 †      2.07 *      2.17 †       2.30        2.93        2.57 
-                            1.02 MB     1.02 MB     1.02 MB     1.03 MB     3.36 MB     1.17 MB
+   dungeon                    2.92        2.89            —           —      2.22 *       2.70        4.32        3.42 
+                            1.38 MB     1.38 MB                             1.03 MB     1.06 MB     3.52 MB     1.25 MB
    (Multi-file Dungeon Steps app)
 
-   cpu_bound               808.24 †    808.84 †    462.57 *     467.69      579.05      865.38 
-                            1.02 MB     1.02 MB     1.03 MB     1.03 MB     3.55 MB     1.23 MB
+   cpu_bound               824.52 †     845.80            —           —     461.30     459.23 *     569.52      861.31 
+                            1.03 MB     1.06 MB                             1.11 MB     1.06 MB     3.56 MB     1.25 MB
    (Mod mul-add chain (180M, mod 997))
 
-   mix                   1,527.70 *  1,528.77 †  1,797.80 †   1,803.38    1,806.18    1,990.35 
-                            1.02 MB     1.02 MB     1.02 MB     1.03 MB     3.55 MB     1.23 MB
+   mix                   1,902.08 †  1,937.30 †           —           —  1,794.60 *   1,853.01    1,805.78    1,998.17 
+                            1.03 MB     1.03 MB                             1.03 MB     1.06 MB     3.52 MB     1.25 MB
    (Chained mod mix (270M, mod 1e9+7))
 
-   loop_nofold           1,178.34 †  1,177.71 *   1,295.35    1,306.02    1,296.71    1,544.61 
-                            1.02 MB     1.02 MB     1.03 MB     1.03 MB     3.55 MB     1.23 MB
+   loop_nofold           1,445.68 †  1,445.30 †           —           —   1,297.76    1,304.40   1,296.63 *   1,543.03 
+                            1.03 MB     1.03 MB                             1.05 MB     1.06 MB     3.55 MB     1.25 MB
    (Modular sum anti-constant-fold (N=375M))
 
-   memory_alloc_struct       11.32       11.86       4.00 *           —       5.40        4.67 
-                            1.05 MB     1.05 MB     1.02 MB                 3.52 MB     1.23 MB
+   comptime_table            3.40 †      3.41 †      1.75 *      1.75 †      5.78 †      6.35 †       9.34        4.62 
+                            1.03 MB     1.03 MB     1.03 MB     1.03 MB     1.03 MB     1.03 MB     3.56 MB     1.19 MB
+   (Lookup table build (64×8k mix) + sum — Nyra-comptime folds all at compile time)
+
+   memory_alloc_struct       13.75       13.81            —           —      6.81 †           —      11.75       4.40 *
+                            1.56 MB     1.56 MB                             1.03 MB                 3.58 MB     1.19 MB
    (malloc/free struct nodes (500k default, BENCH_SCALE))
 
-   memory_free_struct        11.08       11.81       3.90 *           —       5.03            —
-                            1.08 MB     1.05 MB     1.02 MB                 3.47 MB            
+   memory_free_struct        12.23       12.15            —           —      4.39 *           —      11.95            —
+                            1.25 MB     1.25 MB                             1.03 MB                 3.55 MB            
    (alloc+free 16 B blocks)
 
-   memory_arena              4.35 †      4.68 †      3.93 *           —       5.33            —
-                            1.02 MB     1.02 MB     1.02 MB                 3.52 MB            
+   memory_arena              4.66 †      4.82 †           —           —      4.41 *           —       8.43            —
+                            1.03 MB     1.03 MB                             1.03 MB                 3.52 MB            
    (bump arena simulation)
 
-   memory_ownership          3.72 *      4.09 †      4.03 †           —       5.26            —
-                            1.02 MB     1.02 MB     1.02 MB                 3.47 MB            
+   memory_ownership          5.15 *       5.71            —           —      6.78 †           —       8.83            —
+                            1.38 MB     1.38 MB                             1.03 MB                 3.56 MB            
    (struct pass-by-value hot loop)
 
-   strings_concat         1,475.38    1,526.90            —           —    309.28 *           —
-                         3281.45 MB  3310.50 MB                            17.33 MB            
+   strings_concat           280.38      284.85            —           —     352.16            —     298.66       5.59 *
+                            4.39 MB     4.45 MB                             5.55 MB                17.64 MB     1.44 MB
    (strcat chain)
 
-   strings_substring         4.28 *      4.71 †           —           —           —           —
-                            2.56 MB     2.56 MB                                                
+   strings_substring         4.37 *      4.45 †           —           —           —           —       5.88            —
+                            2.66 MB     2.66 MB                                                     3.64 MB            
    (substring slices)
 
-   strings_replace           5.19 *      5.53 †           —           —           —           —
-                            2.56 MB     2.56 MB                                                
+   strings_replace           9.56 †      7.99 †           —           —           —           —      6.54 *           —
+                            1.23 MB     1.23 MB                                                     3.50 MB            
    (str_replace)
 
-   strings_split              4.68       4.64 *           —           —           —           —
-                            2.69 MB     2.56 MB                                                
+   strings_split             4.35 *      4.48 †           —           —           —           —       6.91            —
+                            2.72 MB     2.72 MB                                                     3.55 MB            
    (strstr + substring split)
 
-   strings_utf8              8.51 *      8.57 †           —           —           —           —
-                            1.02 MB     1.02 MB                                                
+   strings_utf8              8.59 *      8.86 †           —           —           —           —      12.59            —
+                            1.08 MB     1.08 MB                                                     3.55 MB            
    (UTF-8 byte iterate (char_at))
 
-   collections_hashmap       34.48       34.87            —           —      6.03 *           —
-                            8.44 MB     8.56 MB                             3.75 MB            
+   collections_hashmap       3.26 *       3.31            —           —      6.58 †           —       7.09        9.41 
+                            1.84 MB     1.84 MB                             1.30 MB                 3.83 MB     1.44 MB
    (HashMap insert/get (string keys))
 
-   collections_hashset      34.41 *     34.59 †           —           —           —           —
-                            8.47 MB     8.44 MB                                                
+   collections_hashset       4.65 †      3.80 *           —           —           —           —       9.56            —
+                            1.86 MB     1.86 MB                                                     3.83 MB            
    (HashSet insert/contains)
 
-   collections_vec_push      3.94 *       4.23            —           —       5.40        6.02 
-                            2.98 MB     3.05 MB                             8.11 MB     3.19 MB
+   collections_vec_push      3.84 †      3.80 *           —           —           —           —       9.33        5.96 
+                            3.06 MB     3.06 MB                                                     7.98 MB     3.20 MB
    (Vec push growth)
 
-   collections_vec_pop       4.88 *      5.31 †           —           —           —           —
-                            2.98 MB     2.98 MB                                                
+   collections_vec_pop       4.69 †      4.68 *           —           —           —           —       6.81            —
+                            3.06 MB     3.06 MB                                                     7.98 MB            
    (Vec push then pop all)
 
-   collections_sort          2.47 *      2.58 †           —           —           —           —
-                            1.30 MB     1.27 MB                                                
+   collections_sort          2.12 †      2.09 *           —           —           —           —      24.83            —
+                            1.34 MB     1.34 MB                                                     3.95 MB            
    (shell-sort pass + sum)
 
-   algorithms_qsort          2.45 *      2.47 †           —           —           —           —
-                            1.02 MB     1.02 MB                                                
+   algorithms_qsort          1.92 *      1.93 †           —           —           —           —       3.70            —
+                            1.03 MB     1.03 MB                                                     3.52 MB            
    (partition-style mod sum)
 
-   algorithms_mergesort      2.28 *      2.49 †           —           —           —           —
-                            1.02 MB     1.02 MB                                                
+   algorithms_mergesort      1.93 †      1.89 *           —           —           —           —       3.03            —
+                            1.03 MB     1.03 MB                                                     3.56 MB            
    (merge-style mod sum)
 
-   algorithms_binary_search      2.10 *      2.31 †           —           —           —           —
-                            1.02 MB     1.02 MB                                                
+   algorithms_binary_search      1.76 †      1.75 *           —           —           —           —       5.14            —
+                            1.03 MB     1.03 MB                                                     3.39 MB            
    (binary search probes)
 
-   algorithms_json_parse     15.95 †     16.23 †           —           —      3.54 *           —
-                            1.02 MB     1.02 MB                             3.52 MB            
+   algorithms_json_parse     16.23 †     16.85 †           —           —           —           —     11.00 *           —
+                            1.08 MB     1.08 MB                                                     3.50 MB            
    (json_get_i32 hot loop)
 
-   algorithms_regex         18.55 *     18.84 †           —           —           —           —
-                            1.11 MB     1.05 MB                                                
+   algorithms_regex         19.02 †     18.94 †           —           —           —           —     15.75 *           —
+                            1.20 MB     1.20 MB                                                     3.78 MB            
    (regex_is_match)
 
-   concurrency_spawn_tasks     31.52 †      31.58            —           —      3.23 *           —
-                            1.39 MB     1.42 MB                             3.47 MB            
+   concurrency_spawn_tasks      35.63       35.55            —           —           —           —      5.67 *           —
+                            8.75 MB     8.75 MB                                                     4.70 MB            
    (spawn N lightweight tasks)
 
-   concurrency_channel_pingpong     51.05 †     51.89 †           —           —      19.83      11.38 *
-                            1.05 MB     1.05 MB                             3.50 MB     2.95 MB
+   concurrency_channel_pingpong    127.36 †    141.95 †           —           —           —           —      17.78      10.86 *
+                            1.41 MB     1.41 MB                                                     3.69 MB     3.25 MB
    (spawn producer + channel recv)
 
-   concurrency_worker_pool  10,793.28  10,764.40 *           —           —           —           —
-                            3.17 MB     3.11 MB                                                
+   concurrency_worker_pool  10,765.02   10,782.39            —           —           —           —      0.00 *           —
+                            4.27 MB     4.27 MB                                                        0 KB            
    (4-worker channel pool)
 
-   concurrency_parallel_map      3.44 †      3.42 *           —           —           —           —
-                            1.11 MB     1.12 MB                                                
+   concurrency_parallel_map      2.85 *      2.86 †           —           —           —           —      41.33            —
+                            1.14 MB     1.14 MB                                                    11.22 MB            
    (parallel for + checksum)
 
-   cpu_bound_pgo           814.01 *    814.86 †           —           —           —           —
-                            1.02 MB     1.02 MB                                                
+   cpu_bound_pgo           820.80 †    815.71 *           —           —           —           —           —           —
+                            1.03 MB     1.03 MB                                                                        
 
-   escape_local_channel      3.63 *           —           —           —           —           —
-                            1.02 MB                                                            
+   escape_local_channel      3.62 *           —           —           —           —           —           —           —
+                            1.03 MB                                                                                    
 
-   escape_point_sroa         2.11 *           —           —           —           —           —
-                            1.02 MB                                                            
+   escape_point_sroa         2.89 *           —           —           —           —           —           —           —
+                            1.47 MB                                                                                    
 
-   escape_spawn_channel     51.48 *           —           —           —           —           —
-                            1.05 MB                                                            
+   escape_spawn_channel    137.80 *           —           —           —           —           —           —           —
+                            1.52 MB                                                                                    
 
    * = fastest time in row   † = lowest memory in row
 
@@ -417,12 +459,14 @@ LANGUAGE LEADERBOARD — average across all benchmarks
 
    #    Language                   Avg time      Avg RAM    Hello bin  Time wins   Mem wins
    --------------------------------------------------------------------------------------
-   1    Go                         337.71 ms      4.43 MB      2.26 MB    4/20      2/20  
-   2    C                          445.76 ms      1.02 MB      32.6 KB    4/14     11/14  
-   3    Nyra (Zero Types)          522.49 ms     90.40 MB      32.7 KB   22/37     28/37  
-   4    Nyra (Explicit Types)      567.91 ms     99.13 MB      32.7 KB    6/34     27/34  
-   5    Rust                       584.44 ms      1.50 MB     445.5 KB    1/13      0/13  
-   6    C++                        623.48 ms      1.03 MB      34.4 KB    0/10      1/10  
+   1    Nyra (Comptime)              1.75 ms      1.03 MB            —    1/1       1/1   
+   2    Nyra (Comptime + Types)       1.75 ms      1.03 MB            —    0/1       1/1   
+   3    Go                         203.99 ms      4.42 MB      2.26 MB    6/34      2/34  
+   4    C                          389.11 ms      1.32 MB      32.6 KB    5/17     12/17  
+   5    Rust                       477.13 ms      1.50 MB     445.5 KB    3/16      1/16  
+   6    Nyra (Zero Types)          514.16 ms      1.76 MB      32.7 KB   11/38     27/38  
+   7    Nyra (Explicit Types)      552.96 ms      1.80 MB      32.7 KB    9/35     22/35  
+   8    C++                        571.33 ms      1.06 MB      34.4 KB    3/11      2/11  
 
 ========================================================================
 DETAILED RESULTS — every language × every benchmark
@@ -430,794 +474,902 @@ DETAILED RESULTS — every language × every benchmark
 
 ## hello
    Minimal stdout I/O
-   Fastest: Nyra (Zero Types) (2.12 ms)
-   Slowest: Go (3.06 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.52 MB)
-   Average: 2.42 ms, 1.47 MB across 6 languages
+   Fastest: Nyra (Explicit Types) (2.73 ms)
+   Slowest: Go (4.73 ms)
+   Lowest RAM: C (1.03 MB)
+   Highest RAM: Go (3.58 MB)
+   Average: 3.56 ms, 1.55 MB across 6 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best       Binary
    ------------------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.1220       1    1.00x        1.02 MB      1    1.00x      32.7 KB
-   Nyra (Explicit Types)        2.1564       2    1.02x        1.02 MB      2    1.00x      32.7 KB
-   C++                          2.2364       3    1.05x        1.02 MB      4    1.00x      34.4 KB
-   C                            2.3020       4    1.08x        1.02 MB      3    1.00x      32.6 KB
-   Rust                         2.6280       5    1.24x        1.23 MB      5    1.22x     445.5 KB
-   Go                           3.0624       6    1.44x        3.52 MB      6    3.46x      2.26 MB
+   Nyra (Explicit Types)        2.7347       1    1.00x        1.22 MB      5    1.18x      32.7 KB
+   Nyra (Zero Types)            2.8385       2    1.04x        1.22 MB      4    1.18x      32.7 KB
+   C                            3.5144       3    1.29x        1.03 MB      1    1.00x      32.6 KB
+   C++                          3.5728       4    1.31x        1.05 MB      2    1.02x      34.4 KB
+   Rust                         3.9686       5    1.45x        1.19 MB      3    1.15x     445.5 KB
+   Go                           4.7252       6    1.73x        3.58 MB      6    3.47x      2.26 MB
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.12 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.08× faster than C on this suite.
-     • Nyra (Zero Types) is 1.05× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.44× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.24× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.07× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.04× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.42× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.22× faster than Rust on this suite.
+     • Fastest runtime: Nyra (Explicit Types) (2.73 ms mean)
+     • Lowest peak memory: C (1.03 MB)
+     • Nyra (Zero Types) is 1.24× faster than C on this suite.
+     • Nyra (Zero Types) is 1.26× faster than C++ on this suite.
+     • Nyra (Zero Types) is 1.66× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.9× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.40× faster than Rust on this suite.
+     • Nyra (Explicit Types) is 1.29× faster than C on this suite.
+     • Nyra (Explicit Types) is 1.31× faster than C++ on this suite.
+     • Nyra (Explicit Types) is 1.73× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.9× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.45× faster than Rust on this suite.
 
 ## arithmetic
    Two integer adds
-   Fastest: Nyra (Zero Types) (2.16 ms)
-   Slowest: Go (3.09 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.53 MB)
-   Average: 2.46 ms, 1.47 MB across 6 languages
+   Fastest: Nyra (Zero Types) (1.75 ms)
+   Slowest: C++ (3.25 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.56 MB)
+   Average: 2.36 ms, 1.48 MB across 6 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.1551       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)        2.1813       2    1.01x        1.02 MB      2    1.00x
-   C++                          2.3370       3    1.08x        1.03 MB      3    1.02x
-   C                            2.4409       4    1.13x        1.05 MB      4    1.03x
-   Rust                         2.5853       5    1.20x        1.17 MB      5    1.15x
-   Go                           3.0902       6    1.43x        3.53 MB      6    3.48x
+   Nyra (Zero Types)            1.7535       1    1.00x        1.03 MB      1    1.00x
+   Nyra (Explicit Types)        1.7746       2    1.01x        1.03 MB      2    1.00x
+   Rust                         2.1854       3    1.25x        1.19 MB      5    1.15x
+   C                            2.3759       4    1.35x        1.03 MB      3    1.00x
+   Go                           2.7970       5    1.60x        3.56 MB      6    3.45x
+   C++                          3.2475       6    1.85x        1.06 MB      4    1.03x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.16 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.13× faster than C on this suite.
-     • Nyra (Zero Types) is 1.08× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.43× faster than Go on this suite.
+     • Fastest runtime: Nyra (Zero Types) (1.75 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • Nyra (Zero Types) is 1.35× faster than C on this suite.
+     • Nyra (Zero Types) is 1.85× faster than C++ on this suite.
+     • Nyra (Zero Types) is 1.60× faster than Go on this suite.
      • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.20× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.12× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.07× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.42× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.19× faster than Rust on this suite.
-
-## loop
-   Modular sum 0..N-1 (N=375M, mod 1e9+7)
-   Fastest: Nyra (Zero Types) (1,179.08 ms)
-   Slowest: Rust (1,543.68 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.50 MB)
-   Average: 1,301.22 ms, 1.47 MB across 6 languages
-
-   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
-   ------------------------------------------------------------------------------
-   Nyra (Zero Types)         1179.0800       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)     1182.1680       2    1.00x        1.02 MB      2    1.00x
-   C++                       1295.2040       3    1.10x        1.03 MB      4    1.02x
-   C                         1298.8840       4    1.10x        1.02 MB      3    1.00x
-   Go                        1308.2920       5    1.11x        3.50 MB      6    3.45x
-   Rust                      1543.6780       6    1.31x        1.23 MB      5    1.22x
-   Insights:
-     • Fastest runtime: Nyra (Zero Types) (1,179.08 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.10× faster than C on this suite.
-     • Nyra (Zero Types) is 1.10× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.11× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.31× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.11× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.31× faster than Rust on this suite.
-
-## fib
-   Fibonacci swaps (375M steps, mod 1e9+7)
-   Fastest: Nyra (Zero Types) (1,177.45 ms)
-   Slowest: Rust (1,552.42 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.39 MB)
-   Average: 1,300.96 ms, 1.45 MB across 6 languages
-
-   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
-   ------------------------------------------------------------------------------
-   Nyra (Zero Types)         1177.4480       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)     1177.5280       2    1.00x        1.02 MB      2    1.00x
-   C++                       1295.8100       3    1.10x        1.03 MB      4    1.02x
-   Go                        1299.2120       4    1.10x        3.39 MB      6    3.34x
-   C                         1303.3520       5    1.11x        1.02 MB      3    1.00x
-   Rust                      1552.4160       6    1.32x        1.23 MB      5    1.22x
-   Insights:
-     • Fastest runtime: Nyra (Zero Types) (1,177.45 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.11× faster than C on this suite.
-     • Nyra (Zero Types) is 1.10× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.10× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.3× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.32× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.11× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.32× faster than Rust on this suite.
-
-## nested
-   2D nested loop (4000×4000, mod 1e9+7)
-   Fastest: Nyra (Zero Types) (52.33 ms)
-   Slowest: Rust (68.82 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.39 MB)
-   Average: 57.94 ms, 1.45 MB across 6 languages
-
-   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
-   ------------------------------------------------------------------------------
-   Nyra (Zero Types)           52.3344       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)       52.4884       2    1.00x        1.02 MB      2    1.00x
-   C++                         57.6682       3    1.10x        1.03 MB      4    1.02x
-   C                           57.8440       4    1.11x        1.02 MB      3    1.00x
-   Go                          58.5008       5    1.12x        3.39 MB      6    3.34x
-   Rust                        68.8196       6    1.31x        1.23 MB      5    1.22x
-   Insights:
-     • Fastest runtime: Nyra (Zero Types) (52.33 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.11× faster than C on this suite.
-     • Nyra (Zero Types) is 1.10× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.12× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.3× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.31× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.11× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.31× faster than Rust on this suite.
-
-## struct_sum
-   Struct field access hot loop (80M)
-   Fastest: Nyra (Explicit Types) (2.08 ms)
-   Slowest: Go (28.76 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.58 MB)
-   Average: 6.63 ms, 1.47 MB across 6 languages
-
-   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
-   ------------------------------------------------------------------------------
-   Nyra (Explicit Types)        2.0816       1    1.00x        1.02 MB      2    1.00x
-   Nyra (Zero Types)            2.0914       2    1.00x        1.02 MB      1    1.00x
-   C                            2.1280       3    1.02x        1.02 MB      3    1.00x
-   C++                          2.1645       4    1.04x        1.03 MB      4    1.02x
-   Rust                         2.5545       5    1.23x        1.17 MB      5    1.15x
-   Go                          28.7644       6   13.82x        3.58 MB      6    3.52x
-   Insights:
-     • Fastest runtime: Nyra (Explicit Types) (2.08 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.03× faster than C++ on this suite.
-     • Nyra (Zero Types) is 13.75× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.22× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.02× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.04× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 13.82× faster than Go on this suite.
+     • Nyra (Zero Types) is 1.25× faster than Rust on this suite.
+     • Nyra (Explicit Types) is 1.34× faster than C on this suite.
+     • Nyra (Explicit Types) is 1.83× faster than C++ on this suite.
+     • Nyra (Explicit Types) is 1.58× faster than Go on this suite.
      • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
      • Nyra (Explicit Types) is 1.23× faster than Rust on this suite.
 
-## dungeon
-   Multi-file Dungeon Steps app
-   Fastest: Nyra (Explicit Types) (2.07 ms)
-   Slowest: Go (2.93 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.36 MB)
-   Average: 2.36 ms, 1.43 MB across 6 languages
+## loop
+   Modular sum 0..N-1 (N=375M, mod 1e9+7)
+   Fastest: C++ (1,295.93 ms)
+   Slowest: Rust (1,544.21 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.59 MB)
+   Average: 1,401.08 ms, 1.50 MB across 6 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Explicit Types)        2.0690       1    1.00x        1.02 MB      2    1.00x
-   Nyra (Zero Types)            2.1290       2    1.03x        1.02 MB      1    1.00x
-   C                            2.1721       3    1.05x        1.02 MB      3    1.00x
-   C++                          2.3036       4    1.11x        1.03 MB      4    1.02x
-   Rust                         2.5663       5    1.24x        1.17 MB      5    1.15x
-   Go                           2.9256       6    1.41x        3.36 MB      6    3.31x
+   C++                       1295.9259       1    1.00x        1.06 MB      4    1.03x
+   C                         1303.0582       2    1.01x        1.03 MB      3    1.00x
+   Go                        1320.8935       3    1.02x        3.59 MB      6    3.48x
+   Nyra (Explicit Types)     1435.4149       4    1.11x        1.03 MB      2    1.00x
+   Nyra (Zero Types)         1507.0000       5    1.16x        1.03 MB      1    1.00x
+   Rust                      1544.2063       6    1.19x        1.25 MB      5    1.21x
    Insights:
-     • Fastest runtime: Nyra (Explicit Types) (2.07 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.08× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.37× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.3× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.21× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.05× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.11× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.41× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.24× faster than Rust on this suite.
+     • Fastest runtime: C++ (1,295.93 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • C is 1.16× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.16× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.14× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.02× faster than Rust on this suite.
+     • C is 1.10× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.11× faster than Nyra (Explicit Types) on this suite.
+     • Go is 1.09× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.08× faster than Rust on this suite.
+
+## fib
+   Fibonacci swaps (375M steps, mod 1e9+7)
+   Fastest: C++ (1,295.19 ms)
+   Slowest: Rust (1,563.89 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.66 MB)
+   Average: 1,398.73 ms, 1.52 MB across 6 languages
+
+   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
+   ------------------------------------------------------------------------------
+   C++                       1295.1900       1    1.00x        1.06 MB      4    1.03x
+   Go                        1301.3202       2    1.00x        3.66 MB      6    3.55x
+   C                         1302.4585       3    1.01x        1.06 MB      3    1.03x
+   Nyra (Explicit Types)     1437.3031       4    1.11x        1.06 MB      2    1.03x
+   Nyra (Zero Types)         1492.2386       5    1.15x        1.03 MB      1    1.00x
+   Rust                      1563.8855       6    1.21x        1.25 MB      5    1.21x
+   Insights:
+     • Fastest runtime: C++ (1,295.19 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • C is 1.15× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.15× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.15× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.05× faster than Rust on this suite.
+     • C is 1.10× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.11× faster than Nyra (Explicit Types) on this suite.
+     • Go is 1.10× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.09× faster than Rust on this suite.
+
+## nested
+   2D nested loop (4000×4000, mod 1e9+7)
+   Fastest: Nyra (Explicit Types) (53.71 ms)
+   Slowest: Rust (69.16 ms)
+   Lowest RAM: C++ (1.06 MB)
+   Highest RAM: Go (3.72 MB)
+   Average: 58.78 ms, 1.55 MB across 6 languages
+
+   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
+   ------------------------------------------------------------------------------
+   Nyra (Explicit Types)       53.7138       1    1.00x        1.09 MB      3    1.03x
+   Nyra (Zero Types)           53.8925       2    1.00x        1.09 MB      2    1.03x
+   C++                         57.9097       3    1.08x        1.06 MB      1    1.00x
+   C                           58.4103       4    1.09x        1.09 MB      4    1.03x
+   Go                          59.5800       5    1.11x        3.72 MB      6    3.50x
+   Rust                        69.1566       6    1.29x        1.25 MB      5    1.18x
+   Insights:
+     • Fastest runtime: Nyra (Explicit Types) (53.71 ms mean)
+     • Lowest peak memory: C++ (1.06 MB)
+     • Nyra (Zero Types) is 1.08× faster than C on this suite.
+     • Nyra (Zero Types) is 1.07× faster than C++ on this suite.
+     • Nyra (Zero Types) is 1.11× faster than Go on this suite.
+     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.28× faster than Rust on this suite.
+     • Nyra (Explicit Types) is 1.09× faster than C on this suite.
+     • Nyra (Explicit Types) is 1.08× faster than C++ on this suite.
+     • Nyra (Explicit Types) is 1.11× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.29× faster than Rust on this suite.
+
+## struct_sum
+   Struct field access hot loop (80M)
+   Fastest: C (2.30 ms)
+   Slowest: Go (28.08 ms)
+   Lowest RAM: C (1.03 MB)
+   Highest RAM: Go (3.59 MB)
+   Average: 7.33 ms, 1.61 MB across 6 languages
+
+   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
+   ------------------------------------------------------------------------------
+   C                            2.3032       1    1.00x        1.03 MB      1    1.00x
+   C++                          3.0815       2    1.34x        1.06 MB      2    1.03x
+   Nyra (Zero Types)            3.2753       3    1.42x        1.41 MB      4    1.36x
+   Nyra (Explicit Types)        3.3483       4    1.45x        1.41 MB      5    1.36x
+   Rust                         3.8970       5    1.69x        1.19 MB      3    1.15x
+   Go                          28.0802       6   12.19x        3.59 MB      6    3.48x
+   Insights:
+     • Fastest runtime: C (2.30 ms mean)
+     • Lowest peak memory: C (1.03 MB)
+     • C is 1.42× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.06× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) is 8.57× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.19× faster than Rust on this suite.
+     • C is 1.45× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.09× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) is 8.39× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.16× faster than Rust on this suite.
+
+## dungeon
+   Multi-file Dungeon Steps app
+   Fastest: C (2.22 ms)
+   Slowest: Go (4.32 ms)
+   Lowest RAM: C (1.03 MB)
+   Highest RAM: Go (3.52 MB)
+   Average: 3.08 ms, 1.60 MB across 6 languages
+
+   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
+   ------------------------------------------------------------------------------
+   C                            2.2176       1    1.00x        1.03 MB      1    1.00x
+   C++                          2.7037       2    1.22x        1.06 MB      2    1.03x
+   Nyra (Explicit Types)        2.8921       3    1.30x        1.38 MB      5    1.33x
+   Nyra (Zero Types)            2.9239       4    1.32x        1.38 MB      4    1.33x
+   Rust                         3.4192       5    1.54x        1.25 MB      3    1.21x
+   Go                           4.3247       6    1.95x        3.52 MB      6    3.41x
+   Insights:
+     • Fastest runtime: C (2.22 ms mean)
+     • Lowest peak memory: C (1.03 MB)
+     • C is 1.32× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.08× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) is 1.48× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.17× faster than Rust on this suite.
+     • C is 1.30× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.07× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) is 1.50× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.18× faster than Rust on this suite.
 
 ## cpu_bound
    Mod mul-add chain (180M, mod 997)
-   Fastest: C (462.57 ms)
-   Slowest: Rust (865.38 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.55 MB)
-   Average: 665.30 ms, 1.48 MB across 6 languages
+   Fastest: C++ (459.23 ms)
+   Slowest: Rust (861.31 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.56 MB)
+   Average: 670.28 ms, 1.51 MB across 6 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   C                          462.5680       1    1.00x        1.03 MB      3    1.02x
-   C++                        467.6940       2    1.01x        1.03 MB      4    1.02x
-   Go                         579.0500       3    1.25x        3.55 MB      6    3.49x
-   Nyra (Zero Types)          808.2440       4    1.75x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)      808.8380       5    1.75x        1.02 MB      2    1.00x
-   Rust                       865.3800       6    1.87x        1.23 MB      5    1.22x
+   C++                        459.2330       1    1.00x        1.06 MB      3    1.03x
+   C                          461.3012       2    1.00x        1.11 MB      4    1.08x
+   Go                         569.5206       3    1.24x        3.56 MB      6    3.45x
+   Nyra (Zero Types)          824.5202       4    1.80x        1.03 MB      1    1.00x
+   Nyra (Explicit Types)      845.7964       5    1.84x        1.06 MB      2    1.03x
+   Rust                       861.3130       6    1.88x        1.25 MB      5    1.21x
    Insights:
-     • Fastest runtime: C (462.57 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • C is 1.75× faster than Nyra (Zero Types) on this suite.
-     • C++ is 1.73× faster than Nyra (Zero Types) on this suite.
-     • Go is 1.40× faster than Nyra (Zero Types) on this suite.
+     • Fastest runtime: C++ (459.23 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • C is 1.79× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.80× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.45× faster than Nyra (Zero Types) on this suite.
      • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.07× faster than Rust on this suite.
-     • C is 1.75× faster than Nyra (Explicit Types) on this suite.
-     • C++ is 1.73× faster than Nyra (Explicit Types) on this suite.
-     • Go is 1.40× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.07× faster than Rust on this suite.
+     • Nyra (Zero Types) is 1.04× faster than Rust on this suite.
+     • C is 1.83× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.84× faster than Nyra (Explicit Types) on this suite.
+     • Go is 1.49× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
 
 ## mix
    Chained mod mix (270M, mod 1e9+7)
-   Fastest: Nyra (Zero Types) (1,527.70 ms)
-   Slowest: Rust (1,990.35 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.55 MB)
-   Average: 1,742.36 ms, 1.48 MB across 6 languages
+   Fastest: C (1,794.60 ms)
+   Slowest: Rust (1,998.17 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.52 MB)
+   Average: 1,881.82 ms, 1.49 MB across 6 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)         1527.7020       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)     1528.7700       2    1.00x        1.02 MB      2    1.00x
-   C                         1797.8000       3    1.18x        1.02 MB      3    1.00x
-   C++                       1803.3820       4    1.18x        1.03 MB      4    1.02x
-   Go                        1806.1780       5    1.18x        3.55 MB      6    3.49x
-   Rust                      1990.3540       6    1.30x        1.23 MB      5    1.22x
+   C                         1794.5987       1    1.00x        1.03 MB      3    1.00x
+   Go                        1805.7755       2    1.01x        3.52 MB      6    3.41x
+   C++                       1853.0122       3    1.03x        1.06 MB      4    1.03x
+   Nyra (Zero Types)         1902.0808       4    1.06x        1.03 MB      1    1.00x
+   Nyra (Explicit Types)     1937.3013       5    1.08x        1.03 MB      2    1.00x
+   Rust                      1998.1725       6    1.11x        1.25 MB      5    1.21x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (1,527.70 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.18× faster than C on this suite.
-     • Nyra (Zero Types) is 1.18× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.18× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.30× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.18× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.18× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.18× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.30× faster than Rust on this suite.
+     • Fastest runtime: C (1,794.60 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • C is 1.06× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.03× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.05× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.05× faster than Rust on this suite.
+     • C is 1.08× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.05× faster than Nyra (Explicit Types) on this suite.
+     • Go is 1.07× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.03× faster than Rust on this suite.
 
 ## loop_nofold
    Modular sum anti-constant-fold (N=375M)
-   Fastest: Nyra (Explicit Types) (1,177.71 ms)
-   Slowest: Rust (1,544.61 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
+   Fastest: Go (1,296.63 ms)
+   Slowest: Rust (1,543.03 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
    Highest RAM: Go (3.55 MB)
-   Average: 1,299.79 ms, 1.48 MB across 6 languages
+   Average: 1,388.80 ms, 1.49 MB across 6 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Explicit Types)     1177.7120       1    1.00x        1.02 MB      2    1.00x
-   Nyra (Zero Types)         1178.3440       2    1.00x        1.02 MB      1    1.00x
-   C                         1295.3520       3    1.10x        1.03 MB      3    1.02x
-   Go                        1296.7100       4    1.10x        3.55 MB      6    3.49x
-   C++                       1306.0240       5    1.11x        1.03 MB      4    1.02x
-   Rust                      1544.6120       6    1.31x        1.23 MB      5    1.22x
+   Go                        1296.6313       1    1.00x        3.55 MB      6    3.44x
+   C                         1297.7592       2    1.00x        1.05 MB      3    1.02x
+   C++                       1304.3978       3    1.01x        1.06 MB      4    1.03x
+   Nyra (Explicit Types)     1445.3030       4    1.11x        1.03 MB      2    1.00x
+   Nyra (Zero Types)         1445.6772       5    1.11x        1.03 MB      1    1.00x
+   Rust                      1543.0294       6    1.19x        1.25 MB      5    1.21x
    Insights:
-     • Fastest runtime: Nyra (Explicit Types) (1,177.71 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.10× faster than C on this suite.
-     • Nyra (Zero Types) is 1.11× faster than C++ on this suite.
-     • Nyra (Zero Types) is 1.10× faster than Go on this suite.
+     • Fastest runtime: Go (1,296.63 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • C is 1.11× faster than Nyra (Zero Types) on this suite.
+     • C++ is 1.11× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.11× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.07× faster than Rust on this suite.
+     • C is 1.11× faster than Nyra (Explicit Types) on this suite.
+     • C++ is 1.11× faster than Nyra (Explicit Types) on this suite.
+     • Go is 1.11× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.07× faster than Rust on this suite.
+
+## comptime_table
+   Lookup table build (64×8k mix) + sum — Nyra-comptime folds all at compile time
+   Fastest: Nyra (Comptime) (1.75 ms)
+   Slowest: Go (9.34 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.56 MB)
+   Average: 4.55 ms, 1.37 MB across 8 languages
+
+   Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
+   ------------------------------------------------------------------------------
+   Nyra (Comptime)              1.7501       1    1.00x        1.03 MB      3    1.00x
+   Nyra (Comptime + Types)       1.7518       2    1.00x        1.03 MB      4    1.00x
+   Nyra (Zero Types)            3.3990       3    1.94x        1.03 MB      1    1.00x
+   Nyra (Explicit Types)        3.4120       4    1.95x        1.03 MB      2    1.00x
+   Rust                         4.6151       5    2.64x        1.19 MB      7    1.15x
+   C                            5.7788       6    3.30x        1.03 MB      5    1.00x
+   C++                          6.3509       7    3.63x        1.03 MB      6    1.00x
+   Go                           9.3353       8    5.33x        3.56 MB      8    3.45x
+   Insights:
+     • Fastest runtime: Nyra (Comptime) (1.75 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • Nyra (Comptime) is 1.94× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Comptime + Types) is 1.94× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) is 1.70× faster than C on this suite.
+     • Nyra (Zero Types) is 1.87× faster than C++ on this suite.
+     • Nyra (Zero Types) is 2.75× faster than Go on this suite.
      • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.31× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than C on this suite.
-     • Nyra (Explicit Types) is 1.11× faster than C++ on this suite.
-     • Nyra (Explicit Types) is 1.10× faster than Go on this suite.
+     • Nyra (Zero Types) is 1.36× faster than Rust on this suite.
+     • Nyra (Comptime) is 1.95× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Comptime + Types) is 1.95× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) is 1.69× faster than C on this suite.
+     • Nyra (Explicit Types) is 1.86× faster than C++ on this suite.
+     • Nyra (Explicit Types) is 2.74× faster than Go on this suite.
      • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.31× faster than Rust on this suite.
+     • Nyra (Explicit Types) is 1.35× faster than Rust on this suite.
 
 ## memory_alloc_struct
    malloc/free struct nodes (500k default, BENCH_SCALE)
-   Fastest: C (4.00 ms)
-   Slowest: Nyra (Explicit Types) (11.86 ms)
-   Lowest RAM: C (1.02 MB)
-   Highest RAM: Go (3.52 MB)
-   Average: 7.45 ms, 1.57 MB across 5 languages
+   Fastest: Rust (4.40 ms)
+   Slowest: Nyra (Explicit Types) (13.81 ms)
+   Lowest RAM: C (1.03 MB)
+   Highest RAM: Go (3.58 MB)
+   Average: 10.10 ms, 1.78 MB across 5 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   C                            4.0010       1    1.00x        1.02 MB      1    1.00x
-   Rust                         4.6745       2    1.17x        1.23 MB      4    1.22x
-   Go                           5.4047       3    1.35x        3.52 MB      5    3.46x
-   Nyra (Zero Types)           11.3199       4    2.83x        1.05 MB      2    1.03x
-   Nyra (Explicit Types)       11.8550       5    2.96x        1.05 MB      3    1.03x
+   Rust                         4.3952       1    1.00x        1.19 MB      2    1.15x
+   C                            6.8127       2    1.55x        1.03 MB      1    1.00x
+   Go                          11.7482       3    2.67x        3.58 MB      5    3.47x
+   Nyra (Zero Types)           13.7532       4    3.13x        1.56 MB      3    1.52x
+   Nyra (Explicit Types)       13.8135       5    3.14x        1.56 MB      4    1.52x
    Insights:
-     • Fastest runtime: C (4.00 ms mean)
-     • Lowest peak memory: C (1.02 MB)
-     • C is 2.83× faster than Nyra (Zero Types) on this suite.
-     • Go is 2.09× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
-     • Rust is 2.42× faster than Nyra (Zero Types) on this suite.
-     • C is 2.96× faster than Nyra (Explicit Types) on this suite.
-     • Go is 2.19× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
-     • Rust is 2.54× faster than Nyra (Explicit Types) on this suite.
+     • Fastest runtime: Rust (4.40 ms mean)
+     • Lowest peak memory: C (1.03 MB)
+     • C is 2.02× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.17× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 2.3× less RAM than Go (peak RSS).
+     • Rust is 3.13× faster than Nyra (Zero Types) on this suite.
+     • C is 2.03× faster than Nyra (Explicit Types) on this suite.
+     • Go is 1.18× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 2.3× less RAM than Go (peak RSS).
+     • Rust is 3.14× faster than Nyra (Explicit Types) on this suite.
 
 ## memory_free_struct
    alloc+free 16 B blocks
-   Fastest: C (3.90 ms)
-   Slowest: Nyra (Explicit Types) (11.81 ms)
-   Lowest RAM: C (1.02 MB)
-   Highest RAM: Go (3.47 MB)
-   Average: 7.95 ms, 1.65 MB across 4 languages
+   Fastest: C (4.39 ms)
+   Slowest: Nyra (Zero Types) (12.23 ms)
+   Lowest RAM: C (1.03 MB)
+   Highest RAM: Go (3.55 MB)
+   Average: 10.18 ms, 1.77 MB across 4 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   C                            3.9026       1    1.00x        1.02 MB      1    1.00x
-   Go                           5.0280       2    1.29x        3.47 MB      4    3.42x
-   Nyra (Zero Types)           11.0756       3    2.84x        1.08 MB      3    1.06x
-   Nyra (Explicit Types)       11.8094       4    3.03x        1.05 MB      2    1.03x
+   C                            4.3945       1    1.00x        1.03 MB      1    1.00x
+   Go                          11.9450       2    2.72x        3.55 MB      4    3.44x
+   Nyra (Explicit Types)       12.1550       3    2.77x        1.25 MB      3    1.21x
+   Nyra (Zero Types)           12.2314       4    2.78x        1.25 MB      2    1.21x
    Insights:
-     • Fastest runtime: C (3.90 ms mean)
-     • Lowest peak memory: C (1.02 MB)
-     • C is 2.84× faster than Nyra (Zero Types) on this suite.
-     • Go is 2.20× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) uses 3.2× less RAM than Go (peak RSS).
-     • C is 3.03× faster than Nyra (Explicit Types) on this suite.
-     • Go is 2.35× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
+     • Fastest runtime: C (4.39 ms mean)
+     • Lowest peak memory: C (1.03 MB)
+     • C is 2.78× faster than Nyra (Zero Types) on this suite.
+     • Go is 1.02× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 2.8× less RAM than Go (peak RSS).
+     • C is 2.77× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 2.8× less RAM than Go (peak RSS).
 
 ## memory_arena
    bump arena simulation
-   Fastest: C (3.93 ms)
-   Slowest: Go (5.33 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
+   Fastest: C (4.41 ms)
+   Slowest: Go (8.43 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
    Highest RAM: Go (3.52 MB)
-   Average: 4.57 ms, 1.64 MB across 4 languages
+   Average: 5.58 ms, 1.65 MB across 4 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   C                            3.9280       1    1.00x        1.02 MB      3    1.00x
-   Nyra (Zero Types)            4.3540       2    1.11x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)        4.6841       3    1.19x        1.02 MB      2    1.00x
-   Go                           5.3298       4    1.36x        3.52 MB      4    3.46x
+   C                            4.4071       1    1.00x        1.03 MB      3    1.00x
+   Nyra (Zero Types)            4.6558       2    1.06x        1.03 MB      1    1.00x
+   Nyra (Explicit Types)        4.8188       3    1.09x        1.03 MB      2    1.00x
+   Go                           8.4324       4    1.91x        3.52 MB      4    3.41x
    Insights:
-     • Fastest runtime: C (3.93 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • C is 1.11× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) is 1.22× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • C is 1.19× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) is 1.14× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
+     • Fastest runtime: C (4.41 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • C is 1.06× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) is 1.81× faster than Go on this suite.
+     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
+     • C is 1.09× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) is 1.75× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
 
 ## memory_ownership
    struct pass-by-value hot loop
-   Fastest: Nyra (Zero Types) (3.72 ms)
-   Slowest: Go (5.26 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.47 MB)
-   Average: 4.27 ms, 1.63 MB across 4 languages
+   Fastest: Nyra (Zero Types) (5.15 ms)
+   Slowest: Go (8.83 ms)
+   Lowest RAM: C (1.03 MB)
+   Highest RAM: Go (3.56 MB)
+   Average: 6.62 ms, 1.84 MB across 4 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            3.7169       1    1.00x        1.02 MB      1    1.00x
-   C                            4.0266       2    1.08x        1.02 MB      3    1.00x
-   Nyra (Explicit Types)        4.0945       3    1.10x        1.02 MB      2    1.00x
-   Go                           5.2583       4    1.41x        3.47 MB      4    3.42x
+   Nyra (Zero Types)            5.1473       1    1.00x        1.38 MB      2    1.33x
+   Nyra (Explicit Types)        5.7096       2    1.11x        1.38 MB      3    1.33x
+   C                            6.7770       3    1.32x        1.03 MB      1    1.00x
+   Go                           8.8297       4    1.72x        3.56 MB      4    3.45x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (3.72 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Nyra (Zero Types) is 1.08× faster than C on this suite.
-     • Nyra (Zero Types) is 1.41× faster than Go on this suite.
-     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.28× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
+     • Fastest runtime: Nyra (Zero Types) (5.15 ms mean)
+     • Lowest peak memory: C (1.03 MB)
+     • Nyra (Zero Types) is 1.32× faster than C on this suite.
+     • Nyra (Zero Types) is 1.72× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.19× faster than C on this suite.
+     • Nyra (Explicit Types) is 1.55× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.6× less RAM than Go (peak RSS).
 
 ## strings_concat
    strcat chain
-   Fastest: Go (309.28 ms)
-   Slowest: Nyra (Explicit Types) (1,526.90 ms)
-   Lowest RAM: Go (17.33 MB)
-   Highest RAM: Nyra (Explicit Types) (3310.50 MB)
-   Average: 1,103.85 ms, 2203.09 MB across 3 languages
+   Fastest: Rust (5.59 ms)
+   Slowest: C (352.16 ms)
+   Lowest RAM: Rust (1.44 MB)
+   Highest RAM: Go (17.64 MB)
+   Average: 244.33 ms, 6.69 MB across 5 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Go                         309.2760       1    1.00x       17.33 MB      1    1.00x
-   Nyra (Zero Types)         1475.3800       2    4.77x     3281.45 MB      2  189.37x
-   Nyra (Explicit Types)     1526.9020       3    4.94x     3310.50 MB      3  191.05x
+   Rust                         5.5877       1    1.00x        1.44 MB      1    1.00x
+   Nyra (Zero Types)          280.3797       2   50.18x        4.39 MB      2    3.05x
+   Nyra (Explicit Types)      284.8454       3   50.98x        4.45 MB      3    3.10x
+   Go                         298.6563       4   53.45x       17.64 MB      5   12.27x
+   C                          352.1632       5   63.02x        5.55 MB      4    3.86x
    Insights:
-     • Fastest runtime: Go (309.28 ms mean)
-     • Lowest peak memory: Go (17.33 MB)
-     • Go is 4.77× faster than Nyra (Zero Types) on this suite.
-     • Go is 4.94× faster than Nyra (Explicit Types) on this suite.
+     • Fastest runtime: Rust (5.59 ms mean)
+     • Lowest peak memory: Rust (1.44 MB)
+     • Nyra (Zero Types) is 1.26× faster than C on this suite.
+     • Nyra (Zero Types) is 1.07× faster than Go on this suite.
+     • Nyra (Zero Types) uses 4.0× less RAM than Go (peak RSS).
+     • Rust is 50.18× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Explicit Types) is 1.24× faster than C on this suite.
+     • Nyra (Explicit Types) is 1.05× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 4.0× less RAM than Go (peak RSS).
+     • Rust is 50.98× faster than Nyra (Explicit Types) on this suite.
 
 ## strings_substring
    substring slices
-   Fastest: Nyra (Zero Types) (4.28 ms)
-   Slowest: Nyra (Explicit Types) (4.71 ms)
-   Lowest RAM: Nyra (Zero Types) (2.56 MB)
-   Highest RAM: Nyra (Zero Types) (2.56 MB)
-   Average: 4.49 ms, 2.56 MB across 2 languages
+   Fastest: Nyra (Zero Types) (4.37 ms)
+   Slowest: Go (5.88 ms)
+   Lowest RAM: Nyra (Zero Types) (2.66 MB)
+   Highest RAM: Go (3.64 MB)
+   Average: 4.90 ms, 2.98 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            4.2802       1    1.00x        2.56 MB      1    1.00x
-   Nyra (Explicit Types)        4.7069       2    1.10x        2.56 MB      2    1.00x
+   Nyra (Zero Types)            4.3727       1    1.00x        2.66 MB      1    1.00x
+   Nyra (Explicit Types)        4.4529       2    1.02x        2.66 MB      2    1.00x
+   Go                           5.8756       3    1.34x        3.64 MB      3    1.37x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (4.28 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (2.56 MB)
+     • Fastest runtime: Nyra (Zero Types) (4.37 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (2.66 MB)
+     • Nyra (Zero Types) is 1.34× faster than Go on this suite.
+     • Nyra (Explicit Types) is 1.32× faster than Go on this suite.
 
 ## strings_replace
    str_replace
-   Fastest: Nyra (Zero Types) (5.19 ms)
-   Slowest: Nyra (Explicit Types) (5.53 ms)
-   Lowest RAM: Nyra (Zero Types) (2.56 MB)
-   Highest RAM: Nyra (Zero Types) (2.56 MB)
-   Average: 5.36 ms, 2.56 MB across 2 languages
+   Fastest: Go (6.54 ms)
+   Slowest: Nyra (Zero Types) (9.56 ms)
+   Lowest RAM: Nyra (Zero Types) (1.23 MB)
+   Highest RAM: Go (3.50 MB)
+   Average: 8.03 ms, 1.99 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            5.1886       1    1.00x        2.56 MB      1    1.00x
-   Nyra (Explicit Types)        5.5296       2    1.07x        2.56 MB      2    1.00x
+   Go                           6.5368       1    1.00x        3.50 MB      3    2.84x
+   Nyra (Explicit Types)        7.9875       2    1.22x        1.23 MB      2    1.00x
+   Nyra (Zero Types)            9.5628       3    1.46x        1.23 MB      1    1.00x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (5.19 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (2.56 MB)
+     • Fastest runtime: Go (6.54 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.23 MB)
+     • Go is 1.46× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 2.8× less RAM than Go (peak RSS).
+     • Go is 1.22× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 2.8× less RAM than Go (peak RSS).
 
 ## strings_split
    strstr + substring split
-   Fastest: Nyra (Explicit Types) (4.64 ms)
-   Slowest: Nyra (Zero Types) (4.68 ms)
-   Lowest RAM: Nyra (Explicit Types) (2.56 MB)
-   Highest RAM: Nyra (Zero Types) (2.69 MB)
-   Average: 4.66 ms, 2.62 MB across 2 languages
+   Fastest: Nyra (Zero Types) (4.35 ms)
+   Slowest: Go (6.91 ms)
+   Lowest RAM: Nyra (Zero Types) (2.72 MB)
+   Highest RAM: Go (3.55 MB)
+   Average: 5.25 ms, 2.99 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Explicit Types)        4.6424       1    1.00x        2.56 MB      1    1.00x
-   Nyra (Zero Types)            4.6796       2    1.01x        2.69 MB      2    1.05x
+   Nyra (Zero Types)            4.3498       1    1.00x        2.72 MB      1    1.00x
+   Nyra (Explicit Types)        4.4815       2    1.03x        2.72 MB      2    1.00x
+   Go                           6.9053       3    1.59x        3.55 MB      3    1.30x
    Insights:
-     • Fastest runtime: Nyra (Explicit Types) (4.64 ms mean)
-     • Lowest peak memory: Nyra (Explicit Types) (2.56 MB)
+     • Fastest runtime: Nyra (Zero Types) (4.35 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (2.72 MB)
+     • Nyra (Zero Types) is 1.59× faster than Go on this suite.
+     • Nyra (Explicit Types) is 1.54× faster than Go on this suite.
 
 ## strings_utf8
    UTF-8 byte iterate (char_at)
-   Fastest: Nyra (Zero Types) (8.51 ms)
-   Slowest: Nyra (Explicit Types) (8.57 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 8.54 ms, 1.02 MB across 2 languages
+   Fastest: Nyra (Zero Types) (8.59 ms)
+   Slowest: Go (12.59 ms)
+   Lowest RAM: Nyra (Zero Types) (1.08 MB)
+   Highest RAM: Go (3.55 MB)
+   Average: 10.01 ms, 1.90 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            8.5089       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)        8.5726       2    1.01x        1.02 MB      2    1.00x
+   Nyra (Zero Types)            8.5858       1    1.00x        1.08 MB      1    1.00x
+   Nyra (Explicit Types)        8.8570       2    1.03x        1.08 MB      2    1.00x
+   Go                          12.5910       3    1.47x        3.55 MB      3    3.29x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (8.51 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Zero Types) (8.59 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.08 MB)
+     • Nyra (Zero Types) is 1.47× faster than Go on this suite.
+     • Nyra (Zero Types) uses 3.3× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.42× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
 
 ## collections_hashmap
    HashMap insert/get (string keys)
-   Fastest: Go (6.03 ms)
-   Slowest: Nyra (Explicit Types) (34.87 ms)
-   Lowest RAM: Go (3.75 MB)
-   Highest RAM: Nyra (Explicit Types) (8.56 MB)
-   Average: 25.12 ms, 6.92 MB across 3 languages
+   Fastest: Nyra (Zero Types) (3.26 ms)
+   Slowest: Rust (9.41 ms)
+   Lowest RAM: C (1.30 MB)
+   Highest RAM: Go (3.83 MB)
+   Average: 5.93 ms, 2.05 MB across 5 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Go                           6.0268       1    1.00x        3.75 MB      1    1.00x
-   Nyra (Zero Types)           34.4784       2    5.72x        8.44 MB      2    2.25x
-   Nyra (Explicit Types)       34.8680       3    5.79x        8.56 MB      3    2.28x
+   Nyra (Zero Types)            3.2590       1    1.00x        1.84 MB      3    1.42x
+   Nyra (Explicit Types)        3.3080       2    1.02x        1.84 MB      4    1.42x
+   C                            6.5778       3    2.02x        1.30 MB      1    1.00x
+   Go                           7.0882       4    2.17x        3.83 MB      5    2.95x
+   Rust                         9.4100       5    2.89x        1.44 MB      2    1.11x
    Insights:
-     • Fastest runtime: Go (6.03 ms mean)
-     • Lowest peak memory: Go (3.75 MB)
-     • Go is 5.72× faster than Nyra (Zero Types) on this suite.
-     • Go is 5.79× faster than Nyra (Explicit Types) on this suite.
+     • Fastest runtime: Nyra (Zero Types) (3.26 ms mean)
+     • Lowest peak memory: C (1.30 MB)
+     • Nyra (Zero Types) is 2.02× faster than C on this suite.
+     • Nyra (Zero Types) is 2.17× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.1× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 2.89× faster than Rust on this suite.
+     • Nyra (Explicit Types) is 1.99× faster than C on this suite.
+     • Nyra (Explicit Types) is 2.14× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.1× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 2.84× faster than Rust on this suite.
 
 ## collections_hashset
    HashSet insert/contains
-   Fastest: Nyra (Zero Types) (34.41 ms)
-   Slowest: Nyra (Explicit Types) (34.59 ms)
-   Lowest RAM: Nyra (Explicit Types) (8.44 MB)
-   Highest RAM: Nyra (Zero Types) (8.47 MB)
-   Average: 34.50 ms, 8.45 MB across 2 languages
+   Fastest: Nyra (Explicit Types) (3.80 ms)
+   Slowest: Go (9.56 ms)
+   Lowest RAM: Nyra (Zero Types) (1.86 MB)
+   Highest RAM: Go (3.83 MB)
+   Average: 6.00 ms, 2.52 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)           34.4070       1    1.00x        8.47 MB      2    1.00x
-   Nyra (Explicit Types)       34.5860       2    1.01x        8.44 MB      1    1.00x
+   Nyra (Explicit Types)        3.8011       1    1.00x        1.86 MB      2    1.00x
+   Nyra (Zero Types)            4.6538       2    1.22x        1.86 MB      1    1.00x
+   Go                           9.5585       3    2.51x        3.83 MB      3    2.06x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (34.41 ms mean)
-     • Lowest peak memory: Nyra (Explicit Types) (8.44 MB)
+     • Fastest runtime: Nyra (Explicit Types) (3.80 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.86 MB)
+     • Nyra (Zero Types) is 2.05× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.1× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 2.51× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.1× less RAM than Go (peak RSS).
 
 ## collections_vec_push
    Vec push growth
-   Fastest: Nyra (Zero Types) (3.94 ms)
-   Slowest: Rust (6.02 ms)
-   Lowest RAM: Nyra (Zero Types) (2.98 MB)
-   Highest RAM: Go (8.11 MB)
-   Average: 4.90 ms, 4.33 MB across 4 languages
+   Fastest: Nyra (Explicit Types) (3.80 ms)
+   Slowest: Go (9.33 ms)
+   Lowest RAM: Nyra (Zero Types) (3.06 MB)
+   Highest RAM: Go (7.98 MB)
+   Average: 5.73 ms, 4.33 MB across 4 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            3.9401       1    1.00x        2.98 MB      1    1.00x
-   Nyra (Explicit Types)        4.2276       2    1.07x        3.05 MB      2    1.02x
-   Go                           5.4004       3    1.37x        8.11 MB      4    2.72x
-   Rust                         6.0170       4    1.53x        3.19 MB      3    1.07x
+   Nyra (Explicit Types)        3.8013       1    1.00x        3.06 MB      2    1.00x
+   Nyra (Zero Types)            3.8446       2    1.01x        3.06 MB      1    1.00x
+   Rust                         5.9575       3    1.57x        3.20 MB      3    1.05x
+   Go                           9.3337       4    2.46x        7.98 MB      4    2.61x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (3.94 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (2.98 MB)
-     • Nyra (Zero Types) is 1.37× faster than Go on this suite.
-     • Nyra (Zero Types) uses 2.7× less RAM than Go (peak RSS).
-     • Nyra (Zero Types) is 1.53× faster than Rust on this suite.
-     • Nyra (Explicit Types) is 1.28× faster than Go on this suite.
-     • Nyra (Explicit Types) uses 2.7× less RAM than Go (peak RSS).
-     • Nyra (Explicit Types) is 1.42× faster than Rust on this suite.
+     • Fastest runtime: Nyra (Explicit Types) (3.80 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (3.06 MB)
+     • Nyra (Zero Types) is 2.43× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Zero Types) is 1.55× faster than Rust on this suite.
+     • Nyra (Explicit Types) is 2.46× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.57× faster than Rust on this suite.
 
 ## collections_vec_pop
    Vec push then pop all
-   Fastest: Nyra (Zero Types) (4.88 ms)
-   Slowest: Nyra (Explicit Types) (5.31 ms)
-   Lowest RAM: Nyra (Zero Types) (2.98 MB)
-   Highest RAM: Nyra (Zero Types) (2.98 MB)
-   Average: 5.09 ms, 2.98 MB across 2 languages
+   Fastest: Nyra (Explicit Types) (4.68 ms)
+   Slowest: Go (6.81 ms)
+   Lowest RAM: Nyra (Zero Types) (3.06 MB)
+   Highest RAM: Go (7.98 MB)
+   Average: 5.39 ms, 4.70 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            4.8806       1    1.00x        2.98 MB      1    1.00x
-   Nyra (Explicit Types)        5.3084       2    1.09x        2.98 MB      2    1.00x
+   Nyra (Explicit Types)        4.6758       1    1.00x        3.06 MB      2    1.00x
+   Nyra (Zero Types)            4.6895       2    1.00x        3.06 MB      1    1.00x
+   Go                           6.8076       3    1.46x        7.98 MB      3    2.61x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (4.88 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (2.98 MB)
+     • Fastest runtime: Nyra (Explicit Types) (4.68 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (3.06 MB)
+     • Nyra (Zero Types) is 1.45× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.6× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.46× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.6× less RAM than Go (peak RSS).
 
 ## collections_sort
    shell-sort pass + sum
-   Fastest: Nyra (Zero Types) (2.47 ms)
-   Slowest: Nyra (Explicit Types) (2.58 ms)
-   Lowest RAM: Nyra (Explicit Types) (1.27 MB)
-   Highest RAM: Nyra (Zero Types) (1.30 MB)
-   Average: 2.53 ms, 1.28 MB across 2 languages
+   Fastest: Nyra (Explicit Types) (2.09 ms)
+   Slowest: Go (24.83 ms)
+   Lowest RAM: Nyra (Zero Types) (1.34 MB)
+   Highest RAM: Go (3.95 MB)
+   Average: 9.68 ms, 2.21 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.4734       1    1.00x        1.30 MB      2    1.02x
-   Nyra (Explicit Types)        2.5803       2    1.04x        1.27 MB      1    1.00x
+   Nyra (Explicit Types)        2.0937       1    1.00x        1.34 MB      2    1.00x
+   Nyra (Zero Types)            2.1240       2    1.01x        1.34 MB      1    1.00x
+   Go                          24.8332       3   11.86x        3.95 MB      3    2.94x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.47 ms mean)
-     • Lowest peak memory: Nyra (Explicit Types) (1.27 MB)
+     • Fastest runtime: Nyra (Explicit Types) (2.09 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.34 MB)
+     • Nyra (Zero Types) is 11.69× faster than Go on this suite.
+     • Nyra (Zero Types) uses 2.9× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 11.86× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 2.9× less RAM than Go (peak RSS).
 
 ## algorithms_qsort
    partition-style mod sum
-   Fastest: Nyra (Zero Types) (2.45 ms)
-   Slowest: Nyra (Explicit Types) (2.47 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 2.46 ms, 1.02 MB across 2 languages
+   Fastest: Nyra (Zero Types) (1.92 ms)
+   Slowest: Go (3.70 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.52 MB)
+   Average: 2.51 ms, 1.86 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.4517       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)        2.4749       2    1.01x        1.02 MB      2    1.00x
+   Nyra (Zero Types)            1.9211       1    1.00x        1.03 MB      1    1.00x
+   Nyra (Explicit Types)        1.9253       2    1.00x        1.03 MB      2    1.00x
+   Go                           3.6964       3    1.92x        3.52 MB      3    3.41x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.45 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Zero Types) (1.92 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • Nyra (Zero Types) is 1.92× faster than Go on this suite.
+     • Nyra (Zero Types) uses 3.4× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.92× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 3.4× less RAM than Go (peak RSS).
 
 ## algorithms_mergesort
    merge-style mod sum
-   Fastest: Nyra (Zero Types) (2.28 ms)
-   Slowest: Nyra (Explicit Types) (2.49 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 2.38 ms, 1.02 MB across 2 languages
+   Fastest: Nyra (Explicit Types) (1.89 ms)
+   Slowest: Go (3.03 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.56 MB)
+   Average: 2.28 ms, 1.88 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.2752       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)        2.4933       2    1.10x        1.02 MB      2    1.00x
+   Nyra (Explicit Types)        1.8854       1    1.00x        1.03 MB      2    1.00x
+   Nyra (Zero Types)            1.9337       2    1.03x        1.03 MB      1    1.00x
+   Go                           3.0289       3    1.61x        3.56 MB      3    3.45x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.28 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Explicit Types) (1.89 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • Nyra (Zero Types) is 1.57× faster than Go on this suite.
+     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 1.61× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
 
 ## algorithms_binary_search
    binary search probes
-   Fastest: Nyra (Zero Types) (2.10 ms)
-   Slowest: Nyra (Explicit Types) (2.31 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 2.21 ms, 1.02 MB across 2 languages
+   Fastest: Nyra (Explicit Types) (1.75 ms)
+   Slowest: Go (5.14 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Go (3.39 MB)
+   Average: 2.88 ms, 1.82 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.1046       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)        2.3133       2    1.10x        1.02 MB      2    1.00x
+   Nyra (Explicit Types)        1.7486       1    1.00x        1.03 MB      2    1.00x
+   Nyra (Zero Types)            1.7623       2    1.01x        1.03 MB      1    1.00x
+   Go                           5.1413       3    2.94x        3.39 MB      3    3.29x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.10 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Explicit Types) (1.75 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
+     • Nyra (Zero Types) is 2.92× faster than Go on this suite.
+     • Nyra (Zero Types) uses 3.3× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 2.94× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
 
 ## algorithms_json_parse
    json_get_i32 hot loop
-   Fastest: Go (3.54 ms)
-   Slowest: Nyra (Explicit Types) (16.23 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Go (3.52 MB)
-   Average: 11.91 ms, 1.85 MB across 3 languages
+   Fastest: Go (11.00 ms)
+   Slowest: Nyra (Explicit Types) (16.85 ms)
+   Lowest RAM: Nyra (Zero Types) (1.08 MB)
+   Highest RAM: Go (3.50 MB)
+   Average: 14.69 ms, 1.88 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Go                           3.5428       1    1.00x        3.52 MB      3    3.46x
-   Nyra (Zero Types)           15.9545       2    4.50x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)       16.2291       3    4.58x        1.02 MB      2    1.00x
+   Go                          11.0024       1    1.00x        3.50 MB      3    3.25x
+   Nyra (Zero Types)           16.2290       2    1.48x        1.08 MB      1    1.00x
+   Nyra (Explicit Types)       16.8470       3    1.53x        1.08 MB      2    1.00x
    Insights:
-     • Fastest runtime: Go (3.54 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
-     • Go is 4.50× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) uses 3.5× less RAM than Go (peak RSS).
-     • Go is 4.58× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 3.5× less RAM than Go (peak RSS).
+     • Fastest runtime: Go (11.00 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.08 MB)
+     • Go is 1.48× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 3.2× less RAM than Go (peak RSS).
+     • Go is 1.53× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.2× less RAM than Go (peak RSS).
 
 ## algorithms_regex
    regex_is_match
-   Fastest: Nyra (Zero Types) (18.55 ms)
-   Slowest: Nyra (Explicit Types) (18.84 ms)
-   Lowest RAM: Nyra (Explicit Types) (1.05 MB)
-   Highest RAM: Nyra (Zero Types) (1.11 MB)
-   Average: 18.69 ms, 1.08 MB across 2 languages
+   Fastest: Go (15.75 ms)
+   Slowest: Nyra (Zero Types) (19.02 ms)
+   Lowest RAM: Nyra (Zero Types) (1.20 MB)
+   Highest RAM: Go (3.78 MB)
+   Average: 17.91 ms, 2.06 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)           18.5455       1    1.00x        1.11 MB      2    1.06x
-   Nyra (Explicit Types)       18.8368       2    1.02x        1.05 MB      1    1.00x
+   Go                          15.7495       1    1.00x        3.78 MB      3    3.14x
+   Nyra (Explicit Types)       18.9447       2    1.20x        1.20 MB      2    1.00x
+   Nyra (Zero Types)           19.0232       3    1.21x        1.20 MB      1    1.00x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (18.55 ms mean)
-     • Lowest peak memory: Nyra (Explicit Types) (1.05 MB)
+     • Fastest runtime: Go (15.75 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.20 MB)
+     • Go is 1.21× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 3.1× less RAM than Go (peak RSS).
+     • Go is 1.20× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 3.1× less RAM than Go (peak RSS).
 
 ## concurrency_spawn_tasks
    spawn N lightweight tasks
-   Fastest: Go (3.23 ms)
-   Slowest: Nyra (Explicit Types) (31.58 ms)
-   Lowest RAM: Nyra (Zero Types) (1.39 MB)
-   Highest RAM: Go (3.47 MB)
-   Average: 22.11 ms, 2.09 MB across 3 languages
+   Fastest: Go (5.67 ms)
+   Slowest: Nyra (Zero Types) (35.63 ms)
+   Lowest RAM: Go (4.70 MB)
+   Highest RAM: Nyra (Zero Types) (8.75 MB)
+   Average: 25.62 ms, 7.40 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Go                           3.2276       1    1.00x        3.47 MB      3    2.49x
-   Nyra (Zero Types)           31.5212       2    9.77x        1.39 MB      1    1.00x
-   Nyra (Explicit Types)       31.5756       3    9.78x        1.42 MB      2    1.02x
+   Go                           5.6698       1    1.00x        4.70 MB      1    1.00x
+   Nyra (Explicit Types)       35.5509       2    6.27x        8.75 MB      3    1.86x
+   Nyra (Zero Types)           35.6302       3    6.28x        8.75 MB      2    1.86x
    Insights:
-     • Fastest runtime: Go (3.23 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.39 MB)
-     • Go is 9.77× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) uses 2.5× less RAM than Go (peak RSS).
-     • Go is 9.78× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 2.4× less RAM than Go (peak RSS).
+     • Fastest runtime: Go (5.67 ms mean)
+     • Lowest peak memory: Go (4.70 MB)
+     • Go is 6.28× faster than Nyra (Zero Types) on this suite.
+     • Go is 6.27× faster than Nyra (Explicit Types) on this suite.
 
 ## concurrency_channel_pingpong
    spawn producer + channel recv
-   Fastest: Rust (11.38 ms)
-   Slowest: Nyra (Explicit Types) (51.89 ms)
-   Lowest RAM: Nyra (Zero Types) (1.05 MB)
-   Highest RAM: Go (3.50 MB)
-   Average: 33.54 ms, 2.14 MB across 4 languages
+   Fastest: Rust (10.86 ms)
+   Slowest: Nyra (Explicit Types) (141.95 ms)
+   Lowest RAM: Nyra (Zero Types) (1.41 MB)
+   Highest RAM: Go (3.69 MB)
+   Average: 74.49 ms, 2.44 MB across 4 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Rust                        11.3840       1    1.00x        2.95 MB      3    2.82x
-   Go                          19.8266       2    1.74x        3.50 MB      4    3.34x
-   Nyra (Zero Types)           51.0538       3    4.48x        1.05 MB      1    1.00x
-   Nyra (Explicit Types)       51.8880       4    4.56x        1.05 MB      2    1.00x
+   Rust                        10.8600       1    1.00x        3.25 MB      3    2.31x
+   Go                          17.7786       2    1.64x        3.69 MB      4    2.62x
+   Nyra (Zero Types)          127.3566       3   11.73x        1.41 MB      1    1.00x
+   Nyra (Explicit Types)      141.9538       4   13.07x        1.41 MB      2    1.00x
    Insights:
-     • Fastest runtime: Rust (11.38 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.05 MB)
-     • Go is 2.58× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) uses 3.3× less RAM than Go (peak RSS).
-     • Rust is 4.48× faster than Nyra (Zero Types) on this suite.
-     • Nyra (Zero Types) uses 2.8× less RAM than Rust (peak RSS).
-     • Go is 2.62× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 3.3× less RAM than Go (peak RSS).
-     • Rust is 4.56× faster than Nyra (Explicit Types) on this suite.
-     • Nyra (Explicit Types) uses 2.8× less RAM than Rust (peak RSS).
+     • Fastest runtime: Rust (10.86 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.41 MB)
+     • Go is 7.16× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 2.6× less RAM than Go (peak RSS).
+     • Rust is 11.73× faster than Nyra (Zero Types) on this suite.
+     • Nyra (Zero Types) uses 2.3× less RAM than Rust (peak RSS).
+     • Go is 7.98× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 2.6× less RAM than Go (peak RSS).
+     • Rust is 13.07× faster than Nyra (Explicit Types) on this suite.
+     • Nyra (Explicit Types) uses 2.3× less RAM than Rust (peak RSS).
 
 ## concurrency_worker_pool
    4-worker channel pool
-   Fastest: Nyra (Explicit Types) (10,764.40 ms)
-   Slowest: Nyra (Zero Types) (10,793.28 ms)
-   Lowest RAM: Nyra (Explicit Types) (3.11 MB)
-   Highest RAM: Nyra (Zero Types) (3.17 MB)
-   Average: 10,778.84 ms, 3.14 MB across 2 languages
+   Fastest: Go (0.00 ms)
+   Slowest: Nyra (Explicit Types) (10,782.39 ms)
+   Lowest RAM: Go (0 KB)
+   Highest RAM: Nyra (Zero Types) (4.27 MB)
+   Average: 7,182.47 ms, 2.84 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Explicit Types)    10764.4000       1    1.00x        3.11 MB      1    1.00x
-   Nyra (Zero Types)        10793.2800       2    1.00x        3.17 MB      2    1.02x
+   Go                           0.0000       1    1.00x           0 KB      1    1.00x
+   Nyra (Zero Types)        10765.0156       2    1.00x        4.27 MB      2    1.00x
+   Nyra (Explicit Types)    10782.3877       3    1.00x        4.27 MB      3    1.00x
    Insights:
-     • Fastest runtime: Nyra (Explicit Types) (10,764.40 ms mean)
-     • Lowest peak memory: Nyra (Explicit Types) (3.11 MB)
+     • Fastest runtime: Go (0.00 ms mean)
+     • Lowest peak memory: Go (0 KB)
 
 ## concurrency_parallel_map
    parallel for + checksum
-   Fastest: Nyra (Explicit Types) (3.42 ms)
-   Slowest: Nyra (Zero Types) (3.44 ms)
-   Lowest RAM: Nyra (Zero Types) (1.11 MB)
-   Highest RAM: Nyra (Explicit Types) (1.12 MB)
-   Average: 3.43 ms, 1.12 MB across 2 languages
+   Fastest: Nyra (Zero Types) (2.85 ms)
+   Slowest: Go (41.33 ms)
+   Lowest RAM: Nyra (Zero Types) (1.14 MB)
+   Highest RAM: Go (11.22 MB)
+   Average: 15.68 ms, 4.50 MB across 3 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Explicit Types)        3.4203       1    1.00x        1.12 MB      2    1.01x
-   Nyra (Zero Types)            3.4450       2    1.01x        1.11 MB      1    1.00x
+   Nyra (Zero Types)            2.8462       1    1.00x        1.14 MB      1    1.00x
+   Nyra (Explicit Types)        2.8606       2    1.01x        1.14 MB      2    1.00x
+   Go                          41.3287       3   14.52x       11.22 MB      3    9.84x
    Insights:
-     • Fastest runtime: Nyra (Explicit Types) (3.42 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.11 MB)
+     • Fastest runtime: Nyra (Zero Types) (2.85 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.14 MB)
+     • Nyra (Zero Types) is 14.52× faster than Go on this suite.
+     • Nyra (Zero Types) uses 9.8× less RAM than Go (peak RSS).
+     • Nyra (Explicit Types) is 14.45× faster than Go on this suite.
+     • Nyra (Explicit Types) uses 9.8× less RAM than Go (peak RSS).
 
 ## cpu_bound_pgo
-   Fastest: Nyra (Zero Types) (814.01 ms)
-   Slowest: Nyra (Explicit Types) (814.86 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 814.44 ms, 1.02 MB across 2 languages
+   Fastest: Nyra (Explicit Types) (815.71 ms)
+   Slowest: Nyra (Zero Types) (820.80 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Nyra (Zero Types) (1.03 MB)
+   Average: 818.26 ms, 1.03 MB across 2 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)          814.0100       1    1.00x        1.02 MB      1    1.00x
-   Nyra (Explicit Types)      814.8640       2    1.00x        1.02 MB      2    1.00x
+   Nyra (Explicit Types)      815.7148       1    1.00x        1.03 MB      2    1.00x
+   Nyra (Zero Types)          820.8022       2    1.01x        1.03 MB      1    1.00x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (814.01 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Explicit Types) (815.71 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
 
 ## escape_local_channel
-   Fastest: Nyra (Zero Types) (3.63 ms)
-   Slowest: Nyra (Zero Types) (3.63 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 3.63 ms, 1.02 MB across 1 languages
+   Fastest: Nyra (Zero Types) (3.62 ms)
+   Slowest: Nyra (Zero Types) (3.62 ms)
+   Lowest RAM: Nyra (Zero Types) (1.03 MB)
+   Highest RAM: Nyra (Zero Types) (1.03 MB)
+   Average: 3.62 ms, 1.03 MB across 1 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            3.6289       1    1.00x        1.02 MB      1    1.00x
+   Nyra (Zero Types)            3.6183       1    1.00x        1.03 MB      1    1.00x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (3.63 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Zero Types) (3.62 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.03 MB)
 
 ## escape_point_sroa
-   Fastest: Nyra (Zero Types) (2.11 ms)
-   Slowest: Nyra (Zero Types) (2.11 ms)
-   Lowest RAM: Nyra (Zero Types) (1.02 MB)
-   Highest RAM: Nyra (Zero Types) (1.02 MB)
-   Average: 2.11 ms, 1.02 MB across 1 languages
+   Fastest: Nyra (Zero Types) (2.89 ms)
+   Slowest: Nyra (Zero Types) (2.89 ms)
+   Lowest RAM: Nyra (Zero Types) (1.47 MB)
+   Highest RAM: Nyra (Zero Types) (1.47 MB)
+   Average: 2.89 ms, 1.47 MB across 1 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)            2.1064       1    1.00x        1.02 MB      1    1.00x
+   Nyra (Zero Types)            2.8875       1    1.00x        1.47 MB      1    1.00x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (2.11 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.02 MB)
+     • Fastest runtime: Nyra (Zero Types) (2.89 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.47 MB)
 
 ## escape_spawn_channel
-   Fastest: Nyra (Zero Types) (51.48 ms)
-   Slowest: Nyra (Zero Types) (51.48 ms)
-   Lowest RAM: Nyra (Zero Types) (1.05 MB)
-   Highest RAM: Nyra (Zero Types) (1.05 MB)
-   Average: 51.48 ms, 1.05 MB across 1 languages
+   Fastest: Nyra (Zero Types) (137.80 ms)
+   Slowest: Nyra (Zero Types) (137.80 ms)
+   Lowest RAM: Nyra (Zero Types) (1.52 MB)
+   Highest RAM: Nyra (Zero Types) (1.52 MB)
+   Average: 137.80 ms, 1.52 MB across 1 languages
 
    Language                  Time (ms)  Time #  vs best       Peak RSS  RAM #  vs best
    ------------------------------------------------------------------------------
-   Nyra (Zero Types)           51.4814       1    1.00x        1.05 MB      1    1.00x
+   Nyra (Zero Types)          137.7965       1    1.00x        1.52 MB      1    1.00x
    Insights:
-     • Fastest runtime: Nyra (Zero Types) (51.48 ms mean)
-     • Lowest peak memory: Nyra (Zero Types) (1.05 MB)
+     • Fastest runtime: Nyra (Zero Types) (137.80 ms mean)
+     • Lowest peak memory: Nyra (Zero Types) (1.52 MB)
 
 ========================================================================
 RAW MEASUREMENTS — same rows as results/data.tsv
@@ -1225,135 +1377,160 @@ RAW MEASUREMENTS — same rows as results/data.tsv
 
    Suite                Language                  Time (ms)       Memory
    --------------------------------------------------------------------
-   hello                Nyra (Zero Types)            2.1220      1.02 MB
-   arithmetic           Nyra (Zero Types)            2.1551      1.02 MB
-   dungeon              Nyra (Zero Types)            2.1290      1.02 MB
-   loop                 Nyra (Zero Types)         1179.0800      1.02 MB
-   fib                  Nyra (Zero Types)         1177.4480      1.02 MB
-   nested               Nyra (Zero Types)           52.3344      1.02 MB
-   struct_sum           Nyra (Zero Types)            2.0914      1.02 MB
-   loop_nofold          Nyra (Zero Types)         1178.3440      1.02 MB
-   cpu_bound            Nyra (Zero Types)          808.2440      1.02 MB
-   mix                  Nyra (Zero Types)         1527.7020      1.02 MB
-   escape_local_channel Nyra (Zero Types)            3.6289      1.02 MB
-   escape_spawn_channel Nyra (Zero Types)           51.4814      1.05 MB
-   escape_point_sroa    Nyra (Zero Types)            2.1064      1.02 MB
-   memory_alloc_struct  Nyra (Zero Types)           11.3199      1.05 MB
-   memory_free_struct   Nyra (Zero Types)           11.0756      1.08 MB
-   memory_arena         Nyra (Zero Types)            4.3540      1.02 MB
-   memory_ownership     Nyra (Zero Types)            3.7169      1.02 MB
-   strings_concat       Nyra (Zero Types)         1475.3800   3281.45 MB
-   strings_substring    Nyra (Zero Types)            4.2802      2.56 MB
-   strings_replace      Nyra (Zero Types)            5.1886      2.56 MB
-   strings_split        Nyra (Zero Types)            4.6796      2.69 MB
-   strings_utf8         Nyra (Zero Types)            8.5089      1.02 MB
-   collections_hashmap  Nyra (Zero Types)           34.4784      8.44 MB
-   collections_hashset  Nyra (Zero Types)           34.4070      8.47 MB
-   collections_vec_push Nyra (Zero Types)            3.9401      2.98 MB
-   collections_vec_pop  Nyra (Zero Types)            4.8806      2.98 MB
-   collections_sort     Nyra (Zero Types)            2.4734      1.30 MB
-   algorithms_qsort     Nyra (Zero Types)            2.4517      1.02 MB
-   algorithms_mergesort Nyra (Zero Types)            2.2752      1.02 MB
-   algorithms_binary_search Nyra (Zero Types)            2.1046      1.02 MB
-   algorithms_json_parse Nyra (Zero Types)           15.9545      1.02 MB
-   algorithms_regex     Nyra (Zero Types)           18.5455      1.11 MB
-   concurrency_spawn_tasks Nyra (Zero Types)           31.5212      1.39 MB
-   concurrency_channel_pingpong Nyra (Zero Types)           51.0538      1.05 MB
-   concurrency_worker_pool Nyra (Zero Types)        10793.2800      3.17 MB
-   concurrency_parallel_map Nyra (Zero Types)            3.4450      1.11 MB
-   cpu_bound_pgo        Nyra (Zero Types)          814.0100      1.02 MB
-   hello                Nyra (Explicit Types)        2.1564      1.02 MB
-   arithmetic           Nyra (Explicit Types)        2.1813      1.02 MB
-   dungeon              Nyra (Explicit Types)        2.0690      1.02 MB
-   loop                 Nyra (Explicit Types)     1182.1680      1.02 MB
-   fib                  Nyra (Explicit Types)     1177.5280      1.02 MB
-   nested               Nyra (Explicit Types)       52.4884      1.02 MB
-   struct_sum           Nyra (Explicit Types)        2.0816      1.02 MB
-   loop_nofold          Nyra (Explicit Types)     1177.7120      1.02 MB
-   cpu_bound            Nyra (Explicit Types)      808.8380      1.02 MB
-   mix                  Nyra (Explicit Types)     1528.7700      1.02 MB
-   memory_alloc_struct  Nyra (Explicit Types)       11.8550      1.05 MB
-   memory_free_struct   Nyra (Explicit Types)       11.8094      1.05 MB
-   memory_arena         Nyra (Explicit Types)        4.6841      1.02 MB
-   memory_ownership     Nyra (Explicit Types)        4.0945      1.02 MB
-   strings_concat       Nyra (Explicit Types)     1526.9020   3310.50 MB
-   strings_substring    Nyra (Explicit Types)        4.7069      2.56 MB
-   strings_replace      Nyra (Explicit Types)        5.5296      2.56 MB
-   strings_split        Nyra (Explicit Types)        4.6424      2.56 MB
-   strings_utf8         Nyra (Explicit Types)        8.5726      1.02 MB
-   collections_hashmap  Nyra (Explicit Types)       34.8680      8.56 MB
-   collections_hashset  Nyra (Explicit Types)       34.5860      8.44 MB
-   collections_vec_push Nyra (Explicit Types)        4.2276      3.05 MB
-   collections_vec_pop  Nyra (Explicit Types)        5.3084      2.98 MB
-   collections_sort     Nyra (Explicit Types)        2.5803      1.27 MB
-   algorithms_qsort     Nyra (Explicit Types)        2.4749      1.02 MB
-   algorithms_mergesort Nyra (Explicit Types)        2.4933      1.02 MB
-   algorithms_binary_search Nyra (Explicit Types)        2.3133      1.02 MB
-   algorithms_json_parse Nyra (Explicit Types)       16.2291      1.02 MB
-   algorithms_regex     Nyra (Explicit Types)       18.8368      1.05 MB
-   concurrency_spawn_tasks Nyra (Explicit Types)       31.5756      1.42 MB
-   concurrency_channel_pingpong Nyra (Explicit Types)       51.8880      1.05 MB
-   concurrency_worker_pool Nyra (Explicit Types)    10764.4000      3.11 MB
-   concurrency_parallel_map Nyra (Explicit Types)        3.4203      1.12 MB
-   cpu_bound_pgo        Nyra (Explicit Types)      814.8640      1.02 MB
-   hello                C                            2.3020      1.02 MB
-   arithmetic           C                            2.4409      1.05 MB
-   dungeon              C                            2.1721      1.02 MB
-   loop                 C                         1298.8840      1.02 MB
-   fib                  C                         1303.3520      1.02 MB
-   nested               C                           57.8440      1.02 MB
-   struct_sum           C                            2.1280      1.02 MB
-   loop_nofold          C                         1295.3520      1.03 MB
-   cpu_bound            C                          462.5680      1.03 MB
-   mix                  C                         1797.8000      1.02 MB
-   memory_alloc_struct  C                            4.0010      1.02 MB
-   memory_free_struct   C                            3.9026      1.02 MB
-   memory_arena         C                            3.9280      1.02 MB
-   memory_ownership     C                            4.0266      1.02 MB
-   hello                C++                          2.2364      1.02 MB
-   arithmetic           C++                          2.3370      1.03 MB
-   dungeon              C++                          2.3036      1.03 MB
-   loop                 C++                       1295.2040      1.03 MB
-   fib                  C++                       1295.8100      1.03 MB
-   nested               C++                         57.6682      1.03 MB
-   struct_sum           C++                          2.1645      1.03 MB
-   loop_nofold          C++                       1306.0240      1.03 MB
-   cpu_bound            C++                        467.6940      1.03 MB
-   mix                  C++                       1803.3820      1.03 MB
-   hello                Go                           3.0624      3.52 MB
-   arithmetic           Go                           3.0902      3.53 MB
-   dungeon              Go                           2.9256      3.36 MB
-   loop                 Go                        1308.2920      3.50 MB
-   fib                  Go                        1299.2120      3.39 MB
-   nested               Go                          58.5008      3.39 MB
-   struct_sum           Go                          28.7644      3.58 MB
-   loop_nofold          Go                        1296.7100      3.55 MB
-   cpu_bound            Go                         579.0500      3.55 MB
-   mix                  Go                        1806.1780      3.55 MB
-   memory_alloc_struct  Go                           5.4047      3.52 MB
-   memory_free_struct   Go                           5.0280      3.47 MB
-   memory_arena         Go                           5.3298      3.52 MB
-   memory_ownership     Go                           5.2583      3.47 MB
-   strings_concat       Go                         309.2760     17.33 MB
-   collections_hashmap  Go                           6.0268      3.75 MB
-   collections_vec_push Go                           5.4004      8.11 MB
-   algorithms_json_parse Go                           3.5428      3.52 MB
-   concurrency_spawn_tasks Go                           3.2276      3.47 MB
-   concurrency_channel_pingpong Go                          19.8266      3.50 MB
-   hello                Rust                         2.6280      1.23 MB
-   arithmetic           Rust                         2.5853      1.17 MB
-   dungeon              Rust                         2.5663      1.17 MB
-   loop                 Rust                      1543.6780      1.23 MB
-   fib                  Rust                      1552.4160      1.23 MB
-   nested               Rust                        68.8196      1.23 MB
-   struct_sum           Rust                         2.5545      1.17 MB
-   loop_nofold          Rust                      1544.6120      1.23 MB
-   cpu_bound            Rust                       865.3800      1.23 MB
-   mix                  Rust                      1990.3540      1.23 MB
-   memory_alloc_struct  Rust                         4.6745      1.23 MB
-   collections_vec_push Rust                         6.0170      3.19 MB
-   concurrency_channel_pingpong Rust                        11.3840      2.95 MB
+   hello                Nyra (Zero Types)            2.8385      1.22 MB
+   hello                Nyra (Explicit Types)        2.7347      1.22 MB
+   arithmetic           Nyra (Zero Types)            1.7535      1.03 MB
+   arithmetic           Nyra (Explicit Types)        1.7746      1.03 MB
+   dungeon              Nyra (Zero Types)            2.9239      1.38 MB
+   dungeon              Nyra (Explicit Types)        2.8921      1.38 MB
+   loop                 Nyra (Zero Types)         1507.0000      1.03 MB
+   loop                 Nyra (Explicit Types)     1435.4149      1.03 MB
+   fib                  Nyra (Zero Types)         1492.2386      1.03 MB
+   fib                  Nyra (Explicit Types)     1437.3031      1.06 MB
+   nested               Nyra (Zero Types)           53.8925      1.09 MB
+   nested               Nyra (Explicit Types)       53.7138      1.09 MB
+   struct_sum           Nyra (Zero Types)            3.2753      1.41 MB
+   struct_sum           Nyra (Explicit Types)        3.3483      1.41 MB
+   loop_nofold          Nyra (Zero Types)         1445.6772      1.03 MB
+   loop_nofold          Nyra (Explicit Types)     1445.3030      1.03 MB
+   comptime_table       Nyra (Zero Types)            3.3990      1.03 MB
+   comptime_table       Nyra (Explicit Types)        3.4120      1.03 MB
+   comptime_table       Nyra (Comptime)              1.7501      1.03 MB
+   comptime_table       Nyra (Comptime + Types)       1.7518      1.03 MB
+   cpu_bound            Nyra (Zero Types)          824.5202      1.03 MB
+   cpu_bound            Nyra (Explicit Types)      845.7964      1.06 MB
+   mix                  Nyra (Zero Types)         1902.0808      1.03 MB
+   mix                  Nyra (Explicit Types)     1937.3013      1.03 MB
+   escape_local_channel Nyra (Zero Types)            3.6183      1.03 MB
+   escape_spawn_channel Nyra (Zero Types)          137.7965      1.52 MB
+   escape_point_sroa    Nyra (Zero Types)            2.8875      1.47 MB
+   memory_alloc_struct  Nyra (Zero Types)           13.7532      1.56 MB
+   memory_alloc_struct  Nyra (Explicit Types)       13.8135      1.56 MB
+   memory_free_struct   Nyra (Zero Types)           12.2314      1.25 MB
+   memory_free_struct   Nyra (Explicit Types)       12.1550      1.25 MB
+   memory_arena         Nyra (Zero Types)            4.6558      1.03 MB
+   memory_arena         Nyra (Explicit Types)        4.8188      1.03 MB
+   memory_ownership     Nyra (Zero Types)            5.1473      1.38 MB
+   memory_ownership     Nyra (Explicit Types)        5.7096      1.38 MB
+   strings_concat       Nyra (Zero Types)          280.3797      4.39 MB
+   strings_concat       Nyra (Explicit Types)      284.8454      4.45 MB
+   strings_substring    Nyra (Zero Types)            4.3727      2.66 MB
+   strings_substring    Nyra (Explicit Types)        4.4529      2.66 MB
+   strings_replace      Nyra (Zero Types)            9.5628      1.23 MB
+   strings_replace      Nyra (Explicit Types)        7.9875      1.23 MB
+   strings_split        Nyra (Zero Types)            4.3498      2.72 MB
+   strings_split        Nyra (Explicit Types)        4.4815      2.72 MB
+   strings_utf8         Nyra (Zero Types)            8.5858      1.08 MB
+   strings_utf8         Nyra (Explicit Types)        8.8570      1.08 MB
+   collections_hashmap  Nyra (Zero Types)            3.2590      1.84 MB
+   collections_hashmap  Nyra (Explicit Types)        3.3080      1.84 MB
+   collections_hashset  Nyra (Zero Types)            4.6538      1.86 MB
+   collections_hashset  Nyra (Explicit Types)        3.8011      1.86 MB
+   collections_vec_push Nyra (Zero Types)            3.8446      3.06 MB
+   collections_vec_push Nyra (Explicit Types)        3.8013      3.06 MB
+   collections_vec_pop  Nyra (Zero Types)            4.6895      3.06 MB
+   collections_vec_pop  Nyra (Explicit Types)        4.6758      3.06 MB
+   collections_sort     Nyra (Zero Types)            2.1240      1.34 MB
+   collections_sort     Nyra (Explicit Types)        2.0937      1.34 MB
+   algorithms_qsort     Nyra (Zero Types)            1.9211      1.03 MB
+   algorithms_qsort     Nyra (Explicit Types)        1.9253      1.03 MB
+   algorithms_mergesort Nyra (Zero Types)            1.9337      1.03 MB
+   algorithms_mergesort Nyra (Explicit Types)        1.8854      1.03 MB
+   algorithms_binary_search Nyra (Zero Types)            1.7623      1.03 MB
+   algorithms_binary_search Nyra (Explicit Types)        1.7486      1.03 MB
+   algorithms_json_parse Nyra (Zero Types)           16.2290      1.08 MB
+   algorithms_json_parse Nyra (Explicit Types)       16.8470      1.08 MB
+   algorithms_regex     Nyra (Zero Types)           19.0232      1.20 MB
+   algorithms_regex     Nyra (Explicit Types)       18.9447      1.20 MB
+   concurrency_spawn_tasks Nyra (Zero Types)           35.6302      8.75 MB
+   concurrency_spawn_tasks Nyra (Explicit Types)       35.5509      8.75 MB
+   concurrency_channel_pingpong Nyra (Zero Types)          127.3566      1.41 MB
+   concurrency_channel_pingpong Nyra (Explicit Types)      141.9538      1.41 MB
+   concurrency_worker_pool Nyra (Zero Types)        10765.0156      4.27 MB
+   concurrency_worker_pool Nyra (Explicit Types)    10782.3877      4.27 MB
+   concurrency_parallel_map Nyra (Zero Types)            2.8462      1.14 MB
+   concurrency_parallel_map Nyra (Explicit Types)        2.8606      1.14 MB
+   cpu_bound_pgo        Nyra (Zero Types)          820.8022      1.03 MB
+   cpu_bound_pgo        Nyra (Explicit Types)      815.7148      1.03 MB
+   hello                C                            3.5144      1.03 MB
+   arithmetic           C                            2.3759      1.03 MB
+   dungeon              C                            2.2176      1.03 MB
+   loop                 C                         1303.0582      1.03 MB
+   fib                  C                         1302.4585      1.06 MB
+   nested               C                           58.4103      1.09 MB
+   struct_sum           C                            2.3032      1.03 MB
+   loop_nofold          C                         1297.7592      1.05 MB
+   comptime_table       C                            5.7788      1.03 MB
+   cpu_bound            C                          461.3012      1.11 MB
+   mix                  C                         1794.5987      1.03 MB
+   memory_alloc_struct  C                            6.8127      1.03 MB
+   memory_free_struct   C                            4.3945      1.03 MB
+   memory_arena         C                            4.4071      1.03 MB
+   memory_ownership     C                            6.7770      1.03 MB
+   strings_concat       C                          352.1632      5.55 MB
+   collections_hashmap  C                            6.5778      1.30 MB
+   hello                C++                          3.5728      1.05 MB
+   arithmetic           C++                          3.2475      1.06 MB
+   dungeon              C++                          2.7037      1.06 MB
+   loop                 C++                       1295.9259      1.06 MB
+   fib                  C++                       1295.1900      1.06 MB
+   nested               C++                         57.9097      1.06 MB
+   struct_sum           C++                          3.0815      1.06 MB
+   loop_nofold          C++                       1304.3978      1.06 MB
+   comptime_table       C++                          6.3509      1.03 MB
+   cpu_bound            C++                        459.2330      1.06 MB
+   mix                  C++                       1853.0122      1.06 MB
+   hello                Go                           4.7252      3.58 MB
+   arithmetic           Go                           2.7970      3.56 MB
+   dungeon              Go                           4.3247      3.52 MB
+   loop                 Go                        1320.8935      3.59 MB
+   fib                  Go                        1301.3202      3.66 MB
+   nested               Go                          59.5800      3.72 MB
+   struct_sum           Go                          28.0802      3.59 MB
+   loop_nofold          Go                        1296.6313      3.55 MB
+   comptime_table       Go                           9.3353      3.56 MB
+   cpu_bound            Go                         569.5206      3.56 MB
+   mix                  Go                        1805.7755      3.52 MB
+   memory_alloc_struct  Go                          11.7482      3.58 MB
+   memory_free_struct   Go                          11.9450      3.55 MB
+   memory_arena         Go                           8.4324      3.52 MB
+   memory_ownership     Go                           8.8297      3.56 MB
+   strings_concat       Go                         298.6563     17.64 MB
+   strings_substring    Go                           5.8756      3.64 MB
+   strings_replace      Go                           6.5368      3.50 MB
+   strings_split        Go                           6.9053      3.55 MB
+   strings_utf8         Go                          12.5910      3.55 MB
+   collections_hashmap  Go                           7.0882      3.83 MB
+   collections_hashset  Go                           9.5585      3.83 MB
+   collections_vec_push Go                           9.3337      7.98 MB
+   collections_vec_pop  Go                           6.8076      7.98 MB
+   collections_sort     Go                          24.8332      3.95 MB
+   algorithms_qsort     Go                           3.6964      3.52 MB
+   algorithms_mergesort Go                           3.0289      3.56 MB
+   algorithms_binary_search Go                           5.1413      3.39 MB
+   algorithms_json_parse Go                          11.0024      3.50 MB
+   algorithms_regex     Go                          15.7495      3.78 MB
+   concurrency_spawn_tasks Go                           5.6698      4.70 MB
+   concurrency_channel_pingpong Go                          17.7786      3.69 MB
+   concurrency_worker_pool Go                           0.0000         0 KB
+   concurrency_parallel_map Go                          41.3287     11.22 MB
+   hello                Rust                         3.9686      1.19 MB
+   arithmetic           Rust                         2.1854      1.19 MB
+   dungeon              Rust                         3.4192      1.25 MB
+   loop                 Rust                      1544.2063      1.25 MB
+   fib                  Rust                      1563.8855      1.25 MB
+   nested               Rust                        69.1566      1.25 MB
+   struct_sum           Rust                         3.8970      1.19 MB
+   loop_nofold          Rust                      1543.0294      1.25 MB
+   comptime_table       Rust                         4.6151      1.19 MB
+   cpu_bound            Rust                       861.3130      1.25 MB
+   mix                  Rust                      1998.1725      1.25 MB
+   memory_alloc_struct  Rust                         4.3952      1.19 MB
+   strings_concat       Rust                         5.5877      1.44 MB
+   collections_hashmap  Rust                         9.4100      1.44 MB
+   collections_vec_push Rust                         5.9575      3.20 MB
+   concurrency_channel_pingpong Rust                        10.8600      3.25 MB
 
 
-Re-run: ./scripts/bench.sh
+Re-run: make bench
 Report: examples/comparison/results/latest.html

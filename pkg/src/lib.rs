@@ -1,24 +1,14 @@
 mod lockfile;
-mod registry;
-mod registry_client;
 mod rust_bridge;
 mod semver;
 
 pub use semver::{best_match, parse_req, parse_version, satisfies, Req, Version};
 
 pub use lockfile::{
-    cache_module_path, fetch_git, sha256_hex, LockEntry, LockFile, LockSource,
-};
-pub use registry::{
-    fetch_package, fetch_package_versioned, known_packages, resolve_package_name,
-    resolved_version_for_package, repo_root, split_name_and_req, PackageSpec,
-};
-pub use registry_client::{
-    default_registry_url, http_get, list_package_versions, list_packages, resolve_from_registry,
-    registry_data_dir, RegistryPackage,
+    cache_module_path, sha256_hex, LockEntry, LockFeatures, LockFile, LockSource, TlsBackend,
 };
 pub use rust_bridge::{
-    add_rust_dependency, bind_rust_crate, bind_rust_crate_with_options, build_link_crate,
+    bind_rust_crate, bind_rust_crate_with_options, build_link_crate,
     known_bridge, parse_rust_module, rust_cache_dir, BindOptions, BridgeMeta,
 };
 
@@ -31,20 +21,22 @@ pub struct RequireEntry {
     pub version_req: Option<Req>,
 }
 
-    #[derive(Debug, Default)]
-    pub struct NyraMod {
-        pub module: String,
-        pub version: Option<String>,
-        pub requires: Vec<RequireEntry>,
-        pub link_libs: Vec<String>,
-        pub link_search_paths: Vec<String>,
-        pub link_args: Vec<String>,
-        pub link_sources: Vec<String>,
-        /// Rust crate bridges (`link-crate uuid`).
-        pub link_crates: Vec<String>,
-        /// Args for the instrumented binary during `nyra build --pgo` (`pgo-run ...` lines).
-        pub pgo_run_args: Vec<String>,
-    }
+#[derive(Debug, Default)]
+pub struct NyraMod {
+    pub module: String,
+    pub version: Option<String>,
+    pub requires: Vec<RequireEntry>,
+    pub link_libs: Vec<String>,
+    pub link_search_paths: Vec<String>,
+    pub link_args: Vec<String>,
+    pub link_sources: Vec<String>,
+    /// Rust crate bridges (`link-crate uuid`).
+    pub link_crates: Vec<String>,
+    /// Args for the instrumented binary during `nyra build --pgo` (`pgo-run ...` lines).
+    pub pgo_run_args: Vec<String>,
+    /// TLS backend for HTTPS (`tls rustls|native|openssl`). Default when unset: rustls.
+    pub tls: Option<TlsBackend>,
+}
 
 pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
@@ -57,12 +49,15 @@ pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
     let mut link_sources = Vec::new();
     let mut link_crates = Vec::new();
     let mut pgo_run_args = Vec::new();
+    let mut tls = None;
     for line in text.lines() {
         let line = line.trim();
         if let Some(rest) = line.strip_prefix("module ") {
             module = rest.trim().to_string();
         } else if let Some(rest) = line.strip_prefix("version ") {
             version = Some(rest.trim().to_string());
+        } else if let Some(rest) = line.strip_prefix("tls ") {
+            tls = Some(TlsBackend::parse(rest.trim())?);
         } else if let Some(rest) = line.strip_prefix("require ") {
             let req = rest.trim();
             if req == "(" || req == ")" || req.is_empty() {
@@ -122,7 +117,60 @@ pub fn parse_nyra_mod(path: &Path) -> Result<NyraMod, String> {
         link_sources,
         link_crates,
         pgo_run_args,
+        tls,
     })
+}
+
+/// Resolve TLS backend: `nyra.mod` declaration wins, else pinned `nyra.lock`
+/// `features.tls`, else bundled **rustls**.
+pub fn resolve_tls_backend(project_root: &Path) -> Result<TlsBackend, String> {
+    let mod_path = project_root.join("nyra.mod");
+    let lock_path = project_root.join("nyra.lock");
+
+    let from_mod = if mod_path.is_file() {
+        parse_nyra_mod(&mod_path)?.tls
+    } else {
+        None
+    };
+
+    let from_lock = if lock_path.is_file() {
+        LockFile::read(&lock_path)?.features.tls
+    } else {
+        None
+    };
+
+    match (from_mod, from_lock) {
+        (Some(m), Some(l)) if m != l => Err(format!(
+            "tls backend mismatch: nyra.mod has '{}' but nyra.lock pins '{}' — \
+             update nyra.lock `features.tls` to match, or remove the lock pin",
+            m.as_str(),
+            l.as_str()
+        )),
+        (Some(m), _) => Ok(m),
+        (None, Some(l)) => Ok(l),
+        (None, None) => Ok(TlsBackend::Rustls),
+    }
+}
+
+/// Ensure `nyra.lock` records the resolved TLS backend (creates lock if missing).
+pub fn pin_tls_backend(project_root: &Path, backend: TlsBackend) -> Result<(), String> {
+    let lock_path = project_root.join("nyra.lock");
+    let mod_path = project_root.join("nyra.mod");
+    let module_name = if mod_path.is_file() {
+        parse_nyra_mod(&mod_path)?.module
+    } else {
+        "local".into()
+    };
+    let mut lock = if lock_path.is_file() {
+        LockFile::read(&lock_path)?
+    } else {
+        LockFile::new(module_name.clone())
+    };
+    if lock.module.is_empty() {
+        lock.module = module_name;
+    }
+    lock.features.tls = Some(backend);
+    lock.write(&lock_path)
 }
 
 /// Merge manifest link settings with CLI overrides (CLI wins on duplicates).
@@ -215,94 +263,6 @@ fn merge_link_fields(dst: &mut NyraMod, src: &NyraMod) {
     }
 }
 
-pub fn sync_lock_from_mod(mod_path: &Path, lock_path: &Path, sum_path: &Path) -> Result<(), String> {
-    let nyra_mod = parse_nyra_mod(mod_path)?;
-    let mut lock = if lock_path.exists() {
-        LockFile::read(lock_path)?
-    } else {
-        LockFile::new(if nyra_mod.module.is_empty() {
-            "example.local"
-        } else {
-            nyra_mod.module.as_str()
-        })
-    };
-    lock.module = nyra_mod.module.clone();
-
-    for req in nyra_mod.requires {
-        if lock.require.iter().any(|e| e.module == req.name) {
-            continue;
-        }
-        if let Some(crate_name) = parse_rust_module(&req.name) {
-            bind_rust_crate(
-                mod_path.parent().unwrap_or(Path::new(".")),
-                crate_name,
-                req.version_req.as_ref(),
-            )?;
-            let cache = rust_cache_dir(mod_path.parent().unwrap_or(Path::new(".")), crate_name);
-            let meta = BridgeMeta::read(&cache)?;
-            lock.require.push(LockEntry {
-                module: req.name.clone(),
-                version: meta.version,
-                source: LockSource::Local,
-                checksum: sha256_hex(meta.crate_name.as_bytes()),
-            });
-            continue;
-        }
-        let dest = cache_module_path(&req.name);
-        fetch_package_versioned(&req.name, &dest, req.version_req.as_ref())?;
-        let pinned = resolved_version_for_package(&req.name, req.version_req.as_ref());
-        let (source, checksum) = if req.name.starts_with("https://") || req.name.starts_with("git@") {
-            let bytes = std::fs::read_dir(&dest)
-                .map_err(|e| e.to_string())?
-                .flatten()
-                .map(|e| e.path().display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-            (
-                LockSource::Git {
-                    url: req.name.clone(),
-                    rev: "main".into(),
-                },
-                sha256_hex(bytes.as_bytes()),
-            )
-        } else if let Ok(pkg) =
-            resolve_from_registry(&default_registry_url(), &req.name, req.version_req.as_ref())
-        {
-            let bytes = std::fs::read_dir(&dest)
-                .map_err(|e| e.to_string())?
-                .flatten()
-                .map(|e| e.path().display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-            (
-                LockSource::Git {
-                    url: pkg.git_url,
-                    rev: pkg.git_rev,
-                },
-                sha256_hex(bytes.as_bytes()),
-            )
-        } else {
-            let bytes = std::fs::read_dir(&dest)
-                .map_err(|e| e.to_string())?
-                .flatten()
-                .map(|e| e.path().display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-            (LockSource::Local, sha256_hex(bytes.as_bytes()))
-        };
-        lock.require.push(LockEntry {
-            module: req.name,
-            version: pinned,
-            source,
-            checksum,
-        });
-    }
-
-    lock.write(lock_path)?;
-    lock.write_sum(sum_path)?;
-    Ok(())
-}
-
 pub fn verify_project(root: &Path) -> Result<(), String> {
     verify_lock_versions(root)?;
     let mod_path = root.join("nyra.mod");
@@ -319,6 +279,53 @@ pub fn verify_project(root: &Path) -> Result<(), String> {
         lock.verify_sum(&sum_path)?;
     }
     Ok(())
+}
+
+/// True when requires ↔ lock ↔ `.nyra/cache/` are out of sync (missing packages
+/// **or** orphaned lock/cache entries after a `require` was removed from `nyra.mod`).
+pub fn needs_dependency_sync(root: &Path) -> Result<bool, String> {
+    let mod_path = root.join("nyra.mod");
+    if !mod_path.is_file() {
+        return Ok(false);
+    }
+    let nyra_mod = parse_nyra_mod(&mod_path)?;
+    let lock_path = root.join("nyra.lock");
+    let lock = if lock_path.exists() {
+        match LockFile::read(&lock_path) {
+            Ok(lock) => Some(lock),
+            // Corrupt / outdated lock → treat as needing sync rather than failing compile.
+            Err(_) => return Ok(true),
+        }
+    } else {
+        None
+    };
+
+    // Missing packages (need fetch)
+    for req in &nyra_mod.requires {
+        let pkg_dir = root.join(cache_module_path(&req.name));
+        if !pkg_dir.join("nyra.mod").is_file() {
+            return Ok(true);
+        }
+        match &lock {
+            None => return Ok(true),
+            Some(lock) => {
+                if !lock.require.iter().any(|e| e.module == req.name) {
+                    return Ok(true);
+                }
+            }
+        }
+    }
+
+    // Orphaned lock entries (package removed from nyra.mod — need prune + rewrite lock)
+    if let Some(lock) = &lock {
+        for entry in &lock.require {
+            if !nyra_mod.requires.iter().any(|r| r.name == entry.module) {
+                return Ok(true);
+            }
+        }
+    }
+
+    Ok(false)
 }
 
 fn verify_requirements_match_lock(mod_path: &Path, lock_path: &Path) -> Result<(), String> {
@@ -350,99 +357,6 @@ fn format_req(req: &Req) -> String {
         Req::Tilde(v) => format!("~{}.{}.{}", v.major, v.minor, v.patch),
         Req::Gte(v) => format!(">={}.{}.{}", v.major, v.minor, v.patch),
     }
-}
-
-/// Add a dependency to `nyra.mod`, fetch into `.nyra/cache/`, merge native link lines.
-pub fn add_dependency(project_root: &Path, module: &str) -> Result<(), String> {
-    let (name, inline_req) = split_name_and_req(module);
-    if parse_rust_module(name).is_some() {
-        return add_rust_dependency(project_root, module);
-    }
-    let mod_path = project_root.join("nyra.mod");
-    if !mod_path.is_file() {
-        return Err("nyra.mod not found — run `nyra pkg init` first".into());
-    }
-    let mut content = std::fs::read_to_string(&mod_path).map_err(|e| e.to_string())?;
-    let require_line = if let Some(req) = &inline_req {
-        format!("require {name} {}", format_req(req))
-    } else {
-        format!("require {name}")
-    };
-    let already = content.lines().any(|l| {
-        let t = l.trim();
-        t == require_line || t == format!("require {name}")
-    });
-    if !already {
-        if !content.ends_with('\n') {
-            content.push('\n');
-        }
-        content.push_str(&format!("{require_line}\n"));
-        std::fs::write(&mod_path, &content).map_err(|e| e.to_string())?;
-    }
-    let dest = cache_module_path(name);
-    fetch_package_versioned(name, &dest, inline_req.as_ref())?;
-    merge_package_links(&mod_path, name)?;
-    sync_lock_from_mod(
-        &mod_path,
-        &project_root.join("nyra.lock"),
-        &project_root.join("nyra.sum"),
-    )
-}
-
-fn merge_package_links(project_mod: &Path, package_name: &str) -> Result<(), String> {
-    let pkg_mod = cache_module_path(package_name).join("nyra.mod");
-    if !pkg_mod.is_file() {
-        return Ok(());
-    }
-    let pkg = parse_nyra_mod(&pkg_mod)?;
-    let mut content = std::fs::read_to_string(project_mod).map_err(|e| e.to_string())?;
-    let mut changed = false;
-    for lib in &pkg.link_libs {
-        let line = format!("link {lib}");
-        if !content.lines().any(|l| l.trim() == line) {
-            if !content.ends_with('\n') {
-                content.push('\n');
-            }
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    for path in &pkg.link_search_paths {
-        let line = format!("link -L{path}");
-        if !content.lines().any(|l| l.trim() == line) {
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    for arg in &pkg.link_args {
-        let line = format!("link-arg {arg}");
-        if !content.lines().any(|l| l.trim() == line) {
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    for crate_name in &pkg.link_crates {
-        let line = format!("link-crate {crate_name}");
-        if !content.lines().any(|l| l.trim() == line) {
-            if !content.ends_with('\n') {
-                content.push('\n');
-            }
-            content.push_str(&format!("{line}\n"));
-            changed = true;
-        }
-    }
-    if changed {
-        std::fs::write(project_mod, content).map_err(|e| e.to_string())?;
-    }
-    Ok(())
-}
-
-pub fn cache_dir() -> std::path::PathBuf {
-    std::path::PathBuf::from(".nyra/cache")
-}
-
-pub fn resolve_module(module: &str) -> std::path::PathBuf {
-    cache_module_path(module)
 }
 
 fn verify_lock_versions(root: &Path) -> Result<(), String> {
@@ -523,6 +437,81 @@ mod tests {
             m.pgo_run_args,
             vec!["--benchmark-mode".to_string(), "--quick".to_string()]
         );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn needs_dependency_sync_detects_missing_cache() {
+        let dir = std::env::temp_dir().join(format!("nyra_sync_need_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("nyra.mod"),
+            "module app\nrequire ny-sqlite ^0.1.0\n",
+        )
+        .unwrap();
+        assert!(needs_dependency_sync(&dir).unwrap());
+        // Cache present but lock missing → still needs sync
+        let cache = dir.join(".nyra/cache/ny-sqlite");
+        std::fs::create_dir_all(&cache).unwrap();
+        std::fs::write(cache.join("nyra.mod"), "module ny-sqlite\n").unwrap();
+        assert!(needs_dependency_sync(&dir).unwrap());
+        // Empty requires + empty lock → no sync
+        std::fs::write(dir.join("nyra.mod"), "module app\n").unwrap();
+        assert!(!needs_dependency_sync(&dir).unwrap());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn needs_dependency_sync_detects_orphaned_lock() {
+        let dir = std::env::temp_dir().join(format!("nyra_sync_orphan_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nyra.mod"), "module app\n").unwrap();
+        let mut lock = LockFile::new("app");
+        lock.require.push(LockEntry {
+            module: "old-pkg".into(),
+            version: "0.1.0".into(),
+            source: LockSource::Local,
+            checksum: "abc".into(),
+        });
+        lock.write(&dir.join("nyra.lock")).unwrap();
+        assert!(needs_dependency_sync(&dir).unwrap());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn parse_tls_line() {
+        let dir = std::env::temp_dir().join(format!("nyra_tls_mod_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nyra.mod"), "module app\ntls native\n").unwrap();
+        let m = parse_nyra_mod(&dir.join("nyra.mod")).unwrap();
+        assert_eq!(m.tls, Some(TlsBackend::Native));
+        assert_eq!(resolve_tls_backend(&dir).unwrap(), TlsBackend::Native);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn resolve_tls_defaults_to_rustls() {
+        let dir = std::env::temp_dir().join(format!("nyra_tls_def_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        assert_eq!(resolve_tls_backend(&dir).unwrap(), TlsBackend::Rustls);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn lock_tls_features_roundtrip() {
+        let mut lock = LockFile::new("app.example");
+        lock.features.tls = Some(TlsBackend::Openssl);
+        let dir = std::env::temp_dir().join(format!("nyra_tls_lock_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let lock_path = dir.join("nyra.lock");
+        lock.write(&lock_path).unwrap();
+        let read = LockFile::read(&lock_path).unwrap();
+        assert_eq!(read.features.tls, Some(TlsBackend::Openssl));
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

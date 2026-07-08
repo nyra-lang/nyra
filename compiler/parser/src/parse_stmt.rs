@@ -6,6 +6,14 @@ use super::recovery::{check, consume, is_at_end, merge_spans, skip_newlines, syn
 
 use super::Parser;
 
+pub(super) struct ParallelLoopParts {
+    pub config: ParallelConfig,
+    pub var: String,
+    pub kind: ForKind,
+    pub body: Block,
+    pub span: errors::Span,
+}
+
 impl Parser {
     pub(super) fn parse_block(&mut self) -> Block {
         let mut statements = Vec::new();
@@ -105,26 +113,7 @@ impl Parser {
     /// `mut x = expr` — shorthand for `let mut x = expr`
     pub(super) fn parse_mut_decl(&mut self) -> Statement {
         self.advance(); // mut
-        let name = match self.current_kind() {
-            TokenKind::Identifier(n) => {
-                let n = n.clone();
-                self.advance();
-                n
-            }
-            _ => {
-                self.parse_error_here(                    "Expected variable name after 'mut'",
-                );
-                synchronize(&self.tokens, &mut self.position);
-                return Statement::Let(LetStmt {
-                    mutable: true,
-                    name: "_invalid".into(),
-                    destructure: vec![],
-                    span: self.current_span(),
-                    ty: None,
-                    value: Expression::Invalid,
-                });
-            }
-        };
+        let name = self.parse_binding_name("Expected variable name after 'mut'");
 
         consume(
             &self.tokens,
@@ -275,26 +264,8 @@ impl Parser {
                 span,
             )
         } else {
-            match self.current_kind() {
-                TokenKind::Identifier(n) => {
-                    let n = n.clone();
-                    self.advance();
-                    (n.clone(), vec![], self.prev_span())
-                }
-                _ => {
-                    self.parse_error_here(                        "Expected variable name after 'let'",
-                    );
-                    synchronize(&self.tokens, &mut self.position);
-                    return Statement::Let(LetStmt {
-                        mutable,
-                        name: "_invalid".into(),
-                        destructure: vec![],
-                        span: self.current_span(),
-                        ty: None,
-                        value: Expression::Invalid,
-                    });
-                }
-            }
+            let n = self.parse_binding_name("Expected variable name after 'let'");
+            (n.clone(), vec![], self.prev_span())
         };
 
         let ty = if check(&self.tokens, self.position, &TokenKind::Colon) {
@@ -373,10 +344,43 @@ impl Parser {
         Statement::While(WhileStmt { condition, body })
     }
 
+    pub(super) fn parse_spawn_kind(&mut self) -> SpawnKind {
+        self.parse_optional_spawn_kind().unwrap_or(SpawnKind::Task)
+    }
+
+    /// `spawn:task` / `parallel:thread` suffix — `None` when no `:kind` is present.
+    pub(super) fn parse_optional_spawn_kind(&mut self) -> Option<SpawnKind> {
+        if !check(&self.tokens, self.position, &TokenKind::Colon) {
+            return None;
+        }
+        self.advance();
+        match self.current_kind() {
+            TokenKind::Identifier(name) => {
+                let kind = match name.as_str() {
+                    "task" => SpawnKind::Task,
+                    "thread" => SpawnKind::Thread,
+                    other => {
+                        self.parse_error_here(format!(
+                            "expected `task` or `thread` after `:`, found `{other}`"
+                        ));
+                        SpawnKind::Task
+                    }
+                };
+                self.advance();
+                Some(kind)
+            }
+            _ => {
+                self.parse_error_here("expected `task` or `thread` after `:`");
+                Some(SpawnKind::Task)
+            }
+        }
+    }
+
     pub(super) fn parse_spawn(&mut self) -> Statement {
         self.advance();
+        let kind = self.parse_spawn_kind();
         let body = self.parse_block();
-        Statement::Spawn(body)
+        Statement::Spawn(SpawnStmt { kind, body })
     }
 
     pub(super) fn parse_benchmark(&mut self) -> Statement {
@@ -414,12 +418,41 @@ impl Parser {
     }
 
     pub(super) fn parse_parallel_for(&mut self) -> Statement {
+        let parsed = self.parse_parallel_loop();
+        if parsed.config.op != ParallelOp::Iterate {
+            return Statement::Expression(Expression::ParallelSearch(Box::new(
+                ParallelSearchExpr {
+                    config: parsed.config,
+                    var: parsed.var,
+                    kind: parsed.kind,
+                    body: parsed.body,
+                    span: parsed.span,
+                },
+            )));
+        }
+        Statement::For(ForStmt {
+            var: parsed.var,
+            kind: parsed.kind,
+            body: parsed.body,
+            parallel: Some(parsed.config),
+            progress: None,
+        })
+    }
+
+    /// `parallel [:kind] [(opts)] [any|find|all] for var in … { … }`
+    pub(super) fn parse_parallel_loop(&mut self) -> ParallelLoopParts {
+        let start = self.current_span();
         self.advance(); // parallel
-        let config = if matches!(self.current_kind(), TokenKind::LParen) {
+        let suffix_kind = self.parse_optional_spawn_kind();
+        let mut config = if matches!(self.current_kind(), TokenKind::LParen) {
             self.parse_parallel_config()
         } else {
             ParallelConfig::default()
         };
+        if let Some(kind) = suffix_kind {
+            config.kind = kind;
+        }
+        config.op = self.parse_optional_parallel_op();
         consume(
             &self.tokens,
             &mut self.position,
@@ -427,7 +460,71 @@ impl Parser {
             "Expected 'for' after 'parallel'",
             &mut self.errors,
         );
-        self.parse_for_inner(Some(config), None)
+        let (var, kind, body) = self.parse_for_header_and_body();
+        let span = merge_spans(&start, &self.prev_span());
+        ParallelLoopParts {
+            config,
+            var,
+            kind,
+            body,
+            span,
+        }
+    }
+
+    fn parse_optional_parallel_op(&mut self) -> ParallelOp {
+        match self.current_kind() {
+            TokenKind::Identifier(name) => match name.as_str() {
+                "any" => {
+                    self.advance();
+                    ParallelOp::Any
+                }
+                "find" => {
+                    self.advance();
+                    ParallelOp::Find
+                }
+                "all" => {
+                    self.advance();
+                    ParallelOp::All
+                }
+                _ => ParallelOp::Iterate,
+            },
+            _ => ParallelOp::Iterate,
+        }
+    }
+
+    fn parse_for_header_and_body(&mut self) -> (String, ForKind, Block) {
+        let var = match self.current_kind() {
+            TokenKind::Identifier(n) => {
+                let n = n.clone();
+                self.advance();
+                n
+            }
+            _ => {
+                self.parse_error_here("Expected loop variable after for");
+                "_".into()
+            }
+        };
+        consume(
+            &self.tokens,
+            &mut self.position,
+            TokenKind::In,
+            "Expected 'in' after for variable",
+            &mut self.errors,
+        );
+        let first = self.parse_expression();
+        let kind = if matches!(self.current_kind(), TokenKind::DotDot) {
+            self.advance();
+            let end = self.parse_expression();
+            ForKind::Range {
+                start: first,
+                end,
+            }
+        } else {
+            ForKind::Iterable { iterable: first }
+        };
+        skip_newlines(&self.tokens, &mut self.position);
+        let body = self.parse_block();
+        (var, kind, body)
     }
 
     pub(super) fn parse_progress_for(&mut self) -> Statement {
@@ -531,7 +628,7 @@ impl Parser {
                     n
                 }
                 _ => {
-                    self.parse_error_here("Expected parallel option name (e.g. threads, mode)");
+                    self.parse_error_here("Expected parallel option name (e.g. max, mode)");
                     break;
                 }
             };
@@ -543,6 +640,31 @@ impl Parser {
                 &mut self.errors,
             );
             match key.as_str() {
+                "backend" | "kind" => {
+                    let backend_name = match self.current_kind() {
+                        TokenKind::Identifier(n) => {
+                            let n = n.clone();
+                            self.advance();
+                            n
+                        }
+                        _ => {
+                            self.parse_error_here(
+                                "Expected backend: task, tasks, thread, or threads",
+                            );
+                            "task".into()
+                        }
+                    };
+                    config.kind = match backend_name.as_str() {
+                        "task" | "tasks" => SpawnKind::Task,
+                        "thread" | "threads" => SpawnKind::Thread,
+                        other => {
+                            self.parse_error_here(&format!(
+                                "Unknown parallel backend '{other}' (use task, tasks, thread, or threads)"
+                            ));
+                            SpawnKind::Task
+                        }
+                    };
+                }
                 "mode" => {
                     let mode_name = match self.current_kind() {
                         TokenKind::Identifier(n) => {
@@ -570,16 +692,14 @@ impl Parser {
                         }
                     };
                 }
-                "max_threads" | "max_workers" | "cores" => {
+                "max" | "max_threads" | "max_workers" | "cores" => {
                     let expr = self.parse_expression();
                     config.threads = ParallelThreads::Max(expr);
-                    if key == "cores" {
-                        self.errors.push(errors::NyraError::new(
-                            errors::ErrorKind::Parser,
+                    if key != "max" {
+                        self.errors.push(errors::parallel_prefer_max(
                             self.current_span(),
-                            "prefer `max_threads` or `threads` over `cores` in `parallel(...)`",
-                        )
-                        .note("Nyra schedules worker threads; the OS maps them to CPU cores"));
+                            &key,
+                        ));
                     }
                 }
                 "threads" | "workers" => {
@@ -596,7 +716,7 @@ impl Parser {
                 }
                 other => {
                     self.parse_error_here(&format!(
-                        "Unknown parallel option '{other}' (mode, max_threads, threads, cpu)"
+                        "Unknown parallel option '{other}' (backend, mode, max, threads, cpu)"
                     ));
                     let _ = self.parse_expression();
                 }
@@ -631,38 +751,7 @@ impl Parser {
         parallel: Option<ParallelConfig>,
         progress: Option<ProgressConfig>,
     ) -> Statement {
-        let var = match self.current_kind() {
-            TokenKind::Identifier(n) => {
-                let n = n.clone();
-                self.advance();
-                n
-            }
-            _ => {
-                self.parse_error_here(                    "Expected loop variable after for",
-                );
-                "_".into()
-            }
-        };
-        consume(
-            &self.tokens,
-            &mut self.position,
-            TokenKind::In,
-            "Expected 'in' after for variable",
-            &mut self.errors,
-        );
-        let first = self.parse_expression();
-        let kind = if matches!(self.current_kind(), TokenKind::DotDot) {
-            self.advance();
-            let end = self.parse_expression();
-            ForKind::Range {
-                start: first,
-                end,
-            }
-        } else {
-            ForKind::Iterable { iterable: first }
-        };
-        skip_newlines(&self.tokens, &mut self.position);
-        let body = self.parse_block();
+        let (var, kind, body) = self.parse_for_header_and_body();
         Statement::For(ForStmt {
             var,
             kind,

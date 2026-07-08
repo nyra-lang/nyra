@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(_WIN32)
+#define nyra_rt_strdup _strdup
+#else
+#define nyra_rt_strdup strdup
+#endif
+
 static int g_argc = 0;
 static char **g_argv = NULL;
 
@@ -15,14 +21,14 @@ int os_arg_count(void) {
 
 char *os_arg_at(int index) {
     if (!g_argv || index < 0 || index >= g_argc) {
-        return strdup("");
+        return nyra_rt_strdup("");
     }
     const char *s = g_argv[index];
     if (!s) {
-        return strdup("");
+        return nyra_rt_strdup("");
     }
-    char *out = strdup(s);
-    return out ? out : strdup("");
+    char *out = nyra_rt_strdup(s);
+    return out ? out : nyra_rt_strdup("");
 }
 
 void process_exit(int code) {
