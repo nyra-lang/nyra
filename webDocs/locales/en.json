@@ -97,7 +97,24 @@
     "footerLicense": "Nyra · Proprietary · All Rights Reserved ·",
     "backOverview": "← Overview",
     "backGettingStarted": "← Getting started",
-    "backExamples": "← Example apps"
+    "backExamples": "← Example apps",
+    "contribBannerText": "We’re looking for contributors — help build Nyra.",
+    "contribBannerCta": "Contribute",
+    "contribBannerDismiss": "Dismiss contributors banner",
+    "footerBrand": "Nyra",
+    "footerTagline": "Fast · Safe · Minimal — systems language with LLVM under the hood.",
+    "footerExplore": "Explore",
+    "footerCommunity": "Community",
+    "footerHome": "Home",
+    "footerInstall": "Install",
+    "footerLearning": "Learning path",
+    "footerStdlib": "Standard library",
+    "footerRoadmap": "Roadmap",
+    "footerGithub": "GitHub",
+    "footerContribute": "Contribute",
+    "footerChangelog": "Changelog",
+    "footerSitemap": "Sitemap",
+    "footerAria": "Site footer"
   },
   "pages": {
     "index": {

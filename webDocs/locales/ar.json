@@ -98,7 +98,24 @@
     "footerLicense": "Nyra · رخصة احتكارية · جميع الحقوق محفوظة ·",
     "backOverview": "→ نظرة عامة",
     "backGettingStarted": "→ البدء السريع",
-    "backExamples": "→ تطبيقات مثال"
+    "backExamples": "→ تطبيقات مثال",
+    "contribBannerText": "نحتاج مساهمين — ساعد في بناء Nyra.",
+    "contribBannerCta": "ساهم الآن",
+    "contribBannerDismiss": "إخفاء بانر المساهمين",
+    "footerBrand": "Nyra",
+    "footerTagline": "سريع · آمن · بسيط — لغة أنظمة مع LLVM تحت الغطاء.",
+    "footerExplore": "استكشف",
+    "footerCommunity": "المجتمع",
+    "footerHome": "الرئيسية",
+    "footerInstall": "التثبيت",
+    "footerLearning": "مسار التعلم",
+    "footerStdlib": "المكتبة القياسية",
+    "footerRoadmap": "خارطة الطريق",
+    "footerGithub": "GitHub",
+    "footerContribute": "المساهمة",
+    "footerChangelog": "سجل التغييرات",
+    "footerSitemap": "خريطة الموقع",
+    "footerAria": "تذييل الموقع"
   },
   "pages": {
     "index": {

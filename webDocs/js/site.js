@@ -5,6 +5,9 @@
 (function () {
   var STORAGE_LANG = 'nyra-docs-lang';
   var STORAGE_THEME = 'nyra-docs-theme';
+  var STORAGE_CONTRIB_BANNER = 'nyra-docs-contrib-banner-dismissed';
+  var CONTRIB_GUIDE_URL =
+    'https://github.com/nyra-lang/nyra/blob/main/CONTRIBUTING.md';
 
   /* Apply saved prefs before paint to avoid flash */
   (function applyEarlyPrefs() {
@@ -15,6 +18,14 @@
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    try {
+      localStorage.removeItem(STORAGE_CONTRIB_BANNER);
+      if (sessionStorage.getItem(STORAGE_CONTRIB_BANNER) !== '1') {
+        document.documentElement.classList.add('contrib-banner-pending');
+      }
+    } catch (e) {
+      document.documentElement.classList.add('contrib-banner-pending');
+    }
   })();
   var DEFAULT_LANG = 'en';
   var DEFAULT_THEME = 'dark';
@@ -187,6 +198,211 @@
     if (window.NyraSearch && window.NyraSearch.applyI18n) {
       window.NyraSearch.applyI18n();
     }
+  }
+
+  function isContribBannerDismissed() {
+    try {
+      return sessionStorage.getItem(STORAGE_CONTRIB_BANNER) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setContribBannerDismissed() {
+    try {
+      sessionStorage.setItem(STORAGE_CONTRIB_BANNER, '1');
+      // Clear old permanent dismiss key if present from earlier builds.
+      localStorage.removeItem(STORAGE_CONTRIB_BANNER);
+    } catch (e) {
+      /* ignore quota / private mode */
+    }
+  }
+
+  function initContribBanner() {
+    document.documentElement.classList.remove('contrib-banner-pending');
+    if (isContribBannerDismissed()) {
+      document.body.classList.remove('has-contrib-banner');
+      return;
+    }
+    if (document.getElementById('contrib-banner')) {
+      document.body.classList.add('has-contrib-banner');
+      return;
+    }
+
+    var banner = document.createElement('aside');
+    banner.id = 'contrib-banner';
+    banner.className = 'contrib-banner';
+    banner.setAttribute('role', 'region');
+    banner.setAttribute('aria-label', 'Contributors');
+
+    var inner = document.createElement('div');
+    inner.className = 'contrib-banner-inner';
+
+    var text = document.createElement('span');
+    text.className = 'contrib-banner-text';
+    text.setAttribute('data-i18n', 'common.contribBannerText');
+    text.textContent = 'We’re looking for contributors — help build Nyra.';
+
+    var cta = document.createElement('a');
+    cta.className = 'contrib-banner-cta';
+    cta.href = CONTRIB_GUIDE_URL;
+    cta.target = '_blank';
+    cta.rel = 'noopener noreferrer';
+    cta.setAttribute('data-i18n', 'common.contribBannerCta');
+    cta.textContent = 'Contribute';
+
+    var dismiss = document.createElement('button');
+    dismiss.type = 'button';
+    dismiss.className = 'contrib-banner-dismiss';
+    dismiss.setAttribute('data-i18n-aria-label', 'common.contribBannerDismiss');
+    dismiss.setAttribute('aria-label', 'Dismiss contributors banner');
+    dismiss.textContent = '×';
+    dismiss.addEventListener('click', function () {
+      setContribBannerDismissed();
+      banner.hidden = true;
+      document.body.classList.remove('has-contrib-banner');
+      document.documentElement.classList.remove('contrib-banner-pending');
+    });
+
+    inner.appendChild(text);
+    inner.appendChild(cta);
+    banner.appendChild(inner);
+    banner.appendChild(dismiss);
+    document.body.insertBefore(banner, document.body.firstChild);
+    document.body.classList.add('has-contrib-banner');
+  }
+
+  function el(tag, className, attrs) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (attrs) {
+      Object.keys(attrs).forEach(function (key) {
+        if (key === 'text') node.textContent = attrs[key];
+        else if (key === 'html') node.innerHTML = attrs[key];
+        else node.setAttribute(key, attrs[key]);
+      });
+    }
+    return node;
+  }
+
+  function footerLink(href, i18nKey, fallback, external) {
+    var a = el('a', null, {
+      href: href,
+      'data-i18n': i18nKey,
+      text: fallback,
+    });
+    if (external) {
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+    }
+    return a;
+  }
+
+  function initDocsFooter() {
+    if (document.getElementById('docs-footer')) return;
+
+    var layout = document.querySelector('.layout');
+    if (!layout || !layout.parentNode) return;
+
+    var footer = el('footer', 'docs-footer', {
+      id: 'docs-footer',
+      role: 'contentinfo',
+      'data-i18n-aria-label': 'common.footerAria',
+      'aria-label': 'Site footer',
+    });
+
+    var inner = el('div', 'docs-footer-inner');
+    var grid = el('div', 'docs-footer-grid');
+
+    var brand = el('div', 'docs-footer-brand docs-footer-col');
+    var logo = el('a', 'docs-footer-logo', { href: 'index.html' });
+    var logoImg = el('img', null, {
+      src: './assets/Nyrabgremoved.png',
+      alt: 'Nyra',
+      width: '28',
+      height: '28',
+    });
+    var logoText = el('span', null, {
+      'data-i18n': 'common.footerBrand',
+      text: 'Nyra',
+    });
+    logo.appendChild(logoImg);
+    logo.appendChild(logoText);
+    var tagline = el('p', 'docs-footer-tagline', {
+      'data-i18n': 'common.footerTagline',
+      text: 'Fast · Safe · Minimal — systems language with LLVM under the hood.',
+    });
+    brand.appendChild(logo);
+    brand.appendChild(tagline);
+
+    var explore = el('div', 'docs-footer-col');
+    explore.appendChild(
+      el('h3', null, { 'data-i18n': 'common.footerExplore', text: 'Explore' })
+    );
+    var exploreList = el('ul');
+    [
+      ['index.html', 'common.footerHome', 'Home'],
+      ['install.html', 'common.footerInstall', 'Install'],
+      ['learning-path.html', 'common.footerLearning', 'Learning path'],
+      ['stdlib.html', 'common.footerStdlib', 'Standard library'],
+      ['roadmap.html', 'common.footerRoadmap', 'Roadmap'],
+      ['sitemap.html', 'common.footerSitemap', 'Sitemap'],
+    ].forEach(function (item) {
+      var li = el('li');
+      li.appendChild(footerLink(item[0], item[1], item[2], false));
+      exploreList.appendChild(li);
+    });
+    explore.appendChild(exploreList);
+
+    var community = el('div', 'docs-footer-col');
+    community.appendChild(
+      el('h3', null, { 'data-i18n': 'common.footerCommunity', text: 'Community' })
+    );
+    var communityList = el('ul');
+    [
+      [
+        'https://github.com/nyra-lang/nyra',
+        'common.footerGithub',
+        'GitHub',
+        true,
+      ],
+      [CONTRIB_GUIDE_URL, 'common.footerContribute', 'Contribute', true],
+      ['changelog.html', 'common.footerChangelog', 'Changelog', false],
+      ['ai-skill.html', 'nav.aiSkill', 'AI skill file', false],
+    ].forEach(function (item) {
+      var li = el('li');
+      li.appendChild(footerLink(item[0], item[1], item[2], item[3]));
+      communityList.appendChild(li);
+    });
+    community.appendChild(communityList);
+
+    grid.appendChild(brand);
+    grid.appendChild(explore);
+    grid.appendChild(community);
+
+    var meta = el('div', 'docs-footer-meta');
+    meta.appendChild(
+      el('span', null, {
+        'data-i18n': 'common.footerLicense',
+        text: 'Nyra · Proprietary · All Rights Reserved ·',
+      })
+    );
+    meta.appendChild(
+      footerLink(
+        'https://github.com/nyra-lang/nyra',
+        'common.footerGithub',
+        'GitHub',
+        true
+      )
+    );
+
+    inner.appendChild(grid);
+    inner.appendChild(meta);
+    footer.appendChild(inner);
+
+    // Full-bleed under sidebar + content: sit as a sibling after .layout, not inside <main>.
+    layout.parentNode.insertBefore(footer, layout.nextSibling);
+    document.body.classList.add('has-docs-footer');
   }
 
   function bindMobileNav() {
@@ -686,6 +902,8 @@
 
     bindToolbar();
     bindMobileNav();
+    initContribBanner();
+    initDocsFooter();
     applyTheme(theme);
     ensureCodeTabs();
     highlightAllCodeBlocks();

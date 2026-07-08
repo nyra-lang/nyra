@@ -53,6 +53,7 @@
   --sidebar-w: 280px;
   --content-max: 1280px;
   --header-h: 72px;
+  --contrib-banner-h: 0px;
   --radius: 12px;
   --radius-lg: 16px;
   --radius-sm: 8px;
@@ -127,7 +128,7 @@ html[dir="rtl"] .pipeline {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-h) + 1.5rem);
+  scroll-padding-top: calc(var(--header-h) + var(--contrib-banner-h) + 1.5rem);
 }
 
 body {
@@ -181,10 +182,149 @@ a:hover {
   text-decoration: none;
 }
 
+/* ——— Contributors banner (site-wide) ——— */
+.contrib-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 210;
+  min-height: var(--contrib-banner-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.55rem 2.75rem 0.55rem 1rem;
+  box-sizing: border-box;
+  background: linear-gradient(
+    90deg,
+    #1a3d38 0%,
+    #16353f 45%,
+    #1a3d38 100%
+  );
+  border-bottom: 1px solid #2f6f66;
+  color: #f0f4f8;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+[data-theme="light"] .contrib-banner {
+  background: linear-gradient(
+    90deg,
+    #d7ece8 0%,
+    #d5eaf0 45%,
+    #d7ece8 100%
+  );
+  border-bottom: 1px solid #7eb5ab;
+  color: #0f1419;
+}
+
+[data-theme="light"] .contrib-banner-text {
+  color: #0f1419;
+}
+
+[data-theme="light"] .contrib-banner-cta {
+  color: #ffffff;
+  background: #2a7a6e;
+}
+
+[data-theme="light"] .contrib-banner-cta:hover {
+  color: #ffffff;
+  background: #1f6b60;
+}
+
+[data-theme="light"] .contrib-banner-dismiss {
+  color: #4a5d6e;
+  background: #c5ddd8;
+}
+
+[data-theme="light"] .contrib-banner-dismiss:hover {
+  color: #0f1419;
+  background: #b0cfc8;
+}
+
+.contrib-banner[hidden] {
+  display: none;
+}
+
+.contrib-banner-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.75rem;
+  max-width: var(--content-max);
+  text-align: center;
+}
+
+.contrib-banner-text {
+  color: #f0f4f8;
+  margin: 0;
+}
+
+.contrib-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: #06221e;
+  background: #7ee8d8;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+}
+
+.contrib-banner-cta:hover {
+  color: #06221e;
+  background: #a8f0e4;
+  text-decoration: none;
+}
+
+.contrib-banner-dismiss {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0.65rem;
+  transform: translateY(-50%);
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: #244945;
+  color: #c5d4e3;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.contrib-banner-dismiss:hover {
+  color: #f0f4f8;
+  background: #2f5f59;
+}
+
+body.has-contrib-banner,
+html.contrib-banner-pending {
+  --contrib-banner-h: 44px;
+}
+
+@media (max-width: 640px) {
+  body.has-contrib-banner,
+  html.contrib-banner-pending {
+    --contrib-banner-h: 64px;
+  }
+
+  .contrib-banner {
+    padding-inline: 0.75rem 2.5rem;
+    font-size: 0.8125rem;
+  }
+}
+
 /* ——— Header ——— */
 .site-header {
   position: fixed;
-  top: 0;
+  top: var(--contrib-banner-h);
   left: 0;
   right: 0;
   height: var(--header-h);
@@ -444,7 +584,7 @@ html[dir="rtl"] .hero-code-run {
   display: none;
   position: fixed;
   inset: 0;
-  top: var(--header-h);
+  top: calc(var(--header-h) + var(--contrib-banner-h));
   background: rgba(0, 0, 0, 0.55);
   z-index: 140;
   backdrop-filter: blur(4px);
@@ -461,9 +601,13 @@ html:has(#nav-check:checked) body {
 
 /* ——— Layout ——— */
 .layout {
-  padding-top: var(--header-h);
-  min-height: 100vh;
+  padding-top: calc(var(--header-h) + var(--contrib-banner-h));
+  min-height: calc(100vh - var(--header-h) - var(--contrib-banner-h));
   box-sizing: border-box;
+}
+
+body.has-docs-footer .layout {
+  min-height: 0;
 }
 
 @media (min-width: 769px) {
@@ -514,22 +658,26 @@ html:has(#nav-check:checked) body {
     order: 4;
   }
 
-  /* margin-inline-start clears the fixed sidebar in both LTR (left) and RTL (right) */
+  /* Content + sticky sidebar share one row; footer sits below both at full width */
   .layout {
-    margin-inline-start: var(--sidebar-w);
-    width: calc(100% - var(--sidebar-w));
-    max-width: calc(100% - var(--sidebar-w));
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    margin-inline-start: 0;
+    width: 100%;
+    max-width: none;
     padding-inline-start: 0;
     box-sizing: border-box;
   }
 
   .sidebar {
-    position: fixed;
-    top: var(--header-h);
-    left: 0;
-    bottom: 0;
+    position: sticky;
+    top: calc(var(--header-h) + var(--contrib-banner-h));
+    left: auto;
+    right: auto;
+    bottom: auto;
     width: var(--sidebar-w);
-    height: auto;
+    height: calc(100vh - var(--header-h) - var(--contrib-banner-h));
+    max-height: calc(100vh - var(--header-h) - var(--contrib-banner-h));
     overflow-y: auto;
     overflow-x: hidden;
     background: var(--bg-elevated);
@@ -538,12 +686,13 @@ html:has(#nav-check:checked) body {
     -webkit-backdrop-filter: blur(12px);
     padding: 1.5rem 0 2rem;
     z-index: 90;
-    transition: transform 0.3s var(--ease);
+    transition: none;
+    align-self: start;
   }
 
   html[dir="rtl"] .sidebar {
     left: auto;
-    right: 0;
+    right: auto;
     border-right: none;
     border-left: 1px solid var(--border);
   }
@@ -552,6 +701,7 @@ html:has(#nav-check:checked) body {
     width: 100%;
     max-width: none;
     padding: 2.5rem clamp(2rem, 4vw, 3.5rem) 5rem;
+    grid-column: 2;
   }
 
   .overview-page .overview-content {
@@ -575,10 +725,8 @@ html:has(#nav-check:checked) body {
 }
 
 .sidebar {
-  position: fixed;
-  top: var(--header-h);
-  left: 0;
-  bottom: 0;
+  position: sticky;
+  top: calc(var(--header-h) + var(--contrib-banner-h));
   width: var(--sidebar-w);
   overflow-y: auto;
   overflow-x: hidden;
@@ -587,6 +735,7 @@ html:has(#nav-check:checked) body {
   padding: 1.5rem 0 2rem;
   z-index: 90;
   transition: transform 0.3s var(--ease);
+  align-self: start;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -646,7 +795,7 @@ html:has(#nav-check:checked) body {
   display: block;
   width: 100%;
   max-width: var(--content-max);
-  min-height: calc(100vh - var(--header-h));
+  min-height: calc(100vh - var(--header-h) - var(--contrib-banner-h));
   margin-inline: auto;
   padding: 2rem 1.25rem 4rem;
   box-sizing: border-box;
@@ -698,18 +847,29 @@ html:has(#nav-check:checked) body {
   }
 
   .layout {
+    display: block;
     padding-inline-start: 0;
     padding-inline-end: 0;
   }
 
   .sidebar {
+    position: fixed;
+    top: calc(var(--header-h) + var(--contrib-banner-h));
+    left: 0;
+    bottom: 0;
+    height: auto;
+    max-height: none;
     transform: translateX(-100%);
     box-shadow: var(--shadow);
     z-index: 150;
   }
 
   html[dir="rtl"] .sidebar {
+    left: auto;
+    right: 0;
     transform: translateX(100%);
+    border-right: none;
+    border-left: 1px solid var(--border);
   }
 
   #nav-check:checked ~ .layout .sidebar {
@@ -720,6 +880,7 @@ html:has(#nav-check:checked) body {
     max-width: none;
     min-height: 0;
     padding: 1.75rem 1.25rem 3.5rem;
+    grid-column: auto;
   }
 }
 
@@ -1201,7 +1362,7 @@ pre .tok-operator {
   box-shadow: inset 0 0 40px var(--brand-dim);
 }
 
-/* ——— Footer ——— */
+/* ——— Page nav footer (prev/next links at end of article) ——— */
 .site-footer {
   margin-top: 3.5rem;
   padding-top: 1.75rem;
@@ -1212,6 +1373,146 @@ pre .tok-operator {
 
 .site-footer a {
   font-weight: 500;
+}
+
+/* ——— Site-wide docs footer (full bleed under sidebar + content) ——— */
+.docs-footer {
+  position: relative;
+  z-index: 95;
+  width: 100%;
+  margin: 0;
+  border-top: 1px solid var(--border-strong);
+  background:
+    linear-gradient(180deg, rgba(61, 154, 139, 0.08) 0%, transparent 28%),
+    var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+[data-theme="light"] .docs-footer {
+  background:
+    linear-gradient(180deg, rgba(42, 122, 110, 0.07) 0%, transparent 28%),
+    var(--bg-elevated);
+}
+
+.docs-footer-inner {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 2.5rem clamp(1.25rem, 3vw, 3rem) 2rem;
+  box-sizing: border-box;
+}
+
+.docs-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(140px, 1fr));
+  gap: 2rem clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+  max-width: 1200px;
+}
+
+.docs-footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.docs-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.docs-footer-logo:hover {
+  color: var(--brand-bright);
+}
+
+.docs-footer-logo img {
+  height: 32px;
+  width: auto;
+}
+
+.docs-footer-tagline {
+  margin: 0;
+  max-width: 40ch;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.docs-footer-col h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.docs-footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.docs-footer-col a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.docs-footer-col a:hover {
+  color: var(--brand-bright);
+}
+
+.docs-footer-meta {
+  margin-top: 2rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  max-width: 1200px;
+}
+
+.docs-footer-meta a {
+  color: var(--brand-bright);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.docs-footer-meta a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .docs-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .docs-footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .docs-footer-inner {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .docs-footer-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ——— Badges ——— */
