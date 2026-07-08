@@ -144,6 +144,7 @@
           <tr><td><code>nyra run</code></td><td>Compile + execute (dev loop)</td></tr>
           <tr><td><code>nyra build</code></td><td>Emit binary under <code>target/</code></td></tr>
           <tr><td><code>nyra check</code></td><td>Type-check + borrow without codegen</td></tr>
+          <tr><td><code>nyra inspect</code></td><td>Compile-time ownership snapshot for a binding at <code>file:line</code> — see <a href="ownership-inspect.html">Ownership inspect</a></td></tr>
           <tr><td><code>nyra test</code></td><td>Run <code>test fn</code> / <code>*_test.ny</code></td></tr>
           <tr><td><code>nyra fmt</code></td><td>Format sources (AST-based)</td></tr>
           <tr><td><code>nyra diag</code></td><td>Print diagnostics (JSON for editors)</td></tr>
@@ -219,7 +220,26 @@ nyra build .
       <p><strong>Job:</strong> Catch type and borrow errors quickly — no object files, no link.</p>
       <pre><code>nyra check .
 nyra check src/module.ny
-nyra check . --deny-extended     # Core-only (reject async, traits, macros, …)</code></pre>
+nyra check . --deny-extended     # Core-only (reject async, traits, macros, …)
+nyra check . --ownership-verbose  # per-binding ownership at function exit</code></pre>
+      <p>With <code>--ownership-verbose</code>, stderr lists each local binding’s Copy/Move kind and valid/moved status at function exit (same borrowck walk as compile). Full guide: <a href="ownership-inspect.html">Ownership inspect</a>.</p>
+
+      <h2 id="inspect"><code>nyra inspect</code></h2>
+      <p><strong>Job:</strong> See <strong>who owns</strong> a variable and <strong>who borrows it</strong> at a specific source line — compile-time only (not a runtime method). Unique among systems languages today: Rust has no stable equivalent.</p>
+      <pre><code>nyra inspect name --at main.ny:42
+nyra inspect user --at src/app.ny:18 .</code></pre>
+      <p>Example output (Move):</p>
+      <pre><code>myname2 (string) @ main.ny:5 in main
+  ownership chain:
+    name ──move──► myname ──move──► myname2
+  current owner:  `myname2` (owns value)</code></pre>
+      <p>Example output (Borrow):</p>
+      <pre><code>myname2 (&&string) @ main.ny:11 in main
+  you inspect:  `myname2` (borrower)
+  heap owner:  `name` (owns Move value)
+  borrow chain:
+    name ◄──borrow── myname ◄──borrow── myname2</code></pre>
+      <p>Color-coded on TTYs. Respects <strong>NLL</strong> (borrows end at last use of the ref). See <a href="ownership-inspect.html">Ownership inspect</a> · <a href="memory.html">Memory</a> · <a href="ownership-ux.html">Ownership UX</a>.</p>
 
       <h2 id="test"><code>nyra test</code></h2>
       <p><strong>Job:</strong> Run unit tests in CI or before a commit.</p>

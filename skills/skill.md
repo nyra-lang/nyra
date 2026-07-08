@@ -133,6 +133,8 @@ nyra build . --release --for linux
 nyra build . --release --os linux --arch aarch64
 nyra build . -o mybin         # custom name under target/{profile}/
 nyra check
+nyra check . --ownership-verbose   # per-binding ownership at function exit
+nyra inspect name --at main.ny:42   # compile-time ownership snapshot (see Ownership inspect)
 nyra test .
 nyra test . --list-json          # IDE test discovery (file, name, line)
 nyra test . --filter adds        # run matching tests only
@@ -451,7 +453,7 @@ Source (.ny)
   → target/debug/main or target/release/main
 ```
 
-Stop early without linking: `nyra check .` · JSON diagnostics: `nyra diag . --json`
+Stop early without linking: `nyra check .` · JSON diagnostics: `nyra diag . --json` · Ownership snapshot: `nyra inspect NAME --at file:line`
 
 ## Types
 
@@ -1789,6 +1791,61 @@ fn main() {
 
 **Float literals:** `3.14` → `f64`; `1.5f32` or `: f32` annotation for `f32`.
 
+### Ownership inspect (compile-time)
+
+Ask the borrow checker **who owns a binding** and **who borrows it** at a specific source line. **Compile-time only** — ownership is erased before LLVM IR; there is no runtime `name.who_owns_me()` API. Rust’s stable toolchain has no equivalent proactive snapshot today.
+
+```bash
+nyra inspect name --at main.ny:42
+nyra inspect user --at src/app.ny:18 .
+nyra check . --ownership-verbose
+```
+
+**Move** (`let b = a` on a Move type) — ownership chain + current owner:
+
+```
+nyra inspect myname2 --at main.ny:5
+
+  ownership chain:
+    name ──move──► myname ──move──► myname2
+  you inspect:  `myname2`
+  current owner:  `myname2` (owns value)
+  kind:  Move
+  binding:  owned (valid)
+```
+
+**Borrow** (`let r = &a`) — borrow chain + heap owner (not move edges):
+
+```
+nyra inspect myname2 --at main.ny:11
+
+  you inspect:  `myname2` (borrower)
+  heap owner:  `name` (owns Move value)
+  borrow chain:
+    name ◄──borrow── myname ◄──borrow── myname2
+  kind:  Copy (reference)
+  binding:  valid (borrow)
+  moved:  no
+```
+
+| Field | Meaning |
+|-------|---------|
+| `ownership chain` | Move path: `root ──move──► … ──move──► tip` |
+| `borrow chain` | Borrow path: `heap_owner ◄──borrow── … ◄──borrow── tip` |
+| `you inspect` | The binding you queried; `(borrower)` for ref bindings |
+| `current owner` | Who holds the Move value now (Move bindings only) |
+| `heap owner` | Root binding that owns the heap value (ref bindings only) |
+| `borrowed by` | Active `&` / `&mut` holders; `expires after line` respects **NLL** |
+| `borrows from` | Immediate source of a ref binding (`let r = &name`) |
+| `moved from` | Source of a move assignment; never shown for ref bindings |
+| `drop` | Auto-drop at scope exit for valid Move bindings |
+
+CLI output is **color-coded** on TTYs (green = heap owner, yellow = move/borrower, cyan = borrow edges).
+
+`--ownership-verbose` on `nyra check` prints every local at function exit (`main::name → Move (valid)`). Pairs with `nyra build --verbose` (escape analysis).
+
+Full docs: [ownership inspect](https://nyra-lang.github.io/nyra/ownership-inspect.html) · [tooling](https://nyra-lang.github.io/nyra/tooling.html#inspect)
+
 ### defer vs Drop — when to use which
 
 Gallery: [methods.html#ex-defer](https://nyra-lang.github.io/docs/methods.html#ex-defer) · `examples/builtins/defer/`
@@ -2737,6 +2794,7 @@ in repo.
 - **HTTPS / TLS** — default backend is **`rustls`** (bundled, no OpenSSL install). `tls native` and `tls openssl` are valid `nyra.mod` choices. Do **not** tell users to install OpenSSL for basic `get("https://…")` unless they chose `tls openssl` or need TLS server helpers. `get()` failure JSON `{"error":"…"}` ≠ successful body.
 - **nyra.mod** — line-oriented manifest (`module`, `tls`, `require`, `link`, …), not TOML. Minimum one line: `module name`.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
+- **`nyra inspect NAME --at file:line`** — compile-time ownership/borrow snapshot at a source line; **`nyra check --ownership-verbose`** — per-binding summary at function exit. Not runtime reflection. Rust stable toolchain has no equivalent.
 - No `extern export fn` — use `extern fn` or `export fn` separately.
 - Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/docs/async.html) · [concurrency](https://nyra-lang.github.io/docs/concurrency.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
@@ -2812,6 +2870,7 @@ Page: [diagnostics](https://nyra-lang.github.io/docs/diagnostics.html)
 | Traits & macros | [https://nyra-lang.github.io/docs/traits-macros.html](https://nyra-lang.github.io/docs/traits-macros.html) |
 | Concurrency | [https://nyra-lang.github.io/docs/concurrency.html](https://nyra-lang.github.io/docs/concurrency.html) |
 | Memory & ownership | [https://nyra-lang.github.io/docs/memory.html](https://nyra-lang.github.io/docs/memory.html) |
+| Ownership inspect (`nyra inspect`) | [https://nyra-lang.github.io/nyra/ownership-inspect.html](https://nyra-lang.github.io/nyra/ownership-inspect.html) |
 | Ownership (learn) | [https://nyra-lang.github.io/docs/learn-ownership.html](https://nyra-lang.github.io/docs/learn-ownership.html) |
 | Borrowing (learn) | [https://nyra-lang.github.io/docs/learn-borrowing.html](https://nyra-lang.github.io/docs/learn-borrowing.html) |
 | PGO | [https://nyra-lang.github.io/docs/pgo.html](https://nyra-lang.github.io/docs/pgo.html) |

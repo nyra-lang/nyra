@@ -348,7 +348,7 @@ fn main() -&gt; void {
    |           ^^^^ value used after move
    |
    = note: `save` takes owned `User`; consider `save(&amp;user)` or `save(clone user)`</code></pre>
-      <p>Errors name the <strong>callee</strong>, show the function signature, and suggest <code>&amp;</code>, <code>clone</code>, or <code>move</code>. See <a href="diagnostics.html">Diagnostics</a>.</p>
+      <p>Errors name the <strong>callee</strong>, show the function signature, and suggest <code>&amp;</code>, <code>clone</code>, or <code>move</code>. See <a href="diagnostics.html">Diagnostics</a>. Proactive ownership snapshots: <a href="ownership-inspect.html"><code>nyra inspect</code></a>.</p>
 
       <h2 id="f64">f64 floating-point (RFC 0009)</h2>
       <!-- NYRA_SNIPPET_START -->

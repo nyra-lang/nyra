@@ -211,6 +211,9 @@ pub(crate) enum Commands {
         file: PathBuf,
         #[command(flatten)]
         stability: StabilityFlags,
+        /// Print per-binding ownership summary at function exit (compile-time).
+        #[arg(long = "ownership-verbose")]
+        ownership_verbose: bool,
     },
     /// Print compiler diagnostics (for editors; JSON with --json).
     Diag {
@@ -218,6 +221,18 @@ pub(crate) enum Commands {
         file: PathBuf,
         #[arg(long)]
         json: bool,
+        #[command(flatten)]
+        stability: StabilityFlags,
+    },
+    /// Inspect compile-time ownership of a binding at a source location.
+    Inspect {
+        /// Binding name to inspect (e.g. `name`).
+        name: String,
+        /// Source location as `file:line` (e.g. `main.ny:42`).
+        #[arg(long, value_name = "FILE:LINE")]
+        at: String,
+        #[arg(default_value = ".")]
+        project: PathBuf,
         #[command(flatten)]
         stability: StabilityFlags,
     },
