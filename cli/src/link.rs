@@ -579,8 +579,12 @@ pub fn link_binary_with_options(
                 let tls_lib = crate::prebuilt_tls::ensure_prebuilt_tls(&spec)?;
                 cmd.arg(&tls_lib);
             }
+            pkg::TlsBackend::Native => {
+                let tls_lib = crate::prebuilt_tls_native::ensure_prebuilt_native_tls(&spec)?;
+                cmd.arg(&tls_lib);
+            }
             pkg::TlsBackend::Openssl => {
-                // Compile optional OpenSSL client unit instead of rustls staticlib.
+                // Compile optional OpenSSL client unit instead of rustls/native staticlib.
                 let rt_dir = compiler::runtime_map::stdlib_rt_dir();
                 let src = rt_dir.join("rt_tls_openssl_client.c");
                 if !src.is_file() {
@@ -599,15 +603,6 @@ pub fn link_binary_with_options(
                     cmd.arg(obj);
                 }
             }
-            pkg::TlsBackend::Native => {
-                return Err(
-                    "tls native is not available yet on this Nyra build — \
-                     use `tls rustls` (default, bundled) or `tls openssl` \
-                     (requires system OpenSSL). Native OS TLS (SChannel / Secure Transport) \
-                     is planned for a later release."
-                        .into(),
-                );
-            }
         }
     }
     let rt_flags = LinkTargetFlags {
@@ -619,9 +614,14 @@ pub fn link_binary_with_options(
         uses_rt_net: runtime_profile.uses_ws2_32(&spec.triple),
         needs_openssl: runtime_profile.needs_openssl()
             || (runtime_profile.needs_rustls_tls()
-                && matches!(profile.tls_backend, pkg::TlsBackend::Openssl)),
+                && matches!(profile.tls_backend, pkg::TlsBackend::Openssl))
+            || (runtime_profile.needs_rustls_tls()
+                && matches!(profile.tls_backend, pkg::TlsBackend::Native)
+                && spec.is_linux()),
         needs_rustls_tls: runtime_profile.needs_rustls_tls()
             && matches!(profile.tls_backend, pkg::TlsBackend::Rustls),
+        needs_native_tls: runtime_profile.needs_rustls_tls()
+            && matches!(profile.tls_backend, pkg::TlsBackend::Native),
         needs_zlib: runtime_profile.needs_zlib(),
         needs_libm: runtime_profile.needs_libm(),
     };

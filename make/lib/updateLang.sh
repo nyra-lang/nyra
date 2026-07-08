@@ -31,8 +31,8 @@ if command -v python3 >/dev/null 2>&1; then
   info "==> Regenerating docs/bindings.md..."
   python3 "$ROOT/make/py/gen-bindings-doc.py"
 fi
-info "==> Building release cli + rustls TLS runtime..."
-cargo build --release -p cli -p nyra-rt-tls
+info "==> Building release cli + TLS runtimes (rustls + native)..."
+cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native
 
 info "==> Installing to PATH (cargo install --force)..."
 cargo install --path cli --force
@@ -64,9 +64,10 @@ for sub in os net core http; do
   fi
 done
 
-# Bundle rustls TLS client for HTTPS without OpenSSL / Rust on the user machine.
+# Bundle rustls + native TLS clients for HTTPS without requiring Rust on the user machine.
 TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
 TLS_SRC="target/release/libnyra_rt_tls.a"
+TLS_NATIVE_SRC="target/release/libnyra_rt_tls_native.a"
 if [ -f "$TLS_SRC" ]; then
   mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
   cp -f "$TLS_SRC" "$STD_DEST/prebuilt/$TRIPLE/libnyra_rt_tls.a"
@@ -75,6 +76,15 @@ if [ -f "$TLS_SRC" ]; then
   info "==> Installed libnyra_rt_tls.a for $TRIPLE"
 else
   die "missing $TLS_SRC after cargo build -p nyra-rt-tls"
+fi
+if [ -f "$TLS_NATIVE_SRC" ]; then
+  mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
+  cp -f "$TLS_NATIVE_SRC" "$STD_DEST/prebuilt/$TRIPLE/libnyra_rt_tls_native.a"
+  mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
+  cp -f "$TLS_NATIVE_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls_native.a"
+  info "==> Installed libnyra_rt_tls_native.a for $TRIPLE"
+else
+  die "missing $TLS_NATIVE_SRC after cargo build -p nyra-rt-tls-native"
 fi
 
 if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh" ]; then

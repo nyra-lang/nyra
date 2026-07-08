@@ -196,10 +196,10 @@
       "p_1": "You need <strong>clang</strong> on your PATH. See <a href=\"install.html\">Installation</a> for macOS, Linux, and Windows (including WSL).",
       "h2_2": "2. Create a project",
       "p_2": "This creates:",
-      "li_mod": "<code>nyra.mod</code> — module manifest (<code>module</code> name, later <code>require</code> / <code>link</code>)",
+      "li_mod": "<code>nyra.mod</code> — module manifest (<code>module</code> name; optional <code>tls</code>, <code>require</code>, <code>link</code>). Syntax: <a href=\"packages.html#nyra-mod-syntax\">nyra.mod reference</a>",
       "li_lock": "<code>nyra.lock</code> / <code>nyra.sum</code> — dependency lock &amp; checksums (empty until you add packages)",
       "li_main": "<code>main.ny</code> — entry point with a Hello World sample",
-      "p_files_detail": "See <a href=\"packages.html#project-files\">NyraPkg → project files</a> for what each file does, and <a href=\"packages.html#manual-require\">how to add or remove a library by hand</a> in <code>nyra.mod</code>. <code>nyra run .</code> / <code>nyra build .</code> auto-sync <code>require</code> packages (fetch missing, prune removed — like Cargo).",
+      "p_files_detail": "See <a href=\"packages.html#project-files\">NyraPkg → project files</a> for what each file does, <a href=\"packages.html#nyra-mod-syntax\">nyra.mod syntax</a>, and <a href=\"packages.html#manual-require\">how to add or remove a library by hand</a>. HTTPS backends: <a href=\"net-http.html#tls-backends\">TLS backends</a>. <code>nyra run .</code> / <code>nyra build .</code> auto-sync <code>require</code> packages (fetch missing, prune removed — like Cargo).",
       "h2_3": "3. Run the program",
       "p_3": "From the <strong>project root</strong> (directory containing <code>main.ny</code>):",
       "p_expected": "Expected output:",
@@ -380,17 +380,41 @@
       "h1": "Nyra Keywords",
       "lead": "Every <strong>reserved word</strong> and <strong>type name</strong> the lexer treats as a keyword — plus how to reuse those names as variables with a leading <code>@</code>, and how compiler <strong>attributes</strong> differ (<code>#[…]</code>, not <code>@</code>)."
     },
-    "spec": { "metaTitle": "Language specification — Nyra Docs", "h1": "Language specification", "lead": "Normative Spec 1.0 freeze (v0.3.0)." },
-    "generics": { "metaTitle": "Generics — Nyra Docs", "h1": "Generics", "lead": "Type parameters and monomorphization." },
+    "spec": {
+      "metaTitle": "Language specification — Nyra Docs",
+      "h1": "Language specification",
+      "lead": "Normative Spec 1.0 freeze (v0.3.0)."
+    },
+    "generics": {
+      "metaTitle": "Generics — Nyra Docs",
+      "h1": "Generics",
+      "lead": "Type parameters and monomorphization."
+    },
     "comptime": {
       "metaTitle": "Comptime — Nyra Docs",
       "h1": "Comptime evaluation",
       "lead": "Optional compile-time evaluation — lookup tables, string routing, and generated constants with <strong>zero runtime cost</strong>."
     },
-    "match": { "metaTitle": "Match — Nyra Docs", "h1": "Match expressions", "lead": "Exhaustiveness, guards, tag-only enums." },
-    "async": { "metaTitle": "Async — Nyra Docs", "h1": "Async & await", "lead": "Async functions and await (Stable Extended)." },
-    "traits-macros": { "metaTitle": "Traits & macros — Nyra Docs", "h1": "Traits & macros", "lead": "Trait definitions, <code>impl Drop for Type</code>, and macro expansion." },
-    "performance": { "metaTitle": "Performance — Nyra Docs", "h1": "Performance toolchain", "lead": "LLVM opt, release flags, LTO, benchmarks." },
+    "match": {
+      "metaTitle": "Match — Nyra Docs",
+      "h1": "Match expressions",
+      "lead": "Exhaustiveness, guards, tag-only enums."
+    },
+    "async": {
+      "metaTitle": "Async — Nyra Docs",
+      "h1": "Async & await",
+      "lead": "Async functions and await (Stable Extended)."
+    },
+    "traits-macros": {
+      "metaTitle": "Traits & macros — Nyra Docs",
+      "h1": "Traits & macros",
+      "lead": "Trait definitions, <code>impl Drop for Type</code>, and macro expansion."
+    },
+    "performance": {
+      "metaTitle": "Performance — Nyra Docs",
+      "h1": "Performance toolchain",
+      "lead": "LLVM opt, release flags, LTO, benchmarks."
+    },
     "pgo": {
       "metaTitle": "Profile-Guided Optimization (PGO) — Nyra Docs",
       "h1": "Profile-Guided Optimization (PGO)",
@@ -401,25 +425,61 @@
       "h1": "Escape analysis",
       "lead": "Nyra proves which values stay local at compile time, then <strong>promotes them to the stack</strong>, inlines sequential channels without mutexes, and honors <code>#[no_escape]</code> on references."
     },
-    "diagnostics": { "metaTitle": "Diagnostics — Nyra Docs", "h1": "Diagnostics", "lead": "Structured errors and nyra diag --json." },
-    "ffi-abi": { "metaTitle": "FFI & ABI — Nyra Docs", "h1": "FFI & ABI", "lead": "Stable C ABI and heap ownership at the boundary." },
-    "targets": { "metaTitle": "Targets — Nyra Docs", "h1": "Compilation targets", "lead": "Native, cross-compilation (<code>--for</code>), and wasm32-wasi." },
-    "editor-setup": { "metaTitle": "Editor setup — Nyra Docs", "h1": "Editor setup", "lead": "VS Code / Cursor: official extension, <code>nyra lsp</code>, and <code>nyra dap</code> debugging." },
-    "integration": { "metaTitle": "Integration — Nyra Docs", "h1": "Integration guides", "lead": "Embedding Nyra in other stacks." },
+    "diagnostics": {
+      "metaTitle": "Diagnostics — Nyra Docs",
+      "h1": "Diagnostics",
+      "lead": "Structured errors and nyra diag --json."
+    },
+    "ffi-abi": {
+      "metaTitle": "FFI & ABI — Nyra Docs",
+      "h1": "FFI & ABI",
+      "lead": "Stable C ABI and heap ownership at the boundary."
+    },
+    "targets": {
+      "metaTitle": "Targets — Nyra Docs",
+      "h1": "Compilation targets",
+      "lead": "Native, cross-compilation (<code>--for</code>), and wasm32-wasi."
+    },
+    "editor-setup": {
+      "metaTitle": "Editor setup — Nyra Docs",
+      "h1": "Editor setup",
+      "lead": "VS Code / Cursor: official extension, <code>nyra lsp</code>, and <code>nyra dap</code> debugging."
+    },
+    "integration": {
+      "metaTitle": "Integration — Nyra Docs",
+      "h1": "Integration guides",
+      "lead": "Embedding Nyra in other stacks."
+    },
     "osHardware": {
       "metaTitle": "OS, files & hardware — Nyra Docs",
       "h1": "OS, files & hardware",
       "lead": "Read and write files, detect the operating system, query environment variables, and reach specialized hardware through the stdlib, FFI, or language bridge."
     },
-    "learning-path": { "metaTitle": "Learning path — Nyra Docs", "h1": "Learning path", "lead": "Structured path from zero to a full multi-file app." },
+    "learning-path": {
+      "metaTitle": "Learning path — Nyra Docs",
+      "h1": "Learning path",
+      "lead": "Structured path from zero to a full multi-file app."
+    },
     "beginner-track": {
       "metaTitle": "Beginner track — Nyra Docs",
       "h1": "Beginner track",
       "lead": "Step-by-step lessons for your first programs in Nyra — no prior experience required."
     },
-    "ai-skill": { "metaTitle": "AI skill file — Nyra Docs", "h1": "AI skill file", "lead": "Download <code>nyra-skill.md</code> — the canonical Nyra reference for AI assistants: syntax, types, functions, loops, structs, imports, ownership, stdlib, and anti-hallucination rules." },
-    "changelog": { "metaTitle": "Changelog — Nyra Docs", "h1": "Changelog", "lead": "Spec freeze history and releases." },
-    "sitemap": { "metaTitle": "Sitemap — Nyra Docs", "h1": "Sitemap", "lead": "All documentation pages." },
+    "ai-skill": {
+      "metaTitle": "AI skill file — Nyra Docs",
+      "h1": "AI skill file",
+      "lead": "Download <code>nyra-skill.md</code> — the canonical Nyra reference for AI assistants: syntax, types, functions, loops, structs, imports, ownership, stdlib, and anti-hallucination rules."
+    },
+    "changelog": {
+      "metaTitle": "Changelog — Nyra Docs",
+      "h1": "Changelog",
+      "lead": "Spec freeze history and releases."
+    },
+    "sitemap": {
+      "metaTitle": "Sitemap — Nyra Docs",
+      "h1": "Sitemap",
+      "lead": "All documentation pages."
+    },
     "concurrency": {
       "metaTitle": "Concurrency — Nyra Docs",
       "h1": "Concurrency",

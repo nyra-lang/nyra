@@ -214,14 +214,16 @@ fn main() -&gt; void {
       <p>Optional first line; pairs with <code>nyra.mod</code> for NyraPkg.</p>
 
       <h2>nyra.mod</h2>
+      <p>Line-oriented project manifest (like a tiny <code>Cargo.toml</code>). Minimum is just <code>module …</code>. Full directive table: <a href="packages.html#nyra-mod-syntax">nyra.mod syntax reference</a>.</p>
       <pre><code>module example.local
 version 1.0.0
+tls rustls                  # optional — HTTPS backend (default rustls)
 
 require ny-sqlite ^0.1.0
 require https://github.com/example/ny-lib
 
 link sqlite3</code></pre>
-      <p>Edit <code>require</code> lines by hand or via <code>nyrapkg add</code>. Then <code>nyra run .</code> auto-syncs (fetch missing packages, prune removed ones) — or run <code>nyrapkg sync</code>. Details: <a href="packages.html#manual-require">NyraPkg → manual require</a>.</p>
+      <p>Edit <code>require</code> lines by hand or via <code>nyrapkg add</code>. Then <code>nyra run .</code> auto-syncs (fetch missing packages, prune removed ones) — or run <code>nyrapkg sync</code>. Details: <a href="packages.html#manual-require">NyraPkg → manual require</a>. TLS backends: <a href="net-http.html#tls-backends">net/http → TLS</a>.</p>
 
       <h2>Quick pattern: split UI and logic</h2>
       <pre><code><span class="file-label">logic.ny</span>fn compute() -> i32 { return 100 }</code></pre>

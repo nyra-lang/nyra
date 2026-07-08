@@ -188,13 +188,96 @@ nyra pkg bind c vendor/api.h --lib foo --update-mod</code></pre>
         <thead><tr><th>File</th><th>Like…</th><th>Role</th></tr></thead>
         <tbody>
           <tr><td><code>main.ny</code></td><td><code>src/main.rs</code> / <code>index.js</code></td><td>Entry point — <code>fn main()</code> Hello World sample. Edit this to build your app. Run with <code>nyra run .</code>.</td></tr>
-          <tr><td><code>nyra.mod</code></td><td><code>Cargo.toml</code> / <code>package.json</code></td><td>Module name, <code>require</code> list, optional <code>tls</code>, <code>link</code> / <code>link-source</code>. You may edit this by hand.</td></tr>
+          <tr><td><code>nyra.mod</code></td><td><code>Cargo.toml</code> / <code>package.json</code></td><td>Module name, optional <code>tls</code>, <code>require</code>, <code>link</code> / <code>link-source</code>. You may edit this by hand. Full directive list: <a href="#nyra-mod-syntax"><code>nyra.mod</code> syntax</a>.</td></tr>
           <tr><td><code>nyra.lock</code></td><td><code>Cargo.lock</code> / <code>package-lock.json</code></td><td>Pinned dependency versions (JSON). Rewritten by <code>nyrapkg sync</code>, <code>add</code>/<code>install</code>, or automatically before <code>nyra run</code>/<code>build</code>.</td></tr>
           <tr><td><code>nyra.sum</code></td><td>checksum / integrity</td><td>Per-module checksums checked by <code>nyrapkg verify</code> and <code>nyra pkg build</code>.</td></tr>
           <tr><td><code>.nyra/cache/</code></td><td><code>vendor/</code> / cargo registry cache</td><td>Fetched package sources. Created when dependencies are installed or auto-synced.</td></tr>
           <tr><td><code>target/</code></td><td><code>target/</code></td><td>Build output (<code>debug/main</code>, IR, incremental cache). Created by <code>nyra build</code> / <code>nyra run</code> — not by <code>init</code>.</td></tr>
         </tbody>
       </table>
+
+      <h2 id="nyra-mod-syntax"><code>nyra.mod</code> syntax reference</h2>
+      <p><code>nyra.mod</code> is a line-oriented manifest (not TOML/JSON). One directive per line. Unknown lines are ignored, so a full line like <code># note</code> is fine as a comment; do not put <code># …</code> after a directive on the same line.</p>
+      <p><strong>Minimal project</strong> (what <code>nyrapkg init</code> creates):</p>
+      <pre><code>module myapp.local</code></pre>
+      <p>That single line is enough to run <code>nyra run .</code>. Everything below is optional.</p>
+      <table>
+        <thead><tr><th>Directive</th><th>Required?</th><th>What it does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>module &lt;name&gt;</code></td>
+            <td>Yes (practically)</td>
+            <td>Project / package identity. Stored in <code>nyra.lock</code>. Use a simple name (<code>myapp.local</code>) or a path-style id (<code>github.com/you/app</code>).</td>
+            <td><code>module example.local</code></td>
+          </tr>
+          <tr>
+            <td><code>version &lt;semver&gt;</code></td>
+            <td>No</td>
+            <td>Your package version when publishing / describing this module.</td>
+            <td><code>version 1.0.0</code></td>
+          </tr>
+          <tr>
+            <td><code>tls &lt;backend&gt;</code></td>
+            <td>No</td>
+            <td>HTTPS client backend for <code>get("https://…")</code> and friends. Default if omitted: <strong>rustls</strong> (bundled). Allowed values: <code>rustls</code> (stable default), <code>native</code> (Secure Transport / SChannel / Linux OpenSSL — stable), <code>openssl</code> (optional system OpenSSL). Pinned in <code>nyra.lock</code> as <code>features.tls</code>.</td>
+            <td><code>tls rustls</code></td>
+          </tr>
+          <tr>
+            <td><code>require &lt;pkg&gt; [constraint]</code></td>
+            <td>No</td>
+            <td>NyraPkg dependency. Name + optional semver (<code>^0.1.0</code>), or a Git URL. Auto-synced on <code>nyra run .</code> / <code>nyra build .</code>.</td>
+            <td><code>require ny-sqlite ^0.1.0</code></td>
+          </tr>
+          <tr>
+            <td><code>link &lt;lib&gt;</code></td>
+            <td>No</td>
+            <td>Native linker library (<code>-l</code>). Also: <code>link -L /path</code> for search paths, or other <code>link -…</code> flags.</td>
+            <td><code>link sqlite3</code></td>
+          </tr>
+          <tr>
+            <td><code>link-source &lt;file.c&gt;</code></td>
+            <td>No</td>
+            <td>Compile a C file into this project at <code>nyra build</code>.</td>
+            <td><code>link-source rt/sqlite.c</code></td>
+          </tr>
+          <tr>
+            <td><code>link-crate &lt;name&gt;</code></td>
+            <td>No</td>
+            <td>Rust crate bridge used with bind/bindgen workflows.</td>
+            <td><code>link-crate uuid</code></td>
+          </tr>
+          <tr>
+            <td><code>link-arg &lt;flag&gt;</code></td>
+            <td>No</td>
+            <td>Extra linker argument passed through as-is.</td>
+            <td><code>link-arg -framework</code></td>
+          </tr>
+          <tr>
+            <td><code>pgo-run &lt;args…&gt;</code></td>
+            <td>No</td>
+            <td>Arguments for the instrumented binary during <code>nyra build --pgo</code>.</td>
+            <td><code>pgo-run --bench</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>Full example:</strong></p>
+      <pre><code>module github.com/you/myapp
+version 1.0.0
+tls rustls
+
+require ny-sqlite ^0.1.0
+require https://github.com/example/ny-lib
+
+link sqlite3
+link-source vendor/shim.c</code></pre>
+      <p><strong>What you usually do day to day:</strong></p>
+      <ul>
+        <li>Leave <code>module …</code> as created by <code>nyrapkg init</code>.</li>
+        <li>Add <code>require …</code> when you need a package (or run <code>nyrapkg add …</code>).</li>
+        <li>Add <code>tls rustls</code> only if you want the HTTPS backend spelled out (optional — rustls is already the default).</li>
+        <li>Add <code>link …</code> when native libraries (SQLite, zlib, …) are required.</li>
+      </ul>
+      <p>TLS backends status (what works <em>today</em>): see <a href="net-http.html#tls-backends">net/http → TLS backends</a>.</p>
 
       <h2 id="manual-require">Add a library by hand in <code>nyra.mod</code></h2>
       <p>You do not have to use <code>nyrapkg add</code>. Edit <code>nyra.mod</code> directly — just like editing <code>Cargo.toml</code> — then let Nyra fetch the package:</p>
@@ -364,14 +447,14 @@ import "pkg/ny-toml/toml.ny"</code></pre>
       <h2>nyra.mod example</h2>
       <pre><code>module github.com/you/myapp
 version 1.0.0
-tls rustls                  # HTTPS: rustls | native | openssl
+tls rustls
 
 require ny-sqlite ^0.1.0
 require https://github.com/example/ny-lib
 
 link sqlite3
 link-source vendor/shim.c</code></pre>
-      <p><code>tls</code> selects the HTTPS client backend (default <code>rustls</code>, bundled as <code>libnyra_rt_tls.a</code>). The choice is pinned in <code>nyra.lock</code> under <code>features.tls</code>. See <a href="net-http.html">net/http → TLS backends</a>.</p>
+      <p><code>tls</code> selects the HTTPS client backend (default <code>rustls</code>, bundled as <code>libnyra_rt_tls.a</code>). The choice is pinned in <code>nyra.lock</code> under <code>features.tls</code>. Status of each backend today: <a href="net-http.html#tls-backends">net/http → TLS backends</a>. Full directive list: <a href="#nyra-mod-syntax"><code>nyra.mod</code> syntax</a>.</p>
 
       <h2>Git dependencies</h2>
       <p>URLs in <code>require</code> trigger <code>git clone</code> / <code>git fetch</code> into <code>.nyra/cache/</code> on <code>nyrapkg sync</code>, <code>add</code>/<code>install</code>, or automatically before <code>nyra run</code>/<code>build</code>. <code>nyra pkg build</code> verifies <code>nyra.sum</code> against <code>nyra.lock</code> before compiling.</p>

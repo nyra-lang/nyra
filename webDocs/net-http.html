@@ -155,32 +155,50 @@ rustls   native    openssl
      TCP</code></pre>
       <p>HTTPS works out of the box with the <strong>bundled rustls</strong> client — no OpenSSL install required. Choose a backend in <code>nyra.mod</code>; <code>nyra.lock</code> pins the resolved choice under <code>features.tls</code>.</p>
 
-      <h2>TLS backends</h2>
-      <pre><code># nyra.mod
+      <h2 id="tls-backends">TLS backends — what Nyra supports today</h2>
+      <div class="callout">
+        <strong>Default you should use:</strong> <code>rustls</code>.
+        HTTPS client (<code>get("https://…")</code>, WebSocket TLS, SMTP STARTTLS client paths) ships as a <strong>bundled</strong> static library (<code>libnyra_rt_tls.a</code>). No OpenSSL install. System CA store. This is the production default when <code>tls</code> is omitted from <code>nyra.mod</code>. Prefer <code>tls native</code> when you want OS TLS (Secure Transport / SChannel).
+      </div>
+      <pre><code># nyra.mod — optional; rustls is already the default
 module example.local
-tls rustls      # default — prebuilt libnyra_rt_tls.a
-# tls native    # OS TLS (SChannel / Secure Transport) — planned
-# tls openssl   # system OpenSSL (optional client + server helpers)</code></pre>
-      <pre><code>// nyra.lock (fragment)
+tls rustls</code></pre>
+      <pre><code>// nyra.lock pins the resolved backend
 {
   "features": { "tls": "rustls" },
   "require": []
 }</code></pre>
       <table>
-        <thead><tr><th>Backend</th><th>Status</th><th>Notes</th></tr></thead>
+        <thead><tr><th>Backend</th><th><code>nyra.mod</code></th><th>Status today</th><th>When to use</th></tr></thead>
         <tbody>
-          <tr><td><code>rustls</code></td><td>Stable (default)</td><td>Shipped as <code>libnyra_rt_tls.a</code>; system CA store; no extra deps</td></tr>
-          <tr><td><code>native</code></td><td>Planned</td><td>Windows SChannel · macOS Secure Transport · Linux uses OpenSSL-compatible paths</td></tr>
-          <tr><td><code>openssl</code></td><td>Optional</td><td>Requires OpenSSL headers/libs; also used for TLS server cert helpers</td></tr>
+          <tr>
+            <td><strong>rustls</strong></td>
+            <td><code>tls rustls</code> or omit</td>
+            <td><strong>Stable — default</strong></td>
+            <td>All normal HTTPS apps. Bundled with Nyra (<code>libnyra_rt_tls.a</code>); no extra packages.</td>
+          </tr>
+          <tr>
+            <td><strong>native</strong></td>
+            <td><code>tls native</code></td>
+            <td><strong>Stable</strong></td>
+            <td>OS TLS: macOS Secure Transport · Windows SChannel · Linux system OpenSSL (via <code>native-tls</code> / <code>libnyra_rt_tls_native.a</code>). Same HTTPS API as rustls.</td>
+          </tr>
+          <tr>
+            <td><strong>openssl</strong></td>
+            <td><code>tls openssl</code></td>
+            <td><strong>Optional / available</strong></td>
+            <td>System OpenSSL client unit, or TLS <em>server</em> / PEM helpers. Requires OpenSSL headers + libs (<code>-lssl -lcrypto</code>). Soft-skips in CI when OpenSSL is missing.</td>
+          </tr>
         </tbody>
       </table>
+      <p><strong>How to choose in practice:</strong> prefer <code>rustls</code> (default, portable). Use <code>tls native</code> when you want the platform TLS stack (enterprise CA / OS policy). Use <code>openssl</code> when you already depend on OpenSSL or need server helpers.</p>
+      <p>Resolve order: value in <code>nyra.mod</code> → else <code>features.tls</code> in <code>nyra.lock</code> → else <code>rustls</code>. If mod and lock disagree, Nyra reports a mismatch. Full <code>nyra.mod</code> syntax: <a href="packages.html#nyra-mod-syntax">packages → nyra.mod syntax</a>.</p>
+      <p>CI covers all three backends in <code>make test-conformance</code> (<code>pass/tls</code> for rustls defaults; fixtures <code>tls_native</code> / <code>tls_openssl</code> for the others).</p>
       <p>Application code is identical for every backend:</p>
-      <pre><code>import &quot;stdlib/net/http/mod.ny&quot;
-
-fn main() {
-    print(get(&quot;https://example.com&quot;))
+      <pre><code>fn main() {
+    print(get(&quot;https://example.com/&quot;))
 }</code></pre>
-      <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem — it does not ask you to install OpenSSL when using <code>rustls</code>.</p>
+      <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem (network reset, cert error, …) — it does not ask you to install OpenSSL when using <code>rustls</code> or <code>native</code> on macOS/Windows.</p>
 
       <h2>Module layout</h2>
       <pre><code>stdlib/net/http/

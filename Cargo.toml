@@ -11,6 +11,7 @@ members = [
     "pkg",
     "rt",
     "rt-tls",
+    "rt-tls-native",
     "compiler/driver",
     "compiler/lint",
     "compiler/ast",

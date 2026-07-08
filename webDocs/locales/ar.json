@@ -172,7 +172,7 @@
       "cardSpecP": "Spec 1.0 المعياري (تجميد v0.2)",
       "cardLearningPathP": "من الصفر إلى تطبيق كامل — خطوة بخطوة",
       "statusTitle": "حالة المشروع",
-      "statusBody": "Nyra <strong>جاهز للإنتاج</strong> على Core + Stable Extended (async و<code>?</code> وspawn وtraits وserde). إصدارات جاهزة لـ Linux وmacOS وWindows. راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">سياسة الاستقرار</a>.",
+      "statusBody": "Nyra <strong>جاهزة للإنتاج</strong> على Core + Stable Extended (async و<code>?</code> وspawn وtraits وserde). إصدارات جاهزة لـ Linux وmacOS وWindows. راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">سياسة الاستقرار</a>.",
       "aiSkillTitle": "للمساعدين الذكاء الاصطناعي",
       "aiSkillDesc": "حمّل المرجع الرسمي لـ Nyra لـ Cursor وChatGPT وClaude وغيرها.",
       "aiSkillBody": "ملف واحد <code>nyra-skill.md</code> — الصياغة، الملكية، stdlib، PGO، escape analysis، مستويات الاستقرار، ومنع الهلوسة (v1.36.x).",
@@ -186,9 +186,7 @@
       "resultMissingP": "كائنات multi-trait <code>dyn A + B</code> وبعض حالات serde العامة المعقدة — راجع بوابات الإنتاج في خارطة الطريق.",
       "resultProdH": "جاهزية الإنتاج",
       "resultProdP": "جاهز لمعالجة الأخطاء في أدوات CLI والخوادم على Core + Stable Extended.",
-      "resultExampleLink": "مرجع Result ومثال ←",
-      "statusTitle": "حالة المشروع",
-      "statusBody": "Nyra <strong>جاهزة للإنتاج</strong> على Core + Stable Extended (async و<code>?</code> وspawn وtraits وserde). إصدارات جاهزة لـ Linux وmacOS وWindows. راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">سياسة الاستقرار</a>."
+      "resultExampleLink": "مرجع Result ومثال ←"
     },
     "getting-started": {
       "metaTitle": "البدء السريع — توثيق Nyra",
@@ -198,10 +196,10 @@
       "p_1": "تحتاج <strong>clang</strong> في PATH. راجع <a href=\"install.html\">التثبيت</a> لـ macOS وLinux وWindows (بما فيها WSL).",
       "h2_2": "2. إنشاء مشروع",
       "p_2": "يُنشئ ما يلي:",
-      "li_mod": "<code>nyra.mod</code> — بيان الوحدة (اسم <code>module</code>، ثم <code>require</code> / <code>link</code>)",
+      "li_mod": "<code>nyra.mod</code> — بيان الوحدة (اسم <code>module</code>؛ واختياري <code>tls</code> و<code>require</code> و<code>link</code>). الصياغة: <a href=\"packages.html#nyra-mod-syntax\">مرجع nyra.mod</a>",
       "li_lock": "<code>nyra.lock</code> / <code>nyra.sum</code> — قفل التبعيات والمجاميع (فارغ حتى تضيف حزماً)",
       "li_main": "<code>main.ny</code> — نقطة الدخول مع عينة Hello World",
-      "p_files_detail": "انظر <a href=\"packages.html#project-files\">NyraPkg → ملفات المشروع</a> لوظيفة كل ملف، و<a href=\"packages.html#manual-require\">إضافة أو حذف مكتبة يدوياً</a> في <code>nyra.mod</code>. <code>nyra run .</code> / <code>nyra build .</code> يزامنان حزم <code>require</code> تلقائياً (جلب الناقص وحذف المُزال — مثل Cargo).",
+      "p_files_detail": "انظر <a href=\"packages.html#project-files\">NyraPkg → ملفات المشروع</a>، و<a href=\"packages.html#nyra-mod-syntax\">صياغة nyra.mod</a>، و<a href=\"packages.html#manual-require\">إضافة أو حذف مكتبة يدوياً</a>. خَلفيات HTTPS: <a href=\"net-http.html#tls-backends\">TLS backends</a>. <code>nyra run .</code> / <code>nyra build .</code> يزامنان حزم <code>require</code> تلقائياً (جلب الناقص وحذف المُزال — مثل Cargo).",
       "h2_3": "3. تشغيل البرنامج",
       "p_3": "من <strong>جذر المشروع</strong> (المجلد الذي يحتوي <code>main.ny</code>):",
       "p_expected": "المخرجات المتوقعة:",

@@ -62,35 +62,45 @@ echo "Building cli for $TRIPLE ..."
 HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
 
 if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
-  cargo build --release -p cli -p nyra-rt-tls
+  cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native
   if [ "$IS_WINDOWS" -eq 1 ]; then
     cp "target/release/nyra.exe" "$STAGE/bin/nyra.exe"
   else
     cp "target/release/nyra" "$STAGE/bin/nyra"
   fi
   TLS_LIB="target/release/libnyra_rt_tls.a"
+  TLS_NATIVE_LIB="target/release/libnyra_rt_tls_native.a"
 else
   rustup target add "$TRIPLE" 2>/dev/null || true
-  cargo build --release -p cli -p nyra-rt-tls --target "$TRIPLE"
+  cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native --target "$TRIPLE"
   if [ "$IS_WINDOWS" -eq 1 ]; then
     cp "target/$TRIPLE/release/nyra.exe" "$STAGE/bin/nyra.exe"
   else
     cp "target/$TRIPLE/release/nyra" "$STAGE/bin/nyra"
   fi
   TLS_LIB="target/$TRIPLE/release/libnyra_rt_tls.a"
+  TLS_NATIVE_LIB="target/$TRIPLE/release/libnyra_rt_tls_native.a"
 fi
 
 echo "Copying stdlib (full tree) ..."
 cp -R stdlib/. "$STAGE/share/stdlib/"
 rm -rf "$STAGE/share/stdlib/target" 2>/dev/null || true
 
-# Ship prebuilt rustls TLS client so end users need neither Rust nor OpenSSL for HTTPS.
+# Ship prebuilt rustls + native TLS clients.
 if [ -f "$TLS_LIB" ]; then
   mkdir -p "$STAGE/share/stdlib/prebuilt/$TRIPLE"
   cp "$TLS_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls.a"
   echo "Bundled libnyra_rt_tls.a for $TRIPLE"
 else
   echo "error: missing $TLS_LIB — HTTPS client would not work offline" >&2
+  exit 1
+fi
+if [ -f "$TLS_NATIVE_LIB" ]; then
+  mkdir -p "$STAGE/share/stdlib/prebuilt/$TRIPLE"
+  cp "$TLS_NATIVE_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls_native.a"
+  echo "Bundled libnyra_rt_tls_native.a for $TRIPLE"
+else
+  echo "error: missing $TLS_NATIVE_LIB — tls native would not work offline" >&2
   exit 1
 fi
 

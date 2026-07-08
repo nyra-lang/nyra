@@ -16,7 +16,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 4. [Syntax conventions & variables](#syntax-conventions)
 5. [Language reference — keywords, operators, statements](#language-reference)
 6. [Types & functions](#types)
-7. [Control flow, match, structs, enums & payloads, imports](#control-flow)
+7. [Control flow, match, structs, enums & payloads, imports, `nyra.mod`, TLS](#control-flow)
 8. [Generics & monomorphization](#generics)
 9. [Built-in API, methods & I/O](#io--builtins) — strings, arrays, math, Vec, HashMap, helpers
 10. [Async & await](#async--await) · [Concurrency & sync](#concurrency--sync-primitives)
@@ -52,6 +52,8 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **v3.1:** `f64` IEEE-754 double — float literals (`3.14`), mixed `i32`/`f64` promotion, LLVM `double` codegen.
 - **v3.2:** `char` Unicode scalar — `'a'`, `'\n'`, `'\u{...}'`; LLVM `i32`; `print` via `%c`.
 - **v1.3:** **CONF-LANG** Nyra-source conformance suite; `stdlib/testing.ny` assertion helpers.
+- **v1.40.3:** **Bundled HTTPS** — default `tls rustls` (`libnyra_rt_tls.a`); selectable `tls rustls|native|openssl` in `nyra.mod`; pinned in `nyra.lock` → `features.tls`.
+- **v1.40.4:** **Stable `tls native`** — OS TLS client (`libnyra_rt_tls_native.a`: macOS Secure Transport · Windows SChannel · Linux OpenSSL). CI conformance covers all three backends.
 
 ## Design philosophy
 
@@ -1001,31 +1003,89 @@ priv fn helper() { … }          // internal only
 fn public_api() { … }           // visible to importers
 ```
 
-### Workspace (`nyra.mod`)
+### `nyra.mod` — project manifest (line-oriented, not TOML/JSON)
 
-Declare module identity, stdlib requires, and native link metadata:
+One directive per line. Minimum: `module myapp.local` — enough for `nyra run .`. Unknown lines ignored; `# comment` on its own line is fine.
+
+| Directive | Required? | Role |
+|-----------|-----------|------|
+| `module <name>` | Yes (practically) | Project id (`myapp.local` or `github.com/you/app`) |
+| `version <semver>` | No | Package version |
+| `tls <backend>` | No | HTTPS client backend — see [TLS backends](#tls-backends-https) |
+| `require <pkg> [constraint]` | No | NyraPkg dep (`^0.1.0`) or Git URL |
+| `link <lib>` | No | Native `-l` lib; also `link -L /path` |
+| `link-source <file.c>` | No | Compile C at `nyra build` |
+| `link-crate <name>` | No | Rust crate bridge |
+| `link-arg <flag>` | No | Extra linker arg |
+| `pgo-run <args…>` | No | Args for `nyra build --pgo` training run |
+
+**Full example:**
 
 ```text
-module my.api
+module myapp.local
 version 1.0.0
+tls rustls
+
 require ny-sqlite ^0.1.0
-require stdlib.net.http
+require https://github.com/you/ny-lib
+
 link sqlite3
 link-source vendor/shim.c
 ```
 
+**Lock file** (`nyra.lock` JSON): pins `features.tls` and resolved `require` versions. Resolve order: `nyra.mod` `tls` → `nyra.lock` `features.tls` → default **`rustls`**. Mismatch between mod and lock errors.
+
+**Day-to-day:** leave `module …` as `nyrapkg init` created it; add `require` when needed; add `link` for native libs (SQLite, zlib). `nyra run .` / `nyra build .` auto-sync `require` (fetch missing, prune removed — like Cargo).
+
 Typical layout:
 
 ```text
-my_api/
+myapp/
   nyra.mod
+  nyra.lock
+  nyra.sum
   main.ny
-  lib/common/
-  handlers/
-  workers/
+  .nyra/cache/
+  target/debug/main
 ```
 
-Workspaces: [modules guide](https://nyra-lang.github.io/docs/modules.html)
+Docs: [packages → nyra.mod syntax](https://nyra-lang.github.io/docs/packages.html#nyra-mod-syntax) · [modules](https://nyra-lang.github.io/docs/modules.html)
+
+### TLS backends (HTTPS)
+
+Select in `nyra.mod`; **application code is identical** for every backend. No `import` needed for `get("https://…")` when auto-prelude is on.
+
+| Backend | `nyra.mod` | Status | When to use |
+|---------|------------|--------|-------------|
+| **rustls** | omit or `tls rustls` | **Default, stable** | Normal HTTPS; bundled `libnyra_rt_tls.a`; no OpenSSL install |
+| **native** | `tls native` | **Stable** | OS TLS: Secure Transport (macOS) · SChannel (Windows) · OpenSSL (Linux) via `libnyra_rt_tls_native.a` |
+| **openssl** | `tls openssl` | Optional | System OpenSSL client; also TLS server / PEM helpers; needs `-lssl -lcrypto` |
+
+```text
+# nyra.mod
+module example.local
+tls native          # or rustls (default) or openssl
+
+# nyra.lock fragment
+{ "features": { "tls": "native" }, "require": [] }
+```
+
+**HTTPS client API (auto-prelude or `import "stdlib/net/http/mod.ny"`):**
+
+```ny
+fn main() {
+    print(get("https://api.github.com/zen"))   // body string; HTTPS uses selected backend
+}
+```
+
+- `get(url)` returns **body string** on success.
+- On transport/TLS failure, `get()` returns JSON like `{"error":"TLS handshake failed"}` — check with `strstr_pos(body, "{\"error\":") == 0`.
+- `tls_last_error()` — real error detail; does **not** tell users to install OpenSSL when using `rustls` or `native` on macOS/Windows.
+- `tls_available()` / `tls_ready()` — probe before HTTPS in defensive code.
+
+**Do not hallucinate:** `tls native` is **shipped and stable** (v1.40.4+). Default is `rustls`, not OpenSSL. Some hosts/CDNs may reset TLS from certain networks — that is environmental, not “Nyra needs OpenSSL”.
+
+Docs: [net/http → TLS](https://nyra-lang.github.io/docs/net-http.html#tls-backends)
 
 ## I/O & builtins
 
@@ -2013,7 +2073,7 @@ import "stdlib/strings/ops.ny"
 | **Collections** | `Vec_i32_*`, `vec_*`, `StrVec_*`, `HashMap_str_i32_*`, `HashMap_str_str_*` |
 | **Strings** | `strcat`, `strlen`, `substring`, `strstr_pos` (via `stdlib/strings.ny` chain) |
 | **Crypto** | `sha256`, `hmac_sha256`, … (`stdlib/crypto/mod.ny`) |
-| **Net** | `tcp_listen`, `tcp_accept`, … (`stdlib/net/tcp.ny`) |
+| **Net** | `get`, `post`, `fetch`, `HttpRouter_*`, `tcp_*`, … (`stdlib/net/http/mod.ny`, `stdlib/net/tcp.ny`) |
 
 **Compiler math intrinsics (always on):** `abs`, `abs_i32`, `abs_f64`, `min_i32`, `max_i32`, `clamp_i32`, `min_f64`, `max_f64`, `sin`, `cos`, `tan`, `atan2`, and typed `abs(x)` lower to LLVM — no stdlib merge required.  with `--no-prelude`.
 
@@ -2060,7 +2120,9 @@ Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure
 
 ### net/http API reference (v1.2+)
 
-`import "stdlib/net/http/mod.ny"` — **canonical names:** `HttpRouter`, `HttpRouter_*`, `serve_handlers` (older docs may say `Router_*` / `listen_and_serve_*` — prefer `HttpRouter_*` in new code).
+**Auto-prelude:** `get(url)`, `post`, `fetch`, `HttpRouter_*`, etc. resolve without `import` when prelude is enabled. Explicit: `import "stdlib/net/http/mod.ny"`. HTTPS backend from `nyra.mod` `tls` — see [TLS backends](#tls-backends-https).
+
+**Canonical names:** `HttpRouter`, `HttpRouter_*`, `serve_handlers` (older docs may say `Router_*` / `listen_and_serve_*` — prefer `HttpRouter_*` in new code).
 
 **Method constants:** `METHOD_GET`, `METHOD_POST`, `METHOD_PUT`, `METHOD_DELETE`, `METHOD_PATCH`, `METHOD_HEAD`, `METHOD_OPTIONS`.
 
@@ -2082,8 +2144,17 @@ Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure
 |----------|------|
 | `response_ok_json(body)` | 200 JSON |
 | `response_created_json`, `response_not_found`, … | Status helpers |
-| `get(url)` / `fetch(url)` | HTTP GET |
+| `get(url)` / `fetch(url)` | HTTP GET → **body string**; HTTPS uses `tls` backend from `nyra.mod` |
 | `post`, `put`, `patch`, `delete` | Verbs → `HttpResponse` |
+| `tls_last_error()` | TLS/connect error detail (`stdlib/tls.ny`, auto-prelude) |
+
+```ny
+fn main() {
+    print(get("https://example.com/"))
+}
+```
+
+Server + router example:
 
 ```ny
 import "stdlib/net/http/mod.ny"
@@ -2135,6 +2206,8 @@ import "pkg/ny-sqlite"
 ```text
 module myapp.local
 version 1.0.0
+tls rustls
+
 require ny-sqlite ^0.1.0
 link sqlite3
 link-source vendor/shim.c
@@ -2149,7 +2222,6 @@ link-source vendor/shim.c
 - **`link`** / **`link-arg`** merge into project `nyra.mod` on install.
 - **`link-source`** compiles package `.c` files at `nyra build` (no manual `clang`).
 - Lock: `nyra.lock` + `nyra.sum` pin exact versions; `nyra pkg verify` checks constraints.
-- Manual `require` in `nyra.mod` + `nyra run .` / `nyra build .` auto-syncs: fetches missing packages and removes ones deleted from `nyra.mod` (like Cargo). Or `nyrapkg sync` / bare `nyrapkg install`.
 - **`nyra pkg prune`** — auto-fix unused code (like `cargo fix` for lint warnings). See [NyraPkg prune](https://nyra-lang.github.io/docs/packages.html#prune).
 - Native C libraries (e.g. `-lsqlite3`) must exist on the system; NyraPkg ships bindings + shims, not OS packages.
 
@@ -2292,8 +2364,8 @@ Spec: [tooling → conformance](https://nyra-lang.github.io/docs/tooling.html#co
 ```
 myapp/
   main.ny
-  nyra.mod          # module, require, link, link-source
-  nyra.lock         # pinned deps (auto-updated on run/build or nyrapkg sync)
+  nyra.mod          # module, tls, require, link, link-source (line-oriented manifest)
+  nyra.lock         # pinned deps + features.tls (JSON)
   nyra.sum          # checksums
   .nyra/cache/      # installed packages
   src/
@@ -2302,7 +2374,7 @@ myapp/
     debug/main
 ```
 
-Run: `nyra run .` from project directory. Missing `require` packages are fetched automatically (like Cargo).
+Run: `nyra run .` from project directory (not `nyra run main.ny` for multi-file / prelude projects).
 
 ## Unsafe & no_std (v0.5.0)
 
@@ -2620,6 +2692,8 @@ in repo.
   - **With** `stdlib/option.ny` → `Option.Some(v)`, `Result.Ok(v)`, `Result.Err(e)` **do** store values (monomorphized `T` / `E`).
   - No multi-field variants (`Some(a, b)`) or mixed payload types in one enum (MVP limit).
 - **`?` operator** — `Result`/`Option` propagate on `let`/`const`/`return`/expr stmt, nested expressions (`print(f()?)`, call args), `return match` arm bodies, and `let n = match { Ok(v) => f(v)?, … }`. Enclosing function must return the same enum for propagation; in `void` test fns the inner `Err` payload becomes the `i32` binding. `??` nullish coalesce and `?.` optional chain are separate.
+- **HTTPS / TLS** — default backend is **`rustls`** (bundled, no OpenSSL install). `tls native` and `tls openssl` are valid `nyra.mod` choices. Do **not** tell users to install OpenSSL for basic `get("https://…")` unless they chose `tls openssl` or need TLS server helpers. `get()` failure JSON `{"error":"…"}` ≠ successful body.
+- **nyra.mod** — line-oriented manifest (`module`, `tls`, `require`, `link`, …), not TOML. Minimum one line: `module name`.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
 - No `extern export fn` — use `extern fn` or `export fn` separately.
 - Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/docs/async.html) · [concurrency](https://nyra-lang.github.io/docs/concurrency.html).

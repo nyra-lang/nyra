@@ -27,7 +27,7 @@ Organized by feature area; run via `scripts/conformance-tests.sh` (included in `
 | `borrow/` | i32 copy (happy path) |
 | `edge/` | empty loops, nested expr |
 | `imports/` | local const (project import via fixture) |
-| `tls/` | rustls availability, chunked HTTPS body decode, live HTTPS soft-skip (CONF-TLS-*) |
+| `tls/` | rustls availability, chunked HTTPS body decode, live HTTPS soft-skip (CONF-TLS-*); fixtures `tls_native` / `tls_openssl` cover the other backends |
 
 ### Fail areas (`fail/`)
 

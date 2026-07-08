@@ -89,4 +89,24 @@ fi
 rm -f "$fixture_out_log" "$fixture_err_log"
 nyra_stats_pass
 
+# --- Fixture: TLS backends (rustls covered in pass/tls; native + openssl here) ---
+run_tls_fixture() {
+  local name="$1"
+  local dir="$ROOT/tests/conformance/fixtures/$name"
+  log "CONF-TLS fixture: nyra test $dir"
+  local out_log="$ROOT/target/.nyra-conformance-$name.out"
+  : >"$out_log"
+  if ! "$NYRA" test "$dir" 2>&1 | tr -d '\r' | tee "$out_log" >&2; then
+    fail "nyra test $dir"
+  fi
+  if ! grep -q 'tests passed' "$out_log"; then
+    fail "nyra test $dir (no tests passed line)"
+  fi
+  rm -f "$out_log"
+  nyra_stats_pass
+}
+
+run_tls_fixture tls_native
+run_tls_fixture tls_openssl
+
 log "ok — language conformance (pass + fail + fixtures)"

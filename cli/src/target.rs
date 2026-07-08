@@ -64,6 +64,10 @@ impl TargetSpec {
         self.os == TargetOs::Windows
     }
 
+    pub fn is_linux(&self) -> bool {
+        self.os == TargetOs::Linux
+    }
+
     pub fn exe_extension(&self) -> &'static str {
         if self.is_wasm {
             ".wasm"
@@ -322,6 +326,7 @@ pub struct LinkTargetFlags {
     pub uses_rt_net: bool,
     pub needs_openssl: bool,
     pub needs_rustls_tls: bool,
+    pub needs_native_tls: bool,
     pub needs_zlib: bool,
     pub needs_libm: bool,
 }
@@ -534,7 +539,7 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 }
                 cmd.arg("-lssl").arg("-lcrypto");
             }
-            if rt.needs_rustls_tls {
+            if rt.needs_rustls_tls || rt.needs_native_tls {
                 cmd.arg("-framework").arg("Security");
                 cmd.arg("-framework").arg("CoreFoundation");
             }
@@ -556,6 +561,8 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
             if rt.needs_openssl {
                 cmd.arg("-lssl").arg("-lcrypto");
             }
+            // native-tls on Linux uses system OpenSSL; needs_openssl already covers tls openssl
+            // and Native when is_linux().
             if rt.needs_rustls_tls {
                 // rustls / ring pull System/m/c via clang defaults; nothing extra typically.
             }
@@ -595,10 +602,16 @@ pub fn apply_target_link_flags(cmd: &mut Command, spec: &TargetSpec, rt: &LinkTa
                 }
                 cmd.arg("-lssl").arg("-lcrypto");
             }
-            if rt.needs_rustls_tls {
+            if rt.needs_rustls_tls || rt.needs_native_tls {
                 cmd.arg("-lbcrypt");
                 cmd.arg("-lcrypt32");
                 cmd.arg("-lntdll");
+            }
+            if rt.needs_native_tls {
+                // SChannel (native-tls):
+                cmd.arg("-lsecur32");
+                cmd.arg("-lcrypt32");
+                cmd.arg("-lncrypt");
             }
             if rt.needs_zlib {
                 for prefix in zlib_prefixes() {

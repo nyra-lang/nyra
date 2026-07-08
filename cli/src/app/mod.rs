@@ -121,6 +121,8 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
                 println!("{}", path.display());
                 let tls = crate::prebuilt_tls::ensure_prebuilt_tls(&spec)?;
                 println!("{}", tls.display());
+                let tls_native = crate::prebuilt_tls_native::ensure_prebuilt_native_tls(&spec)?;
+                println!("{}", tls_native.display());
                 Ok(())
             }
             InternalCommands::Daemon { background } => crate::daemon::serve(background),

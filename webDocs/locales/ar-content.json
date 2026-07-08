@@ -7,7 +7,6 @@
     "Common mistakes": "أخطاء شائعة",
     "Learn overview": "نظرة عامة على التعلّم",
     "<strong>Expected output:</strong>": "<strong>المخرجات المتوقعة:</strong>",
-
     "Type": "النوع",
     "Example": "مثال",
     "Notes": "ملاحظات",
@@ -24,7 +23,6 @@
     "Arithmetic": "حساب",
     "Compare": "مقارنة",
     "Logic": "منطق",
-
     "→ Nyra Intro": "مقدمة Nyra ←",
     "← Nyra Intro": "→ مقدمة Nyra",
     "Nyra Get Started →": "البدء مع Nyra ←",
@@ -78,7 +76,6 @@
     "Nyra Structs →": "الهياكل Structs ←",
     "← Nyra Structs": "→ الهياكل Structs",
     "Nyra Enums →": "التعدادات Enums ←",
-
     "<strong>Nyra</strong> is a fast, memory-safe programming language with Rust-inspired ownership, a minimal syntax, and LLVM-backed native compilation.": "<strong>Nyra</strong> لغة برمجة سريعة وآمنة للذاكرة، بنظام ملكية مستوحى من Rust، وصياغة بسيطة، وترجمة أصلية مدعومة بـ LLVM.",
     "Your first program": "أول برنامج لك",
     "What you will learn": "ماذا ستتعلّم",
@@ -87,28 +84,22 @@
     "<strong>Memory</strong> — ownership and borrowing (Nyra's safety model)": "<strong>الذاكرة</strong> — الملكية والاستعارة (نموذج الأمان في Nyra)",
     "<strong>Data structures</strong> — arrays, vectors, tuples, hash maps, structs, enums": "<strong>هياكل البيانات</strong> — المصفوفات والمتجهات والصفوف والخرائط والهياكل والتعدادات",
     "Prerequisites: <a href=\"install.html\">Install Nyra</a> and <code>clang</code>.": "المتطلبات المسبقة: <a href=\"install.html\">تثبيت Nyra</a> و<code>clang</code>.",
-
     "Line comments": "تعليقات السطر",
     "Block comments": "تعليقات الكتلة",
     "Nyra supports <code>//</code> line comments and C-style <code>/* ... */</code> block comments (non-nested). Unclosed <code>/*</code> is a lexer error.": "تدعم Nyra تعليقات السطر <code>//</code> وتعليقات الكتلة بنمط C <code>/* ... */</code> (غير متداخلة). ترك <code>/*</code> دون إغلاق يسبب خطأً في المحلل اللغوي.",
-
     "Forgetting quotes around text — strings use double quotes.": "نسيان علامات الاقتباس حول النص — النصوص تستخدم علامات اقتباس مزدوجة.",
     "Passing too many types in one call — use separate <code>print</code> calls or template strings.": "تمرير أنواع كثيرة في نداء واحد — استخدم نداءات <code>print</code> منفصلة أو قوالب النصوص.",
-
     "Quick start": "بداية سريعة",
     "<a href=\"install.html\">Install Nyra</a> (macOS, Linux, or Windows)": "<a href=\"install.html\">ثبّت Nyra</a> (macOS أو Linux أو Windows)",
     "Create <code>hello.ny</code> with a <code>fn main()</code> entry point": "أنشئ <code>hello.ny</code> بنقطة دخول <code>fn main()</code>",
     "Run: <code>nyra run hello.ny</code>": "شغّل: <code>nyra run hello.ny</code>",
     "See also <a href=\"getting-started.html\">Getting started guide</a> for project layout with <code>main.ny</code> and <code>nyra.mod</code>.": "راجع أيضاً <a href=\"getting-started.html\">دليل البدء السريع</a> لهيكل المشروع مع <code>main.ny</code> و<code>nyra.mod</code>.",
-
     "Program entry": "نقطة دخول البرنامج",
     "Nyra uses <strong>curly braces</strong> for blocks. Statements end at newline (no semicolons required). Function names use <code>snake_case</code>; types and structs use <code>PascalCase</code>.": "تستخدم Nyra <strong>الأقواس المعقوفة</strong> للكتل. تنتهي العبارات عند السطر الجديد (لا حاجة للفواصل المنقوطة). أسماء الدوال تستخدم <code>snake_case</code>؛ والأنواع والهياكل تستخدم <code>PascalCase</code>.",
     "Full cheat sheet: <a href=\"language.html\">Syntax reference</a> · <a href=\"reference.html\">Keywords</a>": "الورقة المرجعية الكاملة: <a href=\"language.html\">مرجع الصياغة</a> · <a href=\"reference.html\">الكلمات المفتاحية</a>",
-
     "<code>let</code> creates an <strong>immutable</strong> binding. Use <code>let mut</code> when the value must change. Shorthand inside functions: <code>mut x = 0</code>.": "<code>let</code> يُنشئ ربطاً <strong>غير قابل للتغيير</strong>. استخدم <code>let mut</code> عندما يجب أن تتغيّر القيمة. اختصار داخل الدوال: <code>mut x = 0</code>.",
     "Assigning to a <code>let</code> binding without <code>mut</code>.": "الإسناد إلى ربط <code>let</code> بدون <code>mut</code>.",
     "Confusing <code>let</code> with <code>const</code> — see <a href=\"learn-constants.html\">Constants</a>.": "الخلط بين <code>let</code> و<code>const</code> — راجع <a href=\"learn-constants.html\">الثوابت</a>.",
-
     "32-bit signed integer (default for literals)": "عدد صحيح مُوقَّع 32-بت (الافتراضي للحرفيات)",
     "64-bit signed integer": "عدد صحيح مُوقَّع 64-بت",
     "32-bit unsigned integer": "عدد صحيح غير مُوقَّع 32-بت",
@@ -117,33 +108,23 @@
     "No return value": "لا قيمة إرجاع",
     "Examples by type": "أمثلة حسب النوع",
     "Annotate types explicitly: <code>let age: i32 = 25</code>. See <a href=\"types.html\">Types &amp; data</a> for structs, arrays, and references.": "حدّد الأنواع صراحةً: <code>let age: i32 = 25</code>. راجع <a href=\"types.html\">الأنواع والبيانات</a> للهياكل والمصفوفات والمراجع.",
-
     "Comparisons and logical operators produce <code>bool</code> values used in <code>if</code> and loops.": "تُنتج المقارنات والعوامل المنطقية قيم <code>bool</code> تُستخدم في <code>if</code> والحلقات.",
-
     "Mismatched types in if-expression branches.": "عدم تطابق الأنواع بين فروع تعبير if.",
     "Using <code>=</code> instead of <code>==</code> in conditions.": "استخدام <code>=</code> بدل <code>==</code> في الشروط.",
-
     "Guards: <code>Color.Red if x &gt; 0 =&gt; 1</code>. Wildcard: <code>_ =&gt; 0</code>. See <a href=\"match.html\">Match reference</a>.": "الحُرّاس (Guards): <code>Color.Red if x &gt; 0 =&gt; 1</code>. البديل الشامل: <code>_ =&gt; 0</code>. راجع <a href=\"match.html\">مرجع Match</a>.",
-
     "Nyra has two loop forms:": "لدى Nyra شكلان للحلقات:",
     "<code>while condition { ... }</code> — repeat while true": "<code>while condition { ... }</code> — يكرّر ما دام الشرط صحيحاً",
     "<code>for i in start..end { ... }</code> — iterate a half-open range": "<code>for i in start..end { ... }</code> — يكرّر عبر نطاق نصف مفتوح",
     "Details: <a href=\"learn-while.html\">While loops</a> · <a href=\"learn-for.html\">For loops</a>": "التفاصيل: <a href=\"learn-while.html\">حلقات while</a> · <a href=\"learn-for.html\">حلقات for</a>",
     "Sum with for": "الجمع باستخدام for",
-
     "Infinite loop — ensure the condition eventually becomes false.": "حلقة لا نهائية — تأكّد أن الشرط يصبح خاطئاً في النهاية.",
-
     "<code>0..3</code> means from 0 up to (but not including) 3. Use <code>let mut</code> for accumulators outside the loop.": "<code>0..3</code> تعني من 0 حتى 3 (دون تضمين 3). استخدم <code>let mut</code> للمُجمِّعات خارج الحلقة.",
-
     "Shorthand body": "جسم مختصر",
-
     "Block scope": "نطاق الكتلة",
     "Each <code>{ }</code> block creates a new scope. Bindings declared inside a block are not visible outside it.": "كل كتلة <code>{ }</code> تُنشئ نطاقاً جديداً. الربطات المُعلَنة داخل كتلة غير مرئية خارجها.",
-
     "String literal": "حرفيّة نصية",
     "Template strings": "قوالب النصوص",
     "Stdlib: <code>import \"stdlib/strings.ny\"</code> for <code>strlen</code>, <code>strcat</code>, etc.": "المكتبة القياسية: <code>import \"stdlib/strings.ny\"</code> لـ <code>strlen</code> و<code>strcat</code> وغيرها.",
-
     "<code>i32</code>, <code>bool</code>, enums": "<code>i32</code> و<code>bool</code> والتعدادات",
     "Both bindings stay valid after assign": "يبقى كلا الربطين صالحاً بعد الإسناد",
     "<code>string</code> (heap)": "<code>string</code> (على الكومة)",
@@ -152,14 +133,12 @@
     "Move if any field is Move": "نقل إذا كان أي حقل من نوع نقل",
     "Move example": "مثال على النقل",
     "Owned heap strings are <strong>auto-dropped</strong> at scope end. Deep dive: <a href=\"memory.html\">Memory &amp; ownership</a>.": "تُحرَّر نصوص الكومة المملوكة <strong>تلقائياً</strong> عند نهاية النطاق. تعمّق أكثر: <a href=\"memory.html\">الذاكرة والملكية</a>.",
-
     "Mutable borrow": "استعارة قابلة للتغيير",
     "Shared read-only borrow": "استعارة مشتركة للقراءة فقط",
     "Borrows expire at the <strong>last use</strong> (non-lexical lifetimes). Rules:": "تنتهي الاستعارات عند <strong>آخر استخدام</strong> (أعمار غير مُعجمية). القواعد:",
     "Many <code>&amp;T</code> OR one <code>&amp;mut T</code> at a time": "عدة <code>&amp;T</code> أو <code>&amp;mut T</code> واحد في المرة الواحدة",
     "Cannot use a moved value after move": "لا يمكن استخدام قيمة بعد نقلها",
     "Cannot return <code>&amp;local</code>": "لا يمكن إرجاع <code>&amp;local</code>",
-
     "<a href=\"learn-arrays.html\">Arrays</a> — fixed-size <code>[T; N]</code>": "<a href=\"learn-arrays.html\">المصفوفات</a> — ثابتة الحجم <code>[T; N]</code>",
     "<a href=\"learn-vectors.html\">Vectors</a> — growable <code>Vec&lt;T&gt;</code>": "<a href=\"learn-vectors.html\">المتجهات</a> — قابلة للنمو <code>Vec&lt;T&gt;</code>",
     "<a href=\"learn-tuples.html\">Tuples</a> — <code>(T, U)</code> grouped values": "<a href=\"learn-tuples.html\">الصفوف</a> — قيم مُجمّعة <code>(T, U)</code>",
@@ -168,13 +147,10 @@
     "<a href=\"learn-enums.html\">Enums</a> — fixed variant sets": "<a href=\"learn-enums.html\">التعدادات</a> — مجموعات متغايرات ثابتة",
     "Quick tour": "جولة سريعة",
     "HashMap runnable demo; combine with array and tuple snippets from sibling lessons.": "عرض HashMap قابل للتشغيل؛ ادمجه مع مقتطفات المصفوفات والصفوف من الدروس الشقيقة.",
-
     "Index must be <code>i32</code>.": "يجب أن يكون الفهرس من نوع <code>i32</code>.",
     "All elements must have the same type.": "يجب أن تكون كل العناصر من النوع نفسه.",
-
     "Vec (runtime API)": "Vec (واجهة وقت التشغيل)",
     "Import <code>stdlib/vec.ny</code> for <code>Vec_i32</code> and <code>Vec_str</code> wrappers.": "استورد <code>stdlib/vec.ny</code> لمغلّفات <code>Vec_i32</code> و<code>Vec_str</code>.",
-
     "Runtime naming: <code>map_&lt;key&gt;_&lt;value&gt;_&lt;op&gt;</code>": "تسمية وقت التشغيل: <code>map_&lt;key&gt;_&lt;value&gt;_&lt;op&gt;</code>",
     "Every hash-map C runtime symbol follows one pattern:": "كل رمز في وقت تشغيل C للخريطة يتبع نمطاً واحداً:",
     "<strong>Key type</strong> — first segment after <code>map_</code> (e.g. <code>str</code>, <code>i32</code>)": "<strong>نوع المفتاح</strong> — أول جزء بعد <code>map_</code> (مثل <code>str</code> و<code>i32</code>)",
@@ -187,10 +163,21 @@
     "Stdlib wrappers (recommended)": "مغلّفات المكتبة القياسية (موصى بها)",
     "Import <code>stdlib/map.ny</code> for <code>HashMap_str_i32</code> and <code>HashMap_str_str</code> — method syntax and automatic cleanup via <code>Drop</code>. The low-level <code>map_*</code> names stay stable for <code>extern fn</code> and FFI.": "استورد <code>stdlib/map.ny</code> لـ <code>HashMap_str_i32</code> و<code>HashMap_str_str</code> — صياغة الدوال وتنظيف تلقائي عبر <code>Drop</code>. أسماء <code>map_*</code> منخفضة المستوى تبقى مستقرة لـ <code>extern fn</code> وFFI.",
     "Runnable example": "مثال قابل للتشغيل",
-
     "Methods: <code>impl Player { fn heal(self) -&gt; void { ... } }</code>. See <a href=\"traits-macros.html\">Traits</a>.": "الدوال (Methods): <code>impl Player { fn heal(self) -&gt; void { ... } }</code>. راجع <a href=\"traits-macros.html\">Traits</a>.",
-
     "v0.2 enums are <strong>tag-only</strong> (no payloads). Next: <a href=\"methods.html\">Built-in methods</a> · <a href=\"reference.html\">Language reference</a>.": "تعدادات v0.2 هي <strong>وسوم فقط</strong> (بدون حمولات). التالي: <a href=\"methods.html\">الدوال المدمجة</a> · <a href=\"reference.html\">مرجع اللغة</a>.",
-    "Example": "مثال"
+    "<code>nyra.mod</code> is a line-oriented manifest (not TOML/JSON). One directive per line. Unknown lines are ignored, so a full line like <code># note</code> is fine as a comment; do not put <code># …</code> after a directive on the same line.": "<code>nyra.mod</code> بيان موجّه بالأسطر (ليس TOML/JSON). توجيه واحد لكل سطر. الأسطر غير المعروفة تُتجاهل، لذا سطر كامل مثل <code># note</code> يصلح كتعليق؛ لا تضع <code># …</code> بعد التوجيه في نفس السطر.",
+    "<strong>Minimal project</strong> (what <code>nyrapkg init</code> creates):": "<strong>مشروع أدنى</strong> (ما ينشئه <code>nyrapkg init</code>):",
+    "That single line is enough to run <code>nyra run .</code>. Everything below is optional.": "هذا السطر وحده يكفي لتشغيل <code>nyra run .</code>. كل ما تحته اختياري.",
+    "<strong>Full example:</strong>": "<strong>مثال كامل:</strong>",
+    "<strong>What you usually do day to day:</strong>": "<strong>ما تفعله عادةً يوماً بيوم:</strong>",
+    "Leave <code>module …</code> as created by <code>nyrapkg init</code>.": "اترك <code>module …</code> كما أنشأه <code>nyrapkg init</code>.",
+    "Add <code>require …</code> when you need a package (or run <code>nyrapkg add …</code>).": "أضف <code>require …</code> عندما تحتاج حزمة (أو شغّل <code>nyrapkg add …</code>).",
+    "Add <code>tls rustls</code> only if you want the HTTPS backend spelled out (optional — rustls is already the default).": "أضف <code>tls rustls</code> فقط إن أردت التصريح بخلفية HTTPS (اختياري — rustls هو الافتراضي أصلاً).",
+    "Add <code>link …</code> when native libraries (SQLite, zlib, …) are required.": "أضف <code>link …</code> عندما تحتاج مكتبات أصلية (SQLite، zlib، …).",
+    "TLS backends status (what works <em>today</em>): see <a href=\"net-http.html#tls-backends\">net/http → TLS backends</a>.": "حالة خلفيات TLS (ما يعمل <em>اليوم</em>): راجع <a href=\"net-http.html#tls-backends\">net/http → TLS backends</a>.",
+    "HTTPS works out of the box with the <strong>bundled rustls</strong> client — no OpenSSL install required. Choose a backend in <code>nyra.mod</code>; <code>nyra.lock</code> pins the resolved choice under <code>features.tls</code>.": "HTTPS يعمل مباشرة عبر عميل <strong>rustls المضمّن</strong> — بلا تثبيت OpenSSL. اختر الخلفية في <code>nyra.mod</code>؛ و<code>nyra.lock</code> يثبّت الاختيار تحت <code>features.tls</code>.",
+    "<strong>How to choose in practice:</strong> do nothing (or write <code>tls rustls</code>). Use <code>openssl</code> only if you know you need OpenSSL. Do not set <code>native</code> until the docs say it shipped.": "<strong>كيف تختار عملياً:</strong> لا تفعل شيئاً (أو اكتب <code>tls rustls</code>). استخدم <code>openssl</code> فقط إن كنت تعرف أنك تحتاجه. لا تضبط <code>native</code> حتى تقول الوثائق إنه شُحن.",
+    "On failure, <code>tls_last_error()</code> describes the real connect/handshake problem (network reset, cert error, …) — it does not ask you to install OpenSSL when using <code>rustls</code>.": "عند الفشل، <code>tls_last_error()</code> يصف مشكلة الاتصال/المصافحة الحقيقية (قطع شبكة، خطأ شهادة، …) — ولا يطلب تثبيت OpenSSL عند استخدام <code>rustls</code>.",
+    "Line-oriented project manifest (like a tiny <code>Cargo.toml</code>). Minimum is just <code>module …</code>. Full directive table: <a href=\"packages.html#nyra-mod-syntax\">nyra.mod syntax reference</a>.": "بيان مشروع موجّه بالأسطر (مثل <code>Cargo.toml</code> مصغّر). الأدنى هو <code>module …</code> فقط. جدول التوجيهات الكامل: <a href=\"packages.html#nyra-mod-syntax\">مرجع صياغة nyra.mod</a>."
   }
 }
