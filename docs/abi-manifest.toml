@@ -1158,35 +1158,35 @@ since = "1.18.0"
 [[symbol]]
 name = "tls_available"
 c_sig = "int tls_available(void)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_connect"
 c_sig = "int rt_tls_connect(const char *host, int port)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_read"
 c_sig = "char *rt_tls_read(int handle, int max_bytes)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_write"
 c_sig = "int rt_tls_write(int handle, const char *data)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
 [[symbol]]
 name = "rt_tls_close"
 c_sig = "void rt_tls_close(int handle)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.0.0"
 
@@ -1382,7 +1382,7 @@ since = "1.20.0"
 [[symbol]]
 name = "rt_tls_upgrade_client"
 c_sig = "int rt_tls_upgrade_client(int plain_fd, const char *hostname)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.14.0"
 
@@ -2882,7 +2882,7 @@ since = "1.38.0"
 [[symbol]]
 name = "rt_tls_upgrade_client_verify"
 c_sig = "int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "2.5.0"
 
@@ -2896,7 +2896,7 @@ since = "2.5.0"
 [[symbol]]
 name = "rt_tls_connect_verify"
 c_sig = "int rt_tls_connect_verify(const char *host, int port)"
-module = "rt_tls.c" 
+module = "rt-tls/src/lib.rs" 
 tier = "stable"
 since = "2.5.0"
 
@@ -2939,7 +2939,7 @@ since = "2.5.0"
 [[symbol]]
 name = "rt_tls_connect_ex"
 c_sig = "int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "2.5.0"
 
@@ -3093,21 +3093,21 @@ since = "1.20.0"
 [[symbol]]
 name = "rt_tls_connect_ca"
 c_sig = "int rt_tls_connect_ca(const char *host, int port, const char *ca_path)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.20.0"
 
 [[symbol]]
 name = "rt_tls_last_error"
 c_sig = "const char *rt_tls_last_error(void)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.20.0"
 
 [[symbol]]
 name = "rt_tls_upgrade_client_ex"
 c_sig = "int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer)"
-module = "rt_tls.c"
+module = "rt-tls/src/lib.rs"
 tier = "stable"
 since = "1.20.0"
 

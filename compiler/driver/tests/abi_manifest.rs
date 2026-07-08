@@ -33,11 +33,20 @@ fn rt_dir() -> PathBuf {
     repo_root().join("stdlib/rt")
 }
 
+fn symbol_source_path(module: &str) -> PathBuf {
+    let root = repo_root();
+    if module.starts_with("rt-tls/") || module.starts_with("rt-tls-native/") {
+        root.join(module)
+    } else {
+        rt_dir().join(module)
+    }
+}
+
 #[test]
 fn manifest_symbols_exist_in_runtime_modules() {
     let manifest = load_manifest();
     for sym in &manifest.symbol {
-        let path = rt_dir().join(&sym.module);
+        let path = symbol_source_path(&sym.module);
         let text = fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("read {}", path.display()));
         assert!(
@@ -46,9 +55,11 @@ fn manifest_symbols_exist_in_runtime_modules() {
             sym.name,
             sym.module
         );
-        // Signature fragment: function name followed by '('
+        // C: `name(` — Rust: `fn name(` or `fn name (`
+        let defined = text.contains(&format!("{}(", sym.name))
+            || text.contains(&format!("fn {}(", sym.name));
         assert!(
-            text.contains(&format!("{}(", sym.name)),
+            defined,
             "definition for {} not found in {}",
             sym.name,
             sym.module

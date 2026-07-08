@@ -8,7 +8,6 @@
 use std::ffi::{CStr, CString};
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::os::fd::{FromRawFd, RawFd};
 use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
@@ -179,8 +178,29 @@ fn build_client_config(ca_path: Option<&str>, verify_peer: bool) -> Result<Clien
     Ok(finish_client_config(config))
 }
 
+fn take_tcp(plain_fd: i32) -> Result<TcpStream, String> {
+    if plain_fd < 0 {
+        return Err("invalid socket fd".into());
+    }
+    #[cfg(unix)]
+    {
+        use std::os::fd::{FromRawFd, RawFd};
+        Ok(unsafe { TcpStream::from_raw_fd(plain_fd as RawFd) })
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::io::{FromRawSocket, RawSocket};
+        Ok(unsafe { TcpStream::from_raw_socket(plain_fd as RawSocket) })
+    }
+    #[cfg(not(any(unix, windows)))]
+    {
+        let _ = plain_fd;
+        Err("TLS sockets unsupported on this platform".into())
+    }
+}
+
 fn handshake_on_fd(
-    plain_fd: RawFd,
+    plain_fd: i32,
     hostname: &str,
     ca_path: Option<&str>,
     verify_peer: bool,
@@ -191,7 +211,7 @@ fn handshake_on_fd(
     let mut conn = ClientConnection::new(config, server_name)
         .map_err(|e| format!("TLS connection setup failed: {e}"))?;
     // Ownership of `plain_fd` moves into TcpStream; drop closes the socket.
-    let mut tcp = unsafe { TcpStream::from_raw_fd(plain_fd) };
+    let mut tcp = take_tcp(plain_fd)?;
     while conn.is_handshaking() {
         match conn.complete_io(&mut tcp) {
             Ok((0, 0)) => return Err("TLS handshake failed: unexpected EOF".into()),
@@ -295,7 +315,7 @@ pub extern "C" fn rt_tls_connect_ex(
         set_err("TCP connect failed");
         return -1;
     }
-    match handshake_on_fd(fd as RawFd, host, ca, verify_peer != 0) {
+    match handshake_on_fd(fd, host, ca, verify_peer != 0) {
         Ok(stream) => match alloc_slot(stream) {
             Ok(h) => h,
             Err(e) => {
@@ -345,7 +365,7 @@ pub extern "C" fn rt_tls_upgrade_client_ex(
         return -1;
     }
     let ca = cstr_to_str(ca_path);
-    match handshake_on_fd(plain_fd as RawFd, hostname, ca, verify_peer != 0) {
+    match handshake_on_fd(plain_fd, hostname, ca, verify_peer != 0) {
         Ok(stream) => match alloc_slot(stream) {
             Ok(h) => h,
             Err(e) => {

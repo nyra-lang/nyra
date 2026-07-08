@@ -395,7 +395,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `tar_extract` | `int tar_extract(const char *archive, const char *out_dir)` | `rt_tar.c` | 1.3.0 | `stdlib/archive/tar.ny` |
 | `time_end` | `void time_end(const char *label)` | `rt_time.c` | 0.2.0 | `stdlib/bench/mod.ny`, `stdlib/profile/mod.ny`, `stdlib/time.ny` |
 | `time_start` | `void time_start(const char *label)` | `rt_time.c` | 0.2.0 | `stdlib/bench/mod.ny`, `stdlib/profile/mod.ny`, `stdlib/time.ny` |
-| `tls_available` | `int tls_available(void)` | `rt_tls.c` | 1.0.0 | `stdlib/tls.ny` |
+| `tls_available` | `int tls_available(void)` | `rt-tls/src/lib.rs` | 1.0.0 | `stdlib/tls.ny` |
 | `vec_bytes_free` | `void vec_bytes_free(void *handle)` | `rt_vec.c` | 1.17.0 | `stdlib/collections/vec_pod.ny` |
 | `vec_bytes_get` | `void vec_bytes_get(void *handle, int index, void *out)` | `rt_vec.c` | 1.17.0 | `stdlib/collections/vec_pod.ny` |
 | `vec_bytes_get_ptr` | `void *vec_bytes_get_ptr(void *handle, int index)` | `rt_vec.c` | 1.25.0 | `stdlib/collections/vec_pod.ny` |

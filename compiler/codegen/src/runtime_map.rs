@@ -275,19 +275,19 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("sqlite_rowset_cols", "rt_sqlite.c"),
         ("sqlite_rowset_at", "rt_sqlite.c"),
         ("sqlite_rowset_free", "rt_sqlite.c"),
-        ("tls_available", "rt_tls.c"),
-        ("rt_tls_connect", "rt_tls.c"),
-        ("rt_tls_connect_verify", "rt_tls.c"),
-        ("rt_tls_connect_ca", "rt_tls.c"),
-        ("rt_tls_connect_ex", "rt_tls.c"),
-        ("rt_tls_upgrade_client", "rt_tls.c"),
-        ("rt_tls_upgrade_client_verify", "rt_tls.c"),
-        ("rt_tls_upgrade_client_ex", "rt_tls.c"),
-        ("rt_tls_last_error", "rt_tls.c"),
+        ("tls_available", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect_verify", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect_ca", "rt-tls/src/lib.rs"),
+        ("rt_tls_connect_ex", "rt-tls/src/lib.rs"),
+        ("rt_tls_upgrade_client", "rt-tls/src/lib.rs"),
+        ("rt_tls_upgrade_client_verify", "rt-tls/src/lib.rs"),
+        ("rt_tls_upgrade_client_ex", "rt-tls/src/lib.rs"),
+        ("rt_tls_last_error", "rt-tls/src/lib.rs"),
         ("rt_tls_validate_pem_files", "rt_tls.c"),
-        ("rt_tls_read", "rt_tls.c"),
-        ("rt_tls_write", "rt_tls.c"),
-        ("rt_tls_close", "rt_tls.c"),
+        ("rt_tls_read", "rt-tls/src/lib.rs"),
+        ("rt_tls_write", "rt-tls/src/lib.rs"),
+        ("rt_tls_close", "rt-tls/src/lib.rs"),
         ("rt_tls_gen_self_signed", "rt_tls.c"),
         ("rt_tls_listen", "rt_tls.c"),
         ("rt_tls_accept", "rt_tls.c"),
@@ -609,7 +609,10 @@ impl RuntimeProfile {
         let mut mods = BTreeSet::new();
         for sym in &self.symbols {
             if let Some(m) = map.get(sym.as_str()) {
-                mods.insert(*m);
+                // Rust TLS client crates are linked as staticlibs, not compiled as C units.
+                if m.ends_with(".c") {
+                    mods.insert(*m);
+                }
             }
         }
         if self.symbols.contains("spawn") {
