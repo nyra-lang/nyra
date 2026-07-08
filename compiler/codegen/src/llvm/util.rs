@@ -147,7 +147,8 @@ pub(super) fn llvm_value_operand(reg: &str) -> String {
 }
 
 /// Nyra `fn` names that collide with MSVC UCRT / libm globals when emitted as LLVM symbols.
-const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
+/// Nyra function names that collide with MSVC CRT / libm on Windows link.
+pub const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
     "atoi", "atof", "atol", "atoll",
     // libm short aliases in stdlib/math.ny — rt_math.c __builtin_* may call these CRT names.
     "sin", "cos", "tan", "sqrt", "pow", "log", "exp", "ceil", "floor", "round", "trunc", "hypot",
