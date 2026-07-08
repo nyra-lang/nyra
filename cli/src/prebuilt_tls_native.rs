@@ -1,7 +1,6 @@
-//! Prebuilt OS-native TLS client static library (`libnyra_rt_tls_native.a`).
+//! Prebuilt OS-native TLS client static library.
 //!
-//! Built from `nyra-rt-tls-native` (Secure Transport / SChannel / OpenSSL via `native-tls`)
-//! when `tls native` is selected in `nyra.mod`.
+//! Built from `nyra-rt-tls-native` when `tls native` is selected in `nyra.mod`.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -9,10 +8,11 @@ use std::process::Command;
 
 use compiler::runtime_map;
 
+use crate::staticlib_archive;
 use crate::target::TargetSpec;
 
-const ARCHIVE_NAME: &str = "libnyra_rt_tls_native.a";
-const CRATE_NAME: &str = "nyra-rt-tls-native";
+const CRATE_LIB_NAME: &str = "nyra_rt_tls_native";
+const CARGO_PACKAGE: &str = "nyra-rt-tls-native";
 
 fn runtime_share_root() -> PathBuf {
     if let Some(rt) = runtime_map::stdlib_rt_dir().parent() {
@@ -39,7 +39,7 @@ pub fn prebuilt_native_tls_dir(spec: &TargetSpec) -> PathBuf {
 }
 
 pub fn prebuilt_native_tls_archive(spec: &TargetSpec) -> PathBuf {
-    prebuilt_native_tls_dir(spec).join(ARCHIVE_NAME)
+    prebuilt_native_tls_dir(spec).join(staticlib_archive::prebuilt_basename(CRATE_LIB_NAME))
 }
 
 pub fn ensure_prebuilt_native_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
@@ -88,34 +88,20 @@ fn workspace_root() -> Option<PathBuf> {
 
 fn find_cargo_archive(spec: &TargetSpec) -> Option<PathBuf> {
     let root = workspace_root()?;
-    let triple = spec.triple_for_codegen();
-    let host = TargetSpec::host().triple_for_codegen();
-    let candidates = if triple == host {
-        vec![
-            root.join("target/release").join(ARCHIVE_NAME),
-            root.join("target/debug").join(ARCHIVE_NAME),
-        ]
-    }
-    else {
-        vec![
-            root.join("target")
-                .join(&triple)
-                .join("release")
-                .join(ARCHIVE_NAME),
-            root.join("target")
-                .join(&triple)
-                .join("debug")
-                .join(ARCHIVE_NAME),
-        ]
-    };
-    candidates.into_iter().find(|p| p.is_file())
+    staticlib_archive::find_cargo_build(
+        &root,
+        &spec.triple_for_codegen(),
+        &TargetSpec::host().triple_for_codegen(),
+        CRATE_LIB_NAME,
+    )
 }
 
 fn build_and_install(spec: &TargetSpec) -> Result<PathBuf, String> {
+    let dest_name = staticlib_archive::prebuilt_basename(CRATE_LIB_NAME);
     let root = workspace_root().ok_or_else(|| {
         format!(
-            "{ARCHIVE_NAME} not found under {} and Nyra source tree unavailable — \
-             reinstall Nyra or run `cargo build -p {CRATE_NAME}` in the Nyra checkout",
+            "{dest_name} not found under {} and Nyra source tree unavailable — \
+             reinstall Nyra or run `cargo build -p {CARGO_PACKAGE}` in the Nyra checkout",
             prebuilt_native_tls_dir(spec).display()
         )
     })?;
@@ -124,7 +110,7 @@ fn build_and_install(spec: &TargetSpec) -> Result<PathBuf, String> {
     let mut cmd = Command::new("cargo");
     cmd.arg("build")
         .arg("-p")
-        .arg(CRATE_NAME)
+        .arg(CARGO_PACKAGE)
         .arg("--release")
         .current_dir(&root);
     if triple != host {
@@ -132,24 +118,20 @@ fn build_and_install(spec: &TargetSpec) -> Result<PathBuf, String> {
     }
     let output = cmd
         .output()
-        .map_err(|e| format!("failed to run cargo build -p {CRATE_NAME}: {e}"))?;
+        .map_err(|e| format!("failed to run cargo build -p {CARGO_PACKAGE}: {e}"))?;
     if !output.status.success() {
         return Err(format!(
-            "cargo build -p {CRATE_NAME} failed: {}",
+            "cargo build -p {CARGO_PACKAGE} failed: {}",
             String::from_utf8_lossy(&output.stderr).trim()
         ));
     }
-    let built = if triple == host {
-        root.join("target/release").join(ARCHIVE_NAME)
-    } else {
-        root.join("target")
-            .join(&triple)
-            .join("release")
-            .join(ARCHIVE_NAME)
-    };
-    if !built.is_file() {
-        return Err(format!("expected {} after cargo build", built.display()));
-    }
+    let built = staticlib_archive::find_cargo_build(&root, &triple, &host, CRATE_LIB_NAME)
+        .ok_or_else(|| {
+            format!(
+                "expected {dest_name} under {}/target after cargo build -p {CARGO_PACKAGE}",
+                root.display()
+            )
+        })?;
     let dest = prebuilt_native_tls_archive(spec);
     fs::create_dir_all(prebuilt_native_tls_dir(spec)).map_err(|e| e.to_string())?;
     fs::copy(&built, &dest).map_err(|e| e.to_string())?;

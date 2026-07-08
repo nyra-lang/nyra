@@ -61,6 +61,38 @@ echo "Building cli for $TRIPLE ..."
 
 HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
 
+find_staticlib() {
+  lib="$1"
+  if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
+    search_dir="target/release"
+  else
+    search_dir="target/$TRIPLE/release"
+  fi
+  for name in "lib${lib}.a" "${lib}.lib"; do
+    if [ -f "$search_dir/$name" ]; then
+      printf '%s' "$search_dir/$name"
+      return 0
+    fi
+  done
+  return 1
+}
+
+prebuilt_tls_name() {
+  if [ "$IS_WINDOWS" -eq 1 ]; then
+    printf '%s' "nyra_rt_tls.lib"
+  else
+    printf '%s' "libnyra_rt_tls.a"
+  fi
+}
+
+prebuilt_tls_native_name() {
+  if [ "$IS_WINDOWS" -eq 1 ]; then
+    printf '%s' "nyra_rt_tls_native.lib"
+  else
+    printf '%s' "libnyra_rt_tls_native.a"
+  fi
+}
+
 if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
   cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native
   if [ "$IS_WINDOWS" -eq 1 ]; then
@@ -68,8 +100,6 @@ if [ "$TRIPLE" = "$HOST_TRIPLE" ]; then
   else
     cp "target/release/nyra" "$STAGE/bin/nyra"
   fi
-  TLS_LIB="target/release/libnyra_rt_tls.a"
-  TLS_NATIVE_LIB="target/release/libnyra_rt_tls_native.a"
 else
   rustup target add "$TRIPLE" 2>/dev/null || true
   cargo build --release -p cli -p nyra-rt-tls -p nyra-rt-tls-native --target "$TRIPLE"
@@ -78,29 +108,30 @@ else
   else
     cp "target/$TRIPLE/release/nyra" "$STAGE/bin/nyra"
   fi
-  TLS_LIB="target/$TRIPLE/release/libnyra_rt_tls.a"
-  TLS_NATIVE_LIB="target/$TRIPLE/release/libnyra_rt_tls_native.a"
 fi
+
+TLS_LIB="$(find_staticlib nyra_rt_tls)" || true
+TLS_NATIVE_LIB="$(find_staticlib nyra_rt_tls_native)" || true
 
 echo "Copying stdlib (full tree) ..."
 cp -R stdlib/. "$STAGE/share/stdlib/"
 rm -rf "$STAGE/share/stdlib/target" 2>/dev/null || true
 
 # Ship prebuilt rustls + native TLS clients.
-if [ -f "$TLS_LIB" ]; then
+if [ -n "$TLS_LIB" ]; then
   mkdir -p "$STAGE/share/stdlib/prebuilt/$TRIPLE"
-  cp "$TLS_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls.a"
-  echo "Bundled libnyra_rt_tls.a for $TRIPLE"
+  cp "$TLS_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/$(prebuilt_tls_name)"
+  echo "Bundled $(prebuilt_tls_name) for $TRIPLE"
 else
-  echo "error: missing $TLS_LIB — HTTPS client would not work offline" >&2
+  echo "error: missing nyra_rt_tls staticlib — HTTPS client would not work offline" >&2
   exit 1
 fi
-if [ -f "$TLS_NATIVE_LIB" ]; then
+if [ -n "$TLS_NATIVE_LIB" ]; then
   mkdir -p "$STAGE/share/stdlib/prebuilt/$TRIPLE"
-  cp "$TLS_NATIVE_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls_native.a"
-  echo "Bundled libnyra_rt_tls_native.a for $TRIPLE"
+  cp "$TLS_NATIVE_LIB" "$STAGE/share/stdlib/prebuilt/$TRIPLE/$(prebuilt_tls_native_name)"
+  echo "Bundled $(prebuilt_tls_native_name) for $TRIPLE"
 else
-  echo "error: missing $TLS_NATIVE_LIB — tls native would not work offline" >&2
+  echo "error: missing nyra_rt_tls_native staticlib — tls native would not work offline" >&2
   exit 1
 fi
 

@@ -1,4 +1,4 @@
-//! Prebuilt rustls TLS client static library (`libnyra_rt_tls.a`).
+//! Prebuilt rustls TLS client static library.
 //!
 //! Built from the `nyra-rt-tls` crate and placed under
 //! `stdlib/prebuilt/<triple>/` so end users need neither Rust nor OpenSSL for HTTPS.
@@ -9,9 +9,11 @@ use std::process::Command;
 
 use compiler::runtime_map;
 
+use crate::staticlib_archive;
 use crate::target::TargetSpec;
 
-const ARCHIVE_NAME: &str = "libnyra_rt_tls.a";
+const CRATE_LIB_NAME: &str = "nyra_rt_tls";
+const CARGO_PACKAGE: &str = "nyra-rt-tls";
 
 fn runtime_share_root() -> PathBuf {
     if let Some(rt) = runtime_map::stdlib_rt_dir().parent() {
@@ -38,7 +40,7 @@ pub fn prebuilt_tls_dir(spec: &TargetSpec) -> PathBuf {
 }
 
 pub fn prebuilt_tls_archive(spec: &TargetSpec) -> PathBuf {
-    prebuilt_tls_dir(spec).join(ARCHIVE_NAME)
+    prebuilt_tls_dir(spec).join(staticlib_archive::prebuilt_basename(CRATE_LIB_NAME))
 }
 
 /// Prefer shipped/prebuilt archive; otherwise build with cargo from the Nyra workspace.
@@ -48,7 +50,6 @@ pub fn ensure_prebuilt_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
         return Ok(dest);
     }
 
-    // Dev: cargo target/<profile>/libnyra_rt_tls.a next to the workspace.
     if let Some(from_cargo) = find_cargo_tls_archive(spec) {
         fs::create_dir_all(prebuilt_tls_dir(spec)).map_err(|e| e.to_string())?;
         fs::copy(&from_cargo, &dest).map_err(|e| {
@@ -65,7 +66,6 @@ pub fn ensure_prebuilt_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
 }
 
 fn workspace_root() -> Option<PathBuf> {
-    // Compile-time path to the cli crate → parent is the Nyra workspace.
     if let Some(manifest) = option_env!("CARGO_MANIFEST_DIR") {
         let cli = PathBuf::from(manifest);
         if let Some(root) = cli.parent() {
@@ -75,7 +75,6 @@ fn workspace_root() -> Option<PathBuf> {
         }
     }
     if let Ok(exe) = std::env::current_exe() {
-        // target/{debug,release}/nyra → workspace root
         if let Some(root) = exe
             .parent()
             .and_then(|p| p.parent())
@@ -91,27 +90,20 @@ fn workspace_root() -> Option<PathBuf> {
 
 fn find_cargo_tls_archive(spec: &TargetSpec) -> Option<PathBuf> {
     let root = workspace_root()?;
-    let triple = spec.triple_for_codegen();
-    let host = TargetSpec::host().triple_for_codegen();
-    let candidates = if triple == host {
-        vec![
-            root.join("target/release").join(ARCHIVE_NAME),
-            root.join("target/debug").join(ARCHIVE_NAME),
-        ]
-    } else {
-        vec![
-            root.join("target").join(&triple).join("release").join(ARCHIVE_NAME),
-            root.join("target").join(&triple).join("debug").join(ARCHIVE_NAME),
-        ]
-    };
-    candidates.into_iter().find(|p| p.is_file())
+    staticlib_archive::find_cargo_build(
+        &root,
+        &spec.triple_for_codegen(),
+        &TargetSpec::host().triple_for_codegen(),
+        CRATE_LIB_NAME,
+    )
 }
 
 fn build_and_install_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
+    let dest_name = staticlib_archive::prebuilt_basename(CRATE_LIB_NAME);
     let root = workspace_root().ok_or_else(|| {
         format!(
-            "libnyra_rt_tls.a not found under {} and Nyra source tree unavailable — \
-             reinstall Nyra or run `cargo build -p nyra-rt-tls` in the Nyra checkout",
+            "{dest_name} not found under {} and Nyra source tree unavailable — \
+             reinstall Nyra or run `cargo build -p {CARGO_PACKAGE}` in the Nyra checkout",
             prebuilt_tls_dir(spec).display()
         )
     })?;
@@ -120,7 +112,7 @@ fn build_and_install_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
     let mut cmd = Command::new("cargo");
     cmd.arg("build")
         .arg("-p")
-        .arg("nyra-rt-tls")
+        .arg(CARGO_PACKAGE)
         .arg("--release")
         .current_dir(&root);
     if triple != host {
@@ -128,24 +120,20 @@ fn build_and_install_tls(spec: &TargetSpec) -> Result<PathBuf, String> {
     }
     let output = cmd
         .output()
-        .map_err(|e| format!("failed to run cargo build -p nyra-rt-tls: {e}"))?;
+        .map_err(|e| format!("failed to run cargo build -p {CARGO_PACKAGE}: {e}"))?;
     if !output.status.success() {
         return Err(format!(
-            "cargo build -p nyra-rt-tls failed: {}",
+            "cargo build -p {CARGO_PACKAGE} failed: {}",
             String::from_utf8_lossy(&output.stderr).trim()
         ));
     }
-    let built = if triple == host {
-        root.join("target/release").join(ARCHIVE_NAME)
-    } else {
-        root.join("target")
-            .join(&triple)
-            .join("release")
-            .join(ARCHIVE_NAME)
-    };
-    if !built.is_file() {
-        return Err(format!("expected {} after cargo build", built.display()));
-    }
+    let built = staticlib_archive::find_cargo_build(&root, &triple, &host, CRATE_LIB_NAME)
+        .ok_or_else(|| {
+            format!(
+                "expected {dest_name} under {}/target after cargo build -p {CARGO_PACKAGE}",
+                root.display()
+            )
+        })?;
     let dest = prebuilt_tls_archive(spec);
     fs::create_dir_all(prebuilt_tls_dir(spec)).map_err(|e| e.to_string())?;
     fs::copy(&built, &dest).map_err(|e| e.to_string())?;

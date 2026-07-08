@@ -66,25 +66,44 @@ done
 
 # Bundle rustls + native TLS clients for HTTPS without requiring Rust on the user machine.
 TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
-TLS_SRC="target/release/libnyra_rt_tls.a"
-TLS_NATIVE_SRC="target/release/libnyra_rt_tls_native.a"
-if [ -f "$TLS_SRC" ]; then
-  mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
-  cp -f "$TLS_SRC" "$STD_DEST/prebuilt/$TRIPLE/libnyra_rt_tls.a"
-  mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
-  cp -f "$TLS_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls.a"
-  info "==> Installed libnyra_rt_tls.a for $TRIPLE"
+find_tls_src() {
+  lib="$1"
+  for dir in target/release; do
+    for name in "lib${lib}.a" "${lib}.lib"; do
+      if [ -f "$dir/$name" ]; then
+        printf '%s' "$dir/$name"
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+if [ "$(uname -s 2>/dev/null || echo unknown)" = "MINGW"* ] || [ "$(uname -s 2>/dev/null || echo unknown)" = "MSYS"* ] || [ "${OS:-}" = "Windows_NT" ]; then
+  TLS_DEST_NAME="nyra_rt_tls.lib"
+  TLS_NATIVE_DEST_NAME="nyra_rt_tls_native.lib"
 else
-  die "missing $TLS_SRC after cargo build -p nyra-rt-tls"
+  TLS_DEST_NAME="libnyra_rt_tls.a"
+  TLS_NATIVE_DEST_NAME="libnyra_rt_tls_native.a"
 fi
-if [ -f "$TLS_NATIVE_SRC" ]; then
+TLS_SRC="$(find_tls_src nyra_rt_tls)" || TLS_SRC=""
+TLS_NATIVE_SRC="$(find_tls_src nyra_rt_tls_native)" || TLS_NATIVE_SRC=""
+if [ -n "$TLS_SRC" ]; then
   mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
-  cp -f "$TLS_NATIVE_SRC" "$STD_DEST/prebuilt/$TRIPLE/libnyra_rt_tls_native.a"
+  cp -f "$TLS_SRC" "$STD_DEST/prebuilt/$TRIPLE/$TLS_DEST_NAME"
   mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
-  cp -f "$TLS_NATIVE_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/libnyra_rt_tls_native.a"
-  info "==> Installed libnyra_rt_tls_native.a for $TRIPLE"
+  cp -f "$TLS_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/$TLS_DEST_NAME"
+  info "==> Installed $TLS_DEST_NAME for $TRIPLE"
 else
-  die "missing $TLS_NATIVE_SRC after cargo build -p nyra-rt-tls-native"
+  die "missing nyra_rt_tls staticlib after cargo build -p nyra-rt-tls"
+fi
+if [ -n "$TLS_NATIVE_SRC" ]; then
+  mkdir -p "$STD_DEST/prebuilt/$TRIPLE"
+  cp -f "$TLS_NATIVE_SRC" "$STD_DEST/prebuilt/$TRIPLE/$TLS_NATIVE_DEST_NAME"
+  mkdir -p "$ROOT/stdlib/prebuilt/$TRIPLE"
+  cp -f "$TLS_NATIVE_SRC" "$ROOT/stdlib/prebuilt/$TRIPLE/$TLS_NATIVE_DEST_NAME"
+  info "==> Installed $TLS_NATIVE_DEST_NAME for $TRIPLE"
+else
+  die "missing nyra_rt_tls_native staticlib after cargo build -p nyra-rt-tls-native"
 fi
 
 if command -v bash >/dev/null 2>&1 && [ -f "$ROOT/make/lib/build-prebuilt-rt.sh" ]; then

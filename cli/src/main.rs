@@ -5,6 +5,7 @@ mod llvm_obj;
 mod prebuilt_rt;
 mod prebuilt_tls;
 mod prebuilt_tls_native;
+mod staticlib_archive;
 mod ui;
 mod cc;
 mod llvm_tools;
