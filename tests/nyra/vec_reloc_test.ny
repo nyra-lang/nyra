@@ -1,6 +1,5 @@
 // Vec<T> for Move structs (string + scalar columns) — v1.26
 import "stdlib/testing.ny"
-import "stdlib/collections/vec_pod.ny"
 
 struct LabelRow {
     label: string

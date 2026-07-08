@@ -233,7 +233,7 @@ fn normalize_ir_canonicalizes_windows_libm_wrappers() {
 }
 
 #[test]
-fn snap_abs_intrinsic_matches_on_windows_target() {
+fn snap_abs_intrinsic_matches_with_libm_prefix_on_windows_target() {
     let opts = CompileOptions {
         target: "x86_64-pc-windows-gnu".into(),
         ..Default::default()
@@ -250,8 +250,8 @@ fn snap_abs_intrinsic_matches_on_windows_target() {
     assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);
     let ir = out.llvm_ir.expect("llvm ir");
     assert!(
-        ir.contains("@nyra_acos") || ir.contains("@nyra_sqrt"),
-        "expected Windows CRT-prefixed math wrappers in raw IR"
+        ir.contains("@nyra_acos") || ir.contains("@nyra_ceil"),
+        "expected libc-collision-prefixed math wrappers in raw IR"
     );
     insta::with_settings!({
         filters => vec![

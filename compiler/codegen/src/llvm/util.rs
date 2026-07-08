@@ -146,8 +146,9 @@ pub(super) fn llvm_value_operand(reg: &str) -> String {
     }
 }
 
-/// Nyra `fn` names that collide with MSVC UCRT / libm globals when emitted as LLVM symbols.
-/// Nyra function names that collide with MSVC CRT / libm on Windows link.
+/// Nyra `fn` names that collide with libc / libm globals when emitted as LLVM symbols.
+/// rt_math.c uses `__builtin_*` for these; unprefixed Nyra wrappers hijack the link name
+/// and recurse (ceil/hypot/trunc tests fail on Linux and Windows).
 pub const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
     "atoi", "atof", "atol", "atoll",
     // libm short aliases in stdlib/math.ny — rt_math.c __builtin_* may call these CRT names.
@@ -155,11 +156,9 @@ pub const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
     "asin", "acos", "atan", "atan2", "log10", "log2",
 ];
 
-/// LLVM link symbol for a Nyra-defined function (may differ from the source name on Windows).
-pub(super) fn llvm_fn_link_name(name: &str, target_triple: &str) -> String {
-    if target_triple.to_ascii_lowercase().contains("windows")
-        && WINDOWS_CRT_FN_COLLISIONS.contains(&name)
-    {
+/// LLVM link symbol for a Nyra-defined function (may differ from the source name when libc/libm would collide).
+pub(super) fn llvm_fn_link_name(name: &str, _target_triple: &str) -> String {
+    if WINDOWS_CRT_FN_COLLISIONS.contains(&name) {
         format!("nyra_{name}")
     } else {
         name.to_string()
@@ -207,8 +206,28 @@ mod llvm_fn_link_name_tests {
     }
 
     #[test]
-    fn unix_triple_keeps_source_name() {
-        assert_eq!(llvm_fn_link_name("atoi", "aarch64-apple-darwin"), "atoi");
+    fn collision_names_get_nyra_prefix_on_all_targets() {
+        for triple in [
+            "x86_64-pc-windows-gnu",
+            "x86_64-unknown-linux-gnu",
+            "aarch64-apple-darwin",
+        ] {
+            assert_eq!(llvm_fn_link_name("ceil", triple), "nyra_ceil");
+            assert_eq!(llvm_fn_link_name("hypot", triple), "nyra_hypot");
+            assert_eq!(llvm_fn_link_name("trunc", triple), "nyra_trunc");
+        }
+    }
+
+    #[test]
+    fn non_collision_names_keep_source_name() {
+        assert_eq!(
+            llvm_fn_link_name("ceil_f64", "x86_64-unknown-linux-gnu"),
+            "ceil_f64"
+        );
+        assert_eq!(
+            llvm_fn_link_name("main", "aarch64-apple-darwin"),
+            "main"
+        );
     }
 }
 
