@@ -114,3 +114,6 @@ fn b64(s: string) -> string {
 fn b64d(s: string) -> string {
     return base64_decode(s)
 }
+// [contrib-dev:hex_decode:encoding_mod]
+extern fn hex_decode(hex: &string) -> string
+// [/contrib-dev:hex_decode:encoding_mod]

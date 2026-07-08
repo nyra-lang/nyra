@@ -156,8 +156,7 @@ let b = id(&quot;x&quot;)  // → call @id__string</code></pre></div>
 fn id&lt;T&gt;(x: T){ return x }
 let a = id&lt;i32&gt;(1)    // → call @id__i32
 let b = id&lt;string&gt;(&quot;x&quot;)  // → call @id__string</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><p>Prefer <strong>generics</strong> and <code>impl Trait for Type</code> on hot paths. Reserve <code>dyn Trait</code> (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as <code>abs_i32</code> lower to LLVM intrinsics and are not emitted as separate functions.</p>
+</div><!-- NYRA_SNIPPET_END --><p>Prefer <strong>generics</strong> and <code>impl Trait for Type</code> on hot paths. Reserve <code>dyn Trait</code> (vtable + indirect call) for plugins, heterogeneous collections, or other cases that truly need runtime polymorphism. Math helpers such as <code>abs_i32</code> lower to LLVM intrinsics and are not emitted as separate functions.</p>
 <p>Pipeline order: <code>expand → monomorph (+ call-site type inference) → typecheck → borrow → escape analysis → codegen</code>. See <a href="generics.html">Generics</a> and <a href="traits-macros.html">Traits &amp; macros</a>.</p>
 
 <h3>Four layers of DCE</h3>

@@ -175,8 +175,7 @@ nyra run .</code></pre>
 import &quot;stdlib/os.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/fs.ny&quot;
 import &quot;stdlib/os.ny&quot;</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="files">Filesystem</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="files">Filesystem</h2>
       <p><code>import "stdlib/fs.ny"</code> (or <code>stdlib/fs/mod.ny</code>) gives you the filesystem API. API reference: <a href="stdlib.html#fs">Stdlib → fs</a>.</p>
       <table>
         <thead><tr><th>Function</th><th>Description</th></tr></thead>
@@ -213,8 +212,7 @@ fn main() -&gt; void {
         print(content)
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Example in repo: <code>examples/projects/read_file/main.ny</code></p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Example in repo: <code>examples/projects/read_file/main.ny</code></p>
 
       <h2 id="os">Operating system</h2>
       <p><code>import "stdlib/os.ny"</code> aggregates platform detection, environment, battery, POSIX-style I/O, and syscall helpers (macOS, Linux, Windows). See <a href="stdlib.html#os-detail">Stdlib → os</a>.</p>
@@ -272,8 +270,7 @@ fn main() -&gt; void {
         print(&quot;Running on Linux&quot;)
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Run examples from the repo root:</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Run examples from the repo root:</p>
       <pre><code>nyra run examples/os/platform/main.ny
 nyra run examples/os/battery/main.ny</code></pre>
 
@@ -299,8 +296,7 @@ nyra run examples/os/battery/main.ny</code></pre>
     let sh = Command_new(&quot;/bin/sh&quot;).arg(&quot;-c&quot;).arg(&quot;uname -a&quot;).run()
     print(sh)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Full reference: <a href="stdlib.html#process">stdlib → Subprocess &amp; commands</a> · example <code>examples/process_command.ny</code>. To <strong>capture stdout</strong> as a string, use <code>stdlib/bridge/mod.ny</code> (<a href="#2-language-bridge-python-node-java">language bridge</a>).</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full reference: <a href="stdlib.html#process">stdlib → Subprocess &amp; commands</a> · example <code>examples/process_command.ny</code>. To <strong>capture stdout</strong> as a string, use <code>stdlib/bridge/mod.ny</code> (<a href="#2-language-bridge-python-node-java">language bridge</a>).</p>
 
       <h2 id="input">User input</h2>
       <p><code>input("prompt")</code> is a builtin — no import required. It reads a line from stdin and returns a <code>string</code>. Full I/O builtins: <a href="stdlib.html#builtins-io">stdlib → Built-ins → I/O</a>.</p>
@@ -318,8 +314,7 @@ nyra run examples/os/battery/main.ny</code></pre>
     let name = &quot;Ada&quot;  // in apps: let name = input(&quot;Enter your name)
     print(`Hello, ${name}!`)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2 id="low-level">Low-level: syscalls &amp; assembly</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2 id="low-level">Low-level: syscalls &amp; assembly</h2>
       <p>For kernel-style or driver code, use the POSIX wrappers and raw syscall layer:</p>
       <table>
         <thead><tr><th>API</th><th>Module</th><th>Purpose</th></tr></thead>
@@ -355,8 +350,7 @@ fn main() -&gt; void {
     cpu_nop()
     print(os_getpid())
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>For <code>no_std</code> / embedded / MMIO register access, see <a href="memory.html#unsafe">Memory → unsafe</a> and <code>stdlib/core/mem.ny</code> (<code>volatile_load_i32</code>, <code>*T</code> pointers). Example: <code>examples/os/asm/main.ny</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>For <code>no_std</code> / embedded / MMIO register access, see <a href="memory.html#unsafe">Memory → unsafe</a> and <code>stdlib/core/mem.ny</code> (<code>volatile_load_i32</code>, <code>*T</code> pointers). Example: <code>examples/os/asm/main.ny</code>.</p>
 
       <h2 id="hw-topology">Hardware topology (stdlib/os)</h2>
       <p>Since v1.3, <code>import "stdlib/os.ny"</code> also pulls hardware helpers:</p>
@@ -396,8 +390,7 @@ fn main() -&gt; void {
     print(net_interface_mac(0))
     print(display_width())
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Example: <code>nyra run examples/os/hw/main.ny</code></p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Example: <code>nyra run examples/os/hw/main.ny</code></p>
 
       <p>Example: <code>nyra run examples/os/hw/main.ny</code></p>
 
@@ -430,8 +423,7 @@ fn main() -&gt; void {
     print(ok)
     print(affinity_get_thread_cpu())
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <table>
+</div><!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Function</th><th>Notes</th></tr></thead>
         <tbody>
           <tr><td><code>affinity_set_thread_cpu(n)</code></td><td>Linux <code>pthread_setaffinity_np</code>, macOS thread policy, Windows <code>SetThreadAffinityMask</code></td></tr>
@@ -465,8 +457,7 @@ fn main() -&gt; void {
 
     let cycles = clock_rdtsc()   // RDTSC on x86_64, cntvct on ARM64
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <table>
+</div><!-- NYRA_SNIPPET_END -->      <table>
         <thead><tr><th>Function</th><th>Source</th></tr></thead>
         <tbody>
           <tr><td><code>clock_rdtsc()</code></td><td><code>RDTSC</code> / ARM virtual counter</td></tr>
@@ -508,8 +499,7 @@ fn main() -&gt; void {
         print(usb_device_path(0))   // sysfs path on Linux
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h3>Serial (UART / COM)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Serial (UART / COM)</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -538,8 +528,7 @@ fn main() -&gt; void {
         serial_close(h)
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Typical paths: Linux <code>/dev/ttyUSB0</code>, macOS <code>/dev/cu.usbserial-*</code>, Windows <code>COM3</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Typical paths: Linux <code>/dev/ttyUSB0</code>, macOS <code>/dev/cu.usbserial-*</code>, Windows <code>COM3</code>.</p>
 
       <h2 id="kernel-ipc">Signals &amp; kernel IPC</h2>
       <p>Modules: <code>signals.ny</code>, <code>mqueue.ny</code></p>
@@ -578,8 +567,7 @@ fn main() -&gt; void {
         ticks = ticks + 1
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Constants: <code>SIGINT</code> (2), <code>SIGTERM</code> (15), <code>SIGSEGV</code> (11). <strong>Windows:</strong> supported for SIGINT/SIGTERM via console control events.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Constants: <code>SIGINT</code> (2), <code>SIGTERM</code> (15), <code>SIGSEGV</code> (11). <strong>Windows:</strong> supported for SIGINT/SIGTERM via console control events.</p>
 
       <h3>Message queues (Linux/macOS/Windows)</h3>
       <!-- NYRA_SNIPPET_START -->
@@ -604,8 +592,7 @@ fn main() -&gt; void {
     print(mqueue_recv(mq, 256))
     mqueue_close(mq)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p><strong>Linux:</strong> POSIX mqueue (<code>librt</code>). <strong>macOS:</strong> in-process best-effort queue (name ignored). <strong>Windows:</strong> mailslot best-effort queue (local IPC).</p>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Linux:</strong> POSIX mqueue (<code>librt</code>). <strong>macOS:</strong> in-process best-effort queue (name ignored). <strong>Windows:</strong> mailslot best-effort queue (local IPC).</p>
 
       <h2 id="security">Hardware crypto &amp; permissions</h2>
       <p>Modules: <code>hw_crypto.ny</code>, <code>permissions.ny</code> — OS-level hardware RNG and privilege drop. For everyday app randomness (dice, shuffles, simulations), use <code>random()</code>, <code>random(min, max)</code>, <code>random_f64()</code> — ChaCha20 seeded from OS/hardware entropy. Import <a href="stdlib.html#random"><code>stdlib/random.ny</code></a> for <code>shuffle_pick</code>. For application crypto (SHA, HMAC, AES), use <a href="stdlib.html#crypto"><code>stdlib/crypto/mod.ny</code></a>.</p>
@@ -641,8 +628,7 @@ fn main() -&gt; void {
     print(raw.len())
     print(hw_secure_enclave_available())
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Full Secure Enclave / Intel SGX key sealing needs platform-specific FFI beyond this hook.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Full Secure Enclave / Intel SGX key sealing needs platform-specific FFI beyond this hook.</p>
 
       <h3>Privilege dropping &amp; sandbox hints</h3>
       <!-- NYRA_SNIPPET_START -->
@@ -669,8 +655,7 @@ fn main() -&gt; void {
     // perm_chroot(&quot;/var/jail&quot;) // Linux/macOS: chroot (needs privileges). Windows: best-effort SetCurrentDirectory.
     print(perm_sandbox_seatbelt_available())  // macOS Seatbelt present
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Combined advanced demo: <code>nyra run examples/os/adv/main.ny</code></p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Combined advanced demo: <code>nyra run examples/os/adv/main.ny</code></p>
 
       <h2 id="hardware">GPIO / specialized hardware (FFI)</h2>
       <p>Nyra does <strong>not</strong> ship a GPIO or serial-port stdlib like Arduino. Use one of these patterns:</p>
@@ -689,8 +674,7 @@ fn main() -&gt; void {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>extern fn strlen(s){
     print(strlen(&quot;hello&quot;))
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>In <code>nyra.mod</code>:</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>In <code>nyra.mod</code>:</p>
       <pre><code>link usb-1.0
 link -L /opt/homebrew/lib</code></pre>
       <p>Guides: <a href="ffi-abi.html">FFI &amp; ABI</a> · <a href="packages.html">NyraPkg</a> (<code>link</code>, <code>link-source</code>) · <code>examples/ffi/call_libc/</code></p>
@@ -717,8 +701,7 @@ fn main() -&gt; void {
     let out = bridge_exec_arg(&quot;python3&quot;, &quot;workers/bridge_worker.py&quot;, req)
     print(bridge_result(out))
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Extend workers to call <code>pyserial</code>, <code>RPi.GPIO</code>, <code>numpy</code>, etc. Nyra stays the orchestrator. See <code>examples/bridge/</code> and <a href="ffi-abi.html">FFI &amp; ABI</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Extend workers to call <code>pyserial</code>, <code>RPi.GPIO</code>, <code>numpy</code>, etc. Nyra stays the orchestrator. See <code>examples/bridge/</code> and <a href="ffi-abi.html">FFI &amp; ABI</a>.</p>
 
       <h3>3. Network-connected devices</h3>
       <p>Hardware that speaks TCP or HTTP can be reached with the net stdlib — no native driver required:</p>
@@ -732,8 +715,7 @@ fn main() -&gt; void {
 import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/net/tcp.ny&quot;
 import &quot;stdlib/net/http/mod.ny&quot;</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>See <a href="net-http.html">net/http API</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>See <a href="net-http.html">net/http API</a>.</p>
 
       <h3>4. Bare-metal / drivers (<code>no_std</code>)</h3>
       <p>For kernels, firmware, or memory-mapped I/O:</p>
@@ -811,8 +793,7 @@ User: ${name}
         print(`Battery: ${bat}%`)
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
+</div><!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
 nyra run .</code></pre>
 
       <h2>Related docs</h2>

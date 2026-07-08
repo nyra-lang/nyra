@@ -1,0 +1,12 @@
+{
+  "receiver": "string",
+  "method": "last_index",
+  "args": ["needle:string"],
+  "returns": "i32",
+  "c_name": "str_last_index",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "stable_abi": false,
+  "abi_since": "1.46.0"
+}

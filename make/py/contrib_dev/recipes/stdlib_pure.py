@@ -16,9 +16,12 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     )
 
     ny_path = STDLIB / spec.ny_module
-    res.patches.append(
-        patch.upsert_marked_block(ny_path, templates.pure_fn_block(spec, marker), marker)
-    )
+    if spec.pure_source and spec.pure_source.strip().startswith("impl "):
+        res.patches.append(patch.merge_impl_source(ny_path, spec.pure_source, marker))
+    else:
+        res.patches.append(
+            patch.upsert_marked_block(ny_path, templates.pure_fn_block(spec, marker), marker)
+        )
 
     test_base = f"{spec.fn_name}_test"
     test_path = TESTS_NYRA / f"{test_base}.ny"

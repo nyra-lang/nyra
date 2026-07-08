@@ -41,6 +41,7 @@ class StdlibFnSpec:
     stable_abi: bool = False
     abi_since: str = "1.0.0"
     wrap_extern: str | None = None
+    ny_alias: str | None = None
     pure_body: str | None = None
     # Free-form Nyra source for multi-fn / struct modules (stdlib-module recipe).
     # When set, fn_name is used only as the marker slug (not a single fn).
@@ -54,7 +55,7 @@ class StdlibFnSpec:
             raise ValueError("function name is required")
         self.ny_module = normalize_ny_module(self.ny_module)
         if self.pure_source is None and self.rt_module is None and self.wrap_extern is None:
-            self.rt_module = guess_rt_module(self.ny_module)
+            self.rt_module = guess_rt_module(self.ny_module, self.fn_name)
 
     @property
     def marker(self) -> str:
@@ -183,7 +184,11 @@ def normalize_ny_module(raw: str) -> str:
     return f"{raw}.ny"
 
 
-def guess_rt_module(ny_module: str) -> str:
+def guess_rt_module(ny_module: str, fn_name: str | None = None) -> str:
+    if fn_name and fn_name.startswith("map_str_str_"):
+        return "rt_map_str_str.c"
+    if fn_name and fn_name.startswith("map_str_i32_"):
+        return "rt_map.c"
     stem = ny_module.split("/")[0].replace(".ny", "")
     mapping = {
         "json": "rt_json.c",

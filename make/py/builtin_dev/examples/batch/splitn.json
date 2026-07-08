@@ -1,0 +1,12 @@
+{
+  "receiver": "string",
+  "method": "splitn",
+  "args": ["sep:string", "n:i32"],
+  "returns": "vec_str",
+  "c_name": "str_splitn",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": false,
+  "stable_abi": false,
+  "abi_since": "1.46.0"
+}

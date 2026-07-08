@@ -187,8 +187,7 @@ fn bad(#[no_escape] data){
 fn bad(#[no_escape] data: i32){
     return data   // compile error E0602
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <ul>
+</div><!-- NYRA_SNIPPET_END -->      <ul>
         <li><strong>E0601</strong> — <code>#[no_escape]</code> is only allowed on <code>&amp;T</code> parameters.</li>
         <li><strong>E0602</strong> — the parameter would escape (return, <code>spawn</code>, or channel send).</li>
       </ul>
@@ -243,8 +242,7 @@ fn main() -&gt; void {
 
     print(active_id)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>user</code> and <code>chan</code> are NoEscape; <code>chan</code> becomes LocalChannel.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>user</code> and <code>chan</code> are NoEscape; <code>chan</code> becomes LocalChannel.</p>
 
       <h2>Limitations</h2>
       <ul>

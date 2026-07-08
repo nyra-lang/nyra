@@ -537,6 +537,224 @@ impl Codegen {
             // [/builtin-dev:to_dot_case:string]
             
             
+            // [builtin-dev:strip_prefix:string]
+            "strip_prefix" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("strip_prefix");
+                // arg 0: prefix
+                self.emit_runtime_call(
+                    "str_strip_prefix",
+                    &format!("  %{reg} = call ptr @str_strip_prefix(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:strip_prefix:string]
+            
+            // [builtin-dev:index:string]
+            "index" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("index");
+                // arg 0: needle
+                self.emit_runtime_call(
+                    "str_index",
+                    &format!("  %{reg} = call i32 @str_index(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:index:string]
+            
+            // [builtin-dev:is_empty:string]
+            "is_empty" => {
+                let reg = self.fresh("is_empty");
+                self.emit_runtime_call(
+                    "str_is_empty",
+                    &format!("  %{reg} = call i32 @str_is_empty(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:is_empty:string]
+            
+            // [builtin-dev:last_index:string]
+            "last_index" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("last_index");
+                // arg 0: needle
+                self.emit_runtime_call(
+                    "str_last_index",
+                    &format!("  %{reg} = call i32 @str_last_index(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:last_index:string]
+            
+            // [builtin-dev:repeat:string]
+            "repeat" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_value_operand(&arg0.reg);
+                let reg = self.fresh("repeat");
+                // arg 0: count
+                self.emit_runtime_call(
+                    "str_repeat",
+                    &format!("  %{reg} = call ptr @str_repeat(ptr {str_reg}, i32 {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:repeat:string]
+            
+            // [builtin-dev:trim_end:string]
+            "trim_end" => {
+                let reg = self.fresh("trim_end");
+                self.emit_runtime_call(
+                    "str_trim_end",
+                    &format!("  %{reg} = call ptr @str_trim_end(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:trim_end:string]
+            
+            // [builtin-dev:trim_start:string]
+            "trim_start" => {
+                let reg = self.fresh("trim_start");
+                self.emit_runtime_call(
+                    "str_trim_start",
+                    &format!("  %{reg} = call ptr @str_trim_start(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:trim_start:string]
+            
+            // [builtin-dev:splitn:string]
+            "splitn" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let arg1 = self.compile_expr(&mc.args[1], env);
+                let arg1_reg = llvm_value_operand(&arg1.reg);
+                let reg = self.fresh("splitn");
+                // arg 0: sep
+                // arg 1: n
+                self.emit_runtime_call(
+                    "str_splitn",
+                    &format!("  %{reg} = call ptr @str_splitn(ptr {str_reg}, ptr {arg0_reg}, i32 {arg1_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "vec_str".into(),
+                }
+            }
+            // [/builtin-dev:splitn:string]
+            
+            // [builtin-dev:count:string]
+            "count" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("count");
+                // arg 0: needle
+                self.emit_runtime_call(
+                    "str_count",
+                    &format!("  %{reg} = call i32 @str_count(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "i32".into(),
+                }
+            }
+            // [/builtin-dev:count:string]
+            
+            // [builtin-dev:fields:string]
+            "fields" => {
+                let reg = self.fresh("fields");
+                self.emit_runtime_call(
+                    "str_fields",
+                    &format!("  %{reg} = call ptr @str_fields(ptr {str_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "vec_str".into(),
+                }
+            }
+            // [/builtin-dev:fields:string]
+            
+            // [builtin-dev:pad_end:string]
+            "pad_end" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_value_operand(&arg0.reg);
+                let arg1 = self.compile_expr(&mc.args[1], env);
+                let arg1_reg = llvm_ptr_reg(&arg1.reg);
+                let reg = self.fresh("pad_end");
+                // arg 0: width
+                // arg 1: pad
+                self.emit_runtime_call(
+                    "str_pad_end",
+                    &format!("  %{reg} = call ptr @str_pad_end(ptr {str_reg}, i32 {arg0_reg}, ptr {arg1_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:pad_end:string]
+            
+            // [builtin-dev:pad_start:string]
+            "pad_start" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_value_operand(&arg0.reg);
+                let arg1 = self.compile_expr(&mc.args[1], env);
+                let arg1_reg = llvm_ptr_reg(&arg1.reg);
+                let reg = self.fresh("pad_start");
+                // arg 0: width
+                // arg 1: pad
+                self.emit_runtime_call(
+                    "str_pad_start",
+                    &format!("  %{reg} = call ptr @str_pad_start(ptr {str_reg}, i32 {arg0_reg}, ptr {arg1_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:pad_start:string]
+            
+            // [builtin-dev:split_once:string]
+            "split_once" => {
+                let arg0 = self.compile_expr(&mc.args[0], env);
+                let arg0_reg = llvm_ptr_reg(&arg0.reg);
+                let reg = self.fresh("split_once");
+                // arg 0: sep
+                self.emit_runtime_call(
+                    "str_before_sep",
+                    &format!("  %{reg} = call ptr @str_before_sep(ptr {str_reg}, ptr {arg0_reg})"),
+                );
+                ExprValue {
+                    reg: format!("%{reg}"),
+                    ty: "ptr".into(),
+                }
+            }
+            // [/builtin-dev:split_once:string]
+            
 _ => ExprValue {
                 reg: "0".into(),
                 ty: "i32".into(),

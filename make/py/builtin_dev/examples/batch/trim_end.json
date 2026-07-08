@@ -1,0 +1,12 @@
+{
+  "receiver": "string",
+  "method": "trim_end",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_trim_end",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "stable_abi": false,
+  "abi_since": "1.46.0"
+}

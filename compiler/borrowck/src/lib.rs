@@ -32,7 +32,7 @@ fn builtin_method_borrows_receiver(method: &str) -> bool {
             | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize"
             | "to_camel_case" | "to_kebab_case" | "to_pascal_case"
             | "to_screaming_snake_case" | "to_train_case" | "to_dot_case"
-            | "includes" 
+            | "includes" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once" 
     )
 }
 

@@ -117,6 +117,15 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "str_to_screaming_snake_case",
     "str_to_train_case",
     "str_to_dot_case",
+    "str_strip_prefix",
+    "str_repeat",
+    "str_trim_end",
+    "str_trim_start",
+    "str_splitn",
+    "str_fields",
+    "str_pad_end",
+    "str_pad_start",
+    "str_before_sep",
 ];
 
 pub fn callee_returns_owned(callee: &str) -> bool {

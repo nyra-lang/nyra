@@ -301,3 +301,46 @@ void map_i32_i32_free(void *handle) {
 void map_i32_i32_retain(void *handle) {
     map_handle_retain(handle);
 }
+// [contrib-dev:map_str_i32_clear:map]
+void map_str_i32_clear(void *handle) {
+    NyraMapStrI32 *m = (NyraMapStrI32 *)map_handle_inner(handle);
+    if (!m) {
+        return;
+    }
+    for (int i = 0; i < m->cap; i++) {
+        if (m->entries[i].used) {
+            free(m->entries[i].key);
+            m->entries[i].key = NULL;
+            m->entries[i].used = 0;
+        }
+    }
+    m->len = 0;
+}
+// [/contrib-dev:map_str_i32_clear:map]
+
+// [contrib-dev:map_str_i32_len:map]
+int map_str_i32_len(void *handle) {
+    NyraMapStrI32 *m = (NyraMapStrI32 *)map_handle_inner(handle);
+    return m ? m->len : 0;
+}
+// [/contrib-dev:map_str_i32_len:map]
+
+extern void *vec_i32_new(void);
+extern void vec_i32_push(void *handle, int value);
+
+// [contrib-dev:map_str_i32_values:map]
+void *map_str_i32_values(void *handle) {
+    NyraMapStrI32 *m = (NyraMapStrI32 *)map_handle_inner(handle);
+    void *vec = vec_i32_new();
+    if (!m || !vec) {
+        return vec;
+    }
+    for (int i = 0; i < m->cap; i++) {
+        if (m->entries[i].used) {
+            vec_i32_push(vec, m->entries[i].value);
+        }
+    }
+    return vec;
+}
+// [/contrib-dev:map_str_i32_values:map]
+

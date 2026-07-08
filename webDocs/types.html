@@ -190,8 +190,7 @@ for part in parts {
 for part in parts {
     print(part)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Inferred without annotation; <code>VecStr</code> is optional sugar for documentation and APIs. See <a href="learn-for.html">For loops</a> and <a href="stdlib.html#builtins-strings">built-in string methods</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Inferred without annotation; <code>VecStr</code> is optional sugar for documentation and APIs. See <a href="learn-for.html">For loops</a> and <a href="stdlib.html#builtins-strings">built-in string methods</a>.</p>
 
       <h2>Structs</h2>
       <!-- NYRA_SNIPPET_START -->
@@ -220,8 +219,7 @@ for part in parts {
     // struct Point { x: i32, y: i32 }
     // let p: Point = Point { x: 1, y: 2 }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Anonymous <code>{ field: value }</code> literals infer a compile-time struct (same LLVM layout as <code>Point { ... }</code>). Declare <code>struct Point</code> when you want a named type for <code>impl</code>, FFI, or clarity. <strong>Literal</strong> fields are comma-separated (<code>{ x: 1, y: 2 }</code>); <strong>struct definitions</strong> use newlines between fields. Constructor sugar: <code>Point(1, 2)</code> or <code>User("Ada")</code> desugars to struct literals (RFC 0006). Structs with any Move field (e.g. <code>string</code>) are Move.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Anonymous <code>{ field: value }</code> literals infer a compile-time struct (same LLVM layout as <code>Point { ... }</code>). Declare <code>struct Point</code> when you want a named type for <code>impl</code>, FFI, or clarity. <strong>Literal</strong> fields are comma-separated (<code>{ x: 1, y: 2 }</code>); <strong>struct definitions</strong> use newlines between fields. Constructor sugar: <code>Point(1, 2)</code> or <code>User("Ada")</code> desugars to struct literals (RFC 0006). Structs with any Move field (e.g. <code>string</code>) are Move.</p>
 
       <h2>Enums</h2>
       <!-- NYRA_SNIPPET_START -->
@@ -260,8 +258,7 @@ fn main() -&gt; void {
     }
     print(tag)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Variant names use the form <code>Type.Variant</code> (e.g. <code>Color.Red</code>).</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Variant names use the form <code>Type.Variant</code> (e.g. <code>Color.Red</code>).</p>
 
       <h2>Arrays &amp; slices</h2>
       <!-- NYRA_SNIPPET_START -->
@@ -274,8 +271,7 @@ fn main() -&gt; void {
 let first = buf[0]</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let buf: [i32; 4] = [1, 2, 3, 4]
 let first = buf[0]</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Fixed-size arrays use <code>[T; N]</code>. Slice type <code>[T]</code> is parsed and type-checked (MVP stack semantics). Growable <code>Vec&lt;T&gt;</code> lives in the stdlib — see <a href="learn-vectors.html">Vectors</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Fixed-size arrays use <code>[T; N]</code>. Slice type <code>[T]</code> is parsed and type-checked (MVP stack semantics). Growable <code>Vec&lt;T&gt;</code> lives in the stdlib — see <a href="learn-vectors.html">Vectors</a>.</p>
 
       <h2>Tuples</h2>
       <!-- NYRA_SNIPPET_START -->
@@ -290,8 +286,7 @@ print(pair.1)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let pair = (42, &quot;ok&quot;)
 print(pair.0)
 print(pair.1)</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Tuple fields are accessed with <code>.0</code>, <code>.1</code>, … See <a href="learn-tuples.html">Learn → Tuples</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Tuple fields are accessed with <code>.0</code>, <code>.1</code>, … See <a href="learn-tuples.html">Learn → Tuples</a>.</p>
 
       <h2>References</h2>
       <!-- NYRA_SNIPPET_START -->
@@ -306,8 +301,7 @@ let m = &amp;mut y   // y must be let mut</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let x: i32 = 10
 let r = &amp;x
 let m = &amp;mut y   // y must be let mut</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Borrow rules enforced at compile time. Cannot <code>return &amp;local</code>. See <a href="memory.html">Memory &amp; ownership</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Borrow rules enforced at compile time. Cannot <code>return &amp;local</code>. See <a href="memory.html">Memory &amp; ownership</a>.</p>
 
       <h2>Raw pointers (<code>ptr</code> vs <code>*T</code>)</h2>
       <table>
@@ -336,8 +330,7 @@ let m = &amp;mut y   // y must be let mut</code></pre></div>
         return *addr
     }
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Obtain a raw pointer from a stack binding: <code>&amp;x as *i32</code> (inside <code>unsafe</code>). Full rules: <a href="memory.html#unsafe">Memory → unsafe</a>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Obtain a raw pointer from a stack binding: <code>&amp;x as *i32</code> (inside <code>unsafe</code>). Full rules: <a href="memory.html#unsafe">Memory → unsafe</a>.</p>
 
       <h2>Literals</h2>
       <ul>

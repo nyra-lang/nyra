@@ -1,0 +1,9 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_insert",
+  "args": ["handle:ptr", "index:i32", "value:i32"],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "stable_abi": false,
+  "abi_since": "1.46.0"
+}

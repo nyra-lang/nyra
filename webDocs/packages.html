@@ -371,8 +371,7 @@ fn main() -&gt; void {
     let dead: i32 = 99
     print(&quot;ok&quot;)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p><strong>After <code>nyra pkg prune</code>:</strong></p>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>After <code>nyra pkg prune</code>:</strong></p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -387,8 +386,7 @@ fn main() -&gt; void {
     let _dead: i32 = 99
     print(&quot;ok&quot;)
 }</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <p>Implementation: <code>compiler/lint/src/prune.rs</code> · <code>Compiler::prune_project()</code> in the driver · CLI: <code>cli/src/commands/pkg.rs</code>. Tests: <code>cargo test -p lint</code>, <code>cargo test -p compiler --test pkg_prune</code>, fixture <code>tests/fixtures/prune_unused/</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Implementation: <code>compiler/lint/src/prune.rs</code> · <code>Compiler::prune_project()</code> in the driver · CLI: <code>cli/src/commands/pkg.rs</code>. Tests: <code>cargo test -p lint</code>, <code>cargo test -p compiler --test pkg_prune</code>, fixture <code>tests/fixtures/prune_unused/</code>.</p>
 
       <h2>System C libraries (<code>nyra pkg c</code>)</h2>
       <p>One command — no manual <code>-I</code> paths or Homebrew keg paths:</p>
@@ -429,8 +427,7 @@ import &quot;pkg/ny-sqlite&quot;</code></pre></div>
 nyrapkg install ny-sqlite@^0.1.0   # semver, cache, link sqlite3 + rt/sqlite.c
 
 import &quot;pkg/ny-sqlite&quot;</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END -->      <h2>Serialization packages (ny-serde, ny-toml)</h2>
+</div><!-- NYRA_SNIPPET_END -->      <h2>Serialization packages (ny-serde, ny-toml)</h2>
       <p>Full JSON/TOML via Rust bridges — <code>nyra bind rust serde_json</code> / <code>toml</code> under the hood. Stdlib <code>serialize/mod.ny</code> stays a lightweight MVP; use packages for production serde.</p>
       <pre><code>nyrapkg install ny-serde@^0.1.0
 nyra bind rust serde_json --template   # once per project

@@ -71,7 +71,7 @@ def parse_args(raw: str) -> list[ArgSpec]:
 
 def parse_returns(raw: str) -> NyraType:
     raw = raw.strip().lower() or "void"
-    aliases = {"int": "i32", "integer": "i32", "str": "string", "void": "void", "none": "void"}
+    aliases = {"int": "i32", "integer": "i32", "str": "string", "void": "void", "none": "void", "ptr": "ptr", "pointer": "ptr"}
     raw = aliases.get(raw, raw)
     if raw == "void":
         return NyraType.VOID
@@ -306,6 +306,7 @@ def spec_from_config(recipe: str, data: dict):
             rt_module=data.get("rt_module"),
             stable_abi=data.get("stable_abi", False),
             abi_since=data.get("abi_since", "1.0.0"),
+            ny_alias=data.get("ny_alias"),
         )
     if recipe in ("test-example", "4"):
         return TestExampleSpec(

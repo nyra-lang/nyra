@@ -100,3 +100,114 @@ fn atan2(y, x) {
 fn tan(x) {
     return tan_f64(x)
 }
+
+fn floor(x: f64) -> f64 {
+    return floor_f64(x)
+}
+
+fn ceil(x: f64) -> f64 {
+    return ceil_f64(x)
+}
+
+fn round(x: f64) -> f64 {
+    return round_f64(x)
+}
+
+fn sqrt(x: f64) -> f64 {
+    return sqrt_f64(x)
+}
+
+fn pow(x: f64, exp: f64) -> f64 {
+    return pow_f64(x, exp)
+}
+
+fn log(x: f64) -> f64 {
+    return log_f64(x)
+}
+
+fn exp(x: f64) -> f64 {
+    return exp_f64(x)
+}
+
+fn clamp(x: f64, lo: f64, hi: f64) -> f64 {
+    return clamp_f64(x, lo, hi)
+}
+
+fn trunc(x: f64) -> f64 {
+    return trunc_f64(x)
+}
+
+fn hypot(x: f64, y: f64) -> f64 {
+    return hypot_f64(x, y)
+}
+
+fn asin(x: f64) -> f64 {
+    return asin_f64(x)
+}
+
+fn acos(x: f64) -> f64 {
+    return acos_f64(x)
+}
+
+fn atan(x: f64) -> f64 {
+    return atan_f64(x)
+}
+
+fn log10(x: f64) -> f64 {
+    return log10_f64(x)
+}
+
+fn log2(x: f64) -> f64 {
+    return log2_f64(x)
+}
+// [contrib-dev:ceil_f64:math]
+extern fn ceil_f64(x: f64) -> f64
+// [/contrib-dev:ceil_f64:math]
+// [contrib-dev:clamp_f64:math]
+extern fn clamp_f64(x: f64, lo: f64, hi: f64) -> f64
+// [/contrib-dev:clamp_f64:math]
+// [contrib-dev:exp_f64:math]
+extern fn exp_f64(x: f64) -> f64
+// [/contrib-dev:exp_f64:math]
+// [contrib-dev:floor_f64:math]
+extern fn floor_f64(x: f64) -> f64
+// [/contrib-dev:floor_f64:math]
+// [contrib-dev:log_f64:math]
+extern fn log_f64(x: f64) -> f64
+// [/contrib-dev:log_f64:math]
+// [contrib-dev:pow_f64:math]
+extern fn pow_f64(base: f64, exp: f64) -> f64
+// [/contrib-dev:pow_f64:math]
+// [contrib-dev:round_f64:math]
+extern fn round_f64(x: f64) -> f64
+// [/contrib-dev:round_f64:math]
+// [contrib-dev:sqrt_f64:math]
+extern fn sqrt_f64(x: f64) -> f64
+// [/contrib-dev:sqrt_f64:math]
+// [contrib-dev:acos_f64:math]
+extern fn acos_f64(x: f64) -> f64
+// [/contrib-dev:acos_f64:math]
+// [contrib-dev:asin_f64:math]
+extern fn asin_f64(x: f64) -> f64
+// [/contrib-dev:asin_f64:math]
+// [contrib-dev:atan_f64:math]
+extern fn atan_f64(x: f64) -> f64
+// [/contrib-dev:atan_f64:math]
+// [contrib-dev:hypot_f64:math]
+extern fn hypot_f64(x: f64, y: f64) -> f64
+// [/contrib-dev:hypot_f64:math]
+// [contrib-dev:log10_f64:math]
+extern fn log10_f64(x: f64) -> f64
+// [/contrib-dev:log10_f64:math]
+// [contrib-dev:log2_f64:math]
+extern fn log2_f64(x: f64) -> f64
+// [/contrib-dev:log2_f64:math]
+// [contrib-dev:trunc_f64:math]
+extern fn trunc_f64(x: f64) -> f64
+// [/contrib-dev:trunc_f64:math]
+// [contrib-dev:trunc_f64:math:alias]
+fn trunc(x: f64) -> f64 {
+    return trunc_f64(x)
+}
+// [/contrib-dev:trunc_f64:math:alias]
+

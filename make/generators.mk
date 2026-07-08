@@ -3,7 +3,7 @@
 MAKE_PY := $(ROOT)/make/py
 
 .PHONY: gen-abi-header gen-bindings-doc gen-suite-tests gen-typed-examples
-.PHONY: add-builtin remove-builtin patch-builtin contribute contribute-remove contribute-list contribute-patch test-contrib-py
+.PHONY: add-builtin remove-builtin patch-builtin batch-add-builtin contribute contribute-remove contribute-list contribute-patch test-contrib-py
 .PHONY: sync-webdocs-code-tabs gen-comparison-extended sync-comparison-typed
 .PHONY: bump-comparison-hardness snippet-types strip-apps-types strip-nyra-symbol-prefix
 .PHONY: gen-ar-file-index bench-comparison-html update-readme-bench
@@ -58,6 +58,14 @@ update-readme-bench:
 # Docs:  make/py/builtin_dev/README.md
 add-builtin:
 	@python3 $(MAKE_PY)/builtin-dev.py add $(if $(ARGS),$(ARGS),-i)
+
+# Usage: make batch-add-builtin BATCH=batch2
+#        make batch-add-builtin BATCH=all ONLY=string,math
+batch-add-builtin:
+	@NYRA_CONTRIBUTE_SKIP_WEBDOCS=1 python3 $(MAKE_PY)/builtin_dev/batch_add.py \
+		--batch $(if $(BATCH),$(BATCH),batch) \
+		$(if $(ONLY),--only $(ONLY),) \
+		$(BATCH_ADD_ARGS)
 
 remove-builtin:
 	@python3 $(MAKE_PY)/builtin-dev.py remove $(if $(ARGS),$(ARGS),-i)

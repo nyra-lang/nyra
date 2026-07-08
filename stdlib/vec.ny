@@ -193,6 +193,162 @@ impl VecI32 {
         }
         return -1
     }
+
+    fn insert(self, index: i32, x: i32) -> VecI32 {
+        vec_i32_insert(self.handle, index, x)
+        return self
+    }
+
+    fn remove(self, index: i32) -> VecI32 {
+        let _ = vec_i32_remove_at(self.handle, index)
+        return self
+    }
+
+    fn clear(self) -> VecI32 {
+        vec_i32_clear(self.handle)
+        return self
+    }
+
+    fn sort(self) -> VecI32 {
+        vec_i32_sort(self.handle)
+        return self
+    }
+
+    fn reverse(self) -> VecI32 {
+        vec_i32_reverse(self.handle)
+        return self
+    }
+
+    fn sum(self) -> i32 {
+        let mut acc = 0
+        let n = vec_i32_len(self.handle)
+        let mut i = 0
+        while i < n {
+            acc = acc + vec_i32_get(self.handle, i)
+            i = i + 1
+        }
+        return acc
+    }
+
+    fn any(self, pred: fn(i32) -> i32) -> i32 {
+        let n = vec_i32_len(self.handle)
+        let mut i = 0
+        while i < n {
+            if pred(vec_i32_get(self.handle, i)) != 0 {
+                return 1
+            }
+            i = i + 1
+        }
+        return 0
+    }
+
+    fn all(self, pred: fn(i32) -> i32) -> i32 {
+        let n = vec_i32_len(self.handle)
+        let mut i = 0
+        while i < n {
+            if pred(vec_i32_get(self.handle, i)) == 0 {
+                return 0
+            }
+            i = i + 1
+        }
+        return 1
+    }
+
+    fn min_elem(self, fallback: i32) -> i32 {
+        let n = vec_i32_len(self.handle)
+        if n == 0 {
+            return fallback
+        }
+        let mut best = vec_i32_get(self.handle, 0)
+        let mut i = 1
+        while i < n {
+            let x = vec_i32_get(self.handle, i)
+            if x < best {
+                best = x
+            }
+            i = i + 1
+        }
+        return best
+    }
+
+    fn max_elem(self, fallback: i32) -> i32 {
+        let n = vec_i32_len(self.handle)
+        if n == 0 {
+            return fallback
+        }
+        let mut best = vec_i32_get(self.handle, 0)
+        let mut i = 1
+        while i < n {
+            let x = vec_i32_get(self.handle, i)
+            if x > best {
+                best = x
+            }
+            i = i + 1
+        }
+        return best
+    }
+
+    fn take(self, n: i32) -> VecI32 {
+        let out = vec_i32_new()
+        let len = vec_i32_len(self.handle)
+        let mut i = 0
+        while i < n && i < len {
+            vec_i32_push(out, vec_i32_get(self.handle, i))
+            i = i + 1
+        }
+        return VecI32 { handle: out }
+    }
+
+    fn skip(self, n: i32) -> VecI32 {
+        let out = vec_i32_new()
+        let len = vec_i32_len(self.handle)
+        let mut i = n
+        while i < len {
+            vec_i32_push(out, vec_i32_get(self.handle, i))
+            i = i + 1
+        }
+        return VecI32 { handle: out }
+    }
+
+    fn dedup(self) -> VecI32 {
+        let out = vec_i32_new()
+        let n = vec_i32_len(self.handle)
+        let mut i = 0
+        while i < n {
+            let x = vec_i32_get(self.handle, i)
+            let mut seen = 0
+            let mut j = 0
+            while j < vec_i32_len(out) {
+                if vec_i32_get(out, j) == x {
+                    seen = 1
+                }
+                j = j + 1
+            }
+            if seen == 0 {
+                vec_i32_push(out, x)
+            }
+            i = i + 1
+        }
+        return VecI32 { handle: out }
+    }
+
+    fn binary_search(self, x: i32) -> i32 {
+        let mut lo = 0
+        let mut hi = vec_i32_len(self.handle) - 1
+        while lo <= hi {
+            let mid = (lo + hi) / 2
+            let v = vec_i32_get(self.handle, mid)
+            if v == x {
+                return mid
+            }
+            if v < x {
+                lo = mid + 1
+            } else {
+                hi = mid - 1
+            }
+        }
+        return -1
+    }
 }
 
 impl Drop for VecI32 {
@@ -201,3 +357,18 @@ impl Drop for VecI32 {
     }
 }
 
+// [contrib-dev:vec_i32_clear:vec]
+extern fn vec_i32_clear(handle: ptr)
+// [/contrib-dev:vec_i32_clear:vec]
+// [contrib-dev:vec_i32_insert:vec]
+extern fn vec_i32_insert(handle: ptr, index: i32, value: i32)
+// [/contrib-dev:vec_i32_insert:vec]
+// [contrib-dev:vec_i32_remove_at:vec]
+extern fn vec_i32_remove_at(handle: ptr, index: i32) -> i32
+// [/contrib-dev:vec_i32_remove_at:vec]
+// [contrib-dev:vec_i32_reverse:vec]
+extern fn vec_i32_reverse(handle: ptr)
+// [/contrib-dev:vec_i32_reverse:vec]
+// [contrib-dev:vec_i32_sort:vec]
+extern fn vec_i32_sort(handle: ptr)
+// [/contrib-dev:vec_i32_sort:vec]

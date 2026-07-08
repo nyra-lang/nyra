@@ -29,6 +29,10 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     ny_path = STDLIB / spec.ny_module
     res.patches.append(patch.append_extern_line(ny_path, templates.extern_line(spec), marker))
 
+    alias_block = templates.ny_alias_block(spec, marker)
+    if alias_block:
+        res.patches.append(patch.upsert_marked_block(ny_path, alias_block, f"{marker}:alias"))
+
     rt_path = STDLIB / "rt" / spec.rt_module
     rt_content = patch.read_text(rt_path) if rt_path.exists() else ""
     if (
@@ -79,7 +83,7 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     test_spec = TestExampleSpec(name=test_base.replace("_test", ""), import_path=spec.stdlib_path)
     test_path = TESTS_NYRA / f"{test_base}.ny"
     res.patches.append(
-        patch.write_new_file(test_path, templates.test_ny(test_spec, marker), marker, force=force)
+        patch.write_new_file(test_path, templates.test_ny_from_stdlib(spec, marker), marker, force=force)
     )
     typed_test = TESTS_NYRA / f"{test_base}.typed.ny"
     res.patches.append(

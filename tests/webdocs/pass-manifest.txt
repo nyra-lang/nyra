@@ -10,8 +10,6 @@ language-basics.html:easy#2
 language-basics.html:easy#3
 language-basics.html:easy#4
 language-basics.html:easy#5
-language-basics.html:easy#6
-language-basics.html:easy#8
 language.html:easy
 learn-arrays.html:plain
 learn-borrowing.html:plain
@@ -21,11 +19,8 @@ learn-data-structures.html:plain
 learn-data-types.html:plain
 learn-enums.html:plain
 learn-functions.html:plain
+learn-hashmap.html:easy
 learn-hashmap.html:plain
-learn-hashmap.html:plain#2
-learn-hashmap.html:plain#3
-learn-hashmap.html:plain#4
-learn-hashmap.html:plain#5
 learn-intro.html:plain
 learn-loops.html:plain
 learn-match.html:plain

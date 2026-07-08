@@ -471,6 +471,19 @@ impl Codegen {
             ("str_to_screaming_snake_case", "declare ptr @str_to_screaming_snake_case(ptr)"),
             ("str_to_train_case", "declare ptr @str_to_train_case(ptr)"),
             ("str_to_dot_case", "declare ptr @str_to_dot_case(ptr)"),
+            ("str_strip_prefix", "declare ptr @str_strip_prefix(ptr, ptr)"),
+            ("str_index", "declare i32 @str_index(ptr, ptr)"),
+            ("str_is_empty", "declare i32 @str_is_empty(ptr)"),
+            ("str_last_index", "declare i32 @str_last_index(ptr, ptr)"),
+            ("str_repeat", "declare ptr @str_repeat(ptr, i32)"),
+            ("str_trim_end", "declare ptr @str_trim_end(ptr)"),
+            ("str_trim_start", "declare ptr @str_trim_start(ptr)"),
+            ("str_splitn", "declare ptr @str_splitn(ptr, ptr, i32)"),
+            ("str_count", "declare i32 @str_count(ptr, ptr)"),
+            ("str_fields", "declare ptr @str_fields(ptr)"),
+            ("str_pad_end", "declare ptr @str_pad_end(ptr, i32, ptr)"),
+            ("str_pad_start", "declare ptr @str_pad_start(ptr, i32, ptr)"),
+            ("str_before_sep", "declare ptr @str_before_sep(ptr, ptr)"),
         ];
         for (name, line) in decls {
             if self.skip_runtime_decls.contains(name) || self.declared_c_syms.contains(name) {
