@@ -23,6 +23,100 @@ Write with zero types or explicit annotations — both styles are first-class.
 
 Details: [`docs/status.md`](docs/status.md) · [`docs/stability-v1.md`](docs/stability-v1.md)
 
+## Syntax examples
+
+Nyra reads like a scripting language but compiles to native code — **no types required**, inference when possible, clear errors when not. Each topic below is a pain point in other languages; Nyra keeps the fix short.
+
+### No type ceremony
+
+**Java / Rust:** annotate almost every variable, parameter, and return type.
+
+**Nyra (zero-types):**
+
+```ny
+fn greet(name) {
+    return strcat("Hello, ", name)
+}
+
+let nums = [10, 20, 30]
+let total = 0
+for n in nums {
+    total = total + n
+}
+print(total)   // 60
+```
+
+Want explicit types for a public API? Add them — same program, same binary. See `examples/syntax/math.ny` and `math.typed.ny`.
+
+### Fast memory — no GC, no manual `free`
+
+| Language | Trade-off |
+|----------|-----------|
+| **Go** | Easy syntax, but a garbage collector adds pauses and extra RAM |
+| **C / C++** | Full control, but `malloc`/`free` bugs and use-after-free are your problem |
+| **Nyra** | Ownership + borrow checker at compile time — no GC, safe by default |
+
+```ny
+allow_extended
+
+fn main() {
+    defer print("cleanup")   // runs on return — like Go's defer, no GC
+    // compiler tracks moves and borrows; no manual free in normal code
+}
+```
+
+### Null and optionals in one line
+
+**Java / C# (before modern helpers):** nested `if (x != null)` checks. **C/C++:** null dereference is undefined behavior.
+
+```ny
+import "stdlib/option.ny"
+
+let y = x ?? 42              // default when None
+let m = opt?.method()        // skip call safely when None
+```
+
+### Errors without `if err != nil` everywhere
+
+**Go:** repeat `if err != nil { return err }` after every fallible call.
+
+**Nyra:** propagate with `?` and handle once where it matters:
+
+```ny
+fn step(n) -> Result<i32, i32> {
+    if n == 0 {
+        return Result.Err(1)
+    }
+    return Result.Ok(n)
+}
+
+fn main() -> Result<i32, i32> {
+    let a = step(1)?
+    let b = step(a + 1)?
+    return step(b)?
+}
+```
+
+Runnable: `examples/try_operator_generic.ny`.
+
+### Strings and loops that read like scripts
+
+**Verbose string APIs** in C/C++ and Java vs. **method chaining + `for-in`** in Nyra:
+
+```ny
+let name = "Ada"
+print(`Hello ${name}`)                    // template strings
+
+let line = "  hello,nyra,world  "
+for part in line.trim().split(",") {
+    print(part)
+}
+```
+
+Runnable: `examples/syntax/template_strings.ny`, `examples/syntax/string_methods.ny`, `examples/syntax/for_in.ny`.
+
+**Two styles, one language:** demos in [`examples/`](examples/) ship as `foo.ny` (zero-types) and `foo.typed.ny` (explicit types) — use whichever fits your project.
+
 ## Quick start
 
 ### Install
