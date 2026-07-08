@@ -7,6 +7,28 @@ This repository is independent from the [Nyra compiler](https://github.com/nyra-
 
 ---
 
+## v1.45.1 (2026-07-08)
+
+**HttpRouter parametric paths (`/users/:id`)**
+
+- **Updated** — `net-http.html` handler section to `HttpRouter_*` + `RequestContext_param`
+- **Updated** — `stdlib.html`, `ai-skill.html`, `skills/skill.md` / `nyra-skill.md`
+- **Added** — `changelog.html` entry v1.45.1
+- **Regenerated** — `search-index.json`
+
+---
+
+## v1.45.0 (2026-07-08)
+
+**HTTP fetch ergonomics, language-wide sugar, collection HOFs, SQL qb**
+
+- **Updated** — `net-http.html`, `stdlib.html`, `methods.html`, `learn-vectors.html`, `ai-skill.html`
+- **Updated** — `skills/skill.md` synced to `nyra-skill.md` (v1.41–v1.45 APIs)
+- **Added** — `changelog.html` entry v1.45.0
+- **Regenerated** — `search-index.json`
+
+---
+
 ## v1.40.0 (2026-07-03)
 
 **Official errors and async runtime**

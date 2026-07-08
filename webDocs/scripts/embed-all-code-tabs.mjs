@@ -53,7 +53,7 @@ function unmaskCodeTabs(html, slots) {
   return html;
 }
 
-function maskBetween(html, startMarker, endMarker) {
+function maskBetween(html, startMarker, endMarker, tokenPrefix = "RANGE") {
   const slots = [];
   let s = 0;
   while (true) {
@@ -63,16 +63,16 @@ function maskBetween(html, startMarker, endMarker) {
     if (b === -1) break;
     const end = b + endMarker.length;
     slots.push(html.slice(a, end));
-    const token = `<!--RANGE${slots.length - 1}-->`;
+    const token = `<!--${tokenPrefix}${slots.length - 1}-->`;
     html = html.slice(0, a) + token + html.slice(end);
     s = a + token.length;
   }
   return { html, slots };
 }
 
-function unmaskRanges(html, slots) {
+function unmaskRanges(html, slots, tokenPrefix = "RANGE") {
   slots.forEach((slot, i) => {
-    html = html.replace(`<!--RANGE${i}-->`, slot);
+    html = html.replace(`<!--${tokenPrefix}${i}-->`, slot);
   });
   return html;
 }
@@ -133,6 +133,9 @@ function embedSnippetTabs(html) {
   html = stripExistingSnippets(html);
   const r1 = maskBetween(html, "<!-- BUILTIN_CODE_TABS_START -->", "<!-- BUILTIN_CODE_TABS_END -->");
   html = r1.html;
+  // Keep expected outputs as plain text — never turn them into code tabs.
+  const rOut = maskBetween(html, '<pre class="example-output">', "</pre>", "OUTMASK");
+  html = rOut.html;
   const r2 = maskCodeTabs(html);
   html = r2.html;
 
@@ -154,6 +157,7 @@ function embedSnippetTabs(html) {
   });
 
   html = unmaskCodeTabs(html, r2.slots);
+  html = unmaskRanges(html, rOut.slots, "OUTMASK");
   html = unmaskRanges(html, r1.slots);
   return { html, count };
 }

@@ -1,101 +1,41 @@
 #!/usr/bin/env python3
-"""Generate W3Schools-style Learn Nyra tutorial pages."""
+"""Generate Learn Nyra pages: short prose → example → Output (English source)."""
+from __future__ import annotations
+
+import json
+from html import escape
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 
 WEBDOCS = Path(__file__).resolve().parent.parent
 gp = SourceFileLoader("gp", str(WEBDOCS / "scripts" / "generate-pages.py")).load_module()
 shell = gp.shell
+EN_PAGES = json.loads((WEBDOCS / "locales" / "en.json").read_text(encoding="utf-8"))["pages"]
 
 
-def try_it(cmd, output, note=""):
-    extra = f"<p>{note}</p>" if note else ""
-    return f"""<div class="callout">
-<strong>Try it</strong>
-<pre><code>{cmd}</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>{output}</code></pre>
-{extra}
-</div>"""
+def nav_label(page_key: str) -> str:
+    """Short prev/next label from en.json h1 (e.g. Variables, Data Types)."""
+    return EN_PAGES[page_key]["h1"]
 
 
-def mistakes(items):
-    lis = "".join(f"<li>{x}</li>" for x in items)
-    return f'<div class="callout warning"><strong>Common mistakes</strong><ul>{lis}</ul></div>'
+def out_block(text: str) -> str:
+    return (
+        '<p class="example-output-label">Output</p>\n'
+        f'<pre class="example-output"><code>{escape(text)}</code></pre>'
+    )
 
 
-def syntax_box(title, code):
-    return f"<h2>{title}</h2><pre><code>{code}</code></pre>"
-
-
-def map_naming_docs():
-    """HashMap runtime symbol naming — map_<key>_<value>_<op>."""
-    return """
-      <h2>Runtime naming: <code>map_&lt;key&gt;_&lt;value&gt;_&lt;op&gt;</code></h2>
-      <p>Every hash-map C runtime symbol follows one pattern:</p>
-      <pre><code>map_&lt;key_type&gt;_&lt;value_type&gt;_&lt;operation&gt;</code></pre>
-      <ul>
-        <li><strong>Key type</strong> — first segment after <code>map_</code> (e.g. <code>str</code>, <code>i32</code>)</li>
-        <li><strong>Value type</strong> — second segment (e.g. <code>i32</code>, <code>str</code>)</li>
-        <li><strong>Operation</strong> — last segment: <code>new</code>, <code>insert</code>, <code>get</code>, <code>contains</code>, <code>remove</code>, <code>keys</code>, <code>free</code>, <code>retain</code></li>
-      </ul>
-      <p>Examples: <code>map_str_i32_insert</code>, <code>map_str_str_get</code>, <code>map_i32_i32_contains</code>. When key and value share the same type (like Go <code>map[int]int</code>), both appear in the name — <code>map_i32_i32_*</code> is intentional so the ABI stays explicit.</p>
-      <p>See the full symbol list in <a href="bindings.html">Runtime bindings</a>.</p>
-
-      <h3>String keys, i32 values — <code>map_str_i32_*</code></h3>
-      <pre><code>extern fn map_str_i32_new() -> ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void
-extern fn map_str_i32_get(m: ptr, key: string) -> i32
-extern fn map_str_i32_contains(m: ptr, key: string) -> i32
-extern fn map_str_i32_free(m: ptr) -> void
-
-fn main() {
-    let m = map_str_i32_new()
-    map_str_i32_insert(m, "score", 100)
-    print(map_str_i32_get(m, "score"))
-    print(map_str_i32_contains(m, "score"))
-    map_str_i32_free(m)
-}</code></pre>
-
-      <h3>String keys, string values — <code>map_str_str_*</code></h3>
-      <pre><code>extern fn map_str_str_new() -> ptr
-extern fn map_str_str_insert(m: ptr, key: string, value: string) -> void
-extern fn map_str_str_get(m: ptr, key: string) -> string
-extern fn map_str_str_contains(m: ptr, key: string) -> i32
-extern fn map_str_str_free(m: ptr) -> void
-
-fn main() {
-    let m = map_str_str_new()
-    map_str_str_insert(m, "lang", "Nyra")
-    print(map_str_str_get(m, "lang"))
-    map_str_str_free(m)
-}</code></pre>
-
-      <h3>Integer keys and values — <code>map_i32_i32_*</code></h3>
-      <pre><code>extern fn map_i32_i32_new() -> ptr
-extern fn map_i32_i32_insert(m: ptr, key: i32, value: i32) -> void
-extern fn map_i32_i32_get(m: ptr, key: i32) -> i32
-extern fn map_i32_i32_contains(m: ptr, key: i32) -> i32
-extern fn map_i32_i32_free(m: ptr) -> void
-
-fn main() {
-    let m = map_i32_i32_new()
-    map_i32_i32_insert(m, 42, 99)
-    print(map_i32_i32_get(m, 42))
-    print(map_i32_i32_contains(m, 42))
-    map_i32_i32_free(m)
-}</code></pre>
-
-      <h3>Stdlib wrappers (recommended)</h3>
-      <p>Import <code>stdlib/map.ny</code> for <code>HashMap_str_i32</code> and <code>HashMap_str_str</code> — method syntax and automatic cleanup via <code>Drop</code>. The low-level <code>map_*</code> names stay stable for <code>extern fn</code> and FFI.</p>
-      <pre><code>import "stdlib/map"
-
-fn main() {
-    let mut scores = HashMap_str_i32_new()
-    scores = scores.insert("ada", 100)
-    print(scores.get("ada"))
-}</code></pre>
-"""
+def ex(title: str, prose: str, code: str, output: str | None = None) -> str:
+    pieces = [
+        '<section class="doc-ex">',
+        f"<h2>{title}</h2>",
+        f'<p class="doc-ex-prose">{prose}</p>',
+        f"<pre><code>{escape(code)}</code></pre>",
+    ]
+    if output is not None:
+        pieces.append(out_block(output))
+    pieces.append("</section>")
+    return "\n".join(pieces)
 
 
 def learn_nav(prev_h, prev_l, next_h, next_l):
@@ -116,15 +56,18 @@ def learn_nav(prev_h, prev_l, next_h, next_l):
 </nav>"""
 
 
-def page(slug, title, lead, body, prev, nxt):
+def page(slug: str, body: str, prev, nxt):
+    key = f"learn-{slug}"
+    meta = EN_PAGES[key]
+    h1 = meta["h1"]
     return {
-        "file": f"learn-{slug}.html",
-        "page": f"learn-{slug}",
-        "title": f"{title} — Nyra Docs",
-        "h1": title,
-        "lead": lead,
+        "file": f"{key}.html",
+        "page": key,
+        "title": meta.get("metaTitle", f"{h1} — Nyra Docs"),
+        "h1": h1,
+        "lead": meta["lead"],
         "body": body,
-        "active": f"learn-{slug}.html",
+        "active": f"{key}.html",
         "prev": prev,
         "next": nxt,
     }
@@ -133,253 +76,225 @@ def page(slug, title, lead, body, prev, nxt):
 PAGES = [
     page(
         "intro",
-        "Nyra Intro",
-        "What Nyra is, why it exists, and how this tutorial is organized.",
-        """
-      <p><strong>Nyra</strong> is a fast, memory-safe programming language with Rust-inspired ownership, a minimal syntax, and LLVM-backed native compilation.</p>
-""" + syntax_box(
+        ex(
             "Your first program",
+            "<strong>Nyra</strong> is a fast, memory-safe programming language with Rust-inspired ownership, a minimal syntax, and LLVM-backed native compilation.",
             """fn main() {
     print("Hello, Nyra!")
 }""",
-        ) + try_it("nyra run examples/syntax/hello.ny", "Hello, Nyra!") + """
-      <h2>What you will learn</h2>
-      <p>This tutorial follows a W3Schools-style path: one topic per page, runnable examples, and prev/next navigation. Start with <a href="learn-get-started.html">Get Started</a> or jump to any sidebar topic.</p>
-      <ul>
-        <li><strong>Basics</strong> — variables, types, control flow, functions, strings</li>
-        <li><strong>Memory</strong> — ownership and borrowing (Nyra's safety model)</li>
-        <li><strong>Data structures</strong> — arrays, vectors, tuples, hash maps, structs, enums</li>
-      </ul>
-      <p>Prerequisites: <a href="install.html">Install Nyra</a> and <code>clang</code>.</p>
+            "Hello, Nyra!",
+        )
+        + """
+<section class="doc-ex">
+  <h2>What you will learn</h2>
+  <p class="doc-ex-prose">This tutorial follows a W3Schools-style path: one topic per page, runnable examples, and prev/next navigation. Start with <a href="learn-get-started.html">Get Started</a> after <a href="install.html">Install Nyra</a>.</p>
+</section>
 """,
         (None, None),
-        ("learn-get-started.html", "Nyra Get Started"),
+        ("learn-get-started.html", nav_label("learn-get-started")),
     ),
     page(
         "get-started",
-        "Nyra Get Started",
-        "Install Nyra, create your first project, and run a program.",
         """
-      <h2>Quick start</h2>
-      <ol>
-        <li><a href="install.html">Install Nyra</a> (macOS, Linux, or Windows)</li>
-        <li>Create <code>hello.ny</code> with a <code>fn main()</code> entry point</li>
-        <li>Run: <code>nyra run hello.ny</code></li>
-      </ol>
-      <p>See also <a href="getting-started.html">Getting started guide</a> for project layout with <code>main.ny</code> and <code>nyra.mod</code>.</p>
-""" + try_it("nyra run examples/syntax/hello.ny", "Hello, Nyra!"),
-        ("learn-intro.html", "Nyra Intro"),
-        ("learn-syntax.html", "Nyra Syntax"),
+<section class="doc-ex">
+  <h2>Quick start</h2>
+  <p class="doc-ex-prose">1) <a href="install.html">Install Nyra</a> · 2) Create <code>hello.ny</code> · 3) Run <code>nyra run hello.ny</code>.</p>
+</section>
+"""
+        + ex(
+            "Run a ready-made example",
+            "The run command and its output:",
+            """fn main() {
+    print("Hello, Nyra!")
+}""",
+            "Hello, Nyra!",
+        ),
+        ("learn-intro.html", nav_label("learn-intro")),
+        ("learn-syntax.html", nav_label("learn-syntax")),
     ),
     page(
         "syntax",
-        "Nyra Syntax",
-        "Blocks, statements, indentation, and naming conventions.",
-        syntax_box(
+        ex(
             "Program entry",
+            "Nyra uses <strong>curly braces</strong> for blocks. Statements end at newline (no semicolons required). Function names use <code>snake_case</code>; types and structs use <code>PascalCase</code>.",
             """fn main() {
     print("Hello")
 }""",
-        )
-        + """
-      <p>Nyra uses <strong>curly braces</strong> for blocks. Statements end at newline (no semicolons required). Function names use <code>snake_case</code>; types and structs use <code>PascalCase</code>.</p>
-      <p>Full cheat sheet: <a href="language.html">Syntax reference</a> · <a href="reference.html">Keywords</a></p>
-""",
-        ("learn-get-started.html", "Nyra Get Started"),
-        ("learn-output.html", "Nyra Output"),
+            "Hello",
+        ),
+        ("learn-get-started.html", nav_label("learn-get-started")),
+        ("learn-output.html", nav_label("learn-output")),
     ),
     page(
         "output",
-        "Nyra Output",
-        "Print text and numbers to the console with <code>print</code>.",
-        syntax_box(
+        ex(
             "print",
+            "<code>print</code> writes to the terminal and adds a newline after each call.",
             """fn main() {
     print("Hello, Nyra!")
     print(42)
 }""",
-        )
-        + try_it("nyra run examples/syntax/hello.ny", "Hello, Nyra!")
-        + mistakes([
-            "Forgetting quotes around text — strings use double quotes.",
-            "Passing too many types in one call — use separate <code>print</code> calls or template strings.",
-        ]),
-        ("learn-syntax.html", "Nyra Syntax"),
-        ("learn-comments.html", "Nyra Comments"),
+            "Hello, Nyra!\n42",
+        ),
+        ("learn-syntax.html", nav_label("learn-syntax")),
+        ("learn-comments.html", nav_label("learn-comments")),
     ),
     page(
         "comments",
-        "Nyra Comments",
-        "Document code with line and block comments.",
-        syntax_box(
+        ex(
             "Line comments",
-            """// This is a comment
-let x = 1   // comment after code
+            "Everything after <code>//</code> is ignored until end of line.",
+            """// this is a comment
+let x = 1   // after code
 print(x)""",
+            "1",
         )
-        + syntax_box(
+        + ex(
             "Block comments",
+            "<code>/* ... */</code> spans multiple lines (non-nested).",
             """/*
- * File header
+ * file header
  */
-let total = 1 /* inline */ + 2
+let total = 1 /* mid-line */ + 2
 print(total)""",
-        )
-        + """
-      <p>Nyra supports <code>//</code> line comments and C-style <code>/* ... */</code> block comments (non-nested). Unclosed <code>/*</code> is a lexer error.</p>
-""",
-        ("learn-output.html", "Nyra Output"),
-        ("learn-variables.html", "Nyra Variables"),
+            "3",
+        ),
+        ("learn-output.html", nav_label("learn-output")),
+        ("learn-variables.html", nav_label("learn-variables")),
     ),
     page(
         "variables",
-        "Nyra Variables",
-        "Bind names to values with <code>let</code> and <code>let mut</code>.",
-        syntax_box(
+        ex(
             "let and let mut",
-            """let name = "Sam"
-let mut score = 0
-score = score + 10
-print(score)""",
-        )
-        + """
-      <p><code>let</code> creates an <strong>immutable</strong> binding. Use <code>let mut</code> when the value must change. Shorthand inside functions: <code>mut x = 0</code>.</p>
-"""
-        + try_it("nyra run examples/comparison/arithmetic/sum.ny", "(arithmetic demo)")
-        + mistakes([
-            "Assigning to a <code>let</code> binding without <code>mut</code>.",
-            "Confusing <code>let</code> with <code>const</code> — see <a href=\"learn-constants.html\">Constants</a>.",
-        ]),
-        ("learn-comments.html", "Nyra Comments"),
-        ("learn-data-types.html", "Nyra Data Types"),
+            "<code>let</code> creates an <strong>immutable</strong> binding. Use <code>let mut</code> when the value must change. Shorthand inside functions: <code>mut x = 0</code>.",
+            """fn main() {
+    let name = "Sam"
+    let mut score = 0
+    score = score + 10
+    print(score)
+}""",
+            "10",
+        ),
+        ("learn-comments.html", nav_label("learn-comments")),
+        ("learn-data-types.html", nav_label("learn-data-types")),
     ),
     page(
         "data-types",
-        "Nyra Data Types",
-        "Built-in types: integers, booleans, strings, and more.",
         """
-      <table>
-        <thead><tr><th>Type</th><th>Example</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td><code>i32</code></td><td><code>42</code></td><td>32-bit signed integer (default for literals)</td></tr>
-          <tr><td><code>i64</code></td><td><code>10000000000</code></td><td>64-bit signed integer</td></tr>
-          <tr><td><code>u32</code></td><td><code>42</code></td><td>32-bit unsigned integer</td></tr>
-          <tr><td><code>bool</code></td><td><code>true</code>, <code>false</code></td><td>Boolean</td></tr>
-          <tr><td><code>string</code></td><td><code>"hello"</code></td><td>UTF-8 text (heap-owned when dynamic)</td></tr>
-          <tr><td><code>void</code></td><td>—</td><td>No return value</td></tr>
-        </tbody>
-      </table>
-""" + syntax_box(
+<section class="doc-ex">
+  <h2>Quick reference</h2>
+  <p class="doc-ex-prose">Most-used built-in types:</p>
+  <table>
+    <thead><tr><th>Type</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>i32</code></td><td><code>42</code></td><td>32-bit signed integer (default for literals)</td></tr>
+      <tr><td><code>i64</code></td><td><code>10000000000</code></td><td>64-bit signed integer</td></tr>
+      <tr><td><code>bool</code></td><td><code>true</code></td><td>Boolean</td></tr>
+      <tr><td><code>string</code></td><td><code>"hi"</code></td><td>UTF-8 text (heap-owned when dynamic)</td></tr>
+      <tr><td><code>void</code></td><td>—</td><td>No return value</td></tr>
+    </tbody>
+  </table>
+</section>
+"""
+        + ex(
             "Examples by type",
+            "You can write the type explicitly or let the compiler infer it.",
             """fn main() {
-    let count: i32 = 42
-    let big: i64 = 1_000_000_000
-    let flag: bool = true
-    let name: string = "Nyra"
+    let count = 42
+    let flag = true
+    let name = "Nyra"
     print(count)
-    print(big)
     print(flag)
     print(name)
 }""",
-        ) + try_it("nyra run examples/syntax/hello.ny", "Hello, Nyra!") + """
-      <p>Annotate types explicitly: <code>let age: i32 = 25</code>. See <a href="types.html">Types &amp; data</a> for structs, arrays, and references.</p>
-""",
-        ("learn-variables.html", "Nyra Variables"),
-        ("learn-constants.html", "Nyra Constants"),
+            "42\ntrue\nNyra",
+        ),
+        ("learn-variables.html", nav_label("learn-variables")),
+        ("learn-constants.html", nav_label("learn-constants")),
     ),
     page(
         "constants",
-        "Nyra Constants",
-        "Fixed compile-time values with <code>const</code>.",
-        syntax_box(
+        ex(
             "const",
+            "<code>const</code> cannot be reassigned and is evaluated at compile time. Unlike <code>let</code>, which creates a runtime binding.",
             """const MAX_LIVES = 3
-const PI = 3
 
 fn main() {
     print(MAX_LIVES)
 }""",
-        )
-        + """
-      <table>
-        <thead><tr><th></th><th><code>let</code></th><th><code>let mut</code></th><th><code>const</code></th></tr></thead>
-        <tbody>
-          <tr><td>Can reassign?</td><td>No</td><td>Yes</td><td>No</td></tr>
-          <tr><td>When set?</td><td>Runtime</td><td>Runtime</td><td>Compile time</td></tr>
-        </tbody>
-      </table>
-""",
-        ("learn-data-types.html", "Nyra Data Types"),
-        ("learn-operators.html", "Nyra Operators"),
+            "3",
+        ),
+        ("learn-data-types.html", nav_label("learn-data-types")),
+        ("learn-operators.html", nav_label("learn-operators")),
     ),
     page(
         "operators",
-        "Nyra Operators",
-        "Arithmetic and comparison operators.",
         """
-      <table>
-        <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
-        <tbody>
-          <tr><td><code>+ - * / %</code></td><td>Arithmetic</td><td><code>3 + 4</code> → 7</td></tr>
-          <tr><td><code>== != &lt; &gt; &lt;= &gt;=</code></td><td>Compare</td><td><code>5 == 5</code> → true</td></tr>
-          <tr><td><code>&amp;&amp; || !</code></td><td>Logic</td><td><code>true &amp;&amp; false</code> → false</td></tr>
-        </tbody>
-      </table>
-""" + syntax_box("Example", """fn main() {
+<section class="doc-ex">
+  <h2>Operators</h2>
+  <p class="doc-ex-prose"><code>+ - * / %</code> arithmetic · <code>== != &lt; &gt;</code> compare · <code>&amp;&amp; || !</code> logic.</p>
+</section>
+"""
+        + ex(
+            "Example",
+            "Operation results print as-is.",
+            """fn main() {
     print(10 + 5)
     print(10 == 5)
-}""") + try_it("nyra run examples/syntax/math.ny", "(math demo)"),
-        ("learn-constants.html", "Nyra Constants"),
-        ("learn-booleans.html", "Nyra Booleans"),
+}""",
+            "15\nfalse",
+        ),
+        ("learn-constants.html", nav_label("learn-constants")),
+        ("learn-booleans.html", nav_label("learn-booleans")),
     ),
     page(
         "booleans",
-        "Nyra Booleans",
-        "The <code>bool</code> type: <code>true</code> and <code>false</code>.",
-        syntax_box(
+        ex(
             "bool",
-            """let passed = true
-let failed = false
-print(passed)
-print(5 > 3)""",
-        )
-        + """
-      <p>Comparisons and logical operators produce <code>bool</code> values used in <code>if</code> and loops.</p>
-""",
-        ("learn-operators.html", "Nyra Operators"),
-        ("learn-if-else.html", "Nyra If..Else"),
+            "Comparisons and logical operators produce <code>bool</code> values used in <code>if</code> and loops.",
+            """fn main() {
+    let passed = true
+    print(passed)
+    print(5 > 3)
+}""",
+            "true\ntrue",
+        ),
+        ("learn-operators.html", nav_label("learn-operators")),
+        ("learn-if-else.html", nav_label("learn-if-else")),
     ),
     page(
         "if-else",
-        "Nyra If..Else",
-        "Branch on conditions with <code>if</code> and <code>else</code>.",
-        syntax_box(
+        ex(
             "if / else",
-            """let score = 75
-if score >= 60 {
-    print("Pass")
-} else {
-    print("Fail")
+            "Run one block when the condition is true, otherwise the other.",
+            """fn main() {
+    let score = 75
+    if score >= 60 {
+        print("Pass")
+    } else {
+        print("Fail")
+    }
 }""",
+            "Pass",
         )
-        + syntax_box(
-            "If-expression",
-            """let label = if score >= 90 { "A" } else { "B" }
-print(label)""",
-        )
-        + mistakes([
-            "Using <code>=</code> instead of <code>==</code> in conditions.",
-            "Mismatched types in if-expression branches.",
-        ]),
-        ("learn-booleans.html", "Nyra Booleans"),
-        ("learn-match.html", "Nyra Match"),
+        + ex(
+            "if as expression",
+            "<code>if</code> can return a value directly.",
+            """fn main() {
+    let score = 95
+    let label = if score >= 90 { "A" } else { "B" }
+    print(label)
+}""",
+            "A",
+        ),
+        ("learn-booleans.html", nav_label("learn-booleans")),
+        ("learn-match.html", nav_label("learn-match")),
     ),
     page(
         "match",
-        "Nyra Match",
-        "Pattern match on enums and values.",
-        syntax_box(
+        ex(
             "match",
+            "Each arm covers one case. Use <code>_</code> for the default.",
             """enum Color { Red Green Blue }
 
 fn main() {
@@ -391,74 +306,65 @@ fn main() {
     }
     print(n)
 }""",
-        )
-        + """
-      <p>Guards: <code>Color.Red if x > 0 => 1</code>. Wildcard: <code>_ => 0</code>. See <a href="match.html">Match reference</a>.</p>
-"""
-        + try_it("nyra run examples/language_features/demo.ny", "1"),
-        ("learn-if-else.html", "Nyra If..Else"),
-        ("learn-loops.html", "Nyra Loops"),
+            "1",
+        ),
+        ("learn-if-else.html", nav_label("learn-if-else")),
+        ("learn-loops.html", nav_label("learn-loops")),
     ),
     page(
         "loops",
-        "Nyra Loops",
-        "Overview of <code>while</code> and <code>for</code> loops.",
-        """
-      <p>Nyra has two loop forms:</p>
-      <ul>
-        <li><code>while condition { ... }</code> — repeat while true</li>
-        <li><code>for i in start..end { ... }</code> — iterate a half-open range</li>
-      </ul>
-      <p>Details: <a href="learn-while.html">While loops</a> · <a href="learn-for.html">For loops</a></p>
-""" + syntax_box("Sum with for", """fn main() {
+        ex(
+            "Sum with for",
+            "<code>while</code> repeats while the condition is true. <code>for i in a..b</code> iterates a half-open range.",
+            """fn main() {
     let mut sum = 0
     for i in 0..5 {
         sum = sum + i
     }
     print(sum)
-}"""),
-        ("learn-match.html", "Nyra Match"),
-        ("learn-while.html", "Nyra While Loops"),
+}""",
+            "10",
+        ),
+        ("learn-match.html", nav_label("learn-match")),
+        ("learn-while.html", nav_label("learn-while")),
     ),
     page(
         "while",
-        "Nyra While Loops",
-        "Repeat while a condition is true.",
-        syntax_box(
+        ex(
             "while",
-            """let mut i = 0
-while i < 3 {
-    print(i)
-    i = i + 1
+            "Update the variable inside the loop until the condition becomes false (or you get an infinite loop).",
+            """fn main() {
+    let mut i = 0
+    while i < 3 {
+        print(i)
+        i = i + 1
+    }
 }""",
-        )
-        + try_it("nyra run examples/comparison/loop/sum_loop_small.ny", "499500")
-        + mistakes(["Infinite loop — ensure the condition eventually becomes false."]),
-        ("learn-loops.html", "Nyra Loops"),
-        ("learn-for.html", "Nyra For Loops"),
+            "0\n1\n2",
+        ),
+        ("learn-loops.html", nav_label("learn-loops")),
+        ("learn-for.html", nav_label("learn-for")),
     ),
     page(
         "for",
-        "Nyra For Loops",
-        "Iterate over numeric ranges.",
-        syntax_box(
+        ex(
             "for .. in ..",
-            """for j in 0..3 {
-    print(j)   // 0, 1, 2
+            "<code>0..3</code> means from 0 up to (but not including) 3.",
+            """fn main() {
+    for j in 0..3 {
+        print(j)
+    }
 }""",
-        )
-        + """
-      <p><code>0..3</code> means from 0 up to (but not including) 3. Use <code>let mut</code> for accumulators outside the loop.</p>
-""",
-        ("learn-while.html", "Nyra While Loops"),
-        ("learn-functions.html", "Nyra Functions"),
+            "0\n1\n2",
+        ),
+        ("learn-while.html", nav_label("learn-while")),
+        ("learn-functions.html", nav_label("learn-functions")),
     ),
     page(
         "functions",
-        "Nyra Functions",
-        "Define reusable functions with parameters and return types.",
-        syntax_box(
+        ex(
             "fn",
+            "Parameters and return types are optional when inferred; here they are explicit for learning.",
             """fn double(n: i32) -> i32 {
     return n + n
 }
@@ -466,87 +372,88 @@ while i < 3 {
 fn main() {
     print(double(5))
 }""",
+            "10",
         )
-        + syntax_box(
+        + ex(
             "Shorthand body",
-            "fn square(n: i32) -> i32 = n * n",
-        )
-        + try_it("nyra run examples/syntax/math.ny", "(math helpers)"),
-        ("learn-for.html", "Nyra For Loops"),
-        ("learn-scope.html", "Nyra Scope"),
+            "Single-expression function with <code>=</code>.",
+            """fn square(n: i32) -> i32 = n * n
+
+fn main() {
+    print(square(4))
+}""",
+            "16",
+        ),
+        ("learn-for.html", nav_label("learn-for")),
+        ("learn-scope.html", nav_label("learn-scope")),
     ),
     page(
         "scope",
-        "Nyra Scope",
-        "Where variables are visible — block scope in Nyra.",
-        syntax_box(
+        ex(
             "Block scope",
+            "Each <code>{ }</code> block creates a new scope. Bindings declared inside a block are not visible outside it.",
             """fn main() {
     let x = 1
     {
         let y = 2
-        print(x)   // ok — outer scope
+        print(x)
         print(y)
     }
-    // print(y)  // error — y not in scope
 }""",
-        )
-        + """
-      <p>Each <code>{ }</code> block creates a new scope. Bindings declared inside a block are not visible outside it.</p>
-""",
-        ("learn-functions.html", "Nyra Functions"),
-        ("learn-strings.html", "Nyra Strings"),
+            "1\n2",
+        ),
+        ("learn-functions.html", nav_label("learn-functions")),
+        ("learn-strings.html", nav_label("learn-strings")),
     ),
     page(
         "strings",
-        "Nyra Strings",
-        "Text literals, concatenation, and template strings.",
-        syntax_box(
+        ex(
             "String literal",
-            'let greeting = "Hello"\nprint(greeting)',
+            "Text between double quotes.",
+            """fn main() {
+    let greeting = "Hello"
+    print(greeting)
+}""",
+            "Hello",
         )
-        + syntax_box(
+        + ex(
             "Template strings",
-            """let name = "Nyra"
-print(`Hello, {name}!`)""",
-        )
-        + try_it("nyra run examples/syntax/template_strings.ny", "(template output)")
-        + """
-      <p>Stdlib: <code>import "stdlib/strings.ny"</code> for <code>strlen</code>, <code>strcat</code>, etc.</p>
-""",
-        ("learn-scope.html", "Nyra Scope"),
-        ("learn-ownership.html", "Nyra Ownership"),
+            "Use backticks with <code>{name}</code> to embed values.",
+            """fn main() {
+    let name = "Nyra"
+    print(`Hello, {name}!`)
+}""",
+            "Hello, Nyra!",
+        ),
+        ("learn-scope.html", nav_label("learn-scope")),
+        ("learn-ownership.html", nav_label("learn-ownership")),
     ),
     page(
         "ownership",
-        "Nyra Ownership",
-        "Copy vs Move — how Nyra tracks who owns heap data.",
         """
-      <table>
-        <thead><tr><th>Type</th><th>Kind</th><th>Behavior</th></tr></thead>
-        <tbody>
-          <tr><td><code>i32</code>, <code>bool</code>, enums</td><td><strong>Copy</strong></td><td>Both bindings stay valid after assign</td></tr>
-          <tr><td><code>string</code> (heap)</td><td><strong>Move</strong></td><td>Single owner; source invalidated on move</td></tr>
-          <tr><td><code>struct</code></td><td>Copy or Move</td><td>Move if any field is Move</td></tr>
-        </tbody>
-      </table>
-""" + syntax_box("Move example", """fn main() {
+<section class="doc-ex">
+  <h2>Quick rule</h2>
+  <p class="doc-ex-prose"><code>i32</code> and <code>bool</code> are <strong>Copied</strong>. Heap <code>string</code> values are <strong>Moved</strong> — the previous owner becomes invalid.</p>
+</section>
+"""
+        + ex(
+            "Move example",
+            "After <code>let b = a</code> on an owned string, do not use <code>a</code>.",
+            """fn main() {
     let a = "hello"
     let b = a
-    // print(a)  // error: use of moved value
     print(b)
-}""") + """
-      <p>Owned heap strings are <strong>auto-dropped</strong> at scope end. Deep dive: <a href="memory.html">Memory &amp; ownership</a>.</p>
-""",
-        ("learn-strings.html", "Nyra Strings"),
-        ("learn-borrowing.html", "Nyra Borrowing"),
+}""",
+            "hello",
+        ),
+        ("learn-strings.html", nav_label("learn-strings")),
+        ("learn-borrowing.html", nav_label("learn-borrowing")),
     ),
     page(
         "borrowing",
-        "Nyra Borrowing",
-        "Temporary access with <code>&amp;T</code> and <code>&amp;mut T</code>.",
-        syntax_box(
+        ex(
             "Mutable borrow",
+            "Only one mutable borrow at a time. Finish using it before returning to the owner.",
             """fn main() {
     mut x = 1
     let r = &mut x
@@ -554,153 +461,125 @@ print(`Hello, {name}!`)""",
     *r = 5
     print(x)
 }""",
+            "1\n5",
         )
-        + syntax_box(
+        + ex(
             "Shared read-only borrow",
+            "Multiple <code>&amp;T</code> borrows are allowed together.",
             """fn main() {
     let msg = "hello"
     let r = &msg
     print(*r)
     print(msg)
 }""",
-        )
-        + """
-      <p>Borrows expire at the <strong>last use</strong> (non-lexical lifetimes). Rules:</p>
-      <ul>
-        <li>Many <code>&amp;T</code> OR one <code>&amp;mut T</code> at a time</li>
-        <li>Cannot use a moved value after move</li>
-        <li>Cannot return <code>&amp;local</code></li>
-      </ul>
-""",
-        ("learn-ownership.html", "Nyra Ownership"),
-        ("learn-data-structures.html", "Nyra Data Structures"),
+            "hello\nhello",
+        ),
+        ("learn-ownership.html", nav_label("learn-ownership")),
+        ("learn-data-structures.html", nav_label("learn-data-structures")),
     ),
     page(
         "data-structures",
-        "Nyra Data Structures",
-        "Overview of arrays, vectors, tuples, maps, structs, and enums.",
         """
-      <ul>
-        <li><a href="learn-arrays.html">Arrays</a> — fixed-size <code>[T; N]</code></li>
-        <li><a href="learn-vectors.html">Vectors</a> — growable <code>Vec&lt;T&gt;</code></li>
-        <li><a href="learn-tuples.html">Tuples</a> — <code>(T, U)</code> grouped values</li>
-        <li><a href="learn-hashmap.html">HashMap</a> — key-value maps</li>
-        <li><a href="learn-structs.html">Structs</a> — named field groups</li>
-        <li><a href="learn-enums.html">Enums</a> — fixed variant sets</li>
-      </ul>
-""" + syntax_box(
+<section class="doc-ex">
+  <h2>Topic guide</h2>
+  <p class="doc-ex-prose">Pick a topic:</p>
+  <ul>
+    <li><a href="learn-arrays.html">Arrays</a> — fixed size</li>
+    <li><a href="learn-vectors.html">Vectors</a> — growable</li>
+    <li><a href="learn-tuples.html">Tuples</a> — grouped values</li>
+    <li><a href="learn-hashmap.html">HashMap</a> — key → value</li>
+    <li><a href="learn-structs.html">Structs</a> — named fields</li>
+    <li><a href="learn-enums.html">Enums</a> — fixed variants</li>
+  </ul>
+</section>
+"""
+        + ex(
             "Quick tour",
+            "Array + tuple + HashMap in one example.",
             """import "stdlib/map"
 
 fn main() {
     let nums = [1, 2, 3]
     print(nums.len())
-
     let pair = (42, "ok")
     print(pair.0)
-
     let mut scores = HashMap_str_i32_new()
     scores = scores.insert("ada", 100)
     print(scores.get("ada"))
 }""",
-        ) + try_it("nyra run examples/syntax/hashmap.ny", "100\ntrue", note="HashMap runnable demo; combine with array and tuple snippets from sibling lessons.") + """
-""",
-        ("learn-borrowing.html", "Nyra Borrowing"),
-        ("learn-arrays.html", "Nyra Arrays"),
+            "3\n42\n100",
+        ),
+        ("learn-borrowing.html", nav_label("learn-borrowing")),
+        ("learn-arrays.html", nav_label("learn-arrays")),
     ),
     page(
         "arrays",
-        "Nyra Arrays",
-        "Fixed-size arrays and indexing.",
-        syntax_box(
+        ex(
             "Array",
+            "Index starts at 0. All elements share the same type.",
             """fn main() {
-    let nums: [i32; 3] = [1, 2, 3]
+    let nums = [1, 2, 3]
     print(nums[0])
     print(nums[1])
 }""",
-        )
-        + try_it("nyra run examples/syntax/arrays.ny", "1\n2")
-        + mistakes(["Index must be <code>i32</code>.", "All elements must have the same type."]),
-        ("learn-data-structures.html", "Nyra Data Structures"),
-        ("learn-vectors.html", "Nyra Vectors"),
+            "1\n2",
+        ),
+        ("learn-data-structures.html", nav_label("learn-data-structures")),
+        ("learn-vectors.html", nav_label("learn-vectors")),
     ),
     page(
         "vectors",
-        "Nyra Vectors",
-        "Growable arrays with <code>Vec&lt;T&gt;</code>.",
-        syntax_box(
-            "Vec (runtime API)",
-            """extern fn vec_i32_new() -> ptr
-extern fn vec_i32_push(v: ptr, x: i32) -> void
-extern fn vec_i32_len(v: ptr) -> i32
-extern fn vec_i32_get(v: ptr, i: i32) -> i32
-extern fn vec_i32_free(v: ptr) -> void
-
-fn main() {
-    let handle = vec_i32_new()
-    vec_i32_push(handle, 10)
-    vec_i32_push(handle, 20)
-    print(vec_i32_len(handle))
-    print(vec_i32_get(handle, 0))
-    vec_i32_free(handle)
+        ex(
+            "vec()",
+            "Push elements and read length and index. Higher-order helpers like <code>filter</code> ship in v1.45.",
+            """fn main() {
+    let xs = vec().push(10).push(20).push(30)
+    print(xs.len())
+    print(xs.get(0))
 }""",
-        )
-        + try_it("nyra run examples/syntax/vectors.ny", "2\n10")
-        + """
-      <p>Import <code>stdlib/vec.ny</code> for <code>Vec_i32</code> and <code>Vec_str</code> wrappers.</p>
-""",
-        ("learn-arrays.html", "Nyra Arrays"),
-        ("learn-tuples.html", "Nyra Tuples"),
+            "3\n10",
+        ),
+        ("learn-arrays.html", nav_label("learn-arrays")),
+        ("learn-tuples.html", nav_label("learn-tuples")),
     ),
     page(
         "tuples",
-        "Nyra Tuples",
-        "Group values with tuple types and literals.",
-        syntax_box(
+        ex(
             "Tuple",
+            "Access fields with <code>.0</code> or destructure with <code>let (a, b) = pair</code>.",
             """fn main() {
-    let pair: (i32, string) = (1, "hi")
+    let pair = (1, "hi")
     print(pair.0)
     let (a, b) = pair
     print(a)
 }""",
-        )
-        + try_it("nyra run examples/syntax/tuples.ny", "1\n1"),
-        ("learn-vectors.html", "Nyra Vectors"),
-        ("learn-hashmap.html", "Nyra HashMap"),
+            "1\n1",
+        ),
+        ("learn-vectors.html", nav_label("learn-vectors")),
+        ("learn-hashmap.html", nav_label("learn-hashmap")),
     ),
     page(
         "hashmap",
-        "Nyra HashMap",
-        "Key-value maps: runtime naming map_<key>_<value>_<op> and stdlib wrappers.",
-        map_naming_docs()
-        + syntax_box(
-            "Runnable example",
-            """extern fn map_str_i32_new() -> ptr
-extern fn map_str_i32_insert(m: ptr, key: string, value: i32) -> void
-extern fn map_str_i32_get(m: ptr, key: string) -> i32
-extern fn map_str_i32_contains(m: ptr, key: string) -> i32
-extern fn map_str_i32_free(m: ptr) -> void
+        ex(
+            "HashMap_str_i32",
+            "Import <code>stdlib/map</code> then use <code>insert</code> / <code>get</code>.",
+            """import "stdlib/map"
 
 fn main() {
-    let handle = map_str_i32_new()
-    map_str_i32_insert(handle, "score", 100)
-    print(map_str_i32_get(handle, "score"))
-    print(map_str_i32_contains(handle, "score"))
-    map_str_i32_free(handle)
+    let mut scores = HashMap_str_i32_new()
+    scores = scores.insert("score", 100)
+    print(scores.get("score"))
 }""",
-        )
-        + try_it("nyra run examples/syntax/hashmap.ny", "100\ntrue"),
-        ("learn-tuples.html", "Nyra Tuples"),
-        ("learn-structs.html", "Nyra Structs"),
+            "100",
+        ),
+        ("learn-tuples.html", nav_label("learn-tuples")),
+        ("learn-structs.html", nav_label("learn-structs")),
     ),
     page(
         "structs",
-        "Nyra Structs",
-        "Define custom types with named fields.",
-        syntax_box(
+        ex(
             "struct",
+            "Define the shape then create a value with fields.",
             """struct Player {
     hp: i32
     score: i32
@@ -710,19 +589,16 @@ fn main() {
     let p = Player { hp: 100, score: 0 }
     print(p.hp)
 }""",
-        )
-        + """
-      <p>Methods: <code>impl Player { fn heal(self) -> void { ... } }</code>. See <a href="traits-macros.html">Traits</a>.</p>
-""",
-        ("learn-hashmap.html", "Nyra HashMap"),
-        ("learn-enums.html", "Nyra Enums"),
+            "100",
+        ),
+        ("learn-hashmap.html", nav_label("learn-hashmap")),
+        ("learn-enums.html", nav_label("learn-enums")),
     ),
     page(
         "enums",
-        "Nyra Enums",
-        "Named variants and pattern matching.",
-        syntax_box(
+        ex(
             "enum + match",
+            "In v0.2 enums are tag-only (no payloads on variants).",
             """enum Status { Ok Err Pending }
 
 fn main() {
@@ -734,12 +610,9 @@ fn main() {
     }
     print(code)
 }""",
-        )
-        + """
-      <p>v0.2 enums are <strong>tag-only</strong> (no payloads). Next: <a href="methods.html">Built-in methods</a> · <a href="reference.html">Language reference</a>.</p>
-"""
-        + try_it("nyra run examples/language_features/demo.ny", "1"),
-        ("learn-structs.html", "Nyra Structs"),
+            "0",
+        ),
+        ("learn-structs.html", nav_label("learn-structs")),
         (None, None),
     ),
 ]
@@ -759,7 +632,7 @@ REDIRECTS = [
 
 def redirect_html(target: str, label: str) -> str:
     return f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="refresh" content="0; url={target}">

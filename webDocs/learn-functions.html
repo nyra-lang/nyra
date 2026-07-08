@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Functions — Nyra Docs</title>
+  <title>Functions — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-functions.h1">Nyra Functions</h1>
-      <p class="lead" data-i18n-html="pages.learn-functions.lead">Define reusable functions with parameters and return types.</p>
-<h2>fn</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-functions.h1">Functions</h1>
+      <p class="lead" data-i18n-html="pages.learn-functions.lead">Define reusable functions.</p>
+<section class="doc-ex">
+<h2>fn</h2>
+<p class="doc-ex-prose">Parameters and return types are optional when inferred; here they are explicit for learning.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -156,25 +159,36 @@ fn main() -&gt; void {
     print(double(5))
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><h2>Shorthand body</h2><!-- NYRA_SNIPPET_START -->
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>10</code></pre>
+</section><section class="doc-ex">
+<h2>Shorthand body</h2>
+<p class="doc-ex-prose">Single-expression function with <code>=</code>.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn square(n)= n * n</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn square(n: i32)= n * n</code></pre></div>
-</div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/math.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>(math helpers)</code></pre>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn square(n)= n * n
 
-</div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-for.html">← Nyra For Loops</a>
+fn main() {
+    print(square(4))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn square(n: i32)= n * n
+
+fn main() -&gt; void {
+    print(square(4))
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>16</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-for.html">← For</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-scope.html">Nyra Scope →</a>
+<a class="lesson-nav-next" href="learn-scope.html">Scope →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

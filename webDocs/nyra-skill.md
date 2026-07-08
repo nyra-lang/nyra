@@ -30,14 +30,19 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 
 > **Enum payloads (read first):** Default enums are **tag-only** (`Color.Red`). **`Option.Some(42)` stores a real value** only when you `import "stdlib/option.ny"` (or define `enum Option_i32 { None, Some(i32) }`). Built-in `Option`/`Result` without import are tag **names** for `??`/`?.` — not storage. See [Enums & payloads](#enums--payloads).
 
-> **Collections naming:** Core stdlib uses **monomorph names** (`Vec_i32_push`, `HashMap_str_i32`). **Generic syntax** (`Vec<T>`, `Arc<T>`, `Box<T>`) is Extended — current for smart pointers, but tutorials and docs use `Vec_i32` style. See [Naming: current vs legacy](#naming-current-style-vs-legacy-read-this).
+> **Collections naming:** Prefer method APIs — `vec()` / `VecI32`, `strs()` / `StrVec`, `HashMap_str_i32`. Low-level `Vec_i32_*` `ptr` helpers remain for FFI. Generic syntax (`Vec<T>`, `Arc<T>`, `Box<T>`) is Extended. See [Naming: current vs legacy](#naming-current-style-vs-legacy-read-this).
 
 ## Identity
 
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v1.40.x** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/docs/roadmap.html)).
+- Version baseline: **v1.45.0** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/docs/roadmap.html)).
+- **v1.45.1 (router):** `HttpRouter` parametric paths (`/users/:id`); `HttpRouter_match` → `.slot`/`.params`; `RequestContext_param(ctx, name)`; exact routes win over patterns.
+- **v1.45:** collection HOFs on `vec()` / `strs()` (`filter`/`map`/`find`/`contains`); SQL query builder `qb().select().from().where().include().to_sql()`; `SqlDb.find(q)`.
+- **v1.44:** JS-like HTTP — `fetch(url) -> HttpResponse`, `req().header(…).json(…).post(url)`; auto-prelude import resolution fix (impl methods no longer shadow free helpers).
+- **v1.43:** language-wide sugar — `jparse`/`jstr`, `sb()`, `slurp`/`spit`, `now()`/`ms()`, `env`/`cmd`/`uuid`/`b64`, `err_io(…).show()`.
+- **v1.41–v1.42:** HTTP `RequestInit`, headers, `FormData`, cookies, abort, redirects, timeouts; fluent `req()` chain.
 - **v1.2:** template strings, arrow functions, `net/http` handler dispatch, language bridge (Python/Node/Java workers), NyraPkg semver + registry, `link-source` auto-link, bindings reference, native C interop pattern.
 - **v2.1:** stack closures (loop-safe), arrow param inference, tuple destructure in arrow params, `??` nullish coalescing, `?.` optional chaining.
 - **v2.2:** heap closure promotion; `?.method()`; **`Option.Some(T)` payloads** when using `import "stdlib/option.ny"` (replaces tag-only built-in `Option` for that module).
@@ -1074,12 +1079,25 @@ tls native          # or rustls (default) or openssl
 
 ```ny
 fn main() {
-    print(get("https://api.github.com/zen"))   // body string; HTTPS uses selected backend
+    // Preferred — full response (JS-like)
+    let resp = fetch("https://api.github.com/zen")
+    print(resp.status, resp.text())
+
+    let posted = req()
+        .header("Accept", "application/json")
+        .timeout(10000)
+        .json("{\"ok\":true}")
+        .post("https://httpbin.org/post")
+    print(posted.status, posted.is_ok())
+
+    // Body-only convenience (still useful for quick scripts)
+    print(get("https://example.com/"))
 }
 ```
 
-- `get(url)` returns **body string** on success.
-- On transport/TLS failure, `get()` returns JSON like `{"error":"TLS handshake failed"}` — check with `strstr_pos(body, "{\"error\":") == 0`.
+- **`fetch(url)`** → `HttpResponse` (`.status`, `.text()`, `.json()`, `.is_ok()`, headers).
+- **`req().header(…).timeout(…).json|form(…).get|post|put|patch|delete(url)`** — one options object, then verb (like JS `fetch(url, init)`).
+- **`get(url)`** → body `string` only. On TLS/transport failure the body may be `{"error":"…"}`.
 - `tls_last_error()` — real error detail; does **not** tell users to install OpenSSL when using `rustls` or `native` on macOS/Windows.
 - `tls_available()` / `tls_ready()` — probe before HTTPS in defensive code.
 
@@ -1099,10 +1117,12 @@ Further builtins reference: [https://nyra-lang.github.io/docs/methods.html](http
 | String `.split()` / `.trim()` / … | **No** | `string` — borrows receiver |
 | Fixed array `.len()` / `.sort()` / `.sort_by()` | **No** | `[T; N]` |
 | Split list `.len()` / `for s in parts` | **No** | result of `.split()` |
-| `Vec_i32_*` / `vec_*` | auto-prelude or `import "stdlib/vec.ny"` | `ptr` handle |
-| `StrVec` methods | auto-prelude or `import "stdlib/vec_str.ny"` | `StrVec` struct |
+| `vec()` / `VecI32` (`.filter`/`.map`/`.find`/…) | auto-prelude or `import "stdlib/vec.ny"` | Prefer over raw `Vec_i32_*` |
+| `strs()` / `StrVec` (`.joined`/`.filter`/`.map`/…) | auto-prelude or `import "stdlib/vec_str.ny"` | String vector |
+| `jparse` / `jstr` / `sb` / `slurp` / `spit` / `now` / `qb` | auto-prelude | Short stdlib sugar (v1.43–v1.45) |
+| `fetch` / `req()` / `form()` | auto-prelude or `import "stdlib/net/http/mod.ny"` | HTTP client |
 | `HashMap_str_*` methods | auto-prelude or `import "stdlib/map.ny"` | `HashMap_str_i32`, `HashMap_str_str` |
-| `Array_*` / `String_*` / `Math_*` / `JSON_*` | `import "stdlib/builtins_*.ny"` | Function-style wrappers |
+| `Array_*` / `String_*` / `Math_*` / `JSON_*` | `import "stdlib/builtins_*.ny"` | Function-style wrappers (legacy/extra) |
 
 **User-defined methods:** declare with `impl TypeName { fn method(self, …) -> TypeName { … } }` — call as `obj.method(arg)` (lowers to `TypeName_method(obj, arg)`). `impl Drop for T` runs at scope exit. `impl Trait for T` for static dispatch; `dyn Trait` for trait objects (Extended).
 
@@ -1205,54 +1225,49 @@ print(nums[0])   // original unchanged
 | `parts.length()` / `parts.len()` | `i32` part count |
 | `for s in parts` | each `string` part |
 
-### `Vec_i32` — growable `i32` vector
+### `VecI32` / `vec()` — preferred i32 vector (method syntax)
 
-`import "stdlib/vec.ny"` (or auto-prelude). Handle type is `ptr` — **no** `.push()` method sugar; use free functions.
+`import "stdlib/vec.ny"` (or auto-prelude). Prefer **`vec()`** → `VecI32` with chaining. Low-level `ptr` API (`Vec_i32_*`) still exists for FFI / legacy.
 
-| Function | Args | Returns | Notes |
-|----------|------|---------|-------|
-| `Vec_i32_new()` | — | `ptr` | Empty vector |
-| `Vec_i32_push(v, x)` / `vec_push(v, x)` | `ptr`, `i32` | `void` / `ptr` | Append; `vec_push` returns handle for chaining |
-| `Vec_i32_get(v, i)` / `vec_get(v, i)` | `ptr`, `i32` | `i32` | Index (0-based) |
-| `Vec_i32_set(v, i, value)` | `ptr`, `i32`, `i32` | `void` | In-place update |
-| `Vec_i32_len(v)` / `vec_len(v)` | `ptr` | `i32` | Element count |
-| `Vec_i32_pop(v)` | `ptr` | `i32` | Pop last |
-| `Vec_i32_from_range(start, end)` | 2 × `i32` | `ptr` | Half-open range fill |
-| `Vec_i32_free(v)` | `ptr` | `void` | Manual free (or auto-drop if owned) |
+| Method / ctor | Notes |
+|---------------|-------|
+| `vec()` / `vec_range(start, end)` | Empty / half-open range |
+| `.push(x)` / `.get(i)` / `.set(i, v)` / `.len()` / `.pop()` | Basic |
+| `.contains(x)` / `.includes(x)` | Membership → `i32` `1`/`0` |
+| `.first(fb)` / `.last(fb)` | Ends with fallback |
+| `.find(pred, fb)` / `.find_eq(x, fb)` / `.index_of(x)` | Search (`pred: fn(i32)->i32`) |
+| `.filter(pred)` / `.map(f)` / `.reduce(init, f)` | HOFs → new `VecI32` / value |
 
 ```ny
-import "stdlib/vec.ny"
+fn is_even(x: i32) -> i32 {
+    if x % 2 == 0 { return 1 }
+    return 0
+}
 
-let v = Vec_i32_new()
-Vec_i32_push(v, 10)
-Vec_i32_push(v, 20)
-print(Vec_i32_len(v))       // 2
-print(Vec_i32_get(v, 0))    // 10
-Vec_i32_set(v, 1, 99)
+fn main() {
+    let xs = vec().push(1).push(2).push(3).push(4)
+    let evens = xs.filter(is_even)
+    print(evens.len(), xs.contains(3), xs.find_eq(3, -1))
+}
 ```
 
-### `StrVec` — string vector with method syntax
+Legacy `ptr` helpers: `Vec_i32_new`, `Vec_i32_push`, `vec_len`, `Array_filter` / `Array_map` in `stdlib/builtins_array.ny`.
 
-`import "stdlib/vec_str.ny"` (or auto-prelude). Struct with `impl` methods — **supports** `.push()` / `.get()` / `.len()`.
+### `StrVec` / `strs()` — string vector with method syntax
 
-| Method / function | Args | Returns | Notes |
-|-------------------|------|---------|-------|
-| `StrVec_new()` | — | `StrVec` | Empty list |
-| `.push(value)` | `string` | `StrVec` | Append (method chaining) |
-| `.get(index)` | `i32` | `string` | Indexed access |
-| `.len()` | — | `i32` | Element count |
-| `StrVec_from_lines(text)` | `string` | `StrVec` | Split on `\n` |
-| `StrVec_from_argv(start_index)` | `i32` | `StrVec` | CLI args from index |
-| `argv()` | — | `StrVec` | Shorthand: `StrVec_from_argv(1)` |
-| `StrVec_join_lines(vec)` | `StrVec` | `string` | Join with `\n` |
-| `Vec_string_*` aliases | — | — | Generic `Vec<string>` syntax maps here |
+`import "stdlib/vec_str.ny"` (or auto-prelude).
+
+| Method / function | Notes |
+|-------------------|-------|
+| `strs()` / `StrVec_new()` / `lines(text)` / `argv()` | Ctors |
+| `.push` / `.get` / `.len` / `.joined(sep)` | Basic |
+| `.contains` / `.includes` / `.first` / `.last` | Membership & ends |
+| `.find` / `.find_eq` / `.index_of` / `.filter` / `.map` | HOFs (`fn(string)->…`) |
+| `StrVec_from_lines` / `StrVec_join_lines` / `Vec_string_*` | Aliases |
 
 ```ny
-let lines = StrVec_from_lines("a\nb\nc")
-print(lines.get(0))
-let mut v = StrVec_new()
-v = v.push("hello").push("world")
-for s in v { print(s) }   // iterate when used as iterable in loops
+let names = strs().push("ada").push("nyra").push("bob")
+print(names.joined(","), names.contains("nyra"))
 ```
 
 ### `HashMap` — string-keyed maps with method syntax
@@ -1977,7 +1992,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 
 | Status | Modules | Notes |
 |--------|---------|-------|
-| **Shipped** | `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `net/tcp.ny`, `net/http/mod.ny`, `net/udp.ny`, `net/websocket.ny`, `compress/mod.ny`, `serialize/mod.ny`, `json/mod.ny`, `db/sqlite.ny`, `tls.ny`, `time/*`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny` (POSIX), `bridge/mod.ny`, `terminal/*`, `encoding/csv.ny`, `archive/zip.ny`, `mime/mod.ny`, `random_bytes`, `embed/mod.ny`, `slog/mod.ny`, `testing/fstest.ny`, `testing/quick.ny` | Collections, FS, crypto, HTTP/TCP/UDP/WS, CLI, DB (SQLite), sync |
+| **Shipped** | `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `net/tcp.ny`, `net/http/mod.ny` (+ `sugar`/`fetch`), `net/udp.ny`, `net/websocket.ny`, `compress/mod.ny`, `serialize/mod.ny`, `json/mod.ny`, `db/sqlite.ny`, `db/query.ny` (`qb`), `tls.ny`, `time/*`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny` (POSIX), `bridge/mod.ny`, `terminal/*`, `encoding/csv.ny`, `archive/zip.ny`, `mime/mod.ny`, `random_bytes`, `embed/mod.ny`, `slog/mod.ny`, `testing/fstest.ny`, `testing/quick.ny` | Collections + HOFs, FS, crypto, HTTP (`fetch`/`req`), SQL builder, CLI, DB (SQLite), sync |
 | **MVP / partial** | `json/mod.ny` / `serialize/mod.ny` (multi-key encode; not full schema serde), `uuid/mod.ny`, `url` helpers, `async.ny`, `reflect/mod.ny` | Use NyraPkg (`ny-serde`) for full schema serde |
 | **Native when linked** | `db/postgres.ny` (`link pq`), `db/mysql.ny` (`link mysqlclient`), `compress/bzip2.ny` (`link bz2`) |
 | **Shipped (v1.1)** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
@@ -1991,9 +2006,9 @@ Nyra uses **monomorph names** in Core stdlib and **generic syntax** in Extended 
 
 | API | Current (use this) | Legacy / alternate | Notes |
 |-----|-------------------|-------------------|-------|
-| Growable `i32` vector | `Vec_i32_new()`, `Vec_i32_push(v, x)`, `Vec_i32_len(v)` | `Vec<T>` generic syntax (Extended) | Handle type is `ptr`; free with `Vec_i32_free(v)` or scope end if owned |
-| String-key map | `HashMap_str_i32_*`, `HashMap_str_str_*`, `Map_str_i32_*` in `map.ny` | `HashMap<K,V>` (Extended) | **Method chaining:** `.insert().insert()` · `.get` · `.contains` · `.keys()` · `.remove()` |
-| String vector | `StrVec`, `StrVec_from_argv`, `StrVec_from_lines` in `vec_str.ny` | `Vec_str_*` low-level `ptr` API | CLI args, JSON keys, line lists |
+| Growable `i32` vector | `vec()` / `VecI32` — `.push` `.filter` `.map` `.find` `.contains` | `Vec_i32_*` `ptr` API; `Vec<T>` Extended | Prefer method chaining; HOFs since v1.45 |
+| String-key map | `HashMap_str_i32_*`, `HashMap_str_str_*`, `dict()` / `obj()` sugar | `HashMap<K,V>` (Extended) | **Method chaining:** `.insert().insert()` · `.get` · `.contains` · `.keys()` · `.remove()` |
+| String vector | `strs()` / `StrVec` — `.push` `.joined` `.filter` `.map` `.find` | `Vec_str_*` low-level `ptr` API | CLI args, JSON keys, line lists |
 | Heap single owner | `import "stdlib/box.ny"` → `Box<string>`, `Box_new(value)` | `Box_string` (v2.3 changelog name) | `Box<T>` monomorph; today `Box_new` ships for `string` |
 | Shared ownership | `import "stdlib/arc.ny"` → `Arc<i32>`, `Arc<string>`, `Arc_from_i32`, `Arc_from_string`, `Arc_get_applied_i32` | `Arc_i32`, `Arc_new_i32`, `Arc_clone_i32` (v2.3 struct + manual `impl Drop`) | Legacy `Arc_i32` API remains in `arc.ny` for backward compat |
 | Optional / errors | `import "stdlib/option.ny"` → `Option<T>`, `Result<T,E>` | `Option_i32`, `Result_i32_i32` in `stdlib/result.ny` | Prefer generic `option.ny`; `result.ny` is older explicit monomorph helpers |
@@ -2004,19 +2019,15 @@ Nyra uses **monomorph names** in Core stdlib and **generic syntax** in Extended 
 ### Vec example (current Core idiom)
 
 ```ny
-import "stdlib/vec.ny"
-
 fn main() {
-    let v = Vec_i32_new()
-    Vec_i32_push(v, 1)
-    Vec_i32_push(v, 2)
-    print(Vec_i32_len(v))
-    print(Vec_i32_get(v, 0))
-    Vec_i32_free(v)   // or rely on auto-drop if ownership tracks the handle
+    let v = vec().push(1).push(2)
+    print(v.len())
+    print(v.get(0))
+    print(v.contains(2))
 }
 ```
 
-Do **not** write `v.push(1)` on `Vec_i32` — `ptr` handle, not method-chaining object. Use `Vec_i32_push(v, x)` or `import "stdlib/builtins_array.ny"` helpers (`Array_push`, `Array_map`, …). For string lists use `StrVec` which **does** support `.push()`.
+Prefer **`vec()` → `VecI32`** with `.push` / HOFs. The low-level `Vec_i32_*` `ptr` API remains for FFI. For strings use **`strs()` / `StrVec`**.
 
 ### HashMap example (method chaining)
 
@@ -2118,11 +2129,25 @@ Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure
 
 **Shipped (v1.1):** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/docs/stdlib.html).
 
-### net/http API reference (v1.2+)
+### net/http API reference (v1.44+)
 
-**Auto-prelude:** `get(url)`, `post`, `fetch`, `HttpRouter_*`, etc. resolve without `import` when prelude is enabled. Explicit: `import "stdlib/net/http/mod.ny"`. HTTPS backend from `nyra.mod` `tls` — see [TLS backends](#tls-backends-https).
+**Auto-prelude:** `fetch`, `req`, `form`, `get`, `post`, `HttpRouter_*`, etc. resolve without `import` when prelude is enabled. Explicit: `import "stdlib/net/http/mod.ny"`. HTTPS backend from `nyra.mod` `tls` — see [TLS backends](#tls-backends-https).
 
-**Canonical names:** `HttpRouter`, `HttpRouter_*`, `serve_handlers` (older docs may say `Router_*` / `listen_and_serve_*` — prefer `HttpRouter_*` in new code).
+**Preferred client (JS-like):**
+
+| API | Returns | Role |
+|-----|---------|------|
+| `fetch(url)` | `HttpResponse` | Primary GET |
+| `req().header(…).timeout(…).json(…).post(url)` | `HttpResponse` | Options + verb |
+| `req().verb("PATCH").go(url)` | `HttpResponse` | String method + fire |
+| `form().append(k,v)` / `params()` / `cookies()` | builders | Form / query / jar |
+| `post_json` / `post_form` / `get_json` | response / map | Short helpers |
+| `resp.json()` / `.text()` / `.is_ok()` | map / string / `i32` | Response methods |
+| `get(url)` | `string` | Body-only convenience |
+
+Also: `HeaderMap`, `FormData`, `URLSearchParams`, `CookieJar`, `AbortController`, redirects (`REDIRECT_*`), real timeouts.
+
+**Canonical server names:** `HttpRouter`, `HttpRouter_*`, `serve_handlers` (older docs may say `Router_*` — prefer `HttpRouter_*` in new code).
 
 **Method constants:** `METHOD_GET`, `METHOD_POST`, `METHOD_PUT`, `METHOD_DELETE`, `METHOD_PATCH`, `METHOD_HEAD`, `METHOD_OPTIONS`.
 
@@ -2131,44 +2156,55 @@ Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure
 | Function | Description |
 |----------|-------------|
 | `HttpRouter_new()` | Empty router |
-| `HttpRouter_register(router, method, path, tag)` | Static response tag string |
-| `HttpRouter_register_slot(router, method, path, slot)` | Handler slot id |
-| `HttpRouter_match_slot(router, ctx)` | Resolve slot (`-1` missing) |
-| `serve_handlers(host, port, max_requests, router, handler)` | `handler(slot, ctx) -> HttpResponse` |
+| `HttpRouter_register(router, method, path, tag)` | Tag route (supports `/users/:id`) |
+| `HttpRouter_register_slot(router, method, path, slot)` | Slot route (supports `/users/:id`) |
+| `HttpRouter_match(router, ctx)` | `RouteMatch` — `.slot`, `.tag`, `.params` |
+| `HttpRouter_match_slot(router, ctx)` | Resolve slot only (`-1` missing) |
+| `RequestContext_param(ctx, name)` | Path param after `HttpRouter_match` / `serve_handlers` |
+| `serve_handlers(host, port, max_requests, router, handler)` | `handler(slot, ctx) -> HttpResponse` (ctx.params filled) |
 | `serve_loop(host, port, max_requests)` | Builtin loop |
 | `serve_once(host, port, body)` | Single request |
 
-#### Responses & client
+#### Responses & legacy free verbs
 
 | Function | Role |
 |----------|------|
 | `response_ok_json(body)` | 200 JSON |
 | `response_created_json`, `response_not_found`, … | Status helpers |
-| `get(url)` / `fetch(url)` | HTTP GET; **`fetch` → `HttpResponse`**, **`get` → body string**; HTTPS uses `tls` backend from `nyra.mod` |
-| `post`, `put`, `patch`, `delete` | Verbs → `HttpResponse` |
+| `post` / `put` / `patch` / `delete` | Free verbs → `HttpResponse` (prefer `req().…`) |
 | `tls_last_error()` | TLS/connect error detail (`stdlib/tls.ny`, auto-prelude) |
 
 ```ny
 fn main() {
-    print(get("https://example.com/"))
+    let resp = fetch("https://example.com/")
+    print(resp.status, resp.text())
 }
 ```
 
 Server + router example:
 
 ```ny
-import "stdlib/net/http/mod.ny"
-
-fn health_slot(slot: i32, ctx: RequestContext) -> HttpResponse {
-    return response_ok_json("{\"status\":\"ok\"}")
+fn dispatch(slot, ctx) {
+    if slot == 0 {
+        return response_ok_json("{\"status\":\"ok\"}")
+    }
+    if slot == 1 {
+        let id = RequestContext_param(ctx, "id")
+        return response_ok_json(strcat("{\"id\":\"", strcat(id, "\"}")))
+    }
+    return response_not_found()
 }
 
 fn main() {
     let mut router = HttpRouter_new()
     router = HttpRouter_register_slot(router, METHOD_GET, "/health", 0)
-    serve_handlers("127.0.0.1", 8080, 100, router, health_slot)
+    router = HttpRouter_register_slot(router, METHOD_GET, "/users/:id", 1)
+    // Also: HttpRouter_match(router, ctx) → .slot / .params
+    serve_handlers("127.0.0.1", 8080, 100, router, dispatch)
 }
 ```
+
+**Parametric routes (v1.45.1):** `:name` segments on register paths (`/t/:teacher/s/:stage` ok). Exact matches win over patterns. `serve_handlers` fills `ctx.params`; or call `HttpRouter_match` then `RequestContext_with_params`.
 
 [net/http reference](https://nyra-lang.github.io/docs/net-http.html)
 
@@ -2178,14 +2214,20 @@ fn main() {
 |--------|----------|
 | `stdlib/net/tcp.ny` | `tcp_listen`, `tcp_accept`, `tcp_connect`, `tcp_read`, `tcp_write` |
 | `stdlib/net/websocket.ny` | `WebSocket_connect`, `ws_listen_on`, `.send`, `.recv` |
+| `stdlib/json/mod.ny` | `jparse`, `jstr`/`jnum`/`jobj`, `obj()`/`dict()`, `JSON_parse_object` |
+| `stdlib/fs/sugar.ny` | `slurp` / `spit` / `mkdir` / `rm` / `ls` |
+| `stdlib/db/query.ny` | `qb().select().from().where().include().lookup().unwind().to_sql()`; `db.find(q)` |
+| `stdlib/db/sqlite.ny` | `Sqlite_open`, `.exec`, `.query_rows`, `.find(q)` — `link sqlite3` |
 | `stdlib/crypto/mod.ny` | `sha256`, `hmac_sha256`, `sha512` (submodules) |
 | `stdlib/serde/mod.ny` | `trait Serialize` / `Deserialize`; `{Struct}_json_encode/decode` |
 | `stdlib/flag/mod.ny` | `FlagSet_new`, `Flag_parse`, `.verbose()`, `.help()` |
 | `stdlib/strconv/mod.ny` | `atoi`, `itoa`, `parse_f64`, `format_f64` |
 | `stdlib/bufio/mod.ny` | `Scanner_new`, `Scanner_scan`, `ReadLine` |
-| `stdlib/iter/mod.ny` | `iter_filter`, `iter_map`, `vec_reduce_sum` |
-| `stdlib/process.ny` | `exec(program, args)`, `Command` |
+| `stdlib/iter/mod.ny` | `iter_filter`, `iter_map`, `vec_reduce_sum` (raw `ptr`) |
+| `stdlib/process.ny` | `cmd(program).arg(…).run()`, `exec` |
 | `stdlib/collections/set.ny` | `HashSet_str` — `.insert`, `.contains` |
+| `stdlib/time/sugar.ny` | `now()`, `ms(n).sleep()` |
+| `stdlib/strings/builder.ny` | `sb().push(…).build()`, `cat`/`cat3`/`cat4` |
 
 **Low-level runtime** (still valid): `read_file`, `vec_i32_*`, `map_str_i32_*`, `channel_*`, `bridge_exec`, `spawn { }`, `spawn:thread { }`, `h.join()`.
 

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Strings — Nyra Docs</title>
+  <title>Strings — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,42 +133,54 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-strings.h1">Nyra Strings</h1>
-      <p class="lead" data-i18n-html="pages.learn-strings.lead">Text literals, concatenation, and template strings.</p>
-<h2>String literal</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-strings.h1">Strings</h1>
+      <p class="lead" data-i18n-html="pages.learn-strings.lead">Strings, templates, and printing.</p>
+<section class="doc-ex">
+<h2>String literal</h2>
+<p class="doc-ex-prose">Text between double quotes.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let greeting = &quot;Hello&quot;
-print(greeting)</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let greeting: string = &quot;Hello&quot;
-print(greeting)</code></pre></div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let greeting = &quot;Hello&quot;
+    print(greeting)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let greeting: string = &quot;Hello&quot;
+    print(greeting)
+}</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><h2>Template strings</h2><!-- NYRA_SNIPPET_START -->
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>Hello</code></pre>
+</section><section class="doc-ex">
+<h2>Template strings</h2>
+<p class="doc-ex-prose">Use backticks with <code>{name}</code> to embed values.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let name = &quot;Nyra&quot;
-print(`Hello, {name}!`)</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let name: string = &quot;Nyra&quot;
-print(`Hello, {name}!`)</code></pre></div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let name = &quot;Nyra&quot;
+    print(`Hello, {name}!`)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let name: string = &quot;Nyra&quot;
+    print(`Hello, {name}!`)
+}</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/template_strings.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>(template output)</code></pre>
-
-</div>
-      <p>Stdlib: <code>import "stdlib/strings.ny"</code> for <code>strlen</code>, <code>strcat</code>, etc.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-scope.html">← Nyra Scope</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>Hello, Nyra!</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-scope.html">← Scope</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-ownership.html">Nyra Ownership →</a>
+<a class="lesson-nav-next" href="learn-ownership.html">Ownership →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

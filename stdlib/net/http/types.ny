@@ -55,6 +55,7 @@ struct RequestContext {
     body: string
     query: string
     raw: string
+    params: HashMap_str_str
 }
 
 struct Server {

@@ -208,7 +208,7 @@
     "getting-started": {
       "metaTitle": "البدء السريع — توثيق Nyra",
       "h1": "البدء السريع",
-      "lead": "ثبّت Nyra، أنشئ مشروعاً، وشغّل أول برنامج خلال دقائق.",
+      "lead": "ثبّت Nyra، أنشئ ملفاً، وشغّل برنامجاً.",
       "h2_1": "1. تثبيت Nyra",
       "p_1": "تحتاج <strong>clang</strong> في PATH. راجع <a href=\"install.html\">التثبيت</a> لـ macOS وLinux وWindows (بما فيها WSL).",
       "h2_2": "2. إنشاء مشروع",
@@ -242,7 +242,7 @@
     "install": {
       "metaTitle": "تثبيت Nyra — توثيق Nyra",
       "h1": "تثبيت Nyra",
-      "lead": "ثبّت منصة Nyra من <strong>وسم إصدار على GitHub</strong>، جهّز بيئتك، وشغّل أول مشروع على <strong>macOS</strong> و<strong>Linux</strong> أو <strong>Windows</strong>.",
+      "lead": "ثبّت أداة Nyra من إصدار GitHub على macOS أو Linux أو Windows.",
       "repoLabel": "المستودع:",
       "releasesLabel": "الإصدارات (وسوم):",
       "calloutTitle": "مستودع عام مطلوب للمثبّت بسطر واحد",
@@ -325,9 +325,7 @@
     "language-basics": {
       "metaTitle": "أساسيات اللغة — توثيق Nyra",
       "h1": "أساسيات اللغة",
-      "lead": "تعلّم Nyra من الصفر — لا تحتاج خبرة برمجية سابقة. كل كلمة مفتاحية مفسّرة بلغة بسيطة مع أمثلة قابلة للتشغيل.",
-      "audienceTitle": "لمن هذا الدليل؟",
-      "audienceBody": "إن لم تكتب كوداً من قبل، ابدأ هنا. نشرح <em>ماذا</em> تعني كل صيغة و<em>لماذا</em> تستخدمها — لا نكتفي بكتابة الرمز فقط."
+      "lead": "مرجع قصير: متغيرات، طباعة، شروط، حلقات، ودوال."
     },
     "types": {
       "metaTitle": "الأنواع والبيانات — توثيق Nyra",
@@ -387,12 +385,12 @@
     "stdlib": {
       "metaTitle": "المكتبة القياسية — توثيق Nyra",
       "h1": "المكتبة القياسية",
-      "lead": "مرجع stdlib — <strong>batteries-included بالتصميم</strong>. وحدات أساسية + crypto وDB وserde وWebSocket في <code>stdlib/rt/</code>."
+      "lead": "مرجع قصير لـ <code>stdlib/</code> — دوال مدمجة في <a href=\"methods.html\">methods</a>، ووحدات أسفل الصفحة."
     },
     "methods": {
       "metaTitle": "الدوال المدمجة — توثيق Nyra",
       "h1": "الدوال المدمجة",
-      "lead": "صفحة واحدة لكل <strong>الدوال المدمجة في المترجم</strong> و<strong>صيغة methods في stdlib</strong> على النصوص والأرقام والمصفوفات والمتجهات والخرائط."
+      "lead": "جدول سريع للـ builtins وصيغة الـ methods — أمثلة كاملة في المعرض أسفل الصفحة."
     },
     "reference": {
       "metaTitle": "مرجع اللغة — توثيق Nyra",
@@ -441,138 +439,138 @@
     },
     "learn-intro": {
       "metaTitle": "مقدمة Nyra — توثيق Nyra",
-      "h1": "مقدمة إلى Nyra",
-      "lead": "ما هي Nyra، ولماذا وُجدت، وكيف نُظّم هذا الدرس التعليمي."
+      "h1": "مقدمة Nyra",
+      "lead": "ما هي Nyra وكيف تقرأ هذا المسار؟"
     },
     "learn-get-started": {
-      "metaTitle": "البدء مع Nyra — توثيق Nyra",
-      "h1": "البدء مع Nyra",
-      "lead": "ثبّت Nyra، أنشئ أول مشروع لك، وشغّل برنامجاً."
+      "metaTitle": "البداية — توثيق Nyra",
+      "h1": "البداية",
+      "lead": "ثبّت Nyra وشغّل أول ملف."
     },
     "learn-syntax": {
       "metaTitle": "صياغة Nyra — توثيق Nyra",
       "h1": "صياغة Nyra",
-      "lead": "الكتل والعبارات والإزاحة واصطلاحات التسمية."
+      "lead": "كتل، جمل، وتسمية."
     },
     "learn-output": {
-      "metaTitle": "الإخراج في Nyra — توثيق Nyra",
-      "h1": "الإخراج في Nyra",
-      "lead": "اطبع النصوص والأرقام إلى الطرفية باستخدام <code>print</code>."
+      "metaTitle": "الطباعة — توثيق Nyra",
+      "h1": "الطباعة",
+      "lead": "اطبع نصًا أو رقمًا بـ <code>print</code>."
     },
     "learn-comments": {
-      "metaTitle": "التعليقات في Nyra — توثيق Nyra",
-      "h1": "التعليقات في Nyra",
-      "lead": "وثّق الكود بتعليقات السطر وتعليقات الكتلة."
+      "metaTitle": "التعليقات — توثيق Nyra",
+      "h1": "التعليقات",
+      "lead": "علّق على الكود بـ <code>//</code> أو <code>/* */</code>."
     },
     "learn-variables": {
-      "metaTitle": "المتغيرات في Nyra — توثيق Nyra",
-      "h1": "المتغيرات في Nyra",
-      "lead": "اربط الأسماء بالقيم باستخدام <code>let</code> و<code>let mut</code>."
+      "metaTitle": "المتغيرات — توثيق Nyra",
+      "h1": "المتغيرات",
+      "lead": "اربط اسمًا بقيمة بـ <code>let</code> و<code>let mut</code>."
     },
     "learn-data-types": {
-      "metaTitle": "أنواع البيانات في Nyra — توثيق Nyra",
-      "h1": "أنواع البيانات في Nyra",
-      "lead": "الأنواع المدمجة: الأعداد الصحيحة والقيم المنطقية والنصوص وغيرها."
+      "metaTitle": "أنواع البيانات — توثيق Nyra",
+      "h1": "أنواع البيانات",
+      "lead": "الأنواع المدمجة الأساسية."
     },
     "learn-constants": {
-      "metaTitle": "الثوابت في Nyra — توثيق Nyra",
-      "h1": "الثوابت في Nyra",
-      "lead": "قيم ثابتة تُحدَّد وقت الترجمة باستخدام <code>const</code>."
+      "metaTitle": "الثوابت — توثيق Nyra",
+      "h1": "الثوابت",
+      "lead": "قيم ثابتة وقت الترجمة بـ <code>const</code>."
     },
     "learn-operators": {
-      "metaTitle": "العمليات في Nyra — توثيق Nyra",
-      "h1": "العمليات في Nyra",
-      "lead": "عوامل الحساب والمقارنة."
+      "metaTitle": "العمليات — توثيق Nyra",
+      "h1": "العمليات",
+      "lead": "حساب ومقارنة ومنطق."
     },
     "learn-booleans": {
-      "metaTitle": "القيم المنطقية في Nyra — توثيق Nyra",
-      "h1": "القيم المنطقية في Nyra",
+      "metaTitle": "القيم المنطقية — توثيق Nyra",
+      "h1": "القيم المنطقية",
       "lead": "النوع <code>bool</code>: <code>true</code> و<code>false</code>."
     },
     "learn-if-else": {
-      "metaTitle": "الشروط If..Else في Nyra — توثيق Nyra",
-      "h1": "الشروط If..Else في Nyra",
-      "lead": "التفريع بناءً على الشروط باستخدام <code>if</code> و<code>else</code>."
+      "metaTitle": "If..Else — توثيق Nyra",
+      "h1": "If..Else",
+      "lead": "فرّع التنفيذ حسب الشرط."
     },
     "learn-match": {
-      "metaTitle": "المطابقة Match في Nyra — توثيق Nyra",
-      "h1": "المطابقة Match في Nyra",
-      "lead": "طابِق الأنماط على التعدادات والقيم."
+      "metaTitle": "Match — توثيق Nyra",
+      "h1": "Match",
+      "lead": "طابق على قيم الـ enum."
     },
     "learn-loops": {
-      "metaTitle": "الحلقات في Nyra — توثيق Nyra",
-      "h1": "الحلقات في Nyra",
-      "lead": "نظرة عامة على حلقتَي <code>while</code> و<code>for</code>."
+      "metaTitle": "الحلقات — توثيق Nyra",
+      "h1": "الحلقات",
+      "lead": "نظرة على <code>while</code> و<code>for</code>."
     },
     "learn-while": {
-      "metaTitle": "حلقة while في Nyra — توثيق Nyra",
-      "h1": "حلقة while في Nyra",
-      "lead": "كرّر ما دام الشرط صحيحاً."
+      "metaTitle": "While — توثيق Nyra",
+      "h1": "While",
+      "lead": "كرّر طالما الشرط صحيح."
     },
     "learn-for": {
-      "metaTitle": "حلقة for في Nyra — توثيق Nyra",
-      "h1": "حلقة for في Nyra",
-      "lead": "كرّر عبر نطاقات رقمية."
+      "metaTitle": "For — توثيق Nyra",
+      "h1": "For",
+      "lead": "مر على نطاق رقمي."
     },
     "learn-functions": {
-      "metaTitle": "الدوال في Nyra — توثيق Nyra",
-      "h1": "الدوال في Nyra",
-      "lead": "عرّف دوالاً قابلة لإعادة الاستخدام بمعاملات وأنواع إرجاع."
+      "metaTitle": "الدوال — توثيق Nyra",
+      "h1": "الدوال",
+      "lead": "عرّف دوالًا قابلة لإعادة الاستخدام."
     },
     "learn-scope": {
-      "metaTitle": "النطاق في Nyra — توثيق Nyra",
-      "h1": "النطاق في Nyra",
-      "lead": "أين تكون المتغيرات مرئية — نطاق الكتلة في Nyra."
+      "metaTitle": "النطاق — توثيق Nyra",
+      "h1": "النطاق",
+      "lead": "أين يظهر المتغير؟"
     },
     "learn-strings": {
-      "metaTitle": "النصوص في Nyra — توثيق Nyra",
-      "h1": "النصوص في Nyra",
-      "lead": "حرفيات النصوص، ودمجها، وقوالب النصوص."
+      "metaTitle": "النصوص — توثيق Nyra",
+      "h1": "النصوص",
+      "lead": "نصوص، قوالب، وطباعة."
     },
     "learn-ownership": {
-      "metaTitle": "الملكية في Nyra — توثيق Nyra",
-      "h1": "الملكية في Nyra",
-      "lead": "النسخ مقابل النقل (Copy vs Move) — كيف تتتبّع Nyra مالك بيانات الكومة."
+      "metaTitle": "الملكية — توثيق Nyra",
+      "h1": "الملكية",
+      "lead": "Copy مقابل Move."
     },
     "learn-borrowing": {
-      "metaTitle": "الاستعارة في Nyra — توثيق Nyra",
-      "h1": "الاستعارة في Nyra",
-      "lead": "وصول مؤقت باستخدام <code>&amp;T</code> و<code>&amp;mut T</code>."
+      "metaTitle": "الاستعارة — توثيق Nyra",
+      "h1": "الاستعارة",
+      "lead": "وصول مؤقت بـ <code>&amp;T</code> و<code>&amp;mut T</code>."
     },
     "learn-data-structures": {
-      "metaTitle": "هياكل البيانات في Nyra — توثيق Nyra",
-      "h1": "هياكل البيانات في Nyra",
-      "lead": "نظرة عامة على المصفوفات والمتجهات والصفوف والخرائط والهياكل والتعدادات."
+      "metaTitle": "هياكل البيانات — توثيق Nyra",
+      "h1": "هياكل البيانات",
+      "lead": "مصفوفات، متجهات، tuples، خرائط، structs، enums."
     },
     "learn-arrays": {
-      "metaTitle": "المصفوفات في Nyra — توثيق Nyra",
-      "h1": "المصفوفات في Nyra",
-      "lead": "المصفوفات ثابتة الحجم والفهرسة."
+      "metaTitle": "Arrays — توثيق Nyra",
+      "h1": "Arrays",
+      "lead": "مصفوفة بحجم ثابت والفهرسة."
     },
     "learn-vectors": {
-      "metaTitle": "المتجهات في Nyra — توثيق Nyra",
-      "h1": "المتجهات (Vectors) في Nyra",
-      "lead": "مصفوفات قابلة للنمو باستخدام <code>Vec&lt;T&gt;</code>."
+      "metaTitle": "Vectors — توثيق Nyra",
+      "h1": "Vectors",
+      "lead": "قوائم قابلة للنمو بـ <code>vec()</code>."
     },
     "learn-tuples": {
-      "metaTitle": "الصفوف Tuples في Nyra — توثيق Nyra",
-      "h1": "الصفوف (Tuples) في Nyra",
-      "lead": "اجمع القيم باستخدام أنواع الصفوف وحرفياتها."
+      "metaTitle": "Tuples — توثيق Nyra",
+      "h1": "Tuples",
+      "lead": "اجمع قيمًا بأنواع مختلفة."
     },
     "learn-hashmap": {
-      "metaTitle": "الخرائط HashMap في Nyra — توثيق Nyra",
-      "h1": "الخرائط HashMap في Nyra",
-      "lead": "خرائط المفتاح-القيمة: تسمية وقت التشغيل map_&lt;key&gt;_&lt;value&gt;_&lt;op&gt; ومغلّفات المكتبة القياسية."
+      "metaTitle": "HashMap — توثيق Nyra",
+      "h1": "HashMap",
+      "lead": "خريطة مفتاح → قيمة عبر stdlib."
     },
     "learn-structs": {
-      "metaTitle": "الهياكل Structs في Nyra — توثيق Nyra",
-      "h1": "الهياكل (Structs) في Nyra",
-      "lead": "عرّف أنواعاً مخصّصة بحقول مسمّاة."
+      "metaTitle": "Structs — توثيق Nyra",
+      "h1": "Structs",
+      "lead": "نوع مخصص بحقول مسماة."
     },
     "learn-enums": {
-      "metaTitle": "التعدادات Enums في Nyra — توثيق Nyra",
-      "h1": "التعدادات (Enums) في Nyra",
-      "lead": "متغايرات مسمّاة ومطابقة الأنماط."
+      "metaTitle": "Enums — توثيق Nyra",
+      "h1": "Enums",
+      "lead": "حالات مسماة مع <code>match</code>."
     }
   }
 }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Data Structures — Nyra Docs</title>
+  <title>Data Structures — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,18 +133,25 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-data-structures.h1">Nyra Data Structures</h1>
-      <p class="lead" data-i18n-html="pages.learn-data-structures.lead">Overview of arrays, vectors, tuples, maps, structs, and enums.</p>
+      <h1 data-i18n="pages.learn-data-structures.h1">Data Structures</h1>
+      <p class="lead" data-i18n-html="pages.learn-data-structures.lead">Arrays, vectors, tuples, maps, structs, enums.</p>
 
-      <ul>
-        <li><a href="learn-arrays.html">Arrays</a> — fixed-size <code>[T; N]</code></li>
-        <li><a href="learn-vectors.html">Vectors</a> — growable <code>Vec&lt;T&gt;</code></li>
-        <li><a href="learn-tuples.html">Tuples</a> — <code>(T, U)</code> grouped values</li>
-        <li><a href="learn-hashmap.html">HashMap</a> — key-value maps</li>
-        <li><a href="learn-structs.html">Structs</a> — named field groups</li>
-        <li><a href="learn-enums.html">Enums</a> — fixed variant sets</li>
-      </ul>
-<h2>Quick tour</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+  <h2>Topic guide</h2>
+  <p class="doc-ex-prose">Pick a topic:</p>
+  <ul>
+    <li><a href="learn-arrays.html">Arrays</a> — fixed size</li>
+    <li><a href="learn-vectors.html">Vectors</a> — growable</li>
+    <li><a href="learn-tuples.html">Tuples</a> — grouped values</li>
+    <li><a href="learn-hashmap.html">HashMap</a> — key → value</li>
+    <li><a href="learn-structs.html">Structs</a> — named fields</li>
+    <li><a href="learn-enums.html">Enums</a> — fixed variants</li>
+  </ul>
+</section>
+<section class="doc-ex">
+<h2>Quick tour</h2>
+<p class="doc-ex-prose">Array + tuple + HashMap in one example.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -155,10 +162,8 @@
 fn main() {
     let nums = [1, 2, 3]
     print(nums.len())
-
     let pair = (42, &quot;ok&quot;)
     print(pair.0)
-
     let mut scores = HashMap_str_i32_new()
     scores = scores.insert(&quot;ada&quot;, 100)
     print(scores.get(&quot;ada&quot;))
@@ -168,27 +173,22 @@ fn main() {
 fn main() -&gt; void {
     let nums: [i32; 3] = [1, 2, 3]
     print(nums.len())
-
     let pair = (42, &quot;ok&quot;)
     print(pair.0)
-
     let mut scores = HashMap_str_i32_new()
     scores = scores.insert(&quot;ada&quot;, 100)
     print(scores.get(&quot;ada&quot;))
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/hashmap.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>100
-true</code></pre>
-<p>HashMap runnable demo; combine with array and tuple snippets from sibling lessons.</p>
-</div>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-borrowing.html">← Nyra Borrowing</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>3
+42
+100</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-borrowing.html">← Borrowing</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-arrays.html">Nyra Arrays →</a>
+<a class="lesson-nav-next" href="learn-arrays.html">Arrays →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

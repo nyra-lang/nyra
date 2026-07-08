@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Data Types — Nyra Docs</title>
+  <title>Data Types — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,21 +133,27 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-data-types.h1">Nyra Data Types</h1>
-      <p class="lead" data-i18n-html="pages.learn-data-types.lead">Built-in types: integers, booleans, strings, and more.</p>
+      <h1 data-i18n="pages.learn-data-types.h1">Data Types</h1>
+      <p class="lead" data-i18n-html="pages.learn-data-types.lead">Core built-in types.</p>
 
-      <table>
-        <thead><tr><th>Type</th><th>Example</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td><code>i32</code></td><td><code>42</code></td><td>32-bit signed integer (default for literals)</td></tr>
-          <tr><td><code>i64</code></td><td><code>10000000000</code></td><td>64-bit signed integer</td></tr>
-          <tr><td><code>u32</code></td><td><code>42</code></td><td>32-bit unsigned integer</td></tr>
-          <tr><td><code>bool</code></td><td><code>true</code>, <code>false</code></td><td>Boolean</td></tr>
-          <tr><td><code>string</code></td><td><code>"hello"</code></td><td>UTF-8 text (heap-owned when dynamic)</td></tr>
-          <tr><td><code>void</code></td><td>—</td><td>No return value</td></tr>
-        </tbody>
-      </table>
-<h2>Examples by type</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+  <h2>Quick reference</h2>
+  <p class="doc-ex-prose">Most-used built-in types:</p>
+  <table>
+    <thead><tr><th>Type</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>i32</code></td><td><code>42</code></td><td>32-bit signed integer (default for literals)</td></tr>
+      <tr><td><code>i64</code></td><td><code>10000000000</code></td><td>64-bit signed integer</td></tr>
+      <tr><td><code>bool</code></td><td><code>true</code></td><td>Boolean</td></tr>
+      <tr><td><code>string</code></td><td><code>"hi"</code></td><td>UTF-8 text (heap-owned when dynamic)</td></tr>
+      <tr><td><code>void</code></td><td>—</td><td>No return value</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="doc-ex">
+<h2>Examples by type</h2>
+<p class="doc-ex-prose">You can write the type explicitly or let the compiler infer it.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -155,37 +161,30 @@
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
     let count = 42
-    let big = 1_000_000_000
     let flag = true
     let name = &quot;Nyra&quot;
     print(count)
-    print(big)
     print(flag)
     print(name)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     let count: i32 = 42
-    let big = 1_000_000_000
     let flag = true
     let name: string = &quot;Nyra&quot;
     print(count)
-    print(big)
     print(flag)
     print(name)
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/hello.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>Hello, Nyra!</code></pre>
-
-</div>
-      <p>Annotate types explicitly: <code>let age: i32 = 25</code>. See <a href="types.html">Types &amp; data</a> for structs, arrays, and references.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-variables.html">← Nyra Variables</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>42
+true
+Nyra</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-variables.html">← Variables</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-constants.html">Nyra Constants →</a>
+<a class="lesson-nav-next" href="learn-constants.html">Constants →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Ownership — Nyra Docs</title>
+  <title>Ownership — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,18 +133,17 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-ownership.h1">Nyra Ownership</h1>
-      <p class="lead" data-i18n-html="pages.learn-ownership.lead">Copy vs Move — how Nyra tracks who owns heap data.</p>
+      <h1 data-i18n="pages.learn-ownership.h1">Ownership</h1>
+      <p class="lead" data-i18n-html="pages.learn-ownership.lead">Copy vs Move.</p>
 
-      <table>
-        <thead><tr><th>Type</th><th>Kind</th><th>Behavior</th></tr></thead>
-        <tbody>
-          <tr><td><code>i32</code>, <code>bool</code>, enums</td><td><strong>Copy</strong></td><td>Both bindings stay valid after assign</td></tr>
-          <tr><td><code>string</code> (heap)</td><td><strong>Move</strong></td><td>Single owner; source invalidated on move</td></tr>
-          <tr><td><code>struct</code></td><td>Copy or Move</td><td>Move if any field is Move</td></tr>
-        </tbody>
-      </table>
-<h2>Move example</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+  <h2>Quick rule</h2>
+  <p class="doc-ex-prose"><code>i32</code> and <code>bool</code> are <strong>Copied</strong>. Heap <code>string</code> values are <strong>Moved</strong> — the previous owner becomes invalid.</p>
+</section>
+<section class="doc-ex">
+<h2>Move example</h2>
+<p class="doc-ex-prose">After <code>let b = a</code> on an owned string, do not use <code>a</code>.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -153,21 +152,21 @@
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
     let a = &quot;hello&quot;
     let b = a
-    // print(a)  // error: use of moved value
     print(b)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     let a: string = &quot;hello&quot;
     let b = a
-    // print(a)  // error: use of moved value
     print(b)
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END -->      <p>Owned heap strings are <strong>auto-dropped</strong> at scope end. Deep dive: <a href="memory.html">Memory &amp; ownership</a>.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-strings.html">← Nyra Strings</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-strings.html">← Strings</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-borrowing.html">Nyra Borrowing →</a>
+<a class="lesson-nav-next" href="learn-borrowing.html">Borrowing →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

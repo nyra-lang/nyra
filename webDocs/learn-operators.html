@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Operators — Nyra Docs</title>
+  <title>Operators — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,18 +133,17 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-operators.h1">Nyra Operators</h1>
-      <p class="lead" data-i18n-html="pages.learn-operators.lead">Arithmetic and comparison operators.</p>
+      <h1 data-i18n="pages.learn-operators.h1">Operators</h1>
+      <p class="lead" data-i18n-html="pages.learn-operators.lead">Arithmetic, comparison, and logic.</p>
 
-      <table>
-        <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
-        <tbody>
-          <tr><td><code>+ - * / %</code></td><td>Arithmetic</td><td><code>3 + 4</code> → 7</td></tr>
-          <tr><td><code>== != &lt; &gt; &lt;= &gt;=</code></td><td>Compare</td><td><code>5 == 5</code> → true</td></tr>
-          <tr><td><code>&amp;&amp; || !</code></td><td>Logic</td><td><code>true &amp;&amp; false</code> → false</td></tr>
-        </tbody>
-      </table>
-<h2>Example</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+  <h2>Operators</h2>
+  <p class="doc-ex-prose"><code>+ - * / %</code> arithmetic · <code>== != &lt; &gt;</code> compare · <code>&amp;&amp; || !</code> logic.</p>
+</section>
+<section class="doc-ex">
+<h2>Example</h2>
+<p class="doc-ex-prose">Operation results print as-is.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -159,16 +158,14 @@
     print(10 == 5)
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/math.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>(math demo)</code></pre>
-
-</div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-constants.html">← Nyra Constants</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>15
+false</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-constants.html">← Constants</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-booleans.html">Nyra Booleans →</a>
+<a class="lesson-nav-next" href="learn-booleans.html">Booleans →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

@@ -64,7 +64,7 @@
       });
   }
 
-  /* Body-prose dictionary (only Arabic has one). English is the source of truth. */
+  /* Body-prose dictionary: English HTML is source of truth; ar-content.json maps EN → AR. */
   function loadContentLocale(lang) {
     if (lang === 'en') {
       state.content = {};
@@ -106,7 +106,7 @@
   var TRANSLATE_BLOCKS =
     'h1,h2,h3,h4,h5,h6,p,li,figcaption,blockquote,th,td,dt,dd,summary,' +
     '.section-desc,.lesson-meta,.example-output-label,.builtin-ex-title,' +
-    '.bento-kicker,.pillar-label,.callout>strong,.lesson-nav-hub,' +
+    '.doc-ex-prose,.bento-kicker,.pillar-label,.callout>strong,.lesson-nav-hub,' +
     '.lesson-nav-prev,.lesson-nav-next,.code-tab';
   var NO_TRANSLATE_ANCESTORS =
     'pre,code,.file-tree,script,style,svg,.no-translate,[data-no-translate]';

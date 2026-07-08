@@ -208,8 +208,7 @@ tls rustls</code></pre>
     print(get(&quot;https://example.com/&quot;))
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END -->
-      <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem (network reset, cert error, …) — it does not ask you to install OpenSSL when using <code>rustls</code> or <code>native</code> on macOS/Windows.</p>
+<!-- NYRA_SNIPPET_END -->      <p>On failure, <code>tls_last_error()</code> describes the real connect/handshake problem (network reset, cert error, …) — it does not ask you to install OpenSSL when using <code>rustls</code> or <code>native</code> on macOS/Windows.</p>
 
       <h2>Module layout</h2>
       <pre><code>stdlib/net/http/
@@ -223,18 +222,38 @@ tls rustls</code></pre>
 
       <h2>HTTP client</h2>
       <p><strong>Preferred (JS-like):</strong> one entry — <code>fetch(url)</code> returns <code>HttpResponse</code>. Put options on <code>req()</code>, then call the method with the URL (<code>.get</code> / <code>.post</code> / …). Body-only convenience remains <code>get(url) -&gt; string</code>.</p>
-      <pre><code>let resp = fetch("https://example.com/")
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let resp = fetch(&quot;https://example.com/&quot;)
 print(resp.status, resp.text())
 
 let posted = req()
-    .header("Authorization", "Bearer tok")
+    .header(&quot;Authorization&quot;, &quot;Bearer tok&quot;)
     .timeout(10000)
-    .json("{\"name\":\"Nyra\"}")
-    .post("https://example.com/api")
+    .json(&quot;{\&quot;name\&quot;:\&quot;Nyra\&quot;}&quot;)
+    .post(&quot;https://example.com/api&quot;)
 
 let form_post = req()
-    .form(form().append("a", "1").append("b", "2"))
-    .post(url)</code></pre>
+    .form(form().append(&quot;a&quot;, &quot;1&quot;).append(&quot;b&quot;, &quot;2&quot;))
+    .post(url)</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let resp = fetch(&quot;https://example.com/&quot;)
+print(resp.status, resp.text())
+
+let posted = req()
+    .header(&quot;Authorization&quot;, &quot;Bearer tok&quot;)
+    .timeout(10000)
+    .json(&quot;{\&quot;name\&quot;:\&quot;Nyra\&quot;}&quot;)
+    .post(&quot;https://example.com/api&quot;)
+
+let form_post = req()
+    .form(form().append(&quot;a&quot;, &quot;1&quot;).append(&quot;b&quot;, &quot;2&quot;))
+    .post(url)</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
       <table>
         <thead><tr><th>API</th><th>Returns</th><th>Role</th></tr></thead>
         <tbody>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Borrowing — Nyra Docs</title>
+  <title>Borrowing — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,30 +133,40 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-borrowing.h1">Nyra Borrowing</h1>
+      <h1 data-i18n="pages.learn-borrowing.h1">Borrowing</h1>
       <p class="lead" data-i18n-html="pages.learn-borrowing.lead">Temporary access with <code>&amp;T</code> and <code>&amp;mut T</code>.</p>
-<h2>Mutable borrow</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+<h2>Mutable borrow</h2>
+<p class="doc-ex-prose">Only one mutable borrow at a time. Finish using it before returning to the owner.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
-    let mut x = 1
+    mut x = 1
     let r = &amp;mut x
     print(*r)
-    x = 2
+    *r = 5
     print(x)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
-    let mut x: i32 = 1
+    mut x = 1
     let r = &amp;mut x
     print(*r)
-    x = 2
+    *r = 5
     print(x)
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><h2>Shared read-only borrow</h2><!-- NYRA_SNIPPET_START -->
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+5</code></pre>
+</section><section class="doc-ex">
+<h2>Shared read-only borrow</h2>
+<p class="doc-ex-prose">Multiple <code>&amp;T</code> borrows are allowed together.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -175,16 +185,14 @@
     print(msg)
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END -->      <p>Borrows expire at the <strong>last use</strong> (non-lexical lifetimes). Rules:</p>
-      <ul>
-        <li>Many <code>&amp;T</code> OR one <code>&amp;mut T</code> at a time</li>
-        <li>Cannot use a moved value after move</li>
-        <li>Cannot return <code>&amp;local</code></li>
-      </ul>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-ownership.html">← Nyra Ownership</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello
+hello</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-ownership.html">← Ownership</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-data-structures.html">Nyra Data Structures →</a>
+<a class="lesson-nav-next" href="learn-data-structures.html">Data Structures →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

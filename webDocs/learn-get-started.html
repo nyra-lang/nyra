@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Get Started — Nyra Docs</title>
+  <title>Get Started — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,23 +133,33 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-get-started.h1">Nyra Get Started</h1>
-      <p class="lead" data-i18n-html="pages.learn-get-started.lead">Install Nyra, create your first project, and run a program.</p>
+      <h1 data-i18n="pages.learn-get-started.h1">Get Started</h1>
+      <p class="lead" data-i18n-html="pages.learn-get-started.lead">Install Nyra and run your first file.</p>
 
-      <h2>Quick start</h2>
-      <ol>
-        <li><a href="install.html">Install Nyra</a> (macOS, Linux, or Windows)</li>
-        <li>Create <code>hello.ny</code> with a <code>fn main()</code> entry point</li>
-        <li>Run: <code>nyra run hello.ny</code></li>
-      </ol>
-      <p>See also <a href="getting-started.html">Getting started guide</a> for project layout with <code>main.ny</code> and <code>nyra.mod</code>.</p>
-<div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/hello.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>Hello, Nyra!</code></pre>
-
-</div><nav class="lesson-nav" aria-label="Learn navigation">
+<section class="doc-ex">
+  <h2>Quick start</h2>
+  <p class="doc-ex-prose">1) <a href="install.html">Install Nyra</a> · 2) Create <code>hello.ny</code> · 3) Run <code>nyra run hello.ny</code>.</p>
+</section>
+<section class="doc-ex">
+<h2>Run a ready-made example</h2>
+<p class="doc-ex-prose">The run command and its output:</p>
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;Hello, Nyra!&quot;)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;Hello, Nyra!&quot;)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>Hello, Nyra!</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-intro.html">← Nyra Intro</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
 <a class="lesson-nav-next" href="learn-syntax.html">Nyra Syntax →</a>

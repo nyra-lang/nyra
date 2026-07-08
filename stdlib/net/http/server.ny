@@ -108,8 +108,9 @@ fn Server_handle_router_handler(stream: TcpStream, router: HttpRouter, handler: 
         return
     }
     let ctx = RequestContext_from_raw(raw)
-    let slot = HttpRouter_match_slot(router, ctx)
-    let resp = Http_dispatch_slot(slot, ctx, handler)
+    let m = HttpRouter_match(router, ctx)
+    let ctx2 = RequestContext_with_params(ctx, m.params)
+    let resp = Http_dispatch_slot(m.slot, ctx2, handler)
     let ka = wants_keep_alive(raw)
     tcp_write(stream, build_response(resp, ka))
 }

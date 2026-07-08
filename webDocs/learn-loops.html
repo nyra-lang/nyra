@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Loops — Nyra Docs</title>
+  <title>Loops — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,16 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-loops.h1">Nyra Loops</h1>
-      <p class="lead" data-i18n-html="pages.learn-loops.lead">Overview of <code>while</code> and <code>for</code> loops.</p>
-
-      <p>Nyra has two loop forms:</p>
-      <ul>
-        <li><code>while condition { ... }</code> — repeat while true</li>
-        <li><code>for i in start..end { ... }</code> — iterate a half-open range</li>
-      </ul>
-      <p>Details: <a href="learn-while.html">While loops</a> · <a href="learn-for.html">For loops</a></p>
-<h2>Sum with for</h2><!-- NYRA_SNIPPET_START -->
+      <h1 data-i18n="pages.learn-loops.h1">Loops</h1>
+      <p class="lead" data-i18n-html="pages.learn-loops.lead">Overview of <code>while</code> and <code>for</code>.</p>
+<section class="doc-ex">
+<h2>Sum with for</h2>
+<p class="doc-ex-prose"><code>while</code> repeats while the condition is true. <code>for i in a..b</code> iterates a half-open range.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -163,10 +159,13 @@
     print(sum)
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-match.html">← Nyra Match</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>10</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-match.html">← Match</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-while.html">Nyra While Loops →</a>
+<a class="lesson-nav-next" href="learn-while.html">While →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

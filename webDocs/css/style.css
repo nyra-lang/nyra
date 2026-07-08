@@ -1661,6 +1661,40 @@ pre .tok-operator {
   font-size: 0.88rem;
 }
 
+/* Lesson / concept block: شرح → مثال → Output */
+.doc-ex {
+  margin: 0 0 2rem;
+  padding: 0 0 0.25rem;
+}
+
+.doc-ex > h2,
+.doc-ex > h3 {
+  margin-top: 0;
+}
+
+.doc-ex-prose {
+  margin: 0.35rem 0 0.85rem;
+  color: var(--text);
+  line-height: 1.65;
+  max-width: 42rem;
+}
+
+html[dir="rtl"] .doc-ex-prose {
+  font-family: "IBM Plex Sans Arabic", var(--font-sans);
+}
+
+.doc-ex .code-tabs,
+.doc-ex > pre {
+  margin-bottom: 0.35rem;
+}
+
+.doc-ex .code-tabs,
+.doc-ex > pre,
+.doc-ex .example-output {
+  direction: ltr;
+  text-align: left;
+}
+
 .example-output-label {
   margin: 0.65rem 0 0.25rem;
   font-size: 0.78rem;

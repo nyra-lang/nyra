@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Booleans — Nyra Docs</title>
+  <title>Booleans — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,28 +133,36 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-booleans.h1">Nyra Booleans</h1>
+      <h1 data-i18n="pages.learn-booleans.h1">Booleans</h1>
       <p class="lead" data-i18n-html="pages.learn-booleans.lead">The <code>bool</code> type: <code>true</code> and <code>false</code>.</p>
-<h2>bool</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+<h2>bool</h2>
+<p class="doc-ex-prose">Comparisons and logical operators produce <code>bool</code> values used in <code>if</code> and loops.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>let passed = true
-let failed = false
-print(passed)
-print(5 &gt; 3)</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let passed = true
-let failed = false
-print(passed)
-print(5 &gt; 3)</code></pre></div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let passed = true
+    print(passed)
+    print(5 &gt; 3)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let passed = true
+    print(passed)
+    print(5 &gt; 3)
+}</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END -->      <p>Comparisons and logical operators produce <code>bool</code> values used in <code>if</code> and loops.</p>
-<nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-operators.html">← Nyra Operators</a>
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>true
+true</code></pre>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-operators.html">← Operators</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-if-else.html">Nyra If..Else →</a>
+<a class="lesson-nav-next" href="learn-if-else.html">If..Else →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

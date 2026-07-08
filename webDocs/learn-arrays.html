@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
-  <title>Nyra Arrays — Nyra Docs</title>
+  <title>Arrays — Nyra Docs</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -133,9 +133,12 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.learn-arrays.h1">Nyra Arrays</h1>
+      <h1 data-i18n="pages.learn-arrays.h1">Arrays</h1>
       <p class="lead" data-i18n-html="pages.learn-arrays.lead">Fixed-size arrays and indexing.</p>
-<h2>Array</h2><!-- NYRA_SNIPPET_START -->
+<section class="doc-ex">
+<h2>Array</h2>
+<p class="doc-ex-prose">Index starts at 0. All elements share the same type.</p>
+<!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -152,17 +155,14 @@
     print(nums[1])
 }</code></pre></div>
 </div>
-<!-- NYRA_SNIPPET_END --><div class="callout">
-<strong>Try it</strong>
-<pre><code>nyra run examples/syntax/arrays.ny</code></pre>
-<p><strong>Expected output:</strong></p>
-<pre><code>1
+<!-- NYRA_SNIPPET_END -->
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
 2</code></pre>
-
-</div><div class="callout warning"><strong>Common mistakes</strong><ul><li>Index must be <code>i32</code>.</li><li>All elements must have the same type.</li></ul></div><nav class="lesson-nav" aria-label="Learn navigation">
-<a class="lesson-nav-prev" href="learn-data-structures.html">← Nyra Data Structures</a>
+</section><nav class="lesson-nav" aria-label="Learn navigation">
+<a class="lesson-nav-prev" href="learn-data-structures.html">← Data Structures</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
-<a class="lesson-nav-next" href="learn-vectors.html">Nyra Vectors →</a>
+<a class="lesson-nav-next" href="learn-vectors.html">Vectors →</a>
 </nav>
       <footer class="site-footer"></footer>
     </main>

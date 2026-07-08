@@ -208,7 +208,7 @@
     "getting-started": {
       "metaTitle": "Getting started — Nyra Docs",
       "h1": "Getting started",
-      "lead": "Install Nyra, scaffold a project, and run your first program in minutes.",
+      "lead": "Install Nyra, create a file, and run a program.",
       "h2_1": "1. Install Nyra",
       "p_1": "You need <strong>clang</strong> on your PATH. See <a href=\"install.html\">Installation</a> for macOS, Linux, and Windows (including WSL).",
       "h2_2": "2. Create a project",
@@ -245,7 +245,7 @@
     "install": {
       "metaTitle": "Install Nyra — Nyra Docs",
       "h1": "Install Nyra",
-      "lead": "Install the Nyra toolchain from a <strong>GitHub release tag</strong>, set up your environment, and run your first project on <strong>macOS</strong>, <strong>Linux</strong>, or <strong>Windows</strong>.",
+      "lead": "Install the Nyra toolchain from a GitHub release on macOS, Linux, or Windows.",
       "repoLabel": "Repository:",
       "releasesLabel": "Releases (tags):",
       "calloutTitle": "Public repository required for the one-line installer",
@@ -328,9 +328,7 @@
     "language-basics": {
       "metaTitle": "Language basics — Nyra Docs",
       "h1": "Language basics",
-      "lead": "Learn Nyra from zero — no prior programming experience required. Every keyword is explained in plain language with runnable examples.",
-      "audienceTitle": "Who is this for?",
-      "audienceBody": "If you have never written code before, start here. We explain <em>what</em> each piece of syntax means and <em>why</em> you would use it — not just how to type it."
+      "lead": "Short reference: variables, print, if, loops, and functions."
     },
     "types": {
       "metaTitle": "Types & data — Nyra Docs",
@@ -380,12 +378,12 @@
     "stdlib": {
       "metaTitle": "Standard library — Nyra Docs",
       "h1": "Standard library",
-      "lead": "Modular stdlib reference — <strong>batteries-included by design</strong>. Core modules plus crypto, DB, serde, and WebSocket landing in <code>stdlib/rt/</code>."
+      "lead": "Short <code>stdlib/</code> reference — builtins on <a href=\"methods.html\">methods</a>; modules below."
     },
     "methods": {
       "metaTitle": "Built-in methods — Nyra Docs",
       "h1": "Built-in methods",
-      "lead": "One-page lookup for <strong>compiler builtins</strong> and <strong>stdlib method syntax</strong> on strings, numbers, arrays, vectors, maps, and objects."
+      "lead": "Quick lookup for builtins and method syntax — full examples in the gallery below."
     },
     "reference": {
       "metaTitle": "Language reference — Nyra Docs",
@@ -506,6 +504,141 @@
       "metaTitle": "Roadmap & status — Nyra Docs",
       "h1": "Roadmap & status",
       "lead": "Nyra 1.x — Core and Stable Extended are semver-stable. See <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability-v1.md</a>."
+    },
+    "learn-intro": {
+      "h1": "Nyra Intro",
+      "lead": "What Nyra is and how to read this track.",
+      "metaTitle": "Nyra Intro — Nyra Docs"
+    },
+    "learn-get-started": {
+      "h1": "Get Started",
+      "lead": "Install Nyra and run your first file.",
+      "metaTitle": "Get Started — Nyra Docs"
+    },
+    "learn-syntax": {
+      "h1": "Nyra Syntax",
+      "lead": "Blocks, statements, and naming.",
+      "metaTitle": "Nyra Syntax — Nyra Docs"
+    },
+    "learn-output": {
+      "h1": "Output",
+      "lead": "Print text or numbers with <code>print</code>.",
+      "metaTitle": "Output — Nyra Docs"
+    },
+    "learn-comments": {
+      "h1": "Comments",
+      "lead": "Comment code with <code>//</code> or <code>/* */</code>.",
+      "metaTitle": "Comments — Nyra Docs"
+    },
+    "learn-variables": {
+      "h1": "Variables",
+      "lead": "Bind a name to a value with <code>let</code> and <code>let mut</code>.",
+      "metaTitle": "Variables — Nyra Docs"
+    },
+    "learn-data-types": {
+      "h1": "Data Types",
+      "lead": "Core built-in types.",
+      "metaTitle": "Data Types — Nyra Docs"
+    },
+    "learn-constants": {
+      "h1": "Constants",
+      "lead": "Compile-time values with <code>const</code>.",
+      "metaTitle": "Constants — Nyra Docs"
+    },
+    "learn-operators": {
+      "h1": "Operators",
+      "lead": "Arithmetic, comparison, and logic.",
+      "metaTitle": "Operators — Nyra Docs"
+    },
+    "learn-booleans": {
+      "h1": "Booleans",
+      "lead": "The <code>bool</code> type: <code>true</code> and <code>false</code>.",
+      "metaTitle": "Booleans — Nyra Docs"
+    },
+    "learn-if-else": {
+      "h1": "If..Else",
+      "lead": "Branch on a condition.",
+      "metaTitle": "If..Else — Nyra Docs"
+    },
+    "learn-match": {
+      "h1": "Match",
+      "lead": "Match on enum values.",
+      "metaTitle": "Match — Nyra Docs"
+    },
+    "learn-loops": {
+      "h1": "Loops",
+      "lead": "Overview of <code>while</code> and <code>for</code>.",
+      "metaTitle": "Loops — Nyra Docs"
+    },
+    "learn-while": {
+      "h1": "While",
+      "lead": "Repeat while the condition is true.",
+      "metaTitle": "While — Nyra Docs"
+    },
+    "learn-for": {
+      "h1": "For",
+      "lead": "Iterate a numeric range.",
+      "metaTitle": "For — Nyra Docs"
+    },
+    "learn-functions": {
+      "h1": "Functions",
+      "lead": "Define reusable functions.",
+      "metaTitle": "Functions — Nyra Docs"
+    },
+    "learn-scope": {
+      "h1": "Scope",
+      "lead": "Where a variable is visible.",
+      "metaTitle": "Scope — Nyra Docs"
+    },
+    "learn-strings": {
+      "h1": "Strings",
+      "lead": "Strings, templates, and printing.",
+      "metaTitle": "Strings — Nyra Docs"
+    },
+    "learn-ownership": {
+      "h1": "Ownership",
+      "lead": "Copy vs Move.",
+      "metaTitle": "Ownership — Nyra Docs"
+    },
+    "learn-borrowing": {
+      "h1": "Borrowing",
+      "lead": "Temporary access with <code>&amp;T</code> and <code>&amp;mut T</code>.",
+      "metaTitle": "Borrowing — Nyra Docs"
+    },
+    "learn-data-structures": {
+      "h1": "Data Structures",
+      "lead": "Arrays, vectors, tuples, maps, structs, enums.",
+      "metaTitle": "Data Structures — Nyra Docs"
+    },
+    "learn-arrays": {
+      "h1": "Arrays",
+      "lead": "Fixed-size arrays and indexing.",
+      "metaTitle": "Arrays — Nyra Docs"
+    },
+    "learn-vectors": {
+      "h1": "Vectors",
+      "lead": "Growable lists with <code>vec()</code>.",
+      "metaTitle": "Vectors — Nyra Docs"
+    },
+    "learn-tuples": {
+      "h1": "Tuples",
+      "lead": "Group values of different types.",
+      "metaTitle": "Tuples — Nyra Docs"
+    },
+    "learn-hashmap": {
+      "h1": "HashMap",
+      "lead": "Key → value maps via stdlib.",
+      "metaTitle": "HashMap — Nyra Docs"
+    },
+    "learn-structs": {
+      "h1": "Structs",
+      "lead": "Custom types with named fields.",
+      "metaTitle": "Structs — Nyra Docs"
+    },
+    "learn-enums": {
+      "h1": "Enums",
+      "lead": "Named variants with <code>match</code>.",
+      "metaTitle": "Enums — Nyra Docs"
     }
   }
 }

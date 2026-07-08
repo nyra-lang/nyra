@@ -211,6 +211,7 @@ fn RequestContext_from_raw(raw: string) -> RequestContext {
         body: body_from_raw(raw),
         query: query_from_line(line),
         raw: raw,
+        params: HashMap_str_str_new(),
     }
 }
 
