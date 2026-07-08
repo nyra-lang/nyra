@@ -1,7 +1,5 @@
-// [contrib-dev:clamp_f64:math]
-// Demo: clamp_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "clamp_f64")
+    print(clamp(1.5, 0.0, 1.0))
 }
-// [/contrib-dev:clamp_f64:math]

@@ -61,18 +61,95 @@ export function methodLabel(relPlain) {
   if (folder === "strings") {
     const dotMethods = {
       split: ".split()",
+      splitn: ".splitn()",
+      split_once: ".split_once()",
       trim: ".trim()",
+      trim_start: ".trim_start()",
+      trim_end: ".trim_end()",
       contains: ".contains()",
       replace: ".replace()",
+      replacen: ".replacen()",
       starts_with: ".starts_with()",
       ends_with: ".ends_with()",
+      strip_prefix: ".strip_prefix()",
+      strip_suffix: ".strip_suffix()",
+      index: ".index()",
+      last_index: ".last_index()",
+      is_empty: ".is_empty()",
+      count: ".count()",
+      repeat: ".repeat()",
+      fields: ".fields()",
+      pad_start: ".pad_start()",
+      pad_end: ".pad_end()",
       to_upper: ".to_upper()",
       to_lower: ".to_lower()",
+      to_snake_case: ".to_snake_case()",
+      to_camel_case: ".to_camel_case()",
+      to_kebab_case: ".to_kebab_case()",
+      to_pascal_case: ".to_pascal_case()",
+      to_capitalize: ".to_capitalize()",
+      to_titlecase: ".to_titlecase()",
+      to_lowercase: ".to_lowercase()",
+      to_screaming_snake_case: ".to_screaming_snake_case()",
+      to_train_case: ".to_train_case()",
+      to_dot_case: ".to_dot_case()",
       len: ".len()",
       length: ".length()",
       clone: "clone",
     };
     return dotMethods[file] ?? file;
+  }
+
+  if (folder === "math.ny" || folder === "math") {
+    const aliases = {
+      floor_f64: "floor()",
+      ceil_f64: "ceil()",
+      round_f64: "round()",
+      sqrt_f64: "sqrt()",
+      pow_f64: "pow()",
+      log_f64: "log()",
+      exp_f64: "exp()",
+      clamp_f64: "clamp()",
+      trunc_f64: "trunc()",
+      hypot_f64: "hypot()",
+      asin_f64: "asin()",
+      acos_f64: "acos()",
+      atan_f64: "atan()",
+      log10_f64: "log10()",
+      log2_f64: "log2()",
+    };
+    return aliases[file] ?? file;
+  }
+
+  if (folder === "map.ny" || folder === "map") {
+    const mapLabels = {
+      map_str_i32_len: "HashMap_str_i32.len()",
+      map_str_i32_values: "HashMap_str_i32.values()",
+      map_str_i32_clear: "HashMap_str_i32.clear()",
+      map_str_str_len: "HashMap_str_str.len()",
+      map_str_str_values: "HashMap_str_str.values()",
+      map_str_str_clear: "HashMap_str_str.clear()",
+    };
+    return mapLabels[file] ?? file;
+  }
+
+  if (folder === "vec.ny" || folder === "vec") {
+    const vecLabels = {
+      vec_i32_insert: "VecI32.insert()",
+      vec_i32_remove_at: "VecI32.remove_at()",
+      vec_i32_clear: "VecI32.clear()",
+      vec_i32_reverse: "VecI32.reverse()",
+      vec_i32_sort: "VecI32.sort()",
+    };
+    return vecLabels[file] ?? file;
+  }
+
+  if (folder === "encoding") {
+    if (file === "hex_decode") return "hex_decode()";
+  }
+
+  if (folder === "strconv") {
+    if (file === "str_to_bool") return "parse_bool()";
   }
 
   if (folder === "arrays") {

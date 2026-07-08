@@ -1,7 +1,6 @@
-// [contrib-dev:map_str_str_values:map]
-// Demo: map_str_str_values
+import "stdlib/map.ny"
 
 fn main() {
-    print("TODO: demo", "map_str_str_values")
+    let m = HashMap_str_str_new().insert("a", "1").insert("b", "2")
+    print(m.values().len())
 }
-// [/contrib-dev:map_str_str_values:map]

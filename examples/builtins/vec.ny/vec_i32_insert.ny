@@ -1,7 +1,6 @@
-// [contrib-dev:vec_i32_insert:vec]
-// Demo: vec_i32_insert
+import "stdlib/vec.ny"
 
 fn main() {
-    print("TODO: demo", "vec_i32_insert")
+    let v = vec().push(1).push(3).insert(1, 2)
+    print(v.get(1))
 }
-// [/contrib-dev:vec_i32_insert:vec]

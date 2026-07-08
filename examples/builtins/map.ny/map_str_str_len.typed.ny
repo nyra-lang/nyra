@@ -1,7 +1,6 @@
-// [contrib-dev:map_str_str_len:map]
-// Demo: map_str_str_len (explicit types)
+import "stdlib/map.ny"
 
 fn main() -> void {
-    print("TODO: demo", "map_str_str_len")
+    let m = HashMap_str_str_new().insert("a", "1").insert("b", "2")
+    print(m.len())
 }
-// [/contrib-dev:map_str_str_len:map]

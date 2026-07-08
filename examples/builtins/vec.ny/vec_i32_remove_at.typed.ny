@@ -1,7 +1,6 @@
-// [contrib-dev:vec_i32_remove_at:vec]
-// Demo: vec_i32_remove_at (explicit types)
+import "stdlib/vec.ny"
 
 fn main() -> void {
-    print("TODO: demo", "vec_i32_remove_at")
+    let v = vec().push(10).push(20)
+    print(v.remove_at(0))
 }
-// [/contrib-dev:vec_i32_remove_at:vec]

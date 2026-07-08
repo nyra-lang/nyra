@@ -1,7 +1,5 @@
-// [contrib-dev:log_f64:math]
-// Demo: log_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "log_f64")
+    print(log(2.718281828))
 }
-// [/contrib-dev:log_f64:math]

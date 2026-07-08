@@ -640,9 +640,8 @@ impl RuntimeProfile {
     }
 
     pub fn needs_libm(&self) -> bool {
-        self.symbols.iter().any(|s| {
-            s == "sin_f64" || s == "cos_f64" || s == "atan2_f64" || s == "tan_f64"
-        })
+        let map = symbol_module_map();
+        self.symbols.iter().any(|s| map.get(s.as_str()) == Some(&"rt_math.c"))
     }
 
     pub fn needs_zlib(&self) -> bool {

@@ -1,7 +1,5 @@
-// [contrib-dev:acos_f64:math]
-// Demo: acos_f64 (explicit types)
+import "stdlib/math.ny"
 
 fn main() -> void {
-    print("TODO: demo", "acos_f64")
+    print(acos(1.0))
 }
-// [/contrib-dev:acos_f64:math]

@@ -1,7 +1,6 @@
-// [contrib-dev:str_to_bool:strconv_mod]
-// Demo: str_to_bool
+import "stdlib/strconv/mod.ny"
 
 fn main() {
-    print("TODO: demo", "str_to_bool")
+    print(parse_bool("true"))
+    print(parse_bool("false"))
 }
-// [/contrib-dev:str_to_bool:strconv_mod]

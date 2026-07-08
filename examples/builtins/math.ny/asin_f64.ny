@@ -1,7 +1,5 @@
-// [contrib-dev:asin_f64:math]
-// Demo: asin_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "asin_f64")
+    print(asin(0.0))
 }
-// [/contrib-dev:asin_f64:math]

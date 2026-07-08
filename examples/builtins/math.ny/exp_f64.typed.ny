@@ -1,7 +1,5 @@
-// [contrib-dev:exp_f64:math]
-// Demo: exp_f64 (explicit types)
+import "stdlib/math.ny"
 
 fn main() -> void {
-    print("TODO: demo", "exp_f64")
+    print(exp(1.0))
 }
-// [/contrib-dev:exp_f64:math]

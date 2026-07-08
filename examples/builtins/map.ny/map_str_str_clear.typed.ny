@@ -1,7 +1,6 @@
-// [contrib-dev:map_str_str_clear:map]
-// Demo: map_str_str_clear (explicit types)
+import "stdlib/map.ny"
 
 fn main() -> void {
-    print("TODO: demo", "map_str_str_clear")
+    let m = HashMap_str_str_new().insert("a", "1").clear()
+    print(m.len())
 }
-// [/contrib-dev:map_str_str_clear:map]

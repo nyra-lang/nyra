@@ -3715,7 +3715,7 @@ since = "1.46.0"
 [[symbol]]
 name = "map_str_str_clear"
 c_sig = "void map_str_str_clear(void * m)"
-module = "rt_map.c"
+module = "rt_map_str_str.c"
 tier = "experimental"
 since = "1.46.0"
 # [/contrib-dev:map_str_str_clear:map]
@@ -3724,7 +3724,7 @@ since = "1.46.0"
 [[symbol]]
 name = "map_str_str_len"
 c_sig = "int map_str_str_len(void * m)"
-module = "rt_map.c"
+module = "rt_map_str_str.c"
 tier = "experimental"
 since = "1.46.0"
 # [/contrib-dev:map_str_str_len:map]
@@ -3733,7 +3733,7 @@ since = "1.46.0"
 [[symbol]]
 name = "map_str_str_values"
 c_sig = "void *map_str_str_values(void * m)"
-module = "rt_map.c"
+module = "rt_map_str_str.c"
 tier = "experimental"
 since = "1.46.0"
 # [/contrib-dev:map_str_str_values:map]

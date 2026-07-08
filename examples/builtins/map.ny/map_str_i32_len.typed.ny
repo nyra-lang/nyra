@@ -1,7 +1,6 @@
-// [contrib-dev:map_str_i32_len:map]
-// Demo: map_str_i32_len (explicit types)
+import "stdlib/map.ny"
 
 fn main() -> void {
-    print("TODO: demo", "map_str_i32_len")
+    let m = HashMap_str_i32_new().insert("a", 1).insert("b", 2)
+    print(m.len())
 }
-// [/contrib-dev:map_str_i32_len:map]

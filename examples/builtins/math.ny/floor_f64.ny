@@ -1,7 +1,5 @@
-// [contrib-dev:floor_f64:math]
-// Demo: floor_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "floor_f64")
+    print(floor(3.7))
 }
-// [/contrib-dev:floor_f64:math]

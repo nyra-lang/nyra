@@ -1,7 +1,5 @@
-// [contrib-dev:hypot_f64:math]
-// Demo: hypot_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "hypot_f64")
+    print(hypot(3.0, 4.0))
 }
-// [/contrib-dev:hypot_f64:math]

@@ -1,7 +1,6 @@
-// [contrib-dev:vec_i32_sort:vec]
-// Demo: vec_i32_sort (explicit types)
+import "stdlib/vec.ny"
 
 fn main() -> void {
-    print("TODO: demo", "vec_i32_sort")
+    let v = vec().push(3).push(1).push(2).sort()
+    print(v.get(0))
 }
-// [/contrib-dev:vec_i32_sort:vec]

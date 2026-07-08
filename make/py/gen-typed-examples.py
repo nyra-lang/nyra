@@ -310,7 +310,7 @@ def main() -> int:
         if not base.is_dir():
             continue
         for plain in sorted(base.rglob("*.ny")):
-            if plain.name.endswith(".typed.ny"):
+            if not plain.is_file() or plain.name.endswith(".typed.ny"):
                 continue
             out = typed_path(plain)
             typed = transform_source(plain.read_text(encoding="utf-8"))

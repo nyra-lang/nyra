@@ -1,7 +1,5 @@
-// [contrib-dev:trunc_f64:math]
-// Demo: trunc_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "trunc_f64")
+    print(trunc(1.9))
 }
-// [/contrib-dev:trunc_f64:math]

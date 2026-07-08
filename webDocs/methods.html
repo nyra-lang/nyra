@@ -153,7 +153,8 @@
     print(&quot;hi&quot;.len())
     print(abs(-3))
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->  <p class="example-output-label">Output</p>
+</div>
+<!-- NYRA_SNIPPET_END -->  <p class="example-output-label">Output</p>
   <pre class="example-output"><code>2
 3</code></pre>
 </section>
@@ -205,9 +206,22 @@
           <tr id="str-to-upper"><td><code>.to_upper()</code></td><td>—</td><td><code>string</code></td><td>ASCII upper-case</td><td><code>"hi".to_upper()</code></td></tr>
           <tr id="str-to-lower"><td><code>.to_lower()</code></td><td>—</td><td><code>string</code></td><td>ASCII lower-case</td><td><code>"HI".to_lower()</code></td></tr>
           <tr id="str-clone"><td><code>clone s</code></td><td>—</td><td><code>string</code></td><td>Heap copy (keyword)</td><td><code>let copy = clone s</code></td></tr>
+          <tr id="str-strip-prefix"><td><code>.strip_prefix(prefix)</code></td><td><code>string</code></td><td><code>string</code></td><td>Remove prefix if present</td><td><a href="#ex-strip-prefix"><code>"pre_hi".strip_prefix("pre_")</code></a></td></tr>
+          <tr id="str-strip-suffix"><td><code>.strip_suffix(suffix)</code></td><td><code>string</code></td><td><code>string</code></td><td>Remove suffix if present</td><td><a href="#ex-strip-suffix"><code>"hi.txt".strip_suffix(".txt")</code></a></td></tr>
+          <tr id="str-index"><td><code>.index(needle)</code></td><td><code>string</code></td><td><code>i32</code></td><td>First byte index or <code>-1</code></td><td><a href="#ex-index"><code>"hello".index("ell")</code></a></td></tr>
+          <tr id="str-last-index"><td><code>.last_index(needle)</code></td><td><code>string</code></td><td><code>i32</code></td><td>Last occurrence index</td><td><a href="#ex-last-index"><code>"aba".last_index("a")</code></a></td></tr>
+          <tr id="str-is-empty"><td><code>.is_empty()</code></td><td>—</td><td><code>i32</code></td><td><code>1</code> if length 0</td><td><a href="#ex-is-empty"><code>"".is_empty()</code></a></td></tr>
+          <tr id="str-count"><td><code>.count(needle)</code></td><td><code>string</code></td><td><code>i32</code></td><td>Non-overlapping matches</td><td><a href="#ex-count"><code>"hello".count("l")</code></a></td></tr>
+          <tr id="str-repeat"><td><code>.repeat(n)</code></td><td><code>i32</code></td><td><code>string</code></td><td>Repeat <code>n</code> times</td><td><a href="#ex-repeat"><code>"ab".repeat(3)</code></a></td></tr>
+          <tr id="str-trim-start"><td><code>.trim_start()</code> / <code>.trim_end()</code></td><td>—</td><td><code>string</code></td><td>Strip leading / trailing whitespace</td><td><a href="#ex-trim-start"><code>"  hi".trim_start()</code></a></td></tr>
+          <tr id="str-splitn"><td><code>.splitn(sep, n)</code></td><td><code>string</code>, <code>i32</code></td><td><code>VecStr</code></td><td>Split into at most <code>n</code> parts</td><td><a href="#ex-splitn"><code>"a,b,c".splitn(",", 2)</code></a></td></tr>
+          <tr id="str-split-once"><td><code>.split_once(sep)</code></td><td><code>string</code></td><td><code>string</code></td><td>Part before first separator</td><td><a href="#ex-split-once"><code>"a:b:c".split_once(":")</code></a></td></tr>
+          <tr id="str-fields"><td><code>.fields()</code></td><td>—</td><td><code>VecStr</code></td><td>Whitespace-split words</td><td><a href="#ex-fields"><code>"a b c".fields()</code></a></td></tr>
+          <tr id="str-pad"><td><code>.pad_start(w, pad)</code> / <code>.pad_end(w, pad)</code></td><td><code>i32</code>, <code>string</code></td><td><code>string</code></td><td>Pad to width</td><td><a href="#ex-pad-start"><code>"hi".pad_start(5, "0")</code></a></td></tr>
+          <tr id="str-case"><td><code>.to_snake_case()</code> … <code>.to_pascal_case()</code></td><td>—</td><td><code>string</code></td><td>Case conversion helpers</td><td><a href="#ex-to-snake-case"><code>"Hello World".to_snake_case()</code></a></td></tr>
         </tbody>
       </table>
-      <p>Examples: <a href="#ex-split"><code>.split()</code></a> · <a href="#ex-trim"><code>.trim()</code></a> · <a href="#ex-string-chars"><code>for c in string</code></a></p>
+      <p>Examples: <a href="#ex-split"><code>.split()</code></a> · <a href="#ex-trim"><code>.trim()</code></a> · <a href="#ex-strip-prefix"><code>.strip_prefix()</code></a> · <a href="#ex-fields"><code>.fields()</code></a> · <a href="#ex-string-chars"><code>for c in string</code></a></p>
 
       <h2 id="numbers">Number &amp; math <span class="badge">no import</span></h2>
       <p>Compiler math intrinsics — lowered to LLVM, no call overhead. Type overload on <code>abs</code>.</p>
@@ -222,7 +236,23 @@
           <tr id="cpu-count"><td><code>cpu_count()</code></td><td>—</td><td><code>i32</code></td><td>Logical CPU count</td><td><a href="#ex-cpu-count"><code>cpu_count()</code></a></td></tr>
         </tbody>
       </table>
-      <p>Example: <a href="#ex-math-intrinsics"><code>abs / min / max</code></a> · See also <a href="#js-math">Math_* helpers</a></p>
+      <p>Example: <a href="#ex-math-intrinsics"><code>abs / min / max</code></a> · See also <a href="#stdlib-math-f64"><code>stdlib/math.ny</code> f64 helpers</a> · <a href="#js-math">legacy Math_*</a></p>
+
+      <h3 id="stdlib-math-f64"><code>import "stdlib/math.ny"</code> — <code>f64</code> math <span class="badge">stdlib</span></h3>
+      <p>Runtime libm-backed helpers with short aliases (<code>floor(x)</code> → <code>floor_f64</code>). Examples in the gallery below.</p>
+      <table>
+        <thead><tr><th>Call</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="floor-f64"><td><code>floor(x)</code> / <code>ceil(x)</code> / <code>round(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Rounding</td><td><a href="#ex-floor-f64"><code>floor(3.7)</code></a></td></tr>
+          <tr id="sqrt-f64"><td><code>sqrt(x)</code> / <code>pow(b, e)</code></td><td>1–2 × <code>f64</code></td><td><code>f64</code></td><td>Root / power</td><td><a href="#ex-sqrt-f64"><code>sqrt(16.0)</code></a></td></tr>
+          <tr id="log-f64"><td><code>log(x)</code> / <code>log10(x)</code> / <code>log2(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Natural / base-10 / base-2 log</td><td><a href="#ex-log-f64"><code>log(2.718)</code></a></td></tr>
+          <tr id="exp-f64"><td><code>exp(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td><code>e^x</code></td><td><a href="#ex-exp-f64"><code>exp(1.0)</code></a></td></tr>
+          <tr id="clamp-f64"><td><code>clamp(x, lo, hi)</code></td><td>3 × <code>f64</code></td><td><code>f64</code></td><td>Clamp to range</td><td><a href="#ex-clamp-f64"><code>clamp(1.5, 0.0, 1.0)</code></a></td></tr>
+          <tr id="trunc-f64"><td><code>trunc(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Truncate toward zero</td><td><a href="#ex-trunc-f64"><code>trunc(1.9)</code></a></td></tr>
+          <tr id="hypot-f64"><td><code>hypot(x, y)</code></td><td>2 × <code>f64</code></td><td><code>f64</code></td><td><code>sqrt(x²+y²)</code></td><td><a href="#ex-hypot-f64"><code>hypot(3.0, 4.0)</code></a></td></tr>
+          <tr id="asin-f64"><td><code>asin(x)</code> / <code>acos(x)</code> / <code>atan(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Inverse trig</td><td><a href="#ex-asin-f64"><code>asin(0.0)</code></a></td></tr>
+        </tbody>
+      </table>
 
       <h2 id="booleans">Booleans <span class="badge">no import</span></h2>
       <p>Booleans have <strong>no methods</strong> — use operators and <code>print</code>:</p>
@@ -266,6 +296,12 @@
           <tr id="vec-find"><td><code>.find(pred, fb)</code> / <code>.find_eq(x, fb)</code></td><td>pred / value</td><td><code>i32</code></td><td>Search with fallback</td><td><code>v.find_eq(10, -1)</code></td></tr>
           <tr id="vec-filter"><td><code>.filter(pred)</code> / <code>.map(f)</code> / <code>.reduce(init, f)</code></td><td>fn</td><td><code>VecI32</code> / value</td><td>HOFs (v1.45)</td><td><code>v.filter(is_even)</code></td></tr>
           <tr id="vec-from-range"><td><code>vec_range(start, end)</code></td><td>2 × <code>i32</code></td><td><code>VecI32</code></td><td>Half-open range</td><td><code>vec_range(0, 10)</code></td></tr>
+          <tr id="vec-insert"><td><code>.insert(i, x)</code></td><td><code>i32</code>, <code>i32</code></td><td><code>VecI32</code></td><td>Insert at index</td><td><a href="#ex-vec-i32-insert"><code>v.insert(0, 9)</code></a></td></tr>
+          <tr id="vec-remove-at"><td><code>.remove_at(i)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Remove and return element</td><td><a href="#ex-vec-i32-remove-at"><code>v.remove_at(0)</code></a></td></tr>
+          <tr id="vec-clear"><td><code>.clear()</code></td><td>—</td><td><code>VecI32</code></td><td>Remove all elements</td><td><a href="#ex-vec-i32-clear"><code>v.clear()</code></a></td></tr>
+          <tr id="vec-reverse"><td><code>.reverse()</code></td><td>—</td><td><code>VecI32</code></td><td>Reverse in place</td><td><a href="#ex-vec-i32-reverse"><code>v.reverse()</code></a></td></tr>
+          <tr id="vec-sort"><td><code>.sort()</code></td><td>—</td><td><code>VecI32</code></td><td>Sort ascending in place</td><td><a href="#ex-vec-i32-sort"><code>v.sort()</code></a></td></tr>
+          <tr id="vec-binary-search"><td><code>.binary_search(x)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Index on sorted vec or <code>-1</code></td><td><code>v.binary_search(5)</code></td></tr>
         </tbody>
       </table>
       <p>Example: <a href="#ex-vec"><code>vec()</code></a>. Legacy: <code>Vec_i32_new</code> / <code>Vec_i32_push</code>.</p>
@@ -293,10 +329,23 @@
         <tbody>
           <tr id="map-insert"><td><code>.insert(key, value)</code></td><td><code>string</code>, value</td><td>same map type</td><td><code>HashMap_str_i32</code></td><td><code>m = m.insert("k", 1)</code></td></tr>
           <tr id="map-get"><td><code>.get(key)</code></td><td><code>string</code></td><td><code>i32</code> / <code>string</code></td><td>Lookup value</td><td><code>m.get("score")</code></td></tr>
+          <tr id="map-get-or"><td><code>.get_or(key, default)</code></td><td><code>string</code>, default</td><td>value type</td><td>Fallback when key missing</td><td><code>m.get_or("x", 0)</code></td></tr>
           <tr id="map-contains"><td><code>.contains(key)</code></td><td><code>string</code></td><td><code>i32</code></td><td><code>1</code> / <code>0</code></td><td><code>m.contains("score")</code></td></tr>
+          <tr id="map-len"><td><code>.len()</code></td><td>—</td><td><code>i32</code></td><td>Entry count</td><td><a href="#ex-map-str-i32-len"><code>m.len()</code></a></td></tr>
+          <tr id="map-values"><td><code>.values()</code></td><td>—</td><td><code>VecI32</code> / <code>StrVec</code></td><td>All values as vector</td><td><a href="#ex-map-str-i32-values"><code>m.values()</code></a></td></tr>
+          <tr id="map-clear"><td><code>.clear()</code></td><td>—</td><td>same map type</td><td>Remove all entries</td><td><a href="#ex-map-str-i32-clear"><code>m.clear()</code></a></td></tr>
         </tbody>
       </table>
-      <p>Constructors: <code>HashMap_str_i32_new()</code>, <code>HashMap_str_str_new()</code>. Example: <a href="#ex-map"><code>HashMap insert / get</code></a></p>
+      <p>Constructors: <code>HashMap_str_i32_new()</code>, <code>HashMap_str_str_new()</code>. Example: <a href="#ex-map"><code>HashMap insert / get</code></a> · <a href="#ex-map-str-i32-len"><code>.len() / .values() / .clear()</code></a></p>
+
+      <h2 id="encoding-strconv">Encoding &amp; strconv <span class="badge">stdlib</span></h2>
+      <table>
+        <thead><tr><th>Call</th><th>Module</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="hex-decode"><td><code>hex_decode(s)</code></td><td><code>stdlib/encoding/mod.ny</code></td><td><code>string</code></td><td>Decode hex bytes to string</td><td><a href="#ex-hex-decode"><code>hex_decode("4869")</code></a></td></tr>
+          <tr id="parse-bool"><td><code>parse_bool(s)</code> / <code>str_to_bool(s)</code></td><td><code>stdlib/strconv/mod.ny</code></td><td><code>i32</code></td><td><code>1</code>/<code>0</code> for true/false/yes/no</td><td><a href="#ex-str-to-bool"><code>parse_bool("true")</code></a></td></tr>
+        </tbody>
+      </table>
 
       <h2 id="split-lists">Split lists <span class="badge">no import</span></h2>
       <p>Result of <code>string.split(sep)</code> — iterable string parts.</p>
@@ -373,7 +422,8 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
+</div>
+<!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
       <p><strong>Platform:</strong> <code>spawn</code> is unavailable on <code>wasm32-wasi</code> (compile error). Native Linux, macOS, and Windows only.</p>
 
       <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>
@@ -425,6 +475,9 @@ fn main() -&gt; void {
           <tr id="string-replace"><td><code>String_replace(s, from, to)</code></td><td>Replace all matches</td><td><code>String_replace(s, "-", "_")</code></td></tr>
           <tr id="string-replacen"><td><code>String_replacen(s, from, to, count)</code></td><td>Replace at most <code>count</code></td><td><code>String_replacen(s, "a", "b", 2)</code></td></tr>
           <tr id="string-trim"><td><code>trim(s)</code></td><td>Trim whitespace</td><td><code>trim("  x  ")</code></td></tr>
+          <tr id="string-strip-prefix"><td><code>strip_prefix(s, p)</code> / <code>strip_suffix(s, sfx)</code></td><td>Prefix / suffix removal</td><td><a href="#ex-strip-prefix"><code>strip_prefix("pre_x", "pre_")</code></a></td></tr>
+          <tr id="string-index"><td><code>index(s, needle)</code> / <code>last_index</code></td><td>Search indices</td><td><a href="#ex-index"><code>index("aba", "a")</code></a></td></tr>
+          <tr id="string-pad"><td><code>pad_start</code> / <code>pad_end</code> (method syntax)</td><td>Pad to width</td><td><a href="#ex-pad-start"><code>"hi".pad_start(5, "0")</code></a></td></tr>
         </tbody>
       </table>
       <p>Example: <a href="#ex-string-split"><code>String_split</code></a></p>
@@ -501,7 +554,8 @@ fn main() -&gt; void {
     print(String_replace(&quot;hello world&quot;, &quot;world&quot;, &quot;nyra&quot;))
     print(trim(clone s))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>  NYRA LANG  
 1
 3
@@ -526,7 +580,8 @@ Nyra Lang</code></pre>
     print(c)
     print(s)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>copy me
 copy me</code></pre>
 
@@ -544,9 +599,26 @@ copy me</code></pre>
     print(&quot;hello&quot;.contains(&quot;ell&quot;))
     print(&quot;hello&quot;.contains(&quot;xyz&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-count"><code>.count()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.count(&quot;ell&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.count(&quot;ell&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-ends-with"><code>.ends_with()</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -562,9 +634,80 @@ copy me</code></pre>
     print(&quot;hello&quot;.ends_with(&quot;llo&quot;))
     print(&quot;hello&quot;.ends_with(&quot;xyz&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-fields"><code>.fields()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.fields())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.fields())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-index"><code>.index()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.index(&quot;ell&quot;))
+    print(index(&quot;hello&quot;, &quot;ell&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.index(&quot;ell&quot;))
+    print(index(&quot;hello&quot;, &quot;ell&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+1</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-is-empty"><code>.is_empty()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.is_empty())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.is_empty())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-last-index"><code>.last_index()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.last_index(&quot;ell&quot;))
+    print(last_index(&quot;hello&quot;, &quot;ell&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.last_index(&quot;ell&quot;))
+    print(last_index(&quot;hello&quot;, &quot;ell&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+1</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-len"><code>.len()</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -578,7 +721,8 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;abc&quot;.len())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>3</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-length"><code>.length()</code></h4>
@@ -593,8 +737,60 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;abc&quot;.length())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-pad-end"><code>.pad_end()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.pad_end(1, &quot;arg&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.pad_end(1, &quot;arg&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-pad-start"><code>.pad_start()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.pad_start(1, &quot;arg&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.pad_start(1, &quot;arg&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-repeat"><code>.repeat()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.repeat(1))
+    print(repeat(&quot;hello&quot;, 1))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.repeat(1))
+    print(repeat(&quot;hello&quot;, 1))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello
+hello</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-replace"><code>.replace()</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -608,10 +804,11 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;foo-bar&quot;.replace(&quot;bar&quot;, &quot;baz&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>foo-baz</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-replacen"><code>replacen</code></h4>
+<h4 class="builtin-ex-title" id="ex-replacen"><code>.replacen()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -623,8 +820,25 @@ copy me</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;aaa&quot;.replacen(&quot;a&quot;, &quot;b&quot;, 2))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>bba</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-split-once"><code>.split_once()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.split_once(&quot;,&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.split_once(&quot;,&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-split"><code>.split()</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -646,11 +860,28 @@ copy me</code></pre>
         print(p)
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>3
 a
 b
 c</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-splitn"><code>.splitn()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.splitn(&quot;,&quot;, 1))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.splitn(&quot;,&quot;, 1))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-starts-with"><code>.starts_with()</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -666,11 +897,31 @@ c</code></pre>
     print(&quot;hello&quot;.starts_with(&quot;hel&quot;))
     print(&quot;hello&quot;.starts_with(&quot;xyz&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-strip-suffix"><code>strip_suffix</code></h4>
+<h4 class="builtin-ex-title" id="ex-strip-prefix"><code>.strip_prefix()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hamdy.txt&quot;.strip_prefix(&quot;.txt&quot;))
+    print(strip_prefix(&quot;hamdy.txt&quot;, &quot;.txt&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hamdy.txt&quot;.strip_prefix(&quot;.txt&quot;))
+    print(strip_prefix(&quot;hamdy.txt&quot;, &quot;.txt&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hamdy.txt
+hamdy.txt</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-strip-suffix"><code>.strip_suffix()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -684,11 +935,12 @@ c</code></pre>
     print(&quot;hamdy.txt&quot;.strip_suffix(&quot;.txt&quot;))
     print(strip_suffix(&quot;hamdy.txt&quot;, &quot;.txt&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hamdy
 hamdy</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-camel-case"><code>to_camel_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-camel-case"><code>.to_camel_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -700,10 +952,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_camel_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>helloWorld</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-capitalize"><code>to_capitalize</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-capitalize"><code>.to_capitalize()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -715,10 +968,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;hello world&quot;.to_capitalize())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello world</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-dot-case"><code>to_dot_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-dot-case"><code>.to_dot_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -730,10 +984,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_dot_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello.world</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-kebab-case"><code>to_kebab_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-kebab-case"><code>.to_kebab_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -745,7 +1000,8 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_kebab_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello-world</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-lower"><code>.to_lower()</code></h4>
@@ -760,10 +1016,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;NYRA&quot;.to_lower())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>nyra</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-lowercase"><code>to_lowercase</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-lowercase"><code>.to_lowercase()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -775,10 +1032,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_lowercase())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello world</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-pascal-case"><code>to_pascal_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-pascal-case"><code>.to_pascal_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -790,10 +1048,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_pascal_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>HelloWorld</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-screaming-snake-case"><code>to_screaming_snake_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-screaming-snake-case"><code>.to_screaming_snake_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -805,10 +1064,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_screaming_snake_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>HELLO_WORLD</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-snake-case"><code>to_snake_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-snake-case"><code>.to_snake_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -820,10 +1080,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Hello World&quot;.to_snake_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello_world</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-titlecase"><code>to_titlecase</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-titlecase"><code>.to_titlecase()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -835,10 +1096,11 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;hello world&quot;.to_titlecase())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello World</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-to-train-case"><code>to_train_case</code></h4>
+<h4 class="builtin-ex-title" id="ex-to-train-case"><code>.to_train_case()</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -850,7 +1112,8 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;hello world&quot;.to_train_case())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello-World</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-to-upper"><code>.to_upper()</code></h4>
@@ -865,8 +1128,41 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;Nyra&quot;.to_upper())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>NYRA</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-trim-end"><code>.trim_end()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.trim_end())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.trim_end())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-trim-start"><code>.trim_start()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(&quot;hello&quot;.trim_start())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(&quot;hello&quot;.trim_start())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>hello</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-trim"><code>.trim()</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -880,7 +1176,8 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;  hello  &quot;.trim())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello</code></pre>
 </section>
 
@@ -905,7 +1202,8 @@ hamdy</code></pre>
     print(cat3(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;))
     print(cat4(&quot;w&quot;, &quot;x&quot;, &quot;y&quot;, &quot;z&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hi 42
 xy
 abc
@@ -924,18 +1222,18 @@ wxyz</code></pre>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x){
+fn is_even(x: i32) -&gt; i32 {
     if x % 2 == 0 {
         return 1
     }
     return 0
 }
 
-fn mul10(x){
+fn mul10(x: i32) -&gt; i32 {
     return x * 10
 }
 
-fn sum(acc, x){
+fn sum(acc: i32, x: i32) -&gt; i32 {
     return acc + x
 }
 
@@ -960,18 +1258,18 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x: i32){
+fn is_even(x: i32) -&gt; i32 {
     if x % 2 == 0 {
         return 1
     }
     return 0
 }
 
-fn mul10(x: i32){
+fn mul10(x: i32) -&gt; i32 {
     return x * 10
 }
 
-fn sum(acc: i32, x: i32){
+fn sum(acc: i32, x: i32) -&gt; i32 {
     return acc + x
 }
 
@@ -993,7 +1291,8 @@ fn main() -&gt; void {
     print(found)
     print(Array_pop(v))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>4
 2
 10
@@ -1018,7 +1317,8 @@ fn main() -&gt; void {
         print(n)
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 2
 3</code></pre>
@@ -1037,7 +1337,8 @@ fn main() -&gt; void {
     let arr: [i32; 4] = [10, 20, 30, 40]
     print(arr.len())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>4</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-length"><code>.len()</code></h4>
@@ -1054,7 +1355,8 @@ fn main() -&gt; void {
     let arr: [i32; 4] = [10, 20, 30, 40]
     print(arr.length())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>4</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-sort"><code>sort</code></h4>
@@ -1079,7 +1381,8 @@ fn main() -&gt; void {
     }
     print(nums[0])
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 2
 5
@@ -1091,6 +1394,116 @@ fn main() -&gt; void {
 <section class="builtin-section" id="sec-vector-methods">
   <h3 class="builtin-section-title">Vector methods</h3>
   
+<h4 class="builtin-ex-title" id="ex-vec-i32-clear"><code>VecI32.clear()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = vec().push(1).clear()
+    print(v.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v = vec().push(1).clear()
+    print(v.len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-vec-i32-insert"><code>VecI32.insert()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = vec().push(1).push(3).insert(1, 2)
+    print(v.get(1))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v = vec().push(1).push(3).insert(1, 2)
+    print(v.get(1))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-vec-i32-remove-at"><code>VecI32.remove_at()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = vec().push(10).push(20)
+    print(v.remove_at(0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v = vec().push(10).push(20)
+    print(v.remove_at(0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-vec-i32-reverse"><code>VecI32.reverse()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = vec().push(1).push(2).push(3).reverse()
+    print(v.get(0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v = vec().push(1).push(2).push(3).reverse()
+    print(v.get(0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-vec-i32-sort"><code>VecI32.sort()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() {
+    let v = vec().push(3).push(1).push(2).sort()
+    print(v.get(0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/vec.ny&quot;
+
+fn main() -&gt; void {
+    let v = vec().push(3).push(1).push(2).sort()
+    print(v.get(0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
+
 <h4 class="builtin-ex-title" id="ex-vec"><code>Vec_i32</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -1117,7 +1530,8 @@ fn main() -&gt; void {
     print(Vec_i32_get(v, 0))
     print(Vec_i32_pop(v))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>2
 10
 20</code></pre>
@@ -1132,12 +1546,12 @@ fn main() -&gt; void {
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn is_even(x){
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn is_even(x: i32) -&gt; i32 {
     if x % 2 == 0 { return 1 }
     return 0
 }
-fn times2(x){ return x * 2 }
-fn add(a, b){ return a + b }
+fn times2(x: i32) -&gt; i32 { return x * 2 }
+fn add(a: i32, b: i32) -&gt; i32 { return a + b }
 
 fn main() {
     let xs = vec().push(1).push(2).push(3).push(4)
@@ -1148,12 +1562,12 @@ fn main() {
     print(xs.reduce(0, add))
     print(vec_range(0, 3).len())
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn is_even(x: i32){
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn is_even(x: i32) -&gt; i32 {
     if x % 2 == 0 { return 1 }
     return 0
 }
-fn times2(x: i32){ return x * 2 }
-fn add(a: i32, b: i32){ return a + b }
+fn times2(x: i32) -&gt; i32 { return x * 2 }
+fn add(a: i32, b: i32) -&gt; i32 { return a + b }
 
 fn main() -&gt; void {
     let xs = vec().push(1).push(2).push(3).push(4)
@@ -1164,7 +1578,8 @@ fn main() -&gt; void {
     print(xs.reduce(0, add))
     print(vec_range(0, 3).len())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>4
 1
 2
@@ -1200,7 +1615,8 @@ fn main() -&gt; void {
     print(v.len())
     print(v.get(0))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>2
 alpha</code></pre>
 </section>
@@ -1214,7 +1630,7 @@ alpha</code></pre>
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn longer_than_3(s){
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn longer_than_3(s: string) -&gt; i32 {
     if s.len() &gt; 3 { return 1 }
     return 0
 }
@@ -1226,7 +1642,7 @@ fn main() {
     print(names.filter(longer_than_3).get(0))
     print(lines(&quot;a\nb\nc&quot;).len())
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn longer_than_3(s: string){
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn longer_than_3(s: string) -&gt; i32 {
     if s.len() &gt; 3 { return 1 }
     return 0
 }
@@ -1238,7 +1654,8 @@ fn main() -&gt; void {
     print(names.filter(longer_than_3).get(0))
     print(lines(&quot;a\nb\nc&quot;).len())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>ada,nyra,bob
 1
 nyra
@@ -1268,10 +1685,143 @@ nyra
     print(m.contains(&quot;a&quot;))
     print(m.get(&quot;b&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 0
 2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map-str-i32-clear"><code>HashMap_str_i32.clear()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let m = HashMap_str_i32_new().insert(&quot;a&quot;, 1).clear()
+    print(m.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let m = HashMap_str_i32_new().insert(&quot;a&quot;, 1).clear()
+    print(m.len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map-str-i32-len"><code>HashMap_str_i32.len()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let m = HashMap_str_i32_new().insert(&quot;a&quot;, 1).insert(&quot;b&quot;, 2)
+    print(m.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let m = HashMap_str_i32_new().insert(&quot;a&quot;, 1).insert(&quot;b&quot;, 2)
+    print(m.len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map-str-i32-values"><code>HashMap_str_i32.values()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let m = HashMap_str_i32_new().insert(&quot;a&quot;, 1).insert(&quot;b&quot;, 2)
+    print(m.values().len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let m = HashMap_str_i32_new().insert(&quot;a&quot;, 1).insert(&quot;b&quot;, 2)
+    print(m.values().len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map-str-str-clear"><code>HashMap_str_str.clear()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let m = HashMap_str_str_new().insert(&quot;a&quot;, &quot;1&quot;).clear()
+    print(m.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let m = HashMap_str_str_new().insert(&quot;a&quot;, &quot;1&quot;).clear()
+    print(m.len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>0</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map-str-str-len"><code>HashMap_str_str.len()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let m = HashMap_str_str_new().insert(&quot;a&quot;, &quot;1&quot;).insert(&quot;b&quot;, &quot;2&quot;)
+    print(m.len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let m = HashMap_str_str_new().insert(&quot;a&quot;, &quot;1&quot;).insert(&quot;b&quot;, &quot;2&quot;)
+    print(m.len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>2</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-map-str-str-values"><code>HashMap_str_str.values()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() {
+    let m = HashMap_str_str_new().insert(&quot;a&quot;, &quot;1&quot;).insert(&quot;b&quot;, &quot;2&quot;)
+    print(m.values().len())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/map.ny&quot;
+
+fn main() -&gt; void {
+    let m = HashMap_str_str_new().insert(&quot;a&quot;, &quot;1&quot;).insert(&quot;b&quot;, &quot;2&quot;)
+    print(m.values().len())
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-map"><code>HashMap insert / get / contains</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -1295,7 +1845,8 @@ fn main() -&gt; void {
     print(m.get(&quot;score&quot;))
     print(m.contains(&quot;score&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>100
 1</code></pre>
 </section>
@@ -1321,7 +1872,8 @@ fn main() -&gt; void {
         print(s)
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>a
 b</code></pre>
 
@@ -1339,7 +1891,8 @@ b</code></pre>
     let parts: VecStr = &quot;x,y&quot;.split(&quot;,&quot;)
     print(parts.length())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 </section>
 
@@ -1362,7 +1915,8 @@ b</code></pre>
         print(i)
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -1386,7 +1940,8 @@ b</code></pre>
         print(c)
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>65
 66</code></pre>
 </section>
@@ -1403,7 +1958,7 @@ b</code></pre>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x){
+fn is_even(x: i32) -&gt; i32 {
     if x % 2 == 0 {
         return 1
     }
@@ -1422,7 +1977,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_even(x: i32){
+fn is_even(x: i32) -&gt; i32 {
     if x % 2 == 0 {
         return 1
     }
@@ -1438,7 +1993,8 @@ fn main() -&gt; void {
     print(Vec_i32_len(evens))
     print(Vec_i32_get(evens, 0))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 2</code></pre>
 
@@ -1451,7 +2007,7 @@ fn main() -&gt; void {
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_two(x){
+fn is_two(x: i32) -&gt; i32 {
     if x == 2 {
         return 1
     }
@@ -1467,7 +2023,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn is_two(x: i32){
+fn is_two(x: i32) -&gt; i32 {
     if x == 2 {
         return 1
     }
@@ -1480,7 +2036,8 @@ fn main() -&gt; void {
     Array_push(v, 2)
     print(Array_find(v, is_two, -1))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-array-map"><code>Array_map</code></h4>
@@ -1492,7 +2049,7 @@ fn main() -&gt; void {
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn double(x){
+fn double(x: i32) -&gt; i32 {
     return x * 2
 }
 
@@ -1507,7 +2064,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn double(x: i32){
+fn double(x: i32) -&gt; i32 {
     return x * 2
 }
 
@@ -1519,7 +2076,8 @@ fn main() -&gt; void {
     print(Vec_i32_get(out, 0))
     print(Vec_i32_get(out, 1))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>6
 8</code></pre>
 
@@ -1549,7 +2107,8 @@ fn main() -&gt; void {
     print(Array_pop(v))
     print(Vec_i32_len(v))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>20
 1</code></pre>
 
@@ -1577,7 +2136,8 @@ fn main() -&gt; void {
     Array_push(v, 2)
     print(Vec_i32_len(v))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-array-reduce"><code>Array_reduce</code></h4>
@@ -1589,7 +2149,7 @@ fn main() -&gt; void {
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn add(acc, x){
+fn add(acc: i32, x: i32) -&gt; i32 {
     return acc + x
 }
 
@@ -1602,7 +2162,7 @@ fn main() {
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/builtins_array.ny&quot;
 import &quot;stdlib/vec.ny&quot;
 
-fn add(acc: i32, x: i32){
+fn add(acc: i32, x: i32) -&gt; i32 {
     return acc + x
 }
 
@@ -1612,7 +2172,8 @@ fn main() -&gt; void {
     Array_push(v, 20)
     print(Array_reduce(v, 0, add))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>30</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-json-parse"><code>JSON_parse</code></h4>
@@ -1633,7 +2194,8 @@ fn main() -&gt; void {
     let raw: string = JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;)
     print(JSON_parse(raw, &quot;name&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hamdy</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-json-stringify"><code>JSON_stringify</code></h4>
@@ -1652,7 +2214,8 @@ fn main() {
 fn main() -&gt; void {
     print(JSON_stringify(&quot;name&quot;, &quot;hamdy&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>{&quot;name&quot;:&quot;hamdy&quot;}</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-ceil"><code>Math_ceil</code></h4>
@@ -1671,7 +2234,8 @@ fn main() {
 fn main() -&gt; void {
     print(Math_ceil(7))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>7</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-floor"><code>Math_floor</code></h4>
@@ -1690,7 +2254,8 @@ fn main() {
 fn main() -&gt; void {
     print(Math_floor(7))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>7</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-max"><code>Math_max</code></h4>
@@ -1709,7 +2274,8 @@ fn main() {
 fn main() -&gt; void {
     print(Math_max(10, 3))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>10</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-min"><code>Math_min</code></h4>
@@ -1728,7 +2294,8 @@ fn main() {
 fn main() -&gt; void {
     print(Math_min(10, 3))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>3</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-random"><code>Math_random</code></h4>
@@ -1747,9 +2314,10 @@ fn main() {
 fn main() -&gt; void {
     print(Math_random())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(varies each run — ChaCha20 stream)
-0.380369
+0.683123
 …</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math-round"><code>Math_round</code></h4>
@@ -1768,7 +2336,8 @@ fn main() {
 fn main() -&gt; void {
     print(Math_round(7))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>7</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-random-builtin"><code>random_builtin</code></h4>
@@ -1789,10 +2358,11 @@ fn main() -&gt; void {
     print(random(1, 6))
     print(random_f64())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>-675583405
-3
-0.729129</code></pre>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>-659102388
+1
+0.906729</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-random"><code>random / random_f64</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -1810,11 +2380,12 @@ fn main() -&gt; void {
     print(random(1, 6))
     print(random_f64())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(varies each run — ChaCha20 stream)
-178165592
-4
-0.976194
+1435665390
+2
+0.678257
 …</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-shuffle-pick"><code>shuffle_pick</code></h4>
@@ -1843,8 +2414,9 @@ fn main() -&gt; void {
     Vec_i32_push(v, 30)
     print(shuffle_pick(v))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>10</code></pre>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>30</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-includes"><code>String_includes</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -1862,7 +2434,8 @@ fn main() {
 fn main() -&gt; void {
     print(String_includes(&quot;hello&quot;, &quot;ell&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-replace"><code>String_replace</code></h4>
@@ -1881,7 +2454,8 @@ fn main() {
 fn main() -&gt; void {
     print(String_replace(&quot;foo-bar&quot;, &quot;bar&quot;, &quot;baz&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>foo-baz</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-split"><code>String_split</code></h4>
@@ -1904,7 +2478,8 @@ fn main() -&gt; void {
     let parts = String_split(&quot;a,b&quot;, &quot;,&quot;)
     print(Vec_str_len(parts))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-to-lower"><code>String_toLowerCase</code></h4>
@@ -1923,7 +2498,8 @@ fn main() {
 fn main() -&gt; void {
     print(String_toLowerCase(&quot;NYRA&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>nyra</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-to-upper"><code>String_toUpperCase</code></h4>
@@ -1942,7 +2518,8 @@ fn main() {
 fn main() -&gt; void {
     print(String_toUpperCase(&quot;nyra&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>NYRA</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-string-trim"><code>trim</code></h4>
@@ -1961,7 +2538,8 @@ fn main() {
 fn main() -&gt; void {
     print(trim(&quot;  hi  &quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hi</code></pre>
 </section>
 
@@ -2006,12 +2584,313 @@ fn main() -&gt; void {
     let x = abs(-5)
     print(x)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>42
 3
 7
 10
 5</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-acos-f64"><code>acos()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(acos(1.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(acos(1.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-asin-f64"><code>asin()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(asin(0.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(asin(0.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-atan-f64"><code>atan()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(atan(1.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(atan(1.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-ceil-f64"><code>ceil()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(ceil(3.2))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(ceil(3.2))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>4</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-clamp-f64"><code>clamp()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(clamp(1.5, 0.0, 1.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(clamp(1.5, 0.0, 1.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-exp-f64"><code>exp()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(exp(1.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(exp(1.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-floor-f64"><code>floor()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(floor(3.7))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(floor(3.7))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>3</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-hypot-f64"><code>hypot()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(hypot(3.0, 4.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(hypot(3.0, 4.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>5</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-log-f64"><code>log()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(log(2.718281828))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(log(2.718281828))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-log10-f64"><code>log10()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(log10(100.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(log10(100.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-log2-f64"><code>log2()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(log2(8.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(log2(8.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-pow-f64"><code>pow()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(pow(2.0, 3.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(pow(2.0, 3.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>(run failed — exit 1)</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-round-f64"><code>round()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(round(3.5))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(round(3.5))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>4</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-sqrt-f64"><code>sqrt()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(sqrt(16.0))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(sqrt(16.0))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>4</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-trunc-f64"><code>trunc()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() {
+    print(trunc(1.9))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/math.ny&quot;
+
+fn main() -&gt; void {
+    print(trunc(1.9))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-math"><code>Math_max / min / round / random</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -2041,15 +2920,16 @@ fn main() -&gt; void {
 
     print(Math_random())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>7
 7
 7
 10
 3
-0.432964</code></pre>
+0.126243</code></pre>
 
-<h4 class="builtin-ex-title" id="ex-sin-cos"><code>sin / cos / max_f64</code></h4>
+<h4 class="builtin-ex-title" id="ex-sin-cos"><code>sin_cos</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -2065,7 +2945,8 @@ fn main() -&gt; void {
     print(cos(0.0))
     print(max_f64(1.0, 2.0))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2</code></pre>
@@ -2094,7 +2975,8 @@ fn main() -&gt; void {
     print(raw)
     print(JSON_parse(raw, &quot;name&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>{&quot;name&quot;:&quot;hamdy&quot;}
 hamdy</code></pre>
 </section>
@@ -2116,7 +2998,8 @@ hamdy</code></pre>
     let m = dict_i32().insert(&quot;score&quot;, 100)
     print(m.get(&quot;score&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>100</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-jfield"><code>jfield</code></h4>
@@ -2131,7 +3014,8 @@ hamdy</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(jfield(&quot;name&quot;, &quot;Nyra&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>{&quot;name&quot;:&quot;Nyra&quot;}</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-jobj"><code>jobj</code></h4>
@@ -2150,7 +3034,8 @@ hamdy</code></pre>
     let u = jobj(o, &quot;user&quot;)
     print(jnum(u, &quot;id&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-jparse-jstr"><code>jparse / jstr / jnum / jbool</code></h4>
@@ -2171,7 +3056,8 @@ hamdy</code></pre>
     print(jnum(o, &quot;n&quot;))
     print(jbool(o, &quot;ok&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>Nyra
 7
 1</code></pre>
@@ -2194,7 +3080,8 @@ hamdy</code></pre>
     print(jraw(m, &quot;b&quot;))
     print(jstringify(m))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 two
 {&quot;a&quot;:1,&quot;b&quot;:&quot;two&quot;}</code></pre>
@@ -2217,7 +3104,8 @@ two
     print(create_dir(&quot;/tmp/nyra_docs_cd&quot;))
     print(remove_dir(&quot;/tmp/nyra_docs_cd&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 0</code></pre>
 
@@ -2237,7 +3125,8 @@ two
     print(ls(&quot;/tmp&quot;).len() &gt; 0)
     print(rm(&quot;/tmp/nyra_docs_marker.txt&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(directory entry count / rm status)
 1
 0</code></pre>
@@ -2262,7 +3151,8 @@ two
     print(slurp(&quot;/tmp/nyra_docs_slurp.txt&quot;))
     rm(&quot;/tmp/nyra_docs_slurp.txt&quot;)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>hello
 hello!</code></pre>
 </section>
@@ -2286,7 +3176,8 @@ hello!</code></pre>
     ms(1).sleep()
     print(if t0.elapsed_ms() &gt;= 0 { 1 } else { 0 })
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(elapsed ≥ 0 after ms(1).sleep())
 1</code></pre>
 </section>
@@ -2312,7 +3203,8 @@ hello!</code></pre>
     print(env(&quot;__NYRA_DOCS_TMP__&quot;))
     print(env_has(&quot;__NYRA_DOCS_TMP__&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>fallback
 ok
 1</code></pre>
@@ -2339,7 +3231,8 @@ ok
     print(out.code)
     print(out.stdout.len())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 0
 4</code></pre>
@@ -2360,7 +3253,8 @@ ok
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(uuid().len())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(UUID string — length is always 36)
 36</code></pre>
 </section>
@@ -2384,10 +3278,58 @@ ok
     print(b64d(&quot;aGk=&quot;))
     print(url_encode(&quot;a b&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>aGk=
 hi
 a%20b</code></pre>
+
+<h4 class="builtin-ex-title" id="ex-hex-decode"><code>hex_decode()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/encoding/mod.ny&quot;
+
+fn main() {
+    print(hex_decode(&quot;4869&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/encoding/mod.ny&quot;
+
+fn main() -&gt; void {
+    print(hex_decode(&quot;4869&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>Hi</code></pre>
+</section>
+
+<section class="builtin-section" id="sec-strconv">
+  <h3 class="builtin-section-title">Strconv</h3>
+  
+<h4 class="builtin-ex-title" id="ex-str-to-bool"><code>parse_bool()</code></h4>
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/strconv/mod.ny&quot;
+
+fn main() {
+    print(parse_bool(&quot;true&quot;))
+    print(parse_bool(&quot;false&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/strconv/mod.ny&quot;
+
+fn main() -&gt; void {
+    print(parse_bool(&quot;true&quot;))
+    print(parse_bool(&quot;false&quot;))
+}</code></pre></div>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+0</code></pre>
 </section>
 
 <section class="builtin-section" id="sec-errors">
@@ -2407,7 +3349,8 @@ a%20b</code></pre>
     print(err_json(&quot;bad&quot;).kind)
     print(err_invalid(&quot;x&quot;).kind)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>json
 invalid</code></pre>
 
@@ -2427,7 +3370,8 @@ invalid</code></pre>
     print(e.kind)
     print(e.message)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>io
 open: boom</code></pre>
 </section>
@@ -2457,7 +3401,8 @@ open: boom</code></pre>
     let h = headers().insert(&quot;X-Test&quot;, &quot;1&quot;)
     print(h.get(&quot;X-Test&quot;))
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>abc
 sid=abc
 1</code></pre>
@@ -2476,7 +3421,8 @@ sid=abc
     print(form().append(&quot;a&quot;, &quot;1&quot;).append(&quot;b&quot;, &quot;2&quot;).urlencoded())
     print(params().append(&quot;q&quot;, &quot;nyra&quot;).to_string())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>a=1&amp;b=2
 q=nyra</code></pre>
 
@@ -2494,7 +3440,8 @@ q=nyra</code></pre>
     let init = req().timeout(1000).header(&quot;X-Test&quot;, &quot;1&quot;)
     print(init.timeout_ms)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1000</code></pre>
 </section>
 
@@ -2527,7 +3474,8 @@ q=nyra</code></pre>
         .to_sql()
     print(sql)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>SELECT id, name FROM users WHERE active = '1' ORDER BY name LIMIT 10</code></pre>
 </section>
 
@@ -2550,7 +3498,8 @@ q=nyra</code></pre>
     flush()
     print(&quot;done&quot;)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>okdone</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-input"><code>input</code></h4>
@@ -2571,7 +3520,8 @@ fn main() -&gt; void {
     print(name.length())
     print(name)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>Name: 3
 Ada</code></pre>
 
@@ -2593,7 +3543,8 @@ Ada</code></pre>
     print([1.5, 2.5])
     print([&quot;hello&quot;, &quot;Nyra&quot;])
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>[20, 1, 4, 3, 5, 2]
 [1.5, 2.5]
 [&quot;hello&quot;, &quot;Nyra&quot;]</code></pre>
@@ -2610,7 +3561,8 @@ Ada</code></pre>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
     print(&quot;ok&quot;, color: green)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(ANSI green on supporting terminals)
 ok</code></pre>
 
@@ -2628,7 +3580,8 @@ ok</code></pre>
     print(42)
     print(&quot;Nyra&quot;)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>42
 Nyra</code></pre>
 
@@ -2646,7 +3599,8 @@ Nyra</code></pre>
     println(&quot;line&quot;)
     flush()
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>line</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-write"><code>write</code></h4>
@@ -2663,8 +3617,9 @@ Nyra</code></pre>
     write(&quot;ok&quot;)
     flush()
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>ok   Compiling write (examples/builtins/io)</code></pre>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>ok</code></pre>
 </section>
 
 <section class="builtin-section" id="sec-timing-memory">
@@ -2694,11 +3649,11 @@ Nyra</code></pre>
     mem_end(&quot;work&quot;)
     print(sum)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(timing / RSS vary by machine)
 work: RSS +0.000 B
-499500
-note: prebuilt runtime missing required symbols; compiling rt modules</code></pre>
+499500</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-time"><code>time_start / time_end</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -2724,11 +3679,11 @@ note: prebuilt runtime missing required symbols; compiling rt modules</code></pr
     time_end(&quot;work&quot;)
     print(sum)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(timing / RSS vary by machine)
 work: 833.333333 ns
-499500
-note: prebuilt runtime missing required symbols; compiling rt modules</code></pre>
+499500</code></pre>
 </section>
 
 <section class="builtin-section" id="sec-date-time">
@@ -2768,14 +3723,15 @@ note: prebuilt runtime missing required symbols; compiling rt modules</code></pr
     print(d.seconds)
     print(d.weekday)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(local clock — values change)
 2026
 7
 8
-18
-52
-3
+21
+43
+21
 …</code></pre>
 </section>
 
@@ -2793,7 +3749,7 @@ allow_extended
 
 import &quot;stdlib/async/future.ny&quot;
 
-async fn greet(){
+async fn greet() -&gt; string {
     let h = Executor_sleep_ms(10)
     await h
     return &quot;Nyra async v2&quot;
@@ -2808,7 +3764,7 @@ allow_extended
 
 import &quot;stdlib/async/future.ny&quot;
 
-async fn greet(){
+async fn greet() -&gt; string {
     let h = Executor_sleep_ms(10)
     await h
     return &quot;Nyra async v2&quot;
@@ -2818,9 +3774,9 @@ fn main() -&gt; void {
     let f = greet()
     print(await f)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>Nyra async v2
-note: prebuilt runtime missing required symbols; compiling rt modules</code></pre>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>Nyra async v2</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-async-spawn"><code>async_spawn</code></h4>
 <div class="code-tabs" data-code-tabs>
@@ -2833,7 +3789,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn compute(){
+async fn compute() -&gt; i32 {
     return 42
 }
 
@@ -2846,7 +3802,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn compute(){
+async fn compute() -&gt; i32 {
     return 42
 }
 
@@ -2854,7 +3810,8 @@ fn main() -&gt; void {
     let h = compute()
     print(await h)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>(run failed — exit 1)</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-async-state-machine"><code>async_state_machine</code></h4>
@@ -2868,7 +3825,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn chain(){
+async fn chain() -&gt; i32 {
     let _ = await Executor_sleep_ms(5)
     let _ = await Executor_sleep_ms(5)
     return 100
@@ -2883,7 +3840,7 @@ allow_extended
 
 import &quot;stdlib/async_v1.ny&quot;
 
-async fn chain(){
+async fn chain() -&gt; i32 {
     let _ = await Executor_sleep_ms(5)
     let _ = await Executor_sleep_ms(5)
     return 100
@@ -2893,9 +3850,9 @@ fn main() -&gt; void {
     let h = chain()
     print(await h)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>100
-note: prebuilt runtime missing required symbols; compiling rt modules</code></pre>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>100</code></pre>
 </section>
 
 <section class="builtin-section" id="sec-parallel">
@@ -2915,7 +3872,8 @@ fn main() {
 fn main() -&gt; void {
     print(cpu_count())
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>8</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-parallel-array"><code>parallel_array</code></h4>
@@ -2944,9 +3902,10 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>20
-10
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>10
+20
 30
 999</code></pre>
 
@@ -2974,7 +3933,8 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -3005,7 +3965,8 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -3036,9 +3997,10 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>0
-1
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
+0
 2
 3
 999</code></pre>
@@ -3087,7 +4049,8 @@ fn main() -&gt; void {
     }
     print(all_pos)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1
 42
 1</code></pre>
@@ -3116,7 +4079,8 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>0
 1
 2
@@ -3147,11 +4111,12 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>0
-1
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>1
 2
 3
+0
 999</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-parallel-thread"><code>parallel_thread</code></h4>
@@ -3178,11 +4143,12 @@ fn main() -&gt; void {
     }
     print(999)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>2
-3
-0
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>0
 1
+2
+3
 999</code></pre>
 
 <h4 class="builtin-ex-title" id="ex-progress"><code>progress</code></h4>
@@ -3207,15 +4173,13 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>
-[#####--------] 33%
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>[#####--------] 33%
 Running demo...
-
-[#########----] 66%
+[#########----] 66%
 Running demo...
-
-[#############] 100%
+[#############] 100%
 Running demo...
 0
 1
@@ -3247,7 +4211,8 @@ fn main() -&gt; void {
     h.join()
     print(0)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>99
 0</code></pre>
 
@@ -3269,7 +4234,10 @@ fn main() -&gt; void {
         print(88)
     }
 }</code></pre></div>
-</div><h4 class="builtin-ex-title" id="ex-spawn"><code>spawn</code></h4>
+</div>
+
+
+<h4 class="builtin-ex-title" id="ex-spawn"><code>spawn</code></h4>
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -3291,9 +4259,9 @@ fn main() -&gt; void {
     }
     print(0)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
-<pre class="example-output"><code>42
-0</code></pre>
+</div>
+<p class="example-output-label">Output</p>
+<pre class="example-output"><code>42</code></pre>
 </section>
 
 <section class="builtin-section" id="sec-benchmark">
@@ -3341,10 +4309,11 @@ fn main() -&gt; void {
         run()
     }
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>Time: 0.1 ms
 Memory: 0.0 B
-CPU: 97%</code></pre>
+CPU: 96%</code></pre>
 </section>
 
 <section class="builtin-section" id="sec-defer">
@@ -3388,7 +4357,8 @@ fn main() -&gt; void {
     defer a()
     print(&quot;body&quot;)
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>body
 a
 b</code></pre>
@@ -3421,7 +4391,8 @@ fn main() -&gt; void {
     defer cleanup()
     return
 }</code></pre></div>
-</div><p class="example-output-label">Output</p>
+</div>
+<p class="example-output-label">Output</p>
 <pre class="example-output"><code>1</code></pre>
 </section>
 </section>

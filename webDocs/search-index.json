@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-08T16:36:51.793Z",
+  "generated": "2026-07-08T18:44:43.648Z",
   "docs": [
     {
       "pageTitle": "AI skill file",
@@ -3349,7 +3349,7 @@
       "id": "learn-structs.html#struct",
       "title": "Structs",
       "heading": "struct",
-      "body": "struct Define the shape then create a value with fields. Without types With types struct Player { hp: i32 score: i32 } fn main() { let p = Player { hp: 100, score: 0 } print(p.hp) } struct Player { hp: i32 score: i32 } fn main() -> void { let p: Player = Player { hp: 100, score: 0 } print(p.hp) } Output 100 ← HashMap Learn overview Enums →"
+      "body": "struct Define the shape then create a value with fields. Without types With types fn main() { let p = { hp: 100, score: 0 } print(p.hp) } fn main() -> void { let p = { hp: 100, score: 0 } print(p.hp) } Output 100 ← HashMap Learn overview Enums →"
     },
     {
       "pageTitle": "Nyra Syntax",
@@ -3939,7 +3939,7 @@
       "id": "methods.html#strings",
       "title": "Built-in methods",
       "heading": "String methods no import",
-      "body": "String methods no import Method syntax on string — borrows the receiver (does not move). Heap copy: clone s keyword. Method Args Returns Description Example .length() / .len() — i32 Byte length \"hello\".len() .split(sep) string split list Split on separator \"a,b,c\".split(\",\") .trim() — string Strip whitespace \" hi \".trim() .contains(needle) string i32 1 if found \"abc\".contains(\"b\") .starts_with(prefix) string i32 Prefix test \"hello\".starts_with(\"he\") .ends_with(suffix) string i32 Suffix test \"hello\".ends_with(\"lo\") .replace(from, to) 2 × string string Replace all \"a-b\".replace(\"-\", \"_\") .replacen(from, to, count) 2 × string , i32 string Replace at most count \"aaa\".replacen(\"a\", \"b\", 2) .to_upper() — string ASCII upper-case \"hi\".to_upper() .to_lower() — string ASCII lower-case \"HI\".to_lower() clone s — string Heap copy (keyword) let copy = clone s Examples: .split() · .trim() · for c in string"
+      "body": "String methods no import Method syntax on string — borrows the receiver (does not move). Heap copy: clone s keyword. Method Args Returns Description Example .length() / .len() — i32 Byte length \"hello\".len() .split(sep) string split list Split on separator \"a,b,c\".split(\",\") .trim() — string Strip whitespace \" hi \".trim() .contains(needle) string i32 1 if found \"abc\".contains(\"b\") .starts_with(prefix) string i32 Prefix test \"hello\".starts_with(\"he\") .ends_with(suffix) string i32 Suffix test \"hello\".ends_with(\"lo\") .replace(from, to) 2 × string string Replace all \"a-b\".replace(\"-\", \"_\") .replacen(from, to, count) 2 × string , i32 string Replace at most count \"aaa\".replacen(\"a\", \"b\", 2) .to_upper() — string ASCII upper-case \"hi\".to_upper() .to_lower() — string ASCII lower-case \"HI\".to_lower() clone s — string Heap copy (keyword) let copy = clone s .strip_prefix(prefix) string string Remove prefix if present \"pre_hi\".strip_prefix(\"pre_\") .strip_suffix(suffix) string string Remove suffix if present \"hi.txt\".strip_suffix(\".txt\") .index(needle) string i32 First byte index or -1 \"hello\".index(\"ell\") .last_index(needle) string i32 Last occurrence index \"aba\".last_index(\"a\") .is_empty() — i32 1 if length 0 \"\".is_empty() .count(needle) string i32 Non-overlapping matches \"hello\".count(\"l\") .repeat(n) i32 string Repeat n times \"ab\".repeat(3) .trim_start() / .trim_end() — string Strip leading / trailing whitespace \" hi\".trim_start() .splitn(sep, n) string , i32 VecStr Split into at most n parts \"a,b,c\".splitn(\",\", 2) .split_once(sep) string string Part before first separator \"a:b:c\".split_once(\":\") .fields() — VecStr Whitespace-split words \"a b c\".fields() .pad_start(w, pad) / .pad_end(w, pad) i32 , string string Pad to width \"hi\".pad_start(5, \"0\") .to_snake_case() … .to_pascal_case() — string Case conversion helpers \"Hello World\".to_snake_case() Examples: .split() · .trim() · .strip_prefix() · .fields() · for c in string"
     },
     {
       "pageTitle": "Built-in methods",
@@ -3949,7 +3949,17 @@
       "id": "methods.html#numbers",
       "title": "Built-in methods",
       "heading": "Number & math no import",
-      "body": "Number & math no import Compiler math intrinsics — lowered to LLVM, no call overhead. Type overload on abs . Call Args Returns Notes Example abs(x) i32 or f64 same as arg Absolute value abs(-5) abs_i32(x) / abs_f64(x) 1 numeric i32 / f64 Explicit typed variants abs_i32(-42) min_i32(a, b) / max_i32(a, b) 2 × i32 i32 Min / max max_i32(3, 7) min_f64(a, b) / max_f64(a, b) 2 × f64 f64 Min / max min_f64(1.0, 2.0) clamp_i32(x, lo, hi) 3 × i32 i32 Clamp to range clamp_i32(15, 0, 10) cpu_count() — i32 Logical CPU count cpu_count() Example: abs / min / max · See also Math_* helpers"
+      "body": "Number & math no import Compiler math intrinsics — lowered to LLVM, no call overhead. Type overload on abs . Call Args Returns Notes Example abs(x) i32 or f64 same as arg Absolute value abs(-5) abs_i32(x) / abs_f64(x) 1 numeric i32 / f64 Explicit typed variants abs_i32(-42) min_i32(a, b) / max_i32(a, b) 2 × i32 i32 Min / max max_i32(3, 7) min_f64(a, b) / max_f64(a, b) 2 × f64 f64 Min / max min_f64(1.0, 2.0) clamp_i32(x, lo, hi) 3 × i32 i32 Clamp to range clamp_i32(15, 0, 10) cpu_count() — i32 Logical CPU count cpu_count() Example: abs / min / max · See also stdlib/math.ny f64 helpers · legacy Math_*"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#stdlib-math-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#stdlib-math-f64",
+      "title": "Built-in methods",
+      "heading": "import \"stdlib/math.ny\" — f64 math stdlib",
+      "body": "import \"stdlib/math.ny\" — f64 math stdlib Runtime libm-backed helpers with short aliases ( floor(x) → floor_f64 ). Examples in the gallery below. Call Args Returns Notes Example floor(x) / ceil(x) / round(x) f64 f64 Rounding floor(3.7) sqrt(x) / pow(b, e) 1–2 × f64 f64 Root / power sqrt(16.0) log(x) / log10(x) / log2(x) f64 f64 Natural / base-10 / base-2 log log(2.718) exp(x) f64 f64 e^x exp(1.0) clamp(x, lo, hi) 3 × f64 f64 Clamp to range clamp(1.5, 0.0, 1.0) trunc(x) f64 f64 Truncate toward zero trunc(1.9) hypot(x, y) 2 × f64 f64 sqrt(x²+y²) hypot(3.0, 4.0) asin(x) / acos(x) / atan(x) f64 f64 Inverse trig asin(0.0)"
     },
     {
       "pageTitle": "Built-in methods",
@@ -3989,7 +3999,7 @@
       "id": "methods.html#vec-i32",
       "title": "Built-in methods",
       "heading": "vec() / VecI32 — preferred (auto-prelude)",
-      "body": "vec() / VecI32 — preferred (auto-prelude) Growable i32 vector with method chaining and HOFs (v1.45). Low-level Vec_i32_* ptr API remains for FFI. Method / ctor Args Returns Notes Example vec() — VecI32 Empty vector let v = vec() .push(x) i32 VecI32 Append (chains) v.push(42) .get(i) / .set(i, v) index, value i32 / self Indexed access v.get(0) .len() / .pop() — i32 Length / pop last v.len() .contains(x) / .includes(x) i32 i32 1 / 0 v.contains(42) .find(pred, fb) / .find_eq(x, fb) pred / value i32 Search with fallback v.find_eq(10, -1) .filter(pred) / .map(f) / .reduce(init, f) fn VecI32 / value HOFs (v1.45) v.filter(is_even) vec_range(start, end) 2 × i32 VecI32 Half-open range vec_range(0, 10) Example: vec() . Legacy: Vec_i32_new / Vec_i32_push ."
+      "body": "vec() / VecI32 — preferred (auto-prelude) Growable i32 vector with method chaining and HOFs (v1.45). Low-level Vec_i32_* ptr API remains for FFI. Method / ctor Args Returns Notes Example vec() — VecI32 Empty vector let v = vec() .push(x) i32 VecI32 Append (chains) v.push(42) .get(i) / .set(i, v) index, value i32 / self Indexed access v.get(0) .len() / .pop() — i32 Length / pop last v.len() .contains(x) / .includes(x) i32 i32 1 / 0 v.contains(42) .find(pred, fb) / .find_eq(x, fb) pred / value i32 Search with fallback v.find_eq(10, -1) .filter(pred) / .map(f) / .reduce(init, f) fn VecI32 / value HOFs (v1.45) v.filter(is_even) vec_range(start, end) 2 × i32 VecI32 Half-open range vec_range(0, 10) .insert(i, x) i32 , i32 VecI32 Insert at index v.insert(0, 9) .remove_at(i) i32 i32 Remove and return element v.remove_at(0) .clear() — VecI32 Remove all elements v.clear() .reverse() — VecI32 Reverse in place v.reverse() .sort() — VecI32 Sort ascending in place v.sort() .binary_search(x) i32 i32 Index on sorted vec or -1 v.binary_search(5) Example: vec() . Legacy: Vec_i32_new / Vec_i32_push ."
     },
     {
       "pageTitle": "Built-in methods",
@@ -4009,7 +4019,17 @@
       "id": "methods.html#maps",
       "title": "Built-in methods",
       "heading": "Maps (key-value objects) — import \"stdlib/map.ny\"",
-      "body": "Maps (key-value objects) — import \"stdlib/map.ny\" String-keyed hash maps with method syntax. Method Args Returns On type Example .insert(key, value) string , value same map type HashMap_str_i32 m = m.insert(\"k\", 1) .get(key) string i32 / string Lookup value m.get(\"score\") .contains(key) string i32 1 / 0 m.contains(\"score\") Constructors: HashMap_str_i32_new() , HashMap_str_str_new() . Example: HashMap insert / get"
+      "body": "Maps (key-value objects) — import \"stdlib/map.ny\" String-keyed hash maps with method syntax. Method Args Returns On type Example .insert(key, value) string , value same map type HashMap_str_i32 m = m.insert(\"k\", 1) .get(key) string i32 / string Lookup value m.get(\"score\") .get_or(key, default) string , default value type Fallback when key missing m.get_or(\"x\", 0) .contains(key) string i32 1 / 0 m.contains(\"score\") .len() — i32 Entry count m.len() .values() — VecI32 / StrVec All values as vector m.values() .clear() — same map type Remove all entries m.clear() Constructors: HashMap_str_i32_new() , HashMap_str_str_new() . Example: HashMap insert / get · .len() / .values() / .clear()"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#encoding-strconv",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#encoding-strconv",
+      "title": "Built-in methods",
+      "heading": "Encoding & strconv stdlib",
+      "body": "Encoding & strconv stdlib Call Module Returns Notes Example hex_decode(s) stdlib/encoding/mod.ny string Decode hex bytes to string hex_decode(\"4869\") parse_bool(s) / str_to_bool(s) stdlib/strconv/mod.ny i32 1 / 0 for true/false/yes/no parse_bool(\"true\")"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4099,7 +4119,7 @@
       "id": "methods.html#js-string",
       "title": "Built-in methods",
       "heading": "String helpers — import \"stdlib/builtins_string.ny\"",
-      "body": "String helpers — import \"stdlib/builtins_string.ny\" Function Description Example String_toUpperCase(s) Upper-case String_toUpperCase(\"hi\") String_toLowerCase(s) Lower-case String_toLowerCase(\"HI\") String_includes(s, needle) Substring test String_includes(s, \"ab\") String_split(s, sep) Split to string vector String_split(\"a,b\", \",\") String_replace(s, from, to) Replace all matches String_replace(s, \"-\", \"_\") String_replacen(s, from, to, count) Replace at most count String_replacen(s, \"a\", \"b\", 2) trim(s) Trim whitespace trim(\" x \") Example: String_split"
+      "body": "String helpers — import \"stdlib/builtins_string.ny\" Function Description Example String_toUpperCase(s) Upper-case String_toUpperCase(\"hi\") String_toLowerCase(s) Lower-case String_toLowerCase(\"HI\") String_includes(s, needle) Substring test String_includes(s, \"ab\") String_split(s, sep) Split to string vector String_split(\"a,b\", \",\") String_replace(s, from, to) Replace all matches String_replace(s, \"-\", \"_\") String_replacen(s, from, to, count) Replace at most count String_replacen(s, \"a\", \"b\", 2) trim(s) Trim whitespace trim(\" x \") strip_prefix(s, p) / strip_suffix(s, sfx) Prefix / suffix removal strip_prefix(\"pre_x\", \"pre_\") index(s, needle) / last_index Search indices index(\"aba\", \"a\") pad_start / pad_end (method syntax) Pad to width \"hi\".pad_start(5, \"0\") Example: String_split"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4183,6 +4203,16 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-count",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-count",
+      "title": "Built-in methods",
+      "heading": ".count()",
+      "body": ".count() Without types With types fn main() { print(\"hello\".count(\"ell\")) } fn main() -> void { print(\"hello\".count(\"ell\")) } Output 1"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-ends-with",
       "section": "Standard library",
       "kind": "content",
@@ -4190,6 +4220,46 @@
       "title": "Built-in methods",
       "heading": ".ends_with()",
       "body": ".ends_with() Without types With types fn main() { print(\"hello\".ends_with(\"llo\")) print(\"hello\".ends_with(\"xyz\")) } fn main() -> void { print(\"hello\".ends_with(\"llo\")) print(\"hello\".ends_with(\"xyz\")) } Output 1 0"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-fields",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-fields",
+      "title": "Built-in methods",
+      "heading": ".fields()",
+      "body": ".fields() Without types With types fn main() { print(\"hello\".fields()) } fn main() -> void { print(\"hello\".fields()) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-index",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-index",
+      "title": "Built-in methods",
+      "heading": ".index()",
+      "body": ".index() Without types With types fn main() { print(\"hello\".index(\"ell\")) print(index(\"hello\", \"ell\")) } fn main() -> void { print(\"hello\".index(\"ell\")) print(index(\"hello\", \"ell\")) } Output 1 1"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-is-empty",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-is-empty",
+      "title": "Built-in methods",
+      "heading": ".is_empty()",
+      "body": ".is_empty() Without types With types fn main() { print(\"hello\".is_empty()) } fn main() -> void { print(\"hello\".is_empty()) } Output 0"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-last-index",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-last-index",
+      "title": "Built-in methods",
+      "heading": ".last_index()",
+      "body": ".last_index() Without types With types fn main() { print(\"hello\".last_index(\"ell\")) print(last_index(\"hello\", \"ell\")) } fn main() -> void { print(\"hello\".last_index(\"ell\")) print(last_index(\"hello\", \"ell\")) } Output 1 1"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4213,6 +4283,36 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-pad-end",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-pad-end",
+      "title": "Built-in methods",
+      "heading": ".pad_end()",
+      "body": ".pad_end() Without types With types fn main() { print(\"hello\".pad_end(1, \"arg\")) } fn main() -> void { print(\"hello\".pad_end(1, \"arg\")) } Output hello"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-pad-start",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-pad-start",
+      "title": "Built-in methods",
+      "heading": ".pad_start()",
+      "body": ".pad_start() Without types With types fn main() { print(\"hello\".pad_start(1, \"arg\")) } fn main() -> void { print(\"hello\".pad_start(1, \"arg\")) } Output hello"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-repeat",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-repeat",
+      "title": "Built-in methods",
+      "heading": ".repeat()",
+      "body": ".repeat() Without types With types fn main() { print(\"hello\".repeat(1)) print(repeat(\"hello\", 1)) } fn main() -> void { print(\"hello\".repeat(1)) print(repeat(\"hello\", 1)) } Output hello hello"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-replace",
       "section": "Standard library",
       "kind": "content",
@@ -4228,8 +4328,18 @@
       "kind": "content",
       "id": "methods.html#ex-replacen",
       "title": "Built-in methods",
-      "heading": "replacen",
-      "body": "replacen Without types With types fn main() { print(\"aaa\".replacen(\"a\", \"b\", 2)) } fn main() -> void { print(\"aaa\".replacen(\"a\", \"b\", 2)) } Output bba"
+      "heading": ".replacen()",
+      "body": ".replacen() Without types With types fn main() { print(\"aaa\".replacen(\"a\", \"b\", 2)) } fn main() -> void { print(\"aaa\".replacen(\"a\", \"b\", 2)) } Output bba"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-split-once",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-split-once",
+      "title": "Built-in methods",
+      "heading": ".split_once()",
+      "body": ".split_once() Without types With types fn main() { print(\"hello\".split_once(\",\")) } fn main() -> void { print(\"hello\".split_once(\",\")) } Output hello"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4243,6 +4353,16 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-splitn",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-splitn",
+      "title": "Built-in methods",
+      "heading": ".splitn()",
+      "body": ".splitn() Without types With types fn main() { print(\"hello\".splitn(\",\", 1)) } fn main() -> void { print(\"hello\".splitn(\",\", 1)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-starts-with",
       "section": "Standard library",
       "kind": "content",
@@ -4253,13 +4373,23 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-strip-prefix",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-strip-prefix",
+      "title": "Built-in methods",
+      "heading": ".strip_prefix()",
+      "body": ".strip_prefix() Without types With types fn main() { print(\"hamdy.txt\".strip_prefix(\".txt\")) print(strip_prefix(\"hamdy.txt\", \".txt\")) } fn main() -> void { print(\"hamdy.txt\".strip_prefix(\".txt\")) print(strip_prefix(\"hamdy.txt\", \".txt\")) } Output hamdy.txt hamdy.txt"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-strip-suffix",
       "section": "Standard library",
       "kind": "content",
       "id": "methods.html#ex-strip-suffix",
       "title": "Built-in methods",
-      "heading": "strip_suffix",
-      "body": "strip_suffix Without types With types fn main() { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) } fn main() -> void { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) } Output hamdy hamdy"
+      "heading": ".strip_suffix()",
+      "body": ".strip_suffix() Without types With types fn main() { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) } fn main() -> void { print(\"hamdy.txt\".strip_suffix(\".txt\")) print(strip_suffix(\"hamdy.txt\", \".txt\")) } Output hamdy hamdy"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4268,8 +4398,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-camel-case",
       "title": "Built-in methods",
-      "heading": "to_camel_case",
-      "body": "to_camel_case Without types With types fn main() { print(\"Hello World\".to_camel_case()) } fn main() -> void { print(\"Hello World\".to_camel_case()) } Output helloWorld"
+      "heading": ".to_camel_case()",
+      "body": ".to_camel_case() Without types With types fn main() { print(\"Hello World\".to_camel_case()) } fn main() -> void { print(\"Hello World\".to_camel_case()) } Output helloWorld"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4278,8 +4408,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-capitalize",
       "title": "Built-in methods",
-      "heading": "to_capitalize",
-      "body": "to_capitalize Without types With types fn main() { print(\"hello world\".to_capitalize()) } fn main() -> void { print(\"hello world\".to_capitalize()) } Output Hello world"
+      "heading": ".to_capitalize()",
+      "body": ".to_capitalize() Without types With types fn main() { print(\"hello world\".to_capitalize()) } fn main() -> void { print(\"hello world\".to_capitalize()) } Output Hello world"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4288,8 +4418,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-dot-case",
       "title": "Built-in methods",
-      "heading": "to_dot_case",
-      "body": "to_dot_case Without types With types fn main() { print(\"Hello World\".to_dot_case()) } fn main() -> void { print(\"Hello World\".to_dot_case()) } Output hello.world"
+      "heading": ".to_dot_case()",
+      "body": ".to_dot_case() Without types With types fn main() { print(\"Hello World\".to_dot_case()) } fn main() -> void { print(\"Hello World\".to_dot_case()) } Output hello.world"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4298,8 +4428,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-kebab-case",
       "title": "Built-in methods",
-      "heading": "to_kebab_case",
-      "body": "to_kebab_case Without types With types fn main() { print(\"Hello World\".to_kebab_case()) } fn main() -> void { print(\"Hello World\".to_kebab_case()) } Output hello-world"
+      "heading": ".to_kebab_case()",
+      "body": ".to_kebab_case() Without types With types fn main() { print(\"Hello World\".to_kebab_case()) } fn main() -> void { print(\"Hello World\".to_kebab_case()) } Output hello-world"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4318,8 +4448,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-lowercase",
       "title": "Built-in methods",
-      "heading": "to_lowercase",
-      "body": "to_lowercase Without types With types fn main() { print(\"Hello World\".to_lowercase()) } fn main() -> void { print(\"Hello World\".to_lowercase()) } Output hello world"
+      "heading": ".to_lowercase()",
+      "body": ".to_lowercase() Without types With types fn main() { print(\"Hello World\".to_lowercase()) } fn main() -> void { print(\"Hello World\".to_lowercase()) } Output hello world"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4328,8 +4458,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-pascal-case",
       "title": "Built-in methods",
-      "heading": "to_pascal_case",
-      "body": "to_pascal_case Without types With types fn main() { print(\"Hello World\".to_pascal_case()) } fn main() -> void { print(\"Hello World\".to_pascal_case()) } Output HelloWorld"
+      "heading": ".to_pascal_case()",
+      "body": ".to_pascal_case() Without types With types fn main() { print(\"Hello World\".to_pascal_case()) } fn main() -> void { print(\"Hello World\".to_pascal_case()) } Output HelloWorld"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4338,8 +4468,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-screaming-snake-case",
       "title": "Built-in methods",
-      "heading": "to_screaming_snake_case",
-      "body": "to_screaming_snake_case Without types With types fn main() { print(\"Hello World\".to_screaming_snake_case()) } fn main() -> void { print(\"Hello World\".to_screaming_snake_case()) } Output HELLO_WORLD"
+      "heading": ".to_screaming_snake_case()",
+      "body": ".to_screaming_snake_case() Without types With types fn main() { print(\"Hello World\".to_screaming_snake_case()) } fn main() -> void { print(\"Hello World\".to_screaming_snake_case()) } Output HELLO_WORLD"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4348,8 +4478,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-snake-case",
       "title": "Built-in methods",
-      "heading": "to_snake_case",
-      "body": "to_snake_case Without types With types fn main() { print(\"Hello World\".to_snake_case()) } fn main() -> void { print(\"Hello World\".to_snake_case()) } Output hello_world"
+      "heading": ".to_snake_case()",
+      "body": ".to_snake_case() Without types With types fn main() { print(\"Hello World\".to_snake_case()) } fn main() -> void { print(\"Hello World\".to_snake_case()) } Output hello_world"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4358,8 +4488,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-titlecase",
       "title": "Built-in methods",
-      "heading": "to_titlecase",
-      "body": "to_titlecase Without types With types fn main() { print(\"hello world\".to_titlecase()) } fn main() -> void { print(\"hello world\".to_titlecase()) } Output Hello World"
+      "heading": ".to_titlecase()",
+      "body": ".to_titlecase() Without types With types fn main() { print(\"hello world\".to_titlecase()) } fn main() -> void { print(\"hello world\".to_titlecase()) } Output Hello World"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4368,8 +4498,8 @@
       "kind": "content",
       "id": "methods.html#ex-to-train-case",
       "title": "Built-in methods",
-      "heading": "to_train_case",
-      "body": "to_train_case Without types With types fn main() { print(\"hello world\".to_train_case()) } fn main() -> void { print(\"hello world\".to_train_case()) } Output Hello-World"
+      "heading": ".to_train_case()",
+      "body": ".to_train_case() Without types With types fn main() { print(\"hello world\".to_train_case()) } fn main() -> void { print(\"hello world\".to_train_case()) } Output Hello-World"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4380,6 +4510,26 @@
       "title": "Built-in methods",
       "heading": ".to_upper()",
       "body": ".to_upper() Without types With types fn main() { print(\"Nyra\".to_upper()) } fn main() -> void { print(\"Nyra\".to_upper()) } Output NYRA"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-trim-end",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-trim-end",
+      "title": "Built-in methods",
+      "heading": ".trim_end()",
+      "body": ".trim_end() Without types With types fn main() { print(\"hello\".trim_end()) } fn main() -> void { print(\"hello\".trim_end()) } Output hello"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-trim-start",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-trim-start",
+      "title": "Built-in methods",
+      "heading": ".trim_start()",
+      "body": ".trim_start() Without types With types fn main() { print(\"hello\".trim_start()) } fn main() -> void { print(\"hello\".trim_start()) } Output hello"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4460,6 +4610,56 @@
       "title": "Built-in methods",
       "heading": "Vector methods",
       "body": "Vector methods"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-vec-i32-clear",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-vec-i32-clear",
+      "title": "Built-in methods",
+      "heading": "VecI32.clear()",
+      "body": "VecI32.clear() Without types With types import \"stdlib/vec.ny\" fn main() { let v = vec().push(1).clear() print(v.len()) } import \"stdlib/vec.ny\" fn main() -> void { let v = vec().push(1).clear() print(v.len()) } Output 0"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-vec-i32-insert",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-vec-i32-insert",
+      "title": "Built-in methods",
+      "heading": "VecI32.insert()",
+      "body": "VecI32.insert() Without types With types import \"stdlib/vec.ny\" fn main() { let v = vec().push(1).push(3).insert(1, 2) print(v.get(1)) } import \"stdlib/vec.ny\" fn main() -> void { let v = vec().push(1).push(3).insert(1, 2) print(v.get(1)) } Output 2"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-vec-i32-remove-at",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-vec-i32-remove-at",
+      "title": "Built-in methods",
+      "heading": "VecI32.remove_at()",
+      "body": "VecI32.remove_at() Without types With types import \"stdlib/vec.ny\" fn main() { let v = vec().push(10).push(20) print(v.remove_at(0)) } import \"stdlib/vec.ny\" fn main() -> void { let v = vec().push(10).push(20) print(v.remove_at(0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-vec-i32-reverse",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-vec-i32-reverse",
+      "title": "Built-in methods",
+      "heading": "VecI32.reverse()",
+      "body": "VecI32.reverse() Without types With types import \"stdlib/vec.ny\" fn main() { let v = vec().push(1).push(2).push(3).reverse() print(v.get(0)) } import \"stdlib/vec.ny\" fn main() -> void { let v = vec().push(1).push(2).push(3).reverse() print(v.get(0)) } Output 3"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-vec-i32-sort",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-vec-i32-sort",
+      "title": "Built-in methods",
+      "heading": "VecI32.sort()",
+      "body": "VecI32.sort() Without types With types import \"stdlib/vec.ny\" fn main() { let v = vec().push(3).push(1).push(2).sort() print(v.get(0)) } import \"stdlib/vec.ny\" fn main() -> void { let v = vec().push(3).push(1).push(2).sort() print(v.get(0)) } Output 1"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4550,6 +4750,66 @@
       "title": "Built-in methods",
       "heading": "HashMap contains / remove / get",
       "body": "HashMap contains / remove / get Without types With types fn main() { let mut m = HashMap_str_str_new().insert(\"a\", \"1\").insert(\"b\", \"2\") print(m.contains(\"a\")) m = m.remove(\"a\") print(m.contains(\"a\")) print(m.get(\"b\")) } fn main() -> void { let mut m = HashMap_str_str_new().insert(\"a\", \"1\").insert(\"b\", \"2\") print(m.contains(\"a\")) m = m.remove(\"a\") print(m.contains(\"a\")) print(m.get(\"b\")) } Output 1 0 2"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-map-str-i32-clear",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-map-str-i32-clear",
+      "title": "Built-in methods",
+      "heading": "HashMap_str_i32.clear()",
+      "body": "HashMap_str_i32.clear() Without types With types import \"stdlib/map.ny\" fn main() { let m = HashMap_str_i32_new().insert(\"a\", 1).clear() print(m.len()) } import \"stdlib/map.ny\" fn main() -> void { let m = HashMap_str_i32_new().insert(\"a\", 1).clear() print(m.len()) } Output 0"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-map-str-i32-len",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-map-str-i32-len",
+      "title": "Built-in methods",
+      "heading": "HashMap_str_i32.len()",
+      "body": "HashMap_str_i32.len() Without types With types import \"stdlib/map.ny\" fn main() { let m = HashMap_str_i32_new().insert(\"a\", 1).insert(\"b\", 2) print(m.len()) } import \"stdlib/map.ny\" fn main() -> void { let m = HashMap_str_i32_new().insert(\"a\", 1).insert(\"b\", 2) print(m.len()) } Output 2"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-map-str-i32-values",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-map-str-i32-values",
+      "title": "Built-in methods",
+      "heading": "HashMap_str_i32.values()",
+      "body": "HashMap_str_i32.values() Without types With types import \"stdlib/map.ny\" fn main() { let m = HashMap_str_i32_new().insert(\"a\", 1).insert(\"b\", 2) print(m.values().len()) } import \"stdlib/map.ny\" fn main() -> void { let m = HashMap_str_i32_new().insert(\"a\", 1).insert(\"b\", 2) print(m.values().len()) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-map-str-str-clear",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-map-str-str-clear",
+      "title": "Built-in methods",
+      "heading": "HashMap_str_str.clear()",
+      "body": "HashMap_str_str.clear() Without types With types import \"stdlib/map.ny\" fn main() { let m = HashMap_str_str_new().insert(\"a\", \"1\").clear() print(m.len()) } import \"stdlib/map.ny\" fn main() -> void { let m = HashMap_str_str_new().insert(\"a\", \"1\").clear() print(m.len()) } Output 0"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-map-str-str-len",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-map-str-str-len",
+      "title": "Built-in methods",
+      "heading": "HashMap_str_str.len()",
+      "body": "HashMap_str_str.len() Without types With types import \"stdlib/map.ny\" fn main() { let m = HashMap_str_str_new().insert(\"a\", \"1\").insert(\"b\", \"2\") print(m.len()) } import \"stdlib/map.ny\" fn main() -> void { let m = HashMap_str_str_new().insert(\"a\", \"1\").insert(\"b\", \"2\") print(m.len()) } Output 2"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-map-str-str-values",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-map-str-str-values",
+      "title": "Built-in methods",
+      "heading": "HashMap_str_str.values()",
+      "body": "HashMap_str_str.values() Without types With types import \"stdlib/map.ny\" fn main() { let m = HashMap_str_str_new().insert(\"a\", \"1\").insert(\"b\", \"2\") print(m.values().len()) } import \"stdlib/map.ny\" fn main() -> void { let m = HashMap_str_str_new().insert(\"a\", \"1\").insert(\"b\", \"2\") print(m.values().len()) } Output (run failed — exit 1)"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4739,7 +4999,7 @@
       "id": "methods.html#ex-math-random",
       "title": "Built-in methods",
       "heading": "Math_random",
-      "body": "Math_random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_random()) } Output (varies each run — ChaCha20 stream) 0.380369 …"
+      "body": "Math_random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_random()) } Output (varies each run — ChaCha20 stream) 0.683123 …"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4759,7 +5019,7 @@
       "id": "methods.html#ex-random-builtin",
       "title": "Built-in methods",
       "heading": "random_builtin",
-      "body": "random_builtin Without types With types // random() / random_f64() — compiler builtins (no import required). fn main() { print(random()) print(random(1, 6)) print(random_f64()) } // random() / random_f64() — compiler builtins (no import required). fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output -675583405 3 0.729129"
+      "body": "random_builtin Without types With types // random() / random_f64() — compiler builtins (no import required). fn main() { print(random()) print(random(1, 6)) print(random_f64()) } // random() / random_f64() — compiler builtins (no import required). fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output -659102388 1 0.906729"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4769,7 +5029,7 @@
       "id": "methods.html#ex-random",
       "title": "Built-in methods",
       "heading": "random / random_f64",
-      "body": "random / random_f64 Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output (varies each run — ChaCha20 stream) 178165592 4 0.976194 …"
+      "body": "random / random_f64 Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output (varies each run — ChaCha20 stream) 1435665390 2 0.678257 …"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4779,7 +5039,7 @@
       "id": "methods.html#ex-shuffle-pick",
       "title": "Built-in methods",
       "heading": "shuffle_pick",
-      "body": "shuffle_pick Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } Output 10"
+      "body": "shuffle_pick Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } Output 30"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4863,13 +5123,163 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-acos-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-acos-f64",
+      "title": "Built-in methods",
+      "heading": "acos()",
+      "body": "acos() Without types With types import \"stdlib/math.ny\" fn main() { print(acos(1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(acos(1.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-asin-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-asin-f64",
+      "title": "Built-in methods",
+      "heading": "asin()",
+      "body": "asin() Without types With types import \"stdlib/math.ny\" fn main() { print(asin(0.0)) } import \"stdlib/math.ny\" fn main() -> void { print(asin(0.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-atan-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-atan-f64",
+      "title": "Built-in methods",
+      "heading": "atan()",
+      "body": "atan() Without types With types import \"stdlib/math.ny\" fn main() { print(atan(1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(atan(1.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-ceil-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-ceil-f64",
+      "title": "Built-in methods",
+      "heading": "ceil()",
+      "body": "ceil() Without types With types import \"stdlib/math.ny\" fn main() { print(ceil(3.2)) } import \"stdlib/math.ny\" fn main() -> void { print(ceil(3.2)) } Output 4"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-clamp-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-clamp-f64",
+      "title": "Built-in methods",
+      "heading": "clamp()",
+      "body": "clamp() Without types With types import \"stdlib/math.ny\" fn main() { print(clamp(1.5, 0.0, 1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(clamp(1.5, 0.0, 1.0)) } Output 1"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-exp-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-exp-f64",
+      "title": "Built-in methods",
+      "heading": "exp()",
+      "body": "exp() Without types With types import \"stdlib/math.ny\" fn main() { print(exp(1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(exp(1.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-floor-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-floor-f64",
+      "title": "Built-in methods",
+      "heading": "floor()",
+      "body": "floor() Without types With types import \"stdlib/math.ny\" fn main() { print(floor(3.7)) } import \"stdlib/math.ny\" fn main() -> void { print(floor(3.7)) } Output 3"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-hypot-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-hypot-f64",
+      "title": "Built-in methods",
+      "heading": "hypot()",
+      "body": "hypot() Without types With types import \"stdlib/math.ny\" fn main() { print(hypot(3.0, 4.0)) } import \"stdlib/math.ny\" fn main() -> void { print(hypot(3.0, 4.0)) } Output 5"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-log-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-log-f64",
+      "title": "Built-in methods",
+      "heading": "log()",
+      "body": "log() Without types With types import \"stdlib/math.ny\" fn main() { print(log(2.718281828)) } import \"stdlib/math.ny\" fn main() -> void { print(log(2.718281828)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-log10-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-log10-f64",
+      "title": "Built-in methods",
+      "heading": "log10()",
+      "body": "log10() Without types With types import \"stdlib/math.ny\" fn main() { print(log10(100.0)) } import \"stdlib/math.ny\" fn main() -> void { print(log10(100.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-log2-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-log2-f64",
+      "title": "Built-in methods",
+      "heading": "log2()",
+      "body": "log2() Without types With types import \"stdlib/math.ny\" fn main() { print(log2(8.0)) } import \"stdlib/math.ny\" fn main() -> void { print(log2(8.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-pow-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-pow-f64",
+      "title": "Built-in methods",
+      "heading": "pow()",
+      "body": "pow() Without types With types import \"stdlib/math.ny\" fn main() { print(pow(2.0, 3.0)) } import \"stdlib/math.ny\" fn main() -> void { print(pow(2.0, 3.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-round-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-round-f64",
+      "title": "Built-in methods",
+      "heading": "round()",
+      "body": "round() Without types With types import \"stdlib/math.ny\" fn main() { print(round(3.5)) } import \"stdlib/math.ny\" fn main() -> void { print(round(3.5)) } Output 4"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-sqrt-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-sqrt-f64",
+      "title": "Built-in methods",
+      "heading": "sqrt()",
+      "body": "sqrt() Without types With types import \"stdlib/math.ny\" fn main() { print(sqrt(16.0)) } import \"stdlib/math.ny\" fn main() -> void { print(sqrt(16.0)) } Output 4"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-trunc-f64",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-trunc-f64",
+      "title": "Built-in methods",
+      "heading": "trunc()",
+      "body": "trunc() Without types With types import \"stdlib/math.ny\" fn main() { print(trunc(1.9)) } import \"stdlib/math.ny\" fn main() -> void { print(trunc(1.9)) } Output 1"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#ex-math",
       "section": "Standard library",
       "kind": "content",
       "id": "methods.html#ex-math",
       "title": "Built-in methods",
       "heading": "Math_max / min / round / random",
-      "body": "Math_max / min / round / random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } Output 7 7 7 10 3 0.432964"
+      "body": "Math_max / min / round / random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } Output 7 7 7 10 3 0.126243"
     },
     {
       "pageTitle": "Built-in methods",
@@ -4878,8 +5288,8 @@
       "kind": "content",
       "id": "methods.html#ex-sin-cos",
       "title": "Built-in methods",
-      "heading": "sin / cos / max_f64",
-      "body": "sin / cos / max_f64 Without types With types fn main() { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } fn main() -> void { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } Output 0 1 2"
+      "heading": "sin_cos",
+      "body": "sin_cos Without types With types fn main() { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } fn main() -> void { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } Output 0 1 2"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5103,6 +5513,36 @@
     },
     {
       "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-hex-decode",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-hex-decode",
+      "title": "Built-in methods",
+      "heading": "hex_decode()",
+      "body": "hex_decode() Without types With types import \"stdlib/encoding/mod.ny\" fn main() { print(hex_decode(\"4869\")) } import \"stdlib/encoding/mod.ny\" fn main() -> void { print(hex_decode(\"4869\")) } Output Hi"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#strconv",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#strconv",
+      "title": "Built-in methods",
+      "heading": "Strconv",
+      "body": "Strconv"
+    },
+    {
+      "pageTitle": "Built-in methods",
+      "url": "methods.html#ex-str-to-bool",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "methods.html#ex-str-to-bool",
+      "title": "Built-in methods",
+      "heading": "parse_bool()",
+      "body": "parse_bool() Without types With types import \"stdlib/strconv/mod.ny\" fn main() { print(parse_bool(\"true\")) print(parse_bool(\"false\")) } import \"stdlib/strconv/mod.ny\" fn main() -> void { print(parse_bool(\"true\")) print(parse_bool(\"false\")) } Output 1 0"
+    },
+    {
+      "pageTitle": "Built-in methods",
       "url": "methods.html#errors",
       "section": "Standard library",
       "kind": "content",
@@ -5269,7 +5709,7 @@
       "id": "methods.html#ex-write",
       "title": "Built-in methods",
       "heading": "write",
-      "body": "write Without types With types fn main() { write(\"ok\") flush() } fn main() -> void { write(\"ok\") flush() } Output ok Compiling write (examples/builtins/io)"
+      "body": "write Without types With types fn main() { write(\"ok\") flush() } fn main() -> void { write(\"ok\") flush() } Output ok"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5289,7 +5729,7 @@
       "id": "methods.html#ex-mem",
       "title": "Built-in methods",
       "heading": "mem_start / mem_end",
-      "body": "mem_start / mem_end Without types With types fn main() { mem_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } fn main() -> void { mem_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: RSS +0.000 B 499500 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "mem_start / mem_end Without types With types fn main() { mem_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } fn main() -> void { mem_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: RSS +0.000 B 499500"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5299,7 +5739,7 @@
       "id": "methods.html#ex-time",
       "title": "Built-in methods",
       "heading": "time_start / time_end",
-      "body": "time_start / time_end Without types With types fn main() { time_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } fn main() -> void { time_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: 833.333333 ns 499500 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "time_start / time_end Without types With types fn main() { time_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } fn main() -> void { time_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: 833.333333 ns 499500"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5319,7 +5759,7 @@
       "id": "methods.html#ex-date",
       "title": "Built-in methods",
       "heading": "date()",
-      "body": "date() Without types With types fn main() { let d = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } fn main() -> void { let d: Date = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } Output (local clock — values change) 2026 7 8 18 52 3 …"
+      "body": "date() Without types With types fn main() { let d = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } fn main() -> void { let d: Date = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } Output (local clock — values change) 2026 7 8 21 43 21 …"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5339,7 +5779,7 @@
       "id": "methods.html#ex-async-future-string",
       "title": "Built-in methods",
       "heading": "async_future_string",
-      "body": "async_future_string Without types With types // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) } Output Nyra async v2 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "async_future_string Without types With types // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) } Output Nyra async v2"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5359,7 +5799,7 @@
       "id": "methods.html#ex-async-state-machine",
       "title": "Built-in methods",
       "heading": "async_state_machine",
-      "body": "async_state_machine Without types With types // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) } Output 100 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "async_state_machine Without types With types // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) } Output 100"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5389,7 +5829,7 @@
       "id": "methods.html#ex-parallel-array",
       "title": "Built-in methods",
       "heading": "parallel_array",
-      "body": "parallel_array Without types With types // parallel for over a fixed array. allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } // parallel for over a fixed array. allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) } Output 20 10 30 999"
+      "body": "parallel_array Without types With types // parallel for over a fixed array. allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } // parallel for over a fixed array. allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) } Output 10 20 30 999"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5419,7 +5859,7 @@
       "id": "methods.html#ex-parallel-mode",
       "title": "Built-in methods",
       "heading": "parallel_mode",
-      "body": "parallel_mode Without types With types // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
+      "body": "parallel_mode Without types With types // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } Output 1 0 2 3 999"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5449,7 +5889,7 @@
       "id": "methods.html#ex-parallel-task",
       "title": "Built-in methods",
       "heading": "parallel_task",
-      "body": "parallel_task Without types With types // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
+      "body": "parallel_task Without types With types // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) } Output 1 2 3 0 999"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5459,7 +5899,7 @@
       "id": "methods.html#ex-parallel-thread",
       "title": "Built-in methods",
       "heading": "parallel_thread",
-      "body": "parallel_thread Without types With types // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } Output 2 3 0 1 999"
+      "body": "parallel_thread Without types With types // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5509,7 +5949,7 @@
       "id": "methods.html#ex-spawn",
       "title": "Built-in methods",
       "heading": "spawn",
-      "body": "spawn Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } Output 42 0"
+      "body": "spawn Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } Output 42"
     },
     {
       "pageTitle": "Built-in methods",
@@ -5529,7 +5969,7 @@
       "id": "methods.html#ex-benchmark",
       "title": "Built-in methods",
       "heading": "benchmark",
-      "body": "benchmark Without types With types // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } } Output Time: 0.1 ms Memory: 0.0 B CPU: 97%"
+      "body": "benchmark Without types With types // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } } Output Time: 0.1 ms Memory: 0.0 B CPU: 96%"
     },
     {
       "pageTitle": "Built-in methods",
@@ -7429,7 +7869,7 @@
       "id": "stdlib.html#ex-examples-builtins-stdlib-math-random-ny",
       "title": "Standard library",
       "heading": "Math_random",
-      "body": "Math_random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_random()) } Output (varies each run — ChaCha20 stream) 0.380369 …"
+      "body": "Math_random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_random()) } Output (varies each run — ChaCha20 stream) 0.683123 …"
     },
     {
       "pageTitle": "Standard library",
@@ -7449,7 +7889,7 @@
       "id": "stdlib.html#ex-examples-builtins-stdlib-random-builtin-ny",
       "title": "Standard library",
       "heading": "random_builtin",
-      "body": "random_builtin Without types With types // random() / random_f64() — compiler builtins (no import required). fn main() { print(random()) print(random(1, 6)) print(random_f64()) } // random() / random_f64() — compiler builtins (no import required). fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output -675583405 3 0.729129"
+      "body": "random_builtin Without types With types // random() / random_f64() — compiler builtins (no import required). fn main() { print(random()) print(random(1, 6)) print(random_f64()) } // random() / random_f64() — compiler builtins (no import required). fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output -659102388 1 0.906729"
     },
     {
       "pageTitle": "Standard library",
@@ -7459,7 +7899,7 @@
       "id": "stdlib.html#ex-examples-builtins-stdlib-random-ny",
       "title": "Standard library",
       "heading": "random / random_f64",
-      "body": "random / random_f64 Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output (varies each run — ChaCha20 stream) 178165592 4 0.976194 …"
+      "body": "random / random_f64 Without types With types fn main() { print(random()) print(random(1, 6)) print(random_f64()) } fn main() -> void { print(random()) print(random(1, 6)) print(random_f64()) } Output (varies each run — ChaCha20 stream) 1435665390 2 0.678257 …"
     },
     {
       "pageTitle": "Standard library",
@@ -7469,7 +7909,7 @@
       "id": "stdlib.html#ex-examples-builtins-stdlib-shuffle-pick-ny",
       "title": "Standard library",
       "heading": "shuffle_pick",
-      "body": "shuffle_pick Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } Output 10"
+      "body": "shuffle_pick Without types With types import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() { let v = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } import \"stdlib/random.ny\" import \"stdlib/vec.ny\" fn main() -> void { let v: ptr = Vec_i32_new() Vec_i32_push(v, 10) Vec_i32_push(v, 20) Vec_i32_push(v, 30) print(shuffle_pick(v)) } Output 30"
     },
     {
       "pageTitle": "Standard library",
@@ -7553,13 +7993,163 @@
     },
     {
       "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-acos-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-acos-f64-ny",
+      "title": "Standard library",
+      "heading": "acos()",
+      "body": "acos() Without types With types import \"stdlib/math.ny\" fn main() { print(acos(1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(acos(1.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-asin-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-asin-f64-ny",
+      "title": "Standard library",
+      "heading": "asin()",
+      "body": "asin() Without types With types import \"stdlib/math.ny\" fn main() { print(asin(0.0)) } import \"stdlib/math.ny\" fn main() -> void { print(asin(0.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-atan-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-atan-f64-ny",
+      "title": "Standard library",
+      "heading": "atan()",
+      "body": "atan() Without types With types import \"stdlib/math.ny\" fn main() { print(atan(1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(atan(1.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-ceil-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-ceil-f64-ny",
+      "title": "Standard library",
+      "heading": "ceil()",
+      "body": "ceil() Without types With types import \"stdlib/math.ny\" fn main() { print(ceil(3.2)) } import \"stdlib/math.ny\" fn main() -> void { print(ceil(3.2)) } Output 4"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-clamp-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-clamp-f64-ny",
+      "title": "Standard library",
+      "heading": "clamp()",
+      "body": "clamp() Without types With types import \"stdlib/math.ny\" fn main() { print(clamp(1.5, 0.0, 1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(clamp(1.5, 0.0, 1.0)) } Output 1"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-exp-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-exp-f64-ny",
+      "title": "Standard library",
+      "heading": "exp()",
+      "body": "exp() Without types With types import \"stdlib/math.ny\" fn main() { print(exp(1.0)) } import \"stdlib/math.ny\" fn main() -> void { print(exp(1.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-floor-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-floor-f64-ny",
+      "title": "Standard library",
+      "heading": "floor()",
+      "body": "floor() Without types With types import \"stdlib/math.ny\" fn main() { print(floor(3.7)) } import \"stdlib/math.ny\" fn main() -> void { print(floor(3.7)) } Output 3"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-hypot-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-hypot-f64-ny",
+      "title": "Standard library",
+      "heading": "hypot()",
+      "body": "hypot() Without types With types import \"stdlib/math.ny\" fn main() { print(hypot(3.0, 4.0)) } import \"stdlib/math.ny\" fn main() -> void { print(hypot(3.0, 4.0)) } Output 5"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-log-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-log-f64-ny",
+      "title": "Standard library",
+      "heading": "log()",
+      "body": "log() Without types With types import \"stdlib/math.ny\" fn main() { print(log(2.718281828)) } import \"stdlib/math.ny\" fn main() -> void { print(log(2.718281828)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-log10-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-log10-f64-ny",
+      "title": "Standard library",
+      "heading": "log10()",
+      "body": "log10() Without types With types import \"stdlib/math.ny\" fn main() { print(log10(100.0)) } import \"stdlib/math.ny\" fn main() -> void { print(log10(100.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-log2-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-log2-f64-ny",
+      "title": "Standard library",
+      "heading": "log2()",
+      "body": "log2() Without types With types import \"stdlib/math.ny\" fn main() { print(log2(8.0)) } import \"stdlib/math.ny\" fn main() -> void { print(log2(8.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-pow-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-pow-f64-ny",
+      "title": "Standard library",
+      "heading": "pow()",
+      "body": "pow() Without types With types import \"stdlib/math.ny\" fn main() { print(pow(2.0, 3.0)) } import \"stdlib/math.ny\" fn main() -> void { print(pow(2.0, 3.0)) } Output (run failed — exit 1)"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-round-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-round-f64-ny",
+      "title": "Standard library",
+      "heading": "round()",
+      "body": "round() Without types With types import \"stdlib/math.ny\" fn main() { print(round(3.5)) } import \"stdlib/math.ny\" fn main() -> void { print(round(3.5)) } Output 4"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-sqrt-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-sqrt-f64-ny",
+      "title": "Standard library",
+      "heading": "sqrt()",
+      "body": "sqrt() Without types With types import \"stdlib/math.ny\" fn main() { print(sqrt(16.0)) } import \"stdlib/math.ny\" fn main() -> void { print(sqrt(16.0)) } Output 4"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-math-ny-trunc-f64-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-math-ny-trunc-f64-ny",
+      "title": "Standard library",
+      "heading": "trunc()",
+      "body": "trunc() Without types With types import \"stdlib/math.ny\" fn main() { print(trunc(1.9)) } import \"stdlib/math.ny\" fn main() -> void { print(trunc(1.9)) } Output 1"
+    },
+    {
+      "pageTitle": "Standard library",
       "url": "stdlib.html#ex-examples-builtins-math-main-ny",
       "section": "Standard library",
       "kind": "content",
       "id": "stdlib.html#ex-examples-builtins-math-main-ny",
       "title": "Standard library",
       "heading": "Math_max / min / round / random",
-      "body": "Math_max / min / round / random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } Output 7 7 7 10 3 0.432964"
+      "body": "Math_max / min / round / random Without types With types import \"stdlib/builtins_math.ny\" fn main() { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } import \"stdlib/builtins_math.ny\" fn main() -> void { print(Math_round(7)) print(Math_floor(7)) print(Math_ceil(7)) print(Math_max(10, 3)) print(Math_min(10, 3)) print(Math_random()) } Output 7 7 7 10 3 0.126243"
     },
     {
       "pageTitle": "Standard library",
@@ -7568,8 +8158,8 @@
       "kind": "content",
       "id": "stdlib.html#ex-examples-builtins-math-sin-cos-ny",
       "title": "Standard library",
-      "heading": "sin / cos / max_f64",
-      "body": "sin / cos / max_f64 Without types With types fn main() { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } fn main() -> void { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } Output 0 1 2"
+      "heading": "sin_cos",
+      "body": "sin_cos Without types With types fn main() { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } fn main() -> void { print(sin(0.0)) print(cos(0.0)) print(max_f64(1.0, 2.0)) } Output 0 1 2"
     },
     {
       "pageTitle": "Standard library",
@@ -7783,6 +8373,36 @@
     },
     {
       "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-encoding-hex-decode-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-encoding-hex-decode-ny",
+      "title": "Standard library",
+      "heading": "hex_decode()",
+      "body": "hex_decode() Without types With types import \"stdlib/encoding/mod.ny\" fn main() { print(hex_decode(\"4869\")) } import \"stdlib/encoding/mod.ny\" fn main() -> void { print(hex_decode(\"4869\")) } Output Hi"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#strconv",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#strconv",
+      "title": "Standard library",
+      "heading": "Strconv",
+      "body": "Strconv"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#ex-examples-builtins-strconv-str-to-bool-ny",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#ex-examples-builtins-strconv-str-to-bool-ny",
+      "title": "Standard library",
+      "heading": "parse_bool()",
+      "body": "parse_bool() Without types With types import \"stdlib/strconv/mod.ny\" fn main() { print(parse_bool(\"true\")) print(parse_bool(\"false\")) } import \"stdlib/strconv/mod.ny\" fn main() -> void { print(parse_bool(\"true\")) print(parse_bool(\"false\")) } Output 1 0"
+    },
+    {
+      "pageTitle": "Standard library",
       "url": "stdlib.html#errors",
       "section": "Standard library",
       "kind": "content",
@@ -7949,7 +8569,7 @@
       "id": "stdlib.html#ex-examples-builtins-io-write-ny",
       "title": "Standard library",
       "heading": "write",
-      "body": "write Without types With types fn main() { write(\"ok\") flush() } fn main() -> void { write(\"ok\") flush() } Output ok Compiling write (examples/builtins/io)"
+      "body": "write Without types With types fn main() { write(\"ok\") flush() } fn main() -> void { write(\"ok\") flush() } Output ok"
     },
     {
       "pageTitle": "Standard library",
@@ -7969,7 +8589,7 @@
       "id": "stdlib.html#ex-examples-builtins-timing-mem-ny",
       "title": "Standard library",
       "heading": "mem_start / mem_end",
-      "body": "mem_start / mem_end Without types With types fn main() { mem_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } fn main() -> void { mem_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: RSS +0.000 B 499500 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "mem_start / mem_end Without types With types fn main() { mem_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } fn main() -> void { mem_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } mem_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: RSS +0.000 B 499500"
     },
     {
       "pageTitle": "Standard library",
@@ -7979,7 +8599,7 @@
       "id": "stdlib.html#ex-examples-builtins-timing-time-ny",
       "title": "Standard library",
       "heading": "time_start / time_end",
-      "body": "time_start / time_end Without types With types fn main() { time_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } fn main() -> void { time_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: 833.333333 ns 499500 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "time_start / time_end Without types With types fn main() { time_start(\"work\") let mut sum = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } fn main() -> void { time_start(\"work\") let mut sum: i32 = 0 for i in 0..1000 { sum = sum + i } time_end(\"work\") print(sum) } Output (timing / RSS vary by machine) work: 833.333333 ns 499500"
     },
     {
       "pageTitle": "Standard library",
@@ -7999,7 +8619,7 @@
       "id": "stdlib.html#ex-examples-builtins-date-date-ny",
       "title": "Standard library",
       "heading": "date()",
-      "body": "date() Without types With types fn main() { let d = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } fn main() -> void { let d: Date = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } Output (local clock — values change) 2026 7 8 18 52 3 …"
+      "body": "date() Without types With types fn main() { let d = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } fn main() -> void { let d: Date = date() print(d.year) print(d.month) print(d.day) print(d.hour) print(d.minute) print(d.second) print(d.week) print(d.millisecond) print(d.minutes) print(d.seconds) print(d.weekday) } Output (local clock — values change) 2026 7 8 21 43 21 …"
     },
     {
       "pageTitle": "Standard library",
@@ -8019,7 +8639,7 @@
       "id": "stdlib.html#ex-examples-builtins-async-async-future-string-ny",
       "title": "Standard library",
       "heading": "async_future_string",
-      "body": "async_future_string Without types With types // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) } Output Nyra async v2 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "async_future_string Without types With types // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() { let f = greet() print(await f) } // Future<string> — typed async with Executor_sleep_ms. allow_extended import \"stdlib/async/future.ny\" async fn greet() -> string { let h = Executor_sleep_ms(10) await h return \"Nyra async v2\" } fn main() -> void { let f = greet() print(await f) } Output Nyra async v2"
     },
     {
       "pageTitle": "Standard library",
@@ -8039,7 +8659,7 @@
       "id": "stdlib.html#ex-examples-builtins-async-async-state-machine-ny",
       "title": "Standard library",
       "heading": "async_state_machine",
-      "body": "async_state_machine Without types With types // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) } Output 100 note: prebuilt runtime missing required symbols; compiling rt modules"
+      "body": "async_state_machine Without types With types // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() { let h = chain() print(await h) } // async state machine — multiple await in one async fn (cooperative poll loop). allow_extended import \"stdlib/async_v1.ny\" async fn chain() -> i32 { let _ = await Executor_sleep_ms(5) let _ = await Executor_sleep_ms(5) return 100 } fn main() -> void { let h = chain() print(await h) } Output 100"
     },
     {
       "pageTitle": "Standard library",
@@ -8069,7 +8689,7 @@
       "id": "stdlib.html#ex-examples-builtins-parallel-parallel-array-ny",
       "title": "Standard library",
       "heading": "parallel_array",
-      "body": "parallel_array Without types With types // parallel for over a fixed array. allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } // parallel for over a fixed array. allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) } Output 20 10 30 999"
+      "body": "parallel_array Without types With types // parallel for over a fixed array. allow_extended fn main() { let nums = [10, 20, 30] parallel for n in nums { print(n) } print(999) } // parallel for over a fixed array. allow_extended fn main() -> void { let nums: [i32; 3] = [10, 20, 30] parallel for n in nums { print(n) } print(999) } Output 10 20 30 999"
     },
     {
       "pageTitle": "Standard library",
@@ -8099,7 +8719,7 @@
       "id": "stdlib.html#ex-examples-builtins-parallel-parallel-mode-ny",
       "title": "Standard library",
       "heading": "parallel_mode",
-      "body": "parallel_mode Without types With types // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
+      "body": "parallel_mode Without types With types // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } // parallel(mode = balanced) — leave one CPU for responsiveness. allow_extended fn main() -> void { parallel(mode = balanced) for i in 0..4 { print(i) } print(999) } Output 1 0 2 3 999"
     },
     {
       "pageTitle": "Standard library",
@@ -8129,7 +8749,7 @@
       "id": "stdlib.html#ex-examples-builtins-parallel-parallel-task-ny",
       "title": "Standard library",
       "heading": "parallel_task",
-      "body": "parallel_task Without types With types // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
+      "body": "parallel_task Without types With types // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() { parallel for i in 0..4 { print(i) } print(999) } // parallel for — default task-pool backend (same workers as spawn). allow_extended fn main() -> void { parallel for i in 0..4 { print(i) } print(999) } Output 1 2 3 0 999"
     },
     {
       "pageTitle": "Standard library",
@@ -8139,7 +8759,7 @@
       "id": "stdlib.html#ex-examples-builtins-parallel-parallel-thread-ny",
       "title": "Standard library",
       "heading": "parallel_thread",
-      "body": "parallel_thread Without types With types // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } Output 2 3 0 1 999"
+      "body": "parallel_thread Without types With types // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } // parallel:thread(max = N) — fork-join OS threads per chunk. allow_extended fn main() -> void { parallel:thread(max = 2) for i in 0..4 { print(i) } print(999) } Output 0 1 2 3 999"
     },
     {
       "pageTitle": "Standard library",
@@ -8189,7 +8809,7 @@
       "id": "stdlib.html#ex-examples-builtins-spawn-spawn-ny",
       "title": "Standard library",
       "heading": "spawn",
-      "body": "spawn Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } Output 42 0"
+      "body": "spawn Without types With types allow_extended fn main() { let n = 42 spawn { print(n) } print(0) } allow_extended fn main() -> void { let n: i32 = 42 spawn { print(n) } print(0) } Output 42"
     },
     {
       "pageTitle": "Standard library",
@@ -8209,7 +8829,7 @@
       "id": "stdlib.html#ex-examples-builtins-benchmark-benchmark-ny",
       "title": "Standard library",
       "heading": "benchmark",
-      "body": "benchmark Without types With types // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } } Output Time: 0.1 ms Memory: 0.0 B CPU: 97%"
+      "body": "benchmark Without types With types // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() { benchmark { run() } } // benchmark { } — wall time, RSS delta, and CPU% for a block. allow_extended extern fn blackbox_i32(x: i32) -> i32 fn run() { let mut acc: i32 = 0 for i in 0..10000 { acc = blackbox_i32(acc + i) } blackbox_i32(acc) } fn main() -> void { benchmark { run() } } Output Time: 0.1 ms Memory: 0.0 B CPU: 96%"
     },
     {
       "pageTitle": "Standard library",

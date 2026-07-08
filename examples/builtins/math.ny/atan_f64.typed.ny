@@ -1,7 +1,5 @@
-// [contrib-dev:atan_f64:math]
-// Demo: atan_f64 (explicit types)
+import "stdlib/math.ny"
 
 fn main() -> void {
-    print("TODO: demo", "atan_f64")
+    print(atan(1.0))
 }
-// [/contrib-dev:atan_f64:math]

@@ -1,7 +1,5 @@
-// [contrib-dev:hex_decode:encoding_mod]
-// Demo: hex_decode
+import "stdlib/encoding/mod.ny"
 
 fn main() {
-    print("TODO: demo", "hex_decode")
+    print(hex_decode("4869"))
 }
-// [/contrib-dev:hex_decode:encoding_mod]

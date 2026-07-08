@@ -1,7 +1,5 @@
-// [contrib-dev:sqrt_f64:math]
-// Demo: sqrt_f64 (explicit types)
+import "stdlib/math.ny"
 
 fn main() -> void {
-    print("TODO: demo", "sqrt_f64")
+    print(sqrt(16.0))
 }
-// [/contrib-dev:sqrt_f64:math]

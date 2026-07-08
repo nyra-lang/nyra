@@ -1,7 +1,5 @@
-// [contrib-dev:ceil_f64:math]
-// Demo: ceil_f64 (explicit types)
+import "stdlib/math.ny"
 
 fn main() -> void {
-    print("TODO: demo", "ceil_f64")
+    print(ceil(3.2))
 }
-// [/contrib-dev:ceil_f64:math]

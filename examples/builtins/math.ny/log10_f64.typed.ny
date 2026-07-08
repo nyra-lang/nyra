@@ -1,7 +1,5 @@
-// [contrib-dev:log10_f64:math]
-// Demo: log10_f64 (explicit types)
+import "stdlib/math.ny"
 
 fn main() -> void {
-    print("TODO: demo", "log10_f64")
+    print(log10(100.0))
 }
-// [/contrib-dev:log10_f64:math]

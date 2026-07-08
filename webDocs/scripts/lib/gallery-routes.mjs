@@ -44,6 +44,7 @@ const CATEGORIES = {
   process_sugar: { section: "Process", pages: ["methods", "stdlib"] },
   uuid: { section: "UUID", pages: ["methods", "stdlib"] },
   encoding: { section: "Encoding", pages: ["methods", "stdlib"] },
+  strconv: { section: "Strconv", pages: ["methods", "stdlib"] },
   error_sugar: { section: "Errors", pages: ["methods", "stdlib"] },
   http_sugar: { section: "HTTP sugar", pages: ["methods", "stdlib"] },
   qb: { section: "SQL qb()", pages: ["methods", "stdlib"] },
@@ -83,6 +84,7 @@ export const SECTION_ORDER = [
   "Process",
   "UUID",
   "Encoding",
+  "Strconv",
   "Errors",
   "HTTP sugar",
   "SQL qb()",
@@ -97,11 +99,17 @@ export const SECTION_ORDER = [
   "Other",
 ];
 
+/** Normalize folder names like `math.ny` → `math` (stdlib module examples). */
+export function normalizeCategory(raw) {
+  if (!raw) return "root";
+  return raw.replace(/\.ny$/i, "");
+}
+
 /** Top-level category folder for an example rel path (or "root"). */
 export function categoryOf(rel) {
   const norm = rel.replace(/\\/g, "/");
   const m = norm.match(/examples\/builtins\/([^/]+)\/[^/]+$/);
-  return m ? m[1] : "root";
+  return m ? normalizeCategory(m[1]) : "root";
 }
 
 /** Routing decision for an example: { category, section, pages }. */

@@ -1,7 +1,6 @@
-// [contrib-dev:map_str_i32_clear:map]
-// Demo: map_str_i32_clear
+import "stdlib/map.ny"
 
 fn main() {
-    print("TODO: demo", "map_str_i32_clear")
+    let m = HashMap_str_i32_new().insert("a", 1).clear()
+    print(m.len())
 }
-// [/contrib-dev:map_str_i32_clear:map]

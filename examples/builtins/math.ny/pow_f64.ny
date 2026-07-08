@@ -1,7 +1,5 @@
-// [contrib-dev:pow_f64:math]
-// Demo: pow_f64
+import "stdlib/math.ny"
 
 fn main() {
-    print("TODO: demo", "pow_f64")
+    print(pow(2.0, 3.0))
 }
-// [/contrib-dev:pow_f64:math]

@@ -1,7 +1,6 @@
-// [contrib-dev:vec_i32_reverse:vec]
-// Demo: vec_i32_reverse (explicit types)
+import "stdlib/vec.ny"
 
 fn main() -> void {
-    print("TODO: demo", "vec_i32_reverse")
+    let v = vec().push(1).push(2).push(3).reverse()
+    print(v.get(0))
 }
-// [/contrib-dev:vec_i32_reverse:vec]
