@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "str_to_f32",
+  "args": [
+    "s:string"
+  ],
+  "returns": "f64",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "parse_f32",
+  "c_body": "    if (!s) return 0.0;\n    return (double)strtof(s, NULL);"
+}

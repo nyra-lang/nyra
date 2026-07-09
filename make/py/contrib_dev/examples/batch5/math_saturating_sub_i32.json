@@ -1,0 +1,12 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "saturating_sub_i32",
+  "args": [
+    "a:i32",
+    "b:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "saturating_sub",
+  "c_body": "    long long r = (long long)a - (long long)b;\n    if (r > 2147483647LL) return 2147483647;\n    if (r < -2147483648LL) return (int)-2147483648LL;\n    return (int)r;"
+}

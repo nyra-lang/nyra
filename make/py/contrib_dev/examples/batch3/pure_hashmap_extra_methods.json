@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "map.ny",
+  "fn_name": "hashmap_extra_methods",
+  "pure_source": "impl HashMap_str_i32 {\n    fn is_empty(self) -> i32 {\n        if self.len() == 0 {\n            return 1\n        }\n        return 0\n    }\n}\n\nimpl HashMap_str_str {\n    fn get_or_insert(self, key: string, value: string) -> string {\n        return self.or_insert(key, value)\n    }\n\n    fn is_empty(self) -> i32 {\n        if self.len() == 0 {\n            return 1\n        }\n        return 0\n    }\n}"
+}

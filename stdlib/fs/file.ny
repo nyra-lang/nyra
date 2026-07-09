@@ -28,3 +28,15 @@ fn is_dir(path: string) -> i32 {
 fn list_dir_entries(path: string) -> StrVec {
     return StrVec_from_lines(list_dir(path))
 }
+// [contrib-dev:file_is_symlink:fs_file]
+extern fn file_is_symlink(path: &string) -> i32
+// [/contrib-dev:file_is_symlink:fs_file]
+// [contrib-dev:file_mtime:fs_file]
+extern fn file_mtime(path: &string) -> i64
+// [/contrib-dev:file_mtime:fs_file]
+// [contrib-dev:path_is_file:fs_file]
+extern fn path_is_file(path: &string) -> i32
+// [/contrib-dev:path_is_file:fs_file]
+// [contrib-dev:rename_file:fs_file]
+extern fn rename_file(src: &string, dst: &string) -> i32
+// [/contrib-dev:rename_file:fs_file]

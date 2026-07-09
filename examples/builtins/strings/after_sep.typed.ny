@@ -1,0 +1,4 @@
+fn main() -> void {
+    print("hello".after_sep(","))
+    print(after_sep("hello", ","))
+}

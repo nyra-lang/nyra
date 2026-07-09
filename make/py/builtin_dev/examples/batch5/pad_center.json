@@ -1,0 +1,14 @@
+{
+  "receiver": "string",
+  "method": "pad_center",
+  "args": [
+    "width:i32",
+    "pad:string"
+  ],
+  "returns": "string",
+  "c_name": "str_pad_center",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    extern char *str_dup(const char *s);\n    extern char *str_pad_start(const char *s, int width, const char *pad);\n    if (!s) return str_dup(\"\");\n    if (width <= 0) return str_dup(s);\n    int slen = (int)strlen(s);\n    if (slen >= width) return str_dup(s);\n    int total_pad = width - slen;\n    int left = total_pad / 2;\n    int right = total_pad - left;\n    char *tmp = (char *)malloc((size_t)width + 1);\n    if (!tmp) return NULL;\n    const char *pch = (pad && pad[0]) ? pad : \" \";\n    int pi = 0;\n    int oi = 0;\n    for (int i = 0; i < left; i++) tmp[oi++] = pch[pi++ % (int)strlen(pch)];\n    for (int i = 0; i < slen; i++) tmp[oi++] = s[i];\n    pi = 0;\n    for (int i = 0; i < right; i++) tmp[oi++] = pch[pi++ % (int)strlen(pch)];\n    tmp[oi] = '\\0';\n    return tmp;"
+}

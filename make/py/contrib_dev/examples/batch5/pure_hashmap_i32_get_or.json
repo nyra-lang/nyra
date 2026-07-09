@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "map.ny",
+  "fn_name": "hashmap_i32_get_or",
+  "pure_source": "impl HashMap_i32_i32 {\n    fn get_or(self, key: i32, default: i32) -> i32 {\n        if self.contains(key) == 1 {\n            return self.get(key)\n        }\n        return default\n    }\n\n    fn get_or_insert(self, key: i32, value: i32) -> i32 {\n        if self.contains(key) == 1 {\n            return self.get(key)\n        }\n        let _ = self.insert(key, value)\n        return value\n    }\n}"
+}

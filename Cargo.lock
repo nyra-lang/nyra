@@ -84,7 +84,7 @@ dependencies = [
 
 [[package]]
 name = "ast"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "errors",
 ]
@@ -140,7 +140,7 @@ dependencies = [
 
 [[package]]
 name = "borrowck"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "const_eval",
@@ -248,7 +248,7 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "cli"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "clap",
  "compiler",
@@ -270,7 +270,7 @@ dependencies = [
 
 [[package]]
 name = "codegen"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "lexer",
@@ -287,7 +287,7 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "compiler"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "assert_cmd",
  "ast",
@@ -318,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "compiler-ffi"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "compiler",
  "errors",
@@ -327,7 +327,7 @@ dependencies = [
 
 [[package]]
 name = "compiletest"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "compiler",
  "errors",
@@ -348,7 +348,7 @@ dependencies = [
 
 [[package]]
 name = "const_eval"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -523,7 +523,7 @@ dependencies = [
 
 [[package]]
 name = "errors"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -531,7 +531,7 @@ dependencies = [
 
 [[package]]
 name = "expand"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "const_eval",
@@ -692,7 +692,7 @@ dependencies = [
 
 [[package]]
 name = "fuzz-gen"
-version = "0.0.1"
+version = "0.1.0"
 
 [[package]]
 name = "generic-array"
@@ -961,7 +961,7 @@ checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 
 [[package]]
 name = "lexer"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -984,7 +984,7 @@ dependencies = [
 
 [[package]]
 name = "lint"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -1023,7 +1023,7 @@ checksum = "953f07c43838f8e6f9758cab68bf5bed85465e7587ebe0b823f1bcd81978ad3a"
 
 [[package]]
 name = "lsp"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "compiler",
  "errors",
@@ -1079,7 +1079,7 @@ dependencies = [
 
 [[package]]
 name = "monomorph"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -1140,7 +1140,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-analysis"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -1156,7 +1156,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-bindgen"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1168,7 +1168,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-c-bindgen"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "clang",
  "tempfile",
@@ -1176,7 +1176,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-dap"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -1185,7 +1185,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-fmt"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "lexer",
@@ -1194,7 +1194,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-rt-tls"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "libc",
  "rustls",
@@ -1205,7 +1205,7 @@ dependencies = [
 
 [[package]]
 name = "nyra-rt-tls-native"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "libc",
  "native-tls",
@@ -1274,7 +1274,7 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "ownership"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -1308,7 +1308,7 @@ dependencies = [
 
 [[package]]
 name = "parser"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -1350,7 +1350,7 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
 name = "pkg"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "nyra-bindgen",
  "serde",
@@ -1518,7 +1518,7 @@ checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
 
 [[package]]
 name = "resolve"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "const_eval",
@@ -1543,7 +1543,7 @@ dependencies = [
 
 [[package]]
 name = "rt"
-version = "0.0.1"
+version = "0.1.0"
 
 [[package]]
 name = "rustix"
@@ -2048,7 +2048,7 @@ dependencies = [
 
 [[package]]
 name = "typecheck"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
  "errors",
@@ -2066,7 +2066,7 @@ checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
 
 [[package]]
 name = "types"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "ast",
 ]

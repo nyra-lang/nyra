@@ -6,7 +6,7 @@
 Use this file as the **sole authoritative reference** for Nyra syntax, semantics, stdlib, toolchain, PGO, and escape analysis.
 Do not invent features not listed here. Supplementary guides live at **https://nyra-lang.github.io/nyra/**.
 
-> **Project status — v0.0.1:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability) · [roadmap](https://nyra-lang.github.io/nyra/roadmap.html).
+> **Project status — v0.1.0:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. **v0.1.0** adds ~116 stdlib/builtin gap-fill APIs (batch3–6). See [Stability](#stability) · [roadmap](https://nyra-lang.github.io/nyra/roadmap.html).
 
 ## Table of contents
 
@@ -37,7 +37,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v0.0.1** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/nyra/roadmap.html)).
+- Version baseline: **v0.1.0** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/nyra/roadmap.html)).
 
 ## Design philosophy
 
@@ -1155,6 +1155,19 @@ Methods borrow the receiver (do not move). Heap copy: `clone s` or `s.clone()`.
 | `.replacen(from, to, count)` | 2 × `string`, `i32` | `string` | At most `count` matches (`1` = first only) |
 | `.to_upper()` / `.to_lower()` | — | `string` | ASCII case |
 | `.clone()` | — | `string` | Heap copy |
+| `.compare(other)` / `.equal_fold(other)` | `string` | `i32` | Lexicographic / case-insensitive |
+| `.index_byte(b)` / `.last_index_byte(b)` | `i32` | `i32` | Byte search (`-1` if missing) |
+| `.substring(start, len)` | 2 × `i32` | `string` | Byte slice |
+| `.push_char(ch)` / `.pop()` | `i32` / — | `string` | Append / remove last byte |
+| `.after_sep(sep)` / `.before_sep(sep)` | `string` | `string` | Split around first separator |
+| `.strip_ansi()` | — | `string` | Remove ANSI escapes |
+| `.is_ascii()` | — | `i32` | All bytes ≤ 127 |
+| `.collapse_ws()` | — | `string` | Collapse whitespace runs |
+| `.reverse()` | — | `string` | Reverse bytes |
+| `.is_digit()` / `.is_alpha()` / `.is_alnum()` | — | `i32` | ASCII classification |
+| `.common_prefix_len(other)` | `string` | `i32` | Shared prefix length |
+| `.pad_center(w, pad)` | `i32`, `string` | `string` | Center-pad to width |
+| `.strip_prefix` / `.strip_suffix` / `.index` / `.last_index` / `.count` / `.repeat` / `.pad_start` / `.pad_end` | — | varies | See [methods.html](https://nyra-lang.github.io/nyra/methods.html#strings) |
 
 ```ny
 let parts = "a,b,c".split(",")
@@ -1215,6 +1228,10 @@ print(nums[0]) // original unchanged
 | `vec()` / `vec_range(start, end)` | Empty / half-open range |
 | `.push(x)` / `.get(i)` / `.set(i, v)` / `.len()` / `.pop()` | Basic |
 | `.contains(x)` / `.includes(x)` | Membership → `i32` `1`/`0` |
+| `.insert(i, x)` / `.remove(i)` / `.clear()` / `.reverse()` / `.sort()` | In-place mutation |
+| `.swap(i, j)` / `.extend(other)` / `.append(x)` | Reorder / merge |
+| `.capacity()` / `.reserve(n)` / `.fill(x)` / `.swap_remove(i)` / `.is_empty()` | Capacity & fast remove |
+| `.binary_search(x)` | Sorted search → index or `-1` |
 | `.first(fb)` / `.last(fb)` | Ends with fallback |
 | `.find(pred, fb)` / `.find_eq(x, fb)` / `.index_of(x)` | Search (`pred: fn(i32)->i32`) |
 | `.filter(pred)` / `.map(f)` / `.reduce(init, f)` | HOFs → new `VecI32` / value |
@@ -1242,6 +1259,8 @@ Legacy `ptr` helpers: `Vec_i32_new`, `Vec_i32_push`, `vec_len`, `Array_filter` /
 |-------------------|-------|
 | `strs()` / `StrVec_new()` / `lines(text)` / `argv()` | Ctors |
 | `.push` / `.get` / `.len` / `.joined(sep)` | Basic |
+| `.pop()` / `.clear()` / `.reverse()` / `.insert(i, s)` / `.remove_at(i)` / `.set(i, s)` | In-place mutation |
+| `.swap(i, j)` / `.extend(other)` / `.is_empty()` | Reorder / merge |
 | `.contains` / `.includes` / `.first` / `.last` | Membership & ends |
 | `.find` / `.find_eq` / `.index_of` / `.filter` / `.map` | HOFs (`fn(string)->…`) |
 | `StrVec_from_lines` / `StrVec_join_lines` / `Vec_string_*` | Aliases |
@@ -1259,14 +1278,17 @@ print(names.joined(","), names.contains("nyra"))
 |------|------------|-------------|
 | `HashMap_str_i32` | `i32` | `HashMap_str_i32_new()` |
 | `HashMap_str_str` | `string` | `HashMap_str_str_new()` |
+| `HashMap_i32_i32` | `i32` | `HashMap_i32_i32_new()` |
 
 | Method | Args | Returns | Notes |
 |--------|------|---------|-------|
-| `.insert(key, value)` | `string`, value | same map type | **Chains** — returns `self` |
-| `.get(key)` | `string` | `i32` / `string` | Lookup (0 / `""` if missing — check with `.contains`) |
-| `.contains(key)` | `string` | `i32` | `1` if key exists, else `0` |
-| `.keys()` | — | `StrVec` | All keys |
-| `.remove(key)` | `string` | same map type | Remove key; chains |
+| `.insert(key, value)` | key, value | same map type | **Chains** — returns `self` |
+| `.get(key)` | key | value type | Lookup (check `.contains` when needed) |
+| `.get_or(key, default)` / `.or_insert(key, val)` / `.get_or_insert(key, val)` | key, default/value | value type | Fallback / lazy insert |
+| `.contains(key)` | key | `i32` | `1` if key exists, else `0` |
+| `.keys()` / `.values()` | — | `StrVec` / `VecI32` or `StrVec` | All keys / values |
+| `.len()` / `.clear()` / `.remove(key)` / `.is_empty()` | — | varies | Size / clear / remove / empty |
+| `.update(key, f)` | key, `fn(i32)->i32` | same map type | In-place value transform (`HashMap_str_i32`) |
 
 Low-level `ptr` API (FFI style): `map_str_i32_new`, `map_str_i32_insert`, `map_str_i32_get`, `map_str_i32_contains`, `map_str_i32_keys`, `map_str_i32_remove`, `map_str_i32_free`. Struct wrappers auto-call `Drop`.
 
@@ -1682,6 +1704,36 @@ import "stdlib/random.ny"
 | `shuffle_pick(vec)` | Random element from an `i32` vector handle |
 
 The module re-exports the same ChaCha20 runtime; **`random()` itself is a builtin** — import only for `shuffle_pick`.
+
+### `stdlib/math.ny` — extended math (import or auto-prelude)
+
+Beyond compiler intrinsics (`abs`, `min_i32`, …), `stdlib/math.ny` ships libm-backed `f64` helpers (`floor`, `sqrt`, `pow`, `log`, `sin`, …) plus integer/bit helpers:
+
+| Function | Description |
+|----------|-------------|
+| `floor_i32` / `ceil_i32` / `round_i32` / `trunc_i32` | Integer rounding |
+| `signum` / `fract` / `fmod` / `copysign` / `lerp` | `f64` utilities |
+| `is_nan` / `is_finite` / `is_infinite` | Float classification |
+| `deg_to_rad` / `rad_to_deg` | Angle conversion |
+| `gcd_i32` / `lcm_i32` / `mod_i32` | Integer GCD / LCM / Euclidean mod |
+| `saturating_add` / `saturating_sub` / `wrapping_add` | Saturating / wrapping `i32` |
+| `leading_zeros` / `count_ones` | Bit population |
+
+### `stdlib/strconv/mod.ny` & `stdlib/encoding/mod.ny`
+
+| Module | Notable calls |
+|--------|----------------|
+| `strconv/mod.ny` | `parse_int(s, base)`, `parse_i64(s, base)`, `parse_u64`, `parse_f64`, `parse_bool`, `format_pad`, `format_hex`, `format_bin`, `format_oct`, `format_f64(n, prec)`, `format_quote` / `quote`, `format_radix`, `format_u64`, `format_bin_i64` |
+| `encoding/mod.ny` | `hex_encode`, `hex_encode_upper`, `hex_decode`, `url_encode`, `url_decode` |
+
+### `stdlib/sync/atomic.ny` — atomics
+
+| Function | Description |
+|----------|-------------|
+| `Atomic_i32_new(initial)` | Heap-allocated atomic cell |
+| `atomic_load_i32` / `atomic_store_i32` | Seq-cst load / store |
+| `atomic_add_i32` / `atomic_sub_i32` / `atomic_xor_i32` | Fetch arithmetic |
+| `atomic_cas_i32` | Compare-and-swap |
 
 ### `stdlib/builtins_math.ny` — JS-style math
 

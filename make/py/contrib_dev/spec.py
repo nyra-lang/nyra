@@ -48,6 +48,8 @@ class StdlibFnSpec:
     pure_source: str | None = None
     # Optional shared test/example topic override for module scaffolds.
     example_topic: str | None = None
+    # Optional full C function body (lines inside `{ … }`, no signature).
+    c_body: str | None = None
 
     def __post_init__(self) -> None:
         self.fn_name = self.fn_name.strip()

@@ -117,3 +117,9 @@ fn b64d(s: string) -> string {
 // [contrib-dev:hex_decode:encoding_mod]
 extern fn hex_decode(hex: &string) -> string
 // [/contrib-dev:hex_decode:encoding_mod]
+// [contrib-dev:hex_encode:encoding_mod]
+extern fn hex_encode(data: &string) -> string
+// [/contrib-dev:hex_encode:encoding_mod]
+// [contrib-dev:hex_encode_upper:encoding_mod]
+extern fn hex_encode_upper(data: &string) -> string
+// [/contrib-dev:hex_encode_upper:encoding_mod]

@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "trim",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_trim",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s) return str_dup(\"\");\n    const char *start = s;\n    while (*start && (*start == ' ' || *start == '\\t' || *start == '\\n' || *start == '\\r')) start++;\n    const char *end = s + strlen(s);\n    while (end > start && (end[-1] == ' ' || end[-1] == '\\t' || end[-1] == '\\n' || end[-1] == '\\r')) end--;\n    size_t len = (size_t)(end - start);\n    char *out = (char *)malloc(len + 1);\n    if (!out) return NULL;\n    memcpy(out, start, len);\n    out[len] = '\\0';\n    return out;"
+}

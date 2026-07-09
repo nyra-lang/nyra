@@ -71,3 +71,15 @@ impl Drop for AtomicBool {
         self.inner.drop()
     }
 }
+// [contrib-dev:atomic_sub_i32:sync_atomic]
+extern fn atomic_sub_i32(p: ptr, delta: i32) -> i32
+// [/contrib-dev:atomic_sub_i32:sync_atomic]
+// [contrib-dev:atomic_xor_i32:sync_atomic]
+extern fn atomic_xor_i32(p: ptr, mask: i32) -> i32
+// [/contrib-dev:atomic_xor_i32:sync_atomic]
+// [contrib-dev:atomic_and_i32:sync_atomic]
+extern fn atomic_and_i32(p: ptr, mask: i32) -> i32
+// [/contrib-dev:atomic_and_i32:sync_atomic]
+// [contrib-dev:atomic_or_i32:sync_atomic]
+extern fn atomic_or_i32(p: ptr, mask: i32) -> i32
+// [/contrib-dev:atomic_or_i32:sync_atomic]

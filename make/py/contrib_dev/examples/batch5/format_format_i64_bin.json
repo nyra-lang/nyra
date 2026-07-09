@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "format_i64_bin",
+  "args": [
+    "n:i64"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "format_bin_i64",
+  "c_body": "    extern char *str_dup(const char *s);\n    char tmp[65];\n    int pos = 64;\n    unsigned long long u = (unsigned long long)n;\n    tmp[pos] = '\\0';\n    if (u == 0) return str_dup(\"0\");\n    while (u > 0 && pos > 0) {\n        tmp[--pos] = (char)('0' + (u & 1));\n        u >>= 1;\n    }\n    return str_dup(tmp + pos);"
+}

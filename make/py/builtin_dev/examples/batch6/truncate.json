@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "truncate",
+  "args": [
+    "max_len:i32"
+  ],
+  "returns": "string",
+  "c_name": "str_truncate",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!s) return str_dup(\"\");\n    if (max_len <= 0) return str_dup(\"\");\n    size_t n = strlen(s);\n    size_t take = (size_t)max_len;\n    if (take > n) take = n;\n    char *out = (char *)malloc(take + 1);\n    if (!out) return NULL;\n    memcpy(out, s, take);\n    out[take] = '\\0';\n    return out;"
+}

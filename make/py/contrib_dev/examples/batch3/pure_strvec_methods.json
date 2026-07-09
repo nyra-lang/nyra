@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "vec_str.ny",
+  "fn_name": "strvec_methods",
+  "pure_source": "impl StrVec {\n    fn pop(self) -> string {\n        return vec_str_pop(self.handle)\n    }\n\n    fn clear(self) -> StrVec {\n        vec_str_clear(self.handle)\n        return self\n    }\n\n    fn reverse(self) -> StrVec {\n        vec_str_reverse(self.handle)\n        return self\n    }\n\n    fn is_empty(self) -> i32 {\n        if Vec_str_len(self.handle) == 0 {\n            return 1\n        }\n        return 0\n    }\n\n    fn reduce(self, init: string, reducer: fn(string, string) -> string) -> string {\n        let mut acc = init\n        let n = Vec_str_len(self.handle)\n        let mut i = 0\n        while i < n {\n            acc = reducer(acc, Vec_str_get(self.handle, i))\n            i = i + 1\n        }\n        return acc\n    }\n}"
+}

@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "ends_with",
+  "args": [
+    "suffix:string"
+  ],
+  "returns": "i32",
+  "c_name": "str_ends_with",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s || !suffix) return 0;\n    size_t slen = strlen(s);\n    size_t suflen = strlen(suffix);\n    if (suflen > slen) return 0;\n    return strcmp(s + slen - suflen, suffix) == 0 ? 1 : 0;"
+}

@@ -1,0 +1,10 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_clear",
+  "args": [
+    "handle:ptr"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v) return;\n    for (int i = 0; i < v->len; i++) free(((char **)v->data)[i]);\n    v->len = 0;"
+}

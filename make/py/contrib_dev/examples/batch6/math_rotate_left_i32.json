@@ -1,0 +1,12 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "rotate_left_i32",
+  "args": [
+    "n:i32",
+    "shift:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "rotate_left",
+  "c_body": "    unsigned u = (unsigned)n;\n    int s = shift & 31;\n    return (int)((u << s) | (u >> (32 - s)));"
+}

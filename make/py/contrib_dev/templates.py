@@ -67,20 +67,26 @@ def c_stub(spec: StdlibFnSpec, marker: str) -> str:
     params = [f"{c_type(a.nyra_type)} {a.name}" for a in spec.args]
     ret = c_type(spec.returns, is_return=True)
     sig = ", ".join(params) if params else "void"
-    default = "0" if spec.returns in (NyraType.I32, NyraType.BOOL, NyraType.I64) else '""' if spec.returns == NyraType.STRING else "0.0" if spec.returns == NyraType.F64 else "NULL" if spec.returns == NyraType.PTR else ""
-    body = "    /* TODO: implement logic — safe default stub. */"
-    if spec.returns != NyraType.VOID:
-        body += f"\n    return {default};"
-    return "\n".join(
+    lines = [
+        marker_start(marker, lang="c"),
+        f"{ret} {spec.fn_name}({sig}) {{",
+    ]
+    if spec.c_body and spec.c_body.strip():
+        for line in spec.c_body.rstrip().splitlines():
+            lines.append(line if line.startswith("    ") else f"    {line}")
+    else:
+        default = "0" if spec.returns in (NyraType.I32, NyraType.BOOL, NyraType.I64) else '""' if spec.returns == NyraType.STRING else "0.0" if spec.returns == NyraType.F64 else "NULL" if spec.returns == NyraType.PTR else ""
+        lines.append("    /* TODO: implement logic — safe default stub. */")
+        if spec.returns != NyraType.VOID:
+            lines.append(f"    return {default};")
+    lines.extend(
         [
-            marker_start(marker, lang="c"),
-            f"{ret} {spec.fn_name}({sig}) {{",
-            body,
             "}",
             marker_end(marker, lang="c"),
             "",
         ]
     )
+    return "\n".join(lines)
 
 
 def runtime_map_line(spec: StdlibFnSpec) -> str:
@@ -113,7 +119,7 @@ def abi_manifest_block(spec: StdlibFnSpec, marker: str) -> str:
 
 
 def ny_alias_block(spec: StdlibFnSpec, marker: str) -> str:
-    if not spec.ny_alias:
+    if not spec.ny_alias or spec.ny_alias == spec.fn_name:
         return ""
     call_args = ", ".join(a.name for a in spec.args)
     ret_ann = "" if spec.returns == NyraType.VOID else f" -> {nyra_type_annotation(spec.returns, ref=False)}"

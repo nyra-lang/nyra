@@ -349,6 +349,78 @@ impl VecI32 {
         }
         return -1
     }
+
+    fn swap(self, i: i32, j: i32) -> VecI32 {
+        vec_i32_swap(self.handle, i, j)
+        return self
+    }
+
+    fn extend(self, other: VecI32) -> VecI32 {
+        vec_i32_extend(self.handle, other.handle)
+        return self
+    }
+
+
+    fn capacity(self) -> i32 {
+        return vec_i32_capacity(self.handle)
+    }
+
+    fn reserve(self, min_cap: i32) -> VecI32 {
+        vec_i32_reserve(self.handle, min_cap)
+        return self
+    }
+
+    fn fill(self, value: i32) -> VecI32 {
+        vec_i32_fill(self.handle, value)
+        return self
+    }
+
+    fn swap_remove(self, index: i32) -> i32 {
+        return vec_i32_swap_remove(self.handle, index)
+    }
+
+    fn is_empty(self) -> i32 {
+        if self.len() == 0 {
+            return 1
+        }
+        return 0
+    }
+
+
+    fn slice(self, start: i32, end: i32) -> VecI32 {
+        let out = vec_i32_new()
+        let n = vec_i32_len(self.handle)
+        let mut i = start
+        while i < end && i < n {
+            vec_i32_push(out, vec_i32_get(self.handle, i))
+            i = i + 1
+        }
+        return VecI32 { handle: out }
+    }
+
+    fn window(self, start: i32, size: i32) -> VecI32 {
+        return self.slice(start, start + size)
+    }
+
+    fn retain(self, pred: fn(i32) -> i32) -> VecI32 {
+        let n = vec_i32_len(self.handle)
+        let mut i = 0
+        let mut write = 0
+        while i < n {
+            let x = vec_i32_get(self.handle, i)
+            if pred(x) != 0 {
+                vec_i32_set(self.handle, write, x)
+                write = write + 1
+            }
+            i = i + 1
+        }
+        vec_i32_truncate(self.handle, write)
+        return self
+    }
+
+    fn append(self, x: i32) -> VecI32 {
+        return self.push(x)
+    }
 }
 
 impl Drop for VecI32 {
@@ -372,3 +444,24 @@ extern fn vec_i32_reverse(handle: ptr)
 // [contrib-dev:vec_i32_sort:vec]
 extern fn vec_i32_sort(handle: ptr)
 // [/contrib-dev:vec_i32_sort:vec]
+// [contrib-dev:vec_i32_extend:vec]
+extern fn vec_i32_extend(dst: ptr, src: ptr)
+// [/contrib-dev:vec_i32_extend:vec]
+// [contrib-dev:vec_i32_swap:vec]
+extern fn vec_i32_swap(handle: ptr, i: i32, j: i32)
+// [/contrib-dev:vec_i32_swap:vec]
+// [contrib-dev:vec_i32_capacity:vec]
+extern fn vec_i32_capacity(handle: ptr) -> i32
+// [/contrib-dev:vec_i32_capacity:vec]
+// [contrib-dev:vec_i32_fill:vec]
+extern fn vec_i32_fill(handle: ptr, value: i32)
+// [/contrib-dev:vec_i32_fill:vec]
+// [contrib-dev:vec_i32_reserve:vec]
+extern fn vec_i32_reserve(handle: ptr, min_cap: i32)
+// [/contrib-dev:vec_i32_reserve:vec]
+// [contrib-dev:vec_i32_swap_remove:vec]
+extern fn vec_i32_swap_remove(handle: ptr, index: i32) -> i32
+// [/contrib-dev:vec_i32_swap_remove:vec]
+// [contrib-dev:vec_i32_truncate:vec]
+extern fn vec_i32_truncate(handle: ptr, len: i32)
+// [/contrib-dev:vec_i32_truncate:vec]

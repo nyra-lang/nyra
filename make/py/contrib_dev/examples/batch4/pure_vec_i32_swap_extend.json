@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_swap_extend",
+  "pure_source": "impl VecI32 {\n    fn swap(self, i: i32, j: i32) -> VecI32 {\n        vec_i32_swap(self.handle, i, j)\n        return self\n    }\n\n    fn extend(self, other: VecI32) -> VecI32 {\n        vec_i32_extend(self.handle, other.handle)\n        return self\n    }\n\n    fn append(self, x: i32) -> VecI32 {\n        return self.push(x)\n    }\n}"
+}

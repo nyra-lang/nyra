@@ -1,0 +1,10 @@
+{
+  "ny_module": "fs/file.ny",
+  "fn_name": "file_mtime",
+  "args": [
+    "path:string"
+  ],
+  "returns": "i64",
+  "rt_module": "rt_fs.c",
+  "c_body": "#if defined(_WIN32)\n    struct _stat st;\n    if (!path || _stat(path, &st) != 0) return -1;\n    return (long long)st.st_mtime;\n#else\n    struct stat st;\n    if (!path || stat(path, &st) != 0) return -1;\n    return (long long)st.st_mtime;\n#endif"
+}

@@ -1,0 +1,11 @@
+{
+  "ny_module": "encoding/mod.ny",
+  "fn_name": "hex_encode_upper",
+  "args": [
+    "data:string"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "hex_encode_upper",
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!data) return str_dup(\"\");\n    size_t n = strlen(data);\n    char *out = (char *)malloc(n * 2 + 1);\n    if (!out) return NULL;\n    static const char *hex = \"0123456789ABCDEF\";\n    for (size_t i = 0; i < n; i++) {\n        unsigned char b = (unsigned char)data[i];\n        out[i * 2] = hex[b >> 4];\n        out[i * 2 + 1] = hex[b & 15];\n    }\n    out[n * 2] = '\\0';\n    return out;"
+}

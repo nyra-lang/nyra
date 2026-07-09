@@ -1,0 +1,12 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "f64_to_string_prec",
+  "args": [
+    "n:f64",
+    "prec:i32"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "format_f64",
+  "c_body": "    extern char *str_dup(const char *s);\n    char buf[64];\n    if (prec < 0) prec = 0;\n    if (prec > 12) prec = 12;\n    snprintf(buf, sizeof(buf), \"%.*f\", prec, n);\n    return str_dup(buf);"
+}

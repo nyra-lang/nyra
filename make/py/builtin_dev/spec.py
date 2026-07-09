@@ -65,6 +65,8 @@ class BuiltinSpec:
     free_fn_alias: bool = True
     stable_abi: bool = False
     abi_since: str = "1.0.0"
+    # Optional full C function body (lines inside `{ … }`, no signature).
+    c_body: str | None = None
 
     def __post_init__(self) -> None:
         self.method = self.method.strip()
@@ -106,6 +108,7 @@ class BuiltinSpec:
         free_fn_alias: bool,
         stable_abi: bool,
         abi_since: str,
+        c_body: str | None = None,
     ) -> BuiltinSpec:
         return cls(
             receiver=ReceiverKind(receiver.lower()),
@@ -119,6 +122,7 @@ class BuiltinSpec:
             free_fn_alias=free_fn_alias,
             stable_abi=stable_abi,
             abi_since=abi_since,
+            c_body=c_body,
         )
 
 

@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "leading_zeros_i32",
+  "args": [
+    "n:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "leading_zeros",
+  "c_body": "    if (n == 0) return 32;\n    unsigned u = (unsigned)n;\n    int c = 0;\n    if ((u & 0xFFFF0000u) == 0) { c += 16; u <<= 16; }\n    if ((u & 0xFF000000u) == 0) { c += 8; u <<= 8; }\n    if ((u & 0xF0000000u) == 0) { c += 4; u <<= 4; }\n    if ((u & 0xC0000000u) == 0) { c += 2; u <<= 2; }\n    if ((u & 0x80000000u) == 0) { c += 1; }\n    return c;"
+}

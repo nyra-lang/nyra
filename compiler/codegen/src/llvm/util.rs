@@ -116,7 +116,7 @@ pub(super) fn is_string_builtin_method(method: &str) -> bool {
         method,
         "split" | "trim" | "contains" | "starts_with" | "ends_with" | "replace"
             | "replacen"
-            | "to_upper" | "to_lower" | "strip_suffix" | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize" | "to_camel_case" | "to_kebab_case" | "to_pascal_case" | "to_screaming_snake_case" | "to_train_case" | "to_dot_case" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once")
+            | "to_upper" | "to_lower" | "strip_suffix" | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize" | "to_camel_case" | "to_kebab_case" | "to_pascal_case" | "to_screaming_snake_case" | "to_train_case" | "to_dot_case" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once" | "compare" | "equal_fold" | "index_byte" | "last_index_byte" | "after_sep" | "char_at" | "pop" | "push_char" | "strip_ansi" | "substring" | "before_sep" | "collapse_ws" | "is_ascii" | "common_prefix_len" | "is_alnum" | "is_alpha" | "is_digit" | "pad_center" | "reverse" | "escape_json" | "split_after" | "truncate")
 }
 
 pub(super) fn llvm_ptr_reg(reg: &str) -> String {

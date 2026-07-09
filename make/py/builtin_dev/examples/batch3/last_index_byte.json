@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "last_index_byte",
+  "args": [
+    "byte:i32"
+  ],
+  "returns": "i32",
+  "c_name": "str_last_index_byte",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s) return -1;\n    unsigned char ch = (unsigned char)byte;\n    int last = -1;\n    for (int i = 0; s[i]; i++) {\n        if ((unsigned char)s[i] == ch) last = i;\n    }\n    return last;"
+}

@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "count_ones_i32",
+  "args": [
+    "n:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "count_ones",
+  "c_body": "    unsigned u = (unsigned)n;\n    int c = 0;\n    while (u) { c += (int)(u & 1u); u >>= 1; }\n    return c;"
+}

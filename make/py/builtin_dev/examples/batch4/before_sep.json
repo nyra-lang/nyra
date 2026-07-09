@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "before_sep",
+  "args": [
+    "sep:string"
+  ],
+  "returns": "string",
+  "c_name": "str_before_sep",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s) return str_dup(\"\");\n    if (!sep || sep[0] == '\\0') return str_dup(s);\n    const char *p = strstr(s, sep);\n    if (!p) return str_dup(s);\n    size_t len = (size_t)(p - s);\n    char *out = (char *)malloc(len + 1);\n    if (!out) return NULL;\n    memcpy(out, s, len);\n    out[len] = '\\0';\n    return out;"
+}

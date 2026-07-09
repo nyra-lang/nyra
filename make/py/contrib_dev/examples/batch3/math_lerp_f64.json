@@ -1,0 +1,13 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "lerp_f64",
+  "args": [
+    "a:f64",
+    "b:f64",
+    "t:f64"
+  ],
+  "returns": "f64",
+  "rt_module": "rt_math.c",
+  "ny_alias": "lerp",
+  "c_body": "    return a + (b - a) * t;"
+}

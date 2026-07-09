@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "map.ny",
+  "fn_name": "hashmap_update",
+  "pure_source": "impl HashMap_str_i32 {\n    fn update(self, key: string, f: fn(i32) -> i32) -> HashMap_str_i32 {\n        if self.contains(key) == 1 {\n            let _ = self.insert(key, f(self.get(key)))\n        }\n        return self\n    }\n}"
+}

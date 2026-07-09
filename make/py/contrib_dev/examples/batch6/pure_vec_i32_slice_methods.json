@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_slice_methods",
+  "pure_source": "impl VecI32 {\n    fn slice(self, start: i32, end: i32) -> VecI32 {\n        let out = vec_i32_new()\n        let n = vec_i32_len(self.handle)\n        let mut i = start\n        while i < end && i < n {\n            vec_i32_push(out, vec_i32_get(self.handle, i))\n            i = i + 1\n        }\n        return VecI32 { handle: out }\n    }\n\n    fn window(self, start: i32, size: i32) -> VecI32 {\n        return self.slice(start, start + size)\n    }\n\n    fn retain(self, pred: fn(i32) -> i32) -> VecI32 {\n        let n = vec_i32_len(self.handle)\n        let mut i = 0\n        let mut write = 0\n        while i < n {\n            let x = vec_i32_get(self.handle, i)\n            if pred(x) != 0 {\n                vec_i32_set(self.handle, write, x)\n                write = write + 1\n            }\n            i = i + 1\n        }\n        vec_i32_truncate(self.handle, write)\n        return self\n    }\n}"
+}

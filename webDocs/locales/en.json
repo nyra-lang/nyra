@@ -119,7 +119,7 @@
   "pages": {
     "index": {
       "metaTitle": "Nyra — Programming Language Documentation",
-      "pill": "Documentation v0.0.1",
+      "pill": "Documentation v0.1.0",
       "titleSub": "Programming Language",
       "tagline": "Fast like a panther. Sharp by design.",
       "lead": "Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.",

@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "compare",
+  "args": [
+    "other:string"
+  ],
+  "returns": "i32",
+  "c_name": "str_compare",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s && !other) return 0;\n    if (!s) return -1;\n    if (!other) return 1;\n    return strcmp(s, other);"
+}

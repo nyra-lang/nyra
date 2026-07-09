@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "reverse",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_reverse",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!s) return str_dup(\"\");\n    size_t n = strlen(s);\n    char *out = (char *)malloc(n + 1);\n    if (!out) return NULL;\n    for (size_t i = 0; i < n; i++) out[i] = s[n - 1 - i];\n    out[n] = '\\0';\n    return out;"
+}

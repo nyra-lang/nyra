@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "lcm_i32",
+  "args": [
+    "a:i32",
+    "b:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "c_body": "    if (a == 0 || b == 0) return 0;\n    int x = a < 0 ? -a : a;\n    int y = b < 0 ? -b : b;\n    int g = x;\n    int h = y;\n    while (h != 0) { int t = g % h; g = h; h = t; }\n    if (g == 0) return 0;\n    return (x / g) * y;"
+}

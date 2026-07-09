@@ -1,0 +1,10 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_reverse",
+  "args": [
+    "handle:ptr"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v || v->len <= 1) return;\n    char **data = (char **)v->data;\n    int lo = 0, hi = v->len - 1;\n    while (lo < hi) {\n        char *tmp = data[lo];\n        data[lo] = data[hi];\n        data[hi] = tmp;\n        lo++; hi--;\n    }"
+}

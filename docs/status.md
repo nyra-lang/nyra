@@ -7,7 +7,7 @@
 | Area | Status |
 |------|--------|
 | **Overall** | **Production-ready** — Core + Stable Extended |
-| **Core tier** | **Stable** (semver from v0.0.1) |
+| **Core tier** | **Stable** (semver from v0.1.0) |
 | **Stable Extended** | **Stable** — async CFG desugar, traits + `dyn Send/Sync`, struct JSON (nested + collections), macros, defer |
 | **Extended preview** | **None** |
 | **Toolchain** | CLI **done**; **`nyra build --race` (TSan)**; LSP depth (semantic tokens, inlay hints, code actions, signature help) |
@@ -69,7 +69,7 @@
 
 | Domain | Status |
 |--------|--------|
-| Collections, fs, strings, time | Shipped |
+| Collections, fs, strings, time | Shipped — batch3–6 gap-fill (~116 builtins/helpers: strings, math, strconv, Vec/StrVec/Map, atomics, FS metadata) |
 | crypto (SHA/HMAC/AES) | Shipped |
 | net/http, tcp, websocket, udp | Shipped — JS-like `fetch`/`req().post(url)`, collections HOFs, SQL `qb()` builder |
 | db/sqlite | Shipped (`link sqlite3`) |

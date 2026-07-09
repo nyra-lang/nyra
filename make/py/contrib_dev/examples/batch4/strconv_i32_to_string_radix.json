@@ -1,0 +1,12 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "i32_to_string_radix",
+  "args": [
+    "n:i32",
+    "base:i32"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "format_radix",
+  "c_body": "    extern char *str_dup(const char *s);\n    char buf[34];\n    if (base < 2) base = 10;\n    if (base > 36) base = 36;\n    if (base == 10) snprintf(buf, sizeof(buf), \"%d\", n);\n    else snprintf(buf, sizeof(buf), \"%x\", n);\n    return str_dup(buf);"
+}

@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_remove_at",
+  "args": [
+    "handle:ptr",
+    "index:i32"
+  ],
+  "returns": "string",
+  "rt_module": "rt_vec.c",
+  "c_body": "    extern char *str_dup(const char *s);\n    NyraVec *v = (NyraVec *)handle;\n    if (!v || index < 0 || index >= v->len) return str_dup(\"\");\n    char **data = (char **)v->data;\n    char *removed = data[index];\n    memmove(data + index, data + index + 1, (size_t)(v->len - index - 1) * sizeof(char *));\n    v->len--;\n    char *out = removed ? str_dup(removed) : str_dup(\"\");\n    free(removed);\n    return out;"
+}

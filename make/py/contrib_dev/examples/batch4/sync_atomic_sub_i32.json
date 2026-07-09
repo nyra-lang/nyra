@@ -1,0 +1,11 @@
+{
+  "ny_module": "sync/atomic.ny",
+  "fn_name": "atomic_sub_i32",
+  "args": [
+    "p:ptr",
+    "delta:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_sync.c",
+  "c_body": "    int *cell = (int *)p;\n    if (!cell) return 0;\n    return __atomic_sub_fetch(cell, delta, __ATOMIC_SEQ_CST);"
+}

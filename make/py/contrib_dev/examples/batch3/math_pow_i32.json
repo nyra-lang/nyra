@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "pow_i32",
+  "args": [
+    "base:i32",
+    "exp:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "c_body": "    if (exp < 0) return 0;\n    int result = 1;\n    int b = base;\n    int e = exp;\n    while (e > 0) {\n        if (e & 1) result *= b;\n        b *= b;\n        e >>= 1;\n    }\n    return result;"
+}

@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "str_to_u64",
+  "args": [
+    "s:string"
+  ],
+  "returns": "i64",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "parse_u64",
+  "c_body": "    if (!s) return 0;\n    return (long long)strtoull(s, NULL, 10);"
+}

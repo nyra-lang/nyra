@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "i64_to_string",
+  "args": [
+    "n:i64"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "format_i64",
+  "c_body": "    extern char *str_dup(const char *s);\n    char buf[32];\n    int len = snprintf(buf, sizeof(buf), \"%lld\", n);\n    if (len < 0) return str_dup(\"0\");\n    return str_dup(buf);"
+}

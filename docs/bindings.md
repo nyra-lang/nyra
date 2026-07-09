@@ -143,7 +143,7 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `http_get` | `char *http_get(const char *url)` | `rt_http.c` | 0.0.1 | — |
 | `http_status` | `int http_status(const char *response_header)` | `rt_http.c` | 0.0.1 | — |
 | `i32_to_string` | `char *i32_to_string(int n)` | `rt_strings.c` | 0.0.1 | `stdlib/bridge/mod.ny`, `stdlib/json/mod.ny`, `stdlib/strconv/mod.ny`, `stdlib/strings/builder.ny`, `stdlib/strings.ny`, `stdlib/time/date.ny` |
-| `i64_to_string` | `char *i64_to_string(long long n)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `i64_to_string` | `char *i64_to_string(long long n)` | `rt_strings.c` | 0.0.1 | `stdlib/strconv/mod.ny`, `stdlib/strings.ny` |
 | `instant_elapsed_ms` | `int instant_elapsed_ms(int64_t start)` | `rt_time.c` | 0.0.1 | `stdlib/time/instant.ny` |
 | `instant_now` | `int64_t instant_now(void)` | `rt_time.c` | 0.0.1 | `stdlib/time/date.ny`, `stdlib/time/instant.ny` |
 | `io_pool_create` | `int32_t io_pool_create(int32_t workers)` | `rt_io_pool.c` | 0.0.1 | `stdlib/io/pool.ny` |
@@ -181,12 +181,12 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `json_top_keys` | `void *json_top_keys(const char *json)` | `rt_json.c` | 0.0.1 | `stdlib/json/mod.ny` |
 | `json_value_kind` | `int json_value_kind(const char *json)` | `rt_json.c` | 0.0.1 | `stdlib/json/mod.ny` |
 | `list_dir` | `char *list_dir(const char *path)` | `rt_fs.c` | 0.0.1 | `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
-| `map_i32_i32_contains` | `int map_i32_i32_contains(void *handle, int key)` | `rt_map.c` | 0.0.1 | — |
-| `map_i32_i32_free` | `void map_i32_i32_free(void *handle)` | `rt_map.c` | 0.0.1 | — |
-| `map_i32_i32_get` | `int map_i32_i32_get(void *handle, int key)` | `rt_map.c` | 0.0.1 | — |
-| `map_i32_i32_insert` | `void map_i32_i32_insert(void *handle, int key, int value)` | `rt_map.c` | 0.0.1 | — |
-| `map_i32_i32_new` | `void *map_i32_i32_new(void)` | `rt_map.c` | 0.0.1 | — |
-| `map_i32_i32_retain` | `void map_i32_i32_retain(void *handle)` | `rt_map.c` | 0.0.1 | — |
+| `map_i32_i32_contains` | `int map_i32_i32_contains(void *handle, int key)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_i32_i32_free` | `void map_i32_i32_free(void *handle)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_i32_i32_get` | `int map_i32_i32_get(void *handle, int key)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_i32_i32_insert` | `void map_i32_i32_insert(void *handle, int key, int value)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_i32_i32_new` | `void *map_i32_i32_new(void)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_i32_i32_retain` | `void map_i32_i32_retain(void *handle)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
 | `map_str_i32_contains` | `int map_str_i32_contains(void *handle, const char *key)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
 | `map_str_i32_free` | `void map_str_i32_free(void *handle)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
 | `map_str_i32_get` | `int map_str_i32_get(void *handle, const char *key)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
@@ -358,16 +358,16 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `str_cat` | `char *str_cat(const char *a, const char *b)` | `rt_strings.c` | 0.0.1 | — |
 | `str_clone` | `char *str_clone(const char *s)` | `rt_alloc.c` | 0.0.1 | — |
 | `str_cmp` | `int str_cmp(const char *a, const char *b)` | `rt_strings.c` | 0.0.1 | — |
-| `str_contains` | `int str_contains(const char *hay, const char *needle)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny` |
-| `str_ends_with` | `int str_ends_with(const char *s, const char *suffix)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny` |
+| `str_contains` | `int str_contains(const char *hay, const char *needle)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_ends_with` | `int str_ends_with(const char *s, const char *suffix)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
 | `str_len` | `int str_len(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny` |
 | `str_pop` | `char *str_pop(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/gui/buffer.ny`, `stdlib/strings.ny` |
 | `str_push_char` | `char *str_push_char(const char *s, int ch)` | `rt_strings.c` | 0.0.1 | `stdlib/gui/buffer.ny`, `stdlib/strings.ny` |
-| `str_replace` | `char *str_replace(const char *s, const char *from, const char *to)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny` |
-| `str_replacen` | `char *str_replacen(const char *s, const char *from, const char *to, int count)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny` |
+| `str_replace` | `char *str_replace(const char *s, const char *from, const char *to)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_replacen` | `char *str_replacen(const char *s, const char *from, const char *to, int count)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
 | `str_split` | `void *str_split(const char *s, const char *sep)` | `rt_strings.c` | 0.0.1 | `stdlib/builtins_string.ny` |
-| `str_starts_with` | `int str_starts_with(const char *s, const char *prefix)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny` |
-| `str_strip_ansi` | `char *str_strip_ansi(const char *input)` | `rt_strings.c` | 0.0.1 | — |
+| `str_starts_with` | `int str_starts_with(const char *s, const char *prefix)` | `rt_strings.c` | 0.0.1 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_strip_ansi` | `char *str_strip_ansi(const char *input)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
 | `str_strip_suffix` | `char *str_strip_suffix(const char *s, const char *suffix)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
 | `str_to_camel_case` | `char *str_to_camel_case(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
 | `str_to_capitalize` | `char *str_to_capitalize(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
@@ -449,10 +449,48 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `_mysql_stub_open` | `void *_mysql_stub_open(const char *dsn)` | `rt_db.c` | 0.0.1 | `stdlib/db/mysql.ny` |
 | `_postgres_stub_open` | `void *_postgres_stub_open(const char *dsn)` | `rt_db.c` | 0.0.1 | `stdlib/db/postgres.ny` |
 | `_sqlite_null_handle` | `void *_sqlite_null_handle(void)` | `rt_db.c` | 0.0.1 | `stdlib/db/sql.ny` |
+| `acos_f64` | `doubleacos_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `asin_f64` | `doubleasin_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
 | `asm_nop` | `void asm_nop(void)` | `rt_syscall.c` | 0.0.1 | `stdlib/os/syscall.ny` |
 | `asm_pause` | `void asm_pause(void)` | `rt_syscall.c` | 0.0.1 | `stdlib/os/syscall.ny` |
+| `atan_f64` | `doubleatan_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `atomic_and_i32` | `int atomic_and_i32(void * p, int mask)` | `rt_sync.c` | 1.0.0 | `stdlib/sync/atomic.ny` |
+| `atomic_or_i32` | `int atomic_or_i32(void * p, int mask)` | `rt_sync.c` | 1.0.0 | `stdlib/sync/atomic.ny` |
+| `atomic_sub_i32` | `int atomic_sub_i32(void * p, int delta)` | `rt_sync.c` | 1.0.0 | `stdlib/sync/atomic.ny` |
+| `atomic_xor_i32` | `int atomic_xor_i32(void * p, int mask)` | `rt_sync.c` | 1.0.0 | `stdlib/sync/atomic.ny` |
 | `blackbox_i32` | `void blackbox_i32(void)` | `rt_bench.c` | 0.0.1 | `stdlib/bench/mod.ny` |
 | `bounds_assert_i32` | `void bounds_assert_i32(int ok)` | `rt_array.c` | 0.0.1 | — |
+| `ceil_f64` | `doubleceil_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `ceil_i32` | `int ceil_i32(int x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `char_at` | `int char_at(const char *s, int index)` | `rt_strings.c` | 1.0.0 | `stdlib/gui/buffer.ny`, `stdlib/gui/picker.ny`, `stdlib/gui/syntax.ny`, `stdlib/strings.ny` |
+| `clamp_f64` | `doubleclamp_f64(double x, double lo, double hi)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `copysign_f64` | `double copysign_f64(double x, double y)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `count_ones_i32` | `int count_ones_i32(int n)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `deg_to_rad_f64` | `double deg_to_rad_f64(double deg)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `exp_f64` | `doubleexp_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `f64_to_string_prec` | `char * f64_to_string_prec(double n, int prec)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `file_is_symlink` | `int file_is_symlink(const char * path)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
+| `file_mtime` | `long long file_mtime(const char * path)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
+| `floor_f64` | `doublefloor_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `floor_i32` | `int floor_i32(int x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `fmod_f64` | `double fmod_f64(double x, double y)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `format_bool` | `char * format_bool(int b)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_f64_pad` | `char * format_f64_pad(double n, int width, int prec)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i32_bin` | `char * format_i32_bin(int n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i32_hex` | `char * format_i32_hex(int n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i32_hex_pad` | `char * format_i32_hex_pad(int n, int width)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i32_oct` | `char * format_i32_oct(int n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i32_pad` | `char * format_i32_pad(int n, int width)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i64_bin` | `char * format_i64_bin(long long n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i64_hex` | `char * format_i64_hex(long long n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_i64_pad` | `char * format_i64_pad(long long n, int width)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_quote` | `char * format_quote(const char * s)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `format_u64_pad` | `char * format_u64_pad(long long n, int width)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `fract_f64` | `double fract_f64(double x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `gcd_i32` | `int gcd_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `hex_decode` | `char *hex_decode(const char * hex)` | `rt_strings.c` | 0.0.1 | `stdlib/encoding/mod.ny` |
+| `hex_encode` | `char * hex_encode(const char * data)` | `rt_strings.c` | 1.0.0 | `stdlib/encoding/mod.ny` |
+| `hex_encode_upper` | `char * hex_encode_upper(const char * data)` | `rt_strings.c` | 1.0.0 | `stdlib/encoding/mod.ny` |
 | `hw_cpu_brand` | `char *hw_cpu_brand(void)` | `rt_hw.c` | 0.0.1 | `stdlib/os/cpu.ny` |
 | `hw_cpu_cache_line_size` | `int32_t hw_cpu_cache_line_size(void)` | `rt_hw.c` | 0.0.1 | `stdlib/os/cpu.ny` |
 | `hw_cpu_has_avx` | `int32_t hw_cpu_has_avx(void)` | `rt_hw.c` | 0.0.1 | `stdlib/os/cpu.ny` |
@@ -479,6 +517,28 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `hw_net_if_name` | `char *hw_net_if_name(int32_t index)` | `rt_hw.c` | 0.0.1 | `stdlib/os/netif.ny` |
 | `hw_power_cpu_temp_centi_c` | `int32_t hw_power_cpu_temp_centi_c(void)` | `rt_hw.c` | 0.0.1 | `stdlib/os/power.ny` |
 | `hw_power_on_ac` | `int32_t hw_power_on_ac(void)` | `rt_hw.c` | 0.0.1 | `stdlib/os/power.ny` |
+| `hypot_f64` | `doublehypot_f64(double x, double y)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `i32_to_string_radix` | `char * i32_to_string_radix(int n, int base)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `i64_to_string` | `char * i64_to_string(long long n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny`, `stdlib/strings.ny` |
+| `is_finite_f64` | `int is_finite_f64(double x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `is_infinite_f64` | `int is_infinite_f64(double x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `is_nan_f64` | `int is_nan_f64(double x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `lcm_i32` | `int lcm_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `leading_zeros_i32` | `int leading_zeros_i32(int n)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `lerp_f64` | `double lerp_f64(double a, double b, double t)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `log10_f64` | `doublelog10_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `log2_f64` | `doublelog2_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `log_f64` | `doublelog_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `map_i32_i32_clear` | `void map_i32_i32_clear(void * m)` | `rt_map.c` | 1.0.0 | `stdlib/map.ny`, `stdlib/map.ny` |
+| `map_i32_i32_len` | `int map_i32_i32_len(void * m)` | `rt_map.c` | 1.0.0 | `stdlib/map.ny`, `stdlib/map.ny` |
+| `map_i32_i32_remove` | `int map_i32_i32_remove(void * m, int key)` | `rt_map.c` | 1.0.0 | `stdlib/map.ny`, `stdlib/map.ny` |
+| `map_str_i32_clear` | `void map_str_i32_clear(void * m)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_str_i32_len` | `int map_str_i32_len(void * m)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_str_i32_values` | `void *map_str_i32_values(void * m)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_str_str_clear` | `void map_str_str_clear(void * m)` | `rt_map_str_str.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_str_str_len` | `int map_str_str_len(void * m)` | `rt_map_str_str.c` | 0.0.1 | `stdlib/map.ny` |
+| `map_str_str_values` | `void *map_str_str_values(void * m)` | `rt_map_str_str.c` | 0.0.1 | `stdlib/map.ny` |
+| `mod_i32` | `int mod_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
 | `mysql_exec` | `int mysql_exec(void *handle, const char *sql)` | `rt_db.c` | 0.0.1 | `stdlib/db/mysql.ny` |
 | `nyra_mysql_close` | `void nyra_mysql_close(void *handle)` | `rt_db.c` | 0.0.1 | `stdlib/db/mysql.ny` |
 | `os_battery_percent` | `void os_battery_percent(void)` | `rt_os.c` | 0.0.1 | `stdlib/os/battery.ny` |
@@ -491,13 +551,26 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `os_read` | `void os_read(void)` | `rt_syscall.c` | 0.0.1 | `stdlib/os/syscall.ny` |
 | `os_syscall6` | `void os_syscall6(void)` | `rt_syscall.c` | 0.0.1 | `stdlib/os/syscall.ny` |
 | `os_write` | `void os_write(void)` | `rt_syscall.c` | 0.0.1 | `stdlib/os/syscall.ny` |
+| `parse_i64_base` | `long long parse_i64_base(const char * s, int base)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `parse_int_base` | `int parse_int_base(const char * s, int base)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `parse_uint_base` | `int parse_uint_base(const char * s, int base)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `path_is_file` | `int path_is_file(const char * path)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
 | `postgres_close` | `void postgres_close(void *handle)` | `rt_db.c` | 0.0.1 | `stdlib/db/postgres.ny` |
 | `postgres_exec` | `int postgres_exec(void *handle, const char *sql)` | `rt_db.c` | 0.0.1 | `stdlib/db/postgres.ny` |
+| `pow_f64` | `doublepow_f64(double base, double exp)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `pow_i32` | `int pow_i32(int base, int exp)` | `rt_math.c` | 1.0.0 | — |
 | `race_clear_access` | `void race_clear_access(void *addr)` | `rt_race.c` | 0.0.1 | `stdlib/race.ny` |
 | `race_runtime_enabled` | `int race_runtime_enabled(void)` | `rt_race.c` | 0.0.1 | `stdlib/race.ny` |
 | `race_runtime_init` | `void race_runtime_init(void)` | `rt_race.c` | 0.0.1 | `stdlib/race.ny` |
 | `race_track_read` | `void race_track_read(void *addr, int64_t nbytes)` | `rt_race.c` | 0.0.1 | `stdlib/race.ny` |
 | `race_track_write` | `void race_track_write(void *addr, int64_t nbytes)` | `rt_race.c` | 0.0.1 | `stdlib/race.ny` |
+| `rad_to_deg_f64` | `double rad_to_deg_f64(double rad)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `rem_euclid_i32` | `int rem_euclid_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `rename_file` | `int rename_file(const char * src, const char * dst)` | `rt_fs.c` | 1.0.0 | `stdlib/fs/file.ny` |
+| `rotate_left_i32` | `int rotate_left_i32(int n, int shift)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `rotate_right_i32` | `int rotate_right_i32(int n, int shift)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `round_f64` | `doubleround_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `round_i32` | `int round_i32(int x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
 | `rt_affinity_get_thread_cpu` | `int32_t rt_affinity_get_thread_cpu(void)` | `rt_os_adv.c` | 0.0.1 | `stdlib/os/affinity.ny` |
 | `rt_affinity_set_thread_cpu` | `int32_t rt_affinity_set_thread_cpu(int32_t core_index)` | `rt_os_adv.c` | 0.0.1 | `stdlib/os/affinity.ny` |
 | `rt_clock_monotonic_ns` | `int64_t rt_clock_monotonic_ns(void)` | `rt_os_adv.c` | 0.0.1 | `stdlib/os/clocks.ny` |
@@ -525,10 +598,85 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `rt_usb_device_path` | `char *rt_usb_device_path(int32_t index)` | `rt_os_adv.c` | 0.0.1 | `stdlib/os/usb.ny` |
 | `rt_usb_device_pid` | `int32_t rt_usb_device_pid(int32_t index)` | `rt_os_adv.c` | 0.0.1 | `stdlib/os/usb.ny` |
 | `rt_usb_device_vid` | `int32_t rt_usb_device_vid(int32_t index)` | `rt_os_adv.c` | 0.0.1 | `stdlib/os/usb.ny` |
+| `saturating_add_i32` | `int saturating_add_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `saturating_sub_i32` | `int saturating_sub_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `signum_f64` | `double signum_f64(double x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `signum_i32` | `int signum_i32(int x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `sqrt_f64` | `doublesqrt_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `str_after_sep` | `char * str_after_sep(const char *s, const char * sep)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_before_sep` | `char *str_before_sep(const char *s, const char * sep)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_before_sep` | `char * str_before_sep(const char *s, const char * sep)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_collapse_ws` | `char * str_collapse_ws(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_common_prefix_len` | `int str_common_prefix_len(const char *s, const char * other)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_compare` | `int str_compare(const char *s, const char * other)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_contains` | `int str_contains(const char *s, const char * needle)` | `rt_strings.c` | 1.0.0 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_count` | `intstr_count(const char *s, const char * needle)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_ends_with` | `int str_ends_with(const char *s, const char * suffix)` | `rt_strings.c` | 1.0.0 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_equal_fold` | `int str_equal_fold(const char *s, const char * other)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_escape_json` | `char * str_escape_json(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_fields` | `void *str_fields(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_index` | `intstr_index(const char *s, const char * needle)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_index_byte` | `int str_index_byte(const char *s, int byte)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_is_alnum` | `int str_is_alnum(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_is_alpha` | `int str_is_alpha(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_is_ascii` | `int str_is_ascii(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_is_digit` | `int str_is_digit(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_is_empty` | `intstr_is_empty(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_last_index` | `intstr_last_index(const char *s, const char * needle)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_last_index_byte` | `int str_last_index_byte(const char *s, int byte)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_pad_center` | `char * str_pad_center(const char *s, int width, const char * pad)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_pad_end` | `char *str_pad_end(const char *s, int width, const char * pad)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_pad_start` | `char *str_pad_start(const char *s, int width, const char * pad)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_pop` | `char * str_pop(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/gui/buffer.ny`, `stdlib/strings.ny` |
+| `str_push_char` | `char * str_push_char(const char *s, int ch)` | `rt_strings.c` | 1.0.0 | `stdlib/gui/buffer.ny`, `stdlib/strings.ny` |
+| `str_repeat` | `char *str_repeat(const char *s, int count)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_replace` | `char * str_replace(const char *s, const char * from, const char * to)` | `rt_strings.c` | 1.0.0 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_replacen` | `char * str_replacen(const char *s, const char * from, const char * to, int count)` | `rt_strings.c` | 1.0.0 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_reverse` | `char * str_reverse(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_split_after` | `char * str_split_after(const char *s, const char * sep)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_splitn` | `void *str_splitn(const char *s, const char * sep, int n)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_starts_with` | `int str_starts_with(const char *s, const char * prefix)` | `rt_strings.c` | 1.0.0 | `stdlib/strings/ops.ny`, `stdlib/strings.ny` |
+| `str_strip_ansi` | `char * str_strip_ansi(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `str_strip_prefix` | `char *str_strip_prefix(const char *s, const char * prefix)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_to_bool` | `int str_to_bool(const char * s)` | `rt_strings.c` | 0.0.1 | `stdlib/strconv/mod.ny` |
+| `str_to_f32` | `double str_to_f32(const char * s)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `str_to_f64` | `double str_to_f64(const char * s)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `str_to_i64` | `long long str_to_i64(const char * s)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `str_to_u64` | `long long str_to_u64(const char * s)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `str_trim` | `char * str_trim(const char *s)` | `rt_strings.c` | 1.0.0 | `stdlib/strings/ops.ny` |
+| `str_trim_end` | `char *str_trim_end(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_trim_start` | `char *str_trim_start(const char *s)` | `rt_strings.c` | 0.0.1 | `stdlib/strings.ny` |
+| `str_truncate` | `char * str_truncate(const char *s, int max_len)` | `rt_strings.c` | 1.0.0 | `stdlib/strings.ny` |
+| `substring` | `char * substring(const char *s, int start, int len)` | `rt_strings.c` | 1.0.0 | `stdlib/games/audio.ny`, `stdlib/gui/buffer.ny`, `stdlib/gui/picker.ny`, `stdlib/gui/syntax.ny`, `stdlib/strings.ny`, `stdlib/uuid/mod.ny` |
+| `trailing_zeros_i32` | `int trailing_zeros_i32(int n)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `trunc_f64` | `doubletrunc_f64(double x)` | `rt_math.c` | 0.0.1 | `stdlib/math.ny` |
+| `trunc_i32` | `int trunc_i32(int x)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
+| `u64_to_string` | `char * u64_to_string(long long n)` | `rt_strings.c` | 1.0.0 | `stdlib/strconv/mod.ny` |
+| `vec_i32_capacity` | `int vec_i32_capacity(void * handle)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_i32_clear` | `voidvec_i32_clear(void * handle)` | `rt_vec.c` | 0.0.1 | `stdlib/vec.ny` |
+| `vec_i32_extend` | `void vec_i32_extend(void * dst, void * src)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_i32_fill` | `void vec_i32_fill(void * handle, int value)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_i32_insert` | `voidvec_i32_insert(void * handle, int index, int value)` | `rt_vec.c` | 0.0.1 | `stdlib/vec.ny` |
+| `vec_i32_remove_at` | `int vec_i32_remove_at(void * handle, int index)` | `rt_vec.c` | 0.0.1 | `stdlib/vec.ny` |
+| `vec_i32_reserve` | `void vec_i32_reserve(void * handle, int min_cap)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_i32_reverse` | `voidvec_i32_reverse(void * handle)` | `rt_vec.c` | 0.0.1 | `stdlib/vec.ny` |
+| `vec_i32_sort` | `voidvec_i32_sort(void * handle)` | `rt_vec.c` | 0.0.1 | `stdlib/vec.ny` |
+| `vec_i32_swap` | `void vec_i32_swap(void * handle, int i, int j)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_i32_swap_remove` | `int vec_i32_swap_remove(void * handle, int index)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_i32_truncate` | `void vec_i32_truncate(void * handle, int len)` | `rt_vec.c` | 1.0.0 | `stdlib/vec.ny` |
+| `vec_str_clear` | `void vec_str_clear(void * handle)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_extend` | `void vec_str_extend(void * dst, void * src)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_insert` | `void vec_str_insert(void * handle, int index, const char * value)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_pop` | `char * vec_str_pop(void * handle)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_remove_at` | `char * vec_str_remove_at(void * handle, int index)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_reverse` | `void vec_str_reverse(void * handle)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_set` | `void vec_str_set(void * handle, int index, const char * value)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
+| `vec_str_swap` | `void vec_str_swap(void * handle, int i, int j)` | `rt_vec.c` | 1.0.0 | `stdlib/vec_str.ny` |
 | `volatile_load_i32` | `void volatile_load_i32(void)` | `rt_volatile.c` | 0.0.1 | `stdlib/core/mem.ny` |
 | `volatile_load_u32` | `void volatile_load_u32(void)` | `rt_volatile.c` | 0.0.1 | `stdlib/core/mem.ny` |
 | `volatile_store_i32` | `void volatile_store_i32(void)` | `rt_volatile.c` | 0.0.1 | `stdlib/core/mem.ny` |
 | `volatile_store_u32` | `void volatile_store_u32(void)` | `rt_volatile.c` | 0.0.1 | `stdlib/core/mem.ny` |
+| `wrapping_add_i32` | `int wrapping_add_i32(int a, int b)` | `rt_math.c` | 1.0.0 | `stdlib/math.ny` |
 
 ## Package bindings (NyraPkg)
 

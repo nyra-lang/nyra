@@ -3,7 +3,7 @@
 MAKE_PY := $(ROOT)/make/py
 
 .PHONY: gen-abi-header gen-bindings-doc gen-suite-tests gen-typed-examples
-.PHONY: add-builtin remove-builtin patch-builtin batch-add-builtin contribute contribute-remove contribute-list contribute-patch test-contrib-py
+.PHONY: add-builtin remove-builtin patch-builtin batch-add-builtin gen-batch3 gen-batch4 gen-batch5 gen-batch6 contribute contribute-remove contribute-list contribute-patch test-contrib-py
 .PHONY: sync-webdocs-code-tabs gen-comparison-extended sync-comparison-typed
 .PHONY: bump-comparison-hardness snippet-types strip-apps-types strip-nyra-symbol-prefix
 .PHONY: gen-ar-file-index bench-comparison-html update-readme-bench
@@ -65,7 +65,24 @@ batch-add-builtin:
 	@NYRA_CONTRIBUTE_SKIP_WEBDOCS=1 python3 $(MAKE_PY)/builtin_dev/batch_add.py \
 		--batch $(if $(BATCH),$(BATCH),batch) \
 		$(if $(ONLY),--only $(ONLY),) \
+		--no-webdocs \
 		$(BATCH_ADD_ARGS)
+
+# Usage: make gen-batch3   # emit make/py/*/examples/batch3/*.json from catalog
+gen-batch3:
+	@python3 $(MAKE_PY)/contrib_dev/gen_batch3.py
+
+# Usage: make gen-batch4   # emit make/py/*/examples/batch4/*.json from catalog
+gen-batch4:
+	@python3 $(MAKE_PY)/contrib_dev/gen_batch4.py
+
+# Usage: make gen-batch5   # emit make/py/*/examples/batch5/*.json from catalog
+gen-batch5:
+	@python3 $(MAKE_PY)/contrib_dev/gen_batch5.py
+
+# Usage: make gen-batch6   # emit make/py/*/examples/batch6/*.json from catalog
+gen-batch6:
+	@python3 $(MAKE_PY)/contrib_dev/gen_batch6.py
 
 remove-builtin:
 	@python3 $(MAKE_PY)/builtin-dev.py remove $(if $(ARGS),$(ARGS),-i)

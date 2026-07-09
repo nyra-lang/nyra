@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_swap_remove",
+  "args": [
+    "handle:ptr",
+    "index:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v || index < 0 || index >= v->len) return 0;\n    int *data = (int *)v->data;\n    int removed = data[index];\n    data[index] = data[v->len - 1];\n    v->len--;\n    return removed;"
+}

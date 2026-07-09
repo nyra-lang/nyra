@@ -1,0 +1,14 @@
+{
+  "receiver": "string",
+  "method": "substring",
+  "args": [
+    "start:i32",
+    "len:i32"
+  ],
+  "returns": "string",
+  "c_name": "substring",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s || start < 0 || len < 0) return str_dup(\"\");\n    size_t slen = strlen(s);\n    if ((size_t)start >= slen) return str_dup(\"\");\n    if ((size_t)(start + len) > slen) len = (int)(slen - (size_t)start);\n    char *out = (char *)malloc((size_t)len + 1);\n    if (!out) return NULL;\n    memcpy(out, s + start, (size_t)len);\n    out[len] = '\\0';\n    return out;"
+}

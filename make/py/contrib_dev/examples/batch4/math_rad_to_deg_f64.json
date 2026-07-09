@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "rad_to_deg_f64",
+  "args": [
+    "rad:f64"
+  ],
+  "returns": "f64",
+  "rt_module": "rt_math.c",
+  "ny_alias": "rad_to_deg",
+  "c_body": "    return rad * (180.0 / 3.141592653589793);"
+}

@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "strip_ansi",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_strip_ansi",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s) return str_dup(\"\");\n    size_t cap = strlen(s) + 1;\n    char *out = (char *)malloc(cap);\n    if (!out) return NULL;\n    size_t oi = 0;\n    for (size_t i = 0; s[i]; ) {\n        if (s[i] == '\\033' && s[i + 1] == '[') {\n            i += 2;\n            while (s[i] && s[i] != 'm') i++;\n            if (s[i] == 'm') i++;\n            continue;\n        }\n        out[oi++] = s[i++];\n    }\n    out[oi] = '\\0';\n    return out;"
+}

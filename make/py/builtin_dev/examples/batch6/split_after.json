@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "split_after",
+  "args": [
+    "sep:string"
+  ],
+  "returns": "string",
+  "c_name": "str_split_after",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!s) return str_dup(\"\");\n    if (!sep || sep[0] == '\\0') return str_dup(s);\n    const char *p = strstr(s, sep);\n    if (!p) return str_dup(s);\n    p += strlen(sep);\n    return str_dup(p);"
+}

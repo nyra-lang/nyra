@@ -1,0 +1,12 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_insert",
+  "args": [
+    "handle:ptr",
+    "index:i32",
+    "value:string"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    extern char *str_dup(const char *s);\n    NyraVec *v = (NyraVec *)handle;\n    if (!v || index < 0 || index > v->len) return;\n    if (v->len >= v->cap) {\n        int nc = v->cap * 2;\n        void *nd = realloc(v->data, (size_t)nc * (size_t)v->elem_size);\n        if (!nd) return;\n        v->data = nd;\n        v->cap = nc;\n    }\n    char **data = (char **)v->data;\n    memmove(data + index + 1, data + index, (size_t)(v->len - index) * sizeof(char *));\n    data[index] = str_dup(value ? value : \"\");\n    v->len++;"
+}

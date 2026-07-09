@@ -1,0 +1,12 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_set",
+  "args": [
+    "handle:ptr",
+    "index:i32",
+    "value:string"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    extern char *str_dup(const char *s);\n    NyraVec *v = (NyraVec *)handle;\n    if (!v || index < 0 || index >= v->len) return;\n    char **data = (char **)v->data;\n    free(data[index]);\n    data[index] = str_dup(value ? value : \"\");"
+}

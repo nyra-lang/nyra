@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "fract_f64",
+  "args": [
+    "x:f64"
+  ],
+  "returns": "f64",
+  "rt_module": "rt_math.c",
+  "ny_alias": "fract",
+  "c_body": "    return x - __builtin_trunc(x);"
+}

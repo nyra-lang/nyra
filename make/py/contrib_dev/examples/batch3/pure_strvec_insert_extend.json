@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "vec_str.ny",
+  "fn_name": "strvec_insert_extend",
+  "pure_source": "impl StrVec {\n    fn insert(self, index: i32, value: string) -> StrVec {\n        vec_str_insert(self.handle, index, value)\n        return self\n    }\n\n    fn remove_at(self, index: i32) -> string {\n        return vec_str_remove_at(self.handle, index)\n    }\n\n    fn extend(self, other: StrVec) -> StrVec {\n        vec_str_extend(self.handle, other.handle)\n        return self\n    }\n\n    fn append(self, value: string) -> StrVec {\n        return self.push(value)\n    }\n\n    fn swap(self, i: i32, j: i32) -> StrVec {\n        vec_str_swap(self.handle, i, j)\n        return self\n    }\n}"
+}

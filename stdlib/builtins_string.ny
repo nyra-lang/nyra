@@ -254,3 +254,277 @@ fn String_splitOnce(s: &string, sep: &string) -> string {
 }
 // [/builtin-dev:split_once:string]
 
+// [builtin-dev:compare:string]
+fn String_compare(s: &string, other: &string) -> i32 {
+    return str_compare(s, other)
+}
+
+fn compare(s: &string, other: &string) -> i32 {
+    return str_compare(s, other)
+}
+// [/builtin-dev:compare:string]
+
+// [builtin-dev:equal_fold:string]
+fn String_equalFold(s: &string, other: &string) -> i32 {
+    return str_equal_fold(s, other)
+}
+
+fn equal_fold(s: &string, other: &string) -> i32 {
+    return str_equal_fold(s, other)
+}
+// [/builtin-dev:equal_fold:string]
+
+// [builtin-dev:index_byte:string]
+fn String_indexByte(s: &string, byte: i32) -> i32 {
+    return str_index_byte(s, byte)
+}
+
+fn index_byte(s: &string, byte: i32) -> i32 {
+    return str_index_byte(s, byte)
+}
+// [/builtin-dev:index_byte:string]
+
+// [builtin-dev:last_index_byte:string]
+fn String_lastIndexByte(s: &string, byte: i32) -> i32 {
+    return str_last_index_byte(s, byte)
+}
+
+fn last_index_byte(s: &string, byte: i32) -> i32 {
+    return str_last_index_byte(s, byte)
+}
+// [/builtin-dev:last_index_byte:string]
+
+// [builtin-dev:after_sep:string]
+fn String_afterSep(s: &string, sep: &string) -> string {
+    return str_after_sep(s, sep)
+}
+
+fn after_sep(s: &string, sep: &string) -> string {
+    return str_after_sep(s, sep)
+}
+// [/builtin-dev:after_sep:string]
+
+// [builtin-dev:char_at:string]
+fn String_charAt(s: &string, index: i32) -> i32 {
+    return char_at(s, index)
+}
+
+// [/builtin-dev:char_at:string]
+
+// [builtin-dev:contains:string]
+fn String_contains(s: &string, needle: &string) -> i32 {
+    return str_contains(s, needle)
+}
+
+fn contains(s: &string, needle: &string) -> i32 {
+    return str_contains(s, needle)
+}
+// [/builtin-dev:contains:string]
+
+// [builtin-dev:ends_with:string]
+fn String_endsWith(s: &string, suffix: &string) -> i32 {
+    return str_ends_with(s, suffix)
+}
+
+fn ends_with(s: &string, suffix: &string) -> i32 {
+    return str_ends_with(s, suffix)
+}
+// [/builtin-dev:ends_with:string]
+
+// [builtin-dev:pop:string]
+fn String_pop(s: &string) -> string {
+    return str_pop(s)
+}
+
+fn pop(s: &string) -> string {
+    return str_pop(s)
+}
+// [/builtin-dev:pop:string]
+
+// [builtin-dev:push_char:string]
+fn String_pushChar(s: &string, ch: i32) -> string {
+    return str_push_char(s, ch)
+}
+
+fn push_char(s: &string, ch: i32) -> string {
+    return str_push_char(s, ch)
+}
+// [/builtin-dev:push_char:string]
+
+// [builtin-dev:replace:string]
+fn String_replace(s: &string, from: &string, to: &string) -> string {
+    return str_replace(s, from, to)
+}
+
+fn replace(s: &string, from: &string, to: &string) -> string {
+    return str_replace(s, from, to)
+}
+// [/builtin-dev:replace:string]
+
+// [builtin-dev:replacen:string]
+fn String_replacen(s: &string, from: &string, to: &string, count: i32) -> string {
+    return str_replacen(s, from, to, count)
+}
+
+fn replacen(s: &string, from: &string, to: &string, count: i32) -> string {
+    return str_replacen(s, from, to, count)
+}
+// [/builtin-dev:replacen:string]
+
+// [builtin-dev:starts_with:string]
+fn String_startsWith(s: &string, prefix: &string) -> i32 {
+    return str_starts_with(s, prefix)
+}
+
+fn starts_with(s: &string, prefix: &string) -> i32 {
+    return str_starts_with(s, prefix)
+}
+// [/builtin-dev:starts_with:string]
+
+// [builtin-dev:strip_ansi:string]
+fn String_stripAnsi(s: &string) -> string {
+    return str_strip_ansi(s)
+}
+
+fn strip_ansi(s: &string) -> string {
+    return str_strip_ansi(s)
+}
+// [/builtin-dev:strip_ansi:string]
+
+// [builtin-dev:substring:string]
+fn String_substring(s: &string, start: i32, len: i32) -> string {
+    return substring(s, start, len)
+}
+
+// [/builtin-dev:substring:string]
+
+// [builtin-dev:trim:string]
+fn String_trim(s: &string) -> string {
+    return str_trim(s)
+}
+
+fn trim(s: &string) -> string {
+    return str_trim(s)
+}
+// [/builtin-dev:trim:string]
+
+// [builtin-dev:before_sep:string]
+fn String_beforeSep(s: &string, sep: &string) -> string {
+    return str_before_sep(s, sep)
+}
+
+fn before_sep(s: &string, sep: &string) -> string {
+    return str_before_sep(s, sep)
+}
+// [/builtin-dev:before_sep:string]
+
+// [builtin-dev:collapse_ws:string]
+fn String_collapseWs(s: &string) -> string {
+    return str_collapse_ws(s)
+}
+
+fn collapse_ws(s: &string) -> string {
+    return str_collapse_ws(s)
+}
+// [/builtin-dev:collapse_ws:string]
+
+// [builtin-dev:is_ascii:string]
+fn String_isAscii(s: &string) -> i32 {
+    return str_is_ascii(s)
+}
+
+fn is_ascii(s: &string) -> i32 {
+    return str_is_ascii(s)
+}
+// [/builtin-dev:is_ascii:string]
+
+// [builtin-dev:common_prefix_len:string]
+fn String_commonPrefixLen(s: &string, other: &string) -> i32 {
+    return str_common_prefix_len(s, other)
+}
+
+fn common_prefix_len(s: &string, other: &string) -> i32 {
+    return str_common_prefix_len(s, other)
+}
+// [/builtin-dev:common_prefix_len:string]
+
+// [builtin-dev:is_alnum:string]
+fn String_isAlnum(s: &string) -> i32 {
+    return str_is_alnum(s)
+}
+
+fn is_alnum(s: &string) -> i32 {
+    return str_is_alnum(s)
+}
+// [/builtin-dev:is_alnum:string]
+
+// [builtin-dev:is_alpha:string]
+fn String_isAlpha(s: &string) -> i32 {
+    return str_is_alpha(s)
+}
+
+fn is_alpha(s: &string) -> i32 {
+    return str_is_alpha(s)
+}
+// [/builtin-dev:is_alpha:string]
+
+// [builtin-dev:is_digit:string]
+fn String_isDigit(s: &string) -> i32 {
+    return str_is_digit(s)
+}
+
+fn is_digit(s: &string) -> i32 {
+    return str_is_digit(s)
+}
+// [/builtin-dev:is_digit:string]
+
+// [builtin-dev:pad_center:string]
+fn String_padCenter(s: &string, width: i32, pad: &string) -> string {
+    return str_pad_center(s, width, pad)
+}
+
+fn pad_center(s: &string, width: i32, pad: &string) -> string {
+    return str_pad_center(s, width, pad)
+}
+// [/builtin-dev:pad_center:string]
+
+// [builtin-dev:reverse:string]
+fn String_reverse(s: &string) -> string {
+    return str_reverse(s)
+}
+
+fn reverse(s: &string) -> string {
+    return str_reverse(s)
+}
+// [/builtin-dev:reverse:string]
+
+// [builtin-dev:escape_json:string]
+fn String_escapeJson(s: &string) -> string {
+    return str_escape_json(s)
+}
+
+fn escape_json(s: &string) -> string {
+    return str_escape_json(s)
+}
+// [/builtin-dev:escape_json:string]
+
+// [builtin-dev:split_after:string]
+fn String_splitAfter(s: &string, sep: &string) -> string {
+    return str_split_after(s, sep)
+}
+
+fn split_after(s: &string, sep: &string) -> string {
+    return str_split_after(s, sep)
+}
+// [/builtin-dev:split_after:string]
+
+// [builtin-dev:truncate:string]
+fn String_truncate(s: &string, max_len: i32) -> string {
+    return str_truncate(s, max_len)
+}
+
+fn truncate(s: &string, max_len: i32) -> string {
+    return str_truncate(s, max_len)
+}
+// [/builtin-dev:truncate:string]
+

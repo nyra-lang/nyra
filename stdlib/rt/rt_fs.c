@@ -604,3 +604,58 @@ long long copy_file(const char *src, const char *dst) {
     fclose(out);
     return total;
 }
+// [contrib-dev:file_is_symlink:fs_file]
+int file_is_symlink(const char * path) {
+    if (!path) return 0;
+    #if defined(_WIN32)
+    DWORD attr = GetFileAttributesA(path);
+    if (attr == INVALID_FILE_ATTRIBUTES) return 0;
+    return (attr & FILE_ATTRIBUTE_REPARSE_POINT) ? 1 : 0;
+    #else
+    struct stat st;
+    if (lstat(path, &st) != 0) return 0;
+    return S_ISLNK(st.st_mode) ? 1 : 0;
+    #endif
+}
+// [/contrib-dev:file_is_symlink:fs_file]
+
+// [contrib-dev:file_mtime:fs_file]
+long long file_mtime(const char * path) {
+    #if defined(_WIN32)
+    struct _stat st;
+    if (!path || _stat(path, &st) != 0) return -1;
+    return (long long)st.st_mtime;
+    #else
+    struct stat st;
+    if (!path || stat(path, &st) != 0) return -1;
+    return (long long)st.st_mtime;
+    #endif
+}
+// [/contrib-dev:file_mtime:fs_file]
+
+// [contrib-dev:path_is_file:fs_file]
+int path_is_file(const char * path) {
+    if (!path) return 0;
+    #if defined(_WIN32)
+    struct _stat st;
+    if (_stat(path, &st) != 0) return 0;
+    return (st.st_mode & _S_IFDIR) ? 0 : 1;
+    #else
+    struct stat st;
+    if (stat(path, &st) != 0) return 0;
+    return S_ISDIR(st.st_mode) ? 0 : 1;
+    #endif
+}
+// [/contrib-dev:path_is_file:fs_file]
+
+// [contrib-dev:rename_file:fs_file]
+int rename_file(const char * src, const char * dst) {
+    if (!src || !dst) return -1;
+    #if defined(_WIN32)
+    return MoveFileA(src, dst) ? 0 : -1;
+    #else
+    return rename(src, dst) == 0 ? 0 : -1;
+    #endif
+}
+// [/contrib-dev:rename_file:fs_file]
+

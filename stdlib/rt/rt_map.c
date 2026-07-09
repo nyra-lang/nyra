@@ -344,3 +344,37 @@ void *map_str_i32_values(void *handle) {
 }
 // [/contrib-dev:map_str_i32_values:map]
 
+// [contrib-dev:map_i32_i32_clear:map]
+void map_i32_i32_clear(void * m) {
+    NyraMapI32I32 *map = (NyraMapI32I32 *)map_handle_inner(m);
+    if (!map) return;
+    for (int i = 0; i < map->cap; i++) map->entries[i].used = 0;
+    map->len = 0;
+}
+// [/contrib-dev:map_i32_i32_clear:map]
+
+// [contrib-dev:map_i32_i32_len:map]
+int map_i32_i32_len(void * m) {
+    NyraMapI32I32 *map = (NyraMapI32I32 *)map_handle_inner(m);
+    return map ? map->len : 0;
+}
+// [/contrib-dev:map_i32_i32_len:map]
+
+// [contrib-dev:map_i32_i32_remove:map]
+int map_i32_i32_remove(void * m, int key) {
+    NyraMapI32I32 *map = (NyraMapI32I32 *)map_handle_inner(m);
+    if (!map) return 0;
+    unsigned h = hash_i32(key) % (unsigned)map->cap;
+    for (int i = 0; i < map->cap; i++) {
+        unsigned idx = (h + (unsigned)i) % (unsigned)map->cap;
+        if (!map->entries[idx].used) return 0;
+        if (map->entries[idx].key == key) {
+            map->entries[idx].used = 0;
+            map->len = map->len - 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+// [/contrib-dev:map_i32_i32_remove:map]
+
