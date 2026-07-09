@@ -170,7 +170,7 @@
   → parse → monomorph → auto-borrow → typecheck
   → borrow + lifetimes → escape analysis → drop plan
   → LLVM IR → opt → clang + Nyra runtime → binary</pre>
-<p>Early exit: <code>nyra check .</code> · Verbose escape report: <code>nyra build --verbose .</code></p>
+<p>Early exit: <code>nyra check .</code> · Ownership snapshot: <code>nyra inspect name --at main.ny:42</code> · Verbose escape report: <code>nyra build --verbose .</code> · <a href="ownership-inspect.html">Ownership inspect</a></p>
 
 <h3>Built-ins at a glance (no import)</h3>
 <table>

@@ -3,6 +3,7 @@ pub(crate) mod check;
 pub(crate) mod explain;
 pub(crate) mod fmt;
 pub(crate) mod ide;
+pub(crate) mod inspect;
 pub(crate) mod pkg;
 pub(crate) mod test;
 pub(crate) mod toolchain;

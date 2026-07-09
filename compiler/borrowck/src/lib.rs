@@ -11,6 +11,12 @@ use ownership::{
 use types::Type;
 
 mod diag;
+mod inspect;
+pub use inspect::{
+    analyze_ownership_verbose, inspect_binding, BindingInspectReport, BindingStatus,
+    InspectQuery, InspectRole, OwnershipVerbosePlan,
+};
+
 use diag::{
     borrow_active_error, cannot_borrow_moved, cannot_borrow_mut_alias,
     cannot_borrow_while_mut_borrowed, manual_free_warning, move_while_borrowed, record_move_origin,
@@ -38,6 +44,29 @@ fn builtin_method_borrows_receiver(method: &str) -> bool {
 
 /// Borrow / move checking with Copy vs Move ownership and non-lexical lifetimes (NLL).
 pub fn check_program(program: &Program, ctx: &OwnershipCtx, errors: &mut Vec<NyraError>) {
+    let mut inspect = None;
+    check_program_with_collector(program, ctx, errors, &mut inspect);
+}
+
+/// Run borrow checking and optionally capture an ownership snapshot for `nyra inspect`.
+pub fn check_program_inspect(
+    program: &Program,
+    ctx: &OwnershipCtx,
+    errors: &mut Vec<NyraError>,
+    query: Option<&InspectQuery>,
+) -> Option<BindingInspectReport> {
+    let mut collector = query.cloned().map(inspect::InspectCollector::for_query);
+    let mut inspect_opt: Option<&mut inspect::InspectCollector> = collector.as_mut();
+    check_program_with_collector(program, ctx, errors, &mut inspect_opt);
+    collector.and_then(|c| c.query_result)
+}
+
+pub(crate) fn check_program_with_collector(
+    program: &Program,
+    ctx: &OwnershipCtx,
+    errors: &mut Vec<NyraError>,
+    inspect: &mut Option<&mut inspect::InspectCollector>,
+) {
     let diag = DiagCtx::from_program(program);
     check_copy_attrs(program, ctx, errors);
     check_send_sync_program(program, ctx, errors);
@@ -45,11 +74,31 @@ pub fn check_program(program: &Program, ctx: &OwnershipCtx, errors: &mut Vec<Nyr
         if !func.type_params.is_empty() {
             continue;
         }
-        check_block(&func.body, &mut State::new(ctx), ctx, &diag, errors);
+        if let Some(col) = inspect.as_deref_mut() {
+            col.set_func(&func.name);
+        }
+        check_block(
+            &func.body,
+            &mut State::new(ctx),
+            ctx,
+            &diag,
+            errors,
+            inspect,
+        );
     }
     for imp in &program.impls {
         for method in &imp.methods {
-            check_block(&method.body, &mut State::new(ctx), ctx, &diag, errors);
+            if let Some(col) = inspect.as_deref_mut() {
+                col.set_func(&method.name);
+            }
+            check_block(
+                &method.body,
+                &mut State::new(ctx),
+                ctx,
+                &diag,
+                errors,
+                inspect,
+            );
         }
     }
 }
@@ -57,19 +106,25 @@ pub fn check_program(program: &Program, ctx: &OwnershipCtx, errors: &mut Vec<Nyr
 #[derive(Debug, Clone)]
 struct ActiveBorrow {
     source: String,
+    borrower: Option<String>,
     mutable: bool,
     /// Borrow is active through this statement index (inclusive).
     expires_after: usize,
 }
 
 #[derive(Debug, Clone)]
-struct State {
+pub(crate) struct State {
     moved: HashMap<String, MoveOrigin>,
+    /// `let dest = src` move: dest → src (provenance).
+    move_from: HashMap<String, String>,
+    /// `let dest = src` move: src → dest (forward edge).
+    move_to: HashMap<String, String>,
     mutable: HashSet<String>,
     active_borrows: Vec<ActiveBorrow>,
     borrowed_imm: HashSet<String>,
     borrowed_mut: HashSet<String>,
     var_types: HashMap<String, Type>,
+    ref_sources: HashMap<String, String>,
     manually_freed: HashSet<String>,
     unsafe_depth: u32,
 }
@@ -78,11 +133,14 @@ impl State {
     fn new(_ctx: &OwnershipCtx) -> Self {
         Self {
             moved: HashMap::new(),
+            move_from: HashMap::new(),
+            move_to: HashMap::new(),
             mutable: HashSet::new(),
             active_borrows: Vec::new(),
             borrowed_imm: HashSet::new(),
             borrowed_mut: HashSet::new(),
             var_types: HashMap::new(),
+            ref_sources: HashMap::new(),
             manually_freed: HashSet::new(),
             unsafe_depth: 0,
         }
@@ -128,10 +186,17 @@ impl State {
         self.rebuild_borrow_sets();
     }
 
-    fn add_borrow(&mut self, source: &str, mutable: bool, expires_after: usize) {
+    fn add_borrow(
+        &mut self,
+        source: &str,
+        mutable: bool,
+        expires_after: usize,
+        borrower: Option<&str>,
+    ) {
         self.active_borrows.retain(|b| b.source != source);
         self.active_borrows.push(ActiveBorrow {
             source: source.to_string(),
+            borrower: borrower.map(str::to_string),
             mutable,
             expires_after,
         });
@@ -160,6 +225,7 @@ fn check_block(
     ctx: &OwnershipCtx,
     diag: &DiagCtx,
     errors: &mut Vec<NyraError>,
+    inspect: &mut Option<&mut inspect::InspectCollector>,
 ) {
     let saved_imm = state.borrowed_imm.clone();
     let saved_mut = state.borrowed_mut.clone();
@@ -169,7 +235,14 @@ fn check_block(
 
     for (idx, stmt) in block.statements.iter().enumerate() {
         state.expire_borrows_before(idx);
-        check_statement(stmt, idx, &last_uses, block_len, state, ctx, diag, errors);
+        check_statement(stmt, idx, &last_uses, block_len, state, ctx, diag, errors, inspect);
+        if let Some(col) = inspect.as_deref_mut() {
+            col.on_after_stmt(stmt, idx, block, state, ctx);
+        }
+    }
+
+    if let Some(col) = inspect.as_deref_mut() {
+        col.on_block_exit(block, state, ctx);
     }
 
     state.borrowed_imm = saved_imm;
@@ -187,6 +260,7 @@ fn check_statement(
     ctx: &OwnershipCtx,
     diag: &DiagCtx,
     errors: &mut Vec<NyraError>,
+    inspect: &mut Option<&mut inspect::InspectCollector>,
 ) {
     if state.in_unsafe() {
         check_statement_unsafe(stmt, state, ctx);
@@ -194,6 +268,7 @@ fn check_statement(
     }
     match stmt {
         Statement::Let(l) | Statement::Const(l) => {
+            clear_provenance_for(state, &l.name);
             if uses_moved(&l.value, state, ctx, diag, errors) {
                 return;
             }
@@ -222,12 +297,18 @@ fn check_statement(
                 .ty
                 .clone()
                 .map(Type::from)
-                .unwrap_or_else(|| ctx.infer_expr_type(&l.value));
+                .unwrap_or_else(|| infer_let_type(&l.value, state, ctx));
             state.var_types.insert(l.name.clone(), ty);
             if l.mutable {
                 state.mutable.insert(l.name.clone());
             }
             if should_move_binding(&l.value, state, ctx) {
+                if let Expression::Variable { name: src, .. } = &l.value {
+                    state
+                        .move_from
+                        .insert(l.name.clone(), src.clone());
+                    state.move_to.insert(src.clone(), l.name.clone());
+                }
                 mark_moved_from_expr(&l.value, state, ctx, None, None);
             }
             register_ref_binding_borrow(&l.name, &l.value, stmt_idx, last_uses, block_len, state);
@@ -289,10 +370,10 @@ fn check_statement(
             // Condition borrows (e.g. strcmp(&a, &b)) end before branch bodies.
             state.clear_borrows();
             let mut then_s = state.fork();
-            check_block(&i.then_block, &mut then_s, ctx, diag, errors);
+            check_block(&i.then_block, &mut then_s, ctx, diag, errors, inspect);
             if let Some(e) = &i.else_block {
                 let mut else_s = state.fork();
-                check_block(e, &mut else_s, ctx, diag, errors);
+                check_block(e, &mut else_s, ctx, diag, errors, inspect);
                 state.merge_branches(&then_s, &else_s);
             } else {
                 state.merge_branches(&then_s, &state.fork());
@@ -304,7 +385,7 @@ fn check_statement(
             register_borrows_from_expr(&w.condition, stmt_idx, state, errors);
             state.clear_borrows();
             let mut loop_s = state.fork();
-            check_block(&w.body, &mut loop_s, ctx, diag, errors);
+            check_block(&w.body, &mut loop_s, ctx, diag, errors, inspect);
             state.clear_borrows();
         }
         Statement::For(f) => {
@@ -324,7 +405,7 @@ fn check_statement(
                 check_parallel_for_captures(&f.body, &outer, Span::default(), ctx, errors);
             }
             let mut loop_s = state.fork();
-            check_block(&f.body, &mut loop_s, ctx, diag, errors);
+            check_block(&f.body, &mut loop_s, ctx, diag, errors, inspect);
             state.clear_borrows();
         }
         Statement::Print(p) => {
@@ -363,15 +444,15 @@ fn check_statement(
                     );
                 }
             }
-            check_block(&sp.body, state, ctx, diag, errors);
+            check_block(&sp.body, state, ctx, diag, errors, inspect);
             state.clear_borrows();
         }
         Statement::Benchmark(body) => {
-            check_block(body, state, ctx, diag, errors);
+            check_block(body, state, ctx, diag, errors, inspect);
         }
         Statement::Unsafe(body) => {
             state.unsafe_depth += 1;
-            check_block(body, state, ctx, diag, errors);
+            check_block(body, state, ctx, diag, errors, inspect);
             state.unsafe_depth -= 1;
         }
         Statement::Asm { .. } => {}
@@ -386,7 +467,7 @@ fn check_statement_unsafe(stmt: &Statement, state: &mut State, ctx: &OwnershipCt
                 .ty
                 .clone()
                 .map(Type::from)
-                .unwrap_or_else(|| ctx.infer_expr_type(&l.value));
+                .unwrap_or_else(|| infer_let_type(&l.value, state, ctx));
             state.var_types.insert(l.name.clone(), ty);
             if l.mutable {
                 state.mutable.insert(l.name.clone());
@@ -403,6 +484,23 @@ fn check_statement_unsafe(stmt: &Statement, state: &mut State, ctx: &OwnershipCt
             state.unsafe_depth -= 1;
         }
         _ => {}
+    }
+}
+
+/// Drop stale move/ref edges when a binding is shadowed by a new `let`.
+fn clear_provenance_for(state: &mut State, name: &str) {
+    state.move_from.remove(name);
+    state.move_to.remove(name);
+    state.ref_sources.remove(name);
+    state.move_from.retain(|dest, _| dest != name);
+    let parents: Vec<String> = state
+        .move_to
+        .iter()
+        .filter(|(_, dest)| dest.as_str() == name)
+        .map(|(src, _)| src.clone())
+        .collect();
+    for src in parents {
+        state.move_to.remove(&src);
     }
 }
 
@@ -425,7 +523,8 @@ fn register_ref_binding_borrow(
     };
     let mutable = u.op == UnaryOp::RefMut;
     let expires = last_uses.get(binding).copied().unwrap_or(block_len);
-    state.add_borrow(source, mutable, expires);
+    state.ref_sources.insert(binding.to_string(), source.clone());
+    state.add_borrow(source, mutable, expires, Some(binding));
 }
 
 fn check_nyra_free_call(
@@ -461,6 +560,35 @@ fn mark_arrow_capture_moves(
             );
         }
     }
+}
+
+fn infer_let_type(expr: &Expression, state: &State, ctx: &OwnershipCtx) -> Type {
+    if let Expression::Unary(u) = expr {
+        if matches!(u.op, UnaryOp::Ref | UnaryOp::RefMut) {
+            let inner = match &u.operand {
+                Expression::Variable { name, .. } => state
+                    .var_types
+                    .get(name)
+                    .cloned()
+                    .filter(|t| !matches!(t, Type::Unknown))
+                    .unwrap_or_else(|| ctx.infer_expr_type(&u.operand)),
+                other => ctx.infer_expr_type(other),
+            };
+            return Type::Ref {
+                inner: Box::new(inner),
+                mutable: u.op == UnaryOp::RefMut,
+                lifetime: None,
+            };
+        }
+    }
+    if let Expression::Variable { name, .. } = expr {
+        if let Some(ty) = state.var_types.get(name) {
+            if !matches!(ty, Type::Unknown) {
+                return ty.clone();
+            }
+        }
+    }
+    ctx.infer_expr_type(expr)
 }
 
 fn should_move_binding(expr: &Expression, state: &State, ctx: &OwnershipCtx) -> bool {
@@ -517,7 +645,7 @@ fn check_expr_moves(
             if !borrows_receiver {
                 try_move_on_call(&mc.object, &mc.method, &mc.span, state, ctx, errors);
             } else if let Expression::Variable { name, .. } = &mc.object {
-                state.add_borrow(name, false, stmt_idx);
+                state.add_borrow(name, false, stmt_idx, None);
             }
             for arg in &mc.args {
                 if move_candidate(arg).is_some() {
@@ -694,7 +822,7 @@ fn register_borrow(
         return;
     }
     // Temporary expression borrows end at the current statement (NLL).
-    state.add_borrow(name, mutable, stmt_idx);
+    state.add_borrow(name, mutable, stmt_idx, None);
 }
 
 fn mark_moved_from_expr(
@@ -965,6 +1093,150 @@ mod tests {
         let mut errors = Vec::new();
         check_program(&program, &ctx, &mut errors);
         errors
+    }
+
+    #[test]
+    fn inspect_reports_borrow_at_line() {
+        let src = r#"fn main() {
+    let name = "Ada"
+    let r = &name
+    print(r)
+}"#;
+        let (tokens, _) = Lexer::new(src, "test.ny").tokenize();
+        let (mut program, _) = Parser::new(tokens).parse();
+        expand::expand_program(&mut program);
+        monomorph::monomorphize_program(&mut program);
+        expand::coerce_auto_borrow(&mut program);
+        const_eval::fold_program_consts(&mut program);
+        let ctx = OwnershipCtx::from_program(&program);
+        let query = crate::inspect::InspectQuery {
+            file: "test.ny".into(),
+            line: 4,
+            name: "name".into(),
+        };
+        let report = crate::inspect::inspect_binding(&program, &ctx, &query).unwrap();
+        assert_eq!(report.name, "name");
+        assert_eq!(report.binding_status, crate::inspect::BindingStatus::Valid);
+        assert!(!report.borrowed_by.is_empty());
+    }
+
+    #[test]
+    fn inspect_shows_ownership_chain() {
+        let src = r#"fn main() {
+    let name = "Nyra"
+    let myname = name
+    let myname2 = myname
+    print(myname2)
+}"#;
+        let (tokens, _) = Lexer::new(src, "test.ny").tokenize();
+        let (mut program, _) = Parser::new(tokens).parse();
+        expand::expand_program(&mut program);
+        monomorph::monomorphize_program(&mut program);
+        expand::coerce_auto_borrow(&mut program);
+        const_eval::fold_program_consts(&mut program);
+        let ctx = OwnershipCtx::from_program(&program);
+        let query = crate::inspect::InspectQuery {
+            file: "test.ny".into(),
+            line: 5,
+            name: "myname2".into(),
+        };
+        let report = crate::inspect::inspect_binding(&program, &ctx, &query).unwrap();
+        assert_eq!(
+            report.ownership_chain,
+            vec!["name", "myname", "myname2"]
+                .into_iter()
+                .map(String::from)
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(report.current_owner, "myname2");
+        assert_eq!(report.ty, "string");
+        assert_eq!(report.kind, OwnershipKind::Move);
+
+        let query_name = crate::inspect::InspectQuery {
+            file: "test.ny".into(),
+            line: 5,
+            name: "name".into(),
+        };
+        let report_name = crate::inspect::inspect_binding(&program, &ctx, &query_name).unwrap();
+        assert_eq!(report_name.current_owner, "myname2");
+        assert!(matches!(
+            report_name.role,
+            crate::inspect::InspectRole::MovedAway
+        ));
+    }
+
+    #[test]
+    fn inspect_shows_borrow_chain() {
+        let src = r#"fn main() {
+    let name = "Nyra"
+    let myname = &name
+    let myname2 = &myname
+    print(&myname2)
+}"#;
+        let (tokens, _) = Lexer::new(src, "test.ny").tokenize();
+        let (mut program, _) = Parser::new(tokens).parse();
+        expand::expand_program(&mut program);
+        monomorph::monomorphize_program(&mut program);
+        expand::coerce_auto_borrow(&mut program);
+        const_eval::fold_program_consts(&mut program);
+        let ctx = OwnershipCtx::from_program(&program);
+        let query = crate::inspect::InspectQuery {
+            file: "test.ny".into(),
+            line: 4,
+            name: "myname2".into(),
+        };
+        let report = crate::inspect::inspect_binding(&program, &ctx, &query).unwrap();
+        assert_eq!(report.ty, "&&string");
+        assert_eq!(
+            report.borrow_chain,
+            vec!["name", "myname", "myname2"]
+                .into_iter()
+                .map(String::from)
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(report.heap_owner, "name");
+        assert_eq!(report.current_owner, "name");
+        assert_eq!(report.role, crate::inspect::InspectRole::Borrower);
+        assert!(report.moved_from.is_none());
+        assert!(report.ownership_chain.is_empty());
+    }
+
+    #[test]
+    fn inspect_borrow_chain_survives_shadowed_names() {
+        let src = r#"fn main() {
+    let name = "Nyra"
+    let myname = name
+    let myname2 = myname
+    print(myname2)
+
+    let name = "Nyra"
+    let myname = &name
+    let myname2 = &myname
+    print(&myname2)
+}"#;
+        let (tokens, _) = Lexer::new(src, "test.ny").tokenize();
+        let (mut program, _) = Parser::new(tokens).parse();
+        expand::expand_program(&mut program);
+        monomorph::monomorphize_program(&mut program);
+        expand::coerce_auto_borrow(&mut program);
+        const_eval::fold_program_consts(&mut program);
+        let ctx = OwnershipCtx::from_program(&program);
+        let query = crate::inspect::InspectQuery {
+            file: "test.ny".into(),
+            line: 9,
+            name: "myname2".into(),
+        };
+        let report = crate::inspect::inspect_binding(&program, &ctx, &query).unwrap();
+        assert_eq!(report.heap_owner, "name");
+        assert_eq!(
+            report.borrow_chain,
+            vec!["name", "myname", "myname2"]
+                .into_iter()
+                .map(String::from)
+                .collect::<Vec<_>>()
+        );
+        assert!(report.moved_from.is_none());
+        assert_eq!(report.role, crate::inspect::InspectRole::Borrower);
     }
 
     #[test]

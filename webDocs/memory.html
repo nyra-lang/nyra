@@ -787,7 +787,7 @@ fn main() -&gt; void {
   → Send / Sync check
   → LLVM codegen (auto-drops, spawn, closures, f64/double)
   → opt → clang + Nyra runtime → binary</pre>
-      <p>Inspect without codegen: <code>nyra check .</code> · Structured errors: <code>nyra diag . --json</code></p>
+      <p>Inspect without codegen: <code>nyra check .</code> · Structured errors: <code>nyra diag . --json</code> · Ownership snapshot: <code>nyra inspect name --at main.ny:42</code> · <a href="ownership-inspect.html">Ownership inspect guide</a></p>
 
       <h2 id="errors">Common errors &amp; fixes</h2>
       <table>

@@ -7,7 +7,7 @@ use compiler::{set_color_choice, ColorChoice};
 
 use crate::app::args::{Cli, ColorArgs, Commands, InternalCommands, OptFlags, StabilityFlags};
 use crate::app::session::{build, compile_and_link, project_root, run_file};
-use crate::commands::{bind, check, explain, fmt, ide, pkg, test, toolchain};
+use crate::commands::{bind, check, explain, fmt, ide, inspect, pkg, test, toolchain};
 use crate::debug;
 use crate::target::TargetSpec;
 use crate::watch::{self, WatchMode};
@@ -88,9 +88,21 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
             init_vscode,
             args,
         } => debug_cmd(&path, debugger.as_deref(), init_vscode, &args),
-        Commands::Check { file, stability } => {
-            check::check(&check::path_or_file(&file), &stability)
-        }
+        Commands::Check {
+            file,
+            stability,
+            ownership_verbose,
+        } => check::check_with_verbose(
+            &check::path_or_file(&file),
+            &stability,
+            ownership_verbose,
+        ),
+        Commands::Inspect {
+            name,
+            at,
+            project,
+            stability,
+        } => inspect::inspect(&check::path_or_file(&project), &name, &at, &stability),
         Commands::Diag { file, json, stability } => {
             check::diag(&check::path_or_file(&file), json, &stability)
         }

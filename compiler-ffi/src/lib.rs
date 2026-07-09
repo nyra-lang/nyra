@@ -73,6 +73,7 @@ fn ffi_error_json(message: &str, file: &str) -> String {
         type_errors: vec![],
         borrow_errors: vec![],
         warnings: vec![],
+        inspect_report: None,
     })
 }
 

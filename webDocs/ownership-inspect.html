@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06090d">
+  <meta name="color-scheme" content="dark light">
+  <title>Ownership inspect — Nyra Docs</title>
+  <meta name="description" content="nyra inspect and nyra check --ownership-verbose: compile-time ownership and borrow snapshots — a debugging tool Rust does not ship today.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body data-page="ownership-inspect">
+  <input type="checkbox" id="nav-check" class="nav-check" hidden aria-hidden="true">
+  <header class="site-header">
+    <a class="logo" href="index.html">
+      <img src="./assets/Nyrabgremoved.png" alt="Nyra">
+    </a>
+    <div class="site-toolbar">
+      <div class="toolbar-group" role="group" aria-label="Search">
+        <button type="button" class="toolbar-btn search-btn" id="search-open" title="Search (Ctrl+K)">
+          <span aria-hidden="true">⌕</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="toolbar-group" role="group" aria-label="Theme">
+        <button type="button" class="toolbar-btn" id="theme-toggle" title="Toggle theme">
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">☽</span>
+        </button>
+      </div>
+      <div class="toolbar-group lang-switch" role="group" aria-label="Language">
+        <button type="button" class="toolbar-btn lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="toolbar-btn lang-btn" data-lang="ar">عربي</button>
+      </div>
+    </div>
+    <label for="nav-check" class="nav-toggle" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </label>
+    <span class="tagline">Fast · Safe · Minimal</span>
+  </header>
+  <label for="nav-check" class="sidebar-backdrop" aria-hidden="true"></label>
+  <div class="layout">
+    <aside class="sidebar">
+<nav>
+  <section>
+    <div class="nav-label">Start</div>
+    <ul>
+      <li><a href="index.html">Nyra HOME</a></li>
+      <li><a href="install.html">Installation</a></li>
+      <li><a href="learning-path.html">Learning path</a></li>
+      <li><a href="ai-skill.html">AI skill file</a></li>
+      <li><a href="#" id="sidebar-search">Search</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label">Learn Nyra</div>
+    <ul>
+      <li><a href="learn-ownership.html">Nyra Ownership</a></li>
+      <li><a href="learn-borrowing.html">Nyra Borrowing</a></li>
+      <li><a href="memory.html">Memory &amp; ownership</a></li>
+      <li><a href="ownership-ux.html">Ownership UX</a></li>
+    </ul>
+  </section>
+  <section>
+    <div class="nav-label">Ecosystem</div>
+    <ul>
+      <li><a href="tooling.html">Toolchain</a></li>
+      <li><a href="escape-analysis.html">Escape analysis</a></li>
+      <li><a class="active" href="ownership-inspect.html">Ownership inspect</a></li>
+      <li><a href="diagnostics.html">Diagnostics</a></li>
+      <li><a href="changelog.html">Changelog</a></li>
+      <li><a href="sitemap.html">Sitemap</a></li>
+    </ul>
+  </section>
+</nav>
+    </aside>
+    <main class="content">
+      <h1>Ownership inspect</h1>
+      <p class="lead">Ask the compiler <strong>who owns a binding</strong> and <strong>who borrows it</strong> at a specific source line — at <strong>compile time</strong>, with zero runtime cost. Rust’s stable toolchain has no equivalent today (<code>rustc</code> reports errors but does not expose live borrow-state snapshots for a variable on demand).</p>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why compile-time, not runtime</a></li>
+          <li><a href="#inspect">nyra inspect</a></li>
+          <li><a href="#verbose">nyra check --ownership-verbose</a></li>
+          <li><a href="#fields">Report fields</a></li>
+          <li><a href="#move-vs-borrow">Move vs borrow</a></li>
+          <li><a href="#example">Worked example</a></li>
+          <li><a href="#limits">Limitations</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="why">Why compile-time, not runtime?</h2>
+      <p>Ownership and borrowing exist only in the compiler’s <strong>borrowck</strong> phase. They are erased before LLVM IR — there is no ownership table in the binary. A hypothetical <code>name.who_owns_me()</code> runtime method could not return real data.</p>
+      <p>Nyra instead surfaces the same state the borrow checker already computes:</p>
+      <ul>
+        <li><strong>moved</strong> — was ownership transferred?</li>
+        <li><strong>active_borrows</strong> — who holds <code>&amp;</code> / <code>&amp;mut</code> on this binding?</li>
+        <li><strong>NLL</strong> — borrows end at the <strong>last use</strong> of the reference, not at <code>}</code></li>
+      </ul>
+      <p>Pipeline hook (same walk as borrow checking):</p>
+      <pre class="pipeline">parse → typecheck → borrowck (+ inspect collector) → lifetimes → codegen</pre>
+      <p>Related: <a href="ownership-ux.html">Ownership UX</a> (auto-borrow, Swift-style errors) · <a href="escape-analysis.html">Escape analysis</a> (<code>nyra build --verbose</code>).</p>
+
+      <h2 id="inspect"><code>nyra inspect</code></h2>
+      <p><strong>Job:</strong> Snapshot one binding at a file line while learning ownership or debugging a borrow error.</p>
+      <pre><code>nyra inspect NAME --at FILE:LINE [PROJECT]
+
+# examples
+nyra inspect name --at main.ny:42
+nyra inspect name --at main.ny:42 .
+nyra inspect count --at src/app.ny:18 .</code></pre>
+      <ul>
+        <li><code>NAME</code> — binding to inspect (e.g. <code>name</code>, <code>user</code>).</li>
+        <li><code>--at FILE:LINE</code> — location of a <strong>statement</strong> on that line (1-based).</li>
+        <li><code>PROJECT</code> — project directory or single <code>.ny</code> file (default <code>.</code>).</li>
+      </ul>
+      <p>Snapshot is taken <strong>after</strong> the statement on that line executes in the borrow-check walk (so <code>let name = …</code> on line 42 shows <code>name</code> as valid).</p>
+
+      <h3>Sample output (Move)</h3>
+      <p>When the binding <strong>owns</strong> a Move value (<code>let b = a</code>), the report shows an <strong>ownership chain</strong> and <strong>current owner</strong>:</p>
+      <pre><code>myname2 (string) @ main.ny:5 in main
+  ownership chain:
+    name ──move──► myname ──move──► myname2
+  you inspect:  `myname2`
+  current owner:  `myname2` (owns value)
+  kind:  Move
+  binding:  owned (valid)
+  moved:  no
+  moved from:  `myname`
+  borrowed by:  (none)
+  drop:  auto-drop at scope exit (line 12)</code></pre>
+      <p>Inspecting an earlier binding (e.g. <code>name</code> at line 5) still shows the full chain and points to <code>myname2</code> as the <strong>current owner</strong>.</p>
+
+      <h3>Sample output (Borrow)</h3>
+      <p>When the binding is a <strong>reference</strong> (<code>let r = &amp;name</code>), it is a <strong>borrower</strong> — not the heap owner. The report shows a <strong>borrow chain</strong> and <strong>heap owner</strong> instead of move edges:</p>
+      <pre><code>myname2 (&&string) @ main.ny:11 in main
+  you inspect:  `myname2` (borrower)
+  heap owner:  `name` (owns Move value)
+  borrow chain:
+    name ◄──borrow── myname ◄──borrow── myname2
+  kind:  Copy (reference)
+  binding:  valid (borrow)
+  moved:  no
+  borrows from:  `myname` (&amp;)
+  borrowed by:  (none)</code></pre>
+      <p>CLI output is <strong>color-coded</strong> when stdout is a TTY: green for heap owner, yellow for borrowers and move edges, cyan for borrow edges and paths.</p>
+
+      <h2 id="verbose"><code>nyra check --ownership-verbose</code></h2>
+      <p><strong>Job:</strong> Summary of every binding at <strong>function exit</strong> (like escape analysis’s per-binding report).</p>
+      <pre><code>nyra check .
+nyra check . --ownership-verbose</code></pre>
+      <p>Example stderr:</p>
+      <pre><code>   Checking  ownership
+   ownership: 2 binding(s) at function exit
+     ownership: main::name → Move (valid)
+     ownership: main::r → Copy (valid)</code></pre>
+      <p>Pairs well with <code>nyra build --verbose</code> (escape analysis) when tuning performance and memory.</p>
+
+      <h2 id="fields">Report fields</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>ownership chain</code></td><td>Move path: <code>root ──move──► … ──move──► tip</code> (Move bindings only)</td></tr>
+          <tr><td><code>borrow chain</code></td><td>Borrow path: <code>heap_owner ◄──borrow── … ◄──borrow── tip</code> (ref bindings only)</td></tr>
+          <tr><td><code>you inspect</code></td><td>The binding you queried; labeled <code>(borrower)</code> for ref bindings</td></tr>
+          <tr><td><code>current owner</code></td><td>Who holds the Move value now (follows move edges; Move bindings only)</td></tr>
+          <tr><td><code>heap owner</code></td><td>Root binding that owns the heap value behind a borrow chain (ref bindings only)</td></tr>
+          <tr><td><code>kind</code></td><td><code>Copy</code> or <code>Move</code>; ref bindings show <code>(reference)</code></td></tr>
+          <tr><td><code>binding</code></td><td><code>owned (valid)</code>, <code>valid (borrow)</code>, <code>moved (invalid)</code>, or <code>not in scope</code></td></tr>
+          <tr><td><code>moved</code></td><td>Whether the binding was moved; may note callee (<code>into save()</code>)</td></tr>
+          <tr><td><code>moved from</code></td><td>Source of a move assignment (<code>let dest = src</code>); never shown for ref bindings</td></tr>
+          <tr><td><code>borrows from</code></td><td>Immediate source of a ref binding (<code>let r = &amp;name</code> → <code>name</code>)</td></tr>
+          <tr><td><code>borrowed by</code></td><td>Active <code>&amp;</code> / <code>&amp;mut</code> holders (named ref or <code>&lt;expr&gt;</code> for temporaries)</td></tr>
+          <tr><td><code>expires after line</code></td><td>NLL end of borrow (last use of the ref binding)</td></tr>
+          <tr><td><code>drop</code></td><td>Auto-drop at scope exit for Move types still valid</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="move-vs-borrow">Move vs borrow</h2>
+      <p><code>nyra inspect</code> distinguishes <strong>owner</strong> and <strong>borrower</strong> roles:</p>
+      <table>
+        <thead><tr><th>Pattern</th><th>Role</th><th>Chain shown</th><th>Owner field</th></tr></thead>
+        <tbody>
+          <tr><td><code>let b = a</code> (Move type)</td><td>owner / moved-away</td><td><code>ownership chain</code></td><td><code>current owner</code></td></tr>
+          <tr><td><code>let r = &amp;a</code></td><td>borrower</td><td><code>borrow chain</code></td><td><code>heap owner</code></td></tr>
+        </tbody>
+      </table>
+      <p>Reusing the same variable names in one function (shadowing) clears stale move edges — a borrow inspect at line 11 will not show <code>moved from</code> from an earlier move block.</p>
+
+      <h2 id="example">Worked examples</h2>
+      <h3>Move chain</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let name = &quot;Nyra&quot;
+    let myname = name
+    let myname2 = myname
+    print(myname2)    // line 5 — inspect myname2 (move)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let name: string = &quot;Nyra&quot;
+    let myname = name
+    let myname2 = myname
+    print(myname2)    // line 5 — inspect myname2 (move)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <pre><code>$ nyra inspect myname2 --at main.ny:5
+  ownership chain:
+    name ──move──► myname ──move──► myname2
+  current owner:  `myname2` (owns value)</code></pre>
+
+      <h3>Borrow chain</h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let name = &quot;Nyra&quot;
+    let myname = &amp;name
+    let myname2 = &amp;myname
+    print(&amp;myname2)   // line 5 — inspect myname2 (borrow)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let name: string = &quot;Nyra&quot;
+    let myname = &amp;name
+    let myname2 = &amp;myname
+    print(&amp;myname2)   // line 5 — inspect myname2 (borrow)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <pre><code>$ nyra inspect myname2 --at main.ny:5
+  you inspect:  `myname2` (borrower)
+  heap owner:  `name` (owns Move value)
+  borrow chain:
+    name ◄──borrow── myname ◄──borrow── myname2</code></pre>
+
+      <h3>NLL (borrow expiry)</h3>
+      <pre><code>fn main() {
+    let name = &quot;Ada&quot;
+    let r = &amp;name
+    print(r)          // line 4 — inspect name here
+    print(name)       // line 5 — borrow from r has ended (NLL)
+}</code></pre>
+      <pre><code>$ nyra inspect name --at main.ny:4
+  borrowed by: `r` (&amp;string), expires after line 4
+
+$ nyra inspect name --at main.ny:5
+  borrowed by: (none)</code></pre>
+
+      <h2 id="limits">Limitations</h2>
+      <ul>
+        <li>Requires a successful typecheck (same as <code>nyra check</code>).</li>
+        <li>Line must contain a statement; blank lines and lone <code>}</code> are not valid targets.</li>
+        <li>Inspects the binding in the <strong>current function</strong>’s borrow state (nested blocks share the same function frame).</li>
+        <li>Not a runtime API — no reflection in the binary; use <code>nyra inspect</code> or IDE integration (planned: LSP hover).</li>
+        <li>Rust comparison: <code>cargo</code> / <code>rustc</code> explain <em>errors</em>; Nyra additionally exposes <em>proactive</em> ownership snapshots for learning and debugging.</li>
+      </ul>
+
+      <footer class="site-footer">
+        <a href="tooling.html">← Toolchain</a> ·
+        <a href="memory.html">Memory &amp; ownership</a> ·
+        <a href="diagnostics.html">Diagnostics</a>
+      </footer>
+    </main>
+  </div>
+  <script src="vendor/lunr.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/typed-transform.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>

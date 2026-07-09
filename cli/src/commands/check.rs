@@ -63,13 +63,22 @@ pub(crate) fn diag(path: &Path, json: bool, stability: &StabilityFlags) -> Resul
 }
 
 pub(crate) fn check(path: &Path, stability: &StabilityFlags) -> Result<(), String> {
-    check_with_opt(path, stability, &OptFlags::default())
+    check_with_verbose(path, stability, false)
+}
+
+pub(crate) fn check_with_verbose(
+    path: &Path,
+    stability: &StabilityFlags,
+    ownership_verbose: bool,
+) -> Result<(), String> {
+    check_with_opt(path, stability, &OptFlags::default(), ownership_verbose)
 }
 
 pub(crate) fn check_with_opt(
     path: &Path,
     stability: &StabilityFlags,
     opt: &OptFlags,
+    ownership_verbose: bool,
 ) -> Result<(), String> {
     if let Some(result) = crate::daemon::try_dispatch_check(path, opt, stability)? {
         return result;
@@ -101,6 +110,7 @@ pub(crate) fn check_with_opt(
         stop_after: Some(CompileStage::Borrow),
         deny_extended: stability.deny_extended,
         deny_warnings: stability.deny_warnings,
+        ownership_verbose,
         ..CompileOptions::default()
     };
     let output = if path.is_dir() {

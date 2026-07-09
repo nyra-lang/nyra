@@ -1,5 +1,8 @@
 pub use codegen::RuntimeProfile;
 pub use codegen::runtime_map;
+pub use borrowck::{
+    BindingInspectReport, BindingStatus, InspectQuery, InspectRole, OwnershipVerbosePlan,
+};
 pub use ownership::{EscapePlan, EscapeState};
 pub use resolve::{load_program, load_program_with_options, LoadOptions, LoadOutput, paths, prelude};
 
@@ -38,7 +41,10 @@ use std::collections::HashSet;
 use std::path::Path;
 
 use ast::Program;
-use borrowck::check_program as borrow_check;
+use borrowck::{
+    analyze_ownership_verbose as borrow_analyze_ownership_verbose,
+    check_program as borrow_check, check_program_inspect,
+};
 use codegen::Codegen;
 use const_eval::fold_program_consts;
 pub use errors::{
@@ -80,6 +86,10 @@ pub struct CompileOptions {
     pub features: FeatureSet,
     /// Print escape-analysis diagnostics during compile (`nyra build --verbose`).
     pub verbose_escape: bool,
+    /// Print per-binding ownership summary during check (`nyra check --ownership-verbose`).
+    pub ownership_verbose: bool,
+    /// Point query for `nyra inspect` (compile-time ownership snapshot).
+    pub inspect_query: Option<InspectQuery>,
     /// Skip merging the full stdlib prelude (smaller IR; use explicit `import "stdlib/…"`).
     pub no_prelude: bool,
     /// Skip whole-program typecheck when dirty files only changed function bodies (dev).
@@ -101,6 +111,7 @@ pub struct CompileOutput {
     pub type_errors: Vec<NyraError>,
     pub borrow_errors: Vec<NyraError>,
     pub warnings: Vec<NyraError>,
+    pub inspect_report: Option<BindingInspectReport>,
 }
 
 pub struct Compiler;
@@ -161,6 +172,7 @@ impl Compiler {
                 type_errors: vec![],
                 borrow_errors: vec![],
                 warnings: vec![],
+                inspect_report: None,
             });
         }
 
@@ -176,6 +188,7 @@ impl Compiler {
                 type_errors: vec![],
                 borrow_errors: vec![],
                 warnings: vec![],
+                inspect_report: None,
             });
         }
 
@@ -357,8 +370,23 @@ impl Compiler {
         let (own_ctx, drop_plan) = analyze_program(&program);
 
         let mut borrow_errors = vec![];
-        borrow_check(&program, &own_ctx, &mut borrow_errors);
+        let inspect_report = if type_checker.has_errors() || options.dev_fast {
+            borrow_check(&program, &own_ctx, &mut borrow_errors);
+            None
+        } else if let Some(ref query) = options.inspect_query {
+            check_program_inspect(&program, &own_ctx, &mut borrow_errors, Some(query))
+        } else {
+            borrow_check(&program, &own_ctx, &mut borrow_errors);
+            None
+        };
         check_lifetimes(&program, &own_ctx, &mut borrow_errors);
+
+        if options.ownership_verbose && !type_checker.has_errors() && !options.dev_fast {
+            eprintln!("   Checking  ownership");
+            for line in borrow_analyze_ownership_verbose(&program, &own_ctx).report_lines() {
+                eprintln!("   {line}");
+            }
+        }
 
         let escape_plan = if type_checker.has_errors() || options.dev_fast {
             ownership::EscapePlan::default()
@@ -389,6 +417,7 @@ impl Compiler {
                 type_errors,
                 borrow_errors,
                 warnings,
+                inspect_report: None,
             });
         }
 
@@ -403,6 +432,7 @@ impl Compiler {
                 type_errors,
                 borrow_errors,
                 warnings,
+                inspect_report: None,
             });
         }
 
@@ -417,6 +447,7 @@ impl Compiler {
                 type_errors: vec![],
                 borrow_errors,
                 warnings,
+                inspect_report,
             });
         }
 
@@ -431,6 +462,7 @@ impl Compiler {
                 type_errors: vec![],
                 borrow_errors,
                 warnings,
+                inspect_report,
             });
         }
 
@@ -445,6 +477,7 @@ impl Compiler {
                 type_errors: vec![],
                 borrow_errors: vec![],
                 warnings,
+                inspect_report: None,
             });
         }
 
@@ -469,6 +502,7 @@ impl Compiler {
                             type_errors,
                             borrow_errors,
                             warnings,
+                            inspect_report: inspect_report.clone(),
                         });
                     }
                 }
@@ -501,6 +535,7 @@ impl Compiler {
             type_errors: vec![],
             borrow_errors: vec![],
             warnings,
+            inspect_report,
         })
     }
 

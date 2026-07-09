@@ -1,12 +1,12 @@
 # Nyra Programming Language
 
 > **Standalone reference** — attach this file alone in Cursor/ChatGPT/Claude; no repo checkout required.
-> **Online docs (human-readable):** [nyra-lang.github.io/docs](https://nyra-lang.github.io/docs/) · [Learn intro](https://nyra-lang.github.io/docs/learn-intro.html)
+> **Online docs (human-readable):** [nyra-lang.github.io/docs](https://nyra-lang.github.io/nyra/) · [Learn intro](https://nyra-lang.github.io/nyra/learn-intro.html)
 
 Use this file as the **sole authoritative reference** for Nyra syntax, semantics, stdlib, toolchain, PGO, and escape analysis.
-Do not invent features not listed here. Supplementary guides live at **https://nyra-lang.github.io/docs/**.
+Do not invent features not listed here. Supplementary guides live at **https://nyra-lang.github.io/nyra/**.
 
-> **Project status — v1.40.x production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · [roadmap](https://nyra-lang.github.io/docs/roadmap.html).
+> **Project status — v1.40.x production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · [roadmap](https://nyra-lang.github.io/nyra/roadmap.html).
 
 ## Table of contents
 
@@ -37,7 +37,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v1.45.0** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/docs/roadmap.html)).
+- Version baseline: **v1.45.0** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/nyra/roadmap.html)).
 - **v1.45.1 (router):** `HttpRouter` parametric paths (`/users/:id`); `HttpRouter_match` → `.slot`/`.params`; `RequestContext_param(ctx, name)`; exact routes win over patterns.
 - **v1.45:** collection HOFs on `vec()` / `strs()` (`filter`/`map`/`find`/`contains`); SQL query builder `qb().select().from().where().include().to_sql()`; `SqlDb.find(q)`.
 - **v1.44:** JS-like HTTP — `fetch(url) -> HttpResponse`, `req().header(…).json(…).post(url)`; auto-prelude import resolution fix (impl methods no longer shadow free helpers).
@@ -50,7 +50,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **v2.4:** generic `enum Option<T>` / `enum Result<T,E>` monomorph; enum payload drop; `struct Box<T>` + `Box_new(string)` (replaces `Box_string`).
 - **v2.5:** generic `struct Arc<T>` (`Arc<i32>`, `Arc<string>`); auto Drop for monomorph instances; `Arc_i32` kept as legacy alias in `stdlib/arc.ny`.
 - **v2.6:** async bootstrap patterns, HTTP health via stdlib `net/http`.
-- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance. See [Modules](https://nyra-lang.github.io/docs/modules.html). Tracing/service mesh = external.
+- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance. See [Modules](https://nyra-lang.github.io/nyra/modules.html). Tracing/service mesh = external.
 - **v2.8:** return type inference (`void` default), generic call-site inference (`id(7)`), auto-borrow at calls (`T` → `&T`), `string.clone()` + synthesized struct `Clone`, struct ctor sugar `User("Ada")` / `Point()`.
 - **v2.9:** Swift-style use-after-move diagnostics (`was moved into save()` + fix-it notes), `move` / `clone` prefix at call sites (`save(move user)`, `save(clone user)`).
 - **v3.0:** auto Copy inference for all-Copy structs (`Point`, `Rect`); `#[derive(Copy)]` validation; no annotation needed for value types.
@@ -104,11 +104,11 @@ struct User {
 }   // only when you need a named shape
 ```
 
-**For AI assistants:** when generating Nyra for beginners or app code, **omit types unless the user asks for them** or inference would fail. Do not “Rust-ify” Nyra by sprinkling `: i32` everywhere. Optional types: [stdlib guide](https://nyra-lang.github.io/docs/stdlib.html#optional-types) · [learn track](https://nyra-lang.github.io/docs/learn-get-started.html).
+**For AI assistants:** when generating Nyra for beginners or app code, **omit types unless the user asks for them** or inference would fail. Do not “Rust-ify” Nyra by sprinkling `: i32` everywhere. Optional types: [stdlib guide](https://nyra-lang.github.io/nyra/stdlib.html#optional-types) · [learn track](https://nyra-lang.github.io/nyra/learn-get-started.html).
 
 ## Stability (v1.0)
 
-Nyra has **two shipped tiers** (see [roadmap & stability](https://nyra-lang.github.io/docs/roadmap.html)):
+Nyra has **two shipped tiers** (see [roadmap & stability](https://nyra-lang.github.io/nyra/roadmap.html)):
 
 | Tier | Status | Examples | CI flag |
 |------|--------|----------|---------|
@@ -133,6 +133,8 @@ nyra build . --release --for linux
 nyra build . --release --os linux --arch aarch64
 nyra build . -o mybin         # custom name under target/{profile}/
 nyra check
+nyra check . --ownership-verbose   # per-binding ownership at function exit
+nyra inspect name --at main.ny:42   # compile-time ownership snapshot (see Ownership inspect)
 nyra test .
 nyra test . --list-json          # IDE test discovery (file, name, line)
 nyra test . --filter adds        # run matching tests only
@@ -451,7 +453,7 @@ Source (.ny)
   → target/debug/main or target/release/main
 ```
 
-Stop early without linking: `nyra check .` · JSON diagnostics: `nyra diag . --json`
+Stop early without linking: `nyra check .` · JSON diagnostics: `nyra diag . --json` · Ownership snapshot: `nyra inspect NAME --at file:line`
 
 ## Types
 
@@ -566,7 +568,7 @@ nyra pkg c add raylib --no-install --path ./myapp
 
 Default: all bindable functions in `vendor/bindings/{stem}.ny`. C keyword params → `in_`, `type_`. Optional `--export` to shrink. `--shim` experimental.
 
-Docs: [c-bindgen](https://nyra-lang.github.io/docs/c-bindgen.html)
+Docs: [c-bindgen](https://nyra-lang.github.io/nyra/c-bindgen.html)
 ### Template strings (v1.2 — Core)
 
 Backtick strings with JS-style `${expr}` interpolation (static text + `i32` / `string` values):
@@ -578,7 +580,7 @@ print(`Hello, ${name}!`)
 print(`Hello ${name}, age ${age}`)
 ```
 
- · [learn strings](https://nyra-lang.github.io/docs/learn-strings.html).
+ · [learn strings](https://nyra-lang.github.io/nyra/learn-strings.html).
 
 ### Arrow functions (v2.1+ — Extended)
 
@@ -773,7 +775,7 @@ Field-value patterns (`Point { x: 0, y }`) are **not** supported — bind fields
 | Trailing comma after arm body | ✅ |
 | Field-value struct patterns | ❌ |
 
-Further reading: [match](https://nyra-lang.github.io/docs/match.html)
+Further reading: [match](https://nyra-lang.github.io/nyra/match.html)
 
 ## Structs (objects)
 
@@ -1054,7 +1056,7 @@ myapp/
   target/debug/main
 ```
 
-Docs: [packages → nyra.mod syntax](https://nyra-lang.github.io/docs/packages.html#nyra-mod-syntax) · [modules](https://nyra-lang.github.io/docs/modules.html)
+Docs: [packages → nyra.mod syntax](https://nyra-lang.github.io/nyra/packages.html#nyra-mod-syntax) · [modules](https://nyra-lang.github.io/nyra/modules.html)
 
 ### TLS backends (HTTPS)
 
@@ -1103,11 +1105,11 @@ fn main() {
 
 **Do not hallucinate:** `tls native` is **shipped and stable** (v1.40.4+). Default is `rustls`, not OpenSSL. Some hosts/CDNs may reset TLS from certain networks — that is environmental, not “Nyra needs OpenSSL”.
 
-Docs: [net/http → TLS](https://nyra-lang.github.io/docs/net-http.html#tls-backends)
+Docs: [net/http → TLS](https://nyra-lang.github.io/nyra/net-http.html#tls-backends)
 
 ## I/O & builtins
 
-Further builtins reference: [https://nyra-lang.github.io/docs/methods.html](https://nyra-lang.github.io/docs/methods.html) · [https://nyra-lang.github.io/docs/stdlib.html#builtins](https://nyra-lang.github.io/docs/stdlib.html#builtins)
+Further builtins reference: [https://nyra-lang.github.io/nyra/methods.html](https://nyra-lang.github.io/nyra/methods.html) · [https://nyra-lang.github.io/nyra/stdlib.html#builtins](https://nyra-lang.github.io/nyra/stdlib.html#builtins)
 
 **Quick lookup — what needs an import?**
 
@@ -1391,7 +1393,7 @@ Channels: `stdlib/sync/channel.ny`
 
 ### `parallel for` / `parallel:task` / `parallel:thread` (Extended)
 
-Each entry: **name → explanation → example → output**. Runnable: `examples/builtins/parallel/` · gallery: [methods.html#ex-parallel](https://nyra-lang.github.io/docs/methods.html#ex-parallel).
+Each entry: **name → explanation → example → output**. Runnable: `examples/builtins/parallel/` · gallery: [methods.html#ex-parallel](https://nyra-lang.github.io/nyra/methods.html#ex-parallel).
 
 #### `parallel for` (task pool — default)
 
@@ -1466,7 +1468,7 @@ Gallery also covers: [`parallel(threads = N)`](methods.html#ex-parallel-exact) �
 
 **Name:** `progress(label = "…") for x in items { … }`  
 **Explanation:** Sequential progress bar; cannot combine with `parallel for`.  
-**Example:** see [methods.html#ex-progress](https://nyra-lang.github.io/docs/methods.html#ex-progress)
+**Example:** see [methods.html#ex-progress](https://nyra-lang.github.io/nyra/methods.html#ex-progress)
 
 ```ny
 allow_extended
@@ -1492,7 +1494,7 @@ Running demo...
 
 **Name:** `benchmark { … }`  
 **Explanation:** Wall time, RSS delta, and process CPU% for a block — no manual timers.  
-**Example:** [methods.html#ex-benchmark](https://nyra-lang.github.io/docs/methods.html#ex-benchmark) · `nyra run examples/builtins/benchmark/benchmark.ny`
+**Example:** [methods.html#ex-benchmark](https://nyra-lang.github.io/nyra/methods.html#ex-benchmark) · `nyra run examples/builtins/benchmark/benchmark.ny`
 
 ```ny
 allow_extended
@@ -1524,7 +1526,7 @@ CPU: 98%
 
 ## Async & await (Stable Extended)
 
-Gallery: [methods.html#ex-async-fn](https://nyra-lang.github.io/docs/methods.html#ex-async-fn) · Runnable: `examples/builtins/async/`
+Gallery: [methods.html#ex-async-fn](https://nyra-lang.github.io/nyra/methods.html#ex-async-fn) · Runnable: `examples/builtins/async/`
 
 Prefer `import "stdlib/async/mod.ny"` for application code. It is Nyra's official in-tree runtime facade (`NyraRuntime_default`, `NyraRuntime_run_until`, `sleep_ms_async`, `await_i32`), so apps do not need a Tokio-like community executor for basic async tasks.
 
@@ -1579,7 +1581,7 @@ fn main() {
 | **`await` in `spawn` / `unsafe`** | Uses blocking `async_await` — not cooperative |
 | **Futures (v1.26)** | `import "stdlib/async/future.ny"` — `Future_i32`, `Future_select2_i32(a, b)` |
 
-Not on `wasm32-wasi`. Full guide: [async.html](https://nyra-lang.github.io/docs/async.html)
+Not on `wasm32-wasi`. Full guide: [async.html](https://nyra-lang.github.io/nyra/async.html)
 
 
 
@@ -1596,7 +1598,7 @@ Beyond `spawn { }` / `spawn:task` / `spawn:thread` and `parallel for` (see [I/O 
 | **Shared refs across threads** | Inner type must be **Sync** |
 | **Active borrows** | Rejected in closure env |
 
-Full rules: [Send/Sync](https://nyra-lang.github.io/docs/memory.html#send-sync) · [concurrency](https://nyra-lang.github.io/docs/concurrency.html)
+Full rules: [Send/Sync](https://nyra-lang.github.io/nyra/memory.html#send-sync) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html)
 
 ### Channels — `import "stdlib/sync/channel.ny"`
 
@@ -1731,7 +1733,7 @@ For full JSON/serde use `stdlib/json/mod.ny`, `stdlib/serialize/mod.ny`, or Nyra
 
 ## Ownership (summary)
 
-Nyra has **no GC**. The compiler builds a **DropPlan** per function and emits `free` / custom `Drop_*_drop` at scope exit. [Memory guide](https://nyra-lang.github.io/docs/memory.html) · [learn ownership](https://nyra-lang.github.io/docs/learn-ownership.html) · [learn borrowing](https://nyra-lang.github.io/docs/learn-borrowing.html).
+Nyra has **no GC**. The compiler builds a **DropPlan** per function and emits `free` / custom `Drop_*_drop` at scope exit. [Memory guide](https://nyra-lang.github.io/nyra/memory.html) · [learn ownership](https://nyra-lang.github.io/nyra/learn-ownership.html) · [learn borrowing](https://nyra-lang.github.io/nyra/learn-borrowing.html).
 
 ### Copy vs Move
 
@@ -1789,9 +1791,64 @@ fn main() {
 
 **Float literals:** `3.14` → `f64`; `1.5f32` or `: f32` annotation for `f32`.
 
+### Ownership inspect (compile-time)
+
+Ask the borrow checker **who owns a binding** and **who borrows it** at a specific source line. **Compile-time only** — ownership is erased before LLVM IR; there is no runtime `name.who_owns_me()` API. Rust’s stable toolchain has no equivalent proactive snapshot today.
+
+```bash
+nyra inspect name --at main.ny:42
+nyra inspect user --at src/app.ny:18 .
+nyra check . --ownership-verbose
+```
+
+**Move** (`let b = a` on a Move type) — ownership chain + current owner:
+
+```
+nyra inspect myname2 --at main.ny:5
+
+  ownership chain:
+    name ──move──► myname ──move──► myname2
+  you inspect:  `myname2`
+  current owner:  `myname2` (owns value)
+  kind:  Move
+  binding:  owned (valid)
+```
+
+**Borrow** (`let r = &a`) — borrow chain + heap owner (not move edges):
+
+```
+nyra inspect myname2 --at main.ny:11
+
+  you inspect:  `myname2` (borrower)
+  heap owner:  `name` (owns Move value)
+  borrow chain:
+    name ◄──borrow── myname ◄──borrow── myname2
+  kind:  Copy (reference)
+  binding:  valid (borrow)
+  moved:  no
+```
+
+| Field | Meaning |
+|-------|---------|
+| `ownership chain` | Move path: `root ──move──► … ──move──► tip` |
+| `borrow chain` | Borrow path: `heap_owner ◄──borrow── … ◄──borrow── tip` |
+| `you inspect` | The binding you queried; `(borrower)` for ref bindings |
+| `current owner` | Who holds the Move value now (Move bindings only) |
+| `heap owner` | Root binding that owns the heap value (ref bindings only) |
+| `borrowed by` | Active `&` / `&mut` holders; `expires after line` respects **NLL** |
+| `borrows from` | Immediate source of a ref binding (`let r = &name`) |
+| `moved from` | Source of a move assignment; never shown for ref bindings |
+| `drop` | Auto-drop at scope exit for valid Move bindings |
+
+CLI output is **color-coded** on TTYs (green = heap owner, yellow = move/borrower, cyan = borrow edges).
+
+`--ownership-verbose` on `nyra check` prints every local at function exit (`main::name → Move (valid)`). Pairs with `nyra build --verbose` (escape analysis).
+
+Full docs: [ownership inspect](https://nyra-lang.github.io/nyra/ownership-inspect.html) · [tooling](https://nyra-lang.github.io/nyra/tooling.html#inspect)
+
 ### defer vs Drop — when to use which
 
-Gallery: [methods.html#ex-defer](https://nyra-lang.github.io/docs/methods.html#ex-defer) · `examples/builtins/defer/`
+Gallery: [methods.html#ex-defer](https://nyra-lang.github.io/nyra/methods.html#ex-defer) · `examples/builtins/defer/`
 
 **Name:** `defer cleanup()`  
 **Example:**
@@ -1851,7 +1908,7 @@ Reusable resources, predictable order, no `warning[W001]` from `defer` — **pre
 
 **Roadmap note:** If Core users need FFI teardown without Extended `impl Drop`, promoting **`defer` to Core** could be reconsidered. Today both are Extended; **Drop-first documentation avoids needing `defer` in Core-only codebases.**
 
-See [defer vs Drop](https://nyra-lang.github.io/docs/memory.html#defer) · [custom Drop](https://nyra-lang.github.io/docs/memory.html#custom-drop)
+See [defer vs Drop](https://nyra-lang.github.io/nyra/memory.html#defer) · [custom Drop](https://nyra-lang.github.io/nyra/memory.html#custom-drop)
 
 ### Copy vs Move (RFC 0008)
 
@@ -1984,9 +2041,9 @@ Use-after-move errors name the callee and line, show the function signature, and
 | `cannot return reference to local` | Return owned value or `&'a` from parameter |
 | `cannot capture reference in closure` | Capture owned Copy/Move value |
 
-## Stdlib (modular — see https://nyra-lang.github.io/docs/stdlib.html)
+## Stdlib (modular — see https://nyra-lang.github.io/nyra/stdlib.html)
 
-> **Batteries-included by design:** Nyra’s stdlib is **strong** — crypto, databases, serialization, WebSocket, compression, and encoding belong **in-tree** with the compiler. Some modules are still **stubs or MVP** while native implementations land in `stdlib/rt/`; import paths stay stable. **NyraPkg** complements stdlib for community and optional packages — it does not replace core domains. Status inventory: [stdlib](https://nyra-lang.github.io/docs/stdlib.html) · [status](https://nyra-lang.github.io/docs/stdlib.html#status).
+> **Batteries-included by design:** Nyra’s stdlib is **strong** — crypto, databases, serialization, WebSocket, compression, and encoding belong **in-tree** with the compiler. Some modules are still **stubs or MVP** while native implementations land in `stdlib/rt/`; import paths stay stable. **NyraPkg** complements stdlib for community and optional packages — it does not replace core domains. Status inventory: [stdlib](https://nyra-lang.github.io/nyra/stdlib.html) · [status](https://nyra-lang.github.io/nyra/stdlib.html#status).
 
 ### What ships vs what is in progress
 
@@ -1998,7 +2055,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 | **Shipped (v1.1)** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
 | **Stub → in progress** | `compress/bzip2.ny` (link `bz2`) | Native driver when linked |
 
-Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Standard library](https://nyra-lang.github.io/docs/stdlib.html).
+Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Standard library](https://nyra-lang.github.io/nyra/stdlib.html).
 
 ### Naming: current style vs legacy (read this)
 
@@ -2065,7 +2122,7 @@ fn main() {
 }
 ```
 
-See [stdlib](https://nyra-lang.github.io/docs/stdlib.html)
+See [stdlib](https://nyra-lang.github.io/nyra/stdlib.html)
 
 ```ny
 import "stdlib/vec.ny"
@@ -2088,7 +2145,7 @@ import "stdlib/strings/ops.ny"
 
 **Compiler math intrinsics (always on):** `abs`, `abs_i32`, `abs_f64`, `min_i32`, `max_i32`, `clamp_i32`, `min_f64`, `max_f64`, `sin`, `cos`, `tan`, `atan2`, and typed `abs(x)` lower to LLVM — no stdlib merge required.  with `--no-prelude`.
 
-**Core modules (usable):** `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `strings/regex.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `time/instant.ny`, `time/date.ny`, `json/mod.ny`, `serialize/mod.ny`, `iter/mod.ny`, `env/mod.ny`, `config/mod.ny`, **`net/http/mod.ny`**, `net/tcp.ny`, `net/udp.ny`, `net/websocket.ny`, `tls.ny`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny`, `bridge/mod.ny`, `db/sqlite.ny`, `db/lsm.ny`, `db/sql_parse.ny`, `db/sstable.ny`, `collections/btree_pages.ny`, `bench/mod.ny`, `profile/mod.ny`, `testing.ny`, `async.ny` (Extended). [Stdlib reference](https://nyra-lang.github.io/docs/stdlib.html) (`#cli-parsing`, `#database`, `#process`, `#crypto`).
+**Core modules (usable):** `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `strings/regex.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `time/instant.ny`, `time/date.ny`, `json/mod.ny`, `serialize/mod.ny`, `iter/mod.ny`, `env/mod.ny`, `config/mod.ny`, **`net/http/mod.ny`**, `net/tcp.ny`, `net/udp.ny`, `net/websocket.ny`, `tls.ny`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny`, `bridge/mod.ny`, `db/sqlite.ny`, `db/lsm.ny`, `db/sql_parse.ny`, `db/sstable.ny`, `collections/btree_pages.ny`, `bench/mod.ny`, `profile/mod.ny`, `testing.ny`, `async.ny` (Extended). [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html) (`#cli-parsing`, `#database`, `#process`, `#crypto`).
 
 ### Database quick start (v1.21)
 
@@ -2127,7 +2184,7 @@ fn main() {
 
 Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure Nyra stdlib.
 
-**Shipped (v1.1):** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/docs/stdlib.html).
+**Shipped (v1.1):** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
 
 ### net/http API reference (v1.44+)
 
@@ -2206,7 +2263,7 @@ fn main() {
 
 **Parametric routes (v1.45.1):** `:name` segments on register paths (`/t/:teacher/s/:stage` ok). Exact matches win over patterns. `serve_handlers` fills `ctx.params`; or call `HttpRouter_match` then `RequestContext_with_params`.
 
-[net/http reference](https://nyra-lang.github.io/docs/net-http.html)
+[net/http reference](https://nyra-lang.github.io/nyra/net-http.html)
 
 ### TCP, WebSocket, crypto, serde (quick API)
 
@@ -2264,7 +2321,7 @@ link-source vendor/shim.c
 - **`link`** / **`link-arg`** merge into project `nyra.mod` on install.
 - **`link-source`** compiles package `.c` files at `nyra build` (no manual `clang`).
 - Lock: `nyra.lock` + `nyra.sum` pin exact versions; `nyra pkg verify` checks constraints.
-- **`nyra pkg prune`** — auto-fix unused code (like `cargo fix` for lint warnings). See [NyraPkg prune](https://nyra-lang.github.io/docs/packages.html#prune).
+- **`nyra pkg prune`** — auto-fix unused code (like `cargo fix` for lint warnings). See [NyraPkg prune](https://nyra-lang.github.io/nyra/packages.html#prune).
 - Native C libraries (e.g. `-lsqlite3`) must exist on the system; NyraPkg ships bindings + shims, not OS packages.
 
 ### `nyra pkg prune` (unused code cleanup)
@@ -2303,7 +2360,7 @@ fn main() {
 }
 ```
 
-Implementation: `nyra pkg prune` / `nyra pkg prune --check` (see [NyraPkg](https://nyra-lang.github.io/docs/packages.html#prune)).
+Implementation: `nyra pkg prune` / `nyra pkg prune --check` (see [NyraPkg](https://nyra-lang.github.io/nyra/packages.html#prune)).
 
 ## Native code & C interop
 
@@ -2323,7 +2380,7 @@ Nyra does **not** require libraries to be written in Nyra. Pick the pattern:
 
 | Need | Pattern | Example |
 |------|---------|---------|
-| C API (raylib, zlib, sqlite3) | `nyra pkg c add NAME` — one command | [c-bindgen](https://nyra-lang.github.io/docs/c-bindgen.html#pkg-c) |
+| C API (raylib, zlib, sqlite3) | `nyra pkg c add NAME` — one command | [c-bindgen](https://nyra-lang.github.io/nyra/c-bindgen.html#pkg-c) |
 | pip / npm / Maven ecosystem | **Language bridge** — subprocess JSON workers | `stdlib/bridge/mod.ny` |
 | Run system command (exit code) | **Command** — fork/exec MVP | `stdlib/process.ny` |
 | Host calls Nyra | `export fn` + `--cdylib` | NyraPkg registry / `nyra pkg install` |
@@ -2346,7 +2403,7 @@ fn main() {
 - Blocks until child exits; up to 30 args; no `cwd`/env/piped `output()` on `Command` yet.
 - **Capture stdout:** `bridge_exec` / `bridge_exec_arg` in `stdlib/bridge/mod.ny`.
 - **Interactive PTY shell:** `stdlib/terminal/pty.ny` (terminal apps).
-- Docs: [stdlib → process](https://nyra-lang.github.io/docs/stdlib.html#process)
+- Docs: [stdlib → process](https://nyra-lang.github.io/nyra/stdlib.html#process)
 
 ### Language bridge (Nyra → Python / Node / Java)
 
@@ -2363,7 +2420,7 @@ fn main() {
 - Protocol: one JSON line stdin → one JSON line stdout (`{"ok":true,"result":"42"}`).
 - Extend workers to `pip install numpy`, `npm install lodash`, Maven jars.
 - POSIX only today (macOS/Linux); not Wasm/Windows subprocess bridge yet.
-- Docs: [stdlib bridge](https://nyra-lang.github.io/docs/stdlib.html) · `examples/bridge/`.
+- Docs: [stdlib bridge](https://nyra-lang.github.io/nyra/stdlib.html) · `examples/bridge/`.
 
 ### Host → Nyra (cdylib)
 
@@ -2373,7 +2430,7 @@ python3 host/call.py    # ctypes + free on returned strings
 node host/call.mjs      # koffi (npm install)
 ```
 
-See [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html).
+See [https://nyra-lang.github.io/nyra/ffi-abi.html](https://nyra-lang.github.io/nyra/ffi-abi.html).
 
 ## Tests
 
@@ -2391,7 +2448,7 @@ test fn adds() {
 
 **IDE discovery (v1.32+):** `nyra test . --list-json` prints `[{ "file", "name", "line" }, …]`. Filter: `nyra test . --filter substring`. VS Code extension Test Explorer uses these flags.
 
-**Language conformance (CONF-LANG):** Nyra compiler ships pass/fail conformance fixtures for language features. Run `nyra test` / `nyra check` in your project; see [tooling → conformance](https://nyra-lang.github.io/docs/tooling.html#conformance).
+**Language conformance (CONF-LANG):** Nyra compiler ships pass/fail conformance fixtures for language features. Run `nyra test` / `nyra check` in your project; see [tooling → conformance](https://nyra-lang.github.io/nyra/tooling.html#conformance).
 
 | Suite | Purpose |
 |-------|---------|
@@ -2399,7 +2456,7 @@ test fn adds() {
 | CONF-* (compiler) | Compile-time IR/ownership contracts |
 | `nyra test` | User `test fn` blocks + `stdlib/testing.ny` |
 
-Spec: [tooling → conformance](https://nyra-lang.github.io/docs/tooling.html#conformance).
+Spec: [tooling → conformance](https://nyra-lang.github.io/nyra/tooling.html#conformance).
 
 ## Project layout
 
@@ -2452,7 +2509,7 @@ fn main() {
 
 - `os_syscall6(num, a0..a5)` — raw syscall; constants in `stdlib/os/syscall_linux.ny` / `syscall_darwin.ny`
 - `cpu_nop()` / `cpu_pause()` via `stdlib/os/asm.ny`
-- Docs: [OS & hardware](https://nyra-lang.github.io/docs/os-hardware.html)
+- Docs: [OS & hardware](https://nyra-lang.github.io/nyra/os-hardware.html)
 ## Performance & optimization
 
 ### Release builds
@@ -2484,7 +2541,7 @@ Nyra targets **batteries-included APIs** with **pay-for-what-you-use** binaries.
 
 **Authoring rules:** one focused file per concern in stdlib; `extern fn` per C runtime entry so `runtime_map` can link granularly; `--no-prelude` / `# no_std` for freestanding builds.
 
-Full page: [performance](https://nyra-lang.github.io/docs/performance.html).
+Full page: [performance](https://nyra-lang.github.io/nyra/performance.html).
 
 ### Profile-Guided Optimization (PGO)
 
@@ -2530,7 +2587,7 @@ nyra build . --release --pgo-use nyra.profdata
 
 `nyra run --pgo` is rejected — build first, then run `target/release/main`.
 
-Full docs: [PGO](https://nyra-lang.github.io/docs/pgo.html)
+Full docs: [PGO](https://nyra-lang.github.io/nyra/pgo.html)
 
 ### Escape analysis
 
@@ -2573,7 +2630,7 @@ nyra build --verbose .
 
 **Limitations:** SROA for all-Copy structs without spread; LocalChannel sequential only; dynamic heap strings still allocate when they escape.
 
-Full docs: [escape analysis](https://nyra-lang.github.io/docs/escape-analysis.html)
+Full docs: [escape analysis](https://nyra-lang.github.io/nyra/escape-analysis.html)
 
 ### C FFI out-parameters (`&mut` + `as ptr`)
 
@@ -2599,7 +2656,7 @@ fn main() {
 - **`extern fn` with `string` param:** Nyra passes C string pointer automatically.
 - **`unsafe` required** for `*ptr` deref, raw casts, pointer arithmetic.
 
-[C bindgen](https://nyra-lang.github.io/docs/c-bindgen.html) · [FFI & ABI](https://nyra-lang.github.io/docs/ffi-abi.html)
+[C bindgen](https://nyra-lang.github.io/nyra/c-bindgen.html) · [FFI & ABI](https://nyra-lang.github.io/nyra/ffi-abi.html)
 
 ## Macros (Extended)
 
@@ -2691,7 +2748,7 @@ fn call_greet<T: Greet>(x: T) -> i32 {
 - Checked at monomorph: missing `impl Trait for Type` is a compile error
 - Works with inferred call sites (`call_greet(u)` without explicit type args)
 
-See [generics](https://nyra-lang.github.io/docs/generics.html).
+See [generics](https://nyra-lang.github.io/nyra/generics.html).
 
 ### Limitations (MVP)
 
@@ -2701,7 +2758,7 @@ See [generics](https://nyra-lang.github.io/docs/generics.html).
 - Explicit **`return`** required in impl bodies (no implicit tail return).
 - Extended tier: `nyra check --deny-extended` rejects `trait` / `dyn` in Core-only CI.
 
-See [traits & macros](https://nyra-lang.github.io/docs/traits-macros.html).
+See [traits & macros](https://nyra-lang.github.io/nyra/traits-macros.html).
 
 ## Real-world pitfalls (systems apps)
 
@@ -2737,8 +2794,9 @@ in repo.
 - **HTTPS / TLS** — default backend is **`rustls`** (bundled, no OpenSSL install). `tls native` and `tls openssl` are valid `nyra.mod` choices. Do **not** tell users to install OpenSSL for basic `get("https://…")` unless they chose `tls openssl` or need TLS server helpers. `get()` failure JSON `{"error":"…"}` ≠ successful body.
 - **nyra.mod** — line-oriented manifest (`module`, `tls`, `require`, `link`, …), not TOML. Minimum one line: `module name`.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
+- **`nyra inspect NAME --at file:line`** — compile-time ownership/borrow snapshot at a source line; **`nyra check --ownership-verbose`** — per-binding summary at function exit. Not runtime reflection. Rust stable toolchain has no equivalent.
 - No `extern export fn` — use `extern fn` or `export fn` separately.
-- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/docs/async.html) · [concurrency](https://nyra-lang.github.io/docs/concurrency.html).
+- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
 - **`Serialize` trait (v1.38+)** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
 - Arrow functions are **Extended** tier — use `nyra check --deny-extended` in Core-only CI if you avoid them.
@@ -2780,7 +2838,7 @@ Stable codes — explain with `nyra explain E003` or `nyra explain --list`. JSON
 | **P001** | anonymous object literal (old) — use struct or `{ field: value }` literal |
 | **P006** | missing comma in object literal fields |
 
-Page: [diagnostics](https://nyra-lang.github.io/docs/diagnostics.html)
+Page: [diagnostics](https://nyra-lang.github.io/nyra/diagnostics.html)
 
 ## Common errors
 
@@ -2797,33 +2855,34 @@ Page: [diagnostics](https://nyra-lang.github.io/docs/diagnostics.html)
 
 ## Online documentation map
 
-**Home:** [https://nyra-lang.github.io/docs/](https://nyra-lang.github.io/docs/)
+**Home:** [https://nyra-lang.github.io/nyra/](https://nyra-lang.github.io/nyra/)
 
 | Topic | URL |
 |-------|-----|
-| Learn Nyra (tutorial track) | [https://nyra-lang.github.io/docs/learn-intro.html](https://nyra-lang.github.io/docs/learn-intro.html) |
-| Get started | [https://nyra-lang.github.io/docs/learn-get-started.html](https://nyra-lang.github.io/docs/learn-get-started.html) |
-| Language reference | [https://nyra-lang.github.io/docs/reference.html](https://nyra-lang.github.io/docs/reference.html) |
-| Built-in methods | [https://nyra-lang.github.io/docs/methods.html](https://nyra-lang.github.io/docs/methods.html) |
-| Standard library | [https://nyra-lang.github.io/docs/stdlib.html](https://nyra-lang.github.io/docs/stdlib.html) |
-| Data structures (learn) | [https://nyra-lang.github.io/docs/learn-data-structures.html](https://nyra-lang.github.io/docs/learn-data-structures.html) |
-| Match | [https://nyra-lang.github.io/docs/match.html](https://nyra-lang.github.io/docs/match.html) |
-| Async | [https://nyra-lang.github.io/docs/async.html](https://nyra-lang.github.io/docs/async.html) |
-| Traits & macros | [https://nyra-lang.github.io/docs/traits-macros.html](https://nyra-lang.github.io/docs/traits-macros.html) |
-| Concurrency | [https://nyra-lang.github.io/docs/concurrency.html](https://nyra-lang.github.io/docs/concurrency.html) |
-| Memory & ownership | [https://nyra-lang.github.io/docs/memory.html](https://nyra-lang.github.io/docs/memory.html) |
-| Ownership (learn) | [https://nyra-lang.github.io/docs/learn-ownership.html](https://nyra-lang.github.io/docs/learn-ownership.html) |
-| Borrowing (learn) | [https://nyra-lang.github.io/docs/learn-borrowing.html](https://nyra-lang.github.io/docs/learn-borrowing.html) |
-| PGO | [https://nyra-lang.github.io/docs/pgo.html](https://nyra-lang.github.io/docs/pgo.html) |
-| Escape analysis | [https://nyra-lang.github.io/docs/escape-analysis.html](https://nyra-lang.github.io/docs/escape-analysis.html) |
-| Performance | [https://nyra-lang.github.io/docs/performance.html](https://nyra-lang.github.io/docs/performance.html) |
-| net/http | [https://nyra-lang.github.io/docs/net-http.html](https://nyra-lang.github.io/docs/net-http.html) |
-| C bindgen | [https://nyra-lang.github.io/docs/c-bindgen.html](https://nyra-lang.github.io/docs/c-bindgen.html) |
-| FFI & ABI | [https://nyra-lang.github.io/docs/ffi-abi.html](https://nyra-lang.github.io/docs/ffi-abi.html) |
-| NyraPkg | [https://nyra-lang.github.io/docs/packages.html](https://nyra-lang.github.io/docs/packages.html) |
-| Diagnostics | [https://nyra-lang.github.io/docs/diagnostics.html](https://nyra-lang.github.io/docs/diagnostics.html) |
-| Stdlib bridge | [https://nyra-lang.github.io/docs/stdlib.html](https://nyra-lang.github.io/docs/stdlib.html) |
-| AI skill download page | [https://nyra-lang.github.io/docs/ai-skill.html](https://nyra-lang.github.io/docs/ai-skill.html) |
-| Roadmap & status | [https://nyra-lang.github.io/docs/roadmap.html](https://nyra-lang.github.io/docs/roadmap.html) |
-| Changelog | [https://nyra-lang.github.io/docs/changelog.html](https://nyra-lang.github.io/docs/changelog.html) |
+| Learn Nyra (tutorial track) | [https://nyra-lang.github.io/nyra/learn-intro.html](https://nyra-lang.github.io/nyra/learn-intro.html) |
+| Get started | [https://nyra-lang.github.io/nyra/learn-get-started.html](https://nyra-lang.github.io/nyra/learn-get-started.html) |
+| Language reference | [https://nyra-lang.github.io/nyra/reference.html](https://nyra-lang.github.io/nyra/reference.html) |
+| Built-in methods | [https://nyra-lang.github.io/nyra/methods.html](https://nyra-lang.github.io/nyra/methods.html) |
+| Standard library | [https://nyra-lang.github.io/nyra/stdlib.html](https://nyra-lang.github.io/nyra/stdlib.html) |
+| Data structures (learn) | [https://nyra-lang.github.io/nyra/learn-data-structures.html](https://nyra-lang.github.io/nyra/learn-data-structures.html) |
+| Match | [https://nyra-lang.github.io/nyra/match.html](https://nyra-lang.github.io/nyra/match.html) |
+| Async | [https://nyra-lang.github.io/nyra/async.html](https://nyra-lang.github.io/nyra/async.html) |
+| Traits & macros | [https://nyra-lang.github.io/nyra/traits-macros.html](https://nyra-lang.github.io/nyra/traits-macros.html) |
+| Concurrency | [https://nyra-lang.github.io/nyra/concurrency.html](https://nyra-lang.github.io/nyra/concurrency.html) |
+| Memory & ownership | [https://nyra-lang.github.io/nyra/memory.html](https://nyra-lang.github.io/nyra/memory.html) |
+| Ownership inspect (`nyra inspect`) | [https://nyra-lang.github.io/nyra/ownership-inspect.html](https://nyra-lang.github.io/nyra/ownership-inspect.html) |
+| Ownership (learn) | [https://nyra-lang.github.io/nyra/learn-ownership.html](https://nyra-lang.github.io/nyra/learn-ownership.html) |
+| Borrowing (learn) | [https://nyra-lang.github.io/nyra/learn-borrowing.html](https://nyra-lang.github.io/nyra/learn-borrowing.html) |
+| PGO | [https://nyra-lang.github.io/nyra/pgo.html](https://nyra-lang.github.io/nyra/pgo.html) |
+| Escape analysis | [https://nyra-lang.github.io/nyra/escape-analysis.html](https://nyra-lang.github.io/nyra/escape-analysis.html) |
+| Performance | [https://nyra-lang.github.io/nyra/performance.html](https://nyra-lang.github.io/nyra/performance.html) |
+| net/http | [https://nyra-lang.github.io/nyra/net-http.html](https://nyra-lang.github.io/nyra/net-http.html) |
+| C bindgen | [https://nyra-lang.github.io/nyra/c-bindgen.html](https://nyra-lang.github.io/nyra/c-bindgen.html) |
+| FFI & ABI | [https://nyra-lang.github.io/nyra/ffi-abi.html](https://nyra-lang.github.io/nyra/ffi-abi.html) |
+| NyraPkg | [https://nyra-lang.github.io/nyra/packages.html](https://nyra-lang.github.io/nyra/packages.html) |
+| Diagnostics | [https://nyra-lang.github.io/nyra/diagnostics.html](https://nyra-lang.github.io/nyra/diagnostics.html) |
+| Stdlib bridge | [https://nyra-lang.github.io/nyra/stdlib.html](https://nyra-lang.github.io/nyra/stdlib.html) |
+| AI skill download page | [https://nyra-lang.github.io/nyra/ai-skill.html](https://nyra-lang.github.io/nyra/ai-skill.html) |
+| Roadmap & status | [https://nyra-lang.github.io/nyra/roadmap.html](https://nyra-lang.github.io/nyra/roadmap.html) |
+| Changelog | [https://nyra-lang.github.io/nyra/changelog.html](https://nyra-lang.github.io/nyra/changelog.html) |
 

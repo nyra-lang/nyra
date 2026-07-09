@@ -193,6 +193,8 @@ impl Clone for CompileOptions {
             deny_warnings: self.deny_warnings,
             features: self.features.clone(),
             verbose_escape: self.verbose_escape,
+            ownership_verbose: self.ownership_verbose,
+            inspect_query: self.inspect_query.clone(),
             no_prelude: self.no_prelude,
             skip_typecheck: self.skip_typecheck,
             incremental: None,
