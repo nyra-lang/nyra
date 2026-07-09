@@ -80,6 +80,7 @@ def _math_demo(spec: StdlibFnSpec) -> str | None:
         "log10": "100.0",
         "log2": "8.0",
         "lerp": "0.0, 10.0, 0.5",
+        "pow_i32": "2, 3",
         "gcd_i32": "12, 8",
         "lcm_i32": "4, 6",
         "mod_i32": "7, 3",

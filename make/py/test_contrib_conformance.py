@@ -271,6 +271,13 @@ def check_example_codegen() -> None:
     _ok("example_codegen demos + tests")
 
 
+def check_examples_syntax() -> None:
+    rc = subprocess.call([sys.executable, str(MAKE_PY / "check_examples_syntax.py")], cwd=str(ROOT))
+    if rc != 0:
+        _fail("check_examples_syntax.py")
+    _ok("check_examples_syntax (builtins + option/result guards)")
+
+
 def check_recipe_json_examples() -> None:
     from contrib_dev.wizard import spec_from_config
 
@@ -399,6 +406,7 @@ def main() -> int:
     check_discover_smoke()
     check_manifest_invariant()
     check_example_codegen()
+    check_examples_syntax()
     check_recipe_json_examples()
     check_batch_json_catalogs()
     check_abi_manifest_tree()
