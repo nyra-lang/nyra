@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-09T22:48:51.844Z",
+  "generated": "2026-07-09T22:53:31.707Z",
   "docs": [
     {
       "pageTitle": "AI skill file",
@@ -1149,7 +1149,7 @@
       "id": "escape-analysis.html#example",
       "title": "Escape analysis",
       "heading": "Example",
-      "body": "Example Without types With types struct Point { x: i32 y: i32 } fn main() { let p = Point { x: 10, y: 20 } print(p.x + p.y) } struct Point { x: i32 y: i32 } fn main() -> void { let p: Point = Point { x: 10, y: 20 } print(p.x + p.y) } With --verbose : p is NoEscape and the struct literal is eligible for stack promotion (SROA). For LocalChannel, see the section above and Concurrency → Channels ."
+      "body": "Example Without types With types fn main() { let p = { x: 10, y: 20 } print(p.x + p.y) } fn main() -> void { let p = { x: 10, y: 20 } print(p.x + p.y) } With --verbose : p is NoEscape and the struct literal is eligible for stack promotion (SROA). For LocalChannel, see the section above and Concurrency → Channels ."
     },
     {
       "pageTitle": "Escape analysis",
