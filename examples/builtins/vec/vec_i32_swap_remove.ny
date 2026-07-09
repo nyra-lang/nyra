@@ -1,7 +1,8 @@
-// [contrib-dev:vec_i32_swap_remove:vec]
+// [contrib-dev:vec_i32_swap_remove]
 import "stdlib/vec.ny"
 
 fn main() {
-    print(ptr(0), 0)
+    print(1)
 }
-// [/contrib-dev:vec_i32_swap_remove:vec]
+// [/contrib-dev:vec_i32_swap_remove]
+

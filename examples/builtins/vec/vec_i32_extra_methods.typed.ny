@@ -2,6 +2,7 @@
 import "stdlib/vec.ny"
 
 fn main() -> void {
-    vec_i32_extra_methods()
+    let v = vec()
+    print(v.is_empty())
 }
 // [/contrib-dev:vec_i32_extra_methods:vec]

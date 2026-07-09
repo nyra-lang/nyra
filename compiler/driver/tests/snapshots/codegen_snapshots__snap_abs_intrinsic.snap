@@ -1,6 +1,6 @@
 ---
 source: compiler/driver/tests/codegen_snapshots.rs
-expression: normalize_ir(& ir)
+expression: normalize_ir(&ir)
 ---
 source_filename = "test.ny"
 target triple = "nyra-snapshot-host"
@@ -13,21 +13,48 @@ declare double @atan2_f64(double %0, double %1)
 declare double @atan_f64(double %0)
 declare double @ceil_f64(double %0)
 declare double @clamp_f64(double %0, double %1, double %2)
+declare double @copysign_f64(double %0, double %1)
 declare double @cos_f64(double %0)
+declare double @deg_to_rad_f64(double %0)
 declare double @exp_f64(double %0)
 declare double @floor_f64(double %0)
+declare double @fmod_f64(double %0, double %1)
+declare double @fract_f64(double %0)
 declare double @hypot_f64(double %0, double %1)
+declare double @lerp_f64(double %0, double %1, double %2)
 declare double @log10_f64(double %0)
 declare double @log2_f64(double %0)
 declare double @log_f64(double %0)
 declare double @pow_f64(double %0, double %1)
+declare double @rad_to_deg_f64(double %0)
 declare double @round_f64(double %0)
+declare double @signum_f64(double %0)
 declare double @sin_f64(double %0)
 declare double @sqrt_f64(double %0)
 declare double @tan_f64(double %0)
 declare double @trunc_f64(double %0)
+declare i32 @ceil_i32(i32 %0)
+declare i32 @count_ones_i32(i32 %0)
+declare i32 @floor_i32(i32 %0)
+declare i32 @gcd_i32(i32 %0, i32 %1)
+declare i32 @is_finite_f64(double %0)
+declare i32 @is_infinite_f64(double %0)
+declare i32 @is_nan_f64(double %0)
+declare i32 @lcm_i32(i32 %0, i32 %1)
+declare i32 @leading_zeros_i32(i32 %0)
 declare i32 @llvm.abs.i32(i32, i1)
+declare i32 @mod_i32(i32 %0, i32 %1)
 declare i32 @printf(ptr, ...)
+declare i32 @rem_euclid_i32(i32 %0, i32 %1)
+declare i32 @rotate_left_i32(i32 %0, i32 %1)
+declare i32 @rotate_right_i32(i32 %0, i32 %1)
+declare i32 @round_i32(i32 %0)
+declare i32 @saturating_add_i32(i32 %0, i32 %1)
+declare i32 @saturating_sub_i32(i32 %0, i32 %1)
+declare i32 @signum_i32(i32 %0)
+declare i32 @trailing_zeros_i32(i32 %0)
+declare i32 @trunc_i32(i32 %0)
+declare i32 @wrapping_add_i32(i32 %0, i32 %1)
 declare void @abort()
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
 
@@ -56,6 +83,11 @@ entry:
   %call.N = call double @clamp_f64(double %0, double %1, double %2)
   ret double %call.N
 }
+define double @deg_to_rad(double %0) {
+entry:
+  %call.N = call double @deg_to_rad_f64(double %0)
+  ret double %call.N
+}
 define double @exp(double %0) {
 entry:
   %call.N = call double @exp_f64(double %0)
@@ -66,9 +98,24 @@ entry:
   %call.N = call double @floor_f64(double %0)
   ret double %call.N
 }
+define double @fmod(double %0, double %1) {
+entry:
+  %call.N = call double @fmod_f64(double %0, double %1)
+  ret double %call.N
+}
+define double @fract(double %0) {
+entry:
+  %call.N = call double @fract_f64(double %0)
+  ret double %call.N
+}
 define double @hypot(double %0, double %1) {
 entry:
   %call.N = call double @hypot_f64(double %0, double %1)
+  ret double %call.N
+}
+define double @lerp(double %0, double %1, double %2) {
+entry:
+  %call.N = call double @lerp_f64(double %0, double %1, double %2)
   ret double %call.N
 }
 define double @log(double %0) {
@@ -91,9 +138,19 @@ entry:
   %call.N = call double @pow_f64(double %0, double %1)
   ret double %call.N
 }
+define double @rad_to_deg(double %0) {
+entry:
+  %call.N = call double @rad_to_deg_f64(double %0)
+  ret double %call.N
+}
 define double @round(double %0) {
 entry:
   %call.N = call double @round_f64(double %0)
+  ret double %call.N
+}
+define double @signum(double %0) {
+entry:
+  %call.N = call double @signum_f64(double %0)
   ret double %call.N
 }
 define double @sqrt(double %0) {
@@ -105,6 +162,31 @@ define double @trunc(double %0) {
 entry:
   %call.N = call double @trunc_f64(double %0)
   ret double %call.N
+}
+define i32 @count_ones(i32 %0) {
+entry:
+  %call.N = call i32 @count_ones_i32(i32 %0)
+  ret i32 %call.N
+}
+define i32 @is_finite(double %0) {
+entry:
+  %call.N = call i32 @is_finite_f64(double %0)
+  ret i32 %call.N
+}
+define i32 @is_infinite(double %0) {
+entry:
+  %call.N = call i32 @is_infinite_f64(double %0)
+  ret i32 %call.N
+}
+define i32 @is_nan(double %0) {
+entry:
+  %call.N = call i32 @is_nan_f64(double %0)
+  ret i32 %call.N
+}
+define i32 @leading_zeros(i32 %0) {
+entry:
+  %call.N = call i32 @leading_zeros_i32(i32 %0)
+  ret i32 %call.N
 }
 define i32 @main() {
 entry:
@@ -141,6 +223,31 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 %loop.exit.N
 }
+define i32 @rem_euclid(i32 %0, i32 %1) {
+entry:
+  %call.N = call i32 @rem_euclid_i32(i32 %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @rotate_left(i32 %0, i32 %1) {
+entry:
+  %call.N = call i32 @rotate_left_i32(i32 %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @rotate_right(i32 %0, i32 %1) {
+entry:
+  %call.N = call i32 @rotate_right_i32(i32 %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @saturating_add(i32 %0, i32 %1) {
+entry:
+  %call.N = call i32 @saturating_add_i32(i32 %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @saturating_sub(i32 %0, i32 %1) {
+entry:
+  %call.N = call i32 @saturating_sub_i32(i32 %0, i32 %1)
+  ret i32 %call.N
+}
 define i32 @sqrt_i32(i32 %0) {
 entry:
   %bin.N = icmp sle i32 %0, 0
@@ -171,4 +278,14 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 %loop.exit.N
+}
+define i32 @trailing_zeros(i32 %0) {
+entry:
+  %call.N = call i32 @trailing_zeros_i32(i32 %0)
+  ret i32 %call.N
+}
+define i32 @wrapping_add(i32 %0, i32 %1) {
+entry:
+  %call.N = call i32 @wrapping_add_i32(i32 %0, i32 %1)
+  ret i32 %call.N
 }

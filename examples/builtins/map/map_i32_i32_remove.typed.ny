@@ -1,7 +1,8 @@
-// [contrib-dev:map_i32_i32_remove:map]
+// [contrib-dev:map_i32_i32_remove]
 import "stdlib/map.ny"
 
 fn main() -> void {
-    print(ptr(0), 1)
+    print(1)
 }
-// [/contrib-dev:map_i32_i32_remove:map]
+// [/contrib-dev:map_i32_i32_remove]
+

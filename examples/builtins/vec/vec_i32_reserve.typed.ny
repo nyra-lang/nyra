@@ -1,7 +1,8 @@
-// [contrib-dev:vec_i32_reserve:vec]
+// [contrib-dev:vec_i32_reserve]
 import "stdlib/vec.ny"
 
 fn main() -> void {
-    print(ptr(0), 1)
+    print(1)
 }
-// [/contrib-dev:vec_i32_reserve:vec]
+// [/contrib-dev:vec_i32_reserve]
+

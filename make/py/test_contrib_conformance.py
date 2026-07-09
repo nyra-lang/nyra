@@ -182,6 +182,38 @@ def check_example_codegen() -> None:
     if "hashmap_i32_get_or()" in mdemo or "get_or(" not in mdemo:
         _fail("hashmap_i32_get_or demo must call m.get_or(...)")
 
+    lerp = StdlibFnSpec(
+        fn_name="lerp_f64",
+        args=[ArgSpec("a", NyraType.F64), ArgSpec("b", NyraType.F64), ArgSpec("t", NyraType.F64)],
+        returns=NyraType.F64,
+        ny_module="math.ny",
+        rt_module="rt_math.c",
+        ny_alias="lerp",
+    )
+    ldemo = demo_body(lerp)
+    if "lerp(0.0, 10.0, 0.5)" not in ldemo and "lerp(1.0)" in ldemo:
+        _fail("lerp_f64 demo must pass three arguments")
+
+    fill = StdlibFnSpec(
+        fn_name="vec_i32_fill",
+        args=[ArgSpec("handle", NyraType.PTR), ArgSpec("value", NyraType.I32)],
+        returns=NyraType.VOID,
+        ny_module="vec.ny",
+        rt_module="rt_vec.c",
+    )
+    if "ptr(0)" in demo_body(fill):
+        _fail("vec_i32_fill demo must not use ptr(0)")
+
+    slice_methods = StdlibFnSpec(
+        fn_name="vec_i32_slice_methods",
+        args=[],
+        returns=NyraType.VOID,
+        ny_module="vec.ny",
+        pure_source="impl VecI32 { fn window(self, a: i32, b: i32) -> VecI32 { return self } }",
+    )
+    if "vec_i32_slice_methods()" in demo_body(slice_methods):
+        _fail("vec_i32_slice_methods demo must not call slug as function")
+
     hex_spec = StdlibFnSpec(
         fn_name="hex_decode",
         args=[ArgSpec("hex", NyraType.STRING)],

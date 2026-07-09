@@ -57,6 +57,7 @@ def _math_demo(spec: StdlibFnSpec) -> str | None:
         "atan": "1.0",
         "log10": "100.0",
         "log2": "8.0",
+        "lerp": "0.0, 10.0, 0.5",
     }
     args = samples.get(alias, "1.0")
     return f"    print({alias}({args}))"
@@ -277,9 +278,71 @@ def _pure_impl_demo(spec: StdlibFnSpec) -> str | None:
     return None
 
 
+def _pure_scaffold_demo(spec: StdlibFnSpec) -> str | None:
+    """Demos for pure_source module scaffolds (fn_name is a slug, not a callable)."""
+    demos: dict[str, str] = {
+        "vec_i32_slice_methods": (
+            "    let v = vec().push(1).push(2).push(3).push(4)\n"
+            "    let w = v.window(1, 2)\n"
+            "    print(w.len())"
+        ),
+        "vec_i32_extra_methods": (
+            "    let v = vec()\n"
+            "    print(v.is_empty())"
+        ),
+        "vec_i32_swap_extend": (
+            "    let v = vec().push(1).push(2).swap(0, 1)\n"
+            "    print(v.get(0))"
+        ),
+        "strvec_set_method": (
+            '    let v = strs().push("a")\n'
+            '    let _ = v.set(0, "z")\n'
+            '    print(v.get(0))'
+        ),
+        "hashmap_i32_i32": (
+            "    let m = HashMap_i32_i32_new()\n"
+            "    let _ = m.insert(1, 42)\n"
+            "    print(m.get(1))"
+        ),
+        "hashmap_update": (
+            '    let m = HashMap_str_i32_new().insert("k", 10)\n'
+            '    let _ = m.insert("k", 20)\n'
+            '    print(m.get("k"))'
+        ),
+    }
+    return demos.get(spec.fn_name)
+
+
+def _extern_scaffold_demo(spec: StdlibFnSpec) -> str | None:
+    """Build runnable demos from extern_test_body (avoid ptr(0) placeholder fallbacks)."""
+    lines = extern_test_body(spec)
+    if not lines:
+        return None
+    out: list[str] = []
+    for line in lines:
+        s = line.strip()
+        if not s or s.startswith("//"):
+            continue
+        if s.startswith("if "):
+            continue
+        if s.startswith("assert_str_eq("):
+            inner = s[len("assert_str_eq(") : s.rfind(")")]
+            expr = inner.split(",")[0].strip()
+            out.append(f"    print({expr})")
+            continue
+        if s.startswith("assert_eq("):
+            inner = s[len("assert_eq(") : s.rfind(")")]
+            expr = inner.split(",")[0].strip()
+            out.append(f"    print({expr})")
+            continue
+        out.append(f"    {s}")
+    return "\n".join(out) if out else None
+
+
 def demo_body(spec: StdlibFnSpec) -> str:
     for builder in (
         _pure_impl_demo,
+        _pure_scaffold_demo,
         _sync_demo,
         _math_demo,
         _map_demo,
@@ -289,6 +352,7 @@ def demo_body(spec: StdlibFnSpec) -> str:
         _option_demo,
         _result_demo,
         _hashmap_demo,
+        _extern_scaffold_demo,
     ):
         body = builder(spec)
         if body:
