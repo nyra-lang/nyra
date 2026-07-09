@@ -433,11 +433,17 @@ impl Codegen {
     ) -> ExprValue {
         let scrutinee = self.compile_expr(&m.scrutinee, env);
         let match_enum_name = self.match_scrutinee_enum(&m.scrutinee, &scrutinee, env);
-        let mut result_ty = m
+        let arm_tys: Vec<String> = m
             .arms
             .iter()
             .map(|a| self.infer_block_expr_llvm_ty(&a.body, env))
-            .find(|ty| ty != "void")
+            .filter(|ty| ty != "void")
+            .collect();
+        let mut result_ty = arm_tys
+            .iter()
+            .find(|ty| ty.starts_with('%'))
+            .or(arm_tys.first())
+            .cloned()
             .unwrap_or_else(|| "i32".into());
         if result_ty == "i32" {
             if let Some(payload_ty) = self.infer_match_payload_result_ty(m, match_enum_name.as_deref()) {
