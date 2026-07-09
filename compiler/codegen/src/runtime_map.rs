@@ -563,7 +563,6 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("copysign_f64", "rt_math.c"),
         ("fmod_f64", "rt_math.c"),
         ("lerp_f64", "rt_math.c"),
-        ("pow_i32", "rt_math.c"),
         ("signum_i32", "rt_math.c"),
         ("trunc_i32", "rt_math.c"),
         ("vec_str_extend", "rt_vec.c"),

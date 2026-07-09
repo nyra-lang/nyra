@@ -59,7 +59,8 @@ Root [`Makefile`](../Makefile) includes all `make/*.mk` files and defines `make 
 | `make install-dev` | **Install CLI to PATH** — `cargo install --path cli --force` + stdlib sync |
 | `make gen-abi-header` | Regenerate `stdlib/nyra_rt.h` from `docs/abi-manifest.toml` |
 | `make gen-bindings-doc` | Regenerate `docs/bindings.md` + `webDocs/bindings.html` |
-| `make add-builtin` | Wire a new string/array builtin (interactive wizard by default) |
+| `make contribute` | **Single hub** — add, remove, list, patch, batch, verify (interactive) |
+| `make add-builtin` | Legacy shortcut — prefer `make contribute` → 1 → 3 |
 | `make remove-builtin` | Remove a wired builtin |
 | `make patch-builtin` | Update wiring of an existing builtin |
 
@@ -112,29 +113,28 @@ Automations to **add**, **remove**, or **patch** stdlib methods (e.g. `.strip_su
 
 ### Contributor hub (`make/py/contrib_dev/`)
 
-Unified **`make contribute`** menu for common contribution scaffolds (stdlib pure/extern, tests, NyraPkg, CLI, conformance). Built-in methods (option 3) delegate to `make add-builtin`.
+Unified **`make contribute`** hub for all contribution scaffolds (stdlib pure/extern, builtins, tests, batch, verify). Built-in methods delegate to `builtin-dev.py` internally — contributors use the hub menu, not separate make targets.
 
 | Script / module | Role |
 |-----------------|------|
-| [`contribute.py`](../make/py/contribute.py) | Hub CLI — interactive menu or `--recipe` + `--config` |
-| [`contrib_dev/recipes/`](../make/py/contrib_dev/recipes/) | One recipe per menu item |
+| [`contribute.py`](../make/py/contribute.py) | Hub CLI — `hub` (default), `add`, `remove`, `list`, `patch` |
+| [`contrib_dev/hub.py`](../make/py/contrib_dev/hub.py) | Main menu + batch/verify/builtin delegation |
+| [`contrib_dev/recipes/`](../make/py/contrib_dev/recipes/) | One recipe per Add menu item |
 | [`contrib_dev/examples/*.json`](../make/py/contrib_dev/examples/) | JSON specs for non-interactive runs |
 
 ```bash
-make contribute
-make contribute ARGS='add --recipe test-example --config make/py/contrib_dev/examples/test_example.json'
-make contribute-list
-make contribute-remove ARGS='-i'
-make test-contrib-py
+make contribute                              # interactive hub (default)
+make contribute ARGS='add --recipe test-example --config …'
+make test-contrib-conformance
+make test-contrib-py   # alias
 ```
 
-Full details: [`make/py/contrib_dev/README.md`](../make/py/contrib_dev/README.md).
+Full details: [`make/py/contrib_dev/README.md`](../make/py/contrib_dev/README.md). Contract: [`tests/conformance/pass/contrib_automation/README.md`](../../tests/conformance/pass/contrib_automation/README.md).
 
 **Typical workflow — new string method:**
 
 ```bash
-make add-builtin                              # wizard (default)
-make add-builtin ARGS='--config make/py/builtin_dev/examples/strip_suffix.json'
+make contribute                              # → 1 Add → 3 Built-in Method
 # 1. Implement C in stdlib/rt/rt_strings.c ([builtin-dev:…] block)
 # 2. Fix test expectations in tests/nyra/
 make install-dev

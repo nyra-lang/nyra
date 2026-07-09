@@ -3,7 +3,7 @@
 MAKE_PY := $(ROOT)/make/py
 
 .PHONY: gen-abi-header gen-bindings-doc gen-suite-tests gen-typed-examples
-.PHONY: add-builtin remove-builtin patch-builtin batch-add-builtin gen-batch3 gen-batch4 gen-batch5 gen-batch6 contribute contribute-remove contribute-list contribute-patch test-contrib-py
+.PHONY: add-builtin remove-builtin patch-builtin batch-add-builtin gen-batch3 gen-batch4 gen-batch5 gen-batch6 contribute contribute-remove contribute-list contribute-patch test-contrib-py test-contrib-conformance
 .PHONY: sync-webdocs-code-tabs gen-comparison-extended sync-comparison-typed
 .PHONY: bump-comparison-hardness snippet-types strip-apps-types strip-nyra-symbol-prefix
 .PHONY: gen-ar-file-index bench-comparison-html update-readme-bench
@@ -51,17 +51,17 @@ bench-comparison-html:
 update-readme-bench:
 	@python3 $(MAKE_PY)/update-readme-bench.py
 
-# Usage: make add-builtin                    # interactive wizard (default)
+# Usage: make add-builtin                    # prefer: make contribute → 1 → 3
 #        make add-builtin ARGS='--config make/py/builtin_dev/examples/strip_suffix.json'
-#        make remove-builtin ARGS='--method strip_suffix'
-#        make patch-builtin ARGS='-i'        # update existing builtin
 # Docs:  make/py/builtin_dev/README.md
 add-builtin:
+	@echo "→ Tip: \`make contribute\` → 1 Add → 3 Built-in Method runs the same wizard."
 	@python3 $(MAKE_PY)/builtin-dev.py add $(if $(ARGS),$(ARGS),-i)
 
 # Usage: make batch-add-builtin BATCH=batch2
 #        make batch-add-builtin BATCH=all ONLY=string,math
 batch-add-builtin:
+	@echo "→ Tip: \`make contribute\` → 5 Batch runs gen-batch + batch-add internally."
 	@NYRA_CONTRIBUTE_SKIP_WEBDOCS=1 python3 $(MAKE_PY)/builtin_dev/batch_add.py \
 		--batch $(if $(BATCH),$(BATCH),batch) \
 		$(if $(ONLY),--only $(ONLY),) \
@@ -85,19 +85,22 @@ gen-batch6:
 	@python3 $(MAKE_PY)/contrib_dev/gen_batch6.py
 
 remove-builtin:
+	@echo "→ Tip: \`make contribute\` → 2 Remove → Built-in method."
 	@python3 $(MAKE_PY)/builtin-dev.py remove $(if $(ARGS),$(ARGS),-i)
 
 patch-builtin:
+	@echo "→ Tip: \`make contribute\` → 4 Patch → Built-in method."
 	@python3 $(MAKE_PY)/builtin-dev.py patch $(if $(ARGS),$(ARGS),-i)
 
-# Usage: make contribute                    # interactive hub (default)
-#        make contribute ARGS='--recipe stdlib-extern --config make/py/contrib_dev/examples/stdlib_extern.json'
+# Usage: make contribute                    # interactive hub (default — all automation)
+#        make contribute ARGS='add --recipe stdlib-extern --config …'
+#        make contribute ARGS='remove -i'   # or use hub menu → 2 Remove
 # Docs:  make/py/contrib_dev/README.md
 # NYRA_CONTRIBUTE_SKIP_WEBDOCS=1 skips slow webDocs regen after scaffold.
-# Remove/list/patch default to --no-webdocs unless CONTRIBUTE_WEBDOCS=1.
 contribute:
-	@python3 $(MAKE_PY)/contribute.py $(if $(ARGS),$(ARGS),add -i)
+	@python3 $(MAKE_PY)/contribute.py $(ARGS)
 
+# Legacy shortcuts — same tools the hub runs internally; prefer `make contribute`.
 contribute-remove:
 	@python3 $(MAKE_PY)/contribute.py remove --no-webdocs $(if $(ARGS),$(ARGS),-i)
 
@@ -107,5 +110,8 @@ contribute-list:
 contribute-patch:
 	@python3 $(MAKE_PY)/contribute.py patch --no-webdocs $(ARGS)
 
-test-contrib-py:
-	@python3 $(MAKE_PY)/test_contrib_dev.py
+test-contrib-conformance:
+	@python3 $(MAKE_PY)/test_contrib_conformance.py
+
+# Alias for CONF-CONTRIB-PY conformance (same as test-contrib-conformance).
+test-contrib-py: test-contrib-conformance

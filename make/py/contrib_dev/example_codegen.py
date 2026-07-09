@@ -134,11 +134,10 @@ def _vec_str_extern_demo(spec: StdlibFnSpec) -> str | None:
 
 
 def _option_demo(spec: StdlibFnSpec) -> str | None:
-    if "option/combinators" in spec.ny_module:
+    if "option/combinators" in spec.ny_module or spec.fn_name == "option_combinators":
         return (
-            "    let some = Option_i32_some(5)\n"
-            "    print(Option_i32_unwrap_or(some, 0))\n"
-            "    print(Option_i32_is_none(Option_i32_none()))"
+            "    let o = Option_i32_some(5)\n"
+            "    print(Option_i32_unwrap_or(o, 0))"
         )
     return None
 
@@ -214,8 +213,37 @@ def _strconv_demo(spec: StdlibFnSpec) -> str | None:
     return None
 
 
+def _sync_demo(spec: StdlibFnSpec) -> str | None:
+    if not spec.ny_module.startswith("sync"):
+        return None
+    demos = {
+        "atomic_sub_i32": (
+            "    let a = Atomic_i32_new(10)\n"
+            "    print(atomic_sub_i32(a.cell, 3))"
+        ),
+        "atomic_and_i32": (
+            "    let a = Atomic_i32_new(7)\n"
+            "    print(atomic_and_i32(a.cell, 3))"
+        ),
+        "atomic_or_i32": (
+            "    let a = Atomic_i32_new(1)\n"
+            "    print(atomic_or_i32(a.cell, 2))"
+        ),
+        "atomic_xor_i32": (
+            "    let a = Atomic_i32_new(5)\n"
+            "    print(atomic_xor_i32(a.cell, 3))"
+        ),
+    }
+    return demos.get(spec.fn_name)
+
+
 def _pure_impl_demo(spec: StdlibFnSpec) -> str | None:
     src = spec.pure_source or ""
+    if "impl HashMap_i32_i32" in src and "fn get_or" in src:
+        return (
+            "    let m = HashMap_i32_i32_new()\n"
+            "    print(m.get_or(1, 99))"
+        )
     if "impl HashMap_str_i32" in src and "fn or_insert" in src:
         return (
             '    let m = HashMap_str_i32_new()\n'
@@ -252,6 +280,7 @@ def _pure_impl_demo(spec: StdlibFnSpec) -> str | None:
 def demo_body(spec: StdlibFnSpec) -> str:
     for builder in (
         _pure_impl_demo,
+        _sync_demo,
         _math_demo,
         _map_demo,
         _vec_demo,

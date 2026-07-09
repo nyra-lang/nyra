@@ -18,6 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 MAKE_PY = ROOT / "make" / "py"
+if str(MAKE_PY) not in sys.path:
+    sys.path.insert(0, str(MAKE_PY))
 BUILTIN_PY = MAKE_PY / "builtin-dev.py"
 CONTRIBUTE_PY = MAKE_PY / "contribute.py"
 EXAMPLES = Path(__file__).resolve().parent / "examples"
@@ -189,6 +191,11 @@ def main() -> int:
         return 1
 
     report.print_summary()
+    if report.ok() and not args.dry_run:
+        from contrib_dev.manifest_dedupe import dedupe_abi_manifest, strip_pure_nyra_symbols
+
+        dedupe_abi_manifest()
+        strip_pure_nyra_symbols()
     return 0 if report.ok() else 1
 
 

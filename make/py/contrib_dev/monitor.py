@@ -19,7 +19,6 @@ from .terminal_style import (
     menu_item,
     use_color,
 )
-from .tiger_banner import play_tiger_intro
 from .wizard_guide import GUIDES, monitor_sections
 
 
@@ -79,9 +78,10 @@ def print_recipe_monitor(result: RecipeResult) -> None:
     print("\n" + _col("▶ VERIFY (run in order):", ACCENT, color))
     if guide:
         print("   " + _col("1.", NUM, color) + f" {_col(guide.verify, TEXT, color)}")
-    print("   " + _col("2.", NUM, color) + " make install-dev     # if compiler/ or runtime_map changed")
-    print("   " + _col("3.", NUM, color) + " make test-preflight  # fast gate before PR")
-    print("   " + _col("4.", NUM, color) + " make test-all        # full CI before merge")
+    print("   " + _col("2.", NUM, color) + " make contribute → 6 Verify → 2 Post-scaffold CI gates")
+    print("   " + _col("3.", NUM, color) + " make install-dev     # if compiler/ or runtime_map changed")
+    print("   " + _col("4.", NUM, color) + " make test-preflight  # fast gate before PR")
+    print("   " + _col("5.", NUM, color) + " make test-all        # full CI before merge")
 
     if result.usage_lines:
         print("\n" + _col("💡 USAGE (after implementation):", ACCENT, color))
@@ -101,32 +101,33 @@ def print_recipe_monitor(result: RecipeResult) -> None:
         for w in result.warnings:
             print(f"   • {w}")
 
-    print("\n" + _col("🔄 UNDO:", MUTED, color) + " make contribute-remove ARGS='--marker " + result.marker + "'")
+    print("\n" + _col("🔄 UNDO:", MUTED, color) + " make contribute  →  2 Remove  →  paste marker " + result.marker)
     print()
 
 
-def print_hub_banner() -> None:
-    play_tiger_intro()
+def print_recipe_menu() -> None:
+    """Recipe picker (1–8) — no tiger intro; used from hub Add or `contribute add -i`."""
     color = use_color()
 
     if color:
-        print(f"  {TITLE}make contribute{RESET} {MUTED}— Nyra contributor hub{RESET}")
-        print(f"  {MUTED}Step-by-step monitor — {ACCENT}TOOL{RESET}{MUTED} wires, {ACCENT}YOU{RESET}{MUTED} code{RESET}")
+        print(f"  {TITLE}Add scaffold{RESET} {MUTED}— pick a recipe{RESET}")
+        print(f"  {MUTED}TOOL wires stubs · YOU implement logic · WHY shown each step{RESET}")
     else:
-        print("  make contribute — Nyra contributor hub")
-        print("  Step-by-step monitor — TOOL wires, YOU code")
+        print("  Add scaffold — pick a recipe")
+        print("  TOOL wires stubs · YOU implement logic · WHY shown each step")
     print()
 
     w = 45
     items = (
         ("1", "Stdlib Pure Function", "(Pattern A)", "Nyra fn in stdlib — no new C"),
         ("2", "Stdlib Extern + C", "(Pattern B)", "extern fn + rt/*.c + runtime_map"),
-        ("3", "Built-in Method", "(.method)", "→ make add-builtin wizard"),
+        ("3", "Built-in Method", "(.method)", "compiler + C wiring (hub runs internally)"),
         ("4", "Test + Example Pair", "", "tests/nyra/* + examples/* (typed pair)"),
         ("5", "NyraPkg Package", "", "examples/packages/<name>/"),
         ("6", "CLI Command / Flag", "", "scaffold → manual wire in cli/"),
         ("7", "Conformance Test", "", "pass/ or fail/ language contract"),
         ("8", "Syntax / Keyword Scaffold", "", "checklist — no auto lexer/parser"),
+        ("0", "Back", "", "return to main hub menu"),
     )
 
     print(box_top(width=w, color=color))
@@ -139,8 +140,12 @@ def print_hub_banner() -> None:
     print(hint_line("Type 1–8, then answer each question (WHY / TOOL / YOU shown).", color=color))
     print(hint_line("Naming: Recipe 2 = str_* (C/extern). Recipe 3 = .method name (Nyra code).", color=color))
     print(hint_line("Preview + confirm before any file is written.", color=color))
-    print(hint_line("Docs: CONTRIBUTING.md § Contributor hub guide", color=color))
     print()
+
+
+def print_hub_banner() -> None:
+    """Legacy alias — recipe menu only (main hub uses contrib_dev.hub.print_main_hub_banner)."""
+    print_recipe_menu()
 
 
 def print_list_monitor(items) -> None:
@@ -155,6 +160,7 @@ def print_list_monitor(items) -> None:
         print(f"  • {item.label}")
         for path in item.paths:
             print(f"      {_rel(path)}")
-    print("\n  Remove: make contribute-remove ARGS='-i'")
-    print("  Patch:  make contribute-patch ARGS='--marker <m> --config …'")
+    print("\n  Remove: make contribute  →  2 Remove")
+    print("  Patch:  make contribute  →  4 Patch")
+    print("  List:   make contribute  →  3 List")
     print()

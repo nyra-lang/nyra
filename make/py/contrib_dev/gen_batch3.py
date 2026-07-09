@@ -284,6 +284,34 @@ def _fix_builtin_collisions() -> None:
             rt_math.write_text(cleaned, encoding="utf-8")
             print("  removed duplicate pow_i32 C stub")
 
+    abi = ROOT / "docs" / "abi-manifest.toml"
+    if abi.exists():
+        text = abi.read_text(encoding="utf-8")
+        original = text
+        text = re.sub(
+            r"# \[contrib-dev:pow_i32:math\].*?# \[/contrib-dev:pow_i32:math\]\n*",
+            "",
+            text,
+            flags=re.DOTALL,
+        )
+        text = re.sub(
+            r"# \[builtin-dev:char_at:string\].*?# \[/builtin-dev:char_at:string\]\n*",
+            "",
+            text,
+            flags=re.DOTALL,
+        )
+        if text != original:
+            abi.write_text(text, encoding="utf-8")
+            print("  removed duplicate abi-manifest entries (pow_i32, char_at)")
+
+    if runtime_map.exists():
+        text = runtime_map.read_text(encoding="utf-8")
+        original = text
+        text = text.replace('        ("pow_i32", "rt_math.c"),\n', "")
+        if text != original:
+            runtime_map.write_text(text, encoding="utf-8")
+            print("  removed pow_i32 from runtime_map (pure Nyra fn)")
+
     if rt_math.exists():
         text = rt_math.read_text(encoding="utf-8")
         fixed = text.replace(
@@ -499,6 +527,10 @@ def main() -> int:
 
     _strip_broken_option_combinators(ROOT / "stdlib" / "result.ny")
     _fix_builtin_collisions()
+    from contrib_dev.manifest_dedupe import dedupe_abi_manifest, strip_pure_nyra_symbols
+
+    dedupe_abi_manifest()
+    strip_pure_nyra_symbols()
     _restore_vec_str_if_corrupted(ROOT / "stdlib" / "vec_str.ny")
     _consolidate_strvec_impl(ROOT / "stdlib" / "vec_str.ny")
     _consolidate_strvec_insert(ROOT / "stdlib" / "vec_str.ny")

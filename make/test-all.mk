@@ -41,6 +41,7 @@ test-all-core-fast:
 	$(call run_gate,test-webdocs-snippets,webdocs snippet run)
 	$(call run_gate,smoke-vscode-extension,vscode extension compile)
 	$(call run_gate,test-optional-types,optional types)
+	$(call run_gate,test-contrib-conformance,contrib automation CONF-CONTRIB-PY)
 	$(call run_gate,test-comparison-parity,comparison parity)
 
 # ~1–5 min: Rust unit/integration (excl. compiletest), Nyra scripts, CLI smokes.

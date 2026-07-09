@@ -11,7 +11,7 @@ test-platform-ci-build:
 	@$(MAKE) build-workspace build-cli
 	$(call log_ok,CI build workspace + cli + rt-tls)
 
-# Tier 1 — seconds to ~3 min (matrix: optional-types, conformance, cargo-workspace).
+# Tier 1 — seconds to ~3 min (matrix: optional-types, conformance, cargo-workspace, contrib-automation).
 test-platform-ci-tier1: ensure-nyra
 	$(call log_step,CI tier1 $(NYRA_CI_GATE))
 	@$(MAKE) $(NYRA_CI_GATE)

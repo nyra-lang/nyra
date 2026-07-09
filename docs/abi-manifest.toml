@@ -4035,104 +4035,16 @@ tier = "experimental"
 since = "1.0.0"
 # [/builtin-dev:after_sep:string]
 
-# [builtin-dev:char_at:string]
-[[symbol]]
-name = "char_at"
-c_sig = "int char_at(const char *s, int index)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:char_at:string]
 
-# [builtin-dev:contains:string]
-[[symbol]]
-name = "str_contains"
-c_sig = "int str_contains(const char *s, const char * needle)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:contains:string]
 
-# [builtin-dev:ends_with:string]
-[[symbol]]
-name = "str_ends_with"
-c_sig = "int str_ends_with(const char *s, const char * suffix)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:ends_with:string]
 
-# [builtin-dev:pop:string]
-[[symbol]]
-name = "str_pop"
-c_sig = "char * str_pop(const char *s)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:pop:string]
 
-# [builtin-dev:push_char:string]
-[[symbol]]
-name = "str_push_char"
-c_sig = "char * str_push_char(const char *s, int ch)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:push_char:string]
 
-# [builtin-dev:replace:string]
-[[symbol]]
-name = "str_replace"
-c_sig = "char * str_replace(const char *s, const char * from, const char * to)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:replace:string]
 
-# [builtin-dev:replacen:string]
-[[symbol]]
-name = "str_replacen"
-c_sig = "char * str_replacen(const char *s, const char * from, const char * to, int count)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:replacen:string]
 
-# [builtin-dev:starts_with:string]
-[[symbol]]
-name = "str_starts_with"
-c_sig = "int str_starts_with(const char *s, const char * prefix)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:starts_with:string]
 
-# [builtin-dev:strip_ansi:string]
-[[symbol]]
-name = "str_strip_ansi"
-c_sig = "char * str_strip_ansi(const char *s)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:strip_ansi:string]
 
-# [builtin-dev:substring:string]
-[[symbol]]
-name = "substring"
-c_sig = "char * substring(const char *s, int start, int len)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:substring:string]
 
-# [builtin-dev:trim:string]
-[[symbol]]
-name = "str_trim"
-c_sig = "char * str_trim(const char *s)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:trim:string]
 
 # [contrib-dev:copysign_f64:math]
 [[symbol]]
@@ -4161,14 +4073,6 @@ tier = "experimental"
 since = "1.0.0"
 # [/contrib-dev:lerp_f64:math]
 
-# [contrib-dev:pow_i32:math]
-[[symbol]]
-name = "pow_i32"
-c_sig = "int pow_i32(int base, int exp)"
-module = "rt_math.c"
-tier = "experimental"
-since = "1.0.0"
-# [/contrib-dev:pow_i32:math]
 
 # [contrib-dev:signum_i32:math]
 [[symbol]]
@@ -4242,14 +4146,6 @@ tier = "experimental"
 since = "1.0.0"
 # [/contrib-dev:format_i32_hex:strconv_mod]
 
-# [contrib-dev:i64_to_string:strconv_mod]
-[[symbol]]
-name = "i64_to_string"
-c_sig = "char * i64_to_string(long long n)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/contrib-dev:i64_to_string:strconv_mod]
 
 # [contrib-dev:parse_uint_base:strconv_mod]
 [[symbol]]
@@ -4260,14 +4156,6 @@ tier = "experimental"
 since = "1.0.0"
 # [/contrib-dev:parse_uint_base:strconv_mod]
 
-# [contrib-dev:str_to_f64:strconv_mod]
-[[symbol]]
-name = "str_to_f64"
-c_sig = "double str_to_f64(const char * s)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/contrib-dev:str_to_f64:strconv_mod]
 
 # [contrib-dev:str_to_u64:strconv_mod]
 [[symbol]]
@@ -4314,14 +4202,6 @@ tier = "experimental"
 since = "1.0.0"
 # [/contrib-dev:format_i64_pad:strconv_mod]
 
-# [builtin-dev:before_sep:string]
-[[symbol]]
-name = "str_before_sep"
-c_sig = "char * str_before_sep(const char *s, const char * sep)"
-module = "rt_strings.c"
-tier = "experimental"
-since = "1.0.0"
-# [/builtin-dev:before_sep:string]
 
 # [builtin-dev:collapse_ws:string]
 [[symbol]]
