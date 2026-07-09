@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() -> void {
-    print(fmod(1.0))
+    print(fmod_f64(5.0, 2.0))
 }
 // [/contrib-dev:fmod_f64:math]

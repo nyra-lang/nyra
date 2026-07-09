@@ -1,5 +1,7 @@
+// [contrib-dev:trunc_f64:math]
 import "stdlib/math.ny"
 
 fn main() {
-    print(trunc(1.9))
+    print(trunc_f64(1.9))
 }
+// [/contrib-dev:trunc_f64:math]

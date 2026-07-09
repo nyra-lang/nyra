@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() -> void {
-    print(ceil_i32(1.0))
+    print(ceil_i32(3))
 }
 // [/contrib-dev:ceil_i32:math]

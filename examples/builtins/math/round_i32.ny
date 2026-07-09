@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() {
-    print(round_i32(1.0))
+    print(round_i32(4))
 }
 // [/contrib-dev:round_i32:math]

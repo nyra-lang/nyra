@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() {
-    print(leading_zeros(1.0))
+    print(leading_zeros_i32(1))
 }
 // [/contrib-dev:leading_zeros_i32:math]

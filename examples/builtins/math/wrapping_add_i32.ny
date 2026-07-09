@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() {
-    print(wrapping_add(1.0))
+    print(wrapping_add_i32(1, 1))
 }
 // [/contrib-dev:wrapping_add_i32:math]

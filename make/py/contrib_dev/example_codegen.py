@@ -36,11 +36,20 @@ def _call_args(spec: StdlibFnSpec) -> str:
     return ", ".join(_arg_literal(a) for a in spec.args)
 
 
+def _math_call_name(spec: StdlibFnSpec) -> str:
+    fn = spec.fn_name
+    if spec.ny_alias:
+        return spec.ny_alias
+    if fn.endswith("_f64"):
+        return fn[:-4]
+    return fn
+
+
 def _math_demo(spec: StdlibFnSpec) -> str | None:
     if not spec.ny_module.startswith("math"):
         return None
     fn = spec.fn_name
-    alias = spec.ny_alias or (fn.replace("_f64", "") if fn.endswith("_f64") else fn)
+    call_name = _math_call_name(spec)
     samples: dict[str, str] = {
         "floor": "3.7",
         "ceil": "3.2",
@@ -58,9 +67,33 @@ def _math_demo(spec: StdlibFnSpec) -> str | None:
         "log10": "100.0",
         "log2": "8.0",
         "lerp": "0.0, 10.0, 0.5",
+        "gcd_i32": "12, 8",
+        "lcm_i32": "4, 6",
+        "mod_i32": "7, 3",
+        "copysign_f64": "1.0, -1.0",
+        "fmod": "5.0, 2.0",
+        "fmod_f64": "5.0, 2.0",
+        "rotate_left": "1, 1",
+        "rotate_left_i32": "1, 1",
+        "rotate_right": "2, 1",
+        "rotate_right_i32": "2, 1",
+        "saturating_add": "1, 2",
+        "saturating_add_i32": "1, 2",
+        "saturating_sub": "5, 2",
+        "saturating_sub_i32": "5, 2",
+        "wrapping_add": "1, 1",
+        "wrapping_add_i32": "1, 1",
+        "rem_euclid": "-7, 3",
+        "rem_euclid_i32": "-7, 3",
     }
-    args = samples.get(alias, "1.0")
-    return f"    print({alias}({args}))"
+    args = samples.get(fn) or samples.get(call_name)
+    if args is None:
+        if spec.args:
+            call_name = fn if fn.endswith("_i32") else call_name
+            args = _call_args(spec)
+        else:
+            args = "1.0"
+    return f"    print({call_name}({args}))"
 
 
 def _map_demo(spec: StdlibFnSpec) -> str | None:
@@ -156,9 +189,8 @@ def _result_demo(spec: StdlibFnSpec) -> str | None:
 def _hashmap_demo(spec: StdlibFnSpec) -> str | None:
     if spec.fn_name == "hashmap_or_insert":
         return (
-            '    let m = HashMap_str_i32_new()\n'
-            '    print(m.or_insert("k", 42))\n'
-            '    print(m.or_insert("k", 99))'
+            '    let m = HashMap_str_i32_new().insert("k", 10)\n'
+            '    print(m.or_insert("k", 42))'
         )
     if spec.fn_name == "hashmap_extra_methods":
         return (
@@ -247,9 +279,8 @@ def _pure_impl_demo(spec: StdlibFnSpec) -> str | None:
         )
     if "impl HashMap_str_i32" in src and "fn or_insert" in src:
         return (
-            '    let m = HashMap_str_i32_new()\n'
-            '    print(m.or_insert("k", 42))\n'
-            '    print(m.or_insert("k", 99))'
+            '    let m = HashMap_str_i32_new().insert("k", 10)\n'
+            '    print(m.or_insert("k", 42))'
         )
     if "impl StrVec" in src and "fn pop" in src:
         return (
@@ -318,6 +349,9 @@ def _extern_scaffold_demo(spec: StdlibFnSpec) -> str | None:
     lines = extern_test_body(spec)
     if not lines:
         return None
+    meaningful = [s.strip() for s in lines if s.strip() and not s.strip().startswith("//")]
+    if not meaningful or meaningful == ["assert_eq(1, 1)"]:
+        return None
     out: list[str] = []
     for line in lines:
         s = line.strip()
@@ -335,6 +369,9 @@ def _extern_scaffold_demo(spec: StdlibFnSpec) -> str | None:
             expr = inner.split(",")[0].strip()
             out.append(f"    print({expr})")
             continue
+        if s.startswith("let x = "):
+            out.append(f"    print({s[len('let x = ') :]})")
+            continue
         out.append(f"    {s}")
     return "\n".join(out) if out else None
 
@@ -344,6 +381,7 @@ def demo_body(spec: StdlibFnSpec) -> str:
         _pure_impl_demo,
         _pure_scaffold_demo,
         _sync_demo,
+        _extern_scaffold_demo,
         _math_demo,
         _map_demo,
         _vec_demo,
@@ -352,7 +390,6 @@ def demo_body(spec: StdlibFnSpec) -> str:
         _option_demo,
         _result_demo,
         _hashmap_demo,
-        _extern_scaffold_demo,
     ):
         body = builder(spec)
         if body:
@@ -435,7 +472,7 @@ def extern_test_body(spec: StdlibFnSpec) -> list[str]:
             '    assert_eq(parse_bool("true"), 1)',
             '    assert_eq(parse_bool("false"), 0)',
         ]
-    if fn.startswith("map_str_") or fn.startswith("vec_i32_"):
+    if fn.startswith("map_str_"):
         return ["    // TODO: assert behavior", "    assert_eq(1, 1)"]
     if fn == "vec_str_pop":
         return [
@@ -496,9 +533,8 @@ def extern_test_body(spec: StdlibFnSpec) -> list[str]:
         ]
     if spec.fn_name == "hashmap_or_insert":
         return [
-            "    let m = HashMap_str_i32_new()",
-            '    assert_eq(m.or_insert("k", 42), 42)',
-            '    assert_eq(m.or_insert("k", 99), 42)',
+            '    let m = HashMap_str_i32_new().insert("k", 10)',
+            '    assert_eq(m.or_insert("k", 42), 10)',
         ]
     if spec.fn_name == "strvec_methods":
         return [

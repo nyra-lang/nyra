@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() -> void {
-    print(mod_i32(1.0))
+    print(mod_i32(1, 1))
 }
 // [/contrib-dev:mod_i32:math]

@@ -2,6 +2,6 @@
 import "stdlib/math.ny"
 
 fn main() {
-    print(rem_euclid(1.0))
+    print(rem_euclid_i32(1, 1))
 }
 // [/contrib-dev:rem_euclid_i32:math]

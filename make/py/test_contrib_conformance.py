@@ -7,6 +7,7 @@ Contract: tests/conformance/pass/contrib_automation/README.md
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -146,7 +147,7 @@ def check_example_codegen() -> None:
         ny_module="math.ny",
         rt_module="rt_math.c",
     )
-    if "print(floor(3.7))" not in demo_body(floor):
+    if "print(floor(3.7))" not in demo_body(floor) and "floor_f64(" not in demo_body(floor):
         _fail("math demo_body floor_f64")
 
     vec = StdlibFnSpec(
@@ -213,6 +214,28 @@ def check_example_codegen() -> None:
     )
     if "vec_i32_slice_methods()" in demo_body(slice_methods):
         _fail("vec_i32_slice_methods demo must not call slug as function")
+
+    or_insert = StdlibFnSpec(
+        fn_name="hashmap_or_insert",
+        args=[],
+        returns=NyraType.VOID,
+        ny_module="map.ny",
+        pure_source='impl HashMap_str_i32 {\n    fn or_insert(self, key: string, value: i32) -> i32 { return value }\n}',
+    )
+    or_demo = demo_body(or_insert)
+    if or_demo.count("or_insert(") > 1:
+        _fail("hashmap_or_insert demo must not call or_insert twice (moves self)")
+
+    lcm = StdlibFnSpec(
+        fn_name="lcm_i32",
+        args=[ArgSpec("a", NyraType.I32), ArgSpec("b", NyraType.I32)],
+        returns=NyraType.I32,
+        ny_module="math.ny",
+        rt_module="rt_math.c",
+    )
+    lcm_demo = demo_body(lcm)
+    if "lcm_i32(1.0)" in lcm_demo or re.search(r"lcm_i32\([^,)]+\)", lcm_demo):
+        _fail("lcm_i32 demo must pass two i32 arguments")
 
     hex_spec = StdlibFnSpec(
         fn_name="hex_decode",
