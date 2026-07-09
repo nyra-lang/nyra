@@ -10,6 +10,10 @@ TRIPLE="${2:?target triple required (e.g. x86_64-unknown-linux-gnu)}"
 ROOT="$(cd -- "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+read_workspace_version() {
+  sed -n '/^\[workspace\.package\]/,/^\[/p' Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p' | head -1
+}
+
 ARCH="${TRIPLE%%-*}"
 OS="${TRIPLE#*-}"
 OS="${OS%%-*}"
@@ -33,31 +37,18 @@ trap 'rm -rf "$STAGE"' EXIT INT TERM
 
 mkdir -p "$STAGE/bin" "$STAGE/share/stdlib"
 
-sync_workspace_version() {
-  if ! command -v python3 >/dev/null 2>&1; then
-    echo "error: python3 required to sync Cargo.toml version for releases" >&2
-    exit 1
-  fi
-  python3 - "$VERSION" <<'PY'
-import re
-import sys
-from pathlib import Path
+WORKSPACE_VERSION="$(read_workspace_version)"
+if [ -z "$WORKSPACE_VERSION" ]; then
+  echo "error: could not read [workspace.package] version from Cargo.toml" >&2
+  exit 1
+fi
+if [ "$VERSION" != "$WORKSPACE_VERSION" ]; then
+  echo "error: release VERSION=$VERSION does not match Cargo.toml ($WORKSPACE_VERSION)" >&2
+  echo "hint: tag the release as v${WORKSPACE_VERSION} (or update Cargo.toml first)" >&2
+  exit 1
+fi
 
-version = sys.argv[1]
-path = Path("Cargo.toml")
-text = path.read_text()
-pattern = r'(\[workspace\.package\]\s*\n(?:[^\[]*\n)*?)version = "[^"]+"'
-new, n = re.subn(pattern, rf'\1version = "{version}"', text, count=1)
-if n != 1:
-    sys.exit("failed to update [workspace.package] version in Cargo.toml")
-path.write_text(new)
-PY
-}
-
-echo "Syncing workspace version to $VERSION ..."
-sync_workspace_version
-
-echo "Building cli for $TRIPLE ..."
+echo "Packaging Nyra $VERSION for $TRIPLE ..."
 
 HOST_TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
 
@@ -159,10 +150,41 @@ fi
 
 printf '%s\n' "$VERSION" > "$STAGE/version"
 
+nyra_version_report() {
+  bin="$1"
+  if [ ! -x "$bin" ]; then
+    return 1
+  fi
+  if [ "$OS" = "darwin" ]; then
+    host_arch="$(uname -m)"
+    case "$host_arch:$ARCH" in
+      arm64:x86_64)
+        arch -x86_64 "$bin" --version 2>&1 | sed -n 's/^nyra //p'
+        return
+        ;;
+      x86_64:aarch64)
+        arch -arm64 "$bin" --version 2>&1 | sed -n 's/^nyra //p'
+        return
+        ;;
+    esac
+  fi
+  "$bin" --version 2>&1 | sed -n 's/^nyra //p'
+}
+
 if [ "$IS_WINDOWS" -eq 0 ]; then
-  reported="$("$STAGE/bin/nyra" --version 2>/dev/null | sed 's/^nyra //')"
+  NYRA_BIN="$STAGE/bin/nyra"
+  reported="$(nyra_version_report "$NYRA_BIN" | head -1)"
+  if [ -z "$reported" ]; then
+    reported="$(strings "$NYRA_BIN" 2>/dev/null | sed -n 's/^nyra //p' | head -1)"
+  fi
+  if [ -z "$reported" ]; then
+    reported="$(strings "$NYRA_BIN" 2>/dev/null | grep -E "^${VERSION}\$" | head -1)"
+  fi
   if [ "$reported" != "$VERSION" ]; then
-    echo "error: built nyra reports ${reported}, expected ${VERSION}" >&2
+    echo "error: built nyra reports ${reported:-<empty>}, expected ${VERSION}" >&2
+    if [ "$OS" = "darwin" ] && [ -z "$reported" ]; then
+      echo "hint: on macOS, install LLVM (libclang) so the staged nyra binary can run — see release.yml" >&2
+    fi
     exit 1
   fi
 fi

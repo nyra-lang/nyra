@@ -383,7 +383,7 @@ jobs:
           platform: windows
       - name: Package smoke (Windows asset layout)
         shell: bash
-        run: make package-release VERSION=1.1.0-test TRIPLE=x86_64-pc-windows-msvc
+        run: make package-release VERSION=0.0.1 TRIPLE=x86_64-pc-windows-msvc
 
   windows-dap:
     name: "dap · Windows"

@@ -2,7 +2,7 @@
 #
 # Usage:
 #   make dist                    # dist/nyra-<arch>-<os>.tar.gz for this machine
-#   make dist VERSION=1.39.0     # override workspace version label in archive
+#   make dist VERSION=0.0.1     # must match [workspace.package] version in Cargo.toml
 #   make dist TRIPLE=x86_64-unknown-linux-gnu   # cross-compile (needs rustup target)
 #   make verify-dist
 #   make clean-dist

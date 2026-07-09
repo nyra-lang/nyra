@@ -11,7 +11,7 @@ build-webdocs:
 package-vscode:
 	@$(MAKE_LIB)/package-vscode-extension.sh
 
-# Usage: make package-release VERSION=1.0.0 TRIPLE=x86_64-unknown-linux-gnu
+# Usage: make package-release VERSION=0.0.1 TRIPLE=x86_64-unknown-linux-gnu
 package-release:
 	@test -n "$(VERSION)" || (printf 'make: error: VERSION is required\n' >&2; exit 1)
 	@test -n "$(TRIPLE)" || (printf 'make: error: TRIPLE is required\n' >&2; exit 1)
