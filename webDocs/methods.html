@@ -159,7 +159,7 @@
 </section>
 
 <section class="doc-ex">
-  <h2 id="sugar-index">فهرس الـ sugar (v1.43–v1.45)</h2>
+  <h2 id="sugar-index">فهرس الـ sugar</h2>
   <p class="doc-ex-prose">كل اسم أدناه له مثال + Output في المعرض. انقر للانتقال:</p>
   <ul>
     <li><strong>JSON:</strong> <a href="#ex-jparse-jstr"><code>jparse</code>/<code>jstr</code>/<code>jnum</code>/<code>jbool</code></a> · <a href="#ex-jobj"><code>jobj</code></a> · <a href="#ex-obj-dict"><code>obj</code>/<code>dict</code>/<code>jstringify</code></a> · <a href="#ex-dict-i32"><code>dict_i32</code></a> · <a href="#ex-jfield"><code>jfield</code></a></li>
@@ -283,7 +283,7 @@
 
       <h2 id="vectors">Vectors &amp; dynamic lists</h2>
       <h3 id="vec-i32"><code>vec()</code> / <code>VecI32</code> — preferred (auto-prelude)</h3>
-      <p>Growable <code>i32</code> vector with method chaining and HOFs (v1.45). Low-level <code>Vec_i32_*</code> <code>ptr</code> API remains for FFI.</p>
+      <p>Growable <code>i32</code> vector with method chaining and HOFs. Low-level <code>Vec_i32_*</code> <code>ptr</code> API remains for FFI.</p>
       <table>
         <thead><tr><th>Method / ctor</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
         <tbody>
@@ -293,7 +293,7 @@
           <tr id="vec-len"><td><code>.len()</code> / <code>.pop()</code></td><td>—</td><td><code>i32</code></td><td>Length / pop last</td><td><code>v.len()</code></td></tr>
           <tr id="vec-contains"><td><code>.contains(x)</code> / <code>.includes(x)</code></td><td><code>i32</code></td><td><code>i32</code></td><td><code>1</code> / <code>0</code></td><td><code>v.contains(42)</code></td></tr>
           <tr id="vec-find"><td><code>.find(pred, fb)</code> / <code>.find_eq(x, fb)</code></td><td>pred / value</td><td><code>i32</code></td><td>Search with fallback</td><td><code>v.find_eq(10, -1)</code></td></tr>
-          <tr id="vec-filter"><td><code>.filter(pred)</code> / <code>.map(f)</code> / <code>.reduce(init, f)</code></td><td>fn</td><td><code>VecI32</code> / value</td><td>HOFs (v1.45)</td><td><code>v.filter(is_even)</code></td></tr>
+          <tr id="vec-filter"><td><code>.filter(pred)</code> / <code>.map(f)</code> / <code>.reduce(init, f)</code></td><td>fn</td><td><code>VecI32</code> / value</td><td>HOFs</td><td><code>v.filter(is_even)</code></td></tr>
           <tr id="vec-from-range"><td><code>vec_range(start, end)</code></td><td>2 × <code>i32</code></td><td><code>VecI32</code></td><td>Half-open range</td><td><code>vec_range(0, 10)</code></td></tr>
           <tr id="vec-insert"><td><code>.insert(i, x)</code></td><td><code>i32</code>, <code>i32</code></td><td><code>VecI32</code></td><td>Insert at index</td><td><a href="#ex-vec-i32-insert"><code>v.insert(0, 9)</code></a></td></tr>
           <tr id="vec-remove"><td><code>.remove(i)</code></td><td><code>i32</code></td><td><code>VecI32</code></td><td>Remove at index (chains)</td><td><a href="#ex-vec-i32-remove-at"><code>v.remove(0)</code></a></td></tr>
@@ -306,7 +306,7 @@
       <p>Example: <a href="#ex-vec"><code>vec()</code></a>. Legacy: <code>Vec_i32_new</code> / <code>Vec_i32_push</code>.</p>
 
       <h3 id="str-vec"><code>strs()</code> / <code>StrVec</code> — auto-prelude</h3>
-      <p>String vector with method syntax + HOFs (v1.45).</p>
+      <p>String vector with method syntax + HOFs.</p>
       <table>
         <thead><tr><th>Method / function</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
         <tbody>
@@ -314,7 +314,7 @@
           <tr id="strvec-push"><td><code>.push(value)</code></td><td><code>string</code></td><td><code>StrVec</code></td><td>Append string</td><td><code>v.push("line")</code></td></tr>
           <tr id="strvec-get"><td><code>.get(index)</code></td><td><code>i32</code></td><td><code>string</code></td><td>Indexed access</td><td><code>v.get(0)</code></td></tr>
           <tr id="strvec-len"><td><code>.len()</code> / <code>.joined(sep)</code></td><td>—</td><td><code>i32</code> / <code>string</code></td><td>Count / join</td><td><code>v.joined(",")</code></td></tr>
-          <tr id="strvec-hofs"><td><code>.filter</code> / <code>.map</code> / <code>.find</code> / <code>.contains</code></td><td>fn / value</td><td>self / value</td><td>HOFs (v1.45)</td><td><code>v.contains("a")</code></td></tr>
+          <tr id="strvec-hofs"><td><code>.filter</code> / <code>.map</code> / <code>.find</code> / <code>.contains</code></td><td>fn / value</td><td>self / value</td><td>HOFs</td><td><code>v.contains("a")</code></td></tr>
           <tr id="strvec-from-lines"><td><code>lines(text)</code> / <code>StrVec_from_lines</code></td><td><code>string</code></td><td><code>StrVec</code></td><td>Split on newlines</td><td><code>lines(text)</code></td></tr>
           <tr id="strvec-join"><td><code>argv()</code></td><td>—</td><td><code>StrVec</code></td><td>CLI args</td><td><code>argv()</code></td></tr>
         </tbody>
@@ -421,7 +421,7 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
       <p><strong>Platform:</strong> <code>spawn</code> is unavailable on <code>wasm32-wasi</code> (compile error). Native Linux, macOS, and Windows only.</p>
 
       <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>

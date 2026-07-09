@@ -2,7 +2,7 @@
   "name": "nyra",
   "displayName": "Nyra",
   "description": "Nyra language support: LSP, semantic tokens, inlay hints, test explorer, debugger",
-  "version": "1.36.0",
+  "version": "0.0.1",
   "publisher": "nyra-lang",
   "license": "MIT",
   "repository": {

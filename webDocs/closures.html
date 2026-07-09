@@ -133,7 +133,7 @@
 </nav>
     </aside>
     <main class="content">
-      <h1>Closures (v2.2)</h1>
+      <h1>Closures</h1>
       <p class="lead">Stack- and heap-allocated capturing lambdas, escape rules, and loop-safe callback patterns.</p>
 
 <h2>Stack vs heap</h2>
@@ -141,7 +141,7 @@
 <p>When a capturing closure is coerced to a plain <code>fn(...)</code> for a <strong>synchronous</strong> callback (e.g. <code>iter_filter</code> predicate), the compiler emits a per-site wrapper that loads the stack env from an invoke slot before each call.</p>
 <p>As of <strong>v2.2</strong>, closures that <strong>escape</strong> — returned from a function, passed as a <code>fn(...)</code> argument, or stored beyond the synchronous invoke window — promote their env to the <strong>heap</strong> (<code>malloc</code> + <code>memcpy</code>). The wrapper loads the env from a persistent global; heap env is freed when the owning <code>let</code> binding goes out of scope.</p>
 
-<h2>Escape rules (v2.2)</h2>
+<h2>Escape rules</h2>
 <ul>
 <li><strong>Return</strong> — <code>return (x) =&gt; x + n</code> always heap-promotes.</li>
 <li><strong>Sync callback</strong> — inline <code>iter_filter(v, (x) =&gt; …)</code> or a <code>let pred = …</code> passed immediately in the same block uses stack + invoke slot.</li>

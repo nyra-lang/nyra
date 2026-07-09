@@ -5,2883 +5,2883 @@ name = "heap_free"
 c_sig = "void heap_free(void *p)"
 module = "rt_alloc.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_clone"
 c_sig = "char *str_clone(const char *s)"
 module = "rt_alloc.c"
 tier = "stable"
-since = "3.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_len"
 c_sig = "int str_len(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_cat"
 c_sig = "char *str_cat(const char *a, const char *b)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "i32_to_string"
 c_sig = "char *i32_to_string(int n)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "i64_to_string"
 c_sig = "char *i64_to_string(long long n)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.17.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_cmp"
 c_sig = "int str_cmp(const char *a, const char *b)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "char_at"
 c_sig = "int char_at(const char *s, int i)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "substring"
 c_sig = "char *substring(const char *s, int start, int len)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "strstr_pos"
 c_sig = "int strstr_pos(const char *hay, const char *needle)"
 module = "rt_strings.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "read_file"
 c_sig = "char *read_file(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "read_file_limit"
 c_sig = "char *read_file_limit(const char *path, int max_bytes)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.13.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "write_file"
 c_sig = "int write_file(const char *path, const char *content)"
 module = "rt_fs.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "file_size"
 c_sig = "long long file_size(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "copy_file"
 c_sig = "long long copy_file(const char *src, const char *dst)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "list_dir"
 c_sig = "char *list_dir(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "path_is_dir"
 c_sig = "int path_is_dir(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_args_init"
 c_sig = "void rt_args_init(int argc, char **argv)"
 module = "rt_args.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_arg_count"
 c_sig = "int os_arg_count(void)"
 module = "rt_args.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_arg_at"
 c_sig = "char *os_arg_at(int index)"
 module = "rt_args.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "process_exit"
 c_sig = "void process_exit(int code)"
 module = "rt_args.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_str_from_argv"
 c_sig = "void *vec_str_from_argv(int start_index)"
 module = "rt_args.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bytes_read_file"
 c_sig = "void *bytes_read_file(const char *path)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bytes_len"
 c_sig = "long long bytes_len(void *handle)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "byte_at"
 c_sig = "int byte_at(void *handle, long long index)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bytes_write_file"
 c_sig = "int bytes_write_file(const char *path, void *handle)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bytes_from_string"
 c_sig = "void *bytes_from_string(const char *s)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bytes_to_string"
 c_sig = "char *bytes_to_string(void *handle)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bytes_free"
 c_sig = "void bytes_free(void *handle)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdin_read_bytes"
 c_sig = "void *stdin_read_bytes(int max_bytes)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdout_write_bytes"
 c_sig = "void stdout_write_bytes(void *handle)"
 module = "rt_bytes.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "regex_compile"
 c_sig = "void *regex_compile(const char *pattern)"
 module = "rt_regex.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "regex_is_match"
 c_sig = "int regex_is_match(void *handle, const char *text)"
 module = "rt_regex.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "regex_free"
 c_sig = "void regex_free(void *handle)"
 module = "rt_regex.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "tar_create"
 c_sig = "int tar_create(const char *archive, void *paths_vec)"
 module = "rt_tar.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "tar_extract"
 c_sig = "int tar_extract(const char *archive, const char *out_dir)"
 module = "rt_tar.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "gzip_file"
 c_sig = "int gzip_file(const char *src, const char *dst)"
 module = "rt_gzip.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "gunzip_file"
 c_sig = "int gunzip_file(const char *src, const char *dst)"
 module = "rt_gzip.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "gzip_compress_hex"
 c_sig = "char *gzip_compress_hex(const char *data)"
 module = "rt_gzip.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "gzip_decompress_hex"
 c_sig = "char *gzip_decompress_hex(const char *hex)"
 module = "rt_gzip.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "flate_compress_hex"
 c_sig = "char *flate_compress_hex(const char *data)"
 module = "rt_gzip.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "flate_decompress_hex"
 c_sig = "char *flate_decompress_hex(const char *hex)"
 module = "rt_gzip.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "zip_create_file"
 c_sig = "int zip_create_file(const char *archive_path, const char *source_path, const char *entry_name)"
 module = "rt_zip.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "zip_extract_file"
 c_sig = "int zip_extract_file(const char *archive_path, const char *dest_path)"
 module = "rt_zip.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_connect"
 c_sig = "int ws_connect(const char *url)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_send_text"
 c_sig = "int ws_send_text(int fd, const char *text)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_recv_text"
 c_sig = "char *ws_recv_text(int fd, int max_bytes)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_close"
 c_sig = "void ws_close(int fd)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_listen"
 c_sig = "int ws_listen(const char *host, int port)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.11.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_accept_handshake"
 c_sig = "int ws_accept_handshake(int listener_fd)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.11.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_send_text_server"
 c_sig = "int ws_send_text_server(int handle, const char *text)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.11.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdout_write_str"
 c_sig = "void stdout_write_str(const char *s)"
 module = "rt_io.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdout_writeln_str"
 c_sig = "void stdout_writeln_str(const char *s)"
 module = "rt_io.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdout_write_i32"
 c_sig = "void stdout_write_i32(int n)"
 module = "rt_io.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdout_writeln_i32"
 c_sig = "void stdout_writeln_i32(int n)"
 module = "rt_io.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdout_flush"
 c_sig = "void stdout_flush(void)"
 module = "rt_io.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdin_read_line"
 c_sig = "char *stdin_read_line(const char *prompt)"
 module = "rt_io.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "println"
 c_sig = "int println(const char *msg)"
 module = "rt_io.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "color_ansi"
 c_sig = "const char *color_ansi(const char *spec)"
 module = "rt_io.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "ansi_reset"
 c_sig = "const char *ansi_reset(void)"
 module = "rt_io.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "time_start"
 c_sig = "void time_start(const char *label)"
 module = "rt_time.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "time_end"
 c_sig = "void time_end(const char *label)"
 module = "rt_time.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "mem_start"
 c_sig = "void mem_start(const char *label)"
 module = "rt_mem.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "mem_end"
 c_sig = "void mem_end(const char *label)"
 module = "rt_mem.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "_sqlite_null_handle"
 c_sig = "void *_sqlite_null_handle(void)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.1"
+since = "0.0.1"
 
 [[symbol]]
 name = "_postgres_stub_open"
 c_sig = "void *_postgres_stub_open(const char *dsn)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "_mysql_stub_open"
 c_sig = "void *_mysql_stub_open(const char *dsn)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "postgres_exec"
 c_sig = "int postgres_exec(void *handle, const char *sql)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "postgres_close"
 c_sig = "void postgres_close(void *handle)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "mysql_exec"
 c_sig = "int mysql_exec(void *handle, const char *sql)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "nyra_mysql_close"
 c_sig = "void nyra_mysql_close(void *handle)"
 module = "rt_db.c"
 tier = "experimental"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn_capture"
 c_sig = "void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes)"
 module = "rt_spawn.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn_join"
 c_sig = "int spawn_join(void *handle)"
 module = "rt_spawn.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn_handle_drop"
 c_sig = "void spawn_handle_drop(void *handle)"
 module = "rt_spawn.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn_task_capture"
 c_sig = "void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes)"
 module = "rt_task_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn_task_join"
 c_sig = "int spawn_task_join(void *handle)"
 module = "rt_task_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn_task_handle_drop"
 c_sig = "void spawn_task_handle_drop(void *handle)"
 module = "rt_task_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "parallel_for_range"
 c_sig = "void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
 module = "rt_parallel.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "cpu_count"
 c_sig = "int32_t cpu_count(void)"
 module = "rt_parallel.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "progress_update"
 c_sig = "void progress_update(int32_t current, int32_t total, const char *label)"
 module = "rt_progress.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "progress_finish"
 c_sig = "void progress_finish(void)"
 module = "rt_progress.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "spawn"
 c_sig = "void spawn(void)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "error_stack_trace"
 c_sig = "char *error_stack_trace(void)"
 module = "rt_error.c"
 tier = "stable"
-since = "1.40.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_await"
 c_sig = "int async_await(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_run"
 c_sig = "int async_run(int result)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_promise_new"
 c_sig = "int async_promise_new(void)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_promise_complete"
 c_sig = "void async_promise_complete(int handle, int value)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_poll"
 c_sig = "int async_poll(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_promise_complete_bool"
 c_sig = "void async_promise_complete_bool(int handle, int value)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_promise_complete_ptr"
 c_sig = "void async_promise_complete_ptr(int handle, void *value)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_await_bool"
 c_sig = "int async_await_bool(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_await_ptr"
 c_sig = "void *async_await_ptr(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_poll_bool"
 c_sig = "int async_poll_bool(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_future_done"
 c_sig = "int async_future_done(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_future_ptr_value"
 c_sig = "void *async_future_ptr_value(int handle)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.22.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_sleep_ms"
 c_sig = "int async_sleep_ms(int delay_ms)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "runtime_poll_io"
 c_sig = "int runtime_poll_io(int timeout_ms)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "runtime_executor_tick"
 c_sig = "int runtime_executor_tick(int timeout_ms)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "runtime_executor_run_until"
 c_sig = "int runtime_executor_run_until(int handle, int timeout_ms)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "runtime_run"
 c_sig = "void runtime_run(void)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_register"
 c_sig = "int io_register(int fd, int task_id)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_wait_once"
 c_sig = "int io_wait_once(int timeout_ms)"
 module = "rt_async.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_listen"
 c_sig = "int rt_tcp_listen(const char *host, int port)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_accept"
 c_sig = "int rt_tcp_accept(int listener_fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_accept_async"
 c_sig = "int rt_tcp_accept_async(int listener_fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_connect"
 c_sig = "int rt_tcp_connect(const char *host, int port)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_connect_timeout"
 c_sig = "int rt_tcp_connect_timeout(const char *host, int port, int timeout_ms)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.11.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_dns_lookup"
 c_sig = "char *rt_dns_lookup(const char *host)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.11.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_ping_ms"
 c_sig = "int rt_tcp_ping_ms(const char *host, int port, int timeout_ms)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.11.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_read"
 c_sig = "char *rt_tcp_read(int fd, int max_bytes)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_write"
 c_sig = "int rt_tcp_write(int fd, const char *data)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_close"
 c_sig = "void rt_tcp_close(int fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_listen"
 c_sig = "int sys_listen(const char *host, int port)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_accept"
 c_sig = "int sys_accept(int listener_fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_connect"
 c_sig = "int sys_connect(const char *host, int port)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_recv"
 c_sig = "char *sys_recv(int fd, int max_bytes)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_send"
 c_sig = "int sys_send(int fd, const char *data)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_close"
 c_sig = "void sys_close(int fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_set_nonblock"
 c_sig = "int sys_set_nonblock(int fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sys_set_timeout_ms"
 c_sig = "int sys_set_timeout_ms(int fd, int timeout_ms)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.41.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_udp_bind"
 c_sig = "int rt_udp_bind(const char *host, int port)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_udp_recv"
 c_sig = "char *rt_udp_recv(int fd, int max_bytes)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_udp_send"
 c_sig = "int rt_udp_send(int fd, const char *host, int port, const char *data)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_udp_close"
 c_sig = "void rt_udp_close(int fd)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "http_get"
 c_sig = "char *http_get(const char *url)"
 module = "rt_http.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "http_status"
 c_sig = "int http_status(const char *response_header)"
 module = "rt_http.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "http_download_file"
 c_sig = "int http_download_file(const char *url, const char *path)"
 module = "rt_http.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_has_key"
 c_sig = "int json_has_key(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.40.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_has_string"
 c_sig = "int json_has_string(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.40.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_has_i32"
 c_sig = "int json_has_i32(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.40.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_has_bool"
 c_sig = "int json_has_bool(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.40.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_get_string"
 c_sig = "char *json_get_string(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "0.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_get_i32"
 c_sig = "int json_get_i32(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_get_bool"
 c_sig = "int json_get_bool(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_get_object"
 c_sig = "char *json_get_object(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_get_array"
 c_sig = "char *json_get_array(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_encode_object"
 c_sig = "char *json_encode_object(void *keys_vec, void *values_vec)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.4"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_encode_i32_array"
 c_sig = "char *json_encode_i32_array(void *handle)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.4"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_decode_i32_array"
 c_sig = "void *json_decode_i32_array(const char *array_json)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.3.4"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_encode_ptr_token"
 c_sig = "char *json_encode_ptr_token(void *p)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_decode_ptr_token"
 c_sig = "void *json_decode_ptr_token(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_top_keys"
 c_sig = "void *json_top_keys(const char *json)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.41.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_raw_get"
 c_sig = "char *json_raw_get(const char *json, const char *key)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.41.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_value_kind"
 c_sig = "int json_value_kind(const char *json)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.41.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "race_runtime_init"
 c_sig = "void race_runtime_init(void)"
 module = "rt_race.c"
 tier = "experimental"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "race_track_read"
 c_sig = "void race_track_read(void *addr, int64_t nbytes)"
 module = "rt_race.c"
 tier = "experimental"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "race_track_write"
 c_sig = "void race_track_write(void *addr, int64_t nbytes)"
 module = "rt_race.c"
 tier = "experimental"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "race_clear_access"
 c_sig = "void race_clear_access(void *addr)"
 module = "rt_race.c"
 tier = "experimental"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "race_runtime_enabled"
 c_sig = "int race_runtime_enabled(void)"
 module = "rt_race.c"
 tier = "experimental"
-since = "1.9.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sha256_hex"
 c_sig = "char *sha256_hex(const char *data)"
 module = "rt_crypto.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "sha512_hex"
 c_sig = "char *sha512_hex(const char *data)"
 module = "rt_crypto_sha512.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "hmac_sha256_hex"
 c_sig = "char *hmac_sha256_hex(const char *key, const char *data)"
 module = "rt_crypto.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "aes_cbc_encrypt_hex"
 c_sig = "char *aes_cbc_encrypt_hex(const char *key, const char *plaintext)"
 module = "rt_aes.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "aes_cbc_decrypt_hex"
 c_sig = "char *aes_cbc_decrypt_hex(const char *key, const char *ciphertext_hex)"
 module = "rt_aes.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_open"
 c_sig = "void *sqlite_open(const char *path)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_exec"
 c_sig = "int sqlite_exec(void *handle, const char *sql)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_close"
 c_sig = "void sqlite_close(void *handle)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.3.2"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_query_rows"
 c_sig = "void *sqlite_query_rows(void *handle, const char *sql)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.18.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_rowset_rows"
 c_sig = "int sqlite_rowset_rows(void *rowset)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.18.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_rowset_cols"
 c_sig = "int sqlite_rowset_cols(void *rowset)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.18.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_rowset_at"
 c_sig = "const char *sqlite_rowset_at(void *rowset, int row, int col)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.18.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_rowset_free"
 c_sig = "void sqlite_rowset_free(void *rowset)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.18.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_last_error"
 c_sig = "const char *sqlite_last_error(void *handle)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.21.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_prepare"
 c_sig = "void *sqlite_prepare(void *handle, const char *sql)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.21.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_step"
 c_sig = "int sqlite_step(void *stmt)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.21.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_column_count"
 c_sig = "int sqlite_column_count(void *stmt)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.21.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_column_text"
 c_sig = "const char *sqlite_column_text(void *stmt, int col)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.21.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sqlite_finalize"
 c_sig = "void sqlite_finalize(void *stmt)"
 module = "rt_sqlite.c"
 tier = "stable"
-since = "1.21.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "fsync_file"
 c_sig = "int fsync_file(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.18.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "tls_available"
 c_sig = "int tls_available(void)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_connect"
 c_sig = "int rt_tls_connect(const char *host, int port)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_read"
 c_sig = "char *rt_tls_read(int handle, int max_bytes)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_write"
 c_sig = "int rt_tls_write(int handle, const char *data)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_close"
 c_sig = "void rt_tls_close(int handle)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_listen"
 c_sig = "int rt_tls_listen(const char *cert_pem_path, const char *key_pem_path, const char *host, int port)"
 module = "rt_tls.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_accept"
 c_sig = "int rt_tls_accept(int listener_handle)"
 module = "rt_tls.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_listener_close"
 c_sig = "void rt_tls_listener_close(int listener_handle)"
 module = "rt_tls.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rsa_available"
 c_sig = "int rsa_available(void)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rsa_public_encrypt_pem"
 c_sig = "char *rsa_public_encrypt_pem(const char *pem_pub, const char *plaintext)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rsa_sha256_sign_pem"
 c_sig = "char *rsa_sha256_sign_pem(const char *pem_priv, const char *message)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "x509_available"
 c_sig = "int x509_available(void)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "x509_pem_subject"
 c_sig = "char *x509_pem_subject(const char *pem_cert)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "x509_pem_issuer"
 c_sig = "char *x509_pem_issuer(const char *pem_cert)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "x509_pem_verify_time"
 c_sig = "int x509_pem_verify_time(const char *pem_cert)"
 module = "rt_crypto_openssl.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_new"
 c_sig = "void *channel_new(void)"
 module = "rt_channel.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_send"
 c_sig = "void channel_send(void *ch, int value)"
 module = "rt_channel.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_recv"
 c_sig = "int channel_recv(void *ch)"
 module = "rt_channel.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_free"
 c_sig = "void channel_free(void *ch)"
 module = "rt_channel.c"
 tier = "stable"
-since = "0.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_str_send"
 c_sig = "void channel_str_send(void *ch, const char *value)"
 module = "rt_channel.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_str_recv"
 c_sig = "char *channel_str_recv(void *ch)"
 module = "rt_channel.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_str_new"
 c_sig = "void *channel_str_new(void)"
 module = "rt_channel.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "channel_str_free"
 c_sig = "void channel_str_free(void *ch)"
 module = "rt_channel.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_hub_new"
 c_sig = "void *rt_tcp_hub_new(int32_t max_clients)"
 module = "rt_tcp_hub.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_hub_add"
 c_sig = "int32_t rt_tcp_hub_add(void *hub, int32_t fd)"
 module = "rt_tcp_hub.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_hub_remove"
 c_sig = "void rt_tcp_hub_remove(void *hub, int32_t fd)"
 module = "rt_tcp_hub.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_hub_broadcast"
 c_sig = "void rt_tcp_hub_broadcast(void *hub, const char *msg)"
 module = "rt_tcp_hub.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tcp_hub_free"
 c_sig = "void rt_tcp_hub_free(void *hub)"
 module = "rt_tcp_hub.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_listen_tls"
 c_sig = "int ws_listen_tls(const char *cert_path, const char *key_path, const char *host, int port)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "ws_accept_tls_handshake"
 c_sig = "int ws_accept_tls_handshake(int tls_listener_handle)"
 module = "rt_websocket.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_icmp_ping_ms"
 c_sig = "int rt_icmp_ping_ms(const char *host, int timeout_ms)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.12.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_icmp_capable"
 c_sig = "int rt_icmp_capable(void)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_upgrade_client"
 c_sig = "int rt_tls_upgrade_client(int plain_fd, const char *hostname)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_gen_self_signed"
 c_sig = "int rt_tls_gen_self_signed(const char *cert_path, const char *key_path, const char *common_name)"
 module = "rt_tls.c"
 tier = "stable"
-since = "1.15.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_keys"
 c_sig = "void *map_str_i32_keys(void *handle)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_remove"
 c_sig = "int map_str_i32_remove(void *handle, const char *key)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_keys"
 c_sig = "void *map_str_str_keys(void *handle)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_remove"
 c_sig = "int map_str_str_remove(void *handle, const char *key)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_f64"
 c_sig = "double rand_f64(void)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_f64_range"
 c_sig = "double rand_f64_range(double min_val, double max_val)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sin_f64"
 c_sig = "double sin_f64(double x)"
 module = "rt_math.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "cos_f64"
 c_sig = "double cos_f64(double x)"
 module = "rt_math.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "atan2_f64"
 c_sig = "double atan2_f64(double y, double x)"
 module = "rt_math.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "tan_f64"
 c_sig = "double tan_f64(double x)"
 module = "rt_math.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdin_set_raw_mode"
 c_sig = "void stdin_set_raw_mode(int enable)"
 module = "rt_io.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "stdin_read_key"
 c_sig = "int stdin_read_key(void)"
 module = "rt_io.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "mutex_new"
 c_sig = "void *mutex_new(void)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "mutex_lock"
 c_sig = "void mutex_lock(void *m)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "mutex_unlock"
 c_sig = "void mutex_unlock(void *m)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "mutex_free"
 c_sig = "void mutex_free(void *m)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rwlock_new"
 c_sig = "void *rwlock_new(void)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rwlock_rlock"
 c_sig = "void rwlock_rlock(void *r)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rwlock_wlock"
 c_sig = "void rwlock_wlock(void *r)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rwlock_unlock"
 c_sig = "void rwlock_unlock(void *r)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "rwlock_free"
 c_sig = "void rwlock_free(void *r)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "waitgroup_new"
 c_sig = "void *waitgroup_new(void)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "waitgroup_add"
 c_sig = "void waitgroup_add(void *wg, int delta)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "waitgroup_done"
 c_sig = "void waitgroup_done(void *wg)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "waitgroup_wait"
 c_sig = "void waitgroup_wait(void *wg)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "waitgroup_free"
 c_sig = "void waitgroup_free(void *wg)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "atomic_load_i32"
 c_sig = "int atomic_load_i32(int *p)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "atomic_store_i32"
 c_sig = "void atomic_store_i32(int *p, int v)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "atomic_add_i32"
 c_sig = "int atomic_add_i32(int *p, int delta)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "atomic_cas_i32"
 c_sig = "int atomic_cas_i32(int *p, int expected, int desired)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "atomic_i32_new"
 c_sig = "void *atomic_i32_new(int initial)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "atomic_i32_free"
 c_sig = "void atomic_i32_free(void *p)"
 module = "rt_sync.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_new"
 c_sig = "void *vec_i32_new(void)"
 module = "rt_vec.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_push"
 c_sig = "void vec_i32_push(void *handle, int value)"
 module = "rt_vec.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_get"
 c_sig = "int vec_i32_get(void *handle, int index)"
 module = "rt_vec.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_set"
 c_sig = "void vec_i32_set(void *handle, int index, int value)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_len"
 c_sig = "int vec_i32_len(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_free"
 c_sig = "void vec_i32_free(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_new"
 c_sig = "void *vec_bytes_new(int elem_size)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.17.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_push"
 c_sig = "void vec_bytes_push(void *handle, void *elem)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.17.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_get"
 c_sig = "void vec_bytes_get(void *handle, int index, void *out)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.17.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_len"
 c_sig = "int vec_bytes_len(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.17.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_free"
 c_sig = "void vec_bytes_free(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.17.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_push_ptr"
 c_sig = "void vec_bytes_push_ptr(void *handle, void *elem)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.25.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_bytes_get_ptr"
 c_sig = "void *vec_bytes_get_ptr(void *handle, int index)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.25.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_new"
 c_sig = "void *map_str_i32_new(void)"
 module = "rt_map.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_insert"
 c_sig = "void map_str_i32_insert(void *handle, const char *key, int value)"
 module = "rt_map.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_get"
 c_sig = "int map_str_i32_get(void *handle, const char *key)"
 module = "rt_map.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_contains"
 c_sig = "int map_str_i32_contains(void *handle, const char *key)"
 module = "rt_map.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_free"
 c_sig = "void map_str_i32_free(void *handle)"
 module = "rt_map.c"
 tier = "stable"
-since = "0.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_i32_retain"
 c_sig = "void map_str_i32_retain(void *handle)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_new"
 c_sig = "void *map_str_str_new(void)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_insert"
 c_sig = "void map_str_str_insert(void *handle, const char *key, const char *value)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_get"
 c_sig = "const char *map_str_str_get(void *handle, const char *key)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_contains"
 c_sig = "int map_str_str_contains(void *handle, const char *key)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_free"
 c_sig = "void map_str_str_free(void *handle)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_str_str_retain"
 c_sig = "void map_str_str_retain(void *handle)"
 module = "rt_map_str_str.c"
 tier = "stable"
-since = "1.16.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "file_exists"
 c_sig = "int file_exists(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "append_file"
 c_sig = "int append_file(const char *path, const char *content)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "remove_file"
 c_sig = "int remove_file(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "create_dir"
 c_sig = "int create_dir(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "remove_dir"
 c_sig = "int remove_dir(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "create_dir_all"
 c_sig = "int create_dir_all(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "remove_dir_all"
 c_sig = "int remove_dir_all(const char *path)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "copy_dir"
 c_sig = "int copy_dir(const char *src, const char *dst)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "copy_dir_contents"
 c_sig = "int copy_dir_contents(const char *src, const char *dst)"
 module = "rt_fs.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_to_upper"
 c_sig = "char *str_to_upper(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_to_lower"
 c_sig = "char *str_to_lower(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_trim"
 c_sig = "char *str_trim(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_contains"
 c_sig = "int str_contains(const char *hay, const char *needle)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_starts_with"
 c_sig = "int str_starts_with(const char *s, const char *prefix)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_ends_with"
 c_sig = "int str_ends_with(const char *s, const char *suffix)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_replace"
 c_sig = "char *str_replace(const char *s, const char *from, const char *to)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_replacen"
 c_sig = "char *str_replacen(const char *s, const char *from, const char *to, int count)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_split"
 c_sig = "void *str_split(const char *s, const char *sep)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_to_i32"
 c_sig = "int str_to_i32(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_to_f64"
 c_sig = "double str_to_f64(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "f64_to_string"
 c_sig = "char *f64_to_string(double n)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.3"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_push_char"
 c_sig = "char *str_push_char(const char *s, int ch)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_pop"
 c_sig = "char *str_pop(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_strip_ansi"
 c_sig = "char *str_strip_ansi(const char *input)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_i32_sort_copy"
 c_sig = "void array_i32_sort_copy(int *dst, const int *src, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_f64_sort_copy"
 c_sig = "void array_f64_sort_copy(double *dst, const double *src, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_i32_debug_string"
 c_sig = "char *array_i32_debug_string(const int *arr, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.8.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_f64_debug_string"
 c_sig = "char *array_f64_debug_string(const double *arr, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.8.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_f32_debug_string"
 c_sig = "char *array_f32_debug_string(const float *arr, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.8.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_bool_debug_string"
 c_sig = "char *array_bool_debug_string(const unsigned char *arr, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.8.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "array_str_debug_string"
 c_sig = "char *array_str_debug_string(const char *const *arr, int n)"
 module = "rt_array.c"
 tier = "stable"
-since = "1.8.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bounds_assert_i32"
 c_sig = "void bounds_assert_i32(int ok)"
 module = "rt_array.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_str_new"
 c_sig = "void *vec_str_new(void)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_str_push"
 c_sig = "void vec_str_push(void *handle, const char *value)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_str_get"
 c_sig = "const char *vec_str_get(void *handle, int index)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_str_len"
 c_sig = "int vec_str_len(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_str_free"
 c_sig = "void vec_str_free(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "instant_now"
 c_sig = "int64_t instant_now(void)"
 module = "rt_time.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "instant_elapsed_ms"
 c_sig = "int instant_elapsed_ms(int64_t start)"
 module = "rt_time.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "sleep_ms"
 c_sig = "void sleep_ms(int ms)"
 module = "rt_time.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "date_now"
 c_sig = "void date_now(int *out)"
 module = "rt_time.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "vec_i32_pop"
 c_sig = "int vec_i32_pop(void *handle)"
 module = "rt_vec.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_i32"
 c_sig = "int rand_i32(void)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_range"
 c_sig = "int rand_range(int min_val, int max_val)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_i64"
 c_sig = "int64_t rand_i64(void)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_range_i64"
 c_sig = "int64_t rand_range_i64(int64_t min_val, int64_t max_val)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_u32"
 c_sig = "uint32_t rand_u32(void)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_range_u32"
 c_sig = "uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_u64"
 c_sig = "uint64_t rand_u64(void)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rand_range_u64"
 c_sig = "uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "random_hex"
 c_sig = "char *random_hex(int byte_count)"
 module = "rt_random.c"
 tier = "stable"
-since = "1.1.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_bridge_exec"
 c_sig = "char *rt_bridge_exec(const char *program, const char *input)"
 module = "rt_process.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_bridge_exec_arg"
 c_sig = "char *rt_bridge_exec_arg(const char *program, const char *arg1, const char *input)"
 module = "rt_process.c"
 tier = "stable"
-since = "1.2.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "command_run"
 c_sig = "int command_run(const char *program, void *args_handle)"
 module = "rt_process.c"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "command_exec_capture"
 c_sig = "char *command_exec_capture(const char *program, void *args_handle)"
 module = "rt_process.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "alloc_track_start"
 c_sig = "void alloc_track_start(const char *label)"
 module = "rt_alloc_track.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "alloc_track_note"
 c_sig = "void alloc_track_note(size_t bytes)"
 module = "rt_alloc_track.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "alloc_track_end"
 c_sig = "void alloc_track_end(const char *label)"
 module = "rt_alloc_track.c"
 tier = "stable"
-since = "1.14.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_spawn"
 c_sig = "int pty_spawn(const char *shell, int rows, int cols)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_write"
 c_sig = "int pty_write(int master, const char *data)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_read"
 c_sig = "char *pty_read(int master, int max_bytes)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_drain"
 c_sig = "char *pty_drain(int master, int max_bytes)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_drain_raw"
 c_sig = "char *pty_drain_raw(int master, int max_bytes)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_flush_stdout"
 c_sig = "void pty_flush_stdout(int master, int max_bytes, int timeout_ms)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_read_wait"
 c_sig = "char *pty_read_wait(int master, int max_bytes, int timeout_ms)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_read_wait_raw"
 c_sig = "char *pty_read_wait_raw(int master, int max_bytes, int timeout_ms)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_poll"
 c_sig = "int pty_poll(int master)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_resize"
 c_sig = "void pty_resize(int master, int rows, int cols)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_close"
 c_sig = "void pty_close(int master)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "pty_wait"
 c_sig = "int pty_wait(int master)"
 module = "rt_pty.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "gpu_font_init"
 c_sig = "void gpu_font_init(void)"
 module = "gpu/rt_gpu_font.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "gpu_font_draw"
 c_sig = "void gpu_font_draw(const char *text, int x, int y, int font_size, unsigned char r, unsigned char g, unsigned char b, unsigned char a)"
 module = "gpu/rt_gpu_font.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "gpu_font_free"
 c_sig = "void gpu_font_free(void)"
 module = "gpu/rt_gpu_font.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "asm_nop"
 c_sig = "void asm_nop(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "asm_pause"
 c_sig = "void asm_pause(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "blackbox_i32"
 c_sig = "void blackbox_i32(void)"
 module = "rt_bench.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "benchmark_begin"
 c_sig = "void benchmark_begin(void)"
 module = "rt_bench.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "benchmark_end"
 c_sig = "void benchmark_end(void)"
 module = "rt_bench.c"
 tier = "stable"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_battery_percent"
 c_sig = "void os_battery_percent(void)"
 module = "rt_os.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_close_fd"
 c_sig = "void os_close_fd(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_exit"
 c_sig = "void os_exit(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_os_getenv"
 c_sig = "void rt_os_getenv(void)"
 module = "rt_os.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_os_setenv"
 c_sig = "int rt_os_setenv(const char *name, const char *value)"
 module = "rt_os.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_getpid"
 c_sig = "void os_getpid(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_page_size"
 c_sig = "void os_page_size(void)"
 module = "rt_os.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_platform_id"
 c_sig = "void os_platform_id(void)"
 module = "rt_os.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_platform_name"
 c_sig = "void os_platform_name(void)"
 module = "rt_os.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_read"
 c_sig = "void os_read(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_syscall6"
 c_sig = "void os_syscall6(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "os_write"
 c_sig = "void os_write(void)"
 module = "rt_syscall.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "volatile_load_i32"
 c_sig = "void volatile_load_i32(void)"
 module = "rt_volatile.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "volatile_load_u32"
 c_sig = "void volatile_load_u32(void)"
 module = "rt_volatile.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "volatile_store_i32"
 c_sig = "void volatile_store_i32(void)"
 module = "rt_volatile.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "volatile_store_u32"
 c_sig = "void volatile_store_u32(void)"
 module = "rt_volatile.c"
 tier = "experimental"
-since = "0.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_physical_cores"
 c_sig = "int32_t hw_cpu_physical_cores(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_logical_cores"
 c_sig = "int32_t hw_cpu_logical_cores(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_cache_line_size"
 c_sig = "int32_t hw_cpu_cache_line_size(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_has_sse42"
 c_sig = "int32_t hw_cpu_has_sse42(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_has_avx"
 c_sig = "int32_t hw_cpu_has_avx(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_has_avx2"
 c_sig = "int32_t hw_cpu_has_avx2(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_cpu_brand"
 c_sig = "char *hw_cpu_brand(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_mem_page_size"
 c_sig = "int32_t hw_mem_page_size(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_mem_map_anonymous"
 c_sig = "void *hw_mem_map_anonymous(int64_t nbytes)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_mem_unmap"
 c_sig = "int32_t hw_mem_unmap(void *addr, int64_t nbytes)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_dma_available"
 c_sig = "int32_t hw_dma_available(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_disk_total_bytes"
 c_sig = "int64_t hw_disk_total_bytes(const char *path)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_disk_free_bytes"
 c_sig = "int64_t hw_disk_free_bytes(const char *path)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_disk_fs_type"
 c_sig = "char *hw_disk_fs_type(const char *path)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_net_if_count"
 c_sig = "int32_t hw_net_if_count(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_net_if_name"
 c_sig = "char *hw_net_if_name(int32_t index)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_net_if_mac"
 c_sig = "char *hw_net_if_mac(int32_t index)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_net_if_is_up"
 c_sig = "int32_t hw_net_if_is_up(int32_t index)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_display_width"
 c_sig = "int32_t hw_display_width(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_display_height"
 c_sig = "int32_t hw_display_height(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_display_refresh_hz"
 c_sig = "int32_t hw_display_refresh_hz(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_display_brightness_pct"
 c_sig = "int32_t hw_display_brightness_pct(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_power_on_ac"
 c_sig = "int32_t hw_power_on_ac(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_power_cpu_temp_centi_c"
 c_sig = "int32_t hw_power_cpu_temp_centi_c(void)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.3.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_affinity_set_thread_cpu"
 c_sig = "int32_t rt_affinity_set_thread_cpu(int32_t core_index)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_affinity_get_thread_cpu"
 c_sig = "int32_t rt_affinity_get_thread_cpu(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_clock_rdtsc"
 c_sig = "int64_t rt_clock_rdtsc(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_clock_monotonic_ns"
 c_sig = "int64_t rt_clock_monotonic_ns(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_usb_device_count"
 c_sig = "int32_t rt_usb_device_count(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_usb_device_vid"
 c_sig = "int32_t rt_usb_device_vid(int32_t index)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_usb_device_pid"
 c_sig = "int32_t rt_usb_device_pid(int32_t index)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_usb_device_path"
 c_sig = "char *rt_usb_device_path(int32_t index)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_serial_open"
 c_sig = "int32_t rt_serial_open(const char *path, int32_t baud)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_serial_read"
 c_sig = "char *rt_serial_read(int32_t handle, int32_t max_bytes)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_serial_write"
 c_sig = "int32_t rt_serial_write(int32_t handle, const char *data)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_serial_close"
 c_sig = "int32_t rt_serial_close(int32_t handle)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_signal_install"
 c_sig = "int32_t rt_signal_install(int32_t sig_num)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_signal_poll"
 c_sig = "int32_t rt_signal_poll(int32_t sig_num)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_mqueue_open"
 c_sig = "int32_t rt_mqueue_open(const char *name, int32_t max_msgs, int32_t msg_size)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_mqueue_send"
 c_sig = "int32_t rt_mqueue_send(int32_t mq_id, const char *msg)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_mqueue_recv"
 c_sig = "char *rt_mqueue_recv(int32_t mq_id, int32_t max_bytes)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_mqueue_close"
 c_sig = "int32_t rt_mqueue_close(int32_t mq_id)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_hw_random_bytes"
 c_sig = "char *rt_hw_random_bytes(int32_t count)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_hw_secure_enclave_available"
 c_sig = "int32_t rt_hw_secure_enclave_available(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_perm_getuid"
 c_sig = "int32_t rt_perm_getuid(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_perm_geteuid"
 c_sig = "int32_t rt_perm_geteuid(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_perm_drop_to_uid"
 c_sig = "int32_t rt_perm_drop_to_uid(int32_t uid)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 [[symbol]]
 name = "rt_perm_chroot"
 c_sig = "int32_t rt_perm_chroot(const char *path)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_perm_sandbox_seatbelt_available"
 c_sig = "int32_t rt_perm_sandbox_seatbelt_available(void)"
 module = "rt_os_adv.c"
 tier = "experimental"
-since = "1.4.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_alloc_i32"
 c_sig = "void *arc_alloc_i32(int value)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_alloc_string"
 c_sig = "void *arc_alloc_string(const char *value)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_inc"
 c_sig = "void arc_inc(void *handle)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_dec"
 c_sig = "void arc_dec(void *handle)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_dec_i32"
 c_sig = "void arc_dec_i32(void *handle)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_dec_string"
 c_sig = "void arc_dec_string(void *handle)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_get_i32"
 c_sig = "int arc_get_i32(void *handle)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arc_get_string"
 c_sig = "char *arc_get_string(void *handle)"
 module = "rt_arc.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_decode_blob_at"
 c_sig = "void *bin_decode_blob_at(void *bin, int32_t index)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 # هنا الخطأ، يجب أن يكون:
 # c_sig = "char *json_encode_str_array(void *handle)"
@@ -2891,77 +2891,77 @@ name = "json_encode_str_array"
 c_sig = "char *json_encode_str_array(void *handle)"
 module = "rt_json.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_join_raw_array"
 c_sig = "char *json_join_raw_array(void *handle)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_split_array_elements"
 c_sig = "void *json_split_array_elements(const char *array_json)"
 module = "rt_json.c"
 tier = "stable"
-since = "1.38.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_upgrade_client_verify"
 c_sig = "int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_append_blob"
 c_sig = "void bin_buf_append_blob(void *handle, void *blob)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_connect_verify"
 c_sig = "int rt_tls_connect_verify(const char *host, int port)"
 module = "rt-tls/src/lib.rs" 
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_blob_free"
 c_sig = "void bin_blob_free(void *blob)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_decode_bool_at"
 c_sig = "int32_t bin_decode_bool_at(void *blob, int32_t off)"
 module = "rt_bin.c" 
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_decode_i32_at"
 c_sig = "int32_t bin_decode_i32_at(void *blob, int32_t off)"
 module = "rt_bin.c" 
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_decode_string_at"
 c_sig = "char *bin_decode_string_at(void *blob, int32_t off)"
 module = "rt_bin.c" 
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_write_bytes"
 c_sig = "void bin_buf_write_bytes(void *handle, const void *bytes, int32_t len)"
 module = "rt_bin.c" 
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 
 [[symbol]]
@@ -2969,441 +2969,441 @@ name = "rt_tls_connect_ex"
 c_sig = "int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_select2_bool"
 c_sig = "int async_select2_bool(int h0, int h1, int *out_index)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.26.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_select2_i32"
 c_sig = "int async_select2_i32(int h0, int h1, int *out_index)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.26.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_select2_ptr"
 c_sig = "void *async_select2_ptr(int h0, int h1, int *out_index)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.26.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "async_select_i32"
 c_sig = "int async_select_i32(int *handles, int count, int *out_index)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.26.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_blob_payload_len"
 c_sig = "int32_t bin_blob_payload_len(void *blob)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_finish"
 c_sig = "void *bin_buf_finish(void *handle)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_new"
 c_sig = "void *bin_buf_new(void)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_write_bool"
 c_sig = "void bin_buf_write_bool(void *handle, int flag)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_write_i32"
 c_sig = "void bin_buf_write_i32(void *handle, int32_t v)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_buf_write_string"
 c_sig = "void bin_buf_write_string(void *handle, const char *s)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_field_width_blob_at"
 c_sig = "int32_t bin_field_width_blob_at(void *blob, int32_t off)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_field_width_bool"
 c_sig = "int32_t bin_field_width_bool(void)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_field_width_i32"
 c_sig = "int32_t bin_field_width_i32(void)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "bin_field_width_string_at"
 c_sig = "int32_t bin_field_width_string_at(void *blob, int32_t off)"
 module = "rt_bin.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "json_decode_str_array"
 c_sig = "void *json_decode_str_array(const char *array_json)"
 module = "rt_json.c"
 tier = "stable"
-since = "2.5.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "nyra_check_file"
 c_sig = "int nyra_check_file(const char *path)"
 module = "rt_compiler.c"
 tier = "stable"
-since = "1.19.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "nyra_check_source"
 c_sig = "int nyra_check_source(const char *source, const char *file)"
 module = "rt_compiler.c"
 tier = "stable"
-since = "1.19.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "nyra_compiler_free"
 c_sig = "void nyra_compiler_free(char *ptr)"
 module = "rt_compiler.c"
 tier = "stable"
-since = "1.19.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "nyra_diag_json_file"
 c_sig = "char *nyra_diag_json_file(const char *path)"
 module = "rt_compiler.c"
 tier = "stable"
-since = "1.19.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "nyra_diag_json_source"
 c_sig = "char *nyra_diag_json_source(const char *source, const char *file)"
 module = "rt_compiler.c"
 tier = "stable"
-since = "1.19.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_icmp_ping_system_ms"
 c_sig = "int rt_icmp_ping_system_ms(const char *host, int timeout_ms)"
 module = "rt_net.c"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_connect_ca"
 c_sig = "int rt_tls_connect_ca(const char *host, int port, const char *ca_path)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_last_error"
 c_sig = "const char *rt_tls_last_error(void)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_upgrade_client_ex"
 c_sig = "int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer)"
 module = "rt-tls/src/lib.rs"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "rt_tls_validate_pem_files"
 c_sig = "int rt_tls_validate_pem_files(const char *cert_pem_path, const char *key_pem_path)"
 module = "rt_tls.c"
 tier = "stable"
-since = "1.20.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arena_new"
 c_sig = "void *arena_new(long long capacity)"
 module = "rt_arena.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arena_alloc"
 c_sig = "void *arena_alloc(void *arena, long long nbytes)"
 module = "rt_arena.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arena_reset"
 c_sig = "void arena_reset(void *arena)"
 module = "rt_arena.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "arena_free"
 c_sig = "void arena_free(void *arena)"
 module = "rt_arena.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_unregister"
 c_sig = "int io_unregister(int fd)"
 module = "rt_async.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_uring_available"
 c_sig = "int32_t io_uring_available(void)"
 module = "rt_io_uring.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_uring_pending"
 c_sig = "int io_uring_pending(void)"
 module = "rt_io_uring.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_uring_wait_once"
 c_sig = "int io_uring_wait_once(int timeout_ms)"
 module = "rt_io_uring.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_uring_register_read"
 c_sig = "int32_t io_uring_register_read(int32_t fd, int32_t promise)"
 module = "rt_io_uring.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_uring_unregister_read"
 c_sig = "int32_t io_uring_unregister_read(int32_t fd)"
 module = "rt_io_uring.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_pool_create"
 c_sig = "int32_t io_pool_create(int32_t workers)"
 module = "rt_io_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_pool_shutdown"
 c_sig = "void io_pool_shutdown(int32_t pool)"
 module = "rt_io_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_pool_submit_wait_readable"
 c_sig = "int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise)"
 module = "rt_io_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_pool_submit_read"
 c_sig = "int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise)"
 module = "rt_io_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "io_pool_queue_depth"
 c_sig = "int32_t io_pool_queue_depth(int32_t pool)"
 module = "rt_io_pool.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "parallel_any_range"
 c_sig = "int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
 module = "rt_parallel.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "parallel_find_range"
 c_sig = "int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
 module = "rt_parallel.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "parallel_all_range"
 c_sig = "int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend)"
 module = "rt_parallel.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_i32_i32_new"
 c_sig = "void *map_i32_i32_new(void)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_i32_i32_insert"
 c_sig = "void map_i32_i32_insert(void *handle, int key, int value)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_i32_i32_get"
 c_sig = "int map_i32_i32_get(void *handle, int key)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_i32_i32_contains"
 c_sig = "int map_i32_i32_contains(void *handle, int key)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_i32_i32_free"
 c_sig = "void map_i32_i32_free(void *handle)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "map_i32_i32_retain"
 c_sig = "void map_i32_i32_retain(void *handle)"
 module = "rt_map.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_buf_new"
 c_sig = "void *str_buf_new(void)"
 module = "rt_str_buf.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_buf_append"
 c_sig = "void str_buf_append(void *handle, const char *piece)"
 module = "rt_str_buf.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_buf_append_char"
 c_sig = "void str_buf_append_char(void *handle, int ch)"
 module = "rt_str_buf.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_buf_build"
 c_sig = "char *str_buf_build(void *handle)"
 module = "rt_str_buf.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "str_buf_drop"
 c_sig = "void str_buf_drop(void *handle)"
 module = "rt_str_buf.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "shm_create"
 c_sig = "int32_t shm_create(const char *name, int64_t nbytes)"
 module = "rt_shm.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "shm_open_existing"
 c_sig = "int32_t shm_open_existing(const char *name, int64_t nbytes)"
 module = "rt_shm.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "shm_map"
 c_sig = "void *shm_map(int32_t fd, int64_t nbytes)"
 module = "rt_shm.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "shm_unmap"
 c_sig = "int32_t shm_unmap(void *addr, int64_t nbytes)"
 module = "rt_shm.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "shm_close_fd"
 c_sig = "int32_t shm_close_fd(int32_t fd)"
 module = "rt_shm.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "shm_unlink_region"
 c_sig = "int32_t shm_unlink_region(const char *name)"
 module = "rt_shm.c"
 tier = "stable"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_mem_map_file"
 c_sig = "void *hw_mem_map_file(const char *path, int64_t nbytes, int32_t writable)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.39.0"
+since = "0.0.1"
 
 [[symbol]]
 name = "hw_mem_sync"
 c_sig = "int32_t hw_mem_sync(void *addr, int64_t nbytes)"
 module = "rt_hw.c"
 tier = "experimental"
-since = "1.39.0"
+since = "0.0.1"
 
 # [builtin-dev:strip_suffix:string]
 [[symbol]]
@@ -3411,7 +3411,7 @@ name = "str_strip_suffix"
 c_sig = "char *str_strip_suffix(const char *s, const char *suffix)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.0.0"
+since = "0.0.1"
 # [/builtin-dev:strip_suffix:string]
 
 # [builtin-dev:to_snake_case:string]
@@ -3420,7 +3420,7 @@ name = "str_to_snake_case"
 c_sig = "char *str_to_snake_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_snake_case:string]
 
 # [builtin-dev:to_lowercase:string]
@@ -3429,7 +3429,7 @@ name = "str_to_lowercase"
 c_sig = "char *str_to_lowercase(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_lowercase:string]
 
 # [builtin-dev:to_titlecase:string]
@@ -3438,7 +3438,7 @@ name = "str_to_titlecase"
 c_sig = "char *str_to_titlecase(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_titlecase:string]
 
 # [builtin-dev:to_capitalize:string]
@@ -3447,7 +3447,7 @@ name = "str_to_capitalize"
 c_sig = "char *str_to_capitalize(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_capitalize:string]
 
 # [builtin-dev:to_camel_case:string]
@@ -3456,7 +3456,7 @@ name = "str_to_camel_case"
 c_sig = "char *str_to_camel_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_camel_case:string]
 
 # [builtin-dev:to_kebab_case:string]
@@ -3465,7 +3465,7 @@ name = "str_to_kebab_case"
 c_sig = "char *str_to_kebab_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_kebab_case:string]
 
 # [builtin-dev:to_pascal_case:string]
@@ -3474,7 +3474,7 @@ name = "str_to_pascal_case"
 c_sig = "char *str_to_pascal_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_pascal_case:string]
 
 # [builtin-dev:to_screaming_snake_case:string]
@@ -3483,7 +3483,7 @@ name = "str_to_screaming_snake_case"
 c_sig = "char *str_to_screaming_snake_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_screaming_snake_case:string]
 
 # [builtin-dev:to_train_case:string]
@@ -3492,7 +3492,7 @@ name = "str_to_train_case"
 c_sig = "char *str_to_train_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_train_case:string]
 
 # [builtin-dev:to_dot_case:string]
@@ -3501,7 +3501,7 @@ name = "str_to_dot_case"
 c_sig = "char *str_to_dot_case(const char *s)"
 module = "rt_strings.c"
 tier = "stable"
-since = "1.40.3"
+since = "0.0.1"
 # [/builtin-dev:to_dot_case:string]
 
 # [builtin-dev:strip_prefix:string]
@@ -3510,7 +3510,7 @@ name = "str_strip_prefix"
 c_sig = "char *str_strip_prefix(const char *s, const char * prefix)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.0.0"
+since = "0.0.1"
 # [/builtin-dev:strip_prefix:string]
 
 # [contrib-dev:ceil_f64:math]
@@ -3519,7 +3519,7 @@ name = "ceil_f64"
 c_sig = "doubleceil_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:ceil_f64:math]
 
 # [contrib-dev:clamp_f64:math]
@@ -3528,7 +3528,7 @@ name = "clamp_f64"
 c_sig = "doubleclamp_f64(double x, double lo, double hi)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:clamp_f64:math]
 
 # [contrib-dev:exp_f64:math]
@@ -3537,7 +3537,7 @@ name = "exp_f64"
 c_sig = "doubleexp_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:exp_f64:math]
 
 # [contrib-dev:floor_f64:math]
@@ -3546,7 +3546,7 @@ name = "floor_f64"
 c_sig = "doublefloor_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:floor_f64:math]
 
 # [contrib-dev:log_f64:math]
@@ -3555,7 +3555,7 @@ name = "log_f64"
 c_sig = "doublelog_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:log_f64:math]
 
 # [contrib-dev:pow_f64:math]
@@ -3564,7 +3564,7 @@ name = "pow_f64"
 c_sig = "doublepow_f64(double base, double exp)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:pow_f64:math]
 
 # [contrib-dev:round_f64:math]
@@ -3573,7 +3573,7 @@ name = "round_f64"
 c_sig = "doubleround_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:round_f64:math]
 
 # [contrib-dev:sqrt_f64:math]
@@ -3582,7 +3582,7 @@ name = "sqrt_f64"
 c_sig = "doublesqrt_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:sqrt_f64:math]
 
 # [builtin-dev:index:string]
@@ -3591,7 +3591,7 @@ name = "str_index"
 c_sig = "intstr_index(const char *s, const char * needle)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:index:string]
 
 # [builtin-dev:is_empty:string]
@@ -3600,7 +3600,7 @@ name = "str_is_empty"
 c_sig = "intstr_is_empty(const char *s)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:is_empty:string]
 
 # [builtin-dev:last_index:string]
@@ -3609,7 +3609,7 @@ name = "str_last_index"
 c_sig = "intstr_last_index(const char *s, const char * needle)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:last_index:string]
 
 # [builtin-dev:repeat:string]
@@ -3618,7 +3618,7 @@ name = "str_repeat"
 c_sig = "char *str_repeat(const char *s, int count)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:repeat:string]
 
 # [builtin-dev:trim_end:string]
@@ -3627,7 +3627,7 @@ name = "str_trim_end"
 c_sig = "char *str_trim_end(const char *s)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:trim_end:string]
 
 # [builtin-dev:trim_start:string]
@@ -3636,7 +3636,7 @@ name = "str_trim_start"
 c_sig = "char *str_trim_start(const char *s)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:trim_start:string]
 
 # [contrib-dev:vec_i32_clear:vec]
@@ -3645,7 +3645,7 @@ name = "vec_i32_clear"
 c_sig = "voidvec_i32_clear(void * handle)"
 module = "rt_vec.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:vec_i32_clear:vec]
 
 # [contrib-dev:vec_i32_insert:vec]
@@ -3654,7 +3654,7 @@ name = "vec_i32_insert"
 c_sig = "voidvec_i32_insert(void * handle, int index, int value)"
 module = "rt_vec.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:vec_i32_insert:vec]
 
 # [contrib-dev:vec_i32_remove_at:vec]
@@ -3663,7 +3663,7 @@ name = "vec_i32_remove_at"
 c_sig = "int vec_i32_remove_at(void * handle, int index)"
 module = "rt_vec.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:vec_i32_remove_at:vec]
 
 # [contrib-dev:vec_i32_reverse:vec]
@@ -3672,7 +3672,7 @@ name = "vec_i32_reverse"
 c_sig = "voidvec_i32_reverse(void * handle)"
 module = "rt_vec.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:vec_i32_reverse:vec]
 
 # [contrib-dev:vec_i32_sort:vec]
@@ -3681,7 +3681,7 @@ name = "vec_i32_sort"
 c_sig = "voidvec_i32_sort(void * handle)"
 module = "rt_vec.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:vec_i32_sort:vec]
 
 # [contrib-dev:map_str_i32_clear:map]
@@ -3690,7 +3690,7 @@ name = "map_str_i32_clear"
 c_sig = "void map_str_i32_clear(void * m)"
 module = "rt_map.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:map_str_i32_clear:map]
 
 # [contrib-dev:map_str_i32_len:map]
@@ -3699,7 +3699,7 @@ name = "map_str_i32_len"
 c_sig = "int map_str_i32_len(void * m)"
 module = "rt_map.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:map_str_i32_len:map]
 
 # [contrib-dev:map_str_i32_values:map]
@@ -3708,7 +3708,7 @@ name = "map_str_i32_values"
 c_sig = "void *map_str_i32_values(void * m)"
 module = "rt_map.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:map_str_i32_values:map]
 
 # [contrib-dev:map_str_str_clear:map]
@@ -3717,7 +3717,7 @@ name = "map_str_str_clear"
 c_sig = "void map_str_str_clear(void * m)"
 module = "rt_map_str_str.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:map_str_str_clear:map]
 
 # [contrib-dev:map_str_str_len:map]
@@ -3726,7 +3726,7 @@ name = "map_str_str_len"
 c_sig = "int map_str_str_len(void * m)"
 module = "rt_map_str_str.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:map_str_str_len:map]
 
 # [contrib-dev:map_str_str_values:map]
@@ -3735,7 +3735,7 @@ name = "map_str_str_values"
 c_sig = "void *map_str_str_values(void * m)"
 module = "rt_map_str_str.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:map_str_str_values:map]
 
 # [builtin-dev:splitn:string]
@@ -3744,7 +3744,7 @@ name = "str_splitn"
 c_sig = "void *str_splitn(const char *s, const char * sep, int n)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:splitn:string]
 
 # [builtin-dev:count:string]
@@ -3753,7 +3753,7 @@ name = "str_count"
 c_sig = "intstr_count(const char *s, const char * needle)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:count:string]
 
 # [builtin-dev:fields:string]
@@ -3762,7 +3762,7 @@ name = "str_fields"
 c_sig = "void *str_fields(const char *s)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:fields:string]
 
 # [builtin-dev:pad_end:string]
@@ -3771,7 +3771,7 @@ name = "str_pad_end"
 c_sig = "char *str_pad_end(const char *s, int width, const char * pad)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:pad_end:string]
 
 # [builtin-dev:pad_start:string]
@@ -3780,7 +3780,7 @@ name = "str_pad_start"
 c_sig = "char *str_pad_start(const char *s, int width, const char * pad)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:pad_start:string]
 
 # [builtin-dev:split_once:string]
@@ -3789,7 +3789,7 @@ name = "str_before_sep"
 c_sig = "char *str_before_sep(const char *s, const char * sep)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/builtin-dev:split_once:string]
 
 # [contrib-dev:acos_f64:math]
@@ -3798,7 +3798,7 @@ name = "acos_f64"
 c_sig = "doubleacos_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:acos_f64:math]
 
 # [contrib-dev:asin_f64:math]
@@ -3807,7 +3807,7 @@ name = "asin_f64"
 c_sig = "doubleasin_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:asin_f64:math]
 
 # [contrib-dev:atan_f64:math]
@@ -3816,7 +3816,7 @@ name = "atan_f64"
 c_sig = "doubleatan_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:atan_f64:math]
 
 # [contrib-dev:hypot_f64:math]
@@ -3825,7 +3825,7 @@ name = "hypot_f64"
 c_sig = "doublehypot_f64(double x, double y)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:hypot_f64:math]
 
 # [contrib-dev:log10_f64:math]
@@ -3834,7 +3834,7 @@ name = "log10_f64"
 c_sig = "doublelog10_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:log10_f64:math]
 
 # [contrib-dev:log2_f64:math]
@@ -3843,7 +3843,7 @@ name = "log2_f64"
 c_sig = "doublelog2_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:log2_f64:math]
 
 # [contrib-dev:trunc_f64:math]
@@ -3852,7 +3852,7 @@ name = "trunc_f64"
 c_sig = "doubletrunc_f64(double x)"
 module = "rt_math.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:trunc_f64:math]
 
 # [contrib-dev:hex_decode:encoding_mod]
@@ -3861,7 +3861,7 @@ name = "hex_decode"
 c_sig = "char *hex_decode(const char * hex)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:hex_decode:encoding_mod]
 
 # [contrib-dev:str_to_bool:strconv_mod]
@@ -3870,6 +3870,6 @@ name = "str_to_bool"
 c_sig = "int str_to_bool(const char * s)"
 module = "rt_strings.c"
 tier = "experimental"
-since = "1.46.0"
+since = "0.0.1"
 # [/contrib-dev:str_to_bool:strconv_mod]
 

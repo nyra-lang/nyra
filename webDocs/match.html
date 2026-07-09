@@ -151,7 +151,7 @@
     Color.Green =&gt; 2
     Color.Blue =&gt; 3
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><h2>Nested enum binds</h2><p>Peel a payload enum inside a variant arm (v1.33+). Shorthand infers the inner enum from the payload type:</p><!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END --><h2>Nested enum binds</h2><p>Peel a payload enum inside a variant arm. Shorthand infers the inner enum from the payload type:</p><!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -173,7 +173,7 @@ match r {
     Result_Opt.Ok(Option_i32.None) =&gt; 0
     Result_Opt.Fail(_) =&gt; -1
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END --><p>Enum variants with <strong>different</strong> payload types in one enum (e.g. <code>Ok(Option)</code> + <code>Err(i32)</code>) are not supported yet.</p><h2>Struct and tuple patterns</h2><p>Since <strong>v1.37.0</strong>, destructure structs and tuples in <code>match</code> arms. Field shorthand binds the field name; use <code>_</code> to ignore a slot.</p><!-- NYRA_SNIPPET_START -->
+</div><!-- NYRA_SNIPPET_END --><p>Enum variants with <strong>different</strong> payload types in one enum (e.g. <code>Ok(Option)</code> + <code>Err(i32)</code>) are not supported yet.</p><h2>Struct and tuple patterns</h2><p>destructure structs and tuples in <code>match</code> arms. Field shorthand binds the field name; use <code>_</code> to ignore a slot.</p><!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
@@ -256,7 +256,7 @@ let n = match x {
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END --><p><code>match</code> on a parameter typed <code>Option&lt;T&gt;</code> or <code>Result&lt;T,E&gt;</code> lowers the same as on a local binding. <code>Result.Ok(7)</code> at a call site is monomorphized from the callee parameter type (no extra <code>let</code> annotation needed).</p>
 <h2>String matching</h2>
-<p>Since Nyra <strong>v1.17.0</strong>, <code>match</code> works on <code>string</code> scrutinees with string literal arms (compared via <code>strcmp</code>). Use <code>_</code> for the default arm.</p>
+<p><code>match</code> works on <code>string</code> scrutinees with string literal arms (compared via <code>strcmp</code>). Use <code>_</code> for the default arm.</p>
 <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">

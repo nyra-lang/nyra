@@ -21,13 +21,13 @@ Nyra ships a full LSP via `nyra lsp` (stdio):
 | Workspace symbols | ✅ `#` search |
 | Document highlight | ✅ read occurrences |
 
-**LSP reliability (v1.23+):** incremental sync, debounced diagnostics (250ms), `didClose` cleanup, workspace file watcher refresh.
+**LSP reliability:** incremental sync, debounced diagnostics (250ms), `didClose` cleanup, workspace file watcher refresh.
 
-**LSP depth (v1.28+):** semantic tokens, inlay hints (inferred types), code actions, signature help, workspace symbols, document highlight, span-accurate rename.
+**LSP depth:** semantic tokens, inlay hints (inferred types), code actions, signature help, workspace symbols, document highlight, span-accurate rename.
 
-**Extension polish (v1.32+):** Test Explorer (`nyra test --list-json`), format-on-save, status bar version, `$nyra` problem matcher, snippets, bundled-toolchain option, `scripts/package-vscode-extension.sh`.
+**Extension polish:** Test Explorer (`nyra test --list-json`), format-on-save, status bar version, `$nyra` problem matcher, snippets, bundled-toolchain option, `scripts/package-vscode-extension.sh`.
 
-**DAP Phase 4 (v1.36+):** real LLDB/GDB sessions, breakpoints, stack/locals, stepping, source requests. Build with `nyra build . --debug-symbols` before debugging.
+**DAP Phase 4:** real LLDB/GDB sessions, breakpoints, stack/locals, stepping, source requests. Build with `nyra build . --debug-symbols` before debugging.
 
 ### Cursor / VS Code
 

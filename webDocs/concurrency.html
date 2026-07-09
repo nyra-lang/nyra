@@ -214,7 +214,7 @@ t.join()</code></pre></div>
         <li><strong>Effect:</strong> suppresses <code>warning[W001]</code> for Extended features in that file — helpful when building with stricter CI flags (<code>--deny-extended</code> gates Core-only crates).</li>
         <li><strong>Not required</strong> for Core-only programs (no spawn/async/defer). Omit it in minimal tutorials that do not use Extended syntax.</li>
       </ul>
-      <p>Without <code>allow_extended</code>, <code>spawn</code> may still compile in default builds (v1.39+ ships Extended in prebuilt releases), but keeping the directive makes intent explicit and keeps CI configurations predictable.</p>
+      <p>Without <code>allow_extended</code>, <code>spawn</code> may still compile in default builds, but keeping the directive makes intent explicit and keeps CI configurations predictable.</p>
 
       <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>
       <p>Two ways to use <code>spawn</code>:</p>

@@ -182,7 +182,7 @@ fn main() {
           <tr><td><code>stdlib/map.ny</code></td><td><code>HashMap_str_i32</code>, <code>HashMap_str_str</code> — <code>insert</code>/<code>remove</code> return <code>self</code> (refcounted; safe <code>store = store.insert(...)</code> and <code>TtlCache_put</code> chains)</td></tr>
           <tr><td><code>stdlib/parser/</code></td><td><code>SourceLoc</code>, <code>ParseCursor</code>, <code>Comb_take_while</code>, <code>Comb_or_literal</code>, <code>Comb_many</code>, <code>AstRow</code> — parser building blocks</td></tr>
           <tr><td><code>stdlib/collections/vec_pod.ny</code></td><td><code>Vec&lt;T&gt;</code> POD vectors — synthesized <code>Vec_{Struct}_*</code> for Copy structs</td></tr>
-          <tr><td><code>stdlib/collections/vec_pod.ny</code> + reloc expand</td><td><code>Vec&lt;MoveStruct&gt;</code> — parallel columns for string + scalar (+ nested) fields (v1.27)</td></tr>
+          <tr><td><code>stdlib/collections/vec_pod.ny</code> + reloc expand</td><td><code>Vec&lt;MoveStruct&gt;</code> — parallel columns for string + scalar (+ nested) fields</td></tr>
           <tr><td><code>stdlib/collections/nested_vec.ny</code></td><td><code>Vec&lt;Vec&lt;i32&gt;&gt;</code> — synthesized <code>Vec_Vec_i32_*</code> (2D dynamic grid MVP)</td></tr>
           <tr><td><code>stdlib/map.ny</code></td><td><code>HashMap&lt;K,V&gt;</code> generic syntax aliases <code>HashMap_str_i32</code> / <code>HashMap_str_str</code></td></tr>
           <tr><td><code>stdlib/strings/split.ny</code></td><td><code>String_split_safe</code>, <code>String_split_quoted</code></td></tr>
@@ -263,7 +263,7 @@ fn main() {
           <tr><td><code>stdlib/net/icmp.ny</code></td><td><code>ping_tcp</code>, <code>ping_icmp</code>, <code>ping_icmp_system</code>, <code>ping_icmp_capable</code>, <code>ping_auto</code>, <code>ping_auto_verbose</code> (ICMP → system ping → TCP)</td></tr>
           <tr><td><code>stdlib/net/poll.ny</code></td><td><code>poll_wait</code>, <code>tcp_relay_poll</code></td></tr>
           <tr><td><code>stdlib/net/ftp.ny</code></td><td><code>Ftp_login</code>, <code>Ftp_list</code>, <code>Ftp_retr</code>, <code>Ftp_stor</code></td></tr>
-          <tr><td><code>stdlib/net/http/router.ny</code></td><td><code>HttpRouter</code> — slots/tags; parametric <code>/users/:id</code>; <code>HttpRouter_match</code> / <code>RequestContext_param</code> (v1.45.1)</td></tr>
+          <tr><td><code>stdlib/net/http/router.ny</code></td><td><code>HttpRouter</code> — slots/tags; parametric <code>/users/:id</code>; <code>HttpRouter_match</code> / <code>RequestContext_param</code></td></tr>
           <tr><td><code>stdlib/net/http/handler.ny</code></td><td><code>Http_dispatch_slot</code>, <code>serve_handlers</code></td></tr>
           <tr><td><code>stdlib/net/http/pool.ny</code></td><td><code>HttpPool</code>, <code>HttpPool_get</code> — HTTP/HTTPS keep-alive reuse</td></tr>
           <tr><td><code>stdlib/net/cache.ny</code></td><td><code>TtlCache</code> — TTL eviction + optional disk tier</td></tr>
@@ -2985,11 +2985,14 @@ fn main() -&gt; void {
 }</code></pre></div>
 </div>
 <p class="example-output-label">Output</p>
-<pre class="example-output"><code>[#####--------] 33%
+<pre class="example-output"><code>
+[#####--------] 33%
 Running demo...
-[#########----] 66%
+
+[#########----] 66%
 Running demo...
-[#############] 100%
+
+[#############] 100%
 Running demo...
 0
 1
@@ -3437,7 +3440,7 @@ fn main() {
           <tr><td><code>strcat</code></td><td><code>(a: string, b: string) -> string</code></td><td><strong>Move</strong> — new owned heap string</td><td>Concatenate; result auto-dropped.</td></tr>
           <tr><td><code>strcmp</code></td><td><code>(a: string, b: string) -> i32</code></td><td>Borrows both</td><td>C-style strcmp (0 if equal).</td></tr>
           <tr><td><code>i32_to_string</code></td><td><code>(n: i32) -> string</code></td><td><strong>Move</strong> — new owned heap string</td><td>Format signed 32-bit integer.</td></tr>
-          <tr><td><code>i64_to_string</code></td><td><code>(n: i64) -> string</code></td><td><strong>Move</strong> — new owned heap string</td><td>Format signed 64-bit integer (timestamps, offsets). Since v1.17.0.</td></tr>
+          <tr><td><code>i64_to_string</code></td><td><code>(n: i64) -> string</code></td><td><strong>Move</strong> — new owned heap string</td><td>Format signed 64-bit integer (timestamps, offsets).</td></tr>
         </tbody>
       </table>
 

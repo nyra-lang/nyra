@@ -170,8 +170,8 @@ impl Show for Counter {
 </div><!-- NYRA_SNIPPET_END --><p>Macros are parsed and expanded in a dedicated compiler pass before typecheck.</p>
       <h2>Static vs dynamic dispatch</h2>
       <p><strong>Static:</strong> <code>impl Trait for Type</code> — method calls on a concrete struct resolve to a mangled function at compile time.</p>
-      <p><strong>Dynamic:</strong> <code>dyn Trait</code> trait objects — cast with <code>value as dyn Trait</code>, pass to functions taking <code>dyn Trait</code>, call methods through a vtable. Multi-method traits use per-method vtable slots; trait objects run a <code>Drop</code> thunk that frees heap-boxed data (v1.29+).</p>
-      <p><strong>Trait bounds (v1.3+):</strong> <code>fn f&lt;T: Trait&gt;(x: T)</code> — generic functions constrained by traits; validated when monomorphized. See <code>examples/trait_bounds.ny</code>.</p>
+      <p><strong>Dynamic:</strong> <code>dyn Trait</code> trait objects — cast with <code>value as dyn Trait</code>, pass to functions taking <code>dyn Trait</code>, call methods through a vtable. Multi-method traits use per-method vtable slots; trait objects run a <code>Drop</code> thunk that frees heap-boxed data.</p>
+      <p><strong>Trait bounds:</strong> <code>fn f&lt;T: Trait&gt;(x: T)</code> — generic functions constrained by traits; validated when monomorphized. See <code>examples/trait_bounds.ny</code>.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">

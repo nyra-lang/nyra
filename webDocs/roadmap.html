@@ -135,7 +135,7 @@
     </aside>
     <main class="content">
       <h1 data-i18n="pages.roadmap.h1">Roadmap &amp; status</h1>
-      <p class="lead" data-i18n-html="pages.roadmap.lead">Nyra 1.x — Core and Stable Extended are semver-stable. See <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a> and <a href="https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md">stability-v1.md</a>.</p>
+      <p class="lead" data-i18n-html="pages.roadmap.lead">Nyra — Core and Stable Extended are semver-stable. See <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a> and <a href="https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md">stability-v1.md</a>.</p>
 
       <div class="callout callout-status" role="note">
         <strong>Production-ready tier</strong>
@@ -146,17 +146,7 @@
       <table>
         <thead><tr><th>Version</th><th>Highlights</th></tr></thead>
         <tbody>
-          <tr><td><strong>v3.1.0</strong></td><td><code>f64</code> float type, mixed <code>i32</code>/<code>f64</code> promotion, <code>CONF-F64-*</code></td></tr>
-          <tr><td><strong>v3.0.0</strong></td><td>Auto-Copy structs, <code>#[derive(Copy)]</code> validation, <code>CONF-COPY-*</code></td></tr>
-          <tr><td><strong>v2.9.0</strong></td><td>Swift-style move diagnostics, <code>move</code>/<code>clone</code> prefixes, <code>CONF-DIAG-*</code></td></tr>
-          <tr><td><strong>v2.8.0</strong></td><td>Ownership UX: inference, auto-borrow, Clone, struct ctor sugar — <a href="ownership-ux.html">ownership-ux.html</a></td></tr>
-          <tr><td><strong>v1.0.0</strong></td><td><strong>Core semver-stable</strong>; Extended <code>warning[W001]</code> + <code>--deny-extended</code>; cross-compile shipped</td></tr>
-          <tr><td><strong>v0.1</strong></td><td>MVP pipeline: lexer → LLVM → clang</td></tr>
-          <tr><td><strong>v0.2.0</strong></td><td><strong>Spec 1.0 freeze</strong> — generics monomorph, async/await, traits, macros, defer, Copy/Move + auto-drop, Wasm target, NyraPkg MVP</td></tr>
-          <tr><td><strong>v0.3.0</strong></td><td>FFI (<code>ptr</code>, <code>repr(C)</code>, <code>--link-lib</code>, <code>--cdylib</code>); Nyra HTTP/TCP stdlib; NyraPkg native <code>link</code> lines</td></tr>
-          <tr><td><strong>v1.1.0</strong></td><td>NyraPkg semver + persistent registry; <code>link-source</code> auto-link</td></tr>
-          <tr><td><strong>v0.4.0</strong></td><td>Stable C ABI manifest; expanded FFI boundary types; <code>export async fn</code>; generic <code>export inst</code></td></tr>
-          <tr><td><strong>v0.5.0</strong></td><td><code>unsafe</code>, <code>*T</code>, <code>no_std</code>, <code>asm</code>; <code>stdlib/core/mem.ny</code> + <code>stdlib/os.ny</code> (syscalls, battery, platform)</td></tr>
+          <tr><td><strong>v0.0.1</strong></td><td><strong>Initial release</strong> — Nyra programming language toolchain: compiler, CLI, stdlib, runtime, LSP, and documentation. Core + Stable Extended tiers; zero-types by default with optional explicit types; LLVM-native codegen.</td></tr>
         </tbody>
       </table>
 
@@ -173,19 +163,19 @@
       <ul>
         <li><strong>char</strong> (RFC 0010) — shipped v3.2</li>
         <li><strong>v0.8.x RC</strong> — stabilization: examples, benchmarks, Rust + Nyra conformance regression</li>
-        <li><strong>CONF-LANG</strong> — shipped v1.3: <code>tests/conformance/</code> (16 pass, 8 fail) · <a href="tooling.html#conformance">Toolchain docs</a></li>
+        <li><strong>CONF-LANG</strong> — shipped: <code>tests/conformance/</code> (16 pass, 8 fail) · <a href="tooling.html#conformance">Toolchain docs</a></li>
         <li>Enum payloads, pattern matching enhancements, control flow, async/await hardening</li>
       </ul>
 
       <h2>Still evolving</h2>
       <ul>
-        <li>Full trait-object dispatch (basic trait bounds on generics shipped in v1.3)</li>
+        <li>Full trait-object dispatch (basic trait bounds on generics shipped)</li>
         <li>Richer lifetime variance and region inference</li>
-        <li>Production async scheduler (executor v1.4 + linear state-machine v1.6 — nested <code>await</code> in control flow still evolving)</li>
+        <li>Production async scheduler (executor + linear state-machine — nested <code>await</code> in control flow still evolving)</li>
         <li>Full schema serde in stdlib (NyraPkg <code>ny-serde</code> today)</li>
       </ul>
 
-      <h2>Shipped in v1.1 (Stable Extended)</h2>
+      <h2>Shipped (Stable Extended)</h2>
       <ul>
         <li><strong><code>?</code> operator</strong> — Result/Option propagate · <code>tests/nyra/result_propagate_test.ny</code></li>
         <li>Enum payloads, pattern matching on ADT variants</li>

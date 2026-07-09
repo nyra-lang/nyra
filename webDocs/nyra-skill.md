@@ -6,7 +6,7 @@
 Use this file as the **sole authoritative reference** for Nyra syntax, semantics, stdlib, toolchain, PGO, and escape analysis.
 Do not invent features not listed here. Supplementary guides live at **https://nyra-lang.github.io/nyra/**.
 
-> **Project status — v1.40.x production-ready tier:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability-v10) · [roadmap](https://nyra-lang.github.io/nyra/roadmap.html).
+> **Project status — v0.0.1:** **Core** and **Stable Extended** (async, traits, macros, lifetimes, defer, serde, `?`, official `Error`, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, enum payloads, generic `random()`) ship **without W001**. Prebuilt Linux, macOS, and Windows releases. See [Stability](#stability) · [roadmap](https://nyra-lang.github.io/nyra/roadmap.html).
 
 ## Table of contents
 
@@ -37,28 +37,7 @@ Do not invent features not listed here. Supplementary guides live at **https://n
 - **Nyra** — systems language: Go-like syntax, Rust-like ownership, LLVM backend.
 - Source: `.ny` / `.nyra` files → lexer → parser → expand → monomorph (+ generic call inference) → auto-borrow coercion → typecheck → ownership (Copy inference) → borrow + lifetimes + Send/Sync → **escape analysis** → drop plan → LLVM IR → `opt` → clang + runtime C modules.
 - CLI: `nyra` (Rust). Package manager: `nyra pkg` (NyraPkg).
-- Version baseline: **v1.45.0** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/nyra/roadmap.html)).
-- **v1.45.1 (router):** `HttpRouter` parametric paths (`/users/:id`); `HttpRouter_match` → `.slot`/`.params`; `RequestContext_param(ctx, name)`; exact routes win over patterns.
-- **v1.45:** collection HOFs on `vec()` / `strs()` (`filter`/`map`/`find`/`contains`); SQL query builder `qb().select().from().where().include().to_sql()`; `SqlDb.find(q)`.
-- **v1.44:** JS-like HTTP — `fetch(url) -> HttpResponse`, `req().header(…).json(…).post(url)`; auto-prelude import resolution fix (impl methods no longer shadow free helpers).
-- **v1.43:** language-wide sugar — `jparse`/`jstr`, `sb()`, `slurp`/`spit`, `now()`/`ms()`, `env`/`cmd`/`uuid`/`b64`, `err_io(…).show()`.
-- **v1.41–v1.42:** HTTP `RequestInit`, headers, `FormData`, cookies, abort, redirects, timeouts; fluent `req()` chain.
-- **v1.2:** template strings, arrow functions, `net/http` handler dispatch, language bridge (Python/Node/Java workers), NyraPkg semver + registry, `link-source` auto-link, bindings reference, native C interop pattern.
-- **v2.1:** stack closures (loop-safe), arrow param inference, tuple destructure in arrow params, `??` nullish coalescing, `?.` optional chaining.
-- **v2.2:** heap closure promotion; `?.method()`; **`Option.Some(T)` payloads** when using `import "stdlib/option.ny"` (replaces tag-only built-in `Option` for that module).
-- **v2.3:** composite struct field drop, auto-owned `extern fn -> string`, `Box_string` (superseded by `Box<string>` in v2.4), `OptionStr`.
-- **v2.4:** generic `enum Option<T>` / `enum Result<T,E>` monomorph; enum payload drop; `struct Box<T>` + `Box_new(string)` (replaces `Box_string`).
-- **v2.5:** generic `struct Arc<T>` (`Arc<i32>`, `Arc<string>`); auto Drop for monomorph instances; `Arc_i32` kept as legacy alias in `stdlib/arc.ny`.
-- **v2.6:** async bootstrap patterns, HTTP health via stdlib `net/http`.
-- **v2.7:** `nyra.mod` workspaces, `CONF-WS-*` conformance. See [Modules](https://nyra-lang.github.io/nyra/modules.html). Tracing/service mesh = external.
-- **v2.8:** return type inference (`void` default), generic call-site inference (`id(7)`), auto-borrow at calls (`T` → `&T`), `string.clone()` + synthesized struct `Clone`, struct ctor sugar `User("Ada")` / `Point()`.
-- **v2.9:** Swift-style use-after-move diagnostics (`was moved into save()` + fix-it notes), `move` / `clone` prefix at call sites (`save(move user)`, `save(clone user)`).
-- **v3.0:** auto Copy inference for all-Copy structs (`Point`, `Rect`); `#[derive(Copy)]` validation; no annotation needed for value types.
-- **v3.1:** `f64` IEEE-754 double — float literals (`3.14`), mixed `i32`/`f64` promotion, LLVM `double` codegen.
-- **v3.2:** `char` Unicode scalar — `'a'`, `'\n'`, `'\u{...}'`; LLVM `i32`; `print` via `%c`.
-- **v1.3:** **CONF-LANG** Nyra-source conformance suite; `stdlib/testing.ny` assertion helpers.
-- **v1.40.3:** **Bundled HTTPS** — default `tls rustls` (`libnyra_rt_tls.a`); selectable `tls rustls|native|openssl` in `nyra.mod`; pinned in `nyra.lock` → `features.tls`.
-- **v1.40.4:** **Stable `tls native`** — OS TLS client (`libnyra_rt_tls_native.a`: macOS Secure Transport · Windows SChannel · Linux OpenSSL). CI conformance covers all three backends.
+- Version baseline: **v0.0.1** — **Core tier semver-stable**; **Stable Extended** shipped ([roadmap & status](https://nyra-lang.github.io/nyra/roadmap.html)).
 
 ## Design philosophy
 
@@ -87,35 +66,35 @@ Inference sources (combined across multi-pass signature registration):
 // Zero-types (preferred for learning, scripts, CLI tools)
 let score = 10
 fn add(a, b) {
-    return a + b
+ return a + b
 }
 fn greet(name) {
-    print(strcat("Hello, ", name))
+ print(strcat("Hello, ", name))
 }
 
 // Typed (optional — same ideas, explicit where you want)
 let score: i32 = 10
 fn add(a: i32, b: i32) -> i32 {
-    return a + b
+ return a + b
 }
 struct User {
-    name: string
-    age: i32
-}   // only when you need a named shape
+ name: string
+ age: i32
+} // only when you need a named shape
 ```
 
 **For AI assistants:** when generating Nyra for beginners or app code, **omit types unless the user asks for them** or inference would fail. Do not “Rust-ify” Nyra by sprinkling `: i32` everywhere. Optional types: [stdlib guide](https://nyra-lang.github.io/nyra/stdlib.html#optional-types) · [learn track](https://nyra-lang.github.io/nyra/learn-get-started.html).
 
-## Stability (v1.0)
+## Stability
 
 Nyra has **two shipped tiers** (see [roadmap & stability](https://nyra-lang.github.io/nyra/roadmap.html)):
 
 | Tier | Status | Examples | CI flag |
 |------|--------|----------|---------|
 | **Core** | Semver-stable | types, control flow, `match`, tag-only enums, `impl`, ownership, FFI, `unsafe`/`no_std`, monomorph generics (`fn id<T>`, `Vec_i32`), optional annotations | `nyra check --deny-extended` |
-| **Stable Extended** | Shipped in v1.39+ **without W001** in default builds | enum payloads, `async`/`await`, traits, `dyn`, macros, `defer`, explicit lifetimes, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, arrow fns, spread, compiler `random()` | default `nyra build` |
+| **Stable Extended** | Shipped **without W001** in default builds | enum payloads, `async`/`await`, traits, `dyn`, macros, `defer`, explicit lifetimes, `spawn` / `spawn:task` / `spawn:thread`, `JoinHandle`, arrow fns, spread, compiler `random()` | default `nyra build` |
 
-- **Legacy note:** older docs called Extended "experimental" with **`warning[W001]`**. Current production tier (v1.40.x) ships Extended features in prebuilt releases; use `--deny-extended` only for Core-only CI gates.
+- **Legacy note:** older docs called Extended "experimental" with **`warning[W001]`**. Current production tier ships Extended features in prebuilt releases; use `--deny-extended` only for Core-only CI gates.
 - **Core-stable generics:** `fn id<T>`, `Option<T>`, `Result<T,E>`, `Arc<T>`, `Box<T>` monomorph at compile time.
 
 ## Toolchain
@@ -123,47 +102,47 @@ Nyra has **two shipped tiers** (see [roadmap & stability](https://nyra-lang.gith
 From a project root (directory with `main.ny`), path arguments default to **`.`** — same idea as `cargo test` with no path.
 
 ```bash
-nyra run                      # compile + run (target/debug/main)
-nyra run .                    # same
-nyra run main.ny              # single file only (no imports)
-nyra build                    # debug binary → target/debug/main
-nyra build --release          # release binary → target/release/main
-nyra build . --release --for windows   # cross → target/x86_64-pc-windows-gnu/release/main.exe
+nyra run # compile + run (target/debug/main)
+nyra run . # same
+nyra run main.ny # single file only (no imports)
+nyra build # debug binary → target/debug/main
+nyra build --release # release binary → target/release/main
+nyra build . --release --for windows # cross → target/x86_64-pc-windows-gnu/release/main.exe
 nyra build . --release --for linux
 nyra build . --release --os linux --arch aarch64
-nyra build . -o mybin         # custom name under target/{profile}/
+nyra build . -o mybin # custom name under target/{profile}/
 nyra check
-nyra check . --ownership-verbose   # per-binding ownership at function exit
-nyra inspect name --at main.ny:42   # compile-time ownership snapshot (see Ownership inspect)
+nyra check . --ownership-verbose # per-binding ownership at function exit
+nyra inspect name --at main.ny:42 # compile-time ownership snapshot (see Ownership inspect)
 nyra test .
-nyra test . --list-json          # IDE test discovery (file, name, line)
-nyra test . --filter adds        # run matching tests only
+nyra test . --list-json # IDE test discovery (file, name, line)
+nyra test . --filter adds # run matching tests only
 nyra fmt .
 nyra diag . --json
-nyra explain E003              # explain stable diagnostic codes
+nyra explain E003 # explain stable diagnostic codes
 nyra explain --list
-nyra check . --deny-extended   # Core-only (reject Extended tier)
+nyra check . --deny-extended # Core-only (reject Extended tier)
 nyra pkg init
-nyra pkg install ny-sqlite@^0.1.0   # semver + fetch + merge link / link-source
-nyra pkg verify                     # lock checksums + semver constraints
-nyra pkg build                      # verify lock then compile
-nyra pkg prune                      # remove unused imports, prefix unused locals (W002/W003)
-nyra pkg prune --check              # dry run — report only, no edits
+nyra pkg install ny-sqlite@^0.1.0 # semver + fetch + merge link / link-source
+nyra pkg verify # lock checksums + semver constraints
+nyra pkg build # verify lock then compile
+nyra pkg prune # remove unused imports, prefix unused locals (W002/W003)
+nyra pkg prune --check # dry run — report only, no edits
 nyra build lib.ny -o mylib --cdylib # shared lib for Python/Node/Rust hosts
-nyra debug .                         # build -g + launch lldb/gdb (CLI)
-nyra dap                             # DAP adapter (stdio) — VS Code extension
-nyra build . --debug-symbols         # required before source-level debugging
+nyra debug . # build -g + launch lldb/gdb (CLI)
+nyra dap # DAP adapter (stdio) — VS Code extension
+nyra build . --debug-symbols # required before source-level debugging
 ```
 
 ### Build output layout (Cargo-style)
 
 ```
 myapp/
-  main.ny
-  target/
-    debug/main          # nyra build  or  nyra run (host)
-    release/main        # nyra build --release
-    x86_64-pc-windows-gnu/release/main.exe   # nyra build --release --for windows
+ main.ny
+ target/
+ debug/main # nyra build or nyra run (host)
+ release/main # nyra build --release
+ x86_64-pc-windows-gnu/release/main.exe # nyra build --release --for windows
 ```
 
 - **Projects** (`nyra build` / `nyra build .`): binary name is **`main`** (from `main.ny`).
@@ -202,7 +181,7 @@ let x = 1 /* inline block */ + 1
  */
 ```
 
-Unclosed `/*` is a lexer error.  `CONF-COMMENT-*`.
+Unclosed `/*` is a lexer error. `CONF-COMMENT-*`.
 - **Entry:** `fn main()` in `main.ny` for projects.
 - **Naming:** `snake_case` for functions/variables; `PascalCase` for types/enums.
 
@@ -214,7 +193,7 @@ A **variable** is a name for a value. Nyra has three main forms:
 
 ```ny
 let score = 10
-// score = 20   // ERROR — cannot reassign without mut
+// score = 20 // ERROR — cannot reassign without mut
 ```
 
 `let` means: bind this name once. Reading the value is always OK; replacing it is not (unless you used `mut`).
@@ -225,9 +204,9 @@ let score = 10
 
 ```ny
 let mut lives = 3
-lives = lives - 1   // OK
+lives = lives - 1 // OK
 
-mut counter = 0     // shorthand: mutable without repeating let (common in loops)
+mut counter = 0 // shorthand: mutable without repeating let (common in loops)
 counter = counter + 1
 ```
 
@@ -251,7 +230,7 @@ Three forms:
 comptime
 
 fn mix(n) {
-    return n * 3
+ return n * 3
 }
 
 pub const SEED = mix(14)
@@ -262,13 +241,13 @@ pub const SEED = mix(14)
 ```ny
 #[comptime]
 fn mix(n) {
-    return n * 3
+ return n * 3
 }
 
 const SEED = mix(14)
 
 fn main() {
-    let seed = SEED   // 42 — folded at compile time
+ let seed = SEED // 42 — folded at compile time
 }
 ```
 
@@ -276,11 +255,11 @@ fn main() {
 
 ```ny
 const TOTAL = comptime {
-    let mut acc = 0
-    for i in 0..10 {
-        acc = acc + i
-    }
-    acc
+ let mut acc = 0
+ for i in 0..10 {
+ acc = acc + i
+ }
+ acc
 }
 ```
 
@@ -290,7 +269,7 @@ Import from a normal file (file-level comptime module):
 import "tables.ny" as tables
 
 fn main() {
-    let seed = tables::SEED   // 42 — folded at compile time
+ let seed = tables::SEED // 42 — folded at compile time
 }
 ```
 
@@ -386,7 +365,7 @@ Quick lookup for syntax the lexer and parser accept today. Types are optional un
 | Arithmetic | `+` `-` `*` `/` `%` |
 | Comparison | `==` `!=` `<` `<=` `>` `>=` |
 | Logical | `&&` `\|\|` `!` |
-| Nullish / optional (v2.1+) | `??` `?.` `?.method()` |
+| Nullish / optional | `??` `?.` `?.method()` |
 | Reference | `&x` (shared), `&mut x` (exclusive) |
 | Raw (inside `unsafe`) | `*ptr` load, `*ptr = v` store, `ptr + i32`, `ptr - i32` |
 | Cast | `expr as Type` — raw casts need `unsafe` |
@@ -417,20 +396,20 @@ const MAX = 100
 if x > 0 { print(x) } else { print(0) }
 
 while n < 10 {
-    if n == 5 { break }
-    n = n + 1
+ if n == 5 { break }
+ n = n + 1
 }
 
-for i in 0..5 { print(i) }       // half-open range
+for i in 0..5 { print(i) } // half-open range
 for v in [1, 2, 3] { print(v) } // array elements
-for c in "hi" { print(c) }       // char codes per byte
+for c in "hi" { print(c) } // char codes per byte
 
 return x
 print("ok", color: green)
-defer close_handle(h)          // Extended — prefer impl Drop RAII when possible
-allow_extended                   // optional file directive when using Extended APIs
-spawn { print(1) }               // Extended — default = task pool; use spawn:thread for OS thread
-let h = spawn { work() }         // returns JoinHandle; h.join() blocks until done
+defer close_handle(h) // Extended — prefer impl Drop RAII when possible
+allow_extended // optional file directive when using Extended APIs
+spawn { print(1) } // Extended — default = task pool; use spawn:thread for OS thread
+let h = spawn { work() } // returns JoinHandle; h.join() blocks until done
 unsafe { let p = &x as *i32; *p = 7 }
 import "stdlib/fs.ny"
 ```
@@ -439,18 +418,18 @@ import "stdlib/fs.ny"
 
 ```text
 Source (.ny)
-  → Lexer → Parser → Macro expand
-  → Monomorph (+ generic call inference at call sites)
-  → Auto-borrow coercion (pass owned T as &T when callee expects ref)
-  → Typecheck
-  → Ownership (Copy inference, move tracking)
-  → Borrow + lifetimes + Send/Sync
-  → Escape analysis (NoEscape / ArgEscape / GlobalEscape)
-  → Drop plan (auto-free at scope exit)
-  → LLVM IR codegen
-  → llvm opt (-O0 debug, -O3 release)
-  → clang link + Nyra runtime
-  → target/debug/main or target/release/main
+ → Lexer → Parser → Macro expand
+ → Monomorph (+ generic call inference at call sites)
+ → Auto-borrow coercion (pass owned T as &T when callee expects ref)
+ → Typecheck
+ → Ownership (Copy inference, move tracking)
+ → Borrow + lifetimes + Send/Sync
+ → Escape analysis (NoEscape / ArgEscape / GlobalEscape)
+ → Drop plan (auto-free at scope exit)
+ → LLVM IR codegen
+ → llvm opt (-O0 debug, -O3 release)
+ → clang link + Nyra runtime
+ → target/debug/main or target/release/main
 ```
 
 Stop early without linking: `nyra check .` · JSON diagnostics: `nyra diag . --json` · Ownership snapshot: `nyra inspect NAME --at file:line`
@@ -496,8 +475,8 @@ Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` �
 | `struct` / `enum` | `struct` / `enum` | Language |
 | `Option<T>` / `Result<T,E>` | `import "stdlib/option.ny"` | Stdlib + `?` / `??` / `?.` |
 | `Vec<T>` | `Vec_i32`, `import "stdlib/vec.ny"` | Stdlib (monomorph) |
-| `Vec<Vec<i32>>` | `Vec_Vec_i32_*`, `import "stdlib/collections/nested_vec.ny"` | Stdlib (nested MVP v1.25) |
-| `Vec<MoveStruct>` | `Vec_{Struct}_*`, `import "stdlib/collections/vec_pod.ny"` | Reloc expand (string + scalars + nested; v1.27) |
+| `Vec<Vec<i32>>` | `Vec_Vec_i32_*`, `import "stdlib/collections/nested_vec.ny"` | Stdlib (nested MVP v0.0.1) |
+| `Vec<MoveStruct>` | `Vec_{Struct}_*`, `import "stdlib/collections/vec_pod.ny"` | Reloc expand (string + scalars + nested; v0.0.1) |
 | `HashMap<K,V>` | `HashMap_str_i32`, `HashMap_str_str` | Stdlib |
 | `HashSet<T>` | `HashSet_str` | Stdlib |
 | `Box<T>` / `Arc<T>` | `stdlib/box.ny`, `stdlib/arc.ny` | Partial / shipped |
@@ -518,15 +497,15 @@ Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` �
 Two equivalent forms (both compile):
 
 ```ny
-let b = clone a          // prefix at call site or in let initializer
-let c = a.clone()        // method call (`.clone` is a keyword after `.`)
+let b = clone a // prefix at call site or in let initializer
+let c = a.clone() // method call (`.clone` is a keyword after `.`)
 ```
 
 Use when a `string` (Move type) must be reused after a call that would move it (e.g. `strcat(a, b)`).
 
 ```ny
 let prefix = "tab"
-let key = strcat(clone prefix, "_name=")   // prefix still valid
+let key = strcat(clone prefix, "_name=") // prefix still valid
 // or: let key = strcat(prefix.clone(), "_name=")
 ```
 
@@ -534,16 +513,16 @@ let key = strcat(clone prefix, "_name=")   // prefix still valid
 
 ```ny
 fn add(a: i32, b: i32) -> i32 {
-    return a + b
+ return a + b
 }
 
 fn greet(name: string) -> void {
-    print(name)
+ print(name)
 }
 
 // Generic (monomorphized at compile time)
 fn id<T>(x: T) -> T {
-    return x
+ return x
 }
 ```
 
@@ -560,7 +539,7 @@ fn id<T>(x: T) -> T {
 nyra pkg c add raylib
 nyra pkg c add zlib
 nyra pkg c list
-nyra pkg c remove raylib     # delete bindings + unlink nyra.mod
+nyra pkg c remove raylib # delete bindings + unlink nyra.mod
 nyra pkg c add raylib --no-install --path ./myapp
 ```
 
@@ -569,7 +548,7 @@ nyra pkg c add raylib --no-install --path ./myapp
 Default: all bindable functions in `vendor/bindings/{stem}.ny`. C keyword params → `in_`, `type_`. Optional `--export` to shrink. `--shim` experimental.
 
 Docs: [c-bindgen](https://nyra-lang.github.io/nyra/c-bindgen.html)
-### Template strings (v1.2 — Core)
+### Template strings
 
 Backtick strings with JS-style `${expr}` interpolation (static text + `i32` / `string` values):
 
@@ -582,12 +561,12 @@ print(`Hello ${name}, age ${age}`)
 
  · [learn strings](https://nyra-lang.github.io/nyra/learn-strings.html).
 
-### Arrow functions (v2.1+ — Extended)
+### Arrow functions
 
-ES6-style lambdas; non-capturing arrows are hoisted to `__arrow_N` before typecheck. Capturing closures use **stack alloca** env structs for synchronous use; **heap promotion** (v2.2) when the closure escapes (returned, passed to `fn(...)`).
+ES6-style lambdas; non-capturing arrows are hoisted to `__arrow_N` before typecheck. Capturing closures use **stack alloca** env structs for synchronous use; **heap promotion** when the closure escapes (returned, passed to `fn(...)`).
 
 ```ny
-// Inferred param types (v2.1)
+// Inferred param types
 let add_one = (x) => x + 1
 let inc = x => x + 1
 
@@ -599,22 +578,22 @@ let sum_pair = ((a, b)) => a + b
 
 // Block body
 let double = (x: i32) => {
-    return x * 2
+ return x * 2
 }
 
 // Capturing closure — safe in loops when passed to sync callbacks (e.g. iter_filter)
 let threshold = 2
 let pred = (x) => if x > threshold { 1 } else { 0 }
 
-// Escaping closure — heap env (v2.2)
+// Escaping closure — heap env
 fn make_adder(n: i32) -> fn(i32) -> i32 {
-    return (x) => x + n
+ return (x) => x + n
 }
 ```
 
 Pass as `fn(...)` parameters: `iter_filter(v, pred)` or `serve_handlers(host, port, max, router, health_slot)`.
 
-### Nullish coalescing & optional chaining (v2.1+)
+### Nullish coalescing & optional chaining
 
 Desugared to `match` on the built-in `Option` **tag** names before typecheck.
 
@@ -624,13 +603,13 @@ Desugared to `match` on the built-in `Option` **tag** names before typecheck.
 import "stdlib/option.ny"
 
 let x = Option.None
-let y = x ?? 42              // y is 42 (None arm)
+let y = x ?? 42 // y is 42 (None arm)
 
-let z = Option.Some(99)      // stores i32 payload — requires import above
-let w = z ?? 0               // w is 99 (Some(v) arm binds v)
+let z = Option.Some(99) // stores i32 payload — requires import above
+let w = z ?? 0 // w is 99 (Some(v) arm binds v)
 
-let f = opt?.field           // optional field chain
-let m = opt?.method()        // optional method chain (v2.2)
+let f = opt?.field // optional field chain
+let m = opt?.method() // optional method chain
 ```
 
 Without `import "stdlib/option.ny"`, `Option.Some(99)` is a **type error** (built-in `Some` expects zero args). Use the import for any code that constructs or matches payload values.
@@ -641,12 +620,12 @@ Monomorph generics specialize at compile time — no runtime type info on hot pa
 
 ```ny
 fn id<T>(x: T) -> T {
-    return x
+ return x
 }
 
 fn main() {
-    print(id(7))           // T = i32 → id__i32
-    print(id("hi"))      // T = string → id__string
+ print(id(7)) // T = i32 → id__i32
+ print(id("hi")) // T = string → id__string
 }
 ```
 
@@ -669,44 +648,44 @@ fn main() {
 ```ny
 // if / else
 if x > 0 {
-    print("positive")
+ print("positive")
 } else {
-    print("non-positive")
+ print("non-positive")
 }
-let sign = if x >= 0 { 1 } else { -1 }   // if expression
+let sign = if x >= 0 { 1 } else { -1 } // if expression
 
 // while
 let mut i = 0
 while i < 10 {
-    print(i)
-    i = i + 1
+ print(i)
+ i = i + 1
 }
 
 // for range (half-open: start..end)
 for j in 0..5 {
-    print(j)    // 0, 1, 2, 3, 4
+ print(j) // 0, 1, 2, 3, 4
 }
 
 // break / continue
 let mut i = 0
 while i < 10 {
-    i = i + 1
-    if i == 5 { continue }   // skip rest of iteration
-    if i == 8 { break }      // exit loop
-    print(i)
+ i = i + 1
+ if i == 5 { continue } // skip rest of iteration
+ if i == 8 { break } // exit loop
+ print(i)
 }
 ```
 
 ## Match expressions
 
-`match` is **exhaustive** — cover all variants or use `_` wildcard. Works on enums, `bool`, integer literals, **strings** (v1.17+), structs, tuples.
+`match` is **exhaustive** — cover all variants or use `_` wildcard. Works on enums, `bool`, integer literals, **strings**, structs, tuples.
 
 ```ny
 enum Color { Red, Green, Blue }
 let n = match color {
-    Color.Red => 1
-    Color.Green => 2
-    Color.Blue => 3
+ Color.Red => 1
+ Color.Green => 2
+ Color.Blue => 3
 }
 
 // if expression (not match)
@@ -717,46 +696,46 @@ let sign = if x >= 0 { 1 } else { -1 }
 
 ```ny
 match c {
-    Color.Red | Color.Blue => 1    // single | not ||
-    Color.Green => 2
+ Color.Red | Color.Blue => 1 // single | not ||
+ Color.Green => 2
 }
 
 match method {
-    "GET" | "HEAD" => 200
-    "POST" | "PUT" => 201
-    _ => 404
+ "GET" | "HEAD" => 200
+ "POST" | "PUT" => 201
+ _ => 404
 }
 
 match r {
-    Result.Ok(v) if v > 0 => v     // guard after pattern
-    Result.Ok(_v) => 0
-    Result.Err(e) => e
+ Result.Ok(v) if v > 0 => v // guard after pattern
+ Result.Ok(_v) => 0
+ Result.Err(e) => e
 }
 ```
 
-### Payload binds & nested enums (v1.33+)
+### Payload binds & nested enums
 
 ```ny
 enum Option_i32 { None, Some(i32) }
 enum Result_Opt { Ok(Option_i32), Fail(Option_i32) }
 
 match r {
-    Result_Opt.Ok(Some(x)) => x
-    Result_Opt.Ok(Option_i32.None) => 0
-    Result_Opt.Fail(_) => -1
+ Result_Opt.Ok(Some(x)) => x
+ Result_Opt.Ok(Option_i32.None) => 0
+ Result_Opt.Fail(_) => -1
 }
 ```
 
 **Limit:** all payload-bearing variants in one enum must share the **same** payload type — no `Ok(Option)` + `Err(i32)` mix.
 
-### Struct & tuple patterns (v1.37+)
+### Struct & tuple patterns
 
 ```ny
 match p {
-    Point { x, y } => x + y      // field bind shorthand
+ Point { x, y } => x + y // field bind shorthand
 }
 match pair {
-    (a, b) => a + b
+ (a, b) => a + b
 }
 ```
 
@@ -787,24 +766,24 @@ Further reading: [match](https://nyra-lang.github.io/nyra/match.html)
 ```ny
 // Zero-types: no struct keyword required
 fn main() {
-    let family = {
-        name: "hamdy",
-        age: 20,
-        city: "cairo"
-    }
-    print(family.name)
+ let family = {
+ name: "hamdy",
+ age: 20,
+ city: "cairo"
+ }
+ print(family.name)
 }
 
 // Optional explicit struct (organization / public API)
 struct Point {
-    x: i32
-    y: i32
+ x: i32
+ y: i32
 }
 
 fn demo() {
-    let p = Point { x: 1, y: 2 }
-    let q = { x: 3, y: 4 }   // same shape → uses Point when fields match
-    print(p.x)
+ let p = Point { x: 1, y: 2 }
+ let q = { x: 3, y: 4 } // same shape → uses Point when fields match
+ print(p.x)
 }
 ```
 
@@ -814,11 +793,11 @@ Methods via `impl`:
 
 ```ny
 impl Calculator {
-    fn add(self, n: i32) -> Calculator {
-        Calculator { value: self.value + n }
-    }
+ fn add(self, n: i32) -> Calculator {
+ Calculator { value: self.value + n }
+ }
 }
-// call: c.add(10)  →  Calculator_add(c, 10)
+// call: c.add(10) → Calculator_add(c, 10)
 ```
 
 **`impl` rules:**
@@ -847,25 +826,25 @@ enum Color { Red, Green, Blue }
 
 let c = Color.Red
 let n = match c {
-    Color.Red => 1
-    Color.Green => 2
-    Color.Blue => 3
+ Color.Red => 1
+ Color.Green => 2
+ Color.Blue => 3
 }
-// Or-patterns (v1.30+): shared body for multiple variants
+// Or-patterns: shared body for multiple variants
 let bucket = match c {
-    Color.Red | Color.Blue => 1
-    Color.Green => 2
+ Color.Red | Color.Blue => 1
+ Color.Green => 2
 }
-// Nested binds (v1.33+): peel payload enums in one arm
+// Nested binds: peel payload enums in one arm
 // match res { Result.Ok(Some(x)) => x, Result.Ok(Option.None) => 0 }
-// Struct / tuple patterns (v1.37+): Point { x, y }, (a, b)
+// Struct / tuple patterns: Point { x, y }, (a, b)
 // String match: `"GET" | "HEAD" => 1`
-// Color.Red(42)  // ERROR — no payload declared
+// Color.Red(42) // ERROR — no payload declared
 ```
 
 Built-in **`Option` / `Result` names** (no import): the compiler registers tag names `None`, `Some`, `Ok`, `Err` for `??` / `?.` desugar and pattern matching. These built-ins are **tag-only** — `Option.Some(42)` without import is invalid.
 
-### 2. Enums with payloads (Extended — v2.2+)
+### 2. Enums with payloads (Extended — v0.0.1+)
 
 Declare a payload type on variants, or import the stdlib generic enums.
 
@@ -873,14 +852,14 @@ Declare a payload type on variants, or import the stdlib generic enums.
 
 ```ny
 enum Option_i32 {
-    None,
-    Some(i32),
+ None,
+ Some(i32),
 }
 
 let x = Option_i32.Some(42)
 let n = match x {
-    Option_i32.Some(v) => v    // v is i32
-    Option_i32.None => 0
+ Option_i32.Some(v) => v // v is i32
+ Option_i32.None => 0
 }
 ```
 
@@ -890,13 +869,13 @@ let n = match x {
 import "stdlib/option.ny"
 
 enum Option<T> {
-    None,
-    Some(T),
+ None,
+ Some(T),
 }
 
 enum Result<T, E> {
-    Ok(T),
-    Err(E),
+ Ok(T),
+ Err(E),
 }
 
 let ok = Result.Ok(200)
@@ -904,7 +883,7 @@ let err = Result.Err("not found")
 let maybe = Option.Some("hello")
 ```
 
-Monomorphization produces instanced types (e.g. `Option__i32`) at compile time. Heap payloads (e.g. `Option<string>`) get automatic payload drop (v2.4).
+Monomorphization produces instanced types (e.g. `Option__i32`) at compile time. Heap payloads (e.g. `Option<string>`) get automatic payload drop.
 
 **MVP payload rules (RFC 0002):**
 
@@ -915,7 +894,7 @@ Monomorphization produces instanced types (e.g. `Option__i32`) at compile time. 
 | Unit variants | `None`-style variants have no field |
 | Layout | `{ i32 tag, T payload }` when any variant has payload; else tag-only `i32` |
 
-**Result / error handling — `?` operator (v1.3.2+):**
+**Result / error handling — `?` operator:**
 
 | Status | Detail |
 |--------|--------|
@@ -928,13 +907,13 @@ Monomorphization produces instanced types (e.g. `Option__i32`) at compile time. 
 enum Result_i32_i32 { Ok(i32), Err(i32) }
 
 fn step(n: i32) -> Result_i32_i32 {
-    return Result_i32_i32.Ok(n)
+ return Result_i32_i32.Ok(n)
 }
 
 fn pipeline() -> Result_i32_i32 {
-    let a = step(1)?
-    let b = step(a + 1)?
-    return Result_i32_i32.Ok(b * 2)
+ let a = step(1)?
+ let b = step(a + 1)?
+ return Result_i32_i32.Ok(b * 2)
 }
 ```
 
@@ -942,12 +921,12 @@ Verbose `match` per step still works (and is required when the function returns 
 
 ```ny
 fn pipeline_verbose() -> i32 {
-    let v1 = match Result_i32_i32.Ok(1) {
-        Result_i32_i32.Ok(x) => x
-        Result_i32_i32.Err(_e) => 0
-    }
-    // ...
-    return v1
+ let v1 = match Result_i32_i32.Ok(1) {
+ Result_i32_i32.Ok(x) => x
+ Result_i32_i32.Err(_e) => 0
+ }
+ // ...
+ return v1
 }
 ```
 
@@ -961,15 +940,15 @@ fn pipeline_verbose() -> i32 {
 
 Generic `Result<T,E>` / `Option<T>` (auto-prelude or `import "stdlib/option.ny"`) supports `?` the same way after monomorphization.
 
-**Official application errors (v1.40+):** import `stdlib/error.ny` for Nyra's batteries-included error path. Use `Result<T, Error>` plus `?`, `Error_context`, `Error_format`, and specialized helpers (`Result_string_context`, `Result_i32_context`) to compose I/O + JSON + validation without third-party packages.
+**Official application errors:** import `stdlib/error.ny` for Nyra's batteries-included error path. Use `Result<T, Error>` plus `?`, `Error_context`, `Error_format`, and specialized helpers (`Result_string_context`, `Result_i32_context`) to compose I/O + JSON + validation without third-party packages.
 
 ```ny
 import "stdlib/error.ny"
 import "stdlib/json/mod.ny"
 
 fn config_port(json_text) -> Result<i32, Error> {
-    let port = Result_i32_context(json_i32(json_text, "port"), "reading config")?
-    return Result.Ok(port)
+ let port = Result_i32_context(json_i32(json_text, "port"), "reading config")?
+ return Result.Ok(port)
 }
 ```
 
@@ -987,15 +966,15 @@ import "types.ny"
 import "lib/api.ny" as api
 
 fn main() {
-    print(APP_TITLE)        // const from imported file
-    print(api::version())   // alias::name → api__version
+ print(APP_TITLE) // const from imported file
+ print(api::version()) // alias::name → api__version
 }
 ```
 
 - Project root: `main.ny` + optional `nyra.mod`.
 - Paths relative to importing file: `import "src/engine.ny"`.
 - Import brings **public** symbols into scope; `priv` hides from importers.
-- `import "path" as alias` + `alias::symbol` qualified calls (v1.37+).
+- `import "path" as alias` + `alias::symbol` qualified calls.
 
 ### Visibility (`pub` / `priv`)
 
@@ -1006,8 +985,8 @@ fn main() {
 | `pub const` | Explicit export (required in comptime modules) |
 
 ```ny
-priv fn helper() { … }          // internal only
-fn public_api() { … }           // visible to importers
+priv fn helper() { … } // internal only
+fn public_api() { … } // visible to importers
 ```
 
 ### `nyra.mod` — project manifest (line-oriented, not TOML/JSON)
@@ -1030,7 +1009,7 @@ One directive per line. Minimum: `module myapp.local` — enough for `nyra run .
 
 ```text
 module myapp.local
-version 1.0.0
+version 0.0.1
 tls rustls
 
 require ny-sqlite ^0.1.0
@@ -1048,12 +1027,12 @@ Typical layout:
 
 ```text
 myapp/
-  nyra.mod
-  nyra.lock
-  nyra.sum
-  main.ny
-  .nyra/cache/
-  target/debug/main
+ nyra.mod
+ nyra.lock
+ nyra.sum
+ main.ny
+ .nyra/cache/
+ target/debug/main
 ```
 
 Docs: [packages → nyra.mod syntax](https://nyra-lang.github.io/nyra/packages.html#nyra-mod-syntax) · [modules](https://nyra-lang.github.io/nyra/modules.html)
@@ -1071,7 +1050,7 @@ Select in `nyra.mod`; **application code is identical** for every backend. No `i
 ```text
 # nyra.mod
 module example.local
-tls native          # or rustls (default) or openssl
+tls native # or rustls (default) or openssl
 
 # nyra.lock fragment
 { "features": { "tls": "native" }, "require": [] }
@@ -1081,19 +1060,19 @@ tls native          # or rustls (default) or openssl
 
 ```ny
 fn main() {
-    // Preferred — full response (JS-like)
-    let resp = fetch("https://api.github.com/zen")
-    print(resp.status, resp.text())
+ // Preferred — full response (JS-like)
+ let resp = fetch("https://api.github.com/zen")
+ print(resp.status, resp.text())
 
-    let posted = req()
-        .header("Accept", "application/json")
-        .timeout(10000)
-        .json("{\"ok\":true}")
-        .post("https://httpbin.org/post")
-    print(posted.status, posted.is_ok())
+ let posted = req()
+ .header("Accept", "application/json")
+ .timeout(10000)
+ .json("{\"ok\":true}")
+ .post("https://httpbin.org/post")
+ print(posted.status, posted.is_ok())
 
-    // Body-only convenience (still useful for quick scripts)
-    print(get("https://example.com/"))
+ // Body-only convenience (still useful for quick scripts)
+ print(get("https://example.com/"))
 }
 ```
 
@@ -1103,7 +1082,7 @@ fn main() {
 - `tls_last_error()` — real error detail; does **not** tell users to install OpenSSL when using `rustls` or `native` on macOS/Windows.
 - `tls_available()` / `tls_ready()` — probe before HTTPS in defensive code.
 
-**Do not hallucinate:** `tls native` is **shipped and stable** (v1.40.4+). Default is `rustls`, not OpenSSL. Some hosts/CDNs may reset TLS from certain networks — that is environmental, not “Nyra needs OpenSSL”.
+**Do not hallucinate:** `tls native` is **shipped and stable**. Default is `rustls`, not OpenSSL. Some hosts/CDNs may reset TLS from certain networks — that is environmental, not “Nyra needs OpenSSL”.
 
 Docs: [net/http → TLS](https://nyra-lang.github.io/nyra/net-http.html#tls-backends)
 
@@ -1121,7 +1100,7 @@ Further builtins reference: [https://nyra-lang.github.io/nyra/methods.html](http
 | Split list `.len()` / `for s in parts` | **No** | result of `.split()` |
 | `vec()` / `VecI32` (`.filter`/`.map`/`.find`/…) | auto-prelude or `import "stdlib/vec.ny"` | Prefer over raw `Vec_i32_*` |
 | `strs()` / `StrVec` (`.joined`/`.filter`/`.map`/…) | auto-prelude or `import "stdlib/vec_str.ny"` | String vector |
-| `jparse` / `jstr` / `sb` / `slurp` / `spit` / `now` / `qb` | auto-prelude | Short stdlib sugar (v1.43–v1.45) |
+| `jparse` / `jstr` / `sb` / `slurp` / `spit` / `now` / `qb` | auto-prelude | Short stdlib sugar |
 | `fetch` / `req()` / `form()` | auto-prelude or `import "stdlib/net/http/mod.ny"` | HTTP client |
 | `HashMap_str_*` methods | auto-prelude or `import "stdlib/map.ny"` | `HashMap_str_i32`, `HashMap_str_str` |
 | `Array_*` / `String_*` / `Math_*` / `JSON_*` | `import "stdlib/builtins_*.ny"` | Function-style wrappers (legacy/extra) |
@@ -1131,18 +1110,18 @@ Further builtins reference: [https://nyra-lang.github.io/nyra/methods.html](http
 ### I/O (no import)
 
 ```ny
-print("line")                    // stdout + newline (string, i32, bool, char, f64, fixed arrays)
-print([1, 2, 3])                 // [1, 2, 3] — fixed arrays of printable scalars
-print("OK", color: green)        // ANSI color — names, #RGB, #RRGGBB, rgb(r,g,b)
+print("line") // stdout + newline (string, i32, bool, char, f64, fixed arrays)
+print([1, 2, 3]) // [1, 2, 3] — fixed arrays of printable scalars
+print("OK", color: green) // ANSI color — names, #RGB, #RRGGBB, rgb(r,g,b)
 print("Err", color: "#FF0000")
-write("buf")                     // buffered, no newline
-println("line")                  // buffered + newline
+write("buf") // buffered, no newline
+println("line") // buffered + newline
 flush()
-let s = input()                  // read stdin line
-let name = input("Name? ")       // prompt then read
+let s = input() // read stdin line
+let name = input("Name? ") // prompt then read
 ```
 
-**Color names:** `red`, `green`, `blue`, `yellow`, `cyan`, `magenta`, `white`, `black`, `bold`, `dim`, `bright_red`, …  
+**Color names:** `red`, `green`, `blue`, `yellow`, `cyan`, `magenta`, `white`, `black`, `bold`, `dim`, `bright_red`, …
 **String escapes:** `\n`, `\t`, `\\`, `\"`, `\033`, `\x1b`, `\u{1b}`.
 
 ### `date()` — local calendar (no import)
@@ -1151,13 +1130,13 @@ Returns a `Date` struct (fields, not methods). Month is **1–12**.
 
 ```ny
 let d = date()
-print(d.year)        // e.g. 2026
-print(d.month)       // 1–12
+print(d.year) // e.g. 2026
+print(d.month) // 1–12
 print(d.day)
 print(d.hour)
-print(d.minute)      // alias: d.minutes
-print(d.second)      // alias: d.seconds
-print(d.week)        // 0=Sun … 6=Sat; alias: d.weekday
+print(d.minute) // alias: d.minutes
+print(d.second) // alias: d.seconds
+print(d.week) // 0=Sun … 6=Sat; alias: d.weekday
 print(d.millisecond)
 ```
 
@@ -1217,7 +1196,7 @@ let nums = [10, 1, 2, 8, 5]
 let sorted = nums.sort()
 let by_num = items.sort_by((a, b) => a.number - b.number)
 for n in sorted { print(n) }
-print(nums[0])   // original unchanged
+print(nums[0]) // original unchanged
 ```
 
 ### Split lists (`.split` result)
@@ -1242,14 +1221,14 @@ print(nums[0])   // original unchanged
 
 ```ny
 fn is_even(x: i32) -> i32 {
-    if x % 2 == 0 { return 1 }
-    return 0
+ if x % 2 == 0 { return 1 }
+ return 0
 }
 
 fn main() {
-    let xs = vec().push(1).push(2).push(3).push(4)
-    let evens = xs.filter(is_even)
-    print(evens.len(), xs.contains(3), xs.find_eq(3, -1))
+ let xs = vec().push(1).push(2).push(3).push(4)
+ let evens = xs.filter(is_even)
+ print(evens.len(), xs.contains(3), xs.find_eq(3, -1))
 }
 ```
 
@@ -1295,11 +1274,11 @@ Low-level `ptr` API (FFI style): `map_str_i32_new`, `map_str_i32_insert`, `map_s
 import "stdlib/map.ny"
 
 let scores = HashMap_str_i32_new()
-    .insert("alice", 95)
-    .insert("bob", 87)
+ .insert("alice", 95)
+ .insert("bob", 87)
 
-print(scores.get("alice"))       // 95
-print(scores.contains("bob"))    // 1
+print(scores.get("alice")) // 95
+print(scores.contains("bob")) // 1
 
 let keys = scores.keys()
 for k in keys { print(k) }
@@ -1314,10 +1293,10 @@ Generic syntax `HashMap<K, V>` is Extended tier — monomorph names above are Co
 ```ny
 time_start("label")
 // ... work ...
-time_end("label")    // prints elapsed (colored terminal output)
+time_end("label") // prints elapsed (colored terminal output)
 
 mem_start("label")
-mem_end("label")     // prints RSS delta (platform-dependent)
+mem_end("label") // prints RSS delta (platform-dependent)
 ```
 
 ### `spawn { }` / `spawn:task` / `spawn:thread` (Extended — no import keyword)
@@ -1335,7 +1314,7 @@ allow_extended
 | What | Detail |
 |------|--------|
 | **Purpose** | Documents that this file intentionally uses **Stable Extended** features |
-| **Effect today (v1.40+)** | Extended ships **without `warning[W001]`** in default builds — `spawn` compiles with or without the directive |
+| **Effect today** | Extended ships **without `warning[W001]`** in default builds — `spawn` compiles with or without the directive |
 | **When skipped** | If `extended_tier_warnings` runs, files **without** `allow_extended` may get W001 for Extended syntax; files **with** it suppress W001 in that unit |
 | **CI** | Pair with `nyra check --deny-extended` for Core-only gates (converts W001 → error when preview warnings return) |
 | **Scope** | One line per **compilation unit** — not per-function |
@@ -1367,23 +1346,23 @@ Captures must be **Send**; no `&` / `&mut` captures.
 allow_extended
 
 fn main() {
-    // Task pool (default) — output order: 99, then 0
-    let h = spawn {
-        print(99)
-    }
-    h.join()
-    print(0)
+ // Task pool (default) — output order: 99, then 0
+ let h = spawn {
+ print(99)
+ }
+ h.join()
+ print(0)
 
-    // Fire-and-forget — main does not wait
-    spawn {
-        print("background")
-    }
+ // Fire-and-forget — main does not wait
+ spawn {
+ print("background")
+ }
 
-    // OS thread when you need real thread isolation
-    let t = spawn:thread {
-        blocking_syscall()
-    }
-    t.join()
+ // OS thread when you need real thread isolation
+ let t = spawn:thread {
+ blocking_syscall()
+ }
+ t.join()
 }
 ```
 
@@ -1402,10 +1381,10 @@ Each entry: **name → explanation → example → output**. Runnable: `examples
 ```ny
 allow_extended
 fn main() {
-    parallel for i in 0..4 {
-        print(i)
-    }
-    print(999)
+ parallel for i in 0..4 {
+ print(i)
+ }
+ print(999)
 }
 ```
 
@@ -1466,14 +1445,14 @@ Gallery also covers: [`parallel(threads = N)`](methods.html#ex-parallel-exact) �
 
 ### `progress for` (Extended)
 
-**Name:** `progress(label = "…") for x in items { … }`  
-**Explanation:** Sequential progress bar; cannot combine with `parallel for`.  
+**Name:** `progress(label = "…") for x in items { … }`
+**Explanation:** Sequential progress bar; cannot combine with `parallel for`.
 **Example:** see [methods.html#ex-progress](https://nyra-lang.github.io/nyra/methods.html#ex-progress)
 
 ```ny
 allow_extended
 progress(label = "demo") for i in 0..3 {
-    print(i)
+ print(i)
 }
 ```
 
@@ -1492,8 +1471,8 @@ Running demo...
 
 ### `benchmark { }` (Extended)
 
-**Name:** `benchmark { … }`  
-**Explanation:** Wall time, RSS delta, and process CPU% for a block — no manual timers.  
+**Name:** `benchmark { … }`
+**Explanation:** Wall time, RSS delta, and process CPU% for a block — no manual timers.
 **Example:** [methods.html#ex-benchmark](https://nyra-lang.github.io/nyra/methods.html#ex-benchmark) · `nyra run examples/builtins/benchmark/benchmark.ny`
 
 ```ny
@@ -1502,13 +1481,13 @@ allow_extended
 extern fn blackbox_i32(x: i32) -> i32
 
 fn main() {
-    benchmark {
-        let mut acc = 0
-        for i in 0..10000 {
-            acc = blackbox_i32(acc + i)
-        }
-        blackbox_i32(acc)
-    }
+ benchmark {
+ let mut acc = 0
+ for i in 0..10000 {
+ acc = blackbox_i32(acc + i)
+ }
+ blackbox_i32(acc)
+ }
 }
 ```
 
@@ -1534,16 +1513,16 @@ Prefer `import "stdlib/async/mod.ny"` for application code. It is Nyra's officia
 import "stdlib/async/mod.ny"
 
 fn main() {
-    let rt = NyraRuntime_default()
-    let f = sleep_ms_async(20)
-    let value = match NyraRuntime_run_until(rt, f.handle, 1000) {
-        Result.Ok(v) => v
-        Result.Err(err) => {
-            Error_print(err)
-            0
-        }
-    }
-    print(value)
+ let rt = NyraRuntime_default()
+ let f = sleep_ms_async(20)
+ let value = match NyraRuntime_run_until(rt, f.handle, 1000) {
+ Result.Ok(v) => v
+ Result.Err(err) => {
+ Error_print(err)
+ 0
+ }
+ }
+ print(value)
 }
 ```
 
@@ -1556,11 +1535,11 @@ allow_extended
 import "stdlib/async_v1.ny"
 
 async fn compute() -> i32 {
-    return 42
+ return 42
 }
 
 fn main() {
-    print(await compute())
+ print(await compute())
 }
 ```
 
@@ -1570,16 +1549,16 @@ fn main() {
 
 **Output:** `100` — see `#ex-await` · `async_state_machine.ny`
 
-#### `Future<T>` (v1.26)
+#### `Future<T>`
 
 **Output:** `Nyra async v2` — see `#ex-async-future`
 
 | Topic | Behavior |
 |-------|----------|
-| **`async fn` desugar (v1.5)** | Body runs on **`spawn:thread`**; call site gets promise handle immediately |
-| **State machine (v1.6–v1.7)** | Top-level `await` in `async fn`; **`await` inside `if` / `while` / range `for`** |
+| **`async fn` desugar** | Body runs on **`spawn:thread`**; call site gets promise handle immediately |
+| **State machine** | Top-level `await` in `async fn`; **`await` inside `if` / `while` / range `for`** |
 | **`await` in `spawn` / `unsafe`** | Uses blocking `async_await` — not cooperative |
-| **Futures (v1.26)** | `import "stdlib/async/future.ny"` — `Future_i32`, `Future_select2_i32(a, b)` |
+| **Futures** | `import "stdlib/async/future.ny"` — `Future_i32`, `Future_select2_i32(a, b)` |
 
 Not on `wasm32-wasi`. Full guide: [async.html](https://nyra-lang.github.io/nyra/async.html)
 
@@ -1688,7 +1667,7 @@ Prefer built-in `.split()` / `.trim()` on `string` when you do not need the impo
 | `random_f64()` | `f64` | Unit interval `[0, 1)` — 53-bit precision |
 | `random_f64(min, max)` | `f64` | Half-open `[min, max)` |
 
-**Removed (v1.39):** `Random()` alias and `random_range()` as public API — use `random()` / `random(min, max)` instead.
+**Removed:** `Random()` alias and `random_range()` as public API — use `random()` / `random(min, max)` instead.
 
 Seeding: OS/hardware entropy (`getentropy`, `arc4random`, `BCryptGenRandom`, `RDRAND` when available). Raw TRNG bytes: `stdlib/os/hw_crypto.ny` → `hw_random_bytes`.
 
@@ -1744,9 +1723,9 @@ Nyra has **no GC**. The compiler builds a **DropPlan** per function and emits `f
 
 ```ny
 let a = "hello"
-let b = a          // move — a invalid
+let b = a // move — a invalid
 print(b)
-// print(a)       // ERROR: use of moved value
+// print(a) // ERROR: use of moved value
 ```
 
 ### Rules
@@ -1767,23 +1746,23 @@ print(b)
 
 ```ny
 fn read_len(s: &string) -> i32 {
-    return s.length()
+ return s.length()
 }
 
 fn main() {
-    let name = "Ada"
-    print(read_len(name))     // auto-borrow &name
-    print(name.length())    // method borrows — name still valid
+ let name = "Ada"
+ print(read_len(name)) // auto-borrow &name
+ print(name.length()) // method borrows — name still valid
 
-    let mut count = 0
-    let r = &mut count
-    print(*r)               // read through mut ref
-    count = count + 1       // mutate binding directly
+ let mut count = 0
+ let r = &mut count
+ print(*r) // read through mut ref
+ count = count + 1 // mutate binding directly
 
-    let a = "hello"
-    let b = a                 // move — a invalid after
-    print(b)
-    // print(a)              // E012 use after move
+ let a = "hello"
+ let b = a // move — a invalid after
+ print(b)
+ // print(a) // E012 use after move
 }
 ```
 
@@ -1806,12 +1785,12 @@ nyra check . --ownership-verbose
 ```
 nyra inspect myname2 --at main.ny:5
 
-  ownership chain:
-    name ──move──► myname ──move──► myname2
-  you inspect:  `myname2`
-  current owner:  `myname2` (owns value)
-  kind:  Move
-  binding:  owned (valid)
+ ownership chain:
+ name ──move──► myname ──move──► myname2
+ you inspect: `myname2`
+ current owner: `myname2` (owns value)
+ kind: Move
+ binding: owned (valid)
 ```
 
 **Borrow** (`let r = &a`) — borrow chain + heap owner (not move edges):
@@ -1819,13 +1798,13 @@ nyra inspect myname2 --at main.ny:5
 ```
 nyra inspect myname2 --at main.ny:11
 
-  you inspect:  `myname2` (borrower)
-  heap owner:  `name` (owns Move value)
-  borrow chain:
-    name ◄──borrow── myname ◄──borrow── myname2
-  kind:  Copy (reference)
-  binding:  valid (borrow)
-  moved:  no
+ you inspect: `myname2` (borrower)
+ heap owner: `name` (owns Move value)
+ borrow chain:
+ name ◄──borrow── myname ◄──borrow── myname2
+ kind: Copy (reference)
+ binding: valid (borrow)
+ moved: no
 ```
 
 | Field | Meaning |
@@ -1850,15 +1829,15 @@ Full docs: [ownership inspect](https://nyra-lang.github.io/nyra/ownership-inspec
 
 Gallery: [methods.html#ex-defer](https://nyra-lang.github.io/nyra/methods.html#ex-defer) · `examples/builtins/defer/`
 
-**Name:** `defer cleanup()`  
+**Name:** `defer cleanup()`
 **Example:**
 
 ```ny
 allow_extended
 fn cleanup() { print(1) }
 fn main() {
-    defer cleanup()
-    return
+ defer cleanup()
+ return
 }
 ```
 
@@ -1892,15 +1871,15 @@ fn main() {
 struct GzFile { handle: ptr }
 
 impl Drop for GzFile {
-    fn drop(self) {
-        unsafe { gzclose(self.handle) }
-    }
+ fn drop(self) {
+ unsafe { gzclose(self.handle) }
+ }
 }
 
 fn read_gz(path: string) -> string {
-    let f = GzFile { handle: gzopen(path, "rb") }
-    // auto gzclose at `}` — no defer
-    return slurp(f.handle)
+ let f = GzFile { handle: gzopen(path, "rb") }
+ // auto gzclose at `}` — no defer
+ return slurp(f.handle)
 }
 ```
 
@@ -1932,10 +1911,10 @@ When `Name` is a struct (not a function), `Name(a, b)` desugars to a struct lite
 
 ```ny
 struct User {
-    name: string
-    age: i32
+ name: string
+ age: i32
 }
-let u = User("Ada")   // User { name: "Ada", age: 0 }
+let u = User("Ada") // User { name: "Ada", age: 0 }
 ```
 
 ### Spread operator `...` (Extended)
@@ -1946,10 +1925,10 @@ JS-style spread with **three dots** (`...`). Rust-style **two dots** (`..`) stil
 
 ```ny
 let nums = [1, 2, 3]
-let more = [...nums, 4, 5]   // [1, 2, 3, 4, 5]
+let more = [...nums, 4, 5] // [1, 2, 3, 4, 5]
 
 let row = { x: 10, y: 20 }
-let flat = [...row, 30]      // [10, 20, 30] — struct fields in declaration order
+let flat = [...row, 30] // [10, 20, 30] — struct fields in declaration order
 ```
 
 Structs cannot be inserted as array elements directly (`[obj]` is an error). Use spread: `[...obj]`.
@@ -1972,18 +1951,18 @@ Copy fields from one or more struct values into a **named** target struct. Later
 
 ```ny
 struct User {
-    name: string
-    role: string
+ name: string
+ role: string
 }
 struct Settings {
-    theme: string
-    notifications: bool
+ theme: string
+ notifications: bool
 }
 struct Profile {
-    name: string
-    role: string
-    theme: string
-    notifications: bool
+ name: string
+ role: string
+ theme: string
+ notifications: bool
 }
 
 let user = User { name: "Alex", role: "Admin" }
@@ -2002,9 +1981,9 @@ let q = Pair { ...p, b: 9 }
 ```ny
 fn save(u: &User) -> void { print(u.name) }
 fn main() {
-    let user = User { name: "Ahmed", age: 25 }
-    save(user)       // → save(&user)
-    print(user.name) // OK
+ let user = User { name: "Ahmed", age: 25 }
+ save(user) // → save(&user)
+ print(user.name) // OK
 }
 ```
 
@@ -2026,10 +2005,10 @@ Use-after-move errors name the callee and line, show the function signature, and
 ### Leak prevention (normal code)
 
 - Every owned `let` still in scope gets dropped on all paths (`return`, block end, branch merge).
-- **Composite structs** (v2.3): field-wise `free` for `string` fields without manual `impl Drop`.
-- **`extern fn ... -> string`** (v2.3): auto-detected as owned returns — no whitelist needed.
+- **Composite structs**: field-wise `free` for `string` fields without manual `impl Drop`.
+- **`extern fn ... -> string`**: auto-detected as owned returns — no whitelist needed.
 - Moving to a function transfers cleanup to the callee.
-- Escaping closures (v2.2 heap env) register `heap_owned` — freed when the `let` binding ends.
+- Escaping closures register `heap_owned` — freed when the `let` binding ends.
 - **Not automatic:** intentional FFI leaks, manual `free` on live bindings, raw-pointer cycles.
 
 ### Common errors
@@ -2052,7 +2031,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 | **Shipped** | `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `net/tcp.ny`, `net/http/mod.ny` (+ `sugar`/`fetch`), `net/udp.ny`, `net/websocket.ny`, `compress/mod.ny`, `serialize/mod.ny`, `json/mod.ny`, `db/sqlite.ny`, `db/query.ny` (`qb`), `tls.ny`, `time/*`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny` (POSIX), `bridge/mod.ny`, `terminal/*`, `encoding/csv.ny`, `archive/zip.ny`, `mime/mod.ny`, `random_bytes`, `embed/mod.ny`, `slog/mod.ny`, `testing/fstest.ny`, `testing/quick.ny` | Collections + HOFs, FS, crypto, HTTP (`fetch`/`req`), SQL builder, CLI, DB (SQLite), sync |
 | **MVP / partial** | `json/mod.ny` / `serialize/mod.ny` (multi-key encode; not full schema serde), `uuid/mod.ny`, `url` helpers, `async.ny`, `reflect/mod.ny` | Use NyraPkg (`ny-serde`) for full schema serde |
 | **Native when linked** | `db/postgres.ny` (`link pq`), `db/mysql.ny` (`link mysqlclient`), `compress/bzip2.ny` (`link bz2`) |
-| **Shipped (v1.1)** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
+| **Shipped** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
 | **Stub → in progress** | `compress/bzip2.ny` (link `bz2`) | Native driver when linked |
 
 Tell users Nyra **targets** production crypto, SQLite, WebSocket, and full serde **in stdlib**. Where a module is still a stub, say so honestly — do not redirect to NyraPkg as the primary path. See [Standard library](https://nyra-lang.github.io/nyra/stdlib.html).
@@ -2063,11 +2042,11 @@ Nyra uses **monomorph names** in Core stdlib and **generic syntax** in Extended 
 
 | API | Current (use this) | Legacy / alternate | Notes |
 |-----|-------------------|-------------------|-------|
-| Growable `i32` vector | `vec()` / `VecI32` — `.push` `.filter` `.map` `.find` `.contains` | `Vec_i32_*` `ptr` API; `Vec<T>` Extended | Prefer method chaining; HOFs since v1.45 |
+| Growable `i32` vector | `vec()` / `VecI32` — `.push` `.filter` `.map` `.find` `.contains` | `Vec_i32_*` `ptr` API; `Vec<T>` Extended | Prefer method chaining; HOFs on vec/strs |
 | String-key map | `HashMap_str_i32_*`, `HashMap_str_str_*`, `dict()` / `obj()` sugar | `HashMap<K,V>` (Extended) | **Method chaining:** `.insert().insert()` · `.get` · `.contains` · `.keys()` · `.remove()` |
 | String vector | `strs()` / `StrVec` — `.push` `.joined` `.filter` `.map` `.find` | `Vec_str_*` low-level `ptr` API | CLI args, JSON keys, line lists |
-| Heap single owner | `import "stdlib/box.ny"` → `Box<string>`, `Box_new(value)` | `Box_string` (v2.3 changelog name) | `Box<T>` monomorph; today `Box_new` ships for `string` |
-| Shared ownership | `import "stdlib/arc.ny"` → `Arc<i32>`, `Arc<string>`, `Arc_from_i32`, `Arc_from_string`, `Arc_get_applied_i32` | `Arc_i32`, `Arc_new_i32`, `Arc_clone_i32` (v2.3 struct + manual `impl Drop`) | Legacy `Arc_i32` API remains in `arc.ny` for backward compat |
+| Heap single owner | `import "stdlib/box.ny"` → `Box<string>`, `Box_new(value)` | `Box_string` | `Box<T>` monomorph; today `Box_new` ships for `string` |
+| Shared ownership | `import "stdlib/arc.ny"` → `Arc<i32>`, `Arc<string>`, `Arc_from_i32`, `Arc_from_string`, `Arc_get_applied_i32` | `Arc_i32`, `Arc_new_i32`, `Arc_clone_i32` | Legacy `Arc_i32` API remains in `arc.ny` for backward compat |
 | Optional / errors | `import "stdlib/option.ny"` → `Option<T>`, `Result<T,E>` | `Option_i32`, `Result_i32_i32` in `stdlib/result.ny` | Prefer generic `option.ny`; `result.ny` is older explicit monomorph helpers |
 | Option tags only | built-in `Option.None` / `Option.Some` (no args) | — | For `??` / `?.` desugar only; not storage |
 
@@ -2077,10 +2056,10 @@ Nyra uses **monomorph names** in Core stdlib and **generic syntax** in Extended 
 
 ```ny
 fn main() {
-    let v = vec().push(1).push(2)
-    print(v.len())
-    print(v.get(0))
-    print(v.contains(2))
+ let v = vec().push(1).push(2)
+ print(v.len())
+ print(v.get(0))
+ print(v.contains(2))
 }
 ```
 
@@ -2092,17 +2071,17 @@ Prefer **`vec()` → `VecI32`** with `.push` / HOFs. The low-level `Vec_i32_*` `
 import "stdlib/map.ny"
 
 fn main() {
-    let cache = HashMap_str_str_new()
-        .insert("theme", "dark")
-        .insert("lang", "en")
+ let cache = HashMap_str_str_new()
+ .insert("theme", "dark")
+ .insert("lang", "en")
 
-    print(cache.get("theme"))
-    print(cache.contains("lang"))
+ print(cache.get("theme"))
+ print(cache.contains("lang"))
 
-    let keys = cache.keys()
-    for k in keys { print(k) }
+ let keys = cache.keys()
+ for k in keys { print(k) }
 
-    cache = cache.remove("lang")
+ cache = cache.remove("lang")
 }
 ```
 
@@ -2113,12 +2092,12 @@ import "stdlib/arc.ny"
 import "stdlib/box.ny"
 
 fn main() {
-    let b = Box_new("hello")           // Box<string>
-    let a = Arc_from_i32(42)           // Arc<i32> — preferred
-    print(Arc_get_applied_i32(a))
+ let b = Box_new("hello") // Box<string>
+ let a = Arc_from_i32(42) // Arc<i32> — preferred
+ print(Arc_get_applied_i32(a))
 
-    // Legacy v2.3 (still compiles — avoid in new code):
-    // let old = Arc_new_i32(42)
+ // Legacy v0.0.1 (still compiles — avoid in new code):
+ // let old = Arc_new_i32(42)
 }
 ```
 
@@ -2143,11 +2122,11 @@ import "stdlib/strings/ops.ny"
 | **Crypto** | `sha256`, `hmac_sha256`, … (`stdlib/crypto/mod.ny`) |
 | **Net** | `get`, `post`, `fetch`, `HttpRouter_*`, `tcp_*`, … (`stdlib/net/http/mod.ny`, `stdlib/net/tcp.ny`) |
 
-**Compiler math intrinsics (always on):** `abs`, `abs_i32`, `abs_f64`, `min_i32`, `max_i32`, `clamp_i32`, `min_f64`, `max_f64`, `sin`, `cos`, `tan`, `atan2`, and typed `abs(x)` lower to LLVM — no stdlib merge required.  with `--no-prelude`.
+**Compiler math intrinsics (always on):** `abs`, `abs_i32`, `abs_f64`, `min_i32`, `max_i32`, `clamp_i32`, `min_f64`, `max_f64`, `sin`, `cos`, `tan`, `atan2`, and typed `abs(x)` lower to LLVM — no stdlib merge required. with `--no-prelude`.
 
 **Core modules (usable):** `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `strings/regex.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `time/instant.ny`, `time/date.ny`, `json/mod.ny`, `serialize/mod.ny`, `iter/mod.ny`, `env/mod.ny`, `config/mod.ny`, **`net/http/mod.ny`**, `net/tcp.ny`, `net/udp.ny`, `net/websocket.ny`, `tls.ny`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny`, `bridge/mod.ny`, `db/sqlite.ny`, `db/lsm.ny`, `db/sql_parse.ny`, `db/sstable.ny`, `collections/btree_pages.ny`, `bench/mod.ny`, `profile/mod.ny`, `testing.ny`, `async.ny` (Extended). [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html) (`#cli-parsing`, `#database`, `#process`, `#crypto`).
 
-### Database quick start (v1.21)
+### Database quick start
 
 ```ny
 import "stdlib/db/sqlite.ny"
@@ -2156,37 +2135,37 @@ import "stdlib/db/sql_parse.ny"
 import "stdlib/collections/btree_pages.ny"
 
 fn main() {
-    let db = Sqlite_open(":memory:")
-    db.exec("CREATE TABLE kv (k TEXT, v TEXT)")
-    let stmt = db.prepare("SELECT v FROM kv WHERE k = 'a'")
-    while stmt.step() == 1 { print(stmt.col(0)) }
-    stmt.finalize()
-    db.close()
+ let db = Sqlite_open(":memory:")
+ db.exec("CREATE TABLE kv (k TEXT, v TEXT)")
+ let stmt = db.prepare("SELECT v FROM kv WHERE k = 'a'")
+ while stmt.step() == 1 { print(stmt.col(0)) }
+ stmt.finalize()
+ db.close()
 
-    let mut tree = LsmTree_new("data")
-    tree = LsmTree_put(tree, "key", "value")
-    let hit = LsmTree_lookup(tree, "key")
-    tree = hit.tree
-    print(hit.value)
+ let mut tree = LsmTree_new("data")
+ tree = LsmTree_put(tree, "key", "value")
+ let hit = LsmTree_lookup(tree, "key")
+ tree = hit.tree
+ print(hit.value)
 
-    let mut btree = BTreePaged_new()
-    btree = BTreePaged_insert(btree, "a", "1")
+ let mut btree = BTreePaged_new()
+ btree = BTreePaged_insert(btree, "a", "1")
 
-    let ast = SqlParse_parse("SELECT name FROM users WHERE id = 1")
-    print(SqlParse_format(ast))
-    let upd = SqlParse_parse("UPDATE users SET active = 1 WHERE id = 1")
-    print(SqlParse_format(upd))
+ let ast = SqlParse_parse("SELECT name FROM users WHERE id = 1")
+ print(SqlParse_format(ast))
+ let upd = SqlParse_parse("UPDATE users SET active = 1 WHERE id = 1")
+ print(SqlParse_format(upd))
 
-    let range = BTreePaged_range(btree, "a", "z")
-    print(range.keys.len())
+ let range = BTreePaged_range(btree, "a", "z")
+ print(range.keys.len())
 }
 ```
 
 Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure Nyra stdlib.
 
-**Shipped (v1.1):** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
+**Shipped:** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
 
-### net/http API reference (v1.44+)
+### net/http API reference
 
 **Auto-prelude:** `fetch`, `req`, `form`, `get`, `post`, `HttpRouter_*`, etc. resolve without `import` when prelude is enabled. Explicit: `import "stdlib/net/http/mod.ny"`. HTTPS backend from `nyra.mod` `tls` — see [TLS backends](#tls-backends-https).
 
@@ -2233,8 +2212,8 @@ Also: `HeaderMap`, `FormData`, `URLSearchParams`, `CookieJar`, `AbortController`
 
 ```ny
 fn main() {
-    let resp = fetch("https://example.com/")
-    print(resp.status, resp.text())
+ let resp = fetch("https://example.com/")
+ print(resp.status, resp.text())
 }
 ```
 
@@ -2242,26 +2221,26 @@ Server + router example:
 
 ```ny
 fn dispatch(slot, ctx) {
-    if slot == 0 {
-        return response_ok_json("{\"status\":\"ok\"}")
-    }
-    if slot == 1 {
-        let id = RequestContext_param(ctx, "id")
-        return response_ok_json(strcat("{\"id\":\"", strcat(id, "\"}")))
-    }
-    return response_not_found()
+ if slot == 0 {
+ return response_ok_json("{\"status\":\"ok\"}")
+ }
+ if slot == 1 {
+ let id = RequestContext_param(ctx, "id")
+ return response_ok_json(strcat("{\"id\":\"", strcat(id, "\"}")))
+ }
+ return response_not_found()
 }
 
 fn main() {
-    let mut router = HttpRouter_new()
-    router = HttpRouter_register_slot(router, METHOD_GET, "/health", 0)
-    router = HttpRouter_register_slot(router, METHOD_GET, "/users/:id", 1)
-    // Also: HttpRouter_match(router, ctx) → .slot / .params
-    serve_handlers("127.0.0.1", 8080, 100, router, dispatch)
+ let mut router = HttpRouter_new()
+ router = HttpRouter_register_slot(router, METHOD_GET, "/health", 0)
+ router = HttpRouter_register_slot(router, METHOD_GET, "/users/:id", 1)
+ // Also: HttpRouter_match(router, ctx) → .slot / .params
+ serve_handlers("127.0.0.1", 8080, 100, router, dispatch)
 }
 ```
 
-**Parametric routes (v1.45.1):** `:name` segments on register paths (`/t/:teacher/s/:stage` ok). Exact matches win over patterns. `serve_handlers` fills `ctx.params`; or call `HttpRouter_match` then `RequestContext_with_params`.
+**Parametric routes:** `:name` segments on register paths (`/t/:teacher/s/:stage` ok). Exact matches win over patterns. `serve_handlers` fills `ctx.params`; or call `HttpRouter_match` then `RequestContext_with_params`.
 
 [net/http reference](https://nyra-lang.github.io/nyra/net-http.html)
 
@@ -2304,7 +2283,7 @@ import "pkg/ny-sqlite"
 
 ```text
 module myapp.local
-version 1.0.0
+version 0.0.1
 tls rustls
 
 require ny-sqlite ^0.1.0
@@ -2329,8 +2308,8 @@ link-source vendor/shim.c
 Removes dead imports and prefixes unused locals. Similar to **`cargo fix`** for Nyra lint warnings.
 
 ```bash
-nyra pkg prune              # apply fixes in current project
-nyra pkg prune --check      # dry run — report only, exit 1 if fixes needed
+nyra pkg prune # apply fixes in current project
+nyra pkg prune --check # dry run — report only, exit 1 if fixes needed
 nyra pkg prune --path ./myapp
 ```
 
@@ -2346,8 +2325,8 @@ Prefixing is safer than deleting `let` statements when the initializer might hav
 ```ny
 import "src/unused.ny"
 fn main() {
-    let dead = 99
-    print("ok")
+ let dead = 99
+ print("ok")
 }
 ```
 
@@ -2355,8 +2334,8 @@ fn main() {
 
 ```ny
 fn main() {
-    let _dead = 99
-    print("ok")
+ let _dead = 99
+ print("ok")
 }
 ```
 
@@ -2391,11 +2370,11 @@ Like Rust `std::process::Command`. Auto-prelude — no import required.
 
 ```ny
 fn main() {
-    let code = Command_new("ls").arg("-la").run()   // exit code; stdout → terminal
-    print(code)
+ let code = Command_new("ls").arg("-la").run() // exit code; stdout → terminal
+ print(code)
 
-    // Shell one-liner
-    Command_new("/bin/sh").arg("-c").arg("uname -a").run()
+ // Shell one-liner
+ Command_new("/bin/sh").arg("-c").arg("uname -a").run()
 }
 ```
 
@@ -2411,9 +2390,9 @@ fn main() {
 import "stdlib/bridge/mod.ny"
 
 fn main() {
-    let req = bridge_op_add(10, 32)
-    let out = bridge_exec("workers/run_python.sh", req)
-    print(bridge_result(out))
+ let req = bridge_op_add(10, 32)
+ let out = bridge_exec("workers/run_python.sh", req)
+ print(bridge_result(out))
 }
 ```
 
@@ -2426,8 +2405,8 @@ fn main() {
 
 ```bash
 nyra build lib.ny -o mylib --cdylib
-python3 host/call.py    # ctypes + free on returned strings
-node host/call.mjs      # koffi (npm install)
+python3 host/call.py # ctypes + free on returned strings
+node host/call.mjs # koffi (npm install)
 ```
 
 See [https://nyra-lang.github.io/nyra/ffi-abi.html](https://nyra-lang.github.io/nyra/ffi-abi.html).
@@ -2438,15 +2417,15 @@ See [https://nyra-lang.github.io/nyra/ffi-abi.html](https://nyra-lang.github.io/
 import "stdlib/testing.ny"
 
 test fn adds() {
-    assert_eq(1 + 2, 3)
-    assert_bool(true)
+ assert_eq(1 + 2, 3)
+ assert_bool(true)
 }
 // Legacy: *_test.ny files run main as test
 ```
 
 **Helpers** (`stdlib/testing.ny`): `assert_eq`, `assert_ne`, `assert_true`, `assert`, `assert_bool`.
 
-**IDE discovery (v1.32+):** `nyra test . --list-json` prints `[{ "file", "name", "line" }, …]`. Filter: `nyra test . --filter substring`. VS Code extension Test Explorer uses these flags.
+**IDE discovery:** `nyra test . --list-json` prints `[{ "file", "name", "line" }, …]`. Filter: `nyra test . --filter substring`. VS Code extension Test Explorer uses these flags.
 
 **Language conformance (CONF-LANG):** Nyra compiler ships pass/fail conformance fixtures for language features. Run `nyra test` / `nyra check` in your project; see [tooling → conformance](https://nyra-lang.github.io/nyra/tooling.html#conformance).
 
@@ -2462,26 +2441,26 @@ Spec: [tooling → conformance](https://nyra-lang.github.io/nyra/tooling.html#co
 
 ```
 myapp/
-  main.ny
-  nyra.mod          # module, tls, require, link, link-source (line-oriented manifest)
-  nyra.lock         # pinned deps + features.tls (JSON)
-  nyra.sum          # checksums
-  .nyra/cache/      # installed packages
-  src/
-    helpers.ny
-  target/
-    debug/main
+ main.ny
+ nyra.mod # module, tls, require, link, link-source (line-oriented manifest)
+ nyra.lock # pinned deps + features.tls (JSON)
+ nyra.sum # checksums
+ .nyra/cache/ # installed packages
+ src/
+ helpers.ny
+ target/
+ debug/main
 ```
 
 Run: `nyra run .` from project directory (not `nyra run main.ny` for multi-file / prelude projects).
 
-## Unsafe & no_std (v0.5.0)
+## Unsafe & no_std
 
 ```ny
 mut x = 42
 unsafe {
-    let p = &x as *i32
-    *p = 99
+ let p = &x as *i32
+ *p = 99
 }
 ```
 
@@ -2493,17 +2472,17 @@ Outside `unsafe`: only `&T` / `&mut T` references.
 
 `ptr` = opaque FFI. `*T` = typed raw pointer for MMIO/drivers — not `Send`.
 
-## OS APIs & asm (v0.5.0)
+## OS APIs & asm
 
 ```ny
 import "stdlib/os.ny"
 
 fn main() {
-    print(platform_name())       // linux | darwin | windows
-    print(battery_percent())     // 0-100 or -1
-    print(os_getenv("HOME"))     // NOT getenv — collides with libc
-    print(os_getpid())
-    unsafe { asm "nop" }
+ print(platform_name()) // linux | darwin | windows
+ print(battery_percent()) // 0-100 or -1
+ print(os_getenv("HOME")) // NOT getenv — collides with libc
+ print(os_getpid())
+ unsafe { asm "nop" }
 }
 ```
 
@@ -2515,9 +2494,9 @@ fn main() {
 ### Release builds
 
 ```bash
-nyra build --release .          # -O3, thin LTO, target/release/main
+nyra build --release . # -O3, thin LTO, target/release/main
 nyra build --release --lto-full .
-nyra build --release --native-cpu .   # host CPU tuning
+nyra build --release --native-cpu . # host CPU tuning
 ```
 
 Flags: `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--native-cpu` (host only).
@@ -2571,7 +2550,7 @@ nyra build --pgo .
 - Or CLI: `nyra build --pgo . --pgo-arg --benchmark --pgo-timeout 600`
 - Inside training binaries, `NYRA_PGO=1` is set.
 
-**When to use:** CPU-bound CLI, parsers, game logic, stable server hot paths.  
+**When to use:** CPU-bound CLI, parsers, game logic, stable server hot paths.
 **Skip when:** I/O-bound, cross-compile (`--for`), wasm, `--cdylib`.
 
 **Prerequisites:** full LLVM toolchain (`opt`, `llvm-profdata`) — `brew install llvm` on macOS.
@@ -2607,11 +2586,11 @@ After borrow checking, Nyra classifies each binding:
 
 ```ny
 fn process(#[no_escape] data: &string) {
-    print(data)
+ print(data)
 }
 
 fn bad(#[no_escape] data: &string) {
-    return data   // E0602 — would escape
+ return data // E0602 — would escape
 }
 ```
 
@@ -2640,15 +2619,15 @@ Full docs: [escape analysis](https://nyra-lang.github.io/nyra/escape-analysis.ht
 import "vendor/bindings/zlib.ny"
 
 fn main() {
-    let data = read_file("content.txt")
-    let len: u64 = data.len()
-    let dest = valloc(compressBound(len))
-    let mut dest_len = compressBound(len)
+ let data = read_file("content.txt")
+ let len: u64 = data.len()
+ let dest = valloc(compressBound(len))
+ let mut dest_len = compressBound(len)
 
-    unsafe {
-        // Compiler spills mut SSA to stack — valid address for C
-        compress(dest, (&mut dest_len) as ptr, &data as ptr, len)
-    }
+ unsafe {
+ // Compiler spills mut SSA to stack — valid address for C
+ compress(dest, (&mut dest_len) as ptr, &data as ptr, len)
+ }
 }
 ```
 
@@ -2664,11 +2643,11 @@ Compile-time **hygienic text substitution** — expanded before typecheck.
 
 ```ny
 macro double(x) {
-    $x + $x
+ $x + $x
 }
 
 fn main() {
-    print(double(3))    // → 3 + 3 → 6
+ print(double(3)) // → 3 + 3 → 6
 }
 ```
 
@@ -2689,20 +2668,20 @@ Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait obje
 
 ```ny
 trait Add {
-    fn add(self, other: i32) -> i32
+ fn add(self, other: i32) -> i32
 }
 
 struct Counter { value: i32 }
 
 impl Add for Counter {
-    fn add(self, other: i32) -> i32 {
-        return self.value + other
-    }
+ fn add(self, other: i32) -> i32 {
+ return self.value + other
+ }
 }
 
 fn main() {
-    let c = Counter { value: 5 }
-    print(c.add(3))   // static: resolves to Add_Counter_add
+ let c = Counter { value: 5 }
+ print(c.add(3)) // static: resolves to Add_Counter_add
 }
 ```
 
@@ -2714,33 +2693,33 @@ Box a concrete value as a trait object and call through the vtable:
 
 ```ny
 fn call_add(g: dyn Add) -> i32 {
-    return g.add(1)
+ return g.add(1)
 }
 
 fn main() {
-    let c = Counter { value: 10 }
-    print(call_add(c as dyn Add))
+ let c = Counter { value: 10 }
+ print(call_add(c as dyn Add))
 }
 ```
 
 - Cast: `value as dyn TraitName` requires `impl TraitName for Type` for the concrete struct.
-- **Auto-trait bounds (v1.5+):** `value as dyn Trait + Send` / `+ Sync` — parsed and **validated** (non-Send/Sync types rejected at cast).
+- **Auto-trait bounds:** `value as dyn Trait + Send` / `+ Sync` — parsed and **validated** (non-Send/Sync types rejected at cast).
 - Fat pointer layout: `{ data: ptr, vtable: ptr }` (synthesized as `Dyn_TraitName`).
-- **Multi-method traits (v1.29+):** each method has its own vtable slot; `__dyn_{Trait}_{method}` dispatches correctly.
-- **Trait object drop (v1.29+):** vtable drop thunk + `__dyn_{Trait}_drop` frees heap-boxed concrete data.
+- **Multi-method traits:** each method has its own vtable slot; `__dyn_{Trait}_{method}` dispatches correctly.
+- **Trait object drop:** vtable drop thunk + `__dyn_{Trait}_drop` frees heap-boxed concrete data.
 - **`Drop` / `Clone`** built-in traits use dedicated compiler paths; user traits use the generic vtable.
 
-### Trait bounds on generics (v1.3+)
+### Trait bounds on generics
 
 Constrain type parameters so generic code can call trait methods:
 
 ```ny
 trait Greet {
-    fn hello(self) -> i32
+ fn hello(self) -> i32
 }
 
 fn call_greet<T: Greet>(x: T) -> i32 {
-    return x.hello()
+ return x.hello()
 }
 ```
 
@@ -2768,7 +2747,7 @@ Nyra is strong for **domain logic** (structs, enums, `match`, modules, FFI). Ful
 |---------|----------------|-----|
 | **String move** | `` `x` was moved into `strcat()` `` | `clone x` or `x.clone()` before the call |
 | **Import paths** | `import "vendor/foo.ny"` fails from `src/gpu/` | Paths are relative to the **importing file**: `import "../../vendor/foo.ny"` |
-| **HashMap wrappers** | Chained `.insert()` on `HashMap_str_*` structs | Supported in v1.2.x+; or use `ptr` + `map_str_*` externs |
+| **HashMap wrappers** | Chained `.insert()` on `HashMap_str_*` structs | Supported; or use `ptr` + `map_str_*` externs |
 | **FFI `u8` fields** | `255` inferred as `i32` in some contexts | Annotate field type `u8` on struct; literals in struct literals coerce |
 | **REPL vs shell** | `input()` is line-based, not a PTY | Use `forkpty` / C shim (`link-source`) for real terminals |
 | **`nyra run .` showcase** | Default may be demo, not interactive shell | Document env flags (e.g. `GHOSTTERM_REPL=1`) in your app README |
@@ -2786,19 +2765,19 @@ in repo.
 - No garbage collector.
 - **Stdlib is batteries-included:** `stdlib/crypto`, `db/sqlite`, `net/websocket`, `compress`, full `serialize` are **core stdlib** — some are still stubs while native code lands; do not treat NyraPkg as the primary path for these domains.
 - **Enum payloads — precise rules (not “never”):**
-  - Tag-only user enums (`enum Color { Red }`) → **no** `Color.Red(x)` unless you declare a payload field.
-  - Built-in `Option` / `Result` **without import** → tag names only; **`Option.Some(42)` is wrong** without `import "stdlib/option.ny"` or a monomorph enum like `Option_i32.Some(42)`.
-  - **With** `stdlib/option.ny` → `Option.Some(v)`, `Result.Ok(v)`, `Result.Err(e)` **do** store values (monomorphized `T` / `E`).
-  - No multi-field variants (`Some(a, b)`) or mixed payload types in one enum (MVP limit).
+ - Tag-only user enums (`enum Color { Red }`) → **no** `Color.Red(x)` unless you declare a payload field.
+ - Built-in `Option` / `Result` **without import** → tag names only; **`Option.Some(42)` is wrong** without `import "stdlib/option.ny"` or a monomorph enum like `Option_i32.Some(42)`.
+ - **With** `stdlib/option.ny` → `Option.Some(v)`, `Result.Ok(v)`, `Result.Err(e)` **do** store values (monomorphized `T` / `E`).
+ - No multi-field variants (`Some(a, b)`) or mixed payload types in one enum (MVP limit).
 - **`?` operator** — `Result`/`Option` propagate on `let`/`const`/`return`/expr stmt, nested expressions (`print(f()?)`, call args), `return match` arm bodies, and `let n = match { Ok(v) => f(v)?, … }`. Enclosing function must return the same enum for propagation; in `void` test fns the inner `Err` payload becomes the `i32` binding. `??` nullish coalesce and `?.` optional chain are separate.
 - **HTTPS / TLS** — default backend is **`rustls`** (bundled, no OpenSSL install). `tls native` and `tls openssl` are valid `nyra.mod` choices. Do **not** tell users to install OpenSSL for basic `get("https://…")` unless they chose `tls openssl` or need TLS server helpers. `get()` failure JSON `{"error":"…"}` ≠ successful body.
 - **nyra.mod** — line-oriented manifest (`module`, `tls`, `require`, `link`, …), not TOML. Minimum one line: `module name`.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
 - **`nyra inspect NAME --at file:line`** — compile-time ownership/borrow snapshot at a source line; **`nyra check --ownership-verbose`** — per-binding summary at function exit. Not runtime reflection. Rust stable toolchain has no equivalent.
 - No `extern export fn` — use `extern fn` or `export fn` separately.
-- Async/`await`: promise handles + **executor v1.4** + **state-machine v1.6** + **v1.7 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
+- Async/`await`: promise handles + **executor v0.0.1** + **state-machine v0.0.1** + **v0.0.1 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
-- **`Serialize` trait (v1.38+)** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
+- **`Serialize` trait** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
 - Arrow functions are **Extended** tier — use `nyra check --deny-extended` in Core-only CI if you avoid them.
 
 ## Diagnostics
