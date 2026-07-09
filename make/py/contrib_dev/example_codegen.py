@@ -32,6 +32,19 @@ def _arg_literal(arg: ArgSpec) -> str:
     return "0"
 
 
+def _arg0_before_comma(inner: str) -> str:
+    """First top-level comma-separated argument (respects nested parens)."""
+    depth = 0
+    for i, ch in enumerate(inner):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            return inner[:i].strip()
+    return inner.strip()
+
+
 def _call_args(spec: StdlibFnSpec) -> str:
     return ", ".join(_arg_literal(a) for a in spec.args)
 
@@ -361,12 +374,12 @@ def _extern_scaffold_demo(spec: StdlibFnSpec) -> str | None:
             continue
         if s.startswith("assert_str_eq("):
             inner = s[len("assert_str_eq(") : s.rfind(")")]
-            expr = inner.split(",")[0].strip()
+            expr = _arg0_before_comma(inner)
             out.append(f"    print({expr})")
             continue
         if s.startswith("assert_eq("):
             inner = s[len("assert_eq(") : s.rfind(")")]
-            expr = inner.split(",")[0].strip()
+            expr = _arg0_before_comma(inner)
             out.append(f"    print({expr})")
             continue
         if s.startswith("let x = "):
@@ -381,15 +394,15 @@ def demo_body(spec: StdlibFnSpec) -> str:
         _pure_impl_demo,
         _pure_scaffold_demo,
         _sync_demo,
+        _option_demo,
+        _result_demo,
+        _hashmap_demo,
         _extern_scaffold_demo,
         _math_demo,
         _map_demo,
         _vec_demo,
         _encoding_demo,
         _strconv_demo,
-        _option_demo,
-        _result_demo,
-        _hashmap_demo,
     ):
         body = builder(spec)
         if body:

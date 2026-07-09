@@ -237,6 +237,27 @@ def check_example_codegen() -> None:
     if "lcm_i32(1.0)" in lcm_demo or re.search(r"lcm_i32\([^,)]+\)", lcm_demo):
         _fail("lcm_i32 demo must pass two i32 arguments")
 
+    pow = StdlibFnSpec(
+        fn_name="pow_i32",
+        args=[ArgSpec("base", NyraType.I32), ArgSpec("exp", NyraType.I32)],
+        returns=NyraType.I32,
+        ny_module="math.ny",
+        rt_module="rt_math.c",
+    )
+    pow_demo = demo_body(pow)
+    if "pow_i32(2, 3)" not in pow_demo:
+        _fail("pow_i32 demo must pass base and exp arguments")
+
+    option_combo = StdlibFnSpec(
+        fn_name="option_combinators",
+        args=[],
+        returns=NyraType.VOID,
+        ny_module="option/combinators.ny",
+        pure_source="fn Option_i32_unwrap_or(opt: Option_i32, default_val: i32) -> i32 { return default_val }",
+    )
+    if "option_combinators()" in demo_body(option_combo):
+        _fail("option_combinators demo must not call slug as function")
+
     hex_spec = StdlibFnSpec(
         fn_name="hex_decode",
         args=[ArgSpec("hex", NyraType.STRING)],
