@@ -9,7 +9,6 @@ extern fn strstr_pos(hay: &string, needle: &string) -> i32
 extern fn str_to_i32(s: &string) -> i32
 extern fn str_push_char(s: &string, ch: i32) -> string
 extern fn str_pop(s: &string) -> string
-extern fn strip_ansi(input: &string) -> string
 
 fn char_from_code(ch: i32) -> string {
     return str_push_char("", ch)

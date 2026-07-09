@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-09T20:43:04.960Z",
+  "generated": "2026-07-09T22:48:51.844Z",
   "docs": [
     {
       "pageTitle": "AI skill file",
@@ -1149,7 +1149,7 @@
       "id": "escape-analysis.html#example",
       "title": "Escape analysis",
       "heading": "Example",
-      "body": "Example Without types With types import \"stdlib/sync/channel.ny\" struct User { id: i32 name: string } fn main() { let user = User { id: 101, name: \"Hamdy\" } let mut chan = Channel_i32_new() chan = chan.send(user.id) let active_id = chan.recv() print(active_id) } import \"stdlib/sync/channel.ny\" struct User { id: i32 name: string } fn main() -> void { let user: User = User { id: 101, name: \"Hamdy\" } let mut chan = Channel_i32_new() chan = chan.send(user.id) let active_id = chan.recv() print(active_id) } With --verbose : user and chan are NoEscape; chan becomes LocalChannel."
+      "body": "Example Without types With types struct Point { x: i32 y: i32 } fn main() { let p = Point { x: 10, y: 20 } print(p.x + p.y) } struct Point { x: i32 y: i32 } fn main() -> void { let p: Point = Point { x: 10, y: 20 } print(p.x + p.y) } With --verbose : p is NoEscape and the struct literal is eligible for stack promotion (SROA). For LocalChannel, see the section above and Concurrency → Channels ."
     },
     {
       "pageTitle": "Escape analysis",

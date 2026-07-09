@@ -14,8 +14,8 @@ Snippets with non-stdlib `import` paths are auto-skipped (need a project directo
 Env:
   NYRA_BIN              path to nyra (default: target/debug/nyra)
   NYRA_WEBDOCS_TYPED=1  also validate typed panels (default: easy only)
-  NYRA_WEBDOCS_JOBS=N   parallel workers (default: 8 unix, 2 windows)
-  NYRA_WEBDOCS_TIMEOUT  seconds per snippet (default: 45 unix, 120 windows)
+  NYRA_WEBDOCS_JOBS=N   parallel workers (default: 8 linux, 4 macos, 2 windows)
+  NYRA_WEBDOCS_TIMEOUT  seconds per snippet (default: 45 linux, 90 macos, 120 windows)
 """
 from __future__ import annotations
 
@@ -157,10 +157,17 @@ def _running_on_windows() -> bool:
     return sys.platform == "win32" or os.name == "nt"
 
 
+def _running_on_macos() -> bool:
+    return sys.platform == "darwin"
+
+
 def webdocs_runner_settings() -> tuple[int, int]:
     """Return (parallel_jobs, timeout_seconds) with platform-tuned defaults."""
     if _running_on_windows():
         default_jobs, default_timeout = "2", "120"
+    elif _running_on_macos():
+        # macOS CI runners: cold per-snippet compiles are slower than Linux.
+        default_jobs, default_timeout = "4", "90"
     else:
         default_jobs, default_timeout = "8", "45"
     jobs = max(1, int(os.environ.get("NYRA_WEBDOCS_JOBS", default_jobs)))
