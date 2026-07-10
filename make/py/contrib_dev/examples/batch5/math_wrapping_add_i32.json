@@ -1,0 +1,12 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "wrapping_add_i32",
+  "args": [
+    "a:i32",
+    "b:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "wrapping_add",
+  "c_body": "    return (int)((unsigned int)a + (unsigned int)b);"
+}

@@ -138,7 +138,7 @@
       <p class="lead" data-i18n-html="pages.packages.lead">Standalone package manager for Nyra — like <code>cargo</code> for Rust. Repository: <a href="https://github.com/nyra-lang/pkg">github.com/nyra-lang/pkg</a>.</p>
 
       <div class="callout">
-        <p><strong>Split (v1.39+):</strong> Dependency management moved out of the <code>nyra</code> compiler CLI into <strong>nyrapkg</strong>. The <code>nyra pkg</code> command remains for <strong>build helpers</strong> only (<code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code>) — not <code>init</code> / <code>add</code> / <code>install</code> / <code>verify</code>.</p>
+        <p><strong>Split:</strong> Dependency management moved out of the <code>nyra</code> compiler CLI into <strong>nyrapkg</strong>. The <code>nyra pkg</code> command remains for <strong>build helpers</strong> only (<code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code>) — not <code>init</code> / <code>add</code> / <code>install</code> / <code>verify</code>.</p>
       </div>
 
       <h2>Install layout</h2>
@@ -475,7 +475,7 @@ link-source vendor/shim.c</code></pre>
       <pre><code>registry=http://127.0.0.1:9470</code></pre>
       <p>nyrapkg resolves packages over HTTP/JSONL or from Git URLs. A local registry server may ship with the <a href="https://github.com/nyra-lang/pkg">pkg</a> repository when needed for development.</p>
 
-      <h2>Reference packages (v1.2)</h2>
+      <h2>Reference packages</h2>
       <p>Bundled under <code>examples/packages/</code> in the Nyra repo for development — same pattern as production packages:</p>
       <table>
         <thead><tr><th>Package</th><th>Native lib</th><th>Import</th></tr></thead>

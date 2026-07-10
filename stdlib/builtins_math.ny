@@ -4,15 +4,15 @@ extern fn rand_f64() -> f64
 
 // Math-style helpers (JS-like naming adapted to Nyra function names).
 fn Math_round(x: i32) -> i32 {
-    return x
+    return round_i32(x)
 }
 
 fn Math_floor(x: i32) -> i32 {
-    return x
+    return floor_i32(x)
 }
 
 fn Math_ceil(x: i32) -> i32 {
-    return x
+    return ceil_i32(x)
 }
 
 // Returns a pseudo-random f64 in [0, 1) — ChaCha20 (53-bit precision).

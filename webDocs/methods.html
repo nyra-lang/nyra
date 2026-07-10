@@ -159,7 +159,7 @@
 </section>
 
 <section class="doc-ex">
-  <h2 id="sugar-index">فهرس الـ sugar (v1.43–v1.45)</h2>
+  <h2 id="sugar-index">فهرس الـ sugar</h2>
   <p class="doc-ex-prose">كل اسم أدناه له مثال + Output في المعرض. انقر للانتقال:</p>
   <ul>
     <li><strong>JSON:</strong> <a href="#ex-jparse-jstr"><code>jparse</code>/<code>jstr</code>/<code>jnum</code>/<code>jbool</code></a> · <a href="#ex-jobj"><code>jobj</code></a> · <a href="#ex-obj-dict"><code>obj</code>/<code>dict</code>/<code>jstringify</code></a> · <a href="#ex-dict-i32"><code>dict_i32</code></a> · <a href="#ex-jfield"><code>jfield</code></a></li>
@@ -218,6 +218,19 @@
           <tr id="str-fields"><td><code>.fields()</code></td><td>—</td><td><code>VecStr</code></td><td>Whitespace-split words</td><td><a href="#ex-fields"><code>"a b c".fields()</code></a></td></tr>
           <tr id="str-pad"><td><code>.pad_start(w, pad)</code> / <code>.pad_end(w, pad)</code></td><td><code>i32</code>, <code>string</code></td><td><code>string</code></td><td>Pad to width</td><td><a href="#ex-pad-start"><code>"hi".pad_start(5, "0")</code></a></td></tr>
           <tr id="str-case"><td><code>.to_snake_case()</code> … <code>.to_pascal_case()</code></td><td>—</td><td><code>string</code></td><td>Case conversion helpers</td><td><a href="#ex-to-snake-case"><code>"Hello World".to_snake_case()</code></a></td></tr>
+          <tr id="str-compare"><td><code>.compare(other)</code> / <code>.equal_fold(other)</code></td><td><code>string</code></td><td><code>i32</code></td><td>Lexicographic / case-insensitive compare</td><td><code>"abc".compare("abd")</code></td></tr>
+          <tr id="str-index-byte"><td><code>.index_byte(b)</code> / <code>.last_index_byte(b)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Byte search; <code>-1</code> if missing</td><td><code>"abc".index_byte(97)</code></td></tr>
+          <tr id="str-substring"><td><code>.substring(start, len)</code></td><td>2 × <code>i32</code></td><td><code>string</code></td><td>Slice by byte offset + length</td><td><code>"hello".substring(1, 3)</code></td></tr>
+          <tr id="str-push-pop"><td><code>.push_char(ch)</code> / <code>.pop()</code></td><td><code>i32</code> / —</td><td><code>string</code></td><td>Append byte / remove last byte</td><td><code>"ab".push_char(99)</code></td></tr>
+          <tr id="str-sep"><td><code>.after_sep(sep)</code> / <code>.before_sep(sep)</code></td><td><code>string</code></td><td><code>string</code></td><td>Part after / before first separator</td><td><code>"a:b".after_sep(":")</code></td></tr>
+          <tr id="str-strip-ansi"><td><code>.strip_ansi()</code></td><td>—</td><td><code>string</code></td><td>Remove ANSI escape codes</td><td><code>s.strip_ansi()</code></td></tr>
+          <tr id="str-is-ascii"><td><code>.is_ascii()</code></td><td>—</td><td><code>i32</code></td><td><code>1</code> if all bytes ≤ 127</td><td><code>"hello".is_ascii()</code></td></tr>
+          <tr id="str-collapse-ws"><td><code>.collapse_ws()</code></td><td>—</td><td><code>string</code></td><td>Collapse runs of whitespace to single space</td><td><code>"  a   b  ".collapse_ws()</code></td></tr>
+          <tr id="str-reverse"><td><code>.reverse()</code></td><td>—</td><td><code>string</code></td><td>Reverse byte order (new string)</td><td><code>"abc".reverse()</code></td></tr>
+          <tr id="str-is-digit"><td><code>.is_digit()</code> / <code>.is_alpha()</code> / <code>.is_alnum()</code></td><td>—</td><td><code>i32</code></td><td>ASCII digit / letter / alphanumeric tests</td><td><code>"123".is_digit()</code></td></tr>
+          <tr id="str-common-prefix"><td><code>.common_prefix_len(other)</code></td><td><code>string</code></td><td><code>i32</code></td><td>Shared prefix length in bytes</td><td><code>"abc".common_prefix_len("abx")</code></td></tr>
+          <tr id="str-pad-center"><td><code>.pad_center(w, pad)</code></td><td><code>i32</code>, <code>string</code></td><td><code>string</code></td><td>Center-pad to width</td><td><code>"hi".pad_center(6, " ")</code></td></tr>
+          <tr id="str-escape-json"><td><code>.escape_json()</code> / <code>.truncate(n)</code> / <code>.split_after(sep)</code></td><td>varies</td><td><code>string</code></td><td>JSON escape / byte cap / split after separator</td><td><code>"a\\"b".escape_json()</code></td></tr>
         </tbody>
       </table>
       <p>Examples: <a href="#ex-split"><code>.split()</code></a> · <a href="#ex-trim"><code>.trim()</code></a> · <a href="#ex-strip-prefix"><code>.strip_prefix()</code></a> · <a href="#ex-fields"><code>.fields()</code></a> · <a href="#ex-string-chars"><code>for c in string</code></a></p>
@@ -250,6 +263,15 @@
           <tr id="trunc-f64"><td><code>trunc(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Truncate toward zero</td><td><a href="#ex-trunc-f64"><code>trunc(1.9)</code></a></td></tr>
           <tr id="hypot-f64"><td><code>hypot(x, y)</code></td><td>2 × <code>f64</code></td><td><code>f64</code></td><td><code>sqrt(x²+y²)</code></td><td><a href="#ex-hypot-f64"><code>hypot(3.0, 4.0)</code></a></td></tr>
           <tr id="asin-f64"><td><code>asin(x)</code> / <code>acos(x)</code> / <code>atan(x)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Inverse trig</td><td><a href="#ex-asin-f64"><code>asin(0.0)</code></a></td></tr>
+          <tr id="signum-f64"><td><code>signum(x)</code> / <code>fract(x)</code> / <code>fmod(x, y)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Sign / fractional part / remainder</td><td><code>signum(-2.0)</code></td></tr>
+          <tr id="deg-rad"><td><code>deg_to_rad(deg)</code> / <code>rad_to_deg(rad)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Degree ↔ radian</td><td><code>deg_to_rad(180.0)</code></td></tr>
+          <tr id="is-nan-finite"><td><code>is_nan(x)</code> / <code>is_finite(x)</code> / <code>is_infinite(x)</code></td><td><code>f64</code></td><td><code>i32</code></td><td>Float classification</td><td><code>is_finite(1.0)</code></td></tr>
+          <tr id="floor-ceil-i32"><td><code>floor_i32(x)</code> / <code>ceil_i32(x)</code> / <code>round_i32(x)</code> / <code>trunc_i32(x)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Integer rounding helpers</td><td><code>round_i32(5)</code></td></tr>
+          <tr id="gcd-lcm"><td><code>gcd_i32(a, b)</code> / <code>lcm_i32(a, b)</code> / <code>mod_i32(a, b)</code></td><td>2–3 × <code>i32</code></td><td><code>i32</code></td><td>GCD / LCM / Euclidean mod</td><td><code>gcd_i32(12, 8)</code></td></tr>
+          <tr id="saturating-wrap"><td><code>saturating_add(a, b)</code> / <code>saturating_sub(a, b)</code> / <code>wrapping_add(a, b)</code></td><td>2 × <code>i32</code></td><td><code>i32</code></td><td>Saturating / wrapping integer ops</td><td><code>saturating_add(2147483647, 1)</code></td></tr>
+          <tr id="bit-count"><td><code>leading_zeros(n)</code> / <code>count_ones(n)</code> / <code>trailing_zeros(n)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Bit population / leading / trailing zeros</td><td><code>count_ones(5)</code></td></tr>
+          <tr id="rotate-rem"><td><code>rotate_left(n, s)</code> / <code>rotate_right(n, s)</code> / <code>rem_euclid(a, b)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Bit rotate / Euclidean remainder</td><td><code>rotate_left(1, 1)</code></td></tr>
+          <tr id="lerp-f64"><td><code>lerp(a, b, t)</code> / <code>copysign(x, y)</code></td><td><code>f64</code></td><td><code>f64</code></td><td>Linear interpolate / copy sign</td><td><code>lerp(0.0, 10.0, 0.5)</code></td></tr>
         </tbody>
       </table>
 
@@ -283,7 +305,7 @@
 
       <h2 id="vectors">Vectors &amp; dynamic lists</h2>
       <h3 id="vec-i32"><code>vec()</code> / <code>VecI32</code> — preferred (auto-prelude)</h3>
-      <p>Growable <code>i32</code> vector with method chaining and HOFs (v1.45). Low-level <code>Vec_i32_*</code> <code>ptr</code> API remains for FFI.</p>
+      <p>Growable <code>i32</code> vector with method chaining and HOFs. Low-level <code>Vec_i32_*</code> <code>ptr</code> API remains for FFI.</p>
       <table>
         <thead><tr><th>Method / ctor</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
         <tbody>
@@ -293,7 +315,7 @@
           <tr id="vec-len"><td><code>.len()</code> / <code>.pop()</code></td><td>—</td><td><code>i32</code></td><td>Length / pop last</td><td><code>v.len()</code></td></tr>
           <tr id="vec-contains"><td><code>.contains(x)</code> / <code>.includes(x)</code></td><td><code>i32</code></td><td><code>i32</code></td><td><code>1</code> / <code>0</code></td><td><code>v.contains(42)</code></td></tr>
           <tr id="vec-find"><td><code>.find(pred, fb)</code> / <code>.find_eq(x, fb)</code></td><td>pred / value</td><td><code>i32</code></td><td>Search with fallback</td><td><code>v.find_eq(10, -1)</code></td></tr>
-          <tr id="vec-filter"><td><code>.filter(pred)</code> / <code>.map(f)</code> / <code>.reduce(init, f)</code></td><td>fn</td><td><code>VecI32</code> / value</td><td>HOFs (v1.45)</td><td><code>v.filter(is_even)</code></td></tr>
+          <tr id="vec-filter"><td><code>.filter(pred)</code> / <code>.map(f)</code> / <code>.reduce(init, f)</code></td><td>fn</td><td><code>VecI32</code> / value</td><td>HOFs</td><td><code>v.filter(is_even)</code></td></tr>
           <tr id="vec-from-range"><td><code>vec_range(start, end)</code></td><td>2 × <code>i32</code></td><td><code>VecI32</code></td><td>Half-open range</td><td><code>vec_range(0, 10)</code></td></tr>
           <tr id="vec-insert"><td><code>.insert(i, x)</code></td><td><code>i32</code>, <code>i32</code></td><td><code>VecI32</code></td><td>Insert at index</td><td><a href="#ex-vec-i32-insert"><code>v.insert(0, 9)</code></a></td></tr>
           <tr id="vec-remove"><td><code>.remove(i)</code></td><td><code>i32</code></td><td><code>VecI32</code></td><td>Remove at index (chains)</td><td><a href="#ex-vec-i32-remove-at"><code>v.remove(0)</code></a></td></tr>
@@ -301,12 +323,16 @@
           <tr id="vec-reverse"><td><code>.reverse()</code></td><td>—</td><td><code>VecI32</code></td><td>Reverse in place</td><td><a href="#ex-vec-i32-reverse"><code>v.reverse()</code></a></td></tr>
           <tr id="vec-sort"><td><code>.sort()</code></td><td>—</td><td><code>VecI32</code></td><td>Sort ascending in place</td><td><a href="#ex-vec-i32-sort"><code>v.sort()</code></a></td></tr>
           <tr id="vec-binary-search"><td><code>.binary_search(x)</code></td><td><code>i32</code></td><td><code>i32</code></td><td>Index on sorted vec or <code>-1</code></td><td><code>v.binary_search(5)</code></td></tr>
+          <tr id="vec-swap-extend"><td><code>.swap(i, j)</code> / <code>.extend(other)</code> / <code>.append(x)</code></td><td>indices / <code>VecI32</code> / <code>i32</code></td><td><code>VecI32</code></td><td>Swap elements / merge vectors</td><td><code>v.extend(other)</code></td></tr>
+          <tr id="vec-capacity"><td><code>.capacity()</code> / <code>.reserve(n)</code> / <code>.fill(x)</code></td><td><code>i32</code></td><td><code>i32</code> / self</td><td>Capacity / preallocate / fill in place</td><td><code>v.reserve(64)</code></td></tr>
+          <tr id="vec-swap-remove"><td><code>.swap_remove(i)</code> / <code>.is_empty()</code></td><td><code>i32</code> / —</td><td><code>i32</code> / <code>i32</code></td><td>O(1) remove (unordered) / empty test</td><td><code>v.swap_remove(1)</code></td></tr>
+          <tr id="vec-slice"><td><code>.slice(start, end)</code> / <code>.window(start, size)</code> / <code>.retain(pred)</code></td><td><code>i32</code> / fn</td><td><code>VecI32</code></td><td>Sub-range copy / in-place filter</td><td><code>v.window(0, 3)</code></td></tr>
         </tbody>
       </table>
       <p>Example: <a href="#ex-vec"><code>vec()</code></a>. Legacy: <code>Vec_i32_new</code> / <code>Vec_i32_push</code>.</p>
 
       <h3 id="str-vec"><code>strs()</code> / <code>StrVec</code> — auto-prelude</h3>
-      <p>String vector with method syntax + HOFs (v1.45).</p>
+      <p>String vector with method syntax + HOFs.</p>
       <table>
         <thead><tr><th>Method / function</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
         <tbody>
@@ -314,9 +340,12 @@
           <tr id="strvec-push"><td><code>.push(value)</code></td><td><code>string</code></td><td><code>StrVec</code></td><td>Append string</td><td><code>v.push("line")</code></td></tr>
           <tr id="strvec-get"><td><code>.get(index)</code></td><td><code>i32</code></td><td><code>string</code></td><td>Indexed access</td><td><code>v.get(0)</code></td></tr>
           <tr id="strvec-len"><td><code>.len()</code> / <code>.joined(sep)</code></td><td>—</td><td><code>i32</code> / <code>string</code></td><td>Count / join</td><td><code>v.joined(",")</code></td></tr>
-          <tr id="strvec-hofs"><td><code>.filter</code> / <code>.map</code> / <code>.find</code> / <code>.contains</code></td><td>fn / value</td><td>self / value</td><td>HOFs (v1.45)</td><td><code>v.contains("a")</code></td></tr>
+          <tr id="strvec-hofs"><td><code>.filter</code> / <code>.map</code> / <code>.find</code> / <code>.contains</code></td><td>fn / value</td><td>self / value</td><td>HOFs</td><td><code>v.contains("a")</code></td></tr>
           <tr id="strvec-from-lines"><td><code>lines(text)</code> / <code>StrVec_from_lines</code></td><td><code>string</code></td><td><code>StrVec</code></td><td>Split on newlines</td><td><code>lines(text)</code></td></tr>
           <tr id="strvec-join"><td><code>argv()</code></td><td>—</td><td><code>StrVec</code></td><td>CLI args</td><td><code>argv()</code></td></tr>
+          <tr id="strvec-mutate"><td><code>.pop()</code> / <code>.clear()</code> / <code>.reverse()</code></td><td>—</td><td><code>string</code> / self</td><td>Mutate in place</td><td><code>v.pop()</code></td></tr>
+          <tr id="strvec-insert"><td><code>.insert(i, s)</code> / <code>.remove_at(i)</code> / <code>.set(i, s)</code></td><td><code>i32</code>, <code>string</code></td><td>self / <code>string</code></td><td>Indexed edit</td><td><code>v.insert(0, "x")</code></td></tr>
+          <tr id="strvec-swap-extend"><td><code>.swap(i, j)</code> / <code>.extend(other)</code> / <code>.is_empty()</code></td><td>indices / <code>StrVec</code></td><td>self / <code>i32</code></td><td>Reorder / merge / empty test</td><td><code>v.extend(other)</code></td></tr>
         </tbody>
       </table>
       <p>Example: <a href="#ex-strvec"><code>StrVec</code></a></p>
@@ -333,16 +362,38 @@
           <tr id="map-len"><td><code>.len()</code></td><td>—</td><td><code>i32</code></td><td>Entry count</td><td><a href="#ex-map-str-i32-len"><code>m.len()</code></a></td></tr>
           <tr id="map-values"><td><code>.values()</code></td><td>—</td><td><code>VecI32</code> / <code>StrVec</code></td><td>All values as vector</td><td><a href="#ex-map-str-i32-values"><code>m.values()</code></a></td></tr>
           <tr id="map-clear"><td><code>.clear()</code></td><td>—</td><td>same map type</td><td>Remove all entries</td><td><a href="#ex-map-str-i32-clear"><code>m.clear()</code></a></td></tr>
+          <tr id="map-or-insert"><td><code>.or_insert(key, val)</code> / <code>.get_or_insert(key, val)</code></td><td>key, value</td><td>value type</td><td>Insert if missing; return value</td><td><code>m.or_insert("k", 1)</code></td></tr>
+          <tr id="map-is-empty"><td><code>.is_empty()</code> / <code>.remove(key)</code> / <code>.update(key, f)</code></td><td>key / fn</td><td><code>i32</code> / self</td><td>Empty test / remove / in-place update</td><td><code>m.is_empty()</code></td></tr>
+          <tr id="map-i32-i32"><td><code>HashMap_i32_i32</code></td><td><code>i32</code> key &amp; value</td><td>—</td><td>Integer-keyed map</td><td><code>HashMap_i32_i32_new()</code></td></tr>
         </tbody>
       </table>
-      <p>Constructors: <code>HashMap_str_i32_new()</code>, <code>HashMap_str_str_new()</code>. Example: <a href="#ex-map"><code>HashMap insert / get</code></a> · <a href="#ex-map-str-i32-len"><code>.len() / .values() / .clear()</code></a></p>
+      <p>Constructors: <code>HashMap_str_i32_new()</code>, <code>HashMap_str_str_new()</code>, <code>HashMap_i32_i32_new()</code>. Example: <a href="#ex-map"><code>HashMap insert / get</code></a> · <a href="#ex-map-str-i32-len"><code>.len() / .values() / .clear()</code></a></p>
 
-      <h2 id="encoding-strconv">Encoding &amp; strconv <span class="badge">stdlib</span></h2>
+      <h2 id="sync-atomic"><code>import "stdlib/sync/atomic.ny"</code> — atomics <span class="badge">stdlib</span></h2>
+      <table>
+        <thead><tr><th>Call</th><th>Args</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr id="atomic-load"><td><code>atomic_load_i32(p)</code> / <code>atomic_store_i32(p, v)</code></td><td><code>ptr</code>, <code>i32</code></td><td><code>i32</code> / <code>void</code></td><td>Seq-cst load / store</td><td><code>atomic_load_i32(cell)</code></td></tr>
+          <tr id="atomic-add"><td><code>atomic_add_i32(p, d)</code> / <code>atomic_sub_i32(p, d)</code> / <code>atomic_xor_i32(p, m)</code></td><td><code>ptr</code>, <code>i32</code></td><td><code>i32</code></td><td>Fetch-add / sub / xor</td><td><code>atomic_add_i32(cell, 1)</code></td></tr>
+          <tr id="atomic-bit"><td><code>atomic_and_i32(p, m)</code> / <code>atomic_or_i32(p, m)</code></td><td><code>ptr</code>, <code>i32</code></td><td><code>i32</code></td><td>Fetch-and / or</td><td><code>atomic_and_i32(cell, 3)</code></td></tr>
+          <tr id="atomic-cas"><td><code>atomic_cas_i32(p, exp, des)</code></td><td><code>ptr</code>, 2 × <code>i32</code></td><td><code>i32</code></td><td>Compare-and-swap</td><td><code>Atomic_i32_new(0)</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="encoding-strconv">Encoding, strconv &amp; FS <span class="badge">stdlib</span></h2>
       <table>
         <thead><tr><th>Call</th><th>Module</th><th>Returns</th><th>Notes</th><th>Example</th></tr></thead>
         <tbody>
           <tr id="hex-decode"><td><code>hex_decode(s)</code></td><td><code>stdlib/encoding/mod.ny</code></td><td><code>string</code></td><td>Decode hex bytes to string</td><td><a href="#ex-hex-decode"><code>hex_decode("4869")</code></a></td></tr>
+          <tr id="hex-encode"><td><code>hex_encode(s)</code> / <code>hex_encode_upper(s)</code></td><td><code>stdlib/encoding/mod.ny</code></td><td><code>string</code></td><td>Encode bytes to hex (lower / upper)</td><td><code>hex_encode("Hi")</code></td></tr>
           <tr id="parse-bool"><td><code>parse_bool(s)</code> / <code>str_to_bool(s)</code></td><td><code>stdlib/strconv/mod.ny</code></td><td><code>i32</code></td><td><code>1</code>/<code>0</code> for true/false/yes/no</td><td><a href="#ex-str-to-bool"><code>parse_bool("true")</code></a></td></tr>
+          <tr id="parse-int-base"><td><code>parse_int(s, base)</code> / <code>parse_i64(s, base)</code> / <code>parse_u64(s)</code></td><td><code>string</code>, <code>i32</code></td><td><code>i32</code> / <code>i64</code></td><td>Parse integers with radix</td><td><code>parse_int("ff", 16)</code></td></tr>
+          <tr id="format-pad"><td><code>format_pad(n, w)</code> / <code>format_hex(n)</code> / <code>format_bin(n)</code> / <code>format_oct(n)</code></td><td><code>i32</code>, width</td><td><code>string</code></td><td>Padded decimal / hex / bin / oct</td><td><code>format_pad(7, 3)</code></td></tr>
+          <tr id="format-f64"><td><code>format_f64(n, prec)</code> / <code>format_f64_pad(n, w, prec)</code></td><td><code>f64</code>, <code>i32</code></td><td><code>string</code></td><td>Float with precision / width</td><td><code>format_f64(3.14, 2)</code></td></tr>
+          <tr id="format-quote"><td><code>quote(s)</code> / <code>format_quote(s)</code></td><td><code>string</code></td><td><code>string</code></td><td>Go-style quoted string literal</td><td><code>quote("hi")</code></td></tr>
+          <tr id="format-radix"><td><code>format_radix(n, base)</code> / <code>format_u64(n)</code> / <code>format_bin_i64(n)</code></td><td><code>i32</code> / <code>i64</code></td><td><code>string</code></td><td>Radix formatting</td><td><code>format_radix(255, 16)</code></td></tr>
+          <tr id="fs-stat"><td><code>file_mtime(path)</code> / <code>path_is_file(path)</code> / <code>file_is_symlink(path)</code></td><td><code>string</code></td><td><code>i64</code> / <code>i32</code></td><td>Metadata helpers (<code>import "stdlib/fs/mod.ny"</code>)</td><td><code>file_mtime("Cargo.toml")</code></td></tr>
+          <tr id="fs-rename"><td><code>rename_file(src, dst)</code></td><td>2 × <code>string</code></td><td><code>i32</code></td><td>Rename / move file</td><td><code>rename_file("a.txt", "b.txt")</code></td></tr>
         </tbody>
       </table>
 
@@ -421,7 +472,7 @@ fn main() -&gt; void {
         print(i)
     }
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in v1.39+ default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p><strong>Output:</strong> Same as <a href="#ex-parallel"><code>parallel for</code></a> (iteration order non-deterministic). Without this line, Extended syntax still compiles in default builds; the directive is recommended in files that use <code>spawn</code>, <code>parallel for</code>, etc.</p>
       <p><strong>Platform:</strong> <code>spawn</code> is unavailable on <code>wasm32-wasi</code> (compile error). Native Linux, macOS, and Windows only.</p>
 
       <h3 id="join-handle"><code>JoinHandle</code> and <code>.join()</code></h3>

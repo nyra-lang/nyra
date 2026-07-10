@@ -208,7 +208,7 @@
       <h2 id="release-tag" data-i18n="pages.install.h2_tag">2. Pick a release tag</h2>
       <ol>
         <li>Open <a href="https://github.com/nyra-lang/nyra/releases">Releases</a>.</li>
-        <li>Choose a version (e.g. <strong>v1.38.0</strong>).</li>
+        <li>Choose a version (e.g. <strong>v0.0.1</strong>).</li>
         <li>Under <strong>Assets</strong>, download the file that matches your <strong>CPU</strong> and <strong>OS</strong> (see table).</li>
       </ol>
       <table>
@@ -315,11 +315,11 @@ nyra --version</code></pre>
       <h3>Alternative — Build from source (native Windows)</h3>
       <ol class="steps">
         <li>Install <a href="https://rustup.rs/">Rust</a> and <strong>clang</strong> (LLVM) on Windows.</li>
-        <li>Clone the repo (same tag you want, e.g. <code>v1.0.0</code>):</li>
+        <li>Clone the repo (same tag you want, e.g. <code>v0.0.1</code>):</li>
       </ol>
       <pre><code>git clone https://github.com/nyra-lang/nyra.git
 cd nyra
-git checkout v1.0.0
+git checkout v0.0.1
 cargo build --release -p nyra-cli</code></pre>
       <ol class="steps" start="3">
         <li>Use the built CLI and point runtime at the repo <code>stdlib</code>:</li>
@@ -342,7 +342,7 @@ nyrapkg --version</code></pre>
       <p>From source: <code>nyra build --release -o nyrapkg .</code> in the pkg repo, then <code>nyrapkg bootstrap</code>.</p>
 
       <h2 id="first-project" data-i18n="pages.install.h2_first">7. First project (all platforms)</h2>
-      <p>Once <code>nyra --version</code> works (e.g. <code>nyra 1.0.0</code>):</p>
+      <p>Once <code>nyra --version</code> works (e.g. <code>nyra 0.0.1</code>):</p>
       <pre><code>mkdir myapp
 cd myapp
 nyrapkg init</code></pre>

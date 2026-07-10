@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "mod_i32",
+  "args": [
+    "a:i32",
+    "b:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "c_body": "    if (b == 0) return 0;\n    int r = a % b;\n    if (r < 0) r += (b < 0 ? -b : b);\n    return r;"
+}

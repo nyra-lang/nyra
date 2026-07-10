@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "copysign_f64",
+  "args": [
+    "x:f64",
+    "y:f64"
+  ],
+  "returns": "f64",
+  "rt_module": "rt_math.c",
+  "c_body": "    return __builtin_copysign(x, y);"
+}

@@ -37,6 +37,7 @@ Organized by feature area; run via `make/lib/conformance-tests.sh` (included in 
 | `comptime/` | `#[comptime]` const folding |
 | `unsafe/` | `unsafe` blocks, unions, raw pointers |
 | `tls/` | rustls availability, HTTP body decode, **deterministic** HTTPS error paths (no soft-skip) |
+| `contrib_automation/` | **Python** — `make contribute` / batch tooling (CONF-CONTRIB-PY); see README there |
 
 ### Fail areas (`fail/`)
 
@@ -108,5 +109,6 @@ Rebuild the CLI after pulling changes (`cargo build -p cli` or `cargo install --
 | `compiler/driver/tests/conformance/` | Rust `CONF-*` compile/IR contracts |
 | `tests/suite/` | File-based compiletest at scale (~10k) |
 | `tests/nyra/` | Legacy native syntax/ownership smoke |
+| `make test-contrib-conformance` | Python hub + batch automation (CONF-CONTRIB-PY) |
 
 When adding a language feature: **≥2 pass** tests under `pass/<area>/` and **≥2 fail** tests under `fail/<area>/`.

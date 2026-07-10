@@ -1,0 +1,10 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_pop",
+  "args": [
+    "handle:ptr"
+  ],
+  "returns": "string",
+  "rt_module": "rt_vec.c",
+  "c_body": "    extern char *str_dup(const char *s);\n    NyraVec *v = (NyraVec *)handle;\n    if (!v || v->len <= 0) return str_dup(\"\");\n    char *top = ((char **)v->data)[--v->len];\n    char *out = top ? str_dup(top) : str_dup(\"\");\n    free(top);\n    return out;"
+}

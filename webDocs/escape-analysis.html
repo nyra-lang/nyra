@@ -210,39 +210,15 @@ nyra build -v .</code></pre>
     <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
-  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/sync/channel.ny&quot;
-
-struct User {
-    id: i32
-    name: string
-}
-
-fn main() {
-    let user = User { id: 101, name: &quot;Hamdy&quot; }
-
-    let mut chan = Channel_i32_new()
-    chan = chan.send(user.id)
-    let active_id = chan.recv()
-
-    print(active_id)
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let p = { x: 10, y: 20 }
+    print(p.x + p.y)
 }</code></pre></div>
-  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/sync/channel.ny&quot;
-
-struct User {
-    id: i32
-    name: string
-}
-
-fn main() -&gt; void {
-    let user: User = User { id: 101, name: &quot;Hamdy&quot; }
-
-    let mut chan = Channel_i32_new()
-    chan = chan.send(user.id)
-    let active_id = chan.recv()
-
-    print(active_id)
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let p = { x: 10, y: 20 }
+    print(p.x + p.y)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>user</code> and <code>chan</code> are NoEscape; <code>chan</code> becomes LocalChannel.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>With <code>--verbose</code>: <code>p</code> is NoEscape and the struct literal is eligible for stack promotion (SROA). For LocalChannel, see the section above and <a href="concurrency.html#channels">Concurrency → Channels</a>.</p>
 
       <h2>Limitations</h2>
       <ul>

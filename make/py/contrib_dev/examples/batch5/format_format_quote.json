@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "format_quote",
+  "args": [
+    "s:string"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "quote",
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!s) return str_dup(\"\\\"\\\"\");\n    size_t n = strlen(s);\n    char *out = (char *)malloc(n * 2 + 3);\n    if (!out) return NULL;\n    int oi = 0;\n    out[oi++] = '\"';\n    for (size_t i = 0; i < n; i++) {\n        char c = s[i];\n        if (c == '\"' || c == '\\\\') out[oi++] = '\\\\';\n        out[oi++] = c;\n    }\n    out[oi++] = '\"';\n    out[oi] = '\\0';\n    return out;"
+}

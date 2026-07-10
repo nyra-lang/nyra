@@ -148,7 +148,7 @@
           <li><a href="#statements">Statements</a></li>
           <li><a href="#expressions">Expressions</a></li>
           <li><a href="#ownership">Ownership quick ref</a></li>
-          <li><a href="#ownership-ux">Ownership UX (v2.8+)</a></li>
+          <li><a href="#ownership-ux">Ownership UX</a></li>
           <li><a href="#lifetimes">Lifetimes &amp; HRTB</a></li>
           <li><a href="#traits">Traits (Drop)</a></li>
           <li><a href="#unsafe">Unsafe &amp; raw pointers</a></li>
@@ -184,7 +184,7 @@
           <tr><td><code>asm</code></td><td>Inline assembly: <code>asm "template"</code> (inside <code>unsafe</code>)</td></tr>
           <tr><td><code>as</code></td><td>Type cast: <code>expr as Type</code> (raw casts need <code>unsafe</code>)</td></tr>
           <tr><td><code>no_std</code></td><td>Top-level directive — skip runtime link; no <code>print</code>/<code>spawn</code></td></tr>
-          <tr><td><code>move</code> / <code>clone</code></td><td>Unary prefixes at call sites — explicit move or clone (v2.9)</td></tr>
+          <tr><td><code>move</code> / <code>clone</code></td><td>Unary prefixes at call sites — explicit move or clone</td></tr>
           <tr><td><code>async</code> / <code>await</code></td><td>Stable Extended — promises + <code>await</code>; not on wasm32</td></tr>
           <tr><td><code>trait</code> / <code>dyn</code></td><td>Stable Extended — <code>impl Trait for Type</code>, trait objects <code>dyn Trait</code></td></tr>
           <tr><td><code>macro</code></td><td>Extended — parsed and expanded</td></tr>
@@ -272,7 +272,7 @@ let x = 1 /* inline */ + 2
           <tr><td>Tuple</td><td><code>(1, "a")</code></td><td><code>(i32, string)</code> when annotated</td></tr>
         </tbody>
       </table>
-      <p><strong>Template strings (v1.2):</strong> backticks with <code>${expr}</code> — e.g. <code>`score: ${n}`</code>. See <a href="learn-strings.html">Learn → Strings</a>.</p>
+      <p><strong>Template strings:</strong> backticks with <code>${expr}</code> — e.g. <code>`score: ${n}`</code>. See <a href="learn-strings.html">Learn → Strings</a>.</p>
       <p><strong>Numeric separators:</strong> underscores between digits are ignored — <code>10_00000</code> equals <code>100000</code>. <strong>Hex integers:</strong> <code>0xFF</code>, <code>0xffu8</code>.</p>
 
       <h2 id="operators">Operators</h2>
@@ -283,7 +283,7 @@ let x = 1 /* inline */ + 2
           <tr><td>Comparison</td><td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code> — <code>ptr</code> values compare string content (except function pointers)</td></tr>
           <tr><td>Logical</td><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td></tr>
           <tr><td>Bitwise</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code> <code>&amp;</code> <code>|</code> <code>^</code> (integers)</td></tr>
-          <tr><td>Nullish / optional (v2.1+)</td><td><code>??</code> <code>?.</code> <code>?.method()</code> — desugar to <code>Option</code> <code>match</code>; <code>Option.Some(v)</code> payload bind on <code>??</code> (v2.2)</td></tr>
+          <tr><td>Nullish / optional</td><td><code>??</code> <code>?.</code> <code>?.method()</code> — desugar to <code>Option</code> <code>match</code>; <code>Option.Some(v)</code> payload bind on <code>??</code></td></tr>
           <tr><td>Reference</td><td><code>&amp;x</code> (shared), <code>&amp;mut x</code> (exclusive)</td></tr>
           <tr><td>Raw (unsafe)</td><td><code>*ptr</code> load, <code>*ptr = v</code> store, <code>ptr + i32</code>, <code>ptr - i32</code></td></tr>
           <tr><td>Cast</td><td><code>expr as Type</code> — e.g. <code>&amp;x as *i32</code>, <code>ptr as i32</code></td></tr>
@@ -331,7 +331,7 @@ let x = 1 /* inline */ + 2
         <li>Grouped: <code>(expr)</code></li>
         <li><code>await expr</code> (parsed; MVP handle type <code>i32</code>)</li>
         <li>Template literal: <code>`text ${expr} more`</code></li>
-        <li>Arrow function (v2.1): <code>(x) =&gt; expr</code>, <code>x =&gt; expr</code>, <code>((a, b)) =&gt; expr</code>, or typed <code>(a: i32) =&gt; { ... }</code> — see <a href="closures.html">Closures</a></li>
+        <li>Arrow function: <code>(x) =&gt; expr</code>, <code>x =&gt; expr</code>, <code>((a, b)) =&gt; expr</code>, or typed <code>(a: i32) =&gt; { ... }</code> — see <a href="closures.html">Closures</a></li>
         <li><code>expr as Type</code> — cast (raw-pointer casts require <code>unsafe</code>)</li>
       </ul>
 
@@ -379,7 +379,7 @@ unsafe {
       </table>
       <p>Beginner track: <a href="learn-ownership.html">Nyra Ownership</a> → <a href="learn-borrowing.html">Nyra Borrowing</a>. Full rules: <a href="memory.html">Memory &amp; ownership</a>. Developer UX: <a href="ownership-ux.html">Ownership UX</a> (auto-borrow, auto-Copy, inference).</p>
 
-      <h2 id="ownership-ux">Ownership UX (v2.8–v3.1)</h2>
+      <h2 id="ownership-ux">Ownership UX</h2>
       <table>
         <thead><tr><th>Feature</th><th>What you write</th><th>What the compiler does</th></tr></thead>
         <tbody>

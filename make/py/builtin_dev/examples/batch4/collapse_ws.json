@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "collapse_ws",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_collapse_ws",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!s) return str_dup(\"\");\n    size_t cap = strlen(s) + 1;\n    char *out = (char *)malloc(cap);\n    if (!out) return NULL;\n    size_t oi = 0;\n    int in_ws = 0;\n    for (size_t i = 0; s[i]; i++) {\n        char c = s[i];\n        if (c == ' ' || c == '\\t' || c == '\\n' || c == '\\r') {\n            if (!in_ws && oi > 0) { out[oi++] = ' '; in_ws = 1; }\n        } else {\n            out[oi++] = c;\n            in_ws = 0;\n        }\n    }\n    while (oi > 0 && out[oi - 1] == ' ') oi--;\n    out[oi] = '\\0';\n    return out;"
+}

@@ -1,0 +1,10 @@
+{
+  "ny_module": "fs/file.ny",
+  "fn_name": "file_is_symlink",
+  "args": [
+    "path:string"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_fs.c",
+  "c_body": "    if (!path) return 0;\n#if defined(_WIN32)\n    DWORD attr = GetFileAttributesA(path);\n    if (attr == INVALID_FILE_ATTRIBUTES) return 0;\n    return (attr & FILE_ATTRIBUTE_REPARSE_POINT) ? 1 : 0;\n#else\n    struct stat st;\n    if (lstat(path, &st) != 0) return 0;\n    return S_ISLNK(st.st_mode) ? 1 : 0;\n#endif"
+}

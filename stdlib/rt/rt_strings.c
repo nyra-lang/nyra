@@ -1014,3 +1014,496 @@ int str_to_bool(const char *s) {
 }
 // [/contrib-dev:str_to_bool:strconv_mod]
 
+
+// [builtin-dev:compare:string]
+int str_compare(const char *s, const char * other) {
+    if (!s && !other) return 0;
+    if (!s) return -1;
+    if (!other) return 1;
+    return strcmp(s, other);
+}
+// [/builtin-dev:compare:string]
+
+
+// [builtin-dev:equal_fold:string]
+int str_equal_fold(const char *s, const char * other) {
+    if (!s || !other) return 0;
+    size_t i = 0;
+    while (s[i] && other[i]) {
+        unsigned char a = (unsigned char)s[i];
+        unsigned char b = (unsigned char)other[i];
+        if (a >= 'A' && a <= 'Z') a = (unsigned char)(a + 32);
+        if (b >= 'A' && b <= 'Z') b = (unsigned char)(b + 32);
+        if (a != b) return 0;
+        i++;
+    }
+    return (s[i] == '\0' && other[i] == '\0') ? 1 : 0;
+}
+// [/builtin-dev:equal_fold:string]
+
+
+// [builtin-dev:index_byte:string]
+int str_index_byte(const char *s, int byte) {
+    if (!s) return -1;
+    unsigned char ch = (unsigned char)byte;
+    for (int i = 0; s[i]; i++) {
+        if ((unsigned char)s[i] == ch) return i;
+    }
+    return -1;
+}
+// [/builtin-dev:index_byte:string]
+
+
+// [builtin-dev:last_index_byte:string]
+int str_last_index_byte(const char *s, int byte) {
+    if (!s) return -1;
+    unsigned char ch = (unsigned char)byte;
+    int last = -1;
+    for (int i = 0; s[i]; i++) {
+        if ((unsigned char)s[i] == ch) last = i;
+    }
+    return last;
+}
+// [/builtin-dev:last_index_byte:string]
+
+// [contrib-dev:f64_to_string_prec:strconv_mod]
+char * f64_to_string_prec(double n, int prec) {
+    extern char *str_dup(const char *s);
+    char buf[64];
+    if (prec < 0) prec = 0;
+    if (prec > 12) prec = 12;
+    snprintf(buf, sizeof(buf), "%.*f", prec, n);
+    return str_dup(buf);
+}
+// [/contrib-dev:f64_to_string_prec:strconv_mod]
+
+// [contrib-dev:parse_int_base:strconv_mod]
+int parse_int_base(const char * s, int base) {
+    if (!s) return 0;
+    return (int)strtol(s, NULL, base);
+}
+// [/contrib-dev:parse_int_base:strconv_mod]
+
+// [contrib-dev:str_to_i64:strconv_mod]
+long long str_to_i64(const char * s) {
+    if (!s) return 0;
+    return (long long)strtoll(s, NULL, 10);
+}
+// [/contrib-dev:str_to_i64:strconv_mod]
+
+// [contrib-dev:format_i32_pad:strconv_mod]
+char * format_i32_pad(int n, int width) {
+    extern char *str_dup(const char *s);
+    char buf[32];
+    if (width < 0) width = 0;
+    if (width > 20) width = 20;
+    snprintf(buf, sizeof(buf), "%0*d", width, n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_i32_pad:strconv_mod]
+
+
+// [builtin-dev:after_sep:string]
+char * str_after_sep(const char *s, const char * sep) {
+    if (!s) return str_dup("");
+    if (!sep || sep[0] == '\0') return str_dup(s);
+    const char *p = strstr(s, sep);
+    if (!p) return str_dup("");
+    return str_dup(p + strlen(sep));
+}
+// [/builtin-dev:after_sep:string]
+
+// [contrib-dev:format_i32_hex:strconv_mod]
+char * format_i32_hex(int n) {
+    extern char *str_dup(const char *s);
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%x", n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_i32_hex:strconv_mod]
+
+// [contrib-dev:parse_uint_base:strconv_mod]
+int parse_uint_base(const char * s, int base) {
+    if (!s) return 0;
+    return (int)strtoul(s, NULL, base);
+}
+// [/contrib-dev:parse_uint_base:strconv_mod]
+
+// [contrib-dev:str_to_u64:strconv_mod]
+long long str_to_u64(const char * s) {
+    if (!s) return 0;
+    return (long long)strtoull(s, NULL, 10);
+}
+// [/contrib-dev:str_to_u64:strconv_mod]
+
+// [contrib-dev:format_bool:strconv_mod]
+char * format_bool(int b) {
+    extern char *str_dup(const char *s);
+    return str_dup(b ? "true" : "false");
+}
+// [/contrib-dev:format_bool:strconv_mod]
+
+// [contrib-dev:format_f64_pad:strconv_mod]
+char * format_f64_pad(double n, int width, int prec) {
+    extern char *str_dup(const char *s);
+    char buf[64];
+    if (width < 0) width = 0;
+    if (prec < 0) prec = 0;
+    if (prec > 12) prec = 12;
+    snprintf(buf, sizeof(buf), "%*.*f", width, prec, n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_f64_pad:strconv_mod]
+
+// [contrib-dev:format_i32_hex_pad:strconv_mod]
+char * format_i32_hex_pad(int n, int width) {
+    extern char *str_dup(const char *s);
+    char buf[24];
+    if (width < 0) width = 0;
+    if (width > 16) width = 16;
+    snprintf(buf, sizeof(buf), "%0*x", width, n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_i32_hex_pad:strconv_mod]
+
+// [contrib-dev:format_i64_pad:strconv_mod]
+char * format_i64_pad(long long n, int width) {
+    extern char *str_dup(const char *s);
+    char buf[48];
+    if (width < 0) width = 0;
+    if (width > 24) width = 24;
+    snprintf(buf, sizeof(buf), "%0*lld", width, n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_i64_pad:strconv_mod]
+
+
+// [builtin-dev:collapse_ws:string]
+char * str_collapse_ws(const char *s) {
+    extern char *str_dup(const char *s);
+    if (!s) return str_dup("");
+    size_t cap = strlen(s) + 1;
+    char *out = (char *)malloc(cap);
+    if (!out) return NULL;
+    size_t oi = 0;
+    int in_ws = 0;
+    for (size_t i = 0; s[i]; i++) {
+        char c = s[i];
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+            if (!in_ws && oi > 0) { out[oi++] = ' '; in_ws = 1; }
+        } else {
+            out[oi++] = c;
+            in_ws = 0;
+        }
+    }
+    while (oi > 0 && out[oi - 1] == ' ') oi--;
+    out[oi] = '\0';
+    return out;
+}
+// [/builtin-dev:collapse_ws:string]
+
+
+// [builtin-dev:is_ascii:string]
+int str_is_ascii(const char *s) {
+    if (!s) return 1;
+    for (int i = 0; s[i]; i++) {
+        if ((unsigned char)s[i] > 127) return 0;
+    }
+    return 1;
+}
+// [/builtin-dev:is_ascii:string]
+
+// [contrib-dev:hex_encode:encoding_mod]
+char * hex_encode(const char * data) {
+    extern char *str_dup(const char *s);
+    if (!data) return str_dup("");
+    size_t n = strlen(data);
+    char *out = (char *)malloc(n * 2 + 1);
+    if (!out) return NULL;
+    static const char *hex = "0123456789abcdef";
+    for (size_t i = 0; i < n; i++) {
+        unsigned char b = (unsigned char)data[i];
+        out[i * 2] = hex[b >> 4];
+        out[i * 2 + 1] = hex[b & 15];
+    }
+    out[n * 2] = '\0';
+    return out;
+}
+// [/contrib-dev:hex_encode:encoding_mod]
+
+// [contrib-dev:hex_encode_upper:encoding_mod]
+char * hex_encode_upper(const char * data) {
+    extern char *str_dup(const char *s);
+    if (!data) return str_dup("");
+    size_t n = strlen(data);
+    char *out = (char *)malloc(n * 2 + 1);
+    if (!out) return NULL;
+    static const char *hex = "0123456789ABCDEF";
+    for (size_t i = 0; i < n; i++) {
+        unsigned char b = (unsigned char)data[i];
+        out[i * 2] = hex[b >> 4];
+        out[i * 2 + 1] = hex[b & 15];
+    }
+    out[n * 2] = '\0';
+    return out;
+}
+// [/contrib-dev:hex_encode_upper:encoding_mod]
+
+// [contrib-dev:i32_to_string_radix:strconv_mod]
+char * i32_to_string_radix(int n, int base) {
+    extern char *str_dup(const char *s);
+    char buf[34];
+    if (base < 2) base = 10;
+    if (base > 36) base = 36;
+    if (base == 10) snprintf(buf, sizeof(buf), "%d", n);
+    else snprintf(buf, sizeof(buf), "%x", n);
+    return str_dup(buf);
+}
+// [/contrib-dev:i32_to_string_radix:strconv_mod]
+
+// [contrib-dev:parse_i64_base:strconv_mod]
+long long parse_i64_base(const char * s, int base) {
+    if (!s) return 0;
+    return (long long)strtoll(s, NULL, base);
+}
+// [/contrib-dev:parse_i64_base:strconv_mod]
+
+// [contrib-dev:str_to_f32:strconv_mod]
+double str_to_f32(const char * s) {
+    if (!s) return 0.0;
+    return (double)strtof(s, NULL);
+}
+// [/contrib-dev:str_to_f32:strconv_mod]
+
+// [contrib-dev:u64_to_string:strconv_mod]
+char * u64_to_string(long long n) {
+    extern char *str_dup(const char *s);
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%llu", (unsigned long long)n);
+    return str_dup(buf);
+}
+// [/contrib-dev:u64_to_string:strconv_mod]
+
+// [contrib-dev:format_i32_bin:strconv_mod]
+char * format_i32_bin(int n) {
+    extern char *str_dup(const char *s);
+    char tmp[33];
+    int pos = 32;
+    unsigned u = (unsigned)n;
+    tmp[pos] = '\0';
+    if (u == 0) return str_dup("0");
+    while (u > 0 && pos > 0) {
+        tmp[--pos] = (char)('0' + (u & 1));
+        u >>= 1;
+    }
+    return str_dup(tmp + pos);
+}
+// [/contrib-dev:format_i32_bin:strconv_mod]
+
+// [contrib-dev:format_i32_oct:strconv_mod]
+char * format_i32_oct(int n) {
+    extern char *str_dup(const char *s);
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%o", n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_i32_oct:strconv_mod]
+
+// [contrib-dev:format_i64_hex:strconv_mod]
+char * format_i64_hex(long long n) {
+    extern char *str_dup(const char *s);
+    char buf[24];
+    snprintf(buf, sizeof(buf), "%llx", (long long)n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_i64_hex:strconv_mod]
+
+// [contrib-dev:format_u64_pad:strconv_mod]
+char * format_u64_pad(long long n, int width) {
+    extern char *str_dup(const char *s);
+    char buf[48];
+    if (width < 0) width = 0;
+    if (width > 24) width = 24;
+    snprintf(buf, sizeof(buf), "%0*llu", width, (unsigned long long)n);
+    return str_dup(buf);
+}
+// [/contrib-dev:format_u64_pad:strconv_mod]
+
+
+// [builtin-dev:common_prefix_len:string]
+int str_common_prefix_len(const char *s, const char * other) {
+    if (!s || !other) return 0;
+    int i = 0;
+    while (s[i] && other[i] && s[i] == other[i]) i++;
+    return i;
+}
+// [/builtin-dev:common_prefix_len:string]
+
+
+// [builtin-dev:is_alnum:string]
+int str_is_alnum(const char *s) {
+    if (!s || s[0] == '\0') return 0;
+    for (int i = 0; s[i]; i++) {
+        unsigned char c = (unsigned char)s[i];
+        if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')))
+            return 0;
+    }
+    return 1;
+}
+// [/builtin-dev:is_alnum:string]
+
+
+// [builtin-dev:is_alpha:string]
+int str_is_alpha(const char *s) {
+    if (!s || s[0] == '\0') return 0;
+    for (int i = 0; s[i]; i++) {
+        unsigned char c = (unsigned char)s[i];
+        if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) return 0;
+    }
+    return 1;
+}
+// [/builtin-dev:is_alpha:string]
+
+
+// [builtin-dev:is_digit:string]
+int str_is_digit(const char *s) {
+    if (!s || s[0] == '\0') return 0;
+    for (int i = 0; s[i]; i++) {
+        if (s[i] < '0' || s[i] > '9') return 0;
+    }
+    return 1;
+}
+// [/builtin-dev:is_digit:string]
+
+
+// [builtin-dev:pad_center:string]
+char * str_pad_center(const char *s, int width, const char * pad) {
+    extern char *str_dup(const char *s);
+    extern char *str_pad_start(const char *s, int width, const char *pad);
+    if (!s) return str_dup("");
+    if (width <= 0) return str_dup(s);
+    int slen = (int)strlen(s);
+    if (slen >= width) return str_dup(s);
+    int total_pad = width - slen;
+    int left = total_pad / 2;
+    int right = total_pad - left;
+    char *tmp = (char *)malloc((size_t)width + 1);
+    if (!tmp) return NULL;
+    const char *pch = (pad && pad[0]) ? pad : " ";
+    int pi = 0;
+    int oi = 0;
+    for (int i = 0; i < left; i++) tmp[oi++] = pch[pi++ % (int)strlen(pch)];
+    for (int i = 0; i < slen; i++) tmp[oi++] = s[i];
+    pi = 0;
+    for (int i = 0; i < right; i++) tmp[oi++] = pch[pi++ % (int)strlen(pch)];
+    tmp[oi] = '\0';
+    return tmp;
+}
+// [/builtin-dev:pad_center:string]
+
+
+// [builtin-dev:reverse:string]
+char * str_reverse(const char *s) {
+    extern char *str_dup(const char *s);
+    if (!s) return str_dup("");
+    size_t n = strlen(s);
+    char *out = (char *)malloc(n + 1);
+    if (!out) return NULL;
+    for (size_t i = 0; i < n; i++) out[i] = s[n - 1 - i];
+    out[n] = '\0';
+    return out;
+}
+// [/builtin-dev:reverse:string]
+
+// [contrib-dev:format_i64_bin:strconv_mod]
+char * format_i64_bin(long long n) {
+    extern char *str_dup(const char *s);
+    char tmp[65];
+    int pos = 64;
+    unsigned long long u = (unsigned long long)n;
+    tmp[pos] = '\0';
+    if (u == 0) return str_dup("0");
+    while (u > 0 && pos > 0) {
+        tmp[--pos] = (char)('0' + (u & 1));
+        u >>= 1;
+    }
+    return str_dup(tmp + pos);
+}
+// [/contrib-dev:format_i64_bin:strconv_mod]
+
+// [contrib-dev:format_quote:strconv_mod]
+char * format_quote(const char * s) {
+    extern char *str_dup(const char *s);
+    if (!s) return str_dup("\"\"");
+    size_t n = strlen(s);
+    char *out = (char *)malloc(n * 2 + 3);
+    if (!out) return NULL;
+    int oi = 0;
+    out[oi++] = '"';
+    for (size_t i = 0; i < n; i++) {
+        char c = s[i];
+        if (c == '"' || c == '\\') out[oi++] = '\\';
+        out[oi++] = c;
+    }
+    out[oi++] = '"';
+    out[oi] = '\0';
+    return out;
+}
+// [/contrib-dev:format_quote:strconv_mod]
+
+
+// [builtin-dev:escape_json:string]
+char * str_escape_json(const char *s) {
+    extern char *str_dup(const char *s);
+    if (!s) return str_dup("");
+    size_t n = strlen(s);
+    char *out = (char *)malloc(n * 2 + 1);
+    if (!out) return NULL;
+    size_t oi = 0;
+    for (size_t i = 0; i < n; i++) {
+        char c = s[i];
+        if (c == '"' || c == '\\' || c == '\n' || c == '\r' || c == '\t') {
+            out[oi++] = '\\';
+            if (c == '\n') out[oi++] = 'n';
+            else if (c == '\r') out[oi++] = 'r';
+            else if (c == '\t') out[oi++] = 't';
+            else out[oi++] = c;
+        } else {
+            out[oi++] = c;
+        }
+    }
+    out[oi] = '\0';
+    return out;
+}
+// [/builtin-dev:escape_json:string]
+
+
+// [builtin-dev:split_after:string]
+char * str_split_after(const char *s, const char * sep) {
+    extern char *str_dup(const char *s);
+    if (!s) return str_dup("");
+    if (!sep || sep[0] == '\0') return str_dup(s);
+    const char *p = strstr(s, sep);
+    if (!p) return str_dup(s);
+    p += strlen(sep);
+    return str_dup(p);
+}
+// [/builtin-dev:split_after:string]
+
+
+// [builtin-dev:truncate:string]
+char * str_truncate(const char *s, int max_len) {
+    extern char *str_dup(const char *s);
+    if (!s) return str_dup("");
+    if (max_len <= 0) return str_dup("");
+    size_t n = strlen(s);
+    size_t take = (size_t)max_len;
+    if (take > n) take = n;
+    char *out = (char *)malloc(take + 1);
+    if (!out) return NULL;
+    memcpy(out, s, take);
+    out[take] = '\0';
+    return out;
+}
+// [/builtin-dev:truncate:string]
+

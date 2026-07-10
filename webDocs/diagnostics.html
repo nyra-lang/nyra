@@ -136,7 +136,7 @@
       <h1 data-i18n="pages.diagnostics.h1">Diagnostics</h1>
       <p class="lead" data-i18n-html="pages.diagnostics.lead">Structured errors, Swift-style ownership messages, borrow notes, and <code>nyra diag --json</code>.</p>
 
-      <p>Ownership errors (v2.9+) name the <strong>callee function</strong>, show its parameter types, and suggest <code>&amp;</code>, <code>clone</code>, or <code>move</code>. Full guide: <a href="ownership-ux.html">Ownership UX</a>. Proactive snapshots (who owns / who borrows at a line): <a href="ownership-inspect.html"><code>nyra inspect</code></a>.</p>
+      <p>Ownership errors name the <strong>callee function</strong>, show its parameter types, and suggest <code>&amp;</code>, <code>clone</code>, or <code>move</code>. Full guide: <a href="ownership-ux.html">Ownership UX</a>. Proactive snapshots (who owns / who borrows at a line): <a href="ownership-inspect.html"><code>nyra inspect</code></a>.</p>
 
 <h2 id="ownership-inspect">Ownership inspect</h2>
 <p>When errors are unclear — or while learning — ask the compiler for a binding’s state at a source line:</p>
@@ -154,7 +154,7 @@ nyra explain P001
 nyra explain --list</code></pre>
 <p>Prints a static explanation for stable diagnostic codes (like <code>rustc --explain</code>). Use after seeing <code>error[E003]:</code> in the terminal or LSP.</p>
 
-<h2 id="ownership-errors">Ownership diagnostics (v2.9)</h2>
+<h2 id="ownership-errors">Ownership diagnostics</h2>
 <pre><code>error: use of moved value 'user'
   --> main.ny:8:14
    |

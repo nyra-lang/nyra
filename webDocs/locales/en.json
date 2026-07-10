@@ -119,7 +119,7 @@
   "pages": {
     "index": {
       "metaTitle": "Nyra — Programming Language Documentation",
-      "pill": "Documentation v1.40.x",
+      "pill": "Documentation v0.1.0",
       "titleSub": "Programming Language",
       "tagline": "Fast like a panther. Sharp by design.",
       "lead": "Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.",
@@ -190,7 +190,7 @@
       "cardLearningPathP": "Zero to full app — step by step",
       "aiSkillTitle": "For AI assistants",
       "aiSkillDesc": "Download the canonical Nyra reference for Cursor, ChatGPT, Claude, and other LLMs.",
-      "aiSkillBody": "Single file <code>nyra-skill.md</code> — syntax, ownership, stdlib, PGO, escape analysis, stability tiers, and anti-hallucination guardrails (v1.36.x).",
+      "aiSkillBody": "Single file <code>nyra-skill.md</code> — syntax, ownership, stdlib, PGO, escape analysis, stability tiers, and anti-hallucination guardrails (v0.0.1).",
       "aiSkillDownload": "Download nyra-skill.md",
       "aiSkillGuide": "Usage guide",
       "resultTitle": "Result & error handling",
@@ -273,7 +273,7 @@
       "td_tar_why": "Extract release archives (macOS/Linux)",
       "h2_tag": "2. Pick a release tag",
       "li_tag_1": "Open <a href=\"https://github.com/nyra-lang/nyra/releases\">Releases</a>.",
-      "li_tag_2": "Choose a version (e.g. <strong>v1.0.0</strong> — includes <code>nyra pkg init</code> + <code>main.ny</code> scaffold).",
+      "li_tag_2": "Choose a version (e.g. <strong>v0.0.1</strong> — includes <code>nyra pkg init</code> + <code>main.ny</code> scaffold).",
       "li_tag_3": "Under <strong>Assets</strong>, download the file that matches your <strong>CPU</strong> and <strong>OS</strong> (see table).",
       "th_machine": "Your machine",
       "th_asset": "Release asset",
@@ -296,7 +296,7 @@
       "h3_win_src": "Alternative — Build from source (native Windows)",
       "callout_wsl": "Native Windows support is evolving; WSL2 matches the Linux release workflow today.",
       "h2_first": "7. First project (all platforms)",
-      "p_first": "Once <code>nyra --version</code> works (e.g. <code>nyra 1.0.0</code>):",
+      "p_first": "Once <code>nyra --version</code> works (e.g. <code>nyra 0.0.1</code>):",
       "p_creates": "This creates:",
       "li_mod": "<code>nyra.mod</code>, <code>nyra.lock</code>, <code>nyra.sum</code>",
       "li_main": "<code>main.ny</code> with a Hello, world program",
@@ -503,7 +503,7 @@
     "roadmap": {
       "metaTitle": "Roadmap & status — Nyra Docs",
       "h1": "Roadmap & status",
-      "lead": "Nyra 1.x — Core and Stable Extended are semver-stable. See <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability-v1.md</a>."
+      "lead": "Nyra — Core and Stable Extended are semver-stable. See <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability-v1.md</a>."
     },
     "learn-intro": {
       "h1": "Nyra Intro",

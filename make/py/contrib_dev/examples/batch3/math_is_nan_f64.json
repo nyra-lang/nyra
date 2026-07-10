@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "is_nan_f64",
+  "args": [
+    "x:f64"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "is_nan",
+  "c_body": "    return __builtin_isnan(x) ? 1 : 0;"
+}

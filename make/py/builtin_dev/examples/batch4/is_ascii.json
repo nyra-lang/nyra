@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "is_ascii",
+  "args": [],
+  "returns": "i32",
+  "c_name": "str_is_ascii",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s) return 1;\n    for (int i = 0; s[i]; i++) {\n        if ((unsigned char)s[i] > 127) return 0;\n    }\n    return 1;"
+}

@@ -76,6 +76,8 @@ jobs:
             label: webdocs-tabs
           - gate: test-webdocs-snippets
             label: webdocs-snippets
+          - gate: test-contrib-conformance
+            label: contrib-automation
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nyra-ci-setup
@@ -383,7 +385,7 @@ jobs:
           platform: windows
       - name: Package smoke (Windows asset layout)
         shell: bash
-        run: make package-release VERSION=1.1.0-test TRIPLE=x86_64-pc-windows-msvc
+        run: make package-release VERSION=0.1.0 TRIPLE=x86_64-pc-windows-msvc
 
   windows-dap:
     name: "dap · Windows"

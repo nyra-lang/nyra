@@ -38,7 +38,7 @@ fn builtin_method_borrows_receiver(method: &str) -> bool {
             | "to_snake_case" | "to_lowercase" | "to_titlecase" | "to_capitalize"
             | "to_camel_case" | "to_kebab_case" | "to_pascal_case"
             | "to_screaming_snake_case" | "to_train_case" | "to_dot_case"
-            | "includes" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once" 
+            | "includes" | "strip_prefix" | "index" | "is_empty" | "last_index" | "repeat" | "trim_end" | "trim_start" | "splitn" | "count" | "fields" | "pad_end" | "pad_start" | "split_once" | "compare" | "equal_fold" | "index_byte" | "last_index_byte" | "after_sep" | "char_at" | "pop" | "push_char" | "strip_ansi" | "substring" | "before_sep" | "collapse_ws" | "is_ascii" | "common_prefix_len" | "is_alnum" | "is_alpha" | "is_digit" | "pad_center" | "reverse" | "escape_json" | "split_after" | "truncate" 
     )
 }
 

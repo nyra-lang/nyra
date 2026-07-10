@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "is_infinite_f64",
+  "args": [
+    "x:f64"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "ny_alias": "is_infinite",
+  "c_body": "    return (x == x && (x > 1e308 || x < -1e308)) ? 1 : 0;"
+}

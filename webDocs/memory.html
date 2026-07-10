@@ -141,7 +141,7 @@
         <strong>On this page</strong>
         <ol>
           <li><a href="#philosophy">Philosophy: safety without a GC</a></li>
-          <li><a href="#ownership-ux">Ownership UX (v2.8+)</a></li>
+          <li><a href="#ownership-ux">Ownership UX</a></li>
           <li><a href="#copy-move">Copy vs Move types</a></li>
           <li><a href="#rules">Ownership rules</a></li>
           <li><a href="#auto-drop">Automatic cleanup (Drop plan)</a></li>
@@ -169,7 +169,7 @@
         <li><strong>Escape analysis</strong> — Nyra proves local values at compile time and promotes them to the stack; sequential channels can become lock-free <code>LocalChannel</code>. See <a href="escape-analysis.html">Escape analysis</a>.</li>
       </ul>
 
-      <h2 id="ownership-ux">Ownership UX (v2.8–v3.1)</h2>
+      <h2 id="ownership-ux">Ownership UX</h2>
       <p>Nyra keeps Rust’s static ownership model but reduces day-to-day friction:</p>
       <ul>
         <li><strong>Auto-borrow</strong> — <code>save(user)</code> becomes <code>save(&amp;user)</code> when the callee expects <code>&amp;User</code>.</li>
@@ -304,7 +304,7 @@ fn main() -&gt; void {
 }                                             // compiler inserts: free(data)</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <p><strong>You do not write</strong> <code>free(data)</code> in normal Nyra code. The compiler guarantees cleanup on every path that still owns the binding.</p>
 
-      <h3>Composite struct cleanup (v2.3)</h3>
+      <h3>Composite struct cleanup</h3>
       <p>Structs with heap-owned fields (e.g. <code>string</code>) but <strong>no</strong> custom <code>impl Drop</code> get automatic <strong>field-wise</strong> cleanup — the compiler emits <code>free</code> for each owned field at scope end:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -322,7 +322,7 @@ fn main() -&gt; void {
 }                         // free(p.body) inserted automatically</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <p>Nested structs without custom <code>Drop</code> are dropped recursively. Custom <code>impl Drop</code> still takes full control (no double field-free).</p>
 
-      <h3>Owned <code>extern fn</code> returns (v2.3)</h3>
+      <h3>Owned <code>extern fn</code> returns</h3>
       <p>Any <code>extern fn foo(...) -&gt; string</code> in your program is automatically treated as returning heap-owned memory — no need to register symbols in a compiler whitelist:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -338,7 +338,7 @@ fn main() -&gt; void {
     let s = my_api_load()   // auto-owned, auto-dropped
     print(s)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Partial field moves (v2.4)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Partial field moves</h3>
       <p>Moving a single field out of a struct invalidates the parent binding (Rust-style), preventing use-after-partial-move bugs:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -358,7 +358,7 @@ fn main() -&gt; void {
     print(body)
     // print(p.a)           // ERROR: use of moved value 'p'
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Generic Option / Result (v2.4)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Generic Option / Result</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -374,7 +374,7 @@ let n = Option.Some(42)                          // literal → Option__i32</cod
 </div><!-- NYRA_SNIPPET_END -->      <p>Heap payloads in generic enums (e.g. <code>Option&lt;string&gt;</code>) get automatic payload cleanup at scope end.</p>
       <p>Import from stdlib: <code>import "stdlib/option.ny"</code>. Typed annotations and <code>match</code> patterns rewrite to monomorphized names (<code>Option__string</code>) at compile time.</p>
 
-      <h3>Monolith-friendly structs + strings (v2.4)</h3>
+      <h3>Monolith-friendly structs + strings</h3>
       <p>Large single-file apps can combine multi-field structs, partial field moves, generic <code>Option&lt;string&gt;</code>, and <code>Box&lt;T&gt;</code> without manual <code>Drop</code> for string fields:</p>
       <!-- NYRA_SNIPPET_SKIP -->
       <!-- NYRA_SNIPPET_START -->
@@ -431,7 +431,7 @@ fn main() -&gt; void {
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <p>See <code>examples/monolith_struct_smoke.ny</code> for a full compile-ready sample.</p>
 
-      <h3>Shared ownership with Arc&lt;T&gt; (v2.5)</h3>
+      <h3>Shared ownership with Arc&lt;T&gt;</h3>
       <p>Reference-counted sharing for graphs and cross-scope labels. Import <code>stdlib/arc.ny</code>:</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -599,7 +599,7 @@ fn main() -&gt; void {
       <p>Functions that return heap memory (<code>strcat</code>, <code>read_file</code>, <code>sys_recv</code>, …) are registered in <code>OWNED_EXTERN_RETURNS</code>. The caller <strong>must</strong> bind the result — orphaning is impossible because unused expressions in <code>let</code> still get a binding or the value is moved/consumed.</p>
 
       <h3>4. Closure &amp; spawn heap env freed at scope end</h3>
-      <p>Escaping closures (v2.2) that <code>malloc</code> capture envs register <code>heap_owned</code> metadata — freed when the <code>let</code> binding ends. Stack closures need no heap free.</p>
+      <p>Escaping closures that <code>malloc</code> capture envs register <code>heap_owned</code> metadata — freed when the <code>let</code> binding ends. Stack closures need no heap free.</p>
 
       <h3>5. Custom Drop for resource types</h3>
       <!-- NYRA_SNIPPET_START -->

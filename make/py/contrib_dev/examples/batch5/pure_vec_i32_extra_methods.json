@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_extra_methods",
+  "pure_source": "impl VecI32 {\n    fn capacity(self) -> i32 {\n        return vec_i32_capacity(self.handle)\n    }\n\n    fn reserve(self, min_cap: i32) -> VecI32 {\n        vec_i32_reserve(self.handle, min_cap)\n        return self\n    }\n\n    fn fill(self, value: i32) -> VecI32 {\n        vec_i32_fill(self.handle, value)\n        return self\n    }\n\n    fn swap_remove(self, index: i32) -> i32 {\n        return vec_i32_swap_remove(self.handle, index)\n    }\n\n    fn is_empty(self) -> i32 {\n        if self.len() == 0 {\n            return 1\n        }\n        return 0\n    }\n}"
+}

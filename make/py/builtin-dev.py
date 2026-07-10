@@ -35,6 +35,7 @@ def build_spec_from_args(ns: argparse.Namespace, *, for_remove: bool = False) ->
             free_fn_alias=data.get("free_fn_alias", True),
             stable_abi=data.get("stable_abi", False),
             abi_since=data.get("abi_since", "1.0.0"),
+            c_body=data.get("c_body"),
         )
     if ns.interactive or not ns.method:
         return run_remove_wizard() if for_remove else run_add_wizard()

@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_fill",
+  "args": [
+    "handle:ptr",
+    "value:i32"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v) return;\n    int *data = (int *)v->data;\n    for (int i = 0; i < v->len; i++) data[i] = value;"
+}

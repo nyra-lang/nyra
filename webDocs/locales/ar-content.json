@@ -173,7 +173,7 @@
     "Pick a topic:": "اختر الموضوع:",
     "Prerequisites: <a href=\"install.html\">Install Nyra</a> and <code>clang</code>.": "المتطلبات المسبقة: <a href=\"install.html\">تثبيت Nyra</a> و<code>clang</code>.",
     "Program entry": "نقطة الدخول",
-    "Push elements and read length and index. Higher-order helpers like <code>filter</code> ship in v1.45.": "ادفع عناصر واقرأ الطول والفهرس. دوال عليا مثل <code>filter</code> متاحة في v1.45.",
+    "Push elements and read length and index. Higher-order helpers like <code>filter</code> are available.": "ادفع عناصر واقرأ الطول والفهرس. دوال عليا مثل <code>filter</code> متاحة.",
     "Quick reference": "جدول سريع",
     "Quick rule": "قاعدة سريعة",
     "Quick start": "خطوات سريعة",

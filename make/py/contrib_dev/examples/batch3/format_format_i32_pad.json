@@ -1,0 +1,12 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "format_i32_pad",
+  "args": [
+    "n:i32",
+    "width:i32"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "format_pad",
+  "c_body": "    extern char *str_dup(const char *s);\n    char buf[32];\n    if (width < 0) width = 0;\n    if (width > 20) width = 20;\n    snprintf(buf, sizeof(buf), \"%0*d\", width, n);\n    return str_dup(buf);"
+}

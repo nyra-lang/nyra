@@ -120,7 +120,7 @@
   "pages": {
     "index": {
       "metaTitle": "Nyra — توثيق لغة البرمجة",
-      "pill": "التوثيق v1.40.x",
+      "pill": "التوثيق v0.1.0",
       "titleSub": "لغة برمجة",
       "tagline": "سريعة كالنمر. حادة في التصميم.",
       "lead": "بساطة Go. أمان Rust. سرعة C++ — منصة واحدة، و LLVM في القلب.",
@@ -192,7 +192,7 @@
       "statusBody": "Nyra <strong>جاهزة للإنتاج</strong> على Core + Stable Extended (async و<code>?</code> وspawn وtraits وserde). إصدارات جاهزة لـ Linux وmacOS وWindows. راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">سياسة الاستقرار</a>.",
       "aiSkillTitle": "للمساعدين الذكاء الاصطناعي",
       "aiSkillDesc": "حمّل المرجع الرسمي لـ Nyra لـ Cursor وChatGPT وClaude وغيرها.",
-      "aiSkillBody": "ملف واحد <code>nyra-skill.md</code> — الصياغة، الملكية، stdlib، PGO، escape analysis، مستويات الاستقرار، ومنع الهلوسة (v1.36.x).",
+      "aiSkillBody": "ملف واحد <code>nyra-skill.md</code> — الصياغة، الملكية، stdlib، PGO، escape analysis، مستويات الاستقرار، ومنع الهلوسة (v0.0.1).",
       "aiSkillDownload": "تحميل nyra-skill.md",
       "aiSkillGuide": "دليل الاستخدام",
       "resultTitle": "Result ومعالجة الأخطاء",
@@ -270,7 +270,7 @@
       "td_tar_why": "فك أرشيفات الإصدار (macOS/Linux)",
       "h2_tag": "2. اختيار وسم إصدار",
       "li_tag_1": "افتح <a href=\"https://github.com/nyra-lang/nyra/releases\">Releases</a>.",
-      "li_tag_2": "اختر إصداراً (مثل <strong>v1.0.0</strong> — يتضمن <code>nyra pkg init</code> + هيكل <code>main.ny</code>).",
+      "li_tag_2": "اختر إصداراً (مثل <strong>v0.0.1</strong> — يتضمن <code>nyra pkg init</code> + هيكل <code>main.ny</code>).",
       "li_tag_3": "تحت <strong>Assets</strong>، نزّل الملف المطابق لـ <strong>المعالج</strong> و<strong>النظام</strong> (انظر الجدول).",
       "th_machine": "جهازك",
       "th_asset": "ملف الإصدار",
@@ -293,7 +293,7 @@
       "h3_win_src": "بديل — البناء من المصدر (Windows أصلي)",
       "callout_wsl": "دعم Windows الأصلي قيد التطور؛ WSL2 يطابق سير عمل إصدار Linux اليوم.",
       "h2_first": "7. أول مشروع (كل المنصات)",
-      "p_first": "عندما يعمل <code>nyra --version</code> (مثل <code>nyra 1.0.0</code>):",
+      "p_first": "عندما يعمل <code>nyra --version</code> (مثل <code>nyra 0.0.1</code>):",
       "p_creates": "يُنشئ:",
       "li_mod": "<code>nyra.mod</code> و<code>nyra.lock</code> و<code>nyra.sum</code>",
       "li_main": "<code>main.ny</code> مع برنامج Hello, world",
@@ -415,7 +415,7 @@
     "roadmap": {
       "metaTitle": "خارطة الطريق والحالة — توثيق Nyra",
       "h1": "خارطة الطريق والحالة",
-      "lead": "Nyra 1.x — Core وStable Extended مستقران semver. راجع <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability-v1.md</a>."
+      "lead": "Nyra — Core وStable Extended مستقران semver. راجع <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability-v1.md</a>."
     },
     "targets": {
       "metaTitle": "أهداف البناء — توثيق Nyra",

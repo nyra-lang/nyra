@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "is_digit",
+  "args": [],
+  "returns": "i32",
+  "c_name": "str_is_digit",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s || s[0] == '\\0') return 0;\n    for (int i = 0; s[i]; i++) {\n        if (s[i] < '0' || s[i] > '9') return 0;\n    }\n    return 1;"
+}

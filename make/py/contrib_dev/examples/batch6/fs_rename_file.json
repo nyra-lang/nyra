@@ -1,0 +1,11 @@
+{
+  "ny_module": "fs/file.ny",
+  "fn_name": "rename_file",
+  "args": [
+    "src:string",
+    "dst:string"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_fs.c",
+  "c_body": "    if (!src || !dst) return -1;\n#if defined(_WIN32)\n    return MoveFileA(src, dst) ? 0 : -1;\n#else\n    return rename(src, dst) == 0 ? 0 : -1;\n#endif"
+}

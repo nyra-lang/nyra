@@ -1,0 +1,12 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_swap",
+  "args": [
+    "handle:ptr",
+    "i:i32",
+    "j:i32"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v || i < 0 || j < 0 || i >= v->len || j >= v->len) return;\n    char **data = (char **)v->data;\n    char *tmp = data[i];\n    data[i] = data[j];\n    data[j] = tmp;"
+}

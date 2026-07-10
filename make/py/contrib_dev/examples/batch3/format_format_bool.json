@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "format_bool",
+  "args": [
+    "b:i32"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "bool_to_string",
+  "c_body": "    extern char *str_dup(const char *s);\n    return str_dup(b ? \"true\" : \"false\");"
+}

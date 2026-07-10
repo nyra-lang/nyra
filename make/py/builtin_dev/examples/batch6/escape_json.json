@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "escape_json",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_escape_json",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    extern char *str_dup(const char *s);\n    if (!s) return str_dup(\"\");\n    size_t n = strlen(s);\n    char *out = (char *)malloc(n * 2 + 1);\n    if (!out) return NULL;\n    size_t oi = 0;\n    for (size_t i = 0; i < n; i++) {\n        char c = s[i];\n        if (c == '\"' || c == '\\\\' || c == '\\n' || c == '\\r' || c == '\\t') {\n            out[oi++] = '\\\\';\n            if (c == '\\n') out[oi++] = 'n';\n            else if (c == '\\r') out[oi++] = 'r';\n            else if (c == '\\t') out[oi++] = 't';\n            else out[oi++] = c;\n        } else {\n            out[oi++] = c;\n        }\n    }\n    out[oi] = '\\0';\n    return out;"
+}

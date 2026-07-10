@@ -1,0 +1,15 @@
+{
+  "receiver": "string",
+  "method": "replacen",
+  "args": [
+    "from:string",
+    "to:string",
+    "count:i32"
+  ],
+  "returns": "string",
+  "c_name": "str_replacen",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    return str_replacen(s, from, to, count);"
+}

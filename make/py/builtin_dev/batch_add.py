@@ -5,7 +5,7 @@ Usage:
   python3 make/py/builtin_dev/batch_add.py
   python3 make/py/builtin_dev/batch_add.py --batch batch2
   python3 make/py/builtin_dev/batch_add.py --batch all --only string,math
-  make batch-add-builtin BATCH=batch2
+  make batch-add-builtin BATCH=batch3
 """
 from __future__ import annotations
 
@@ -18,9 +18,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 MAKE_PY = ROOT / "make" / "py"
+if str(MAKE_PY) not in sys.path:
+    sys.path.insert(0, str(MAKE_PY))
 BUILTIN_PY = MAKE_PY / "builtin-dev.py"
 CONTRIBUTE_PY = MAKE_PY / "contribute.py"
 EXAMPLES = Path(__file__).resolve().parent / "examples"
+
+KINDS = (
+    "string",
+    "math",
+    "vec",
+    "map",
+    "encoding",
+    "strconv",
+    "format",
+    "sync",
+    "fs",
+    "pure",
+)
 
 
 @dataclass
@@ -68,15 +83,7 @@ def collect_batches(batch_arg: str) -> list[str]:
 
 
 def collect_configs(batch_names: list[str], only: set[str]) -> dict[str, list[Path]]:
-    out: dict[str, list[Path]] = {
-        "string": [],
-        "math": [],
-        "vec": [],
-        "map": [],
-        "encoding": [],
-        "strconv": [],
-        "pure": [],
-    }
+    out: dict[str, list[Path]] = {k: [] for k in KINDS}
     for name in batch_names:
         builtin_dir = EXAMPLES / name
         contrib_dir = MAKE_PY / "contrib_dev" / "examples" / name
@@ -86,6 +93,9 @@ def collect_configs(batch_names: list[str], only: set[str]) -> dict[str, list[Pa
         out["map"].extend(_glob_configs(contrib_dir, "map_*.json"))
         out["encoding"].extend(_glob_configs(contrib_dir, "encoding_*.json"))
         out["strconv"].extend(_glob_configs(contrib_dir, "strconv_*.json"))
+        out["format"].extend(_glob_configs(contrib_dir, "format_*.json"))
+        out["sync"].extend(_glob_configs(contrib_dir, "sync_*.json"))
+        out["fs"].extend(_glob_configs(contrib_dir, "fs_*.json"))
         out["pure"].extend(_glob_configs(contrib_dir, "pure_*.json"))
     if "all" in only:
         return out
@@ -106,7 +116,7 @@ def scaffold_string(cfg: Path, *, force: bool, dry_run: bool) -> int:
     return run_cmd(cmd, dry_run=dry_run)
 
 
-def scaffold_contrib(cfg: Path, recipe: str, *, dry_run: bool, no_webdocs: bool) -> int:
+def scaffold_contrib(cfg: Path, recipe: str, *, dry_run: bool, no_webdocs: bool, force: bool) -> int:
     cmd = [
         sys.executable,
         str(CONTRIBUTE_PY),
@@ -115,6 +125,7 @@ def scaffold_contrib(cfg: Path, recipe: str, *, dry_run: bool, no_webdocs: bool)
         recipe,
         "--config",
         str(cfg),
+        "--force",
     ]
     if no_webdocs:
         cmd.append("--no-webdocs")
@@ -126,12 +137,12 @@ def main() -> int:
     parser.add_argument(
         "--batch",
         default="batch",
-        help="batch folder name under examples/ (batch, batch2, or all)",
+        help="batch folder name under examples/ (batch, batch2, batch3, or all)",
     )
     parser.add_argument(
         "--only",
         default="all",
-        help="comma-separated: string,math,vec,map,encoding,strconv,pure,all",
+        help="comma-separated: string,math,vec,map,encoding,strconv,format,sync,fs,pure,all",
     )
     parser.add_argument("--force", action="store_true", help="pass --force to builtin-dev add")
     parser.add_argument("--dry-run", action="store_true", help="print commands only")
@@ -151,23 +162,40 @@ def main() -> int:
     configs = collect_configs(batch_names, only)
     report = BatchReport()
 
-    for cfg in configs["string"]:
+    for cfg in configs.get("string", []):
+        if cfg.name == "manifest.json":
+            continue
         rc = scaffold_string(cfg, force=args.force, dry_run=args.dry_run)
         report.add(cfg, "string", rc)
 
-    for cfg in configs["math"] + configs["vec"] + configs["map"] + configs["encoding"] + configs["strconv"]:
-        rc = scaffold_contrib(cfg, "stdlib-extern", dry_run=args.dry_run, no_webdocs=args.no_webdocs)
-        report.add(cfg, "stdlib-extern", rc)
+    extern_kinds = ("math", "vec", "map", "encoding", "strconv", "format", "sync", "fs")
+    for kind in extern_kinds:
+        for cfg in configs.get(kind, []):
+            if cfg.name == "manifest.json":
+                continue
+            rc = scaffold_contrib(
+                cfg, "stdlib-extern", dry_run=args.dry_run, no_webdocs=args.no_webdocs, force=args.force
+            )
+            report.add(cfg, kind, rc)
 
-    for cfg in configs["pure"]:
-        rc = scaffold_contrib(cfg, "stdlib-pure", dry_run=args.dry_run, no_webdocs=args.no_webdocs)
-        report.add(cfg, "stdlib-pure", rc)
+    for cfg in configs.get("pure", []):
+        if cfg.name == "manifest.json":
+            continue
+        rc = scaffold_contrib(
+            cfg, "stdlib-pure", dry_run=args.dry_run, no_webdocs=args.no_webdocs, force=args.force
+        )
+        report.add(cfg, "pure", rc)
 
     if not report.results:
         print("No configs matched; check --batch and --only", file=sys.stderr)
         return 1
 
     report.print_summary()
+    if report.ok() and not args.dry_run:
+        from contrib_dev.manifest_dedupe import dedupe_abi_manifest, strip_pure_nyra_symbols
+
+        dedupe_abi_manifest()
+        strip_pure_nyra_symbols()
     return 0 if report.ok() else 1
 
 

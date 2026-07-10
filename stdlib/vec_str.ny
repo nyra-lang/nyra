@@ -192,6 +192,36 @@ impl StrVec {
         return fallback
     }
 
+
+    fn insert(self, index: i32, value: string) -> StrVec {
+        vec_str_insert(self.handle, index, value)
+        return self
+    }
+
+    fn remove_at(self, index: i32) -> string {
+        return vec_str_remove_at(self.handle, index)
+    }
+
+    fn extend(self, other: StrVec) -> StrVec {
+        vec_str_extend(self.handle, other.handle)
+        return self
+    }
+
+    fn append(self, value: string) -> StrVec {
+        return self.push(value)
+    }
+
+    fn swap(self, i: i32, j: i32) -> StrVec {
+        vec_str_swap(self.handle, i, j)
+        return self
+    }
+
+
+    fn set(self, index: i32, value: string) -> StrVec {
+        vec_str_set(self.handle, index, value)
+        return self
+    }
+
     fn index_of(self, needle: string) -> i32 {
         let n = Vec_str_len(self.handle)
         let mut i = 0
@@ -202,6 +232,38 @@ impl StrVec {
             i = i + 1
         }
         return -1
+    }
+
+    fn pop(self) -> string {
+        return vec_str_pop(self.handle)
+    }
+
+    fn clear(self) -> StrVec {
+        vec_str_clear(self.handle)
+        return self
+    }
+
+    fn reverse(self) -> StrVec {
+        vec_str_reverse(self.handle)
+        return self
+    }
+
+    fn is_empty(self) -> i32 {
+        if Vec_str_len(self.handle) == 0 {
+            return 1
+        }
+        return 0
+    }
+
+    fn reduce(self, init: string, reducer: fn(string, string) -> string) -> string {
+        let mut acc = init
+        let n = Vec_str_len(self.handle)
+        let mut i = 0
+        while i < n {
+            acc = reducer(acc, Vec_str_get(self.handle, i))
+            i = i + 1
+        }
+        return acc
     }
 }
 
@@ -231,3 +293,27 @@ fn Vec_string_len(v: StrVec) -> i32 {
 fn Vec_string_free(v: StrVec) -> void {
     Vec_str_free(v.handle)
 }
+// [contrib-dev:vec_str_clear:vec_str]
+extern fn vec_str_clear(handle: ptr)
+// [/contrib-dev:vec_str_clear:vec_str]
+// [contrib-dev:vec_str_pop:vec_str]
+extern fn vec_str_pop(handle: ptr) -> string
+// [/contrib-dev:vec_str_pop:vec_str]
+// [contrib-dev:vec_str_reverse:vec_str]
+extern fn vec_str_reverse(handle: ptr)
+// [/contrib-dev:vec_str_reverse:vec_str]
+// [contrib-dev:vec_str_extend:vec_str]
+extern fn vec_str_extend(dst: ptr, src: ptr)
+// [/contrib-dev:vec_str_extend:vec_str]
+// [contrib-dev:vec_str_insert:vec_str]
+extern fn vec_str_insert(handle: ptr, index: i32, value: &string)
+// [/contrib-dev:vec_str_insert:vec_str]
+// [contrib-dev:vec_str_remove_at:vec_str]
+extern fn vec_str_remove_at(handle: ptr, index: i32) -> string
+// [/contrib-dev:vec_str_remove_at:vec_str]
+// [contrib-dev:vec_str_set:vec_str]
+extern fn vec_str_set(handle: ptr, index: i32, value: &string)
+// [/contrib-dev:vec_str_set:vec_str]
+// [contrib-dev:vec_str_swap:vec_str]
+extern fn vec_str_swap(handle: ptr, i: i32, j: i32)
+// [/contrib-dev:vec_str_swap:vec_str]

@@ -35,16 +35,13 @@ impl Codegen {
             Expression::Literal(Literal::Bool(_)) => "i1".into(),
             Expression::Literal(Literal::String(_)) => "ptr".into(),
             Expression::Call(c) => {
-                let ret = self
-                    .call_returns
+                if let Some(sig) = self.current_fn_ptrs.get(&c.callee) {
+                    return sig.ret_ty.clone();
+                }
+                self.call_returns
                     .get(&c.callee)
                     .cloned()
-                    .unwrap_or_else(|| "i32".into());
-                if ret.starts_with('%') {
-                    ret
-                } else {
-                    ret
-                }
+                    .unwrap_or_else(|| "i32".into())
             }
             Expression::StructLiteral(sl) => format!("%{}", sl.name),
             Expression::EnumVariant(ev) => {

@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec_str.ny",
+  "fn_name": "vec_str_extend",
+  "args": [
+    "dst:ptr",
+    "src:ptr"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    extern void vec_str_push(void *handle, const char *value);\n    NyraVec *d = (NyraVec *)dst;\n    NyraVec *s = (NyraVec *)src;\n    if (!d || !s) return;\n    for (int i = 0; i < s->len; i++) {\n        const char *item = ((char **)s->data)[i];\n        vec_str_push(d, item ? item : \"\");\n    }"
+}

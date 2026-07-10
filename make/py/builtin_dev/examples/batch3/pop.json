@@ -1,0 +1,11 @@
+{
+  "receiver": "string",
+  "method": "pop",
+  "args": [],
+  "returns": "string",
+  "c_name": "str_pop",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    if (!s || s[0] == '\\0') return str_dup(\"\");\n    size_t len = strlen(s);\n    char *out = (char *)malloc(len);\n    if (!out) return NULL;\n    memcpy(out, s, len - 1);\n    out[len - 1] = '\\0';\n    return out;"
+}

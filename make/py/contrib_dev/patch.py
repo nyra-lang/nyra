@@ -169,25 +169,84 @@ def _impl_body_span(content: str, struct_name: str) -> tuple[int, int] | None:
 
 
 def _extract_impl_methods(pure_source: str) -> tuple[str, str] | None:
+    all_impls = _extract_all_impl_methods(pure_source)
+    if not all_impls:
+        return None
+    return all_impls[0]
+
+
+def _extract_all_impl_methods(pure_source: str) -> list[tuple[str, str]]:
+    results: list[tuple[str, str]] = []
     source = pure_source.strip()
-    match = _IMPL_RE.search(source)
-    if not match:
-        return None
-    struct_name = match.group(1)
-    span = _impl_body_span(source, struct_name)
+    for match in _IMPL_RE.finditer(source):
+        struct_name = match.group(1)
+        subset = source[match.start() :]
+        span = _impl_body_span(subset, struct_name)
+        if span is None:
+            continue
+        body_start, body_end = span
+        results.append((struct_name, subset[body_start:body_end].rstrip()))
+    return results
+
+
+def _skip_fn_body(lines: list[str], start: int) -> int:
+    """Advance past a method body starting at `fn` line `start`."""
+    depth = 0
+    i = start
+    while i < len(lines):
+        depth += lines[i].count("{") - lines[i].count("}")
+        if depth <= 0 and i > start and "{" in lines[start]:
+            return i + 1
+        if depth <= 0 and "{" not in lines[start] and lines[i].strip() == "":
+            return i + 1
+        i += 1
+    return i
+
+
+def _merge_one_impl(content: str, struct_name: str, methods: str) -> tuple[str, bool, str]:
+    span = _impl_body_span(content, struct_name)
     if span is None:
-        return None
+        return content, False, f"impl {struct_name} not found"
+
     body_start, body_end = span
-    return struct_name, source[body_start:body_end].strip()
+    existing_body = content[body_start:body_end]
+    existing_methods = set(_METHOD_RE.findall(existing_body))
+    method_lines = methods.splitlines()
+    new_chunks: list[str] = []
+    chunk: list[str] = []
+    i = 0
+    while i < len(method_lines):
+        line = method_lines[i]
+        if line.strip().startswith("fn "):
+            name_match = re.match(r"\s*fn\s+(\w+)\s*\(", line)
+            if name_match and name_match.group(1) in existing_methods:
+                i = _skip_fn_body(method_lines, i)
+                if chunk:
+                    new_chunks.append("\n".join(chunk).rstrip())
+                    chunk = []
+                continue
+        chunk.append(line)
+        i += 1
+    if chunk:
+        new_chunks.append("\n".join(chunk).rstrip())
+    filtered = "\n\n".join(c for c in new_chunks if c.strip())
+    if not filtered.strip():
+        return content, False, f"all methods already present in impl {struct_name}"
+
+    if not filtered.startswith("\n"):
+        filtered = "\n\n" + filtered
+    if not filtered.endswith("\n"):
+        filtered = filtered + "\n"
+    new_content = content[:body_end] + filtered + content[body_end:]
+    return new_content, True, f"merged into impl {struct_name}"
 
 
 def merge_impl_source(path: Path, pure_source: str, marker: str) -> PatchResult:
-    """Merge `impl Type { ... }` methods into an existing impl block when possible."""
-    extracted = _extract_impl_methods(pure_source)
-    if extracted is None:
+    """Merge `impl Type { ... }` methods into existing impl blocks when possible."""
+    all_impls = _extract_all_impl_methods(pure_source)
+    if not all_impls:
         return upsert_marked_block(path, wrap_scaffold(pure_source.rstrip() + "\n", marker), marker)
 
-    struct_name, methods = extracted
     if not path.exists():
         return upsert_marked_block(path, wrap_scaffold(pure_source.rstrip() + "\n", marker), marker)
 
@@ -195,37 +254,28 @@ def merge_impl_source(path: Path, pure_source: str, marker: str) -> PatchResult:
     if has_marker(content, marker):
         return PatchResult(path, False, "already present")
 
-    span = _impl_body_span(content, struct_name)
-    if span is None:
-        return upsert_marked_block(path, wrap_scaffold(pure_source.rstrip() + "\n", marker), marker)
+    changed = False
+    messages: list[str] = []
+    for struct_name, methods in all_impls:
+        content, one_changed, msg = _merge_one_impl(content, struct_name, methods)
+        if one_changed:
+            changed = True
+        messages.append(msg)
 
-    body_start, body_end = span
-    existing_body = content[body_start:body_end]
-    existing_methods = set(_METHOD_RE.findall(existing_body))
-    new_chunks: list[str] = []
-    chunk = []
-    for line in methods.splitlines():
-        if line.strip().startswith("fn "):
-            name_match = re.match(r"\s*fn\s+(\w+)\s*\(", line)
-            if name_match and name_match.group(1) in existing_methods:
-                if chunk:
-                    new_chunks.append("\n".join(chunk).strip())
-                    chunk = []
-                continue
-        chunk.append(line)
-    if chunk:
-        new_chunks.append("\n".join(chunk).strip())
-    filtered = "\n\n".join(c for c in new_chunks if c.strip())
-    if not filtered.strip():
-        return PatchResult(path, False, f"all methods already present in impl {struct_name}")
+    if not changed:
+        leftover = [
+            (n, m)
+            for n, m in all_impls
+            if _impl_body_span(content, n) is None
+        ]
+        if leftover:
+            scaffold = "\n\n".join(f"impl {n} {{\n{m}\n}}" for n, m in leftover)
+            return upsert_marked_block(path, wrap_scaffold(scaffold + "\n", marker), marker)
+        return PatchResult(path, False, "; ".join(messages))
 
-    insertion = "\n\n" + filtered
-    if not existing_body.endswith("\n"):
-        insertion = "\n" + filtered
-    new_content = content[:body_end] + insertion + content[body_end:]
-    content, _ = remove_marked_block(new_content, marker)
-    write_text(path, new_content)
-    return PatchResult(path, True, f"merged into impl {struct_name}")
+    content, _ = remove_marked_block(content, marker)
+    write_text(path, content)
+    return PatchResult(path, True, "; ".join(m for m in messages if m.startswith("merged")))
 
 
 def patch_file(path: Path, transform) -> PatchResult:

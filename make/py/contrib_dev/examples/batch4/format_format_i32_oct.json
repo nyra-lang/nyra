@@ -1,0 +1,11 @@
+{
+  "ny_module": "strconv/mod.ny",
+  "fn_name": "format_i32_oct",
+  "args": [
+    "n:i32"
+  ],
+  "returns": "string",
+  "rt_module": "rt_strings.c",
+  "ny_alias": "format_oct",
+  "c_body": "    extern char *str_dup(const char *s);\n    char buf[16];\n    snprintf(buf, sizeof(buf), \"%o\", n);\n    return str_dup(buf);"
+}

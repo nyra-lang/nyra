@@ -9,7 +9,6 @@ extern fn strstr_pos(hay: &string, needle: &string) -> i32
 extern fn str_to_i32(s: &string) -> i32
 extern fn str_push_char(s: &string, ch: i32) -> string
 extern fn str_pop(s: &string) -> string
-extern fn strip_ansi(input: &string) -> string
 
 fn char_from_code(ch: i32) -> string {
     return str_push_char("", ch)
@@ -38,3 +37,25 @@ extern fn str_fields(str: &string) -> ptr
 extern fn str_pad_end(str: &string, width: i32, pad: &string) -> string
 extern fn str_pad_start(str: &string, width: i32, pad: &string) -> string
 extern fn str_before_sep(str: &string, sep: &string) -> string
+extern fn str_compare(str: &string, other: &string) -> i32
+extern fn str_equal_fold(str: &string, other: &string) -> i32
+extern fn str_index_byte(str: &string, byte: i32) -> i32
+extern fn str_last_index_byte(str: &string, byte: i32) -> i32
+extern fn str_after_sep(str: &string, sep: &string) -> string
+extern fn str_contains(str: &string, needle: &string) -> i32
+extern fn str_ends_with(str: &string, suffix: &string) -> i32
+extern fn str_replace(str: &string, from: &string, to: &string) -> string
+extern fn str_replacen(str: &string, from: &string, to: &string, count: i32) -> string
+extern fn str_starts_with(str: &string, prefix: &string) -> i32
+extern fn str_strip_ansi(str: &string) -> string
+extern fn str_collapse_ws(str: &string) -> string
+extern fn str_is_ascii(str: &string) -> i32
+extern fn str_common_prefix_len(str: &string, other: &string) -> i32
+extern fn str_is_alnum(str: &string) -> i32
+extern fn str_is_alpha(str: &string) -> i32
+extern fn str_is_digit(str: &string) -> i32
+extern fn str_pad_center(str: &string, width: i32, pad: &string) -> string
+extern fn str_reverse(str: &string) -> string
+extern fn str_escape_json(str: &string) -> string
+extern fn str_split_after(str: &string, sep: &string) -> string
+extern fn str_truncate(str: &string, max_len: i32) -> string

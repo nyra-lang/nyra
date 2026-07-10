@@ -1,6 +1,8 @@
 """Recipe: stdlib pure Nyra function (Pattern A)."""
 from __future__ import annotations
 
+from pathlib import Path
+
 from .. import patch, templates
 from ..paths import STDLIB, TESTS_NYRA, EXAMPLES
 from ..spec import RecipeResult, StdlibFnSpec, builtin_example_topic, stdlib_builtin_examples_dir, uses_stdlib_builtin_examples
@@ -16,8 +18,12 @@ def apply(spec: StdlibFnSpec, *, force: bool = False) -> RecipeResult:
     )
 
     ny_path = STDLIB / spec.ny_module
-    if spec.pure_source and spec.pure_source.strip().startswith("impl "):
-        res.patches.append(patch.merge_impl_source(ny_path, spec.pure_source, marker))
+    pure_source = spec.pure_source
+    if pure_source and ny_path.name == Path(spec.ny_module).name:
+        pure_source = pure_source.replace(f'import "../{ny_path.name}"\n\n', "")
+        pure_source = pure_source.replace(f'import "stdlib/{spec.ny_module}"\n\n', "")
+    if pure_source and pure_source.strip().startswith("impl "):
+        res.patches.append(patch.merge_impl_source(ny_path, pure_source, marker))
     else:
         res.patches.append(
             patch.upsert_marked_block(ny_path, templates.pure_fn_block(spec, marker), marker)

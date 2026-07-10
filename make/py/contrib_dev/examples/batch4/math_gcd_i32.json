@@ -1,0 +1,11 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "gcd_i32",
+  "args": [
+    "a:i32",
+    "b:i32"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_math.c",
+  "c_body": "    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    while (b != 0) { int t = a % b; a = b; b = t; }\n    return a;"
+}

@@ -1,0 +1,10 @@
+{
+  "ny_module": "map.ny",
+  "fn_name": "map_i32_i32_clear",
+  "args": [
+    "m:ptr"
+  ],
+  "returns": "void",
+  "rt_module": "rt_map.c",
+  "c_body": "    NyraMapI32I32 *map = (NyraMapI32I32 *)map_handle_inner(m);\n    if (!map) return;\n    for (int i = 0; i < map->cap; i++) map->entries[i].used = 0;\n    map->len = 0;"
+}

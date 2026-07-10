@@ -1,0 +1,13 @@
+{
+  "receiver": "string",
+  "method": "contains",
+  "args": [
+    "needle:string"
+  ],
+  "returns": "i32",
+  "c_name": "str_contains",
+  "rt_module": "rt_strings.c",
+  "borrows_receiver": true,
+  "free_fn_alias": true,
+  "c_body": "    return strstr_pos(s, needle) >= 0 ? 1 : 0;"
+}

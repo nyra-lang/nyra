@@ -194,6 +194,7 @@ target triple = "nyra-snapshot-host"
 %Error = type { i32, ptr, ptr, ptr, ptr }
 %Fd = type { i32, i32 }
 %FormData = type { %HashMap_str_str, %HashMap_str_str }
+%HashMap_i32_i32 = type { ptr }
 %HashMap_str_i32 = type { ptr }
 %HashMap_str_str = type { ptr }
 %HttpRequest = type { i32, ptr, ptr, ptr }
@@ -215,6 +216,7 @@ target triple = "nyra-snapshot-host"
 %URLSearchParams = type { %HashMap_str_str }
 %VecI32 = type { ptr }
 
+declare double @str_to_f32(ptr %0)
 declare double @str_to_f64(ptr %0)
 declare i32 @async_poll(i32 %0)
 declare i32 @bin_blob_payload_len(ptr %0)
@@ -235,6 +237,10 @@ declare i32 @json_has_i32(ptr %0, ptr %1)
 declare i32 @json_has_key(ptr %0, ptr %1)
 declare i32 @json_has_string(ptr %0, ptr %1)
 declare i32 @json_value_kind(ptr %0)
+declare i32 @map_i32_i32_contains(ptr %0, i32 %1)
+declare i32 @map_i32_i32_get(ptr %0, i32 %1)
+declare i32 @map_i32_i32_len(ptr %0)
+declare i32 @map_i32_i32_remove(ptr %0, i32 %1)
 declare i32 @map_str_i32_contains(ptr %0, ptr %1)
 declare i32 @map_str_i32_get(ptr %0, ptr %1)
 declare i32 @map_str_i32_len(ptr %0)
@@ -244,6 +250,8 @@ declare i32 @map_str_str_len(ptr %0)
 declare i32 @map_str_str_remove(ptr %0, ptr %1)
 declare i32 @os_close_fd(i32 %0)
 declare i32 @os_getpid()
+declare i32 @parse_int_base(ptr %0, i32 %1)
+declare i32 @parse_uint_base(ptr %0, i32 %1)
 declare i32 @printf(ptr, ...)
 declare i32 @puts(ptr)
 declare i32 @rt_tcp_accept_async(i32 %0)
@@ -259,12 +267,21 @@ declare i32 @rt_tls_upgrade_client_verify(i32 %0, ptr %1)
 declare i32 @rt_tls_validate_pem_files(ptr %0, ptr %1)
 declare i32 @rt_tls_write(i32 %0, ptr %1)
 declare i32 @str_cmp(ptr %0, ptr %1)
+declare i32 @str_common_prefix_len(ptr %0, ptr %1)
+declare i32 @str_compare(ptr %0, ptr %1)
 declare i32 @str_contains(ptr %0, ptr %1)
 declare i32 @str_count(ptr %0, ptr %1)
 declare i32 @str_ends_with(ptr %0, ptr %1)
+declare i32 @str_equal_fold(ptr %0, ptr %1)
 declare i32 @str_index(ptr %0, ptr %1)
+declare i32 @str_index_byte(ptr %0, i32 %1)
+declare i32 @str_is_alnum(ptr %0)
+declare i32 @str_is_alpha(ptr %0)
+declare i32 @str_is_ascii(ptr %0)
+declare i32 @str_is_digit(ptr %0)
 declare i32 @str_is_empty(ptr %0)
 declare i32 @str_last_index(ptr %0, ptr %1)
+declare i32 @str_last_index_byte(ptr %0, i32 %1)
 declare i32 @str_len(ptr %0)
 declare i32 @str_starts_with(ptr %0, ptr %1)
 declare i32 @str_to_bool(ptr %0)
@@ -277,24 +294,45 @@ declare i32 @sys_send(i32 %0, ptr %1)
 declare i32 @sys_set_nonblock(i32 %0)
 declare i32 @sys_set_timeout_ms(i32 %0, i32 %1)
 declare i32 @tls_available()
+declare i32 @vec_i32_capacity(ptr %0)
 declare i32 @vec_i32_get(ptr %0, i32 %1)
 declare i32 @vec_i32_len(ptr %0)
 declare i32 @vec_i32_pop(ptr %0)
 declare i32 @vec_i32_remove_at(ptr %0, i32 %1)
+declare i32 @vec_i32_swap_remove(ptr %0, i32 %1)
 declare i32 @vec_str_len(ptr %0)
 declare i32 @write_file(ptr %0, ptr %1)
 declare i64 @instant_now()
 declare i64 @os_read(i32 %0, ptr %1, i64 %2)
 declare i64 @os_syscall6(i64 %0, i64 %1, i64 %2, i64 %3, i64 %4, i64 %5, i64 %6)
 declare i64 @os_write(i32 %0, ptr %1, i64 %2)
+declare i64 @parse_i64_base(ptr %0, i32 %1)
+declare i64 @str_to_i64(ptr %0)
+declare i64 @str_to_u64(ptr %0)
 declare ptr @bin_buf_finish(ptr %0)
 declare ptr @bin_buf_new()
 declare ptr @bin_decode_blob_at(ptr %0, i32 %1)
 declare ptr @bin_decode_string_at(ptr %0, i32 %1)
 declare ptr @error_stack_trace()
 declare ptr @f64_to_string(double %0)
+declare ptr @f64_to_string_prec(double %0, i32 %1)
+declare ptr @format_bool(i32 %0)
+declare ptr @format_f64_pad(double %0, i32 %1, i32 %2)
+declare ptr @format_i32_bin(i32 %0)
+declare ptr @format_i32_hex(i32 %0)
+declare ptr @format_i32_hex_pad(i32 %0, i32 %1)
+declare ptr @format_i32_oct(i32 %0)
+declare ptr @format_i32_pad(i32 %0, i32 %1)
+declare ptr @format_i64_bin(i64 %0)
+declare ptr @format_i64_hex(i64 %0)
+declare ptr @format_i64_pad(i64 %0, i32 %1)
+declare ptr @format_quote(ptr %0)
+declare ptr @format_u64_pad(i64 %0, i32 %1)
 declare ptr @hex_decode(ptr %0)
+declare ptr @hex_encode(ptr %0)
+declare ptr @hex_encode_upper(ptr %0)
 declare ptr @i32_to_string(i32 %0)
+declare ptr @i32_to_string_radix(i32 %0, i32 %1)
 declare ptr @i64_to_string(i64 %0)
 declare ptr @json_decode_i32_array(ptr %0)
 declare ptr @json_decode_ptr_token(ptr %0, ptr %1)
@@ -310,6 +348,7 @@ declare ptr @json_join_raw_array(ptr %0)
 declare ptr @json_raw_get(ptr %0, ptr %1)
 declare ptr @json_split_array_elements(ptr %0)
 declare ptr @json_top_keys(ptr %0)
+declare ptr @map_i32_i32_new()
 declare ptr @map_str_i32_keys(ptr %0)
 declare ptr @map_str_i32_new()
 declare ptr @map_str_i32_values(ptr %0)
@@ -322,12 +361,16 @@ declare ptr @rt_bridge_exec(ptr %0, ptr %1)
 declare ptr @rt_bridge_exec_arg(ptr %0, ptr %1, ptr %2)
 declare ptr @rt_tls_last_error()
 declare ptr @rt_tls_read(i32 %0, i32 %1)
+declare ptr @str_after_sep(ptr %0, ptr %1)
 declare ptr @str_before_sep(ptr %0, ptr %1)
 declare ptr @str_buf_build(ptr %0)
 declare ptr @str_buf_new()
 declare ptr @str_cat(ptr %0, ptr %1)
 declare ptr @str_clone(ptr)
+declare ptr @str_collapse_ws(ptr %0)
+declare ptr @str_escape_json(ptr %0)
 declare ptr @str_fields(ptr %0)
+declare ptr @str_pad_center(ptr %0, i32 %1, ptr %2)
 declare ptr @str_pad_end(ptr %0, i32 %1, ptr %2)
 declare ptr @str_pad_start(ptr %0, i32 %1, ptr %2)
 declare ptr @str_pop(ptr %0)
@@ -335,8 +378,11 @@ declare ptr @str_push_char(ptr %0, i32 %1)
 declare ptr @str_repeat(ptr %0, i32 %1)
 declare ptr @str_replace(ptr %0, ptr %1, ptr %2)
 declare ptr @str_replacen(ptr %0, ptr %1, ptr %2, i32 %3)
+declare ptr @str_reverse(ptr %0)
 declare ptr @str_split(ptr %0, ptr %1)
+declare ptr @str_split_after(ptr %0, ptr %1)
 declare ptr @str_splitn(ptr %0, ptr %1, i32 %2)
+declare ptr @str_strip_ansi(ptr %0)
 declare ptr @str_strip_prefix(ptr %0, ptr %1)
 declare ptr @str_strip_suffix(ptr %0, ptr %1)
 declare ptr @str_to_camel_case(ptr %0)
@@ -354,13 +400,16 @@ declare ptr @str_to_upper(ptr %0)
 declare ptr @str_trim(ptr %0)
 declare ptr @str_trim_end(ptr %0)
 declare ptr @str_trim_start(ptr %0)
-declare ptr @strip_ansi(ptr %0)
+declare ptr @str_truncate(ptr %0, i32 %1)
 declare ptr @substring(ptr %0, i32 %1, i32 %2)
 declare ptr @sys_recv(i32 %0, i32 %1)
+declare ptr @u64_to_string(i64 %0)
 declare ptr @vec_i32_new()
 declare ptr @vec_str_from_argv(i32 %0)
 declare ptr @vec_str_get(ptr %0, i32 %1)
 declare ptr @vec_str_new()
+declare ptr @vec_str_pop(ptr %0)
+declare ptr @vec_str_remove_at(ptr %0, i32 %1)
 declare void @abort()
 declare void @asm_nop()
 declare void @asm_pause()
@@ -372,6 +421,10 @@ declare void @bin_buf_write_i32(ptr %0, i32 %1)
 declare void @bin_buf_write_string(ptr %0, ptr %1)
 declare void @heap_free(ptr)
 declare void @llvm.memcpy.p0.p0.i64(ptr, ptr, i64, i1)
+declare void @map_i32_i32_clear(ptr %0)
+declare void @map_i32_i32_free(ptr %0)
+declare void @map_i32_i32_insert(ptr %0, i32 %1, i32 %2)
+declare void @map_i32_i32_retain(ptr %0)
 declare void @map_str_i32_clear(ptr %0)
 declare void @map_str_i32_free(ptr %0)
 declare void @map_str_i32_insert(ptr %0, ptr %1, i32 %2)
@@ -389,14 +442,25 @@ declare void @str_buf_append_char(ptr %0, i32 %1)
 declare void @str_buf_drop(ptr %0)
 declare void @sys_close(i32 %0)
 declare void @vec_i32_clear(ptr %0)
+declare void @vec_i32_extend(ptr %0, ptr %1)
+declare void @vec_i32_fill(ptr %0, i32 %1)
 declare void @vec_i32_free(ptr %0)
 declare void @vec_i32_insert(ptr %0, i32 %1, i32 %2)
 declare void @vec_i32_push(ptr %0, i32 %1)
+declare void @vec_i32_reserve(ptr %0, i32 %1)
 declare void @vec_i32_reverse(ptr %0)
 declare void @vec_i32_set(ptr %0, i32 %1, i32 %2)
 declare void @vec_i32_sort(ptr %0)
+declare void @vec_i32_swap(ptr %0, i32 %1, i32 %2)
+declare void @vec_i32_truncate(ptr %0, i32 %1)
+declare void @vec_str_clear(ptr %0)
+declare void @vec_str_extend(ptr %0, ptr %1)
 declare void @vec_str_free(ptr %0)
+declare void @vec_str_insert(ptr %0, i32 %1, ptr %2)
 declare void @vec_str_push(ptr %0, ptr %1)
+declare void @vec_str_reverse(ptr %0)
+declare void @vec_str_set(ptr %0, i32 %1, ptr %2)
+declare void @vec_str_swap(ptr %0, i32 %1, i32 %2)
 
 define %AbortController @AbortController_abort(%AbortController* %0) {
 entry:
@@ -1351,6 +1415,67 @@ entry:
   %call.N = call %FormData @FormData_new()
   ret %FormData %call.N
 }
+define %HashMap_i32_i32 @Deserialize_HashMap_i32_i32_from_json(ptr %0) {
+entry:
+  %call.N = call %HashMap_i32_i32 @HashMap_i32_i32_json_decode(ptr %0)
+  ret %HashMap_i32_i32 %call.N
+}
+define %HashMap_i32_i32 @HashMap_i32_i32_clear(%HashMap_i32_i32* %0) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_clear(ptr %load.N)
+  %load.N = load %HashMap_i32_i32, %HashMap_i32_i32* %0
+  ret %HashMap_i32_i32 %load.N
+}
+define %HashMap_i32_i32 @HashMap_i32_i32_insert(%HashMap_i32_i32* %0, i32 %1, i32 %2) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_retain(ptr %load.N)
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_insert(ptr %load.N, i32 %1, i32 %2)
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_retain(ptr %load.N)
+  %load.N = load %HashMap_i32_i32, %HashMap_i32_i32* %0
+  ret %HashMap_i32_i32 %load.N
+}
+define %HashMap_i32_i32 @HashMap_i32_i32_json_decode(ptr %0) {
+entry:
+  %alloca.N = alloca %HashMap_i32_i32
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %alloca.N, i32 0, i32 0
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  %call.N = call ptr @decode_array(ptr %0, ptr %str.N)
+  %call.N = call ptr @json_decode_i32_array(ptr %call.N)
+  store ptr %call.N, ptr %gep.N
+  %load.N = load %HashMap_i32_i32, %HashMap_i32_i32* %alloca.N
+  ret %HashMap_i32_i32 %load.N
+}
+define %HashMap_i32_i32 @HashMap_i32_i32_new() {
+entry:
+  %alloca.N = alloca %HashMap_i32_i32
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %alloca.N, i32 0, i32 0
+  %call.N = call ptr @map_i32_i32_new()
+  store ptr %call.N, ptr %gep.N
+  %load.N = load %HashMap_i32_i32, %HashMap_i32_i32* %alloca.N
+  ret %HashMap_i32_i32 %load.N
+}
+define %HashMap_i32_i32 @HashMap_i32_i32_remove(%HashMap_i32_i32* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_retain(ptr %load.N)
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @map_i32_i32_remove(ptr %load.N, i32 %1)
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_retain(ptr %load.N)
+  %load.N = load %HashMap_i32_i32, %HashMap_i32_i32* %0
+  ret %HashMap_i32_i32 %load.N
+}
 define %HashMap_str_i32 @Deserialize_HashMap_str_i32_from_json(ptr %0) {
 entry:
   %call.N = call %HashMap_str_i32 @HashMap_str_i32_json_decode(ptr %0)
@@ -1409,6 +1534,22 @@ entry:
   %gep.N = getelementptr inbounds %HashMap_str_i32, %HashMap_str_i32* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   call void @map_str_i32_retain(ptr %load.N)
+  %load.N = load %HashMap_str_i32, %HashMap_str_i32* %0
+  ret %HashMap_str_i32 %load.N
+}
+define %HashMap_str_i32 @HashMap_str_i32_update(%HashMap_str_i32* %0, ptr %1, ptr %2) {
+entry:
+  %call.N = call i32 @HashMap_str_i32_contains(%HashMap_str_i32* %0, ptr %1)
+  %bin.N = icmp eq i32 %call.N, 1
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %call.N = call i32 @HashMap_str_i32_get(%HashMap_str_i32* %0, ptr %1)
+  %call.N = call i32 %2(i32 %call.N)
+  %call.N = call %HashMap_str_i32 @HashMap_str_i32_insert(%HashMap_str_i32* %0, ptr %1, i32 %call.N)
+  br label %endif.N
+else.N:
+  br label %endif.N
+endif.N:
   %load.N = load %HashMap_str_i32, %HashMap_str_i32* %0
   ret %HashMap_str_i32 %load.N
 }
@@ -3809,6 +3950,29 @@ entry:
   %load.N = load %StrVec, %StrVec* %alloca.N
   ret %StrVec %load.N
 }
+define %StrVec @StrVec_append(%StrVec* %0, ptr %1) {
+entry:
+  %call.N = call %StrVec @StrVec_push(%StrVec* %0, ptr %1)
+  ret %StrVec %call.N
+}
+define %StrVec @StrVec_clear(%StrVec* %0) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_clear(ptr %load.N)
+  %load.N = load %StrVec, %StrVec* %0
+  ret %StrVec %load.N
+}
+define %StrVec @StrVec_extend(%StrVec* %0, %StrVec* %1) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %1, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_extend(ptr %load.N, ptr %load.N)
+  %load.N = load %StrVec, %StrVec* %0
+  ret %StrVec %load.N
+}
 define %StrVec @StrVec_filter(%StrVec* %0, ptr %1) {
 entry:
   %call.N = call ptr @vec_str_new()
@@ -3863,6 +4027,14 @@ entry:
   %load.N = load %StrVec, %StrVec* %alloca.N
   ret %StrVec %load.N
 }
+define %StrVec @StrVec_insert(%StrVec* %0, i32 %1, ptr %2) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_insert(ptr %load.N, i32 %1, ptr %2)
+  %load.N = load %StrVec, %StrVec* %0
+  ret %StrVec %load.N
+}
 define %StrVec @StrVec_map(%StrVec* %0, ptr %1) {
 entry:
   %call.N = call ptr @vec_str_new()
@@ -3906,6 +4078,30 @@ entry:
   %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   call void @vec_str_push(ptr %load.N, ptr %1)
+  %load.N = load %StrVec, %StrVec* %0
+  ret %StrVec %load.N
+}
+define %StrVec @StrVec_reverse(%StrVec* %0) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_reverse(ptr %load.N)
+  %load.N = load %StrVec, %StrVec* %0
+  ret %StrVec %load.N
+}
+define %StrVec @StrVec_set(%StrVec* %0, i32 %1, ptr %2) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_set(ptr %load.N, i32 %1, ptr %2)
+  %load.N = load %StrVec, %StrVec* %0
+  ret %StrVec %load.N
+}
+define %StrVec @StrVec_swap(%StrVec* %0, i32 %1, i32 %2) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_str_swap(ptr %load.N, i32 %1, i32 %2)
   %load.N = load %StrVec, %StrVec* %0
   ret %StrVec %load.N
 }
@@ -4266,6 +4462,11 @@ entry:
   %load.N = load %VecI32, %VecI32* %alloca.N
   ret %VecI32 %load.N
 }
+define %VecI32 @VecI32_append(%VecI32* %0, i32 %1) {
+entry:
+  %call.N = call %VecI32 @VecI32_push(%VecI32* %0, i32 %1)
+  ret %VecI32 %call.N
+}
 define %VecI32 @VecI32_clear(%VecI32* %0) {
 entry:
   %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
@@ -4333,6 +4534,24 @@ while.end.N:
   %gep.N = getelementptr inbounds %VecI32, %VecI32* %alloca.N, i32 0, i32 0
   store ptr %call.N, ptr %gep.N
   %load.N = load %VecI32, %VecI32* %alloca.N
+  ret %VecI32 %load.N
+}
+define %VecI32 @VecI32_extend(%VecI32* %0, %VecI32* %1) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %1, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_i32_extend(ptr %load.N, ptr %load.N)
+  %load.N = load %VecI32, %VecI32* %0
+  ret %VecI32 %load.N
+}
+define %VecI32 @VecI32_fill(%VecI32* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_i32_fill(ptr %load.N, i32 %1)
+  %load.N = load %VecI32, %VecI32* %0
   ret %VecI32 %load.N
 }
 define %VecI32 @VecI32_filter(%VecI32* %0, ptr %1) {
@@ -4435,6 +4654,57 @@ entry:
   %load.N = load %VecI32, %VecI32* %0
   ret %VecI32 %load.N
 }
+define %VecI32 @VecI32_reserve(%VecI32* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_i32_reserve(ptr %load.N, i32 %1)
+  %load.N = load %VecI32, %VecI32* %0
+  ret %VecI32 %load.N
+}
+define %VecI32 @VecI32_retain(%VecI32* %0, ptr %1) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_i32_len(ptr %load.N)
+  %ssa.N = add i32 0, 0
+  %ssa.N = add i32 0, 0
+  br label %while.cond.N
+while.cond.N:
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %endif.N]
+  %bin.N = icmp slt i32 %loop.phi.N, %call.N
+  br i1 %bin.N, label %while.body.N, label %while.end.N
+while.body.N:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_i32_get(ptr %load.N, i32 %loop.phi.N)
+  %call.N = call i32 %1(i32 %call.N)
+  %bin.N = icmp ne i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_i32_set(ptr %load.N, i32 %loop.phi.N, i32 %call.N)
+  %bin.N = add i32 %loop.phi.N, 1
+  br label %endif.N
+else.N:
+  br label %endif.N
+endif.N:
+  %if.phi.N = phi i32 [%bin.N, %then.N], [%loop.phi.N, %else.N]
+  %bin.N = add i32 %loop.phi.N, 1
+  %loop.in.N = add i32 0, %bin.N
+  %loop.in.N = add i32 0, %if.phi.N
+  br label %while.cond.N
+while.end.N:
+  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
+  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_i32_truncate(ptr %load.N, i32 %loop.exit.N)
+  %load.N = load %VecI32, %VecI32* %0
+  ret %VecI32 %load.N
+}
 define %VecI32 @VecI32_reverse(%VecI32* %0) {
 entry:
   %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
@@ -4479,11 +4749,49 @@ while.end.N:
   %load.N = load %VecI32, %VecI32* %alloca.N
   ret %VecI32 %load.N
 }
+define %VecI32 @VecI32_slice(%VecI32* %0, i32 %1, i32 %2) {
+entry:
+  %call.N = call ptr @vec_i32_new()
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_i32_len(ptr %load.N)
+  %ssa.N = add i32 0, %1
+  br label %while.cond.N
+while.cond.N:
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %while.body.N]
+  %bin.N = icmp slt i32 %loop.phi.N, %2
+  %bin.N = icmp slt i32 %loop.phi.N, %call.N
+  %bin.N = and i1 %bin.N, %bin.N
+  br i1 %bin.N, label %while.body.N, label %while.end.N
+while.body.N:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_i32_get(ptr %load.N, i32 %loop.phi.N)
+  call void @vec_i32_push(ptr %call.N, i32 %call.N)
+  %bin.N = add i32 %loop.phi.N, 1
+  %loop.in.N = add i32 0, %bin.N
+  br label %while.cond.N
+while.end.N:
+  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
+  %alloca.N = alloca %VecI32
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %alloca.N, i32 0, i32 0
+  store ptr %call.N, ptr %gep.N
+  %load.N = load %VecI32, %VecI32* %alloca.N
+  ret %VecI32 %load.N
+}
 define %VecI32 @VecI32_sort(%VecI32* %0) {
 entry:
   %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   call void @vec_i32_sort(ptr %load.N)
+  %load.N = load %VecI32, %VecI32* %0
+  ret %VecI32 %load.N
+}
+define %VecI32 @VecI32_swap(%VecI32* %0, i32 %1, i32 %2) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @vec_i32_swap(ptr %load.N, i32 %1, i32 %2)
   %load.N = load %VecI32, %VecI32* %0
   ret %VecI32 %load.N
 }
@@ -4517,6 +4825,12 @@ while.end.N:
   %load.N = load %VecI32, %VecI32* %alloca.N
   ret %VecI32 %load.N
 }
+define %VecI32 @VecI32_window(%VecI32* %0, i32 %1, i32 %2) {
+entry:
+  %bin.N = add i32 %1, %2
+  %call.N = call %VecI32 @VecI32_slice(%VecI32* %0, i32 %1, i32 %bin.N)
+  ret %VecI32 %call.N
+}
 define %VecI32 @vec() {
 entry:
   %alloca.N = alloca %VecI32
@@ -4534,6 +4848,11 @@ entry:
   store ptr %call.N, ptr %gep.N
   %load.N = load %VecI32, %VecI32* %alloca.N
   ret %VecI32 %load.N
+}
+define double @parse_f32(ptr %0) {
+entry:
+  %call.N = call double @str_to_f32(ptr %0)
+  ret double %call.N
 }
 define double @parse_f64(ptr %0) {
 entry:
@@ -4650,6 +4969,66 @@ entry:
   %call.N = call i32 @HashMap_str_str_contains(%HashMap_str_str* %arg.tmp.N, ptr %1)
   ret i32 %call.N
 }
+define i32 @HashMap_i32_i32_contains(%HashMap_i32_i32* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @map_i32_i32_contains(ptr %load.N, i32 %1)
+  ret i32 %call.N
+}
+define i32 @HashMap_i32_i32_get(%HashMap_i32_i32* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @map_i32_i32_get(ptr %load.N, i32 %1)
+  ret i32 %call.N
+}
+define i32 @HashMap_i32_i32_get_or(%HashMap_i32_i32* %0, i32 %1, i32 %2) {
+entry:
+  %call.N = call i32 @HashMap_i32_i32_contains(%HashMap_i32_i32* %0, i32 %1)
+  %bin.N = icmp eq i32 %call.N, 1
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %call.N = call i32 @HashMap_i32_i32_get(%HashMap_i32_i32* %0, i32 %1)
+  ret i32 %call.N
+else.N:
+  br label %endif.N
+endif.N:
+  ret i32 %2
+}
+define i32 @HashMap_i32_i32_get_or_insert(%HashMap_i32_i32* %0, i32 %1, i32 %2) {
+entry:
+  %call.N = call i32 @HashMap_i32_i32_contains(%HashMap_i32_i32* %0, i32 %1)
+  %bin.N = icmp eq i32 %call.N, 1
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %call.N = call i32 @HashMap_i32_i32_get(%HashMap_i32_i32* %0, i32 %1)
+  ret i32 %call.N
+else.N:
+  br label %endif.N
+endif.N:
+  %call.N = call %HashMap_i32_i32 @HashMap_i32_i32_insert(%HashMap_i32_i32* %0, i32 %1, i32 %2)
+  ret i32 %2
+}
+define i32 @HashMap_i32_i32_is_empty(%HashMap_i32_i32* %0) {
+entry:
+  %call.N = call i32 @HashMap_i32_i32_len(%HashMap_i32_i32* %0)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  ret i32 1
+else.N:
+  br label %endif.N
+endif.N:
+  ret i32 0
+}
+define i32 @HashMap_i32_i32_len(%HashMap_i32_i32* %0) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @map_i32_i32_len(ptr %load.N)
+  ret i32 %call.N
+}
 define i32 @HashMap_str_i32_contains(%HashMap_str_i32* %0, ptr %1) {
 entry:
   %gep.N = getelementptr inbounds %HashMap_str_i32, %HashMap_str_i32* %0, i32 0, i32 0
@@ -4677,6 +5056,23 @@ else.N:
 endif.N:
   ret i32 %2
 }
+define i32 @HashMap_str_i32_get_or_insert(%HashMap_str_i32* %0, ptr %1, i32 %2) {
+entry:
+  %call.N = call i32 @HashMap_str_i32_or_insert(%HashMap_str_i32* %0, ptr %1, i32 %2)
+  ret i32 %call.N
+}
+define i32 @HashMap_str_i32_is_empty(%HashMap_str_i32* %0) {
+entry:
+  %call.N = call i32 @HashMap_str_i32_len(%HashMap_str_i32* %0)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  ret i32 1
+else.N:
+  br label %endif.N
+endif.N:
+  ret i32 0
+}
 define i32 @HashMap_str_i32_len(%HashMap_str_i32* %0) {
 entry:
   %gep.N = getelementptr inbounds %HashMap_str_i32, %HashMap_str_i32* %0, i32 0, i32 0
@@ -4684,12 +5080,38 @@ entry:
   %call.N = call i32 @map_str_i32_len(ptr %load.N)
   ret i32 %call.N
 }
+define i32 @HashMap_str_i32_or_insert(%HashMap_str_i32* %0, ptr %1, i32 %2) {
+entry:
+  %call.N = call i32 @HashMap_str_i32_contains(%HashMap_str_i32* %0, ptr %1)
+  %bin.N = icmp eq i32 %call.N, 1
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %call.N = call i32 @HashMap_str_i32_get(%HashMap_str_i32* %0, ptr %1)
+  ret i32 %call.N
+else.N:
+  br label %endif.N
+endif.N:
+  %call.N = call %HashMap_str_i32 @HashMap_str_i32_insert(%HashMap_str_i32* %0, ptr %1, i32 %2)
+  ret i32 %2
+}
 define i32 @HashMap_str_str_contains(%HashMap_str_str* %0, ptr %1) {
 entry:
   %gep.N = getelementptr inbounds %HashMap_str_str, %HashMap_str_str* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   %call.N = call i32 @map_str_str_contains(ptr %load.N, ptr %1)
   ret i32 %call.N
+}
+define i32 @HashMap_str_str_is_empty(%HashMap_str_str* %0) {
+entry:
+  %call.N = call i32 @HashMap_str_str_len(%HashMap_str_str* %0)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  ret i32 1
+else.N:
+  br label %endif.N
+endif.N:
+  ret i32 0
 }
 define i32 @HashMap_str_str_len(%HashMap_str_str* %0) {
 entry:
@@ -4822,6 +5244,20 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 -1
 }
+define i32 @StrVec_is_empty(%StrVec* %0) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_str_len(ptr %load.N)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  ret i32 1
+else.N:
+  br label %endif.N
+endif.N:
+  ret i32 0
+}
 define i32 @StrVec_len(%StrVec* %0) {
 entry:
   %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
@@ -4829,9 +5265,39 @@ entry:
   %call.N = call i32 @vec_str_len(ptr %load.N)
   ret i32 %call.N
 }
+define i32 @String_charAt(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @char_at(ptr %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @String_commonPrefixLen(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_common_prefix_len(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @String_compare(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_compare(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @String_contains(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_contains(ptr %0, ptr %1)
+  ret i32 %call.N
+}
 define i32 @String_count(ptr %0, ptr %1) {
 entry:
   %call.N = call i32 @str_count(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @String_endsWith(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_ends_with(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @String_equalFold(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_equal_fold(ptr %0, ptr %1)
   ret i32 %call.N
 }
 define i32 @String_includes(ptr %0, ptr %1) {
@@ -4844,6 +5310,31 @@ entry:
   %call.N = call i32 @str_index(ptr %0, ptr %1)
   ret i32 %call.N
 }
+define i32 @String_indexByte(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @str_index_byte(ptr %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @String_isAlnum(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_alnum(ptr %0)
+  ret i32 %call.N
+}
+define i32 @String_isAlpha(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_alpha(ptr %0)
+  ret i32 %call.N
+}
+define i32 @String_isAscii(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_ascii(ptr %0)
+  ret i32 %call.N
+}
+define i32 @String_isDigit(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_digit(ptr %0)
+  ret i32 %call.N
+}
 define i32 @String_isEmpty(ptr %0) {
 entry:
   %call.N = call i32 @str_is_empty(ptr %0)
@@ -4852,6 +5343,16 @@ entry:
 define i32 @String_lastIndex(ptr %0, ptr %1) {
 entry:
   %call.N = call i32 @str_last_index(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @String_lastIndexByte(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @str_last_index_byte(ptr %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @String_startsWith(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_starts_with(ptr %0, ptr %1)
   ret i32 %call.N
 }
 define i32 @URLSearchParams_has(%URLSearchParams* %0, ptr %1) {
@@ -4968,6 +5469,13 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 -1
+}
+define i32 @VecI32_capacity(%VecI32* %0) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_i32_capacity(ptr %load.N)
+  ret i32 %call.N
 }
 define i32 @VecI32_contains(%VecI32* %0, i32 %1) {
 entry:
@@ -5097,6 +5605,18 @@ endif.N:
 while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 -1
+}
+define i32 @VecI32_is_empty(%VecI32* %0) {
+entry:
+  %call.N = call i32 @VecI32_len(%VecI32* %0)
+  %bin.N = icmp eq i32 %call.N, 0
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  ret i32 1
+else.N:
+  br label %endif.N
+endif.N:
+  ret i32 0
 }
 define i32 @VecI32_last(%VecI32* %0, i32 %1) {
 entry:
@@ -5272,6 +5792,13 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 %loop.exit.N
 }
+define i32 @VecI32_swap_remove(%VecI32* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %VecI32, %VecI32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_i32_swap_remove(ptr %load.N, i32 %1)
+  ret i32 %call.N
+}
 define i32 @Vec_i32_get(ptr %0, i32 %1) {
 entry:
   %call.N = call i32 @vec_i32_get(ptr %0, i32 %1)
@@ -5349,6 +5876,21 @@ endif.N:
   call void @heap_free(ptr %ld.N)
   ret i32 0
 }
+define i32 @common_prefix_len(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_common_prefix_len(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @compare(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_compare(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @contains(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_contains(ptr %0, ptr %1)
+  ret i32 %call.N
+}
 define i32 @decode_bool(ptr %0, ptr %1) {
 entry:
   %call.N = call i32 @json_get_bool(ptr %0, ptr %1)
@@ -5357,6 +5899,16 @@ entry:
 define i32 @decode_i32(ptr %0, ptr %1) {
 entry:
   %call.N = call i32 @json_get_i32(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @ends_with(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_ends_with(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @equal_fold(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_equal_fold(ptr %0, ptr %1)
   ret i32 %call.N
 }
 define i32 @find_host_end(ptr %0, i32 %1, i32 %2) {
@@ -5548,6 +6100,26 @@ entry:
   %call.N = call i32 @str_index(ptr %0, ptr %1)
   ret i32 %call.N
 }
+define i32 @index_byte(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @str_index_byte(ptr %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @is_alnum(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_alnum(ptr %0)
+  ret i32 %call.N
+}
+define i32 @is_alpha(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_alpha(ptr %0)
+  ret i32 %call.N
+}
+define i32 @is_ascii(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_ascii(ptr %0)
+  ret i32 %call.N
+}
 define i32 @is_chunked_transfer(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -5562,6 +6134,11 @@ else.N:
   br label %endif.N
 endif.N:
   ret i32 0
+}
+define i32 @is_digit(ptr %0) {
+entry:
+  %call.N = call i32 @str_is_digit(ptr %0)
+  ret i32 %call.N
 }
 define i32 @is_empty(ptr %0) {
 entry:
@@ -5615,6 +6192,11 @@ entry:
 define i32 @last_index(ptr %0, ptr %1) {
 entry:
   %call.N = call i32 @str_last_index(ptr %0, ptr %1)
+  ret i32 %call.N
+}
+define i32 @last_index_byte(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @str_last_index_byte(ptr %0, i32 %1)
   ret i32 %call.N
 }
 define i32 @main() {
@@ -5900,6 +6482,11 @@ while.end.N:
   %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
   ret i32 %loop.exit.N
 }
+define i32 @parse_int(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @parse_int_base(ptr %0, i32 %1)
+  ret i32 %call.N
+}
 define i32 @parse_request_line(ptr %0) {
 entry:
   %call.N = call i32 @str_len(ptr %0)
@@ -5921,6 +6508,16 @@ else.N:
   br label %endif.N
 endif.N:
   ret i32 0
+}
+define i32 @parse_uint(ptr %0, i32 %1) {
+entry:
+  %call.N = call i32 @parse_uint_base(ptr %0, i32 %1)
+  ret i32 %call.N
+}
+define i32 @starts_with(ptr %0, ptr %1) {
+entry:
+  %call.N = call i32 @str_starts_with(ptr %0, ptr %1)
+  ret i32 %call.N
 }
 define i32 @str_to_i32_hex(ptr %0) {
 entry:
@@ -6137,6 +6734,16 @@ endif.N:
 define i64 @now_ms() {
 entry:
   %call.N = call i64 @instant_now()
+  ret i64 %call.N
+}
+define i64 @parse_i64(ptr %0, i32 %1) {
+entry:
+  %call.N = call i64 @parse_i64_base(ptr %0, i32 %1)
+  ret i64 %call.N
+}
+define i64 @parse_u64(ptr %0) {
+entry:
+  %call.N = call i64 @str_to_u64(ptr %0)
   ret i64 %call.N
 }
 define ptr @AbortController_bin_encode(%AbortController* %0) {
@@ -6816,6 +7423,21 @@ entry:
   %call.N = call ptr @FormData_to_urlencoded(%FormData* %0)
   ret ptr %call.N
 }
+define ptr @HashMap_i32_i32_json_encode(%HashMap_i32_i32* %0) {
+entry:
+  %call.N = call ptr @vec_str_new()
+  %call.N = call ptr @vec_str_new()
+  %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
+  call void @vec_str_push(ptr %call.N, ptr %str.N)
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @json_encode_i32_array(ptr %load.N)
+  call void @vec_str_push(ptr %call.N, ptr %call.N)
+  %call.N = call ptr @json_encode_object(ptr %call.N, ptr %call.N)
+  call void @vec_str_free(ptr %call.N)
+  call void @vec_str_free(ptr %call.N)
+  ret ptr %call.N
+}
 define ptr @HashMap_str_i32_json_encode(%HashMap_str_i32* %0) {
 entry:
   %call.N = call ptr @vec_str_new()
@@ -6851,6 +7473,11 @@ else.N:
 endif.N:
   ret ptr %2
 }
+define ptr @HashMap_str_str_get_or_insert(%HashMap_str_str* %0, ptr %1, ptr %2) {
+entry:
+  %call.N = call ptr @HashMap_str_str_or_insert(%HashMap_str_str* %0, ptr %1, ptr %2)
+  ret ptr %call.N
+}
 define ptr @HashMap_str_str_json_encode(%HashMap_str_str* %0) {
 entry:
   %call.N = call ptr @vec_str_new()
@@ -6865,6 +7492,20 @@ entry:
   call void @vec_str_free(ptr %call.N)
   call void @vec_str_free(ptr %call.N)
   ret ptr %call.N
+}
+define ptr @HashMap_str_str_or_insert(%HashMap_str_str* %0, ptr %1, ptr %2) {
+entry:
+  %call.N = call i32 @HashMap_str_str_contains(%HashMap_str_str* %0, ptr %1)
+  %bin.N = icmp eq i32 %call.N, 1
+  br i1 %bin.N, label %then.N, label %else.N
+then.N:
+  %call.N = call ptr @HashMap_str_str_get(%HashMap_str_str* %0, ptr %1)
+  ret ptr %call.N
+else.N:
+  br label %endif.N
+endif.N:
+  %call.N = call %HashMap_str_str @HashMap_str_str_insert(%HashMap_str_str* %0, ptr %1, ptr %2)
+  ret ptr %2
 }
 define ptr @HeaderMap_format(%HashMap_str_str* %0) {
 entry:
@@ -7423,6 +8064,19 @@ entry:
   %call.N = call ptr @FormData_json_encode(%FormData* %0)
   ret ptr %call.N
 }
+define ptr @Serialize_HashMap_i32_i32_to_bytes(%HashMap_i32_i32* %0) {
+entry:
+  %call.N = call ptr @HashMap_i32_i32_json_encode(%HashMap_i32_i32* %0)
+  %call.N = call ptr @bin_buf_new()
+  call void @bin_buf_write_string(ptr %call.N, ptr %call.N)
+  %call.N = call ptr @bin_buf_finish(ptr %call.N)
+  ret ptr %call.N
+}
+define ptr @Serialize_HashMap_i32_i32_to_json(%HashMap_i32_i32* %0) {
+entry:
+  %call.N = call ptr @HashMap_i32_i32_json_encode(%HashMap_i32_i32* %0)
+  ret ptr %call.N
+}
 define ptr @Serialize_HashMap_str_i32_to_bytes(%HashMap_str_i32* %0) {
 entry:
   %call.N = call ptr @HashMap_str_i32_json_encode(%HashMap_str_i32* %0)
@@ -7718,11 +8372,53 @@ endif.N:
   %call.N = call ptr @vec_str_get(ptr %load.N, i32 %bin.N)
   ret ptr %call.N
 }
+define ptr @StrVec_pop(%StrVec* %0) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @vec_str_pop(ptr %load.N)
+  ret ptr %call.N
+}
 define ptr @StrVec_raw(%StrVec* %0) {
 entry:
   %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
   %load.N = load ptr, ptr %gep.N
   ret ptr %load.N
+}
+define ptr @StrVec_reduce(%StrVec* %0, ptr %1, ptr %2) {
+entry:
+  %alloca.N = alloca ptr
+  store ptr %1, ptr %alloca.N
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call i32 @vec_str_len(ptr %load.N)
+  %ssa.N = add i32 0, 0
+  br label %while.cond.N
+while.cond.N:
+  %loop.phi.N = phi i32 [%ssa.N, %entry], [%loop.in.N, %while.body.N]
+  %bin.N = icmp slt i32 %loop.phi.N, %call.N
+  br i1 %bin.N, label %while.body.N, label %while.end.N
+while.body.N:
+  %ld.N = load ptr, ptr %alloca.N
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @vec_str_get(ptr %load.N, i32 %loop.phi.N)
+  %call.N = call ptr %2(ptr %ld.N, ptr %call.N)
+  store ptr %call.N, ptr %alloca.N
+  %bin.N = add i32 %loop.phi.N, 1
+  %loop.in.N = add i32 0, %bin.N
+  br label %while.cond.N
+while.end.N:
+  %loop.exit.N = phi i32 [%loop.phi.N, %while.cond.N]
+  %ld.N = load ptr, ptr %alloca.N
+  ret ptr %ld.N
+}
+define ptr @StrVec_remove_at(%StrVec* %0, i32 %1) {
+entry:
+  %gep.N = getelementptr inbounds %StrVec, %StrVec* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  %call.N = call ptr @vec_str_remove_at(ptr %load.N, i32 %1)
+  ret ptr %call.N
 }
 define ptr @StringBuilder_build(%StringBuilder* %0) {
 entry:
@@ -7746,9 +8442,34 @@ entry:
   call void @vec_str_free(ptr %call.N)
   ret ptr %call.N
 }
+define ptr @String_afterSep(ptr %0, ptr %1) {
+entry:
+  %call.N = call ptr @str_after_sep(ptr %0, ptr %1)
+  ret ptr %call.N
+}
+define ptr @String_beforeSep(ptr %0, ptr %1) {
+entry:
+  %call.N = call ptr @str_before_sep(ptr %0, ptr %1)
+  ret ptr %call.N
+}
+define ptr @String_collapseWs(ptr %0) {
+entry:
+  %call.N = call ptr @str_collapse_ws(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_escapeJson(ptr %0) {
+entry:
+  %call.N = call ptr @str_escape_json(ptr %0)
+  ret ptr %call.N
+}
 define ptr @String_fields(ptr %0) {
 entry:
   %call.N = call ptr @str_fields(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_padCenter(ptr %0, i32 %1, ptr %2) {
+entry:
+  %call.N = call ptr @str_pad_center(ptr %0, i32 %1, ptr %2)
   ret ptr %call.N
 }
 define ptr @String_padEnd(ptr %0, i32 %1, ptr %2) {
@@ -7759,6 +8480,16 @@ entry:
 define ptr @String_padStart(ptr %0, i32 %1, ptr %2) {
 entry:
   %call.N = call ptr @str_pad_start(ptr %0, i32 %1, ptr %2)
+  ret ptr %call.N
+}
+define ptr @String_pop(ptr %0) {
+entry:
+  %call.N = call ptr @str_pop(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_pushChar(ptr %0, i32 %1) {
+entry:
+  %call.N = call ptr @str_push_char(ptr %0, i32 %1)
   ret ptr %call.N
 }
 define ptr @String_repeat(ptr %0, i32 %1) {
@@ -7776,9 +8507,19 @@ entry:
   %call.N = call ptr @str_replacen(ptr %0, ptr %1, ptr %2, i32 %3)
   ret ptr %call.N
 }
+define ptr @String_reverse(ptr %0) {
+entry:
+  %call.N = call ptr @str_reverse(ptr %0)
+  ret ptr %call.N
+}
 define ptr @String_split(ptr %0, ptr %1) {
 entry:
   %call.N = call ptr @str_split(ptr %0, ptr %1)
+  ret ptr %call.N
+}
+define ptr @String_splitAfter(ptr %0, ptr %1) {
+entry:
+  %call.N = call ptr @str_split_after(ptr %0, ptr %1)
   ret ptr %call.N
 }
 define ptr @String_splitOnce(ptr %0, ptr %1) {
@@ -7791,6 +8532,11 @@ entry:
   %call.N = call ptr @str_splitn(ptr %0, ptr %1, i32 %2)
   ret ptr %call.N
 }
+define ptr @String_stripAnsi(ptr %0) {
+entry:
+  %call.N = call ptr @str_strip_ansi(ptr %0)
+  ret ptr %call.N
+}
 define ptr @String_stripPrefix(ptr %0, ptr %1) {
 entry:
   %call.N = call ptr @str_strip_prefix(ptr %0, ptr %1)
@@ -7799,6 +8545,11 @@ entry:
 define ptr @String_stripSuffix(ptr %0, ptr %1) {
 entry:
   %call.N = call ptr @str_strip_suffix(ptr %0, ptr %1)
+  ret ptr %call.N
+}
+define ptr @String_substring(ptr %0, i32 %1, i32 %2) {
+entry:
+  %call.N = call ptr @substring(ptr %0, i32 %1, i32 %2)
   ret ptr %call.N
 }
 define ptr @String_toCamelCase(ptr %0) {
@@ -7861,6 +8612,11 @@ entry:
   %call.N = call ptr @str_to_upper(ptr %0)
   ret ptr %call.N
 }
+define ptr @String_trim(ptr %0) {
+entry:
+  %call.N = call ptr @str_trim(ptr %0)
+  ret ptr %call.N
+}
 define ptr @String_trimEnd(ptr %0) {
 entry:
   %call.N = call ptr @str_trim_end(ptr %0)
@@ -7869,6 +8625,11 @@ entry:
 define ptr @String_trimStart(ptr %0) {
 entry:
   %call.N = call ptr @str_trim_start(ptr %0)
+  ret ptr %call.N
+}
+define ptr @String_truncate(ptr %0, i32 %1) {
+entry:
+  %call.N = call ptr @str_truncate(ptr %0, i32 %1)
   ret ptr %call.N
 }
 define ptr @TcpListener_bin_encode(%TcpListener* %0) {
@@ -8101,6 +8862,11 @@ endif.N:
 define ptr @Vec_string_get(%StrVec* %0, i32 %1) {
 entry:
   %call.N = call ptr @StrVec_get(%StrVec* %0, i32 %1)
+  ret ptr %call.N
+}
+define ptr @after_sep(ptr %0, ptr %1) {
+entry:
+  %call.N = call ptr @str_after_sep(ptr %0, ptr %1)
   ret ptr %call.N
 }
 define ptr @b64(ptr %0) {
@@ -8401,6 +9167,11 @@ endif.N:
   %call.N = call ptr @substring(ptr %0, i32 %bin.N, i32 %bin.N)
   ret ptr %call.N
 }
+define ptr @before_sep(ptr %0, ptr %1) {
+entry:
+  %call.N = call ptr @str_before_sep(ptr %0, ptr %1)
+  ret ptr %call.N
+}
 define ptr @body_from_raw(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -8427,6 +9198,11 @@ then.N:
 else.N:
   br label %endif.N
 endif.N:
+  ret ptr %call.N
+}
+define ptr @bool_to_string(i32 %0) {
+entry:
+  %call.N = call ptr @format_bool(i32 %0)
   ret ptr %call.N
 }
 define ptr @bridge_exec(ptr %0, ptr %1) {
@@ -8776,6 +9552,11 @@ entry:
   %call.N = call ptr @str_push_char(ptr %str.N, i32 %0)
   ret ptr %call.N
 }
+define ptr @collapse_ws(ptr %0) {
+entry:
+  %call.N = call ptr @str_collapse_ws(ptr %0)
+  ret ptr %call.N
+}
 define ptr @date_format(%CalendarDate* %0) {
 entry:
   %gep.N = getelementptr inbounds %CalendarDate, %CalendarDate* %0, i32 0, i32 0
@@ -9054,6 +9835,11 @@ endif.N:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
   ret ptr %str.N
 }
+define ptr @escape_json(ptr %0) {
+entry:
+  %call.N = call ptr @str_escape_json(ptr %0)
+  ret ptr %call.N
+}
 define ptr @first_line(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -9079,14 +9865,59 @@ entry:
   %call.N = call ptr @URLSearchParams_to_string(%URLSearchParams* %alloca.N)
   ret ptr %call.N
 }
+define ptr @format_bin(i32 %0) {
+entry:
+  %call.N = call ptr @format_i32_bin(i32 %0)
+  ret ptr %call.N
+}
+define ptr @format_bin_i64(i64 %0) {
+entry:
+  %call.N = call ptr @format_i64_bin(i64 %0)
+  ret ptr %call.N
+}
 define ptr @format_f64(double %0) {
 entry:
   %call.N = call ptr @f64_to_string(double %0)
   ret ptr %call.N
 }
+define ptr @format_hex(i32 %0) {
+entry:
+  %call.N = call ptr @format_i32_hex(i32 %0)
+  ret ptr %call.N
+}
+define ptr @format_hex_i64(i64 %0) {
+entry:
+  %call.N = call ptr @format_i64_hex(i64 %0)
+  ret ptr %call.N
+}
 define ptr @format_i32(i32 %0) {
 entry:
   %call.N = call ptr @i32_to_string(i32 %0)
+  ret ptr %call.N
+}
+define ptr @format_i64(i64 %0) {
+entry:
+  %call.N = call ptr @i64_to_string(i64 %0)
+  ret ptr %call.N
+}
+define ptr @format_oct(i32 %0) {
+entry:
+  %call.N = call ptr @format_i32_oct(i32 %0)
+  ret ptr %call.N
+}
+define ptr @format_pad(i32 %0, i32 %1) {
+entry:
+  %call.N = call ptr @format_i32_pad(i32 %0, i32 %1)
+  ret ptr %call.N
+}
+define ptr @format_radix(i32 %0, i32 %1) {
+entry:
+  %call.N = call ptr @i32_to_string_radix(i32 %0, i32 %1)
+  ret ptr %call.N
+}
+define ptr @format_u64(i64 %0) {
+entry:
+  %call.N = call ptr @u64_to_string(i64 %0)
   ret ptr %call.N
 }
 define ptr @get(ptr %0) {
@@ -9415,6 +10246,11 @@ while.end.N:
   %call.N = call ptr @str_cat(ptr %call.N, ptr %call.N)
   ret ptr %call.N
 }
+define ptr @pad_center(ptr %0, i32 %1, ptr %2) {
+entry:
+  %call.N = call ptr @str_pad_center(ptr %0, i32 %1, ptr %2)
+  ret ptr %call.N
+}
 define ptr @path_from_line(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -9461,6 +10297,16 @@ else.N:
 endif.N:
   %ref.N = load ptr, ptr %alloca.N
   %call.N = call ptr @substring(ptr %ref.N, i32 0, i32 %call.N)
+  ret ptr %call.N
+}
+define ptr @pop(ptr %0) {
+entry:
+  %call.N = call ptr @str_pop(ptr %0)
+  ret ptr %call.N
+}
+define ptr @push_char(ptr %0, i32 %1) {
+entry:
+  %call.N = call ptr @str_push_char(ptr %0, i32 %1)
   ret ptr %call.N
 }
 define ptr @query_from_line(ptr %0) {
@@ -9526,9 +10372,24 @@ endif.N:
   call void @heap_free(ptr %ld.N)
   ret ptr %call.N
 }
+define ptr @quote(ptr %0) {
+entry:
+  %call.N = call ptr @format_quote(ptr %0)
+  ret ptr %call.N
+}
 define ptr @repeat(ptr %0, i32 %1) {
 entry:
   %call.N = call ptr @str_repeat(ptr %0, i32 %1)
+  ret ptr %call.N
+}
+define ptr @replace(ptr %0, ptr %1, ptr %2) {
+entry:
+  %call.N = call ptr @str_replace(ptr %0, ptr %1, ptr %2)
+  ret ptr %call.N
+}
+define ptr @replacen(ptr %0, ptr %1, ptr %2, i32 %3) {
+entry:
+  %call.N = call ptr @str_replacen(ptr %0, ptr %1, ptr %2, i32 %3)
   ret ptr %call.N
 }
 define ptr @resolve_redirect_url(ptr %0, ptr %1) {
@@ -9617,6 +10478,11 @@ endif.N:
   %call.N = call ptr @str_cat(ptr %call.N, ptr %1)
   ret ptr %call.N
 }
+define ptr @reverse(ptr %0) {
+entry:
+  %call.N = call ptr @str_reverse(ptr %0)
+  ret ptr %call.N
+}
 define ptr @route_key(i32 %0, ptr %1) {
 entry:
   %call.N = call ptr @method_name(i32 %0)
@@ -9687,6 +10553,11 @@ entry:
 define ptr @serialize_yaml(ptr %0, ptr %1) {
 entry:
   %call.N = call ptr @yaml_encode_field(ptr %0, ptr %1)
+  ret ptr %call.N
+}
+define ptr @split_after(ptr %0, ptr %1) {
+entry:
+  %call.N = call ptr @str_split_after(ptr %0, ptr %1)
   ret ptr %call.N
 }
 define ptr @status_text(i32 %0) {
@@ -9787,6 +10658,11 @@ else.N:
   br label %endif.N
 endif.N:
   %call.N = call ptr @substring(ptr %0, i32 0, i32 %call.N)
+  ret ptr %call.N
+}
+define ptr @strip_ansi(ptr %0) {
+entry:
+  %call.N = call ptr @str_strip_ansi(ptr %0)
   ret ptr %call.N
 }
 define ptr @strip_prefix(ptr %0, ptr %1) {
@@ -10120,6 +10996,11 @@ entry:
   %call.N = call ptr @str_trim_start(ptr %0)
   ret ptr %call.N
 }
+define ptr @truncate(ptr %0, i32 %1) {
+entry:
+  %call.N = call ptr @str_truncate(ptr %0, i32 %1)
+  ret ptr %call.N
+}
 define ptr @url_decode(ptr %0) {
 entry:
   %call.N = call i32 @str_len(ptr %0)
@@ -10344,6 +11225,13 @@ while.end.N:
 define void @Drop_Fd_drop(%Fd* %0) {
 entry:
   call void @Fd_drop_impl(%Fd* %0)
+  ret void
+}
+define void @Drop_HashMap_i32_i32_drop(%HashMap_i32_i32* %0) {
+entry:
+  %gep.N = getelementptr inbounds %HashMap_i32_i32, %HashMap_i32_i32* %0, i32 0, i32 0
+  %load.N = load ptr, ptr %gep.N
+  call void @map_i32_i32_free(ptr %load.N)
   ret void
 }
 define void @Drop_HashMap_str_i32_drop(%HashMap_str_i32* %0) {

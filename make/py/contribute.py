@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Nyra contributor hub — `make contribute`.
 
-Subcommands: add (default), remove, list, patch.
-Built-in methods (menu 3) delegate to `builtin-dev.py`.
+Subcommands: hub (default), add, remove, list, patch.
+All automation (builtin-dev, batch-add, gen-batch) is reachable from the hub menu.
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ if str(_MAKE_PY) not in sys.path:
     sys.path.insert(0, str(_MAKE_PY))
 
 from contrib_dev.discover import list_wired_contribs
-from contrib_dev.monitor import print_hub_banner, print_list_monitor, print_recipe_monitor
+from contrib_dev.monitor import print_list_monitor, print_recipe_menu, print_recipe_monitor
 from contrib_dev.patch_recipe import patch_apply
 from contrib_dev.remove import remove_by_marker, remove_to_recipe_result
 from contrib_dev.recipes import (
@@ -43,7 +43,7 @@ from contrib_dev.wizard import (
     spec_from_config,
 )
 
-SUBCOMMANDS = {"add", "remove", "list", "patch"}
+SUBCOMMANDS = {"hub", "add", "remove", "list", "patch"}
 
 RECIPES = {
     "1": ("stdlib-pure", "Stdlib Pure Function (Pattern A)", stdlib_pure.apply),
@@ -77,9 +77,9 @@ APPLY_BY_SLUG = {
 }
 
 
-def _ensure_add_subcommand(argv: list[str]) -> list[str]:
+def _ensure_default_subcommand(argv: list[str]) -> list[str]:
     if not argv:
-        return ["add", "-i"]
+        return ["hub"]
     if argv[0] not in SUBCOMMANDS and not argv[0].startswith("-"):
         return ["add", *argv]
     if argv[0].startswith("-") and argv[0] not in ("-h", "--help"):
@@ -120,29 +120,35 @@ def regen_webdocs() -> None:
 
 def run_builtin_wizard() -> int:
     script = _MAKE_PY / "builtin-dev.py"
-    print("\n── Built-in Method (.method) — option 3 ──")
+    print("\n── Built-in Method (.method) — recipe 3 ──")
     print("  WHY  → String/array methods need compiler + C wiring (10+ files).")
-    print("  TOOL → Delegates to make add-builtin (same monitor style).")
+    print("  TOOL → Runs builtin-dev add wizard internally (same monitor style).")
     print("  YOU  → Implement C in stdlib/rt/; fix tests.")
     print("  NAME → Pick the Nyra method (e.g. to_snake_case); C gets str_to_snake_case.")
     print("         Do NOT also run Recipe 2 for the same feature.\n")
     return subprocess.call([sys.executable, str(script), "add", "-i"])
 
 
-def pick_recipe(interactive: bool, recipe_arg: str | None) -> str:
+def pick_recipe(interactive: bool, recipe_arg: str | None) -> str | None:
     if recipe_arg:
         for key, (slug, _label, _fn) in RECIPES.items():
             if recipe_arg in (key, slug):
                 return key
-        raise SystemExit(f"Unknown recipe: {recipe_arg!r}. Use: make contribute -i")
+        raise SystemExit(f"Unknown recipe: {recipe_arg!r}. Use: make contribute → 1 Add")
     if not interactive:
         raise SystemExit("Pass -i for menu or --recipe <slug>")
-    print_hub_banner()
+    print_recipe_menu()
+    allow_back = bool(os.environ.get("NYRA_CONTRIBUTE_FROM_HUB"))
+    hint = "1-8, 0=back" if allow_back else "1-8"
     while True:
-        choice = input("Select recipe [1-8]: ").strip()
+        choice = input(f"Select recipe [{hint}]: ").strip()
+        if choice == "0":
+            if allow_back:
+                return None
+            raise SystemExit("Cancelled — no files changed.")
         if choice in RECIPES:
             return choice
-        print("  Enter a number from 1 to 8.")
+        print(f"  Enter a number from 1 to 8{' or 0 to go back' if allow_back else ''}.")
 
 
 def resolve_spec(choice: str, config: str | None, interactive: bool):
@@ -161,11 +167,21 @@ def resolve_spec(choice: str, config: str | None, interactive: bool):
 def cmd_add(args: argparse.Namespace) -> int:
     interactive = args.interactive or (not args.recipe and not args.config)
     choice = pick_recipe(interactive, args.recipe)
+    if choice is None:
+        return 0
     want_webdocs = not getattr(args, "no_webdocs", False)
     if choice == "3":
         rc = run_builtin_wizard()
         if rc == 0 and want_webdocs:
             regen_webdocs()
+        if rc == 0 and interactive and not os.environ.get("NYRA_CONTRIBUTE_SKIP_GATES"):
+            from contrib_dev.wizard import prompt_yes_no
+            from contrib_dev.validate import check_abi_manifest
+
+            if prompt_yes_no("Run abi_manifest CI gate now?", default=True):
+                gate_rc = check_abi_manifest()
+                if gate_rc != 0:
+                    return gate_rc
         return rc
     _slug, _label, apply_fn = RECIPES[choice]
     spec = resolve_spec(choice, args.config, interactive)
@@ -175,6 +191,17 @@ def cmd_add(args: argparse.Namespace) -> int:
     already = any(getattr(p, "message", "") == "already present" for p in result.patches)
     if changed and want_webdocs:
         regen_webdocs()
+    if (changed or already) and interactive and not os.environ.get("NYRA_CONTRIBUTE_SKIP_GATES"):
+        from contrib_dev.wizard import prompt_yes_no
+        from contrib_dev.validate import run_post_scaffold_gates
+
+        if prompt_yes_no(
+            "Run CI safety gates now? (abi manifest + nyra check on new examples)",
+            default=True,
+        ):
+            gate_rc = run_post_scaffold_gates(result=result)
+            if gate_rc != 0:
+                return gate_rc
     if changed or already:
         return 0
     return 1
@@ -240,12 +267,28 @@ def cmd_patch(args: argparse.Namespace) -> int:
     return 0 if result.ok() else 1
 
 
+def cmd_hub(args: argparse.Namespace) -> int:
+    from contrib_dev.hub import run_main_hub
+
+    return run_main_hub(regen_webdocs=not getattr(args, "no_webdocs", False))
+
+
 def main() -> int:
-    argv = _ensure_add_subcommand(sys.argv[1:])
-    parser = argparse.ArgumentParser(description="Nyra contributor scaffolding hub")
+    argv = _ensure_default_subcommand(sys.argv[1:])
+    parser = argparse.ArgumentParser(
+        description="Nyra contributor hub — single entry for all contribution automation"
+    )
     sub = parser.add_subparsers(dest="command")
 
-    add_p = sub.add_parser("add", help="Add scaffold (default)")
+    hub_p = sub.add_parser("hub", help="Interactive hub menu (default)")
+    hub_p.add_argument(
+        "--no-webdocs",
+        action="store_true",
+        help="Skip webDocs regen after scaffolds triggered from hub",
+    )
+    hub_p.set_defaults(func=cmd_hub)
+
+    add_p = sub.add_parser("add", help="Add scaffold (recipe menu)")
     add_p.add_argument("-i", "--interactive", action="store_true")
     add_p.add_argument("--recipe", help="Recipe slug or number (1-8)")
     add_p.add_argument("--config", help="JSON spec")
@@ -284,7 +327,7 @@ def main() -> int:
 
     args = parser.parse_args(argv)
     if not hasattr(args, "func"):
-        args = parser.parse_args(["add", "-i"])
+        args = parser.parse_args(["hub"])
     return args.func(args)
 
 

@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_extend",
+  "args": [
+    "dst:ptr",
+    "src:ptr"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    extern void vec_i32_push(void *handle, int value);\n    NyraVec *d = (NyraVec *)dst;\n    NyraVec *s = (NyraVec *)src;\n    if (!d || !s) return;\n    for (int i = 0; i < s->len; i++) {\n        vec_i32_push(d, ((int *)s->data)[i]);\n    }"
+}

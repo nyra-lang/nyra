@@ -1,0 +1,10 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_capacity",
+  "args": [
+    "handle:ptr"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    return v ? v->cap : 0;"
+}

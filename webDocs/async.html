@@ -176,7 +176,7 @@ fn main() -&gt; void {
       <p>Run: <code>nyra run examples/builtins/async/async_spawn.ny</code> · Gallery: <a href="methods.html#ex-async-fn"><code>#ex-async-fn</code></a></p>
 
       <h2 id="async-state-machine">Name: multiple <code>await</code> (state machine)</h2>
-      <p><strong>Explanation:</strong> Linear and control-flow <code>async fn</code> bodies compile to cooperative poll loops (<code>async_poll</code> + <code>runtime_executor_tick</code>). v1.7: <code>await</code> inside <code>if</code>, <code>while</code>, range <code>for</code>.</p>
+      <p><strong>Explanation:</strong> Linear and control-flow <code>async fn</code> bodies compile to cooperative poll loops (<code>async_poll</code> + <code>runtime_executor_tick</code>). <code>await</code> inside <code>if</code>, <code>while</code>, range <code>for</code>.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -211,7 +211,7 @@ fn main() -&gt; void {
       <pre><code>100</code></pre>
       <p>Gallery: <a href="methods.html#ex-await"><code>#ex-await</code></a> · <code>nyra run examples/builtins/async/async_state_machine.ny</code></p>
 
-      <h2 id="async-future">Name: <code>Future&lt;T&gt;</code> (v1.26)</h2>
+      <h2 id="async-future">Name: <code>Future&lt;T&gt;</code></h2>
       <p><strong>Explanation:</strong> Import <code>stdlib/async/future.ny</code> for typed futures (<code>Future_i32</code>, <code>Future_string</code>, …) and <code>Future_select2_*</code>.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -246,7 +246,7 @@ fn main() -&gt; void {
       <p>Gallery: <a href="methods.html#ex-async-future"><code>#ex-async-future</code></a> · <code>nyra run examples/builtins/async/async_future_string.ny</code></p>
 
       <p>Runtime: promises (<code>async_promise_new</code>, <code>async_promise_complete</code>), <code>await</code> (pumps the executor while waiting), and IO (<code>io_register</code> / kqueue/epoll/select).</p>
-      <h2>Executor v1.4</h2>
+      <h2>Executor</h2>
       <p>Import <code>stdlib/async_v1.ny</code> for production-style event loops:</p>
       <ul>
         <li><code>Executor_tick(ms)</code> / <code>Executor_poll_ms(ms)</code> — one IO + timer tick</li>
@@ -254,11 +254,11 @@ fn main() -&gt; void {
         <li><code>Executor_run_until(handle, timeout_ms)</code> — run until a promise completes</li>
       </ul>
       <p>Example: <code>examples/async_executor.ny</code>. Tests: <code>tests/nyra/async_executor_test.ny</code>.</p>
-      <h2 id="async-desugar">Async fn desugar (v1.5)</h2>
+      <h2 id="async-desugar">Async fn desugar</h2>
       <p><code>async fn</code> bodies run on <code>spawn:thread</code>; the call site returns a promise handle immediately (non-blocking). Gallery: <a href="methods.html#ex-async-fn">#ex-async-fn</a> · tests: <code>tests/nyra/async_spawn_desugar_test.ny</code>.</p>
-      <h2>State-machine desugar (v1.6–v1.7)</h2>
+      <h2>State-machine desugar</h2>
       <p>See <a href="#async-state-machine">state machine example</a> above. <code>await</code> inside <code>spawn</code>/<code>unsafe</code> still uses blocking <code>async_await</code>.</p>
-      <h2>Race detection (v1.7)</h2>
+      <h2>Race detection</h2>
       <p><code>nyra build --race</code> links with ThreadSanitizer (<code>-fsanitize=thread</code>). Compile-time Send/Sync checks remain the default; use TSan to catch races in <code>unsafe</code> or FFI.</p>
       <p>Extended tier — not available on <strong>wasm32</strong>. Cross-compile to Windows: see <a href="targets.html">Targets</a>.</p>
       <footer class="site-footer"><a href="concurrency.html">Concurrency →</a></footer>

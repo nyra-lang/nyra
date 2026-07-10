@@ -1,0 +1,6 @@
+{
+  "recipe": "stdlib-pure",
+  "ny_module": "vec_str.ny",
+  "fn_name": "strvec_set_method",
+  "pure_source": "impl StrVec {\n    fn set(self, index: i32, value: string) -> StrVec {\n        vec_str_set(self.handle, index, value)\n        return self\n    }\n}"
+}

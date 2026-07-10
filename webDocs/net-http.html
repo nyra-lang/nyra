@@ -362,7 +362,7 @@ Server_listen(s2, router)</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>let server = Server_with_router(&quot;127.0.0.1&quot;, 8080, router)
 let s2 = Server_enable_cors(server)
 Server_listen(s2, router)</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch (v1.2)</h3>
+</div><!-- NYRA_SNIPPET_END -->      <h3>Handler dispatch</h3>
       <p>Register integer <strong>slots</strong> and pass a Nyra function <code>fn(i32, RequestContext) -&gt; HttpResponse</code>. Use for dynamic logic instead of static response bodies.</p>
       <!-- NYRA_SNIPPET_SKIP -->
       <!-- NYRA_SNIPPET_START -->

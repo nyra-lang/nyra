@@ -368,3 +368,35 @@ void atomic_i32_free(void *p) {
 }
 
 #endif
+// [contrib-dev:atomic_sub_i32:sync_atomic]
+int atomic_sub_i32(void * p, int delta) {
+    int *cell = (int *)p;
+    if (!cell) return 0;
+    return __atomic_sub_fetch(cell, delta, __ATOMIC_SEQ_CST);
+}
+// [/contrib-dev:atomic_sub_i32:sync_atomic]
+
+// [contrib-dev:atomic_xor_i32:sync_atomic]
+int atomic_xor_i32(void * p, int mask) {
+    int *cell = (int *)p;
+    if (!cell) return 0;
+    return __atomic_xor_fetch(cell, mask, __ATOMIC_SEQ_CST);
+}
+// [/contrib-dev:atomic_xor_i32:sync_atomic]
+
+// [contrib-dev:atomic_and_i32:sync_atomic]
+int atomic_and_i32(void * p, int mask) {
+    int *cell = (int *)p;
+    if (!cell) return 0;
+    return __atomic_and_fetch(cell, mask, __ATOMIC_SEQ_CST);
+}
+// [/contrib-dev:atomic_and_i32:sync_atomic]
+
+// [contrib-dev:atomic_or_i32:sync_atomic]
+int atomic_or_i32(void * p, int mask) {
+    int *cell = (int *)p;
+    if (!cell) return 0;
+    return __atomic_or_fetch(cell, mask, __ATOMIC_SEQ_CST);
+}
+// [/contrib-dev:atomic_or_i32:sync_atomic]
+

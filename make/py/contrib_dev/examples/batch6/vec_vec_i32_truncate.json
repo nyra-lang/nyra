@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_truncate",
+  "args": [
+    "handle:ptr",
+    "len:i32"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v || len < 0) return;\n    if (len < v->len) v->len = len;"
+}

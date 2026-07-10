@@ -120,20 +120,24 @@ def c_stub(spec: BuiltinSpec) -> str:
         "",
         marker_start(spec),
         f"{ret} {spec.c_name}({sig}) {{",
-        "    /* TODO: implement logic here — this stub returns a safe default. */",
     ]
-    if spec.returns == NyraType.STRING:
-        if spec.receiver == ReceiverKind.STRING:
-            lines.append("    if (!s) return NULL;")
-            lines.append("    return str_dup(s);")
-        else:
-            lines.append("    return NULL;")
-    elif spec.returns in (NyraType.I32, NyraType.BOOL):
-        lines.append("    return 0;")
-    elif spec.returns == NyraType.I64:
-        lines.append("    return 0;")
-    elif spec.returns == NyraType.F64:
-        lines.append("    return 0.0;")
+    if spec.c_body and spec.c_body.strip():
+        for line in spec.c_body.rstrip().splitlines():
+            lines.append(line if line.startswith("    ") else f"    {line}")
+    else:
+        lines.append("    /* TODO: implement logic here — this stub returns a safe default. */")
+        if spec.returns == NyraType.STRING:
+            if spec.receiver == ReceiverKind.STRING:
+                lines.append("    if (!s) return NULL;")
+                lines.append("    return str_dup(s);")
+            else:
+                lines.append("    return NULL;")
+        elif spec.returns in (NyraType.I32, NyraType.BOOL):
+            lines.append("    return 0;")
+        elif spec.returns == NyraType.I64:
+            lines.append("    return 0;")
+        elif spec.returns == NyraType.F64:
+            lines.append("    return 0.0;")
     lines.extend([f"}}", marker_end(spec), ""])
     return "\n".join(lines)
 

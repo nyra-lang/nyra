@@ -61,9 +61,10 @@ For compile pipeline details see [`architecture.md`](architecture.md). For the f
 |--------------|------------|------------|
 | **Add syntax / keyword** | `compiler/lexer/` → `parser/` → `ast/` | `expand/` (if sugar), `typecheck/`, `codegen/`, `const_eval/` (comptime), `grammar/nyra.tmLanguage.json` |
 | **Add stdlib function** | `stdlib/<module>/` | `stdlib/rt/rt_*.c`, `runtime_map.rs`, `docs/abi-manifest.toml` (if new C symbol) |
-| **Add string method (`.foo()`)** | `make add-builtin` or `make contribute` → 3 | See [`make-and-generators.md`](make-and-generators.md) · then C impl in `stdlib/rt/` |
-| **Scaffold stdlib / tests / pkg / syntax** | `make contribute` | [`make/py/contrib_dev/README.md`](../make/py/contrib_dev/README.md) |
-| **Remove / patch scaffold** | `make contribute-remove` · `make contribute-patch` | [`make/py/contrib_dev/README.md`](../make/py/contrib_dev/README.md) |
+| **Add string method (`.foo()`)** | `make contribute` → 1 Add → 3 Built-in | [`builtin_dev/README`](../make/py/builtin_dev/README.md), `stdlib/rt/`, typecheck, codegen |
+| **Scaffold stdlib / tests / pkg / syntax** | `make contribute` → 1 Add | [`contrib_dev/README`](../make/py/contrib_dev/README.md) |
+| **Batch many stdlib APIs** | `make contribute` → 5 Batch | catalog in `make/py/contrib_dev/batch*_catalog.py` |
+| **Remove / patch scaffold** | `make contribute` → 2 Remove / 4 Patch | same README |
 | **Add CLI flag / command** | `cli/src/app/args.rs` | `cli/src/commands/` or `cli/src/app/session.rs` |
 | **Change type rules** | `compiler/typecheck/` | `compiler/types/` |
 | **Fix borrow / move errors** | `compiler/ownership/` | `compiler/borrowck/` |

@@ -126,6 +126,17 @@ pub const OWNED_EXTERN_RETURNS: &[&str] = &[
     "str_pad_end",
     "str_pad_start",
     "str_before_sep",
+    "str_after_sep",
+    "str_pop",
+    "str_push_char",
+    "str_strip_ansi",
+    "str_trim",
+    "str_collapse_ws",
+    "str_pad_center",
+    "str_reverse",
+    "str_escape_json",
+    "str_split_after",
+    "str_truncate",
 ];
 
 pub fn callee_returns_owned(callee: &str) -> bool {

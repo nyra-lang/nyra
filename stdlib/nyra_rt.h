@@ -9,1246 +9,1246 @@
 extern "C" {
 #endif
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void heap_free(void *p);
 
-/* since Nyra 3.0.0 */
+/* since Nyra 0.0.1 */
 char *str_clone(const char *s);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int str_len(const char *s);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 char *str_cat(const char *a, const char *b);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 char *i32_to_string(int n);
 
-/* since Nyra 1.17.0 */
+/* since Nyra 0.0.1 */
 char *i64_to_string(long long n);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int str_cmp(const char *a, const char *b);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int char_at(const char *s, int i);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 char *substring(const char *s, int start, int len);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int strstr_pos(const char *hay, const char *needle);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 char *read_file(const char *path);
 
-/* since Nyra 1.13.0 */
+/* since Nyra 0.0.1 */
 char *read_file_limit(const char *path, int max_bytes);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int write_file(const char *path, const char *content);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 long long file_size(const char *path);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 long long copy_file(const char *src, const char *dst);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *list_dir(const char *path);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int path_is_dir(const char *path);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void rt_args_init(int argc, char **argv);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int os_arg_count(void);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *os_arg_at(int index);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void process_exit(int code);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *vec_str_from_argv(int start_index);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *bytes_read_file(const char *path);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 long long bytes_len(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int byte_at(void *handle, long long index);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int bytes_write_file(const char *path, void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *bytes_from_string(const char *s);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *bytes_to_string(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void bytes_free(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *stdin_read_bytes(int max_bytes);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void stdout_write_bytes(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *regex_compile(const char *pattern);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int regex_is_match(void *handle, const char *text);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void regex_free(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int tar_create(const char *archive, void *paths_vec);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int tar_extract(const char *archive, const char *out_dir);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int gzip_file(const char *src, const char *dst);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int gunzip_file(const char *src, const char *dst);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *gzip_compress_hex(const char *data);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *gzip_decompress_hex(const char *hex);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *flate_compress_hex(const char *data);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *flate_decompress_hex(const char *hex);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int zip_create_file(const char *archive_path, const char *source_path, const char *entry_name);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int zip_extract_file(const char *archive_path, const char *dest_path);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int ws_connect(const char *url);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int ws_send_text(int fd, const char *text);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *ws_recv_text(int fd, int max_bytes);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void ws_close(int fd);
 
-/* since Nyra 1.11.0 */
+/* since Nyra 0.0.1 */
 int ws_listen(const char *host, int port);
 
-/* since Nyra 1.11.0 */
+/* since Nyra 0.0.1 */
 int ws_accept_handshake(int listener_fd);
 
-/* since Nyra 1.11.0 */
+/* since Nyra 0.0.1 */
 int ws_send_text_server(int handle, const char *text);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void stdout_write_str(const char *s);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void stdout_writeln_str(const char *s);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void stdout_write_i32(int n);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void stdout_writeln_i32(int n);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void stdout_flush(void);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 char *stdin_read_line(const char *prompt);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int println(const char *msg);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 const char *color_ansi(const char *spec);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 const char *ansi_reset(void);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void time_start(const char *label);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void time_end(const char *label);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void mem_start(const char *label);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void mem_end(const char *label);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void *spawn_capture(void (*body)(void *), void *data, int64_t nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int spawn_join(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void spawn_handle_drop(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void *spawn_task_capture(void (*body)(void *), void *data, int64_t nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int spawn_task_join(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void spawn_task_handle_drop(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void parallel_for_range(int32_t start, int32_t end, void (*body)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int32_t cpu_count(void);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void progress_update(int32_t current, int32_t total, const char *label);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void progress_finish(void);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void spawn(void);
 
-/* since Nyra 1.40.0 */
+/* since Nyra 0.0.1 */
 char *error_stack_trace(void);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int async_await(int handle);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int async_run(int result);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int async_promise_new(void);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void async_promise_complete(int handle, int value);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int async_poll(int handle);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 void async_promise_complete_bool(int handle, int value);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 void async_promise_complete_ptr(int handle, void *value);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 int async_await_bool(int handle);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 void *async_await_ptr(int handle);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 int async_poll_bool(int handle);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 int async_future_done(int handle);
 
-/* since Nyra 1.22.0 */
+/* since Nyra 0.0.1 */
 void *async_future_ptr_value(int handle);
 
-/* since Nyra 1.4.0 */
+/* since Nyra 0.0.1 */
 int async_sleep_ms(int delay_ms);
 
-/* since Nyra 1.4.0 */
+/* since Nyra 0.0.1 */
 int runtime_poll_io(int timeout_ms);
 
-/* since Nyra 1.4.0 */
+/* since Nyra 0.0.1 */
 int runtime_executor_tick(int timeout_ms);
 
-/* since Nyra 1.4.0 */
+/* since Nyra 0.0.1 */
 int runtime_executor_run_until(int handle, int timeout_ms);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void runtime_run(void);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int io_register(int fd, int task_id);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int io_wait_once(int timeout_ms);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_listen(const char *host, int port);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_accept(int listener_fd);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_accept_async(int listener_fd);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_connect(const char *host, int port);
 
-/* since Nyra 1.11.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_connect_timeout(const char *host, int port, int timeout_ms);
 
-/* since Nyra 1.11.0 */
+/* since Nyra 0.0.1 */
 char *rt_dns_lookup(const char *host);
 
-/* since Nyra 1.11.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_ping_ms(const char *host, int port, int timeout_ms);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 char *rt_tcp_read(int fd, int max_bytes);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int rt_tcp_write(int fd, const char *data);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 void rt_tcp_close(int fd);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int sys_listen(const char *host, int port);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int sys_accept(int listener_fd);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int sys_connect(const char *host, int port);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 char *sys_recv(int fd, int max_bytes);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int sys_send(int fd, const char *data);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 void sys_close(int fd);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int sys_set_nonblock(int fd);
 
-/* since Nyra 1.41.0 */
+/* since Nyra 0.0.1 */
 int sys_set_timeout_ms(int fd, int timeout_ms);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int rt_udp_bind(const char *host, int port);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *rt_udp_recv(int fd, int max_bytes);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int rt_udp_send(int fd, const char *host, int port, const char *data);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void rt_udp_close(int fd);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 char *http_get(const char *url);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 int http_status(const char *response_header);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 int http_download_file(const char *url, const char *path);
 
-/* since Nyra 1.40.0 */
+/* since Nyra 0.0.1 */
 int json_has_key(const char *json, const char *key);
 
-/* since Nyra 1.40.0 */
+/* since Nyra 0.0.1 */
 int json_has_string(const char *json, const char *key);
 
-/* since Nyra 1.40.0 */
+/* since Nyra 0.0.1 */
 int json_has_i32(const char *json, const char *key);
 
-/* since Nyra 1.40.0 */
+/* since Nyra 0.0.1 */
 int json_has_bool(const char *json, const char *key);
 
-/* since Nyra 0.3.0 */
+/* since Nyra 0.0.1 */
 char *json_get_string(const char *json, const char *key);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 int json_get_i32(const char *json, const char *key);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 int json_get_bool(const char *json, const char *key);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 char *json_get_object(const char *json, const char *key);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 char *json_get_array(const char *json, const char *key);
 
-/* since Nyra 1.3.4 */
+/* since Nyra 0.0.1 */
 char *json_encode_object(void *keys_vec, void *values_vec);
 
-/* since Nyra 1.3.4 */
+/* since Nyra 0.0.1 */
 char *json_encode_i32_array(void *handle);
 
-/* since Nyra 1.3.4 */
+/* since Nyra 0.0.1 */
 void *json_decode_i32_array(const char *array_json);
 
-/* since Nyra 1.9.0 */
+/* since Nyra 0.0.1 */
 char *json_encode_ptr_token(void *p);
 
-/* since Nyra 1.9.0 */
+/* since Nyra 0.0.1 */
 void *json_decode_ptr_token(const char *json, const char *key);
 
-/* since Nyra 1.41.0 */
+/* since Nyra 0.0.1 */
 void *json_top_keys(const char *json);
 
-/* since Nyra 1.41.0 */
+/* since Nyra 0.0.1 */
 char *json_raw_get(const char *json, const char *key);
 
-/* since Nyra 1.41.0 */
+/* since Nyra 0.0.1 */
 int json_value_kind(const char *json);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 char *sha256_hex(const char *data);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *sha512_hex(const char *data);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *hmac_sha256_hex(const char *key, const char *data);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *aes_cbc_encrypt_hex(const char *key, const char *plaintext);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *aes_cbc_decrypt_hex(const char *key, const char *ciphertext_hex);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 void *sqlite_open(const char *path);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 int sqlite_exec(void *handle, const char *sql);
 
-/* since Nyra 1.3.2 */
+/* since Nyra 0.0.1 */
 void sqlite_close(void *handle);
 
-/* since Nyra 1.18.0 */
+/* since Nyra 0.0.1 */
 void *sqlite_query_rows(void *handle, const char *sql);
 
-/* since Nyra 1.18.0 */
+/* since Nyra 0.0.1 */
 int sqlite_rowset_rows(void *rowset);
 
-/* since Nyra 1.18.0 */
+/* since Nyra 0.0.1 */
 int sqlite_rowset_cols(void *rowset);
 
-/* since Nyra 1.18.0 */
+/* since Nyra 0.0.1 */
 const char *sqlite_rowset_at(void *rowset, int row, int col);
 
-/* since Nyra 1.18.0 */
+/* since Nyra 0.0.1 */
 void sqlite_rowset_free(void *rowset);
 
-/* since Nyra 1.21.0 */
+/* since Nyra 0.0.1 */
 const char *sqlite_last_error(void *handle);
 
-/* since Nyra 1.21.0 */
+/* since Nyra 0.0.1 */
 void *sqlite_prepare(void *handle, const char *sql);
 
-/* since Nyra 1.21.0 */
+/* since Nyra 0.0.1 */
 int sqlite_step(void *stmt);
 
-/* since Nyra 1.21.0 */
+/* since Nyra 0.0.1 */
 int sqlite_column_count(void *stmt);
 
-/* since Nyra 1.21.0 */
+/* since Nyra 0.0.1 */
 const char *sqlite_column_text(void *stmt, int col);
 
-/* since Nyra 1.21.0 */
+/* since Nyra 0.0.1 */
 void sqlite_finalize(void *stmt);
 
-/* since Nyra 1.18.0 */
+/* since Nyra 0.0.1 */
 int fsync_file(const char *path);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 int tls_available(void);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_connect(const char *host, int port);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 char *rt_tls_read(int handle, int max_bytes);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_write(int handle, const char *data);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 void rt_tls_close(int handle);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int rt_tls_listen(const char *cert_pem_path, const char *key_pem_path, const char *host, int port);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int rt_tls_accept(int listener_handle);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void rt_tls_listener_close(int listener_handle);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int rsa_available(void);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *rsa_public_encrypt_pem(const char *pem_pub, const char *plaintext);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *rsa_sha256_sign_pem(const char *pem_priv, const char *message);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int x509_available(void);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *x509_pem_subject(const char *pem_cert);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *x509_pem_issuer(const char *pem_cert);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int x509_pem_verify_time(const char *pem_cert);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void *channel_new(void);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void channel_send(void *ch, int value);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 int channel_recv(void *ch);
 
-/* since Nyra 0.2.0 */
+/* since Nyra 0.0.1 */
 void channel_free(void *ch);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void channel_str_send(void *ch, const char *value);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 char *channel_str_recv(void *ch);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void *channel_str_new(void);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void channel_str_free(void *ch);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void *rt_tcp_hub_new(int32_t max_clients);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 int32_t rt_tcp_hub_add(void *hub, int32_t fd);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void rt_tcp_hub_remove(void *hub, int32_t fd);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void rt_tcp_hub_broadcast(void *hub, const char *msg);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 void rt_tcp_hub_free(void *hub);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 int ws_listen_tls(const char *cert_path, const char *key_path, const char *host, int port);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 int ws_accept_tls_handshake(int tls_listener_handle);
 
-/* since Nyra 1.12.0 */
+/* since Nyra 0.0.1 */
 int rt_icmp_ping_ms(const char *host, int timeout_ms);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 int rt_icmp_capable(void);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_upgrade_client(int plain_fd, const char *hostname);
 
-/* since Nyra 1.15.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_gen_self_signed(const char *cert_path, const char *key_path, const char *common_name);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 void *map_str_i32_keys(void *handle);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 int map_str_i32_remove(void *handle, const char *key);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 void *map_str_str_keys(void *handle);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 int map_str_str_remove(void *handle, const char *key);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 double rand_f64(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 double rand_f64_range(double min_val, double max_val);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 double sin_f64(double x);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 double cos_f64(double x);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 double atan2_f64(double y, double x);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 double tan_f64(double x);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 void stdin_set_raw_mode(int enable);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 int stdin_read_key(void);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void *mutex_new(void);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void mutex_lock(void *m);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void mutex_unlock(void *m);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void mutex_free(void *m);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void *rwlock_new(void);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void rwlock_rlock(void *r);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void rwlock_wlock(void *r);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void rwlock_unlock(void *r);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void rwlock_free(void *r);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void *waitgroup_new(void);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void waitgroup_add(void *wg, int delta);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void waitgroup_done(void *wg);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void waitgroup_wait(void *wg);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void waitgroup_free(void *wg);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int atomic_load_i32(int *p);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void atomic_store_i32(int *p, int v);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int atomic_add_i32(int *p, int delta);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 int atomic_cas_i32(int *p, int expected, int desired);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void *atomic_i32_new(int initial);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 void atomic_i32_free(void *p);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 void *vec_i32_new(void);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 void vec_i32_push(void *handle, int value);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 int vec_i32_get(void *handle, int index);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 void vec_i32_set(void *handle, int index, int value);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 int vec_i32_len(void *handle);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 void vec_i32_free(void *handle);
 
-/* since Nyra 1.17.0 */
+/* since Nyra 0.0.1 */
 void *vec_bytes_new(int elem_size);
 
-/* since Nyra 1.17.0 */
+/* since Nyra 0.0.1 */
 void vec_bytes_push(void *handle, void *elem);
 
-/* since Nyra 1.17.0 */
+/* since Nyra 0.0.1 */
 void vec_bytes_get(void *handle, int index, void *out);
 
-/* since Nyra 1.17.0 */
+/* since Nyra 0.0.1 */
 int vec_bytes_len(void *handle);
 
-/* since Nyra 1.17.0 */
+/* since Nyra 0.0.1 */
 void vec_bytes_free(void *handle);
 
-/* since Nyra 1.25.0 */
+/* since Nyra 0.0.1 */
 void vec_bytes_push_ptr(void *handle, void *elem);
 
-/* since Nyra 1.25.0 */
+/* since Nyra 0.0.1 */
 void *vec_bytes_get_ptr(void *handle, int index);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 void *map_str_i32_new(void);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 void map_str_i32_insert(void *handle, const char *key, int value);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 int map_str_i32_get(void *handle, const char *key);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 int map_str_i32_contains(void *handle, const char *key);
 
-/* since Nyra 0.4.0 */
+/* since Nyra 0.0.1 */
 void map_str_i32_free(void *handle);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 void map_str_i32_retain(void *handle);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 void *map_str_str_new(void);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 void map_str_str_insert(void *handle, const char *key, const char *value);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 const char *map_str_str_get(void *handle, const char *key);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 int map_str_str_contains(void *handle, const char *key);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 void map_str_str_free(void *handle);
 
-/* since Nyra 1.16.0 */
+/* since Nyra 0.0.1 */
 void map_str_str_retain(void *handle);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int file_exists(const char *path);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int append_file(const char *path, const char *content);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int remove_file(const char *path);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int create_dir(const char *path);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int remove_dir(const char *path);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 int create_dir_all(const char *path);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 int remove_dir_all(const char *path);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 int copy_dir(const char *src, const char *dst);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 int copy_dir_contents(const char *src, const char *dst);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 char *str_to_upper(const char *s);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 char *str_to_lower(const char *s);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 char *str_trim(const char *s);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int str_contains(const char *hay, const char *needle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int str_starts_with(const char *s, const char *prefix);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int str_ends_with(const char *s, const char *suffix);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *str_replace(const char *s, const char *from, const char *to);
 
-/* since Nyra 1.5.0 */
+/* since Nyra 0.0.1 */
 char *str_replacen(const char *s, const char *from, const char *to, int count);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *str_split(const char *s, const char *sep);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int str_to_i32(const char *s);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 double str_to_f64(const char *s);
 
-/* since Nyra 1.3.3 */
+/* since Nyra 0.0.1 */
 char *f64_to_string(double n);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *str_push_char(const char *s, int ch);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *str_pop(const char *s);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *str_strip_ansi(const char *input);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void array_i32_sort_copy(int *dst, const int *src, int n);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void array_f64_sort_copy(double *dst, const double *src, int n);
 
-/* since Nyra 1.8.0 */
+/* since Nyra 0.0.1 */
 char *array_i32_debug_string(const int *arr, int n);
 
-/* since Nyra 1.8.0 */
+/* since Nyra 0.0.1 */
 char *array_f64_debug_string(const double *arr, int n);
 
-/* since Nyra 1.8.0 */
+/* since Nyra 0.0.1 */
 char *array_f32_debug_string(const float *arr, int n);
 
-/* since Nyra 1.8.0 */
+/* since Nyra 0.0.1 */
 char *array_bool_debug_string(const unsigned char *arr, int n);
 
-/* since Nyra 1.8.0 */
+/* since Nyra 0.0.1 */
 char *array_str_debug_string(const char *const *arr, int n);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void *vec_str_new(void);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void vec_str_push(void *handle, const char *value);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 const char *vec_str_get(void *handle, int index);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int vec_str_len(void *handle);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void vec_str_free(void *handle);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int64_t instant_now(void);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int instant_elapsed_ms(int64_t start);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 void sleep_ms(int ms);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void date_now(int *out);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int vec_i32_pop(void *handle);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int rand_i32(void);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 int rand_range(int min_val, int max_val);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int64_t rand_i64(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int64_t rand_range_i64(int64_t min_val, int64_t max_val);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 uint32_t rand_u32(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 uint32_t rand_range_u32(uint32_t min_val, uint32_t max_val);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 uint64_t rand_u64(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 uint64_t rand_range_u64(uint64_t min_val, uint64_t max_val);
 
-/* since Nyra 1.1.0 */
+/* since Nyra 0.0.1 */
 char *random_hex(int byte_count);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 char *rt_bridge_exec(const char *program, const char *input);
 
-/* since Nyra 1.2.0 */
+/* since Nyra 0.0.1 */
 char *rt_bridge_exec_arg(const char *program, const char *arg1, const char *input);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 int command_run(const char *program, void *args_handle);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 char *command_exec_capture(const char *program, void *args_handle);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 void alloc_track_start(const char *label);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 void alloc_track_note(size_t bytes);
 
-/* since Nyra 1.14.0 */
+/* since Nyra 0.0.1 */
 void alloc_track_end(const char *label);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int pty_spawn(const char *shell, int rows, int cols);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int pty_write(int master, const char *data);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *pty_read(int master, int max_bytes);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *pty_drain(int master, int max_bytes);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *pty_drain_raw(int master, int max_bytes);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void pty_flush_stdout(int master, int max_bytes, int timeout_ms);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *pty_read_wait(int master, int max_bytes, int timeout_ms);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 char *pty_read_wait_raw(int master, int max_bytes, int timeout_ms);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int pty_poll(int master);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void pty_resize(int master, int rows, int cols);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void pty_close(int master);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 int pty_wait(int master);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void gpu_font_init(void);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void gpu_font_draw(const char *text, int x, int y, int font_size, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void gpu_font_free(void);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void benchmark_begin(void);
 
-/* since Nyra 1.3.0 */
+/* since Nyra 0.0.1 */
 void benchmark_end(void);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void *arc_alloc_i32(int value);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void *arc_alloc_string(const char *value);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void arc_inc(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void arc_dec(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void arc_dec_i32(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void arc_dec_string(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int arc_get_i32(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 char *arc_get_string(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void *bin_decode_blob_at(void *bin, int32_t index);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 char *json_encode_str_array(void *handle);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 char *json_join_raw_array(void *handle);
 
-/* since Nyra 1.38.0 */
+/* since Nyra 0.0.1 */
 void *json_split_array_elements(const char *array_json);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_upgrade_client_verify(int plain_fd, const char *hostname);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void bin_buf_append_blob(void *handle, void *blob);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_connect_verify(const char *host, int port);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void bin_blob_free(void *blob);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_decode_bool_at(void *blob, int32_t off);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_decode_i32_at(void *blob, int32_t off);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 char *bin_decode_string_at(void *blob, int32_t off);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void bin_buf_write_bytes(void *handle, const void *bytes, int32_t len);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_connect_ex(const char *host, int port, const char *ca_path, int verify_peer);
 
-/* since Nyra 1.26.0 */
+/* since Nyra 0.0.1 */
 int async_select2_bool(int h0, int h1, int *out_index);
 
-/* since Nyra 1.26.0 */
+/* since Nyra 0.0.1 */
 int async_select2_i32(int h0, int h1, int *out_index);
 
-/* since Nyra 1.26.0 */
+/* since Nyra 0.0.1 */
 void *async_select2_ptr(int h0, int h1, int *out_index);
 
-/* since Nyra 1.26.0 */
+/* since Nyra 0.0.1 */
 int async_select_i32(int *handles, int count, int *out_index);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_blob_payload_len(void *blob);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void *bin_buf_finish(void *handle);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void *bin_buf_new(void);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void bin_buf_write_bool(void *handle, int flag);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void bin_buf_write_i32(void *handle, int32_t v);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void bin_buf_write_string(void *handle, const char *s);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_field_width_blob_at(void *blob, int32_t off);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_field_width_bool(void);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_field_width_i32(void);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 int32_t bin_field_width_string_at(void *blob, int32_t off);
 
-/* since Nyra 2.5.0 */
+/* since Nyra 0.0.1 */
 void *json_decode_str_array(const char *array_json);
 
-/* since Nyra 1.19.0 */
+/* since Nyra 0.0.1 */
 int nyra_check_file(const char *path);
 
-/* since Nyra 1.19.0 */
+/* since Nyra 0.0.1 */
 int nyra_check_source(const char *source, const char *file);
 
-/* since Nyra 1.19.0 */
+/* since Nyra 0.0.1 */
 void nyra_compiler_free(char *ptr);
 
-/* since Nyra 1.19.0 */
+/* since Nyra 0.0.1 */
 char *nyra_diag_json_file(const char *path);
 
-/* since Nyra 1.19.0 */
+/* since Nyra 0.0.1 */
 char *nyra_diag_json_source(const char *source, const char *file);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 int rt_icmp_ping_system_ms(const char *host, int timeout_ms);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_connect_ca(const char *host, int port, const char *ca_path);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 const char *rt_tls_last_error(void);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_upgrade_client_ex(int plain_fd, const char *hostname, const char *ca_path, int verify_peer);
 
-/* since Nyra 1.20.0 */
+/* since Nyra 0.0.1 */
 int rt_tls_validate_pem_files(const char *cert_pem_path, const char *key_pem_path);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void *arena_new(long long capacity);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void *arena_alloc(void *arena, long long nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void arena_reset(void *arena);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void arena_free(void *arena);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int io_unregister(int fd);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_uring_available(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int io_uring_pending(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int io_uring_wait_once(int timeout_ms);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_uring_register_read(int32_t fd, int32_t promise);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_uring_unregister_read(int32_t fd);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_pool_create(int32_t workers);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void io_pool_shutdown(int32_t pool);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_pool_submit_wait_readable(int32_t pool, int32_t fd, int32_t promise);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_pool_submit_read(int32_t pool, int32_t fd, void *buf, int64_t nbytes, int32_t promise);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t io_pool_queue_depth(int32_t pool);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t parallel_any_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t parallel_find_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t parallel_all_range(int32_t start, int32_t end, int32_t (*pred)(int32_t, void *), void *ctx, int32_t max_workers, int32_t exact_workers, int32_t mode, int32_t cpu_percent, int32_t backend);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void *map_i32_i32_new(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void map_i32_i32_insert(void *handle, int key, int value);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int map_i32_i32_get(void *handle, int key);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int map_i32_i32_contains(void *handle, int key);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void map_i32_i32_free(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void map_i32_i32_retain(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void *str_buf_new(void);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void str_buf_append(void *handle, const char *piece);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void str_buf_append_char(void *handle, int ch);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 char *str_buf_build(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void str_buf_drop(void *handle);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t shm_create(const char *name, int64_t nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t shm_open_existing(const char *name, int64_t nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 void *shm_map(int32_t fd, int64_t nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t shm_unmap(void *addr, int64_t nbytes);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t shm_close_fd(int32_t fd);
 
-/* since Nyra 1.39.0 */
+/* since Nyra 0.0.1 */
 int32_t shm_unlink_region(const char *name);
 
-/* since Nyra 1.0.0 */
+/* since Nyra 0.0.1 */
 char *str_strip_suffix(const char *s, const char *suffix);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_snake_case(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_lowercase(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_titlecase(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_capitalize(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_camel_case(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_kebab_case(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_pascal_case(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_screaming_snake_case(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_train_case(const char *s);
 
-/* since Nyra 1.40.3 */
+/* since Nyra 0.0.1 */
 char *str_to_dot_case(const char *s);
 
 #ifdef __cplusplus

@@ -1,0 +1,11 @@
+{
+  "ny_module": "vec.ny",
+  "fn_name": "vec_i32_reserve",
+  "args": [
+    "handle:ptr",
+    "min_cap:i32"
+  ],
+  "returns": "void",
+  "rt_module": "rt_vec.c",
+  "c_body": "    NyraVec *v = (NyraVec *)handle;\n    if (!v || min_cap <= v->cap) return;\n    int nc = v->cap;\n    while (nc < min_cap) nc = nc < 1 ? 8 : nc * 2;\n    void *nd = realloc(v->data, (size_t)nc * (size_t)v->elem_size);\n    if (!nd) return;\n    v->data = nd;\n    v->cap = nc;"
+}

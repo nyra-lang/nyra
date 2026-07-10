@@ -2,6 +2,7 @@
 
 .PHONY: build-workspace test-cargo-workspace test-compiletest test-count suite-clean
 .PHONY: test-nyra-lang test-conformance test-optional-types test-examples-corpus
+.PHONY: test-contrib-conformance test-contrib-py
 .PHONY: test-fuzz-smoke test-fuzz-nightly sync-fuzz-corpus test-fuzz-stress
 .PHONY: test-sanitizer test-race-tsan test-race-native test-perf
 .PHONY: test-comparison-parity test-webdocs-tabs test-webdocs-snippets test-webdocs-snippets-full test-abi-roundtrip test-preflight test-triage

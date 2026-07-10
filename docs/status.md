@@ -1,13 +1,13 @@
 # Nyra project status
 
-> Canonical matrix for README and roadmap. Updated with v1.7 race detector + async CFG + collection JSON.
+> Canonical matrix for README and roadmap.
 
 ## Summary
 
 | Area | Status |
 |------|--------|
-| **Overall** | **Production-ready** — Core + Stable Extended (v1.7 TSan + async CFG + collection JSON) |
-| **Core tier** | **Stable** (semver 1.0+) |
+| **Overall** | **Production-ready** — Core + Stable Extended |
+| **Core tier** | **Stable** (semver from v0.1.0) |
 | **Stable Extended** | **Stable** — async CFG desugar, traits + `dyn Send/Sync`, struct JSON (nested + collections), macros, defer |
 | **Extended preview** | **None** |
 | **Toolchain** | CLI **done**; **`nyra build --race` (TSan)**; LSP depth (semantic tokens, inlay hints, code actions, signature help) |
@@ -26,7 +26,7 @@
 | `?` propagation | **Stable Extended** — `tests/nyra/result_propagate_test.ny` |
 | `spawn` + channels | **Stable Extended** |
 | `impl Drop` | **Stable Extended** |
-| `async` / `await` | **Stable Extended** — executor v1.4 + state-machine v1.6–v1.7 + **v1.26 `Future<T>` + select** |
+| `async` / `await` | **Stable Extended** — executor + state-machine + **`Future<T>` + select** |
 | Traits / `dyn` | **Stable Extended** — multi-method vtables, **`dyn Trait + Send + Sync`** bounds with **Send/Sync validation**, trait-object **`Drop`** (heap free) |
 | Macros | **Stable Extended** |
 | Lifetimes / defer | **Stable Extended** |
@@ -69,9 +69,9 @@
 
 | Domain | Status |
 |--------|--------|
-| Collections, fs, strings, time | Shipped |
+| Collections, fs, strings, time | Shipped — batch3–6 gap-fill (~116 builtins/helpers: strings, math, strconv, Vec/StrVec/Map, atomics, FS metadata) |
 | crypto (SHA/HMAC/AES) | Shipped |
-| net/http, tcp, websocket, udp | Shipped — JS-like `fetch`/`req().post(url)`, collections HOFs, SQL `qb()` builder (v1.45) |
+| net/http, tcp, websocket, udp | Shipped — JS-like `fetch`/`req().post(url)`, collections HOFs, SQL `qb()` builder |
 | db/sqlite | Shipped (`link sqlite3`) |
 | db/postgres, db/mysql | Native when libpq/mysqlclient linked |
 | env_get / **env_set** | Shipped (POSIX + Windows) |

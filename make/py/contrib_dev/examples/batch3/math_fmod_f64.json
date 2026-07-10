@@ -1,0 +1,12 @@
+{
+  "ny_module": "math.ny",
+  "fn_name": "fmod_f64",
+  "args": [
+    "x:f64",
+    "y:f64"
+  ],
+  "returns": "f64",
+  "rt_module": "rt_math.c",
+  "ny_alias": "fmod",
+  "c_body": "    if (y == 0.0) return 0.0;\n    int n = (int)(x / y);\n    double r = x - (double)n * y;\n    if ((r > 0.0) != (x > 0.0)) r += (x > 0.0 ? y : -y);\n    return r;"
+}

@@ -1,0 +1,10 @@
+{
+  "ny_module": "fs/file.ny",
+  "fn_name": "path_is_file",
+  "args": [
+    "path:string"
+  ],
+  "returns": "i32",
+  "rt_module": "rt_fs.c",
+  "c_body": "    if (!path) return 0;\n#if defined(_WIN32)\n    struct _stat st;\n    if (_stat(path, &st) != 0) return 0;\n    return (st.st_mode & _S_IFDIR) ? 0 : 1;\n#else\n    struct stat st;\n    if (stat(path, &st) != 0) return 0;\n    return S_ISDIR(st.st_mode) ? 0 : 1;\n#endif"
+}

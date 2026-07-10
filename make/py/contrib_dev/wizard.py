@@ -307,6 +307,7 @@ def spec_from_config(recipe: str, data: dict):
             stable_abi=data.get("stable_abi", False),
             abi_since=data.get("abi_since", "1.0.0"),
             ny_alias=data.get("ny_alias"),
+            c_body=data.get("c_body"),
         )
     if recipe in ("test-example", "4"):
         return TestExampleSpec(

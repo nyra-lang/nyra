@@ -14,6 +14,9 @@ NYRA=("$NYRA_BIN")
 log() { echo "optional-types: $*" >&2; }
 fail() { log "FAILED: $*"; exit 1; }
 
+log "example syntax guards"
+python3 "$ROOT/make/py/check_examples_syntax.py" || fail "example syntax guards"
+
 check_file() {
   local label="$1"
   local path="$2"
