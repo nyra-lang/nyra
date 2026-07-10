@@ -3,7 +3,6 @@ import "stdlib/testing.ny"
 import "stdlib/math.ny"
 
 test fn test_rotate_right_i32() {
-    let x = rotate_right_i32(1, 1)
-    if x < 0.0 { assert_eq(1, 0) }
+    assert_eq(rotate_right_i32(2, 1), 1)
 }
 // [/contrib-dev:rotate_right_i32:math]

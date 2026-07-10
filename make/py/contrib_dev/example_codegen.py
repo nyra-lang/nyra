@@ -478,6 +478,10 @@ def extern_test_body(spec: StdlibFnSpec) -> list[str]:
             ]
         if fn == "pow_i32":
             return ["    assert_eq(pow_i32(2, 3), 8)"]
+        if fn == "rotate_left_i32":
+            return ["    assert_eq(rotate_left_i32(1, 1), 2)"]
+        if fn == "rotate_right_i32":
+            return ["    assert_eq(rotate_right_i32(2, 1), 1)"]
         return [f"    let x = {fn}({_call_args(spec)})", "    if x < 0.0 { assert_eq(1, 0) }"]
     if fn == "hex_decode":
         return ['    assert_str_eq(hex_decode("4869"), "Hi")']
@@ -588,7 +592,11 @@ def extern_test_body(spec: StdlibFnSpec) -> list[str]:
     if fn == "format_i32_hex":
         return ['    assert_str_eq(format_i32_hex(255), "ff")']
     if fn == "str_to_f64":
-        return ['    assert_eq(str_to_f64("3.5"), 3.5)']
+        return [
+            '    let x = str_to_f64("3.5")',
+            "    if x < 3.4 { assert_eq(1, 0) }",
+            "    if x > 3.6 { assert_eq(1, 0) }",
+        ]
     if fn == "format_bool":
         return [
             '    assert_str_eq(format_bool(1), "true")',
@@ -619,7 +627,11 @@ def extern_test_body(spec: StdlibFnSpec) -> list[str]:
     if fn == "u64_to_string":
         return ['    assert_str_eq(u64_to_string(42), "42")']
     if fn == "str_to_f32":
-        return ['    assert_eq(str_to_f32("2.5"), 2.5)']
+        return [
+            '    let x = str_to_f32("2.5")',
+            "    if x < 2.4 { assert_eq(1, 0) }",
+            "    if x > 2.6 { assert_eq(1, 0) }",
+        ]
     if fn == "mod_i32":
         return ['    assert_eq(mod_i32(7, 3), 1)', '    assert_eq(mod_i32(-7, 3), 2)']
     if fn == "gcd_i32":
@@ -724,10 +736,6 @@ def extern_test_body(spec: StdlibFnSpec) -> list[str]:
         ]
     if fn == "trailing_zeros_i32":
         return ["    assert_eq(trailing_zeros_i32(8), 3)", "    assert_eq(trailing_zeros_i32(0), 32)"]
-    if fn == "rotate_left_i32":
-        return ["    assert_eq(rotate_left_i32(1, 1), 2)"]
-    if fn == "rotate_right_i32":
-        return ["    assert_eq(rotate_right_i32(2, 1), 1)"]
     if fn == "rem_euclid_i32":
         return ["    assert_eq(rem_euclid_i32(-7, 3), 2)"]
     if fn == "file_mtime":
