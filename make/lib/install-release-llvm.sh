@@ -15,6 +15,23 @@ set_env() {
   export "$key=$val"
 }
 
+# rust-cache / prior brew LLVM can leave arm64 link paths in clang-sys build output.
+clean_clang_sys_build_cache() {
+  triple="$1"
+  if [ "$triple" != "x86_64-apple-darwin" ]; then
+    return 0
+  fi
+  if [ "$(uname -s)" != "Darwin" ] || [ "$(uname -m)" != "arm64" ]; then
+    return 0
+  fi
+  echo "install-release-llvm: clearing stale clang-sys cache for ${triple} ..."
+  rm -rf "target/${triple}/release/build/clang-sys-"*
+  rm -rf "target/${triple}/release/deps/libclang-"*
+  rm -rf "target/${triple}/release/deps/libclang_sys-"*
+  rm -rf "target/${triple}/release/.fingerprint/clang-sys-"*
+  rm -rf "target/${triple}/release/.fingerprint/libclang-"*
+}
+
 case "$TRIPLE" in
   x86_64-apple-darwin)
     LLVM_VER=15.0.7
@@ -27,8 +44,11 @@ case "$TRIPLE" in
         | tar xJ -C "$HOME"
     fi
     set_env LIBCLANG_PATH "${LLVM_ROOT}/lib"
+    set_env LLVM_CONFIG_PATH "${LLVM_ROOT}/bin/llvm-config"
+    set_env PATH "${LLVM_ROOT}/bin:${PATH}"
     set_env DYLD_LIBRARY_PATH "${LLVM_ROOT}/lib:${DYLD_LIBRARY_PATH:-}"
     set_env CARGO_TARGET_X86_64_APPLE_DARWIN_RUSTFLAGS "-L native=${LLVM_ROOT}/lib"
+    clean_clang_sys_build_cache "$TRIPLE"
     ;;
   aarch64-apple-darwin)
     if [ "$(uname -s)" = "Darwin" ]; then

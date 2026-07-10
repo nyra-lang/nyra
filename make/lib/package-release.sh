@@ -10,6 +10,11 @@ TRIPLE="${2:?target triple required (e.g. x86_64-unknown-linux-gnu)}"
 ROOT="$(cd -- "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+if [ "$(uname -s)" = "Darwin" ]; then
+  # shellcheck disable=SC1091
+  . "$(dirname "$0")/install-release-llvm.sh" "$TRIPLE"
+fi
+
 read_workspace_version() {
   sed -n '/^\[workspace\.package\]/,/^\[/p' Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p' | head -1
 }
@@ -173,12 +178,19 @@ nyra_version_report() {
 
 if [ "$IS_WINDOWS" -eq 0 ]; then
   NYRA_BIN="$STAGE/bin/nyra"
-  reported="$(nyra_version_report "$NYRA_BIN" | head -1)"
+  reported=""
+  # Cross-arch macOS binaries may not execute on the packager host (no Rosetta).
+  if [ "$OS" = "darwin" ] && [ "$(uname -m)" != "$ARCH" ]; then
+    reported="$(strings "$NYRA_BIN" 2>/dev/null | grep -E "^${VERSION}$" | head -1)"
+  fi
+  if [ -z "$reported" ]; then
+    reported="$(nyra_version_report "$NYRA_BIN" | head -1)"
+  fi
   if [ -z "$reported" ]; then
     reported="$(strings "$NYRA_BIN" 2>/dev/null | sed -n 's/^nyra //p' | head -1)"
   fi
   if [ -z "$reported" ]; then
-    reported="$(strings "$NYRA_BIN" 2>/dev/null | grep -E "^${VERSION}\$" | head -1)"
+    reported="$(strings "$NYRA_BIN" 2>/dev/null | grep -E "^${VERSION}$" | head -1)"
   fi
   if [ "$reported" != "$VERSION" ]; then
     echo "error: built nyra reports ${reported:-<empty>}, expected ${VERSION}" >&2

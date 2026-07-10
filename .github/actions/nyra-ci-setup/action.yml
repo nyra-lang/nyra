@@ -5,13 +5,15 @@ inputs:
   platform:
     description: Runner OS family — macos, windows, or linux
     required: true
+  target_triple:
+    description: Optional cargo triple (macOS x86_64 cross-build needs target-arch libclang)
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
     - uses: dtolnay/rust-toolchain@stable
-
-    - uses: Swatinem/rust-cache@v2
 
     - name: Cache Homebrew (macOS)
       if: inputs.platform == 'macos'
@@ -37,10 +39,19 @@ runs:
       run: brew install llvm sqlite z3 zlib
 
     - name: macOS LLVM paths
-      if: inputs.platform == 'macos'
+      if: inputs.platform == 'macos' && inputs.target_triple != 'x86_64-apple-darwin'
       shell: bash
       run: |
         echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
+
+    - name: macOS x86_64 libclang (cross-build)
+      if: inputs.platform == 'macos' && inputs.target_triple == 'x86_64-apple-darwin'
+      shell: bash
+      run: bash make/lib/install-release-llvm.sh x86_64-apple-darwin
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: ${{ inputs.target_triple != '' && inputs.target_triple || inputs.platform }}
 
     - name: Install LLVM (Windows)
       if: inputs.platform == 'windows'
