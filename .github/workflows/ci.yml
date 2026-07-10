@@ -409,7 +409,7 @@ jobs:
             triple: aarch64-apple-darwin
             platform: macos
             label: macos-aarch64
-          - os: macos-latest
+          - os: macos-15-intel
             triple: x86_64-apple-darwin
             platform: macos
             label: macos-x86_64
@@ -422,16 +422,6 @@ jobs:
       - uses: ./.github/actions/nyra-ci-setup
         with:
           platform: ${{ matrix.platform }}
-      - name: Cache x86_64 LLVM (macOS cross-build)
-        if: runner.os == 'macOS' && matrix.triple == 'x86_64-apple-darwin'
-        uses: actions/cache@v4
-        with:
-          path: ~/clang+llvm-15.0.7-x86_64-apple-darwin21.0
-          key: llvm-macos-x86_64-15.0.7
-      - name: Release libclang (macOS)
-        if: runner.os == 'macOS'
-        shell: bash
-        run: bash make/lib/install-release-llvm.sh "${{ matrix.triple }}"
       - name: Package release smoke
         shell: bash
         run: make test-package-release TRIPLE="${{ matrix.triple }}"
