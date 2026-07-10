@@ -1,1 +1,1 @@
-error: Type mismatch in comparison
+error[E015]: type mismatch in `comparison` operation

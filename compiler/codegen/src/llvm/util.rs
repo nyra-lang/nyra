@@ -154,6 +154,8 @@ pub const WINDOWS_CRT_FN_COLLISIONS: &[&str] = &[
     // libm short aliases in stdlib/math.ny — rt_math.c __builtin_* may call these CRT names.
     "sin", "cos", "tan", "sqrt", "pow", "log", "exp", "ceil", "floor", "round", "trunc", "hypot",
     "asin", "acos", "atan", "atan2", "log10", "log2",
+    // fs/sugar.ny — rt_fs.c calls POSIX rmdir(); unprefixed Nyra wrapper hijacks the link name.
+    "rmdir",
 ];
 
 /// LLVM link symbol for a Nyra-defined function (may differ from the source name when libc/libm would collide).
@@ -215,6 +217,7 @@ mod llvm_fn_link_name_tests {
             assert_eq!(llvm_fn_link_name("ceil", triple), "nyra_ceil");
             assert_eq!(llvm_fn_link_name("hypot", triple), "nyra_hypot");
             assert_eq!(llvm_fn_link_name("trunc", triple), "nyra_trunc");
+            assert_eq!(llvm_fn_link_name("rmdir", triple), "nyra_rmdir");
         }
     }
 

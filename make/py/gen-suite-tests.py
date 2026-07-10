@@ -581,7 +581,7 @@ def gen_fail_regression(dry_run: bool) -> int:
             "reg_string_sub.ny",
             """fn main() {
     let s = "x"
-    s - 1 //~ ERROR Invalid operation on string
+    s - 1 //~ ERROR type mismatch in `subtraction` operation
 }""",
         ),
         (
@@ -610,7 +610,7 @@ def gen_fail_regression(dry_run: bool) -> int:
         (
             "reg_cmp_string_int.ny",
             """fn main() {
-    let _ = "a" == 1 //~ ERROR Type mismatch in comparison
+    let _ = "a" == 1 //~ ERROR type mismatch in `comparison` operation
 }""",
         ),
         (
@@ -841,11 +841,11 @@ def gen_fail_arith(dry_run: bool) -> int:
                 if left == "string" or right == "string":
                     if op == "add":
                         continue
-                    err = "Invalid operation on string" if (
+                    err = "type mismatch in `subtraction` operation" if (
                         left == "string" or right == "string"
-                    ) and op == "sub" else "Type mismatch in arithmetic"
+                    ) and op == "sub" else "type mismatch in `arithmetic` operation"
                 elif left == "bool" or right == "bool":
-                    err = "Type mismatch in arithmetic"
+                    err = "type mismatch in `arithmetic` operation"
                 else:
                     continue
                 name = f"fail_{op}_{left}_{right}.ny"
@@ -872,7 +872,7 @@ def gen_fail_cmp(dry_run: bool) -> int:
         for left, lval, right, rval in pairs:
             name = f"fail_{op}_{left}_{right}.ny"
             body = f"""fn main() {{
-    let _ = {lval} {sym} {rval} //~ ERROR Type mismatch in comparison
+    let _ = {lval} {sym} {rval} //~ ERROR type mismatch in `comparison` operation
 }}"""
             write(SUITE / "fail" / "generated" / "types" / name, body, dry_run)
             n += 1
@@ -886,7 +886,7 @@ def gen_fail_logical(dry_run: bool) -> int:
         ("i32_or_i32", "1 || 2", "requires bool"),
         ("string_and_true", '"a" && true', "requires bool"),
         ("f64_or_false", "1.0 || false", "requires bool"),
-        ("not_i32", "!1", "requires bool"),
+        ("not_i32", "!1", "type mismatch in `unary `!`` operation"),
     ]
     for name, expr, err in cases:
         body = f"""fn main() {{
