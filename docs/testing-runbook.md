@@ -13,7 +13,7 @@ Staged workflow in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): **
 | **2 medium** | `test-nyra-lang`, `smoke-stdlib-priority` |
 | **3 heavy** | `smoke-stdlib`, `smoke-stdlib-runtime`, `test-runtime-smoke` |
 | **4 native** | `make test-all-{linux,macos,windows}-native` |
-| **5 release** | `make test-package-release TRIPLE=…` (Linux, macOS aarch64 + x86_64, Windows) |
+| **5 release** | `make test-package-release TRIPLE=…` (Linux, macOS aarch64, macOS x86_64 on `macos-15-intel`, Windows) |
 
 Local full mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
 
@@ -24,7 +24,7 @@ Local full mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA
 | OS | Workflow jobs | Native smoke | Extras |
 |----|---------------|--------------|--------|
 | **Linux** | `build-linux`, `tier1-linux`, `tier2-linux`, `tier3-linux`, `native-linux` | `make test-all-linux-native` | Weekly `fuzz` job (full compiletest + nightly fuzz) |
-| **macOS** | `build-macos`, `tier1-macos`, … | `make test-all-macos-native` | `release-package` (aarch64 + x86_64 triples) |
+| **macOS** | `build-macos`, `tier1-macos`, … | `make test-all-macos-native` | `release-package` (aarch64 on `macos-latest`, x86_64 on `macos-15-intel`) |
 | **Windows** | `build-windows`, `tier1-windows`, … | `make test-all-windows-native` | `release-package`, `windows-dap` |
 
 Monolithic local targets: `make test-all-linux`, `make test-all-macos`, `make test-all-windows` (platform core + native smoke).
@@ -61,10 +61,12 @@ Before tagging `v*`, CI runs the same packaging path as [`.github/workflows/rele
 
 ```bash
 make test-package-release TRIPLE=aarch64-apple-darwin   # native macOS (Apple Silicon)
-make test-package-release TRIPLE=x86_64-apple-darwin    # needs make/lib/install-release-llvm.sh on arm64 Mac
+make test-package-release TRIPLE=x86_64-apple-darwin    # native on Intel; on arm64 Mac needs install-release-llvm.sh
 ```
 
-On Apple Silicon cross-building **x86_64-apple-darwin**, Homebrew LLVM is arm64-only — use `bash make/lib/install-release-llvm.sh x86_64-apple-darwin` first (CI does this automatically).
+CI builds **x86_64-apple-darwin** on `macos-15-intel` (native Intel) so Homebrew libclang matches the target arch. Cross-building that triple from Apple Silicon still needs `bash make/lib/install-release-llvm.sh x86_64-apple-darwin` first.
+
+**Important:** the release tag must point at a commit that includes the current `release.yml` (e.g. retag after merging fixes): `git tag -f v0.1.0 && git push -f origin v0.1.0`.
 
 ### Snapshot mismatch (`insta`)
 
