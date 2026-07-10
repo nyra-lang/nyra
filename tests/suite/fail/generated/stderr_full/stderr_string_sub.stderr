@@ -1,1 +1,1 @@
-error: Invalid operation on string
+error[E015]: type mismatch in `subtraction` operation

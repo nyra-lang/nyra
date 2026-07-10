@@ -1,3 +1,3 @@
 fn main() {
-    let _ = "a" * true //~ ERROR Type mismatch in arithmetic
+    let _ = "a" * true //~ ERROR type mismatch in `arithmetic` operation
 }

@@ -1,4 +1,4 @@
 fn main() {
     let x = "abc"
-    x - 1 //~ ERROR Invalid operation on string
+    x - 1 //~ ERROR type mismatch in `subtraction` operation
 }

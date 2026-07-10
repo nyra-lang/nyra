@@ -1,3 +1,3 @@
 fn main() {
-    let _ = "a" < 1 //~ ERROR Type mismatch in comparison
+    let _ = "a" < 1 //~ ERROR type mismatch in `comparison` operation
 }

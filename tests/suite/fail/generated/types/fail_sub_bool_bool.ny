@@ -1,3 +1,3 @@
 fn main() {
-    let _ = true - true //~ ERROR Type mismatch in arithmetic
+    let _ = true - true //~ ERROR type mismatch in `arithmetic` operation
 }

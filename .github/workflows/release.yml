@@ -28,6 +28,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.triple }}
+      - name: Cache x86_64 LLVM (macOS cross-build)
+        if: runner.os == 'macOS' && matrix.triple == 'x86_64-apple-darwin'
+        uses: actions/cache@v4
+        with:
+          path: ~/clang+llvm-15.0.7-x86_64-apple-darwin21.0
+          key: llvm-macos-x86_64-15.0.7
+
       - name: Install clang (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -35,9 +42,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y clang zip libclang-dev llvm-dev
           elif [ "${{ runner.os }}" = "macOS" ]; then
-            brew install llvm
-            echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
-            echo "DYLD_LIBRARY_PATH=$(brew --prefix llvm)/lib:${DYLD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+            bash make/lib/install-release-llvm.sh "${{ matrix.triple }}"
           fi
       - name: Package release
         shell: bash

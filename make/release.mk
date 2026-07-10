@@ -57,13 +57,14 @@ endif
 
 DIST := $(DIST_DIR)/$(ASSET)
 
-.PHONY: dist release verify-dist clean-dist dist-help
+.PHONY: dist release verify-dist clean-dist dist-help test-package-release
 
 dist-help:
 	@printf '%s\n' \
 		'Release packaging (GitHub assets):' \
 		'  make dist              Build + $(ASSET)' \
 		'  make release           Alias for dist' \
+		'  make test-package-release TRIPLE=…  CI/release smoke (reads VERSION from Cargo.toml)' \
 		'  make verify-dist       List tarball contents' \
 		'  make clean-dist        Remove dist/' \
 		'' \
@@ -81,6 +82,11 @@ dist:
 	@printf '   Asset name must be: %s\n' "$(ASSET)"
 
 release: dist
+
+# CI / pre-release gate — same paths as .github/workflows/release.yml (reads VERSION from Cargo.toml).
+test-package-release:
+	@test -n "$(TRIPLE)" || (printf 'make: error: TRIPLE is required (e.g. x86_64-unknown-linux-gnu)\n' >&2; exit 1)
+	@$(MAKE_LIB)/ci-package-release.sh "$(TRIPLE)"
 
 verify-dist:
 	@test -f "$(DIST)" || (printf 'make: error: missing %s — run make dist first\n' "$(DIST)" >&2; exit 1)

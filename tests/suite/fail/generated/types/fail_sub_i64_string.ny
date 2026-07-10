@@ -1,3 +1,3 @@
 fn main() {
-    let _ = 1 - "a" //~ ERROR Invalid operation on string
+    let _ = 1 - "a" //~ ERROR type mismatch in `subtraction` operation
 }
