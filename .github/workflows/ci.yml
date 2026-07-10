@@ -373,20 +373,6 @@ jobs:
         shell: bash
         run: make test-all-windows-native
 
-  windows-package:
-    name: "package · Windows"
-    needs: build-windows
-    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/nyra-ci-setup
-        with:
-          platform: windows
-      - name: Package smoke (Windows asset layout)
-        shell: bash
-        run: make package-release VERSION=0.1.0 TRIPLE=x86_64-pc-windows-msvc
-
   windows-dap:
     name: "dap · Windows"
     needs: build-windows
@@ -399,6 +385,56 @@ jobs:
           platform: windows
       - name: DAP smoke
         run: cargo build -p nyra-dap
+
+  # ── Release packaging smoke (same matrix as Release workflow, no git tag) ───
+  release-package:
+    name: "release · ${{ matrix.label }}"
+    needs: [build-linux, build-macos, build-windows]
+    if: >-
+      ${{ !cancelled() &&
+          needs.build-linux.result == 'success' &&
+          needs.build-macos.result == 'success' &&
+          needs.build-windows.result == 'success' }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            triple: x86_64-unknown-linux-gnu
+            platform: linux
+            label: linux-x86_64
+          - os: macos-latest
+            triple: aarch64-apple-darwin
+            platform: macos
+            label: macos-aarch64
+          - os: macos-latest
+            triple: x86_64-apple-darwin
+            platform: macos
+            label: macos-x86_64
+          - os: windows-latest
+            triple: x86_64-pc-windows-msvc
+            platform: windows
+            label: windows-x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nyra-ci-setup
+        with:
+          platform: ${{ matrix.platform }}
+      - name: Cache x86_64 LLVM (macOS cross-build)
+        if: runner.os == 'macOS' && matrix.triple == 'x86_64-apple-darwin'
+        uses: actions/cache@v4
+        with:
+          path: ~/clang+llvm-15.0.7-x86_64-apple-darwin21.0
+          key: llvm-macos-x86_64-15.0.7
+      - name: Release libclang (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: bash make/lib/install-release-llvm.sh "${{ matrix.triple }}"
+      - name: Package release smoke
+        shell: bash
+        run: make test-package-release TRIPLE="${{ matrix.triple }}"
 
   # ── Summary (always) ─────────────────────────────────────────────────────────
   ci-summary:
@@ -419,7 +455,7 @@ jobs:
       - native-linux
       - native-macos
       - native-windows
-      - windows-package
+      - release-package
       - windows-dap
     if: always()
     runs-on: ubuntu-latest
@@ -442,7 +478,7 @@ jobs:
           NATIVE_LINUX: ${{ needs.native-linux.result }}
           NATIVE_MACOS: ${{ needs.native-macos.result }}
           NATIVE_WINDOWS: ${{ needs.native-windows.result }}
-          WIN_PACKAGE: ${{ needs.windows-package.result }}
+          RELEASE_PACKAGE: ${{ needs.release-package.result }}
           WIN_DAP: ${{ needs.windows-dap.result }}
         run: |
           set -euo pipefail
@@ -466,7 +502,8 @@ jobs:
             printf '| 2 medium | %s | %s | %s |\n' "$(icon "$TIER2_LINUX")" "$(icon "$TIER2_MACOS")" "$(icon "$TIER2_WINDOWS")"
             printf '| 3 heavy | %s | %s | %s |\n' "$(icon "$TIER3_LINUX")" "$(icon "$TIER3_MACOS")" "$(icon "$TIER3_WINDOWS")"
             printf '| 4 native | %s | %s | %s |\n' "$(icon "$NATIVE_LINUX")" "$(icon "$NATIVE_MACOS")" "$(icon "$NATIVE_WINDOWS")"
-            printf '| extras | — | — | package %s · dap %s |\n' "$(icon "$WIN_PACKAGE")" "$(icon "$WIN_DAP")"
+            printf '| release | %s | %s | %s |\n' "$(icon "$RELEASE_PACKAGE")" "$(icon "$RELEASE_PACKAGE")" "$(icon "$RELEASE_PACKAGE")"
+            printf '| extras | — | — | dap %s |\n' "$(icon "$WIN_DAP")"
             echo ""
             echo "_Skipped stages usually mean an earlier stage on that OS failed (e.g. build)._"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -475,7 +512,7 @@ jobs:
                    "$TIER2_LINUX" "$TIER2_MACOS" "$TIER2_WINDOWS" \
                    "$TIER3_LINUX" "$TIER3_MACOS" "$TIER3_WINDOWS" \
                    "$NATIVE_LINUX" "$NATIVE_MACOS" "$NATIVE_WINDOWS" \
-                   "$WIN_PACKAGE" "$WIN_DAP"; do
+                   "$RELEASE_PACKAGE" "$WIN_DAP"; do
             if [[ "$r" == "failure" ]]; then
               echo "::error::CI stage failed — see job logs and the summary table above."
             fi

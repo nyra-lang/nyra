@@ -4,7 +4,7 @@ Operational guide for CI failures, regressions, and tier promotion.
 
 ## CI pipeline stages
 
-Staged workflow in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): **build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native** on each OS, then Windows-only package/DAP extras. Weekly schedule runs extended fuzz on Linux.
+Staged workflow in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): **build → tier1 (fast) → tier2 (medium) → tier3 (heavy) → native** on each OS, then **release package smoke** (all GitHub Release triples) and Windows DAP. Weekly schedule runs extended fuzz on Linux.
 
 | Stage | Gates (matrix per OS) |
 |-------|------------------------|
@@ -13,6 +13,7 @@ Staged workflow in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): **
 | **2 medium** | `test-nyra-lang`, `smoke-stdlib-priority` |
 | **3 heavy** | `smoke-stdlib`, `smoke-stdlib-runtime`, `test-runtime-smoke` |
 | **4 native** | `make test-all-{linux,macos,windows}-native` |
+| **5 release** | `make test-package-release TRIPLE=…` (Linux, macOS aarch64 + x86_64, Windows) |
 
 Local full mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA_SUITE_PROFILE=fast` for quicker iteration).
 
@@ -23,8 +24,8 @@ Local full mirror: `make test-all` (optional `TEST_PERF=1`, `TEST_FUZZ=1`, `NYRA
 | OS | Workflow jobs | Native smoke | Extras |
 |----|---------------|--------------|--------|
 | **Linux** | `build-linux`, `tier1-linux`, `tier2-linux`, `tier3-linux`, `native-linux` | `make test-all-linux-native` | Weekly `fuzz` job (full compiletest + nightly fuzz) |
-| **macOS** | `build-macos`, `tier1-macos`, … | `make test-all-macos-native` | — |
-| **Windows** | `build-windows`, `tier1-windows`, … | `make test-all-windows-native` | `windows-package`, `windows-dap` |
+| **macOS** | `build-macos`, `tier1-macos`, … | `make test-all-macos-native` | `release-package` (aarch64 + x86_64 triples) |
+| **Windows** | `build-windows`, `tier1-windows`, … | `make test-all-windows-native` | `release-package`, `windows-dap` |
 
 Monolithic local targets: `make test-all-linux`, `make test-all-macos`, `make test-all-windows` (platform core + native smoke).
 
@@ -53,6 +54,17 @@ sudo apt-get install -y clang lld libclang-dev llvm-dev libsqlite3-dev zlib1g-de
 ```
 
 CI uses the same packages in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
+
+### Release packaging (`make test-package-release`)
+
+Before tagging `v*`, CI runs the same packaging path as [`.github/workflows/release.yml`](../.github/workflows/release.yml) for all four triples. Locally:
+
+```bash
+make test-package-release TRIPLE=aarch64-apple-darwin   # native macOS (Apple Silicon)
+make test-package-release TRIPLE=x86_64-apple-darwin    # needs make/lib/install-release-llvm.sh on arm64 Mac
+```
+
+On Apple Silicon cross-building **x86_64-apple-darwin**, Homebrew LLVM is arm64-only — use `bash make/lib/install-release-llvm.sh x86_64-apple-darwin` first (CI does this automatically).
 
 ### Snapshot mismatch (`insta`)
 
