@@ -1324,6 +1324,27 @@ tier = "stable"
 since = "0.0.1"
 
 [[symbol]]
+name = "channel_try_recv"
+c_sig = "int channel_try_recv(void *ch)"
+module = "rt_channel.c"
+tier = "stable"
+since = "0.1.2"
+
+[[symbol]]
+name = "channel_try_value"
+c_sig = "int channel_try_value(void)"
+module = "rt_channel.c"
+tier = "stable"
+since = "0.1.2"
+
+[[symbol]]
+name = "channel_recv_async"
+c_sig = "int channel_recv_async(void *ch)"
+module = "rt_channel.c"
+tier = "stable"
+since = "0.1.2"
+
+[[symbol]]
 name = "channel_free"
 c_sig = "void channel_free(void *ch)"
 module = "rt_channel.c"

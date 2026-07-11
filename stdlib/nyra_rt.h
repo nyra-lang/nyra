@@ -540,6 +540,15 @@ void channel_send(void *ch, int value);
 /* since Nyra 0.0.1 */
 int channel_recv(void *ch);
 
+/* since Nyra 0.1.2 — non-blocking; returns 1 if a value was taken (see channel_try_value), else 0 */
+int channel_try_recv(void *ch);
+
+/* since Nyra 0.1.2 — value from the last successful channel_try_recv on this thread */
+int channel_try_value(void);
+
+/* since Nyra 0.1.2 — promise handle completed when a value is available */
+int channel_recv_async(void *ch);
+
 /* since Nyra 0.0.1 */
 void channel_free(void *ch);
 

@@ -90,18 +90,15 @@ fn stmt_has_await(stmt: &Statement) -> bool {
     }
 }
 
-fn wrap_spawn_block(body: Block) -> Statement {
-    Statement::Spawn(SpawnStmt {
-        kind: SpawnKind::Thread,
-        body,
-    })
+fn wrap_spawn_block(kind: SpawnKind, body: Block) -> Statement {
+    Statement::Spawn(SpawnStmt { kind, body })
 }
 
 fn lower_nested_async_block(
     builder: &mut CfgBuilder,
     block: &Block,
     exit: i32,
-    wrap: fn(Block) -> Statement,
+    wrap: impl FnOnce(Block) -> Statement,
     checker: &TypeChecker,
 ) -> Option<Statement> {
     let mut nested = CfgBuilder::new(
@@ -203,6 +200,185 @@ fn unwrap_await(expr: &Expression) -> Expression {
         Expression::Await(inner) => *inner.clone(),
         other => other.clone(),
     }
+}
+
+/// Lift nested `await` expressions into preceding `let` bindings so the CFG
+/// lowerer only sees statement-level `let x = await e` / bare `await e`.
+fn hoist_awaits_in_expr(
+    expr: Expression,
+    counter: &mut usize,
+    out: &mut Vec<Statement>,
+    span: &Span,
+) -> Expression {
+    match expr {
+        Expression::Await(inner) => {
+            let inner = hoist_awaits_in_expr(*inner, counter, out, span);
+            let name = format!("__nyra_hoist_aw_{counter}");
+            *counter += 1;
+            out.push(stmt_let(
+                &name,
+                Expression::Await(Box::new(inner)),
+                span.clone(),
+            ));
+            expr_var(&name, span.clone())
+        }
+        Expression::Binary(mut b) => {
+            b.left = hoist_awaits_in_expr(b.left, counter, out, span);
+            b.right = hoist_awaits_in_expr(b.right, counter, out, span);
+            Expression::Binary(b)
+        }
+        Expression::Unary(mut u) => {
+            u.operand = hoist_awaits_in_expr(u.operand, counter, out, span);
+            Expression::Unary(u)
+        }
+        Expression::Grouped(g) => {
+            Expression::Grouped(Box::new(hoist_awaits_in_expr(*g, counter, out, span)))
+        }
+        Expression::Call(mut c) => {
+            c.args = c
+                .args
+                .into_iter()
+                .map(|a| hoist_awaits_in_expr(a, counter, out, span))
+                .collect();
+            Expression::Call(c)
+        }
+        Expression::MethodCall(mut m) => {
+            m.object = hoist_awaits_in_expr(m.object, counter, out, span);
+            m.args = m
+                .args
+                .into_iter()
+                .map(|a| hoist_awaits_in_expr(a, counter, out, span))
+                .collect();
+            Expression::MethodCall(m)
+        }
+        Expression::FieldAccess(mut f) => {
+            f.object = hoist_awaits_in_expr(f.object, counter, out, span);
+            Expression::FieldAccess(f)
+        }
+        Expression::Index(mut ix) => {
+            ix.object = hoist_awaits_in_expr(ix.object, counter, out, span);
+            ix.index = hoist_awaits_in_expr(ix.index, counter, out, span);
+            Expression::Index(ix)
+        }
+        Expression::Cast(mut c) => {
+            c.expr = hoist_awaits_in_expr(c.expr, counter, out, span);
+            Expression::Cast(c)
+        }
+        Expression::StructLiteral(mut s) => {
+            s.spreads = s
+                .spreads
+                .into_iter()
+                .map(|e| hoist_awaits_in_expr(e, counter, out, span))
+                .collect();
+            s.fields = s
+                .fields
+                .into_iter()
+                .map(|(n, e)| (n, hoist_awaits_in_expr(e, counter, out, span)))
+                .collect();
+            Expression::StructLiteral(s)
+        }
+        Expression::TupleLiteral(elems) => Expression::TupleLiteral(
+            elems
+                .into_iter()
+                .map(|e| hoist_awaits_in_expr(e, counter, out, span))
+                .collect(),
+        ),
+        Expression::ArrayLiteral(mut al) => {
+            for e in al.spreads.iter_mut().chain(al.elems.iter_mut()) {
+                let taken = std::mem::replace(e, Expression::Literal(Literal::Int(0)));
+                *e = hoist_awaits_in_expr(taken, counter, out, span);
+            }
+            Expression::ArrayLiteral(al)
+        }
+        Expression::ArrayRepeat {
+            element,
+            count,
+            count_from,
+            count_expr,
+            span: arr_span,
+        } => Expression::ArrayRepeat {
+            element: Box::new(hoist_awaits_in_expr(*element, counter, out, span)),
+            count,
+            count_from,
+            count_expr: count_expr.map(|e| Box::new(hoist_awaits_in_expr(*e, counter, out, span))),
+            span: arr_span,
+        },
+        other => other,
+    }
+}
+
+fn hoist_nested_awaits_in_block(block: &mut Block, counter: &mut usize, span: &Span) {
+    let mut rewritten = Vec::with_capacity(block.statements.len());
+    for stmt in std::mem::take(&mut block.statements) {
+        match stmt {
+            Statement::Let(mut l) if expr_has_await(&l.value) && !matches!(l.value, Expression::Await(_)) => {
+                let mut prefix = Vec::new();
+                l.value = hoist_awaits_in_expr(l.value, counter, &mut prefix, span);
+                rewritten.extend(prefix);
+                rewritten.push(Statement::Let(l));
+            }
+            Statement::Const(mut l) if expr_has_await(&l.value) && !matches!(l.value, Expression::Await(_)) => {
+                let mut prefix = Vec::new();
+                l.value = hoist_awaits_in_expr(l.value, counter, &mut prefix, span);
+                rewritten.extend(prefix);
+                rewritten.push(Statement::Const(l));
+            }
+            Statement::Assign(mut a) if expr_has_await(&a.value) => {
+                let mut prefix = Vec::new();
+                a.value = hoist_awaits_in_expr(a.value, counter, &mut prefix, span);
+                rewritten.extend(prefix);
+                rewritten.push(Statement::Assign(a));
+            }
+            Statement::Expression(e) if expr_has_await(&e) && !matches!(e, Expression::Await(_)) => {
+                let mut prefix = Vec::new();
+                let e = hoist_awaits_in_expr(e, counter, &mut prefix, span);
+                rewritten.extend(prefix);
+                rewritten.push(Statement::Expression(e));
+            }
+            Statement::Return(mut r) => {
+                if let Some(v) = r.value.take() {
+                    if expr_has_await(&v) && !matches!(v, Expression::Await(_)) {
+                        let mut prefix = Vec::new();
+                        r.value = Some(hoist_awaits_in_expr(v, counter, &mut prefix, span));
+                        rewritten.extend(prefix);
+                    } else {
+                        r.value = Some(v);
+                    }
+                }
+                rewritten.push(Statement::Return(r));
+            }
+            Statement::If(mut i) => {
+                if expr_has_await(&i.condition) {
+                    let mut prefix = Vec::new();
+                    i.condition = hoist_awaits_in_expr(i.condition, counter, &mut prefix, span);
+                    rewritten.extend(prefix);
+                }
+                hoist_nested_awaits_in_block(&mut i.then_block, counter, span);
+                if let Some(eb) = i.else_block.as_mut() {
+                    hoist_nested_awaits_in_block(eb, counter, span);
+                }
+                rewritten.push(Statement::If(i));
+            }
+            Statement::While(mut w) => {
+                hoist_nested_awaits_in_block(&mut w.body, counter, span);
+                rewritten.push(Statement::While(w));
+            }
+            Statement::For(mut f) => {
+                hoist_nested_awaits_in_block(&mut f.body, counter, span);
+                rewritten.push(Statement::For(f));
+            }
+            Statement::Spawn(mut s) => {
+                hoist_nested_awaits_in_block(&mut s.body, counter, span);
+                rewritten.push(Statement::Spawn(s));
+            }
+            Statement::Unsafe(mut b) => {
+                hoist_nested_awaits_in_block(&mut b, counter, span);
+                rewritten.push(Statement::Unsafe(b));
+            }
+            other => rewritten.push(other),
+        }
+    }
+    block.statements = rewritten;
 }
 
 struct CfgBuilder {
@@ -459,11 +635,12 @@ impl CfgBuilder {
                 Statement::Spawn(sp) if block_has_await(&sp.body) => {
                     self.push_state(cur, flush(&mut prefix));
                     let after = self.alloc_state();
+                    let kind = sp.kind;
                     let wrapped = lower_nested_async_block(
                         self,
                         &sp.body,
                         COMPLETE_EXIT,
-                        wrap_spawn_block,
+                        |inner| wrap_spawn_block(kind, inner),
                         checker,
                     )?;
                     self.push_state(cur, vec![wrapped, self.goto_state(after)]);
@@ -763,6 +940,8 @@ pub fn try_desugar_state_machine(func: &mut Function, checker: &TypeChecker) -> 
         return false;
     }
     let span = func.span.clone();
+    let mut hoist_counter = 0usize;
+    hoist_nested_awaits_in_block(&mut func.body, &mut hoist_counter, &span);
     let handle = format!("{HANDLE_PREFIX}{}", func.name);
     let complete_fn = func
         .return_type
@@ -810,7 +989,7 @@ pub fn try_desugar_state_machine(func: &mut Function, checker: &TypeChecker) -> 
                 span.clone(),
             ),
             Statement::Spawn(SpawnStmt {
-                kind: SpawnKind::Thread,
+                kind: SpawnKind::Task,
                 body: inner,
             }),
             Statement::Return(ReturnStmt {

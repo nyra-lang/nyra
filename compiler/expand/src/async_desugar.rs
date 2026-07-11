@@ -132,7 +132,7 @@ fn desugar_one_async(func: &mut Function) {
                 value: expr_call("async_promise_new", vec![], span.clone()),
             }),
             Statement::Spawn(SpawnStmt {
-                kind: SpawnKind::Thread,
+                kind: SpawnKind::Task,
                 body: inner,
             }),
             Statement::Return(ReturnStmt {

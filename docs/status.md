@@ -26,7 +26,7 @@
 | `?` propagation | **Stable Extended** — `tests/nyra/result_propagate_test.ny` |
 | `spawn` + channels | **Stable Extended** |
 | `impl Drop` | **Stable Extended** |
-| `async` / `await` | **Stable Extended** — executor + state-machine + **`Future<T>` + select** |
+| `async` / `await` | **Stable Extended** — task-pool desugar + state-machine + **`Future<T>` + select** + **async channels** |
 | Traits / `dyn` | **Stable Extended** — multi-method vtables, **`dyn Trait + Send + Sync`** bounds with **Send/Sync validation**, trait-object **`Drop`** (heap free) |
 | Macros | **Stable Extended** |
 | Lifetimes / defer | **Stable Extended** |

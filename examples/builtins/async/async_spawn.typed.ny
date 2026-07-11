@@ -1,4 +1,4 @@
-// async fn + await — call site gets handle immediately; body runs on spawn:thread.
+// async fn + await — call site gets handle immediately; body runs on spawn:task.
 allow_extended
 
 import "stdlib/async_v1.ny"

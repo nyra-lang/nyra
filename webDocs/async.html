@@ -142,7 +142,7 @@
       </div>
 
       <h2 id="async-basic">Name: <code>async fn</code> + <code>await</code></h2>
-      <p><strong>Explanation:</strong> <code>async fn</code> call returns a handle immediately; body runs on <code>spawn:thread</code>. <code>await</code> at the call site blocks until the result is ready. Import <code>stdlib/async_v1.ny</code> for executor helpers.</p>
+      <p><strong>Explanation:</strong> <code>async fn</code> call returns a handle immediately; body runs on the global task pool (<code>spawn:task</code>). <code>await</code> at the call site blocks until the result is ready. Import <code>stdlib/async_v1.ny</code> for executor helpers.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -255,7 +255,9 @@ fn main() -&gt; void {
       </ul>
       <p>Example: <code>examples/async_executor.ny</code>. Tests: <code>tests/nyra/async_executor_test.ny</code>.</p>
       <h2 id="async-desugar">Async fn desugar</h2>
-      <p><code>async fn</code> bodies run on <code>spawn:thread</code>; the call site returns a promise handle immediately (non-blocking). Gallery: <a href="methods.html#ex-async-fn">#ex-async-fn</a> · tests: <code>tests/nyra/async_spawn_desugar_test.ny</code>.</p>
+      <p><code>async fn</code> bodies run on the global task pool (<code>spawn:task</code>); the call site returns a promise handle immediately (non-blocking). Gallery: <a href="methods.html#ex-async-fn">#ex-async-fn</a> · tests: <code>tests/nyra/async_spawn_desugar_test.ny</code>.</p>
+      <h2 id="async-channels">Async channels</h2>
+      <p>Import <code>stdlib/sync/async_channel.ny</code> (also via <code>stdlib/sync/mod.ny</code>). <code>channel_recv_async</code> returns a promise handle completed on the matching <code>send</code>; select with <code>AsyncChannel_select2_i32</code> / <code>Future_select2_i32</code>. Non-blocking poll: <code>channel_try_recv</code> + <code>channel_try_value</code>. Example: <code>examples/async_channel_select.ny</code>.</p>
       <h2>State-machine desugar</h2>
       <p>See <a href="#async-state-machine">state machine example</a> above. <code>await</code> inside <code>spawn</code>/<code>unsafe</code> still uses blocking <code>async_await</code>.</p>
       <h2>Race detection</h2>
