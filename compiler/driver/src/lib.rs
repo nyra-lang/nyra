@@ -26,8 +26,8 @@ pub use incremental_codegen::{
     entry_path_for_compile, link_ir_modules, IncrementalContext, split_dev_codegen,
 };
 pub use signature_cache::{
-    build_signature_manifest, can_skip_typecheck_for_dirty, load_signatures, save_signatures,
-    SignatureManifest,
+    build_signature_manifest, can_skip_typecheck_for_dirty, dirty_files_are_body_only,
+    load_signatures, save_signatures, SignatureManifest,
 };
 pub use check_cache::{
     check_cache_key, is_check_cache_hit, write_check_cache,
@@ -92,7 +92,8 @@ pub struct CompileOptions {
     pub inspect_query: Option<InspectQuery>,
     /// Skip merging the full stdlib prelude (smaller IR; use explicit `import "stdlib/…"`).
     pub no_prelude: bool,
-    /// Skip whole-program typecheck when dirty files only changed function bodies (dev).
+    /// Skip whole-program typecheck (dev only). Must stay false: body edits can
+    /// introduce type/`unsafe` errors that `nyra check` would catch.
     pub skip_typecheck: bool,
     /// Per-crate incremental codegen (dev multi-file builds).
     pub incremental: Option<IncrementalContext>,
