@@ -75,7 +75,7 @@ impl Codegen {
             return "i32".into();
         }
         match ty {
-            TypeAnnotation::DynTrait { trait_name, .. } => format!("%Dyn_{trait_name}*"),
+            TypeAnnotation::DynTrait { traits, .. } => format!("%{}*", ast::dyn_struct_name(&traits)),
             TypeAnnotation::Struct(n) | TypeAnnotation::Enum(n)
                 if self.enum_names.contains(n) =>
             {

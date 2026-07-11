@@ -2737,7 +2737,7 @@ fn main() {
 
 ## Traits & dynamic dispatch (Stable Extended)
 
-Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. Shipped on **Stable Extended** — multi-method vtables, `dyn Trait + Send + Sync` bounds, and trait-object `Drop`. Remaining gate: multi-trait `dyn A + B` objects.
+Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. Shipped on **Stable Extended** — multi-method vtables, `dyn Trait + Send + Sync` bounds, trait-object `Drop`, and **`dyn A + B`** multi-trait objects.
 
 ### Static dispatch
 
@@ -2808,7 +2808,7 @@ See [generics](https://nyra-lang.github.io/nyra/generics.html).
 
 - Copy-sized structs only (heap box via `malloc` + `memcpy`).
 - `dyn Trait + Send + Sync` bounds validated on **casts**; fn-parameter bound checking is partial.
-- No `dyn A + B` multi-trait objects yet.
+- **`dyn A + B`:** multi-trait objects combine vtables (methods deduped by name, first trait wins).
 - Explicit **`return`** required in impl bodies (no implicit tail return).
 - Extended tier: `nyra check --deny-extended` rejects `trait` / `dyn` in Core-only CI.
 

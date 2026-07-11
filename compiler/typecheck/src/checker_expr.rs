@@ -797,10 +797,18 @@ impl TypeChecker {
                         return Type::Unknown;
                     }
                 };
-                if let Some(trait_name) = TypeChecker::dyn_trait_name(&type_name) {
-                    if !self.trait_has_method(trait_name, &mc.method) {
-                        diagnostics::trait_method_not_found(self, trait_name, &mc.method, sp.clone());
-                        return Type::Unknown;
+                if type_name.starts_with("Dyn_") {
+                    if let Some(traits) = self.dyn_traits_of(&type_name) {
+                        if !self.dyn_combo_has_method(&traits, &mc.method) {
+                            let dyn_label = format_dyn_trait(&traits, &[]);
+                            diagnostics::trait_method_not_found(
+                                self,
+                                &dyn_label,
+                                &mc.method,
+                                sp.clone(),
+                            );
+                            return Type::Unknown;
+                        }
                     }
                 }
                 let mangled = self.resolve_method_name(&type_name, &mc.method);
@@ -908,16 +916,29 @@ impl TypeChecker {
                 {
                     return to;
                 }
-                if let TypeAnnotation::DynTrait { trait_name, bounds } = &c.target_type {
+                if let TypeAnnotation::DynTrait { traits, auto_bounds } = &c.target_type {
+                    let dyn_label = format_dyn_trait(traits, auto_bounds);
                     if let Type::Struct(concrete) = &from {
-                        if self.trait_impl_exists(trait_name, concrete) {
-                            for b in bounds {
+                        let mut all_impl = true;
+                        for trait_name in traits {
+                            if !self.trait_impl_exists(trait_name, concrete) {
+                                diagnostics::trait_not_implemented(
+                                    self,
+                                    concrete,
+                                    trait_name,
+                                    c.span.clone(),
+                                );
+                                all_impl = false;
+                            }
+                        }
+                        if all_impl {
+                            for b in auto_bounds {
                                 match b.as_str() {
                                     "Send" if !self.type_is_send(&from) => {
                                         diagnostics::send_bound_required(
                                             self,
                                             concrete,
-                                            trait_name,
+                                            &dyn_label,
                                             c.span.clone(),
                                         );
                                     }
@@ -925,7 +946,7 @@ impl TypeChecker {
                                         diagnostics::sync_bound_required(
                                             self,
                                             concrete,
-                                            trait_name,
+                                            &dyn_label,
                                             c.span.clone(),
                                         );
                                     }
@@ -934,19 +955,17 @@ impl TypeChecker {
                                         diagnostics::unknown_dyn_auto_trait(
                                             self,
                                             other,
-                                            trait_name,
+                                            &dyn_label,
                                             c.span.clone(),
                                         );
                                     }
                                 }
                             }
-                            return Type::Struct(format!("Dyn_{trait_name}"));
                         }
-                        diagnostics::trait_not_implemented(self, concrete, trait_name, c.span.clone());
                     } else if from != Type::Unknown {
                         diagnostics::trait_object_cast_requires_struct(self, c.span.clone());
                     }
-                    return Type::Struct(format!("Dyn_{trait_name}"));
+                    return Type::Struct(dyn_struct_name(traits));
                 }
                 if from != Type::Unknown && to != Type::Unknown {
                     diagnostics::invalid_cast(self, &from, &to, c.span.clone());

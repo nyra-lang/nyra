@@ -7,11 +7,11 @@ mod legacy;
 mod comments;
 
 use ast::{
-    ArrowBody, BinaryOp, Block, ConstDef, EnumDef, EnumVariantDef, Expression, ExternFn,
-    ForKind, ForStmt, Function, IfStmt, ImplDef, LetStmt, Literal, MatchArm, MatchPayloadPattern,
-    MatchPattern,
-    Param, ParallelConfig, ParallelMode, ParallelOp, ParallelThreads, ProgressConfig, Program, SpawnKind, Statement, StructDef,
-    StructField, TraitDef, TraitImpl, TypeAnnotation, UnaryOp, WhileStmt,
+    format_dyn_trait, ArrowBody, BinaryOp, Block, ConstDef, EnumDef, EnumVariantDef, Expression,
+    ExternFn, ForKind, ForStmt, Function, IfStmt, ImplDef, LetStmt, Literal, MatchArm,
+    MatchPayloadPattern, MatchPattern, Param, ParallelConfig, ParallelMode, ParallelOp,
+    ParallelThreads, ProgressConfig, Program, SpawnKind, Statement, StructDef, StructField,
+    TraitDef, TraitImpl, TypeAnnotation, UnaryOp, WhileStmt,
 };
 use lexer::Lexer;
 use parser::Parser;
@@ -995,13 +995,10 @@ pub fn format_type(ty: &TypeAnnotation) -> String {
             let base = format_type(elem);
             format!("{base}x{lanes}")
         }
-        TypeAnnotation::DynTrait { trait_name, bounds } => {
-            if bounds.is_empty() {
-                format!("dyn {trait_name}")
-            } else {
-                format!("dyn {trait_name} + {}", bounds.join(" + "))
-            }
-        }
+        TypeAnnotation::DynTrait {
+            traits,
+            auto_bounds,
+        } => format_dyn_trait(&traits, &auto_bounds),
     }
 }
 

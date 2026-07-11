@@ -458,7 +458,7 @@ pub(super) fn llvm_type_ann_resolved(
         TypeAnnotation::Lifetime(_) => "i8".into(),
         TypeAnnotation::ForAll { inner, .. } => llvm_type_ann_resolved(inner, structs, enum_names),
         TypeAnnotation::FnPtr { .. } => "ptr".into(),
-        TypeAnnotation::DynTrait { trait_name, .. } => format!("%Dyn_{trait_name}"),
+        TypeAnnotation::DynTrait { traits, .. } => format!("%{}", ast::dyn_struct_name(&traits)),
         TypeAnnotation::Applied { base, args } => {
             format!("%{}", monomorph_inst_name(base, args))
         }

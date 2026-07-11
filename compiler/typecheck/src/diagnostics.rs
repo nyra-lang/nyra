@@ -1179,7 +1179,7 @@ pub fn trait_object_cast_requires_struct(checker: &mut TypeChecker, sp: Span) {
 pub fn send_bound_required(
     checker: &mut TypeChecker,
     concrete: &str,
-    trait_name: &str,
+    dyn_label: &str,
     sp: Span,
 ) {
     checker.errors.push(
@@ -1187,7 +1187,7 @@ pub fn send_bound_required(
             E036_SEND_SYNC,
             ErrorKind::Type,
             sp,
-            format!("type `{concrete}` is not `Send`; cannot cast to `dyn {trait_name} + Send`"),
+            format!("type `{concrete}` is not `Send`; cannot cast to `{dyn_label}`"),
         )
         .note("raw pointers and types with non-Send fields cannot cross thread boundaries"),
     );
@@ -1196,7 +1196,7 @@ pub fn send_bound_required(
 pub fn sync_bound_required(
     checker: &mut TypeChecker,
     concrete: &str,
-    trait_name: &str,
+    dyn_label: &str,
     sp: Span,
 ) {
     checker.errors.push(
@@ -1204,7 +1204,7 @@ pub fn sync_bound_required(
             E036_SEND_SYNC,
             ErrorKind::Type,
             sp,
-            format!("type `{concrete}` is not `Sync`; cannot cast to `dyn {trait_name} + Sync`"),
+            format!("type `{concrete}` is not `Sync`; cannot cast to `{dyn_label}`"),
         )
         .note("shared references across threads require all fields to be Sync"),
     );
@@ -1325,7 +1325,7 @@ pub fn sort_by_expects_fn(checker: &mut TypeChecker, sp: Span) {
 pub fn unknown_dyn_auto_trait(
     checker: &mut TypeChecker,
     bound: &str,
-    trait_name: &str,
+    dyn_label: &str,
     sp: Span,
 ) {
     checker.errors.push(
@@ -1334,7 +1334,7 @@ pub fn unknown_dyn_auto_trait(
             ErrorKind::Type,
             sp,
             format!(
-                "unknown auto trait bound `{bound}` on `dyn {trait_name}` (supported: `Send`, `Sync`)"
+                "unknown auto trait bound `{bound}` on `{dyn_label}` (supported: `Send`, `Sync`)"
             ),
         ),
     );

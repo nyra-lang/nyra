@@ -157,3 +157,83 @@ fn main() {
     assert!(ir.contains("__dyn_Calc_drop"), "missing dyn drop");
     assert!(ir.contains("dynthunk_drop_Counter"), "missing drop thunk");
 }
+
+#[test]
+fn conf_trait_006_multi_trait_dyn() {
+    let out = compile(
+        r#"trait Add {
+    fn add(self, other: i32) -> i32
+}
+
+trait Scale {
+    fn scale(self, factor: i32) -> i32
+}
+
+struct Counter {
+    value: i32
+}
+
+impl Add for Counter {
+    fn add(self, other: i32) -> i32 {
+        return self.value + other
+    }
+}
+
+impl Scale for Counter {
+    fn scale(self, factor: i32) -> i32 {
+        return self.value * factor
+    }
+}
+
+fn use_both(g: dyn Add + Scale) -> i32 {
+    return g.add(1) + g.scale(2)
+}
+
+fn main() {
+    let c = Counter { value: 10 }
+    print(use_both(c as dyn Add + Scale))
+}"#,
+    );
+    assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
+    let ir = out.llvm_ir.as_ref().expect("llvm ir");
+    assert!(ir.contains("__dyn_Add_Scale_add"), "missing add dispatch");
+    assert!(ir.contains("__dyn_Add_Scale_scale"), "missing scale dispatch");
+    assert!(ir.contains("Add_Scale_dyn_Counter"), "missing box fn");
+    assert!(ir.contains("vtable_Add_Scale_Counter"), "missing vtable");
+}
+
+#[test]
+fn conf_trait_007_multi_trait_missing_impl_errors() {
+    let out = compile(
+        r#"trait Add {
+    fn add(self, other: i32) -> i32
+}
+
+trait Scale {
+    fn scale(self, factor: i32) -> i32
+}
+
+struct Counter {
+    value: i32
+}
+
+impl Add for Counter {
+    fn add(self, other: i32) -> i32 {
+        return self.value + other
+    }
+}
+
+fn main() {
+    let c = Counter { value: 10 }
+    let _g = c as dyn Add + Scale
+}"#,
+    );
+    assert!(
+        !out.type_errors.is_empty(),
+        "expected error for missing Scale impl"
+    );
+    assert!(
+        out.type_errors.iter().any(|e| e.message.contains("Scale")),
+        "expected Scale trait error"
+    );
+}

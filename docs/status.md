@@ -27,7 +27,7 @@
 | `spawn` + channels | **Stable Extended** |
 | `impl Drop` | **Stable Extended** |
 | `async` / `await` | **Stable Extended** — task-pool desugar + state-machine + **`Future<T>` + select** + **async channels** |
-| Traits / `dyn` | **Stable Extended** — multi-method vtables, **`dyn Trait + Send + Sync`** bounds with **Send/Sync validation**, trait-object **`Drop`** (heap free) |
+| Traits / `dyn` | **Stable Extended** — multi-method vtables, **`dyn Trait + Send + Sync`** bounds with **Send/Sync validation**, trait-object **`Drop`** (heap free), **`dyn A + B`** multi-trait objects |
 | Macros | **Stable Extended** |
 | Lifetimes / defer | **Stable Extended** |
 | JSON nested + bool | **Stable Extended** |
@@ -96,7 +96,7 @@
 
 ## Not yet production gates
 
-- `dyn A + B` multi-trait objects; full auto-trait checking on fn params
+- Full auto-trait checking on fn params
 - Generic struct fields beyond monomorph instances (manual serde for exotic `T`)
 
 Native race runtime ships as **`--race-native`**; TSan remains **`--race`**.

@@ -136,7 +136,7 @@ fn mangle_type(t: &TypeAnnotation) -> String {
         TypeAnnotation::Lifetime(_) => "lt".into(),
         TypeAnnotation::ForAll { inner, .. } => mangle_type(inner),
         TypeAnnotation::FnPtr { .. } => "fnptr".into(),
-        TypeAnnotation::DynTrait { trait_name, .. } => format!("dyn_{trait_name}"),
+        TypeAnnotation::DynTrait { traits, .. } => format!("dyn_{}", ast::dyn_combo_key(&traits)),
         TypeAnnotation::Simd { elem, lanes } => {
             format!("simd_{}_{}", mangle_type(elem), lanes)
         }

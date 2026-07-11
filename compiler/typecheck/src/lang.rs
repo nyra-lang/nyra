@@ -105,7 +105,7 @@ impl TypeChecker {
                     .as_ref()
                     .map(|t| Box::new(self.type_from_ann(t))),
             },
-            TypeAnnotation::DynTrait { trait_name, .. } => Type::Struct(format!("Dyn_{trait_name}")),
+            TypeAnnotation::DynTrait { traits, .. } => Type::Struct(ast::dyn_struct_name(&traits)),
             TypeAnnotation::Applied { .. } => {
                 let t = Type::from(ann.clone());
                 if let Type::Struct(n) = &t {
