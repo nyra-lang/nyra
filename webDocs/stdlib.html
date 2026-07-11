@@ -290,11 +290,12 @@ fn main() {
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/json/mod.ny</code></td><td><code>jparse</code>/<code>jstr</code>/<code>jnum</code>/<code>obj</code>/<code>dict</code>, <code>JSON_parse_object</code>, <code>encode_field</code></td></tr>
+          <tr><td><code>stdlib/json/mod.ny</code></td><td><code>parse_json</code>/<code>stringify_json</code> (document validate+compact), <code>jparse</code>/<code>jstr</code>/<code>jnum</code>/<code>obj</code>/<code>dict</code>, <code>JSON_parse_object</code>, <code>encode_field</code></td></tr>
           <tr><td><code>stdlib/serialize/mod.ny</code></td><td><code>encode_object</code>, <code>toml_encode_object</code>, <code>yaml_encode_object</code>; <code>serialize</code>/<code>deserialize</code> by <code>SerializeFormat</code></td></tr>
+          <tr><td><code>stdlib/serde/mod.ny</code></td><td><code>Serialize</code>/<code>Deserialize</code> traits + compiler schema encode/decode</td></tr>
         </tbody>
       </table>
-      <p>Examples: <code>examples/json/decode_i32.ny</code> · <code>examples/serialize/toml.ny</code> · <code>examples/serde_json_pkg.ny</code> (full serde via packages). For production JSON/TOML beyond stdlib MVP, see <a href="packages.html">nyrapkg</a> (<code>ny-serde</code>, <code>ny-toml</code>).</p>
+      <p>Examples: <code>examples/json/decode_i32.ny</code> · <code>examples/serialize/toml.ny</code> · <code>examples/serde_json_pkg.ny</code> (document JSON via stdlib). For full TOML beyond the serialize MVP, see <a href="packages.html">nyrapkg</a> (<code>ny-toml</code>).</p>
 
       <h2 id="crypto">Crypto, random &amp; encoding</h2>
       <table>

@@ -1781,7 +1781,7 @@ import "stdlib/builtins_json.ny"
 | `JSON_stringify(key, value)` | Single-field JSON object string |
 | `JSON_parse(json, key)` | Read string field from JSON |
 
-For full JSON/serde use `stdlib/json/mod.ny`, `stdlib/serialize/mod.ny`, or NyraPkg `ny-serde`.
+For JSON use `stdlib/json/mod.ny` (`parse_json` / `stringify_json`, field helpers). Schema traits: `stdlib/serde/mod.ny`. Multi-format MVP: `stdlib/serialize/mod.ny`.
 
 
 
@@ -2104,7 +2104,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 | Status | Modules | Notes |
 |--------|---------|-------|
 | **Shipped** | `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `net/tcp.ny`, `net/http/mod.ny` (+ `sugar`/`fetch`), `net/udp.ny`, `net/websocket.ny`, `compress/mod.ny`, `serialize/mod.ny`, `json/mod.ny`, `db/sqlite.ny`, `db/query.ny` (`qb`), `tls.ny`, `time/*`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny` (POSIX), `bridge/mod.ny`, `terminal/*`, `encoding/csv.ny`, `archive/zip.ny`, `mime/mod.ny`, `random_bytes`, `embed/mod.ny`, `slog/mod.ny`, `testing/fstest.ny`, `testing/quick.ny` | Collections + HOFs, FS, crypto, HTTP (`fetch`/`req`), SQL builder, CLI, DB (SQLite), sync |
-| **MVP / partial** | `json/mod.ny` / `serialize/mod.ny` (multi-key encode; not full schema serde), `uuid/mod.ny`, `url` helpers, `async.ny`, `reflect/mod.ny` | Use NyraPkg (`ny-serde`) for full schema serde |
+| **MVP / partial** | `serialize/mod.ny` (TOML/YAML field MVP), `uuid/mod.ny`, `url` helpers, `async.ny`, `reflect/mod.ny` | Use NyraPkg `ny-toml` for full TOML |
 | **Native when linked** | `db/postgres.ny` (`link pq`), `db/mysql.ny` (`link mysqlclient`), `compress/bzip2.ny` (`link bz2`) |
 | **Shipped** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
 | **Stub → in progress** | `compress/bzip2.ny` (link `bz2`) | Native driver when linked |
@@ -2238,7 +2238,7 @@ fn main() {
 
 Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure Nyra stdlib.
 
-**Shipped:** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
+**Shipped:** `env_set`, `process` on Windows, postgres/mysql native when linked. Document JSON in stdlib (`parse_json`/`stringify_json`). **NyraPkg** for full TOML: `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
 
 ### net/http API reference
 

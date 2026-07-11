@@ -180,6 +180,8 @@ When key and value types match, both appear in the name (e.g. `map_i32_i32_get`)
 | `json_split_array_elements` | `void *json_split_array_elements(const char *array_json)` | `rt_json.c` | 0.0.1 | `stdlib/json/jsonl.ny`, `stdlib/json/mod.ny` |
 | `json_top_keys` | `void *json_top_keys(const char *json)` | `rt_json.c` | 0.0.1 | `stdlib/json/mod.ny` |
 | `json_value_kind` | `int json_value_kind(const char *json)` | `rt_json.c` | 0.0.1 | `stdlib/json/mod.ny` |
+| `json_parse_document` | `char *json_parse_document(const char *input)` | `rt_json.c` | 0.1.1 | `stdlib/json/mod.ny` |
+| `json_stringify_document` | `char *json_stringify_document(const char *input)` | `rt_json.c` | 0.1.1 | `stdlib/json/mod.ny` |
 | `list_dir` | `char *list_dir(const char *path)` | `rt_fs.c` | 0.0.1 | `stdlib/fs/file.ny`, `stdlib/gui/picker.ny` |
 | `map_i32_i32_contains` | `int map_i32_i32_contains(void *handle, int key)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
 | `map_i32_i32_free` | `void map_i32_i32_free(void *handle)` | `rt_map.c` | 0.0.1 | `stdlib/map.ny` |
