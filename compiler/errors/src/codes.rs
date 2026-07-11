@@ -38,6 +38,8 @@ pub const E035_LIFETIME: &str = "E035";
 pub const E036_SEND_SYNC: &str = "E036";
 pub const E037_PARALLEL: &str = "E037";
 pub const E038_CONST_EVAL: &str = "E038";
+/// Selective import named a missing or private symbol.
+pub const E039_IMPORT_SYMBOL: &str = "E039";
 
 pub const W001_EXTENDED_TIER: &str = "W001";
 pub const W002_UNUSED_IMPORT: &str = "W002";

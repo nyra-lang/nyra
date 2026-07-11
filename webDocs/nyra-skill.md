@@ -990,16 +990,22 @@ module my.app
 import "lib/helpers.ny"
 import "types.ny"
 import "lib/api.ny" as api
+import { add, mul } from "math.ny"
+import { greet as hi } from "lib/helpers.ny"
 
 fn main() {
  print(APP_TITLE) // const from imported file
  print(api::version()) // alias::name → api__version
+ print(add(1, 2))
+ print(hi("nyra"))
 }
 ```
 
 - Project root: `main.ny` + optional `nyra.mod`.
 - Paths relative to importing file: `import "src/engine.ny"`.
-- Import brings **public** symbols into scope; `priv` hides from importers.
+- Whole-module `import "path"` brings **all public** symbols into scope; `priv` hides from importers.
+- Selective `import { a, b } from "path"` merges **only** those public names (plus same-file helpers they need). Prefer this to keep builds lean.
+- `import { name as local } from "path"` renames the binding.
 - `import "path" as alias` + `alias::symbol` qualified calls.
 
 ### Visibility (`pub` / `priv`)
@@ -2893,6 +2899,7 @@ Stable codes — explain with `nyra explain E003` or `nyra explain --list`. JSON
 | Code | Title | Meaning |
 |------|-------|---------|
 | **E001** | import not found | `import "path"` does not resolve |
+| **E039** | import symbol | selective `import { name }` missing or `priv` |
 | **E002** | undefined name | Variable/function/type not in scope |
 | **E003** | type mismatch | Expression type ≠ expected context |
 | **E004** | cannot infer type | Add explicit `: Type` annotation |

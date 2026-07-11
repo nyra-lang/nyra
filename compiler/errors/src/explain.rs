@@ -278,6 +278,13 @@ const ENTRIES: &[ExplainEntry] = &[
         example_good: Some("comptime fn ok() -> i32 { return 1 + 2 }"),
     },
     ExplainEntry {
+        code: "E039",
+        title: "import symbol not found",
+        explanation: "A selective `import { name } from \"path\"` named a symbol that is missing or `priv` in the imported module.",
+        example_bad: Some("import { missing } from \"math.ny\""),
+        example_good: Some("import { add, mul } from \"math.ny\""),
+    },
+    ExplainEntry {
         code: "W001",
         title: "extended tier feature",
         explanation: "The code uses an Extended-tier feature (async, traits, spawn, defer, etc.) while `--deny-extended` is active.",

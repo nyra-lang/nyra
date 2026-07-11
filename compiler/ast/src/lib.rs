@@ -25,12 +25,32 @@ pub struct StructAttrs {
     pub packed: bool,
 }
 
+/// One binding in `import { name as rename, … } from "…"`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImportName {
+    /// Symbol name in the imported module.
+    pub name: String,
+    /// Local binding when `as` is used (`add as sum` → rename `sum`).
+    pub rename: Option<String>,
+    pub span: Span,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ImportDecl {
     pub path: String,
     /// `import "path.ny" as alias` — symbols merged as `alias__name` / `alias::name`.
+    /// Not used with selective `import { … } from "…"` (names flatten into scope).
     pub alias: Option<String>,
+    /// `import { a, b } from "path.ny"` — empty means whole-module import (all `pub` symbols).
+    pub names: Vec<ImportName>,
     pub span: Span,
+}
+
+impl ImportDecl {
+    /// Selective import: only listed names (plus same-file dependency closure) are merged.
+    pub fn is_selective(&self) -> bool {
+        !self.names.is_empty()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

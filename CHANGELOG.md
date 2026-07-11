@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.2 (2026-07-11)
+
+**Selective imports**
+
+- New syntax: `import { add, mul } from "math.ny"` and `import { greet as hi } from "helpers.ny"`.
+- Merge only the named public symbols (plus same-file dependency closure, including `priv` helpers).
+- Diagnostic **E039** when a selective name is missing or private.
+- Whole-module `import "path"` / `import "path" as alias` unchanged.
+
 ## v0.1.1 (2026-07-11)
 
 **Bug fix — `Option<string>` drop / nullish**

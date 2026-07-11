@@ -1,6 +1,6 @@
 //! Top-level `parse()` driver and module item dispatch.
 use ast::*;
-use errors::NyraError;
+use errors::{NyraError, Span};
 use lexer::{Token, TokenKind};
 use super::recovery::{check, is_at_end, merge_spans, skip_newlines, synchronize};
 
@@ -83,26 +83,8 @@ impl Parser {
             }
             match self.current_kind().clone() {
                 TokenKind::Import => {
-                    let import_kw_span = self.current_span();
-                    self.advance();
-                    if let TokenKind::StringLit(path) = self.current_kind().clone() {
-                        let path_span = self.current_span();
-                        self.advance();
-                        let mut alias = None;
-                        if check(&self.tokens, self.position, &TokenKind::As) {
-                            self.advance();
-                            if let TokenKind::Identifier(a) = self.current_kind().clone() {
-                                self.advance();
-                                alias = Some(a);
-                            } else {
-                                self.parse_error_here("Expected alias name after 'as'");
-                            }
-                        }
-                        let span = merge_spans(&import_kw_span, &path_span);
-                        imports.push(ImportDecl { path, alias, span });
-                    } else {
-                        self.parse_error_here(                            "Expected string path after import",
-                        );
+                    if let Some(imp) = self.parse_import_decl() {
+                        imports.push(imp);
                     }
                 }
                 TokenKind::Const => {
@@ -292,6 +274,132 @@ impl Parser {
             },
             errors,
         )
+    }
+
+    /// `import "path" [as alias]` or `import { a, b as c } from "path"`.
+    fn parse_import_decl(&mut self) -> Option<ImportDecl> {
+        let import_kw_span = self.current_span();
+        self.advance(); // consume `import`
+
+        if check(&self.tokens, self.position, &TokenKind::LBrace) {
+            return self.parse_selective_import(import_kw_span);
+        }
+
+        if let TokenKind::StringLit(path) = self.current_kind().clone() {
+            let path_span = self.current_span();
+            self.advance();
+            let mut alias = None;
+            if check(&self.tokens, self.position, &TokenKind::As) {
+                self.advance();
+                if let TokenKind::Identifier(a) = self.current_kind().clone() {
+                    self.advance();
+                    alias = Some(a);
+                } else {
+                    self.parse_error_here("Expected alias name after 'as'");
+                }
+            }
+            let span = merge_spans(&import_kw_span, &path_span);
+            return Some(ImportDecl {
+                path,
+                alias,
+                names: vec![],
+                span,
+            });
+        }
+
+        self.parse_error_here(
+            "Expected `import \"path\"` or `import { name } from \"path\"`",
+        );
+        None
+    }
+
+    fn parse_selective_import(&mut self, import_kw_span: Span) -> Option<ImportDecl> {
+        self.advance(); // `{`
+        let mut names = Vec::new();
+        skip_newlines(&self.tokens, &mut self.position);
+
+        while !check(&self.tokens, self.position, &TokenKind::RBrace)
+            && !is_at_end(&self.tokens, self.position)
+        {
+            skip_newlines(&self.tokens, &mut self.position);
+            let name_span = self.current_span();
+            let name = match self.current_kind().clone() {
+                TokenKind::Identifier(n) => {
+                    self.advance();
+                    n
+                }
+                _ => {
+                    self.parse_error_here("Expected import name");
+                    break;
+                }
+            };
+            let mut rename = None;
+            if check(&self.tokens, self.position, &TokenKind::As) {
+                self.advance();
+                if let TokenKind::Identifier(r) = self.current_kind().clone() {
+                    self.advance();
+                    rename = Some(r);
+                } else {
+                    self.parse_error_here("Expected rename after 'as'");
+                }
+            }
+            let end_span = self
+                .tokens
+                .get(self.position.saturating_sub(1))
+                .map(|t| t.span.clone())
+                .unwrap_or_else(|| name_span.clone());
+            names.push(ImportName {
+                name,
+                rename,
+                span: merge_spans(&name_span, &end_span),
+            });
+
+            skip_newlines(&self.tokens, &mut self.position);
+            if check(&self.tokens, self.position, &TokenKind::Comma) {
+                self.advance();
+                skip_newlines(&self.tokens, &mut self.position);
+                continue;
+            }
+            break;
+        }
+
+        if !check(&self.tokens, self.position, &TokenKind::RBrace) {
+            self.parse_error_here("Expected `}` after import names");
+            return None;
+        }
+        let brace_end = self.current_span();
+        self.advance();
+
+        skip_newlines(&self.tokens, &mut self.position);
+        let from_ok = match self.current_kind() {
+            TokenKind::Identifier(s) if s == "from" => true,
+            _ => false,
+        };
+        if !from_ok {
+            self.parse_error_here("Expected `from` after import `{ … }`");
+            return None;
+        }
+        self.advance();
+
+        skip_newlines(&self.tokens, &mut self.position);
+        let TokenKind::StringLit(path) = self.current_kind().clone() else {
+            self.parse_error_here("Expected string path after `from`");
+            return None;
+        };
+        let path_span = self.current_span();
+        self.advance();
+
+        if names.is_empty() {
+            self.parse_error_here("Expected at least one name in `import { … }`");
+        }
+
+        let span = merge_spans(&import_kw_span, &merge_spans(&brace_end, &path_span));
+        Some(ImportDecl {
+            path,
+            alias: None,
+            names,
+            span,
+        })
     }
 }
 

@@ -9,6 +9,10 @@ This repository is independent from the [Nyra compiler](https://github.com/nyra-
 
 ## Unreleased
 
+**Language**
+
+- [nyra-skill.md](nyra-skill.md) — selective imports: `import { add, mul } from "math.ny"` (+ `as` rename, E039).
+
 **CLI & tooling**
 
 - [tooling.html](tooling.html) — `nyra repl`, `nyra race`, expanded `watch` (`--race` / `--race-native`), richer LSP capabilities.
