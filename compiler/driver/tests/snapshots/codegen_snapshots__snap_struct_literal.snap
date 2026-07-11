@@ -345,8 +345,10 @@ declare ptr @json_get_array(ptr %0, ptr %1)
 declare ptr @json_get_object(ptr %0, ptr %1)
 declare ptr @json_get_string(ptr %0, ptr %1)
 declare ptr @json_join_raw_array(ptr %0)
+declare ptr @json_parse_document(ptr %0)
 declare ptr @json_raw_get(ptr %0, ptr %1)
 declare ptr @json_split_array_elements(ptr %0)
+declare ptr @json_stringify_document(ptr %0)
 declare ptr @json_top_keys(ptr %0)
 declare ptr @map_i32_i32_new()
 declare ptr @map_str_i32_keys(ptr %0)
@@ -10251,6 +10253,11 @@ entry:
   %call.N = call ptr @str_pad_center(ptr %0, i32 %1, ptr %2)
   ret ptr %call.N
 }
+define ptr @parse_json(ptr %0) {
+entry:
+  %call.N = call ptr @json_parse_document(ptr %0)
+  ret ptr %call.N
+}
 define ptr @path_from_line(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -10658,6 +10665,11 @@ else.N:
   br label %endif.N
 endif.N:
   %call.N = call ptr @substring(ptr %0, i32 0, i32 %call.N)
+  ret ptr %call.N
+}
+define ptr @stringify_json(ptr %0) {
+entry:
+  %call.N = call ptr @json_stringify_document(ptr %0)
   ret ptr %call.N
 }
 define ptr @strip_ansi(ptr %0) {

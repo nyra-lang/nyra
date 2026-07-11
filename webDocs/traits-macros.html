@@ -252,10 +252,10 @@ fn main() {
     print(both(c as dyn Add + Scale))
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>trait Add {
-    fn add(self, other: i32) -&gt; i32
+    fn add(self, other: i32) -&gt; i32 
 }
 trait Scale {
-    fn scale(self, k: i32) -&gt; i32
+    fn scale(self, k: i32) -&gt; i32 
 }
 
 struct Counter {
@@ -278,7 +278,7 @@ fn both(g: dyn Add + Scale) -&gt; i32 {
 }
 
 fn main() -&gt; void {
-    let c = Counter { value: 10 }
+    let c: Counter = Counter { value: 10 }
     print(both(c as dyn Add + Scale))
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->

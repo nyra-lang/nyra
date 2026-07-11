@@ -363,7 +363,18 @@ def refine_function_param_types(typed: str, easy: str) -> str:
                 return hinted
         if re.search(rf"\b(strlen|strstr_pos)\({param}\)", body):
             return "&string"
-        if re.search(rf"\.add\(", body) and param in ("g", "c"):
+        # Prefer call-site cast: both(c as dyn Add + Scale) / via_dyn(x as dyn Add)
+        cast = re.search(
+            rf"\b{re.escape(fn_name)}\([^)]*\bas\s+(dyn\s+\w+(?:\s*\+\s*\w+)*)",
+            easy,
+        )
+        if cast:
+            return cast.group(1)
+        if re.search(rf"\b{param}\.add\(", body) and re.search(
+            rf"\b{param}\.scale\(", body
+        ):
+            return "dyn Add + Scale"
+        if re.search(rf"\b{param}\.add\(", body) and param in ("g", "c"):
             return "dyn Add"
         if fn_name.startswith("health_") and param == "ctx":
             return "RequestContext"
