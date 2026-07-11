@@ -349,7 +349,7 @@ nyra pkg prune --path ./myapp</code></pre>
       <table>
         <thead><tr><th>Lint</th><th>Action</th></tr></thead>
         <tbody>
-          <tr><td><code>W002</code> unused import</td><td>Removes the <code>import "…"</code> line</td></tr>
+          <tr><td><code>W002</code> unused import</td><td>Removes the whole-module <code>import "…"</code> line (selective unused names warn only)</td></tr>
           <tr><td><code>W003</code> unused variable</td><td>Prefixes the name with <code>_</code> (e.g. <code>let dead</code> → <code>let _dead</code>)</td></tr>
         </tbody>
       </table>

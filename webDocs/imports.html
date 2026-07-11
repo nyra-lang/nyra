@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#06090d">
   <meta name="color-scheme" content="dark light">
   <title>Imports guide — Nyra Docs</title>
-  <meta name="description" content="How to import functions, structs, constants, and enums across Nyra source files.">
+  <meta name="description" content="How to import functions, structs, constants, and enums across Nyra source files — whole-module, alias, and selective import { name } from path.">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/search.css">
 </head>
@@ -138,13 +138,15 @@
       <h1 data-i18n="pages.imports.h1">Imports guide</h1>
       <p class="lead" data-i18n-html="pages.imports.lead">
         Split your app into multiple <code>.ny</code> files and share functions, types, and constants
-        with <code>import "path.ny"</code> — then build from the project root.
+        with <code>import "path.ny"</code> or selective <code>import { name } from "path.ny"</code> — then build from the project root.
       </p>
 
       <nav class="toc">
         <div class="toc-title">On this page</div>
         <ul>
           <li><a href="#how-it-works">How imports work</a></li>
+          <li><a href="#forms">Import forms</a></li>
+          <li><a href="#selective">Selective imports</a></li>
           <li><a href="#functions">Importing functions</a></li>
           <li><a href="#structs">Importing structs</a></li>
           <li><a href="#enums">Importing enums</a></li>
@@ -157,12 +159,15 @@
       <h2 id="how-it-works">How imports work</h2>
       <p>
         When you run <code>nyra run .</code> or <code>nyra build .</code>, the compiler starts at
-        <code>main.ny</code> and recursively loads every <code>import "…"</code> it finds. All definitions
-        are <strong>merged into one program</strong> with a single global namespace (like compiling one big file).
+        <code>main.ny</code> and recursively loads every <code>import</code> it finds. Definitions
+        are <strong>merged into one program</strong> (like compiling one big file).
+        Whole-module imports bring all <code>pub</code> symbols; selective imports bring only the names you list
+        (plus same-file helpers those names need).
       </p>
       <pre class="pipeline">main.ny
-  import "src/util.ny"     ──►  util.ny
-  import "models/user.ny"  ──►  user.ny (may import more)
+  import "src/util.ny"              ──►  all pub from util.ny
+  import { add } from "math.ny"     ──►  only add (+ its helpers)
+  import "models/user.ny" as u      ──►  u::… / u__…
          │
          ▼
   Merged program → typecheck → borrow → LLVM</pre>
@@ -186,8 +191,131 @@
         </tbody>
       </table>
 
+      <h2 id="forms">Import forms</h2>
+      <table>
+        <thead><tr><th>Syntax</th><th>What merges</th><th>Use when</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>import "math.ny"</code></td>
+            <td>All <code>pub</code> symbols from the file</td>
+            <td>Small modules / you need most of the API</td>
+          </tr>
+          <tr>
+            <td><code>import "math.ny" as m</code></td>
+            <td>All <code>pub</code> symbols as <code>m::name</code> / <code>m__name</code></td>
+            <td>Avoid name clashes; keep a module prefix</td>
+          </tr>
+          <tr>
+            <td><code>import { add, mul } from "math.ny"</code></td>
+            <td>Only those <code>pub</code> names (+ same-file helpers they call)</td>
+            <td>Lean builds — prefer for large files</td>
+          </tr>
+          <tr>
+            <td><code>import { greet as hi } from "helpers.ny"</code></td>
+            <td>One <code>pub</code> symbol, renamed locally</td>
+            <td>Clearer call-site names</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Visibility: omit modifier or use <code>pub</code> to export; <code>priv</code> stays internal.
+        Selective imports of a <code>priv</code> name fail with <code>E039</code>.
+      </p>
+
+      <h2 id="selective">Selective imports</h2>
+      <p>
+        Prefer <code>import { … } from "…"</code> when you only need a few symbols. Even a single name
+        still uses braces: <code>import { add } from "math.ny"</code>.
+      </p>
+
+      <div class="file-tree">myapp/
+  <span class="hl">main.ny</span>
+  src/
+    <span class="hl">math.ny</span></div>
+
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>src/math.ny
+pub fn add(a, b) {
+    return a + b
+}
+
+pub fn mul(a, b) {
+    return a * b
+}
+
+pub fn unused_export() {
+    return 0
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>src/math.ny
+pub fn add(a: i32, b: i32) -&gt; i32 {
+    return a + b
+}
+
+pub fn mul(a: i32, b: i32) -&gt; i32 {
+    return a * b
+}
+
+pub fn unused_export() -&gt; i32 {
+    return 0
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>main.ny
+import { add, mul } from &quot;src/math.ny&quot;
+
+fn main() {
+    print(add(10, 20))   // 30
+    print(mul(3, 7))     // 21
+    // unused_export is not merged
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>main.ny
+import { add, mul } from &quot;src/math.ny&quot;
+
+fn main() -&gt; void {
+    print(add(10, 20))   // 30
+    print(mul(3, 7))     // 21
+    // unused_export is not merged
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+
+      <h3>Rename with <code>as</code></h3>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import { greet as hi } from &quot;src/helpers.ny&quot;
+
+fn main() {
+    print(hi(&quot;nyra&quot;))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import { greet as hi } from &quot;src/helpers.ny&quot;
+
+fn main() -&gt; void {
+    print(hi(&quot;nyra&quot;))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+
+      <div class="callout">
+        <strong>Same-file helpers</strong>
+        If a selected function calls another function in the same file (even <code>priv</code>),
+        the compiler pulls that dependency into the merge automatically. Unrelated <code>pub</code>
+        exports stay out.
+      </div>
+
       <h2 id="functions">Importing functions</h2>
-      <p>Define functions in a module file; call them from <code>main.ny</code> after importing.</p>
+      <p>Define functions in a module file; call them from <code>main.ny</code> after importing (whole module or selective).</p>
 
       <div class="file-tree">myapp/
   <span class="hl">main.ny</span>
@@ -239,7 +367,7 @@ fn main() -&gt; void {
 </div><!-- NYRA_SNIPPET_END -->      <pre><code>cd myapp
 nyra run .</code></pre>
 
-      <p>There is no <code>export</code> keyword per function — every top-level <code>fn</code> in an imported file is visible (unless name collisions; see <a href="#rules">rules</a>).</p>
+      <p>There is no per-item <code>export</code> keyword — top-level items default to <code>pub</code>. Mark helpers <code>priv</code> so whole-module imports skip them. Prefer selective <code>import { … }</code> when you only need a few names (see <a href="#selective">selective imports</a>).</p>
 
       <h2 id="structs">Importing structs</h2>
       <p>Structs live in one file; other files import that file to use the type and its fields.</p>
@@ -469,12 +597,16 @@ import &quot;stdlib/json/mod.ny&quot;</code></pre></div>
       <table>
         <thead><tr><th>Topic</th><th>Guidance</th></tr></thead>
         <tbody>
-          <tr><td>Duplicate names</td><td>Two imported files must not define the same <code>fn</code> / <code>struct</code> name; merge keeps the first</td></tr>
+          <tr><td>Duplicate names</td><td>Two imported files must not define the same <code>fn</code> / <code>struct</code> name; merge keeps the first. Use <code>as</code> alias or selective rename</td></tr>
           <tr><td><code>fn main</code></td><td>Only one entry — keep it in <code>main.ny</code></td></tr>
           <tr><td>Import cycles</td><td>Avoid <code>a.ny</code> imports <code>b.ny</code> and <code>b.ny</code> imports <code>a.ny</code></td></tr>
+          <tr><td>Visibility</td><td>Default <code>pub</code>; <code>priv</code> is hidden from importers. Selective import of <code>priv</code> → <code>E039</code></td></tr>
+          <tr><td>Missing selective name</td><td><code>import { missing } from "…"</code> → <code>E039</code> (lists available pub symbols)</td></tr>
+          <tr><td>Single-name selective</td><td>Still needs braces: <code>import { add } from "math.ny"</code></td></tr>
           <tr><td>Variables</td><td><code>let</code> inside functions is local — not “exported”. Share data via <code>const</code>, functions, or structs</td></tr>
           <tr><td>Mutable globals</td><td>Not supported as imports; use functions that return state</td></tr>
           <tr><td>Run command</td><td><code>nyra run .</code> not <code>nyra run main.ny</code> for multi-file</td></tr>
+          <tr><td>Unused import</td><td><code>W002</code> — remove the line or run <code>nyra pkg prune</code></td></tr>
         </tbody>
       </table>
 

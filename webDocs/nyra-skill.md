@@ -351,7 +351,7 @@ Quick lookup for syntax the lexer and parser accept today. Types are optional un
 | `match` | Pattern match on enums / values |
 | `struct` / `enum` | User-defined types |
 | `impl` | Methods; `impl Trait for Type` |
-| `import` | Load another `.ny` file |
+| `import` | Load another `.ny` file — `import "path"`, `as` alias, or `import { a, b } from "path"` |
 | `module` | Module declaration |
 | `extern` / `export` | FFI declare / export C symbol |
 | `test` | Test function |

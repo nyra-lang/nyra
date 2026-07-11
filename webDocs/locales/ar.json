@@ -340,7 +340,7 @@
     "imports": {
       "metaTitle": "دليل الاستيراد — توثيق Nyra",
       "h1": "دليل الاستيراد",
-      "lead": "قسّم تطبيقك إلى ملفات <code>.ny</code> وشارك الدوال والأنواع والثوابت بـ <code>import \"path.ny\"</code> — ثم ابنِ من جذر المشروع."
+      "lead": "قسّم تطبيقك إلى ملفات <code>.ny</code> وشارك الدوال والأنواع والثوابت بـ <code>import \"path.ny\"</code> أو الاستيراد الانتقائي <code>import { name } from \"path.ny\"</code> — ثم ابنِ من جذر المشروع."
     },
     "examples": {
       "metaTitle": "تطبيقات مثال — توثيق Nyra",

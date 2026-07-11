@@ -343,7 +343,7 @@
     "imports": {
       "metaTitle": "Imports guide — Nyra Docs",
       "h1": "Imports guide",
-      "lead": "Split your app into multiple `.ny` files and share functions, types, and constants with `import \"path.ny\"` — then build from the project root."
+      "lead": "Split your app into multiple `.ny` files and share functions, types, and constants with `import \"path.ny\"` or selective `import { name } from \"path.ny\"` — then build from the project root."
     },
     "examples": {
       "metaTitle": "Example applications — Nyra Docs",

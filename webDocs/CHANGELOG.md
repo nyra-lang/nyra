@@ -11,7 +11,9 @@ This repository is independent from the [Nyra compiler](https://github.com/nyra-
 
 **Language**
 
-- [nyra-skill.md](nyra-skill.md) — selective imports: `import { add, mul } from "math.ny"` (+ `as` rename, E039).
+- [imports.html](imports.html) / [modules.html](modules.html) — selective imports: `import { add, mul } from "math.ny"`, rename `as`, forms table, `E039`.
+- [nyra-skill.md](nyra-skill.md) — selective imports (+ `as` rename, E039).
+- [keywords.html](keywords.html) / [reference.html](reference.html) — import syntax forms.
 
 **CLI & tooling**
 

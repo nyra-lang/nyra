@@ -253,7 +253,7 @@
           <tr><td><code>impl</code></td><td>Methods on a type; <code>impl Trait for Type</code></td></tr>
           <tr><td><code>trait</code></td><td>Trait definition (Extended)</td></tr>
           <tr><td><code>self</code></td><td>Method receiver inside <code>impl</code></td></tr>
-          <tr><td><code>import</code></td><td>Load another <code>.ny</code> file</td></tr>
+          <tr><td><code>import</code></td><td>Load another <code>.ny</code> file — <code>import "path"</code>, <code>import "path" as alias</code>, or <code>import { a, b } from "path"</code></td></tr>
           <tr><td><code>module</code></td><td>Module path declaration — see <a href="modules.html">Modules</a></td></tr>
           <tr><td><code>extern</code></td><td>Declare an external (C) function</td></tr>
           <tr><td><code>export</code></td><td>Export a symbol for FFI</td></tr>
@@ -262,7 +262,7 @@
           <tr><td><code>macro</code></td><td>Macro definition (Extended)</td></tr>
           <tr><td><code>test</code></td><td>Test function — run with <code>nyra test</code></td></tr>
           <tr><td><code>print</code></td><td>Built-in stdout; optional <code>color:</code> for ANSI output</td></tr>
-          <tr><td><code>as</code></td><td>Type cast — <code>expr as Type</code></td></tr>
+          <tr><td><code>as</code></td><td>Type cast <code>expr as Type</code>; import alias <code>import "…" as m</code>; selective rename <code>import { a as b } from "…"</code></td></tr>
           <tr><td><code>unsafe</code></td><td>Block for raw pointers and low-level operations</td></tr>
           <tr><td><code>asm</code></td><td>Inline assembly (inside <code>unsafe</code>)</td></tr>
           <tr><td><code>defer</code></td><td>Scope-exit call (LIFO) — Extended; prefer <code>impl Drop</code></td></tr>
