@@ -115,6 +115,14 @@ fn import_warning_to_action(w: &NyraError) -> Option<PruneAction> {
     if w.code.as_deref() != Some(W002_UNUSED_IMPORT) {
         return None;
     }
+    // Selective `import { name }` unused binding — do not delete the whole line.
+    if w
+        .labels
+        .iter()
+        .any(|l| l.label.contains("is imported but never used"))
+    {
+        return None;
+    }
     Some(PruneAction::RemoveImportLine {
         file: PathBuf::from(&w.span.file),
         line: w.span.start.line,

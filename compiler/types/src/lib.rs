@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ast::{IntKind, TypeAnnotation};
+use ast::{dyn_combo_key, dyn_struct_name, IntKind, TypeAnnotation};
 
 pub mod float;
 pub mod integer;
@@ -58,7 +58,7 @@ fn mangle_type_ann(t: &TypeAnnotation) -> String {
         TypeAnnotation::Lifetime(_) => "lt".into(),
         TypeAnnotation::ForAll { inner, .. } => mangle_type_ann(inner),
         TypeAnnotation::FnPtr { .. } => "fnptr".into(),
-        TypeAnnotation::DynTrait { trait_name, .. } => format!("dyn_{trait_name}"),
+        TypeAnnotation::DynTrait { traits, .. } => format!("dyn_{}", dyn_combo_key(&traits)),
         TypeAnnotation::Simd { elem, lanes } => {
             format!("simd_{}_{}", mangle_type_ann(elem), lanes)
         }
@@ -252,7 +252,7 @@ impl From<TypeAnnotation> for Type {
                     .as_ref()
                     .map(|t| Box::new((**t).clone().into())),
             },
-            TypeAnnotation::DynTrait { trait_name, .. } => Type::Struct(format!("Dyn_{trait_name}")),
+            TypeAnnotation::DynTrait { traits, .. } => Type::Struct(dyn_struct_name(&traits)),
             TypeAnnotation::Generic(n) => Type::Generic(n),
         }
     }

@@ -10,6 +10,7 @@ use crate::app::session::{build, compile_and_link, project_root, run_file};
 use crate::commands::{bind, check, explain, fmt, ide, inspect, pkg, test, toolchain};
 use crate::debug;
 use crate::target::TargetSpec;
+use crate::race::{self, effective_debug_symbols, prepare_opt_flags};
 use crate::watch::{self, WatchMode};
 
 pub(crate) fn apply_color_choice(color: &ColorArgs) {
@@ -36,19 +37,22 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
             no_std,
             freestanding,
             no_prelude,
-        } => build(
-            &file,
-            output.as_deref(),
-            &opt,
-            debug_symbols,
-            cdylib,
-            lto_full,
-            &target_args,
-            &stability,
-            no_std,
-            freestanding,
-            no_prelude,
-        ),
+        } => {
+            prepare_opt_flags(&opt, &target_args)?;
+            build(
+                &file,
+                output.as_deref(),
+                &opt,
+                effective_debug_symbols(&opt, debug_symbols),
+                cdylib,
+                lto_full,
+                &target_args,
+                &stability,
+                no_std,
+                freestanding,
+                no_prelude,
+            )
+        }
         Commands::Run {
             file,
             opt,
@@ -57,15 +61,18 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
             no_std,
             freestanding,
             no_prelude,
-        } => run_file(
-            &file,
-            &opt,
-            &target_args,
-            &stability,
-            no_std,
-            freestanding,
-            no_prelude,
-        ),
+        } => {
+            prepare_opt_flags(&opt, &target_args)?;
+            run_file(
+                &file,
+                &opt,
+                &target_args,
+                &stability,
+                no_std,
+                freestanding,
+                no_prelude,
+            )
+        }
         Commands::Lsp => {
             let rt = tokio::runtime::Runtime::new().map_err(|e| e.to_string())?;
             rt.block_on(lsp::run_stdio());
@@ -73,21 +80,56 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
         }
         Commands::Dap => nyra_dap::run_stdio(),
         Commands::Ide { cmd } => ide::ide_command(cmd),
-        Commands::Watch { path, on } => {
+        Commands::Repl => crate::repl::repl(),
+        Commands::Race {
+            path,
+            native,
+            build_only,
+            args,
+        } => race::race_command(&path, native, build_only, &args),
+        Commands::Watch {
+            path,
+            on,
+            race,
+            race_native,
+        } => {
             let mode = match on.as_str() {
                 "check" => WatchMode::Check,
                 "build" => WatchMode::Build,
                 "run" => WatchMode::Run,
                 other => return Err(format!("unknown watch mode '{other}' (use check, build, run)")),
             };
-            watch::watch(&path, mode)
+            if (race || race_native) && matches!(mode, WatchMode::Check) {
+                return Err(
+                    "watch: --race / --race-native require `--on build` or `--on run`".into(),
+                );
+            }
+            let mut opt = OptFlags::default();
+            if race {
+                opt.race = true;
+            }
+            if race_native {
+                opt.race_native = true;
+            }
+            watch::watch_with_opt(&path, mode, &opt)
         }
         Commands::Debug {
             path,
             debugger,
             init_vscode,
+            race,
+            race_native,
             args,
-        } => debug_cmd(&path, debugger.as_deref(), init_vscode, &args),
+        } => {
+            let mut opt = OptFlags::default();
+            if race {
+                opt.race = true;
+            }
+            if race_native {
+                opt.race_native = true;
+            }
+            debug_cmd(&path, debugger.as_deref(), init_vscode, &args, &opt)
+        }
         Commands::Check {
             file,
             stability,
@@ -115,7 +157,10 @@ pub(crate) fn run(cli: Cli) -> Result<(), String> {
             filter,
             target_args,
             opt,
-        } => test::test_dir(&path, &target_args, &opt, list_json, filter.as_deref()),
+        } => {
+            prepare_opt_flags(&opt, &target_args)?;
+            test::test_dir(&path, &target_args, &opt, list_json, filter.as_deref())
+        }
         Commands::Fmt { path, write, check } => fmt::fmt_path(&path, write, check),
         Commands::Pkg(cmd) => pkg::pkg_command(cmd),
         Commands::Bind(cmd) => bind::bind_command(cmd),
@@ -147,11 +192,13 @@ fn debug_cmd(
     debugger: Option<&str>,
     init_vscode: bool,
     args: &[String],
+    opt: &OptFlags,
 ) -> Result<(), String> {
+    prepare_opt_flags(opt, &crate::app::args::TargetArgs::default())?;
     let spec = TargetSpec::host();
     let bin_path = compile_and_link(
         path,
-        &OptFlags::default(),
+        opt,
         true,
         false,
         false,

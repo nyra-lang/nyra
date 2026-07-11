@@ -132,7 +132,20 @@ nyra build lib.ny -o mylib --cdylib # shared lib for Python/Node/Rust hosts
 nyra debug . # build -g + launch lldb/gdb (CLI)
 nyra dap # DAP adapter (stdio) — VS Code extension
 nyra build . --debug-symbols # required before source-level debugging
+nyra toolchain info # clang/opt/lld paths under $NYRA_HOME
+nyra toolchain install # install/link LLVM into $NYRA_HOME/lib/llvm
+nyra cc -c vendor/shim.c -o vendor/shim.o # clang driver
+nyra bind rust uuid # crates.io → C-ABI + .ny stubs
+nyra bind c api.h --lib mylib # C header → extern fn
+nyra watch . --on run # rebuild + run on save
+nyra repl # interactive REPL
+nyra race . # concurrency race detector (TSan)
+nyra race . --native # portable native race runtime
+nyra lsp # language server (stdio)
+nyra ide goto-def main.ny 0 --character 20
 ```
+
+Docs: [Toolchain & CLI](https://nyra-lang.github.io/nyra/tooling.html) — every subcommand with examples.
 
 ### Build output layout (Cargo-style)
 
@@ -155,7 +168,7 @@ myapp/
 
 Ship the executable from `target/release/` (or `target/{triple}/release/`) for production; run `./target/debug/main` while developing.
 
-Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` (ThreadSanitizer for async/concurrency debug), `--for`, `--os`, `--arch`, `--target`.
+Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` / `--race-native` (or `nyra race` / `nyra race --native`) for concurrency debug, `--for`, `--os`, `--arch`, `--target`.
 
 Systems / freestanding: `--no-std` (skip runtime link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`.
 
@@ -338,7 +351,7 @@ Quick lookup for syntax the lexer and parser accept today. Types are optional un
 | `match` | Pattern match on enums / values |
 | `struct` / `enum` | User-defined types |
 | `impl` | Methods; `impl Trait for Type` |
-| `import` | Load another `.ny` file |
+| `import` | Load another `.ny` file — `import "path"`, `as` alias, or `import { a, b } from "path"` |
 | `module` | Module declaration |
 | `extern` / `export` | FFI declare / export C symbol |
 | `test` | Test function |
@@ -489,6 +502,19 @@ Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` �
 | SIMD | `simd_add_i32x4`, `stdlib/simd/mod.ny` | Portable + platform (`x86.ny`, `arm.ny`) |
 
  (zero types) and `.typed.ny`.
+
+**Layout example** (`size_of` returns bytes; ×8 for bits — no import):
+
+```ny
+fn main() {
+    print(size_of<i32>())      // 4
+    print(size_of<i32>() * 8)  // 32 bits
+    print(size_of<i64>())      // 8
+    print(align_of<i64>())     // 8
+}
+```
+
+Helpers: `import "stdlib/mem/layout.ny"` → `size_of_i32()`, `align_of_ptr()`. Docs: [stdlib → size_of](https://nyra-lang.github.io/nyra/stdlib.html#size-of).
 
 **Integer literals** default to `i32`, but bind to any integer type when the target is known — e.g. `let c = Color { r: 18, g: 52, b: 86, a: 255 }` with `r: u8` fields accepts `255` without `: u8` on each literal.
 
@@ -964,16 +990,22 @@ module my.app
 import "lib/helpers.ny"
 import "types.ny"
 import "lib/api.ny" as api
+import { add, mul } from "math.ny"
+import { greet as hi } from "lib/helpers.ny"
 
 fn main() {
  print(APP_TITLE) // const from imported file
  print(api::version()) // alias::name → api__version
+ print(add(1, 2))
+ print(hi("nyra"))
 }
 ```
 
 - Project root: `main.ny` + optional `nyra.mod`.
 - Paths relative to importing file: `import "src/engine.ny"`.
-- Import brings **public** symbols into scope; `priv` hides from importers.
+- Whole-module `import "path"` brings **all public** symbols into scope; `priv` hides from importers.
+- Selective `import { a, b } from "path"` merges **only** those public names (plus same-file helpers they need). Prefer this to keep builds lean.
+- `import { name as local } from "path"` renames the binding.
 - `import "path" as alias` + `alias::symbol` qualified calls.
 
 ### Visibility (`pub` / `priv`)
@@ -1758,7 +1790,7 @@ import "stdlib/builtins_json.ny"
 | `JSON_stringify(key, value)` | Single-field JSON object string |
 | `JSON_parse(json, key)` | Read string field from JSON |
 
-For full JSON/serde use `stdlib/json/mod.ny`, `stdlib/serialize/mod.ny`, or NyraPkg `ny-serde`.
+For JSON use `stdlib/json/mod.ny` (`parse_json` / `stringify_json`, field helpers). Schema traits: `stdlib/serde/mod.ny`. Multi-format MVP: `stdlib/serialize/mod.ny`.
 
 
 
@@ -2081,7 +2113,7 @@ Use-after-move errors name the callee and line, show the function signature, and
 | Status | Modules | Notes |
 |--------|---------|-------|
 | **Shipped** | `vec.ny`, `vec_str.ny`, `map.ny`, `collections/*`, `strings/ops.ny`, `fs/mod.ny`, `path.ny`, `crypto/mod.ny`, `encoding/base64.ny`, `net/tcp.ny`, `net/http/mod.ny` (+ `sugar`/`fetch`), `net/udp.ny`, `net/websocket.ny`, `compress/mod.ny`, `serialize/mod.ny`, `json/mod.ny`, `db/sqlite.ny`, `db/query.ny` (`qb`), `tls.ny`, `time/*`, `strconv/mod.ny`, `flag/mod.ny`, `bufio/mod.ny`, `context/mod.ny`, `sync/mod.ny`, `process.ny` (POSIX), `bridge/mod.ny`, `terminal/*`, `encoding/csv.ny`, `archive/zip.ny`, `mime/mod.ny`, `random_bytes`, `embed/mod.ny`, `slog/mod.ny`, `testing/fstest.ny`, `testing/quick.ny` | Collections + HOFs, FS, crypto, HTTP (`fetch`/`req`), SQL builder, CLI, DB (SQLite), sync |
-| **MVP / partial** | `json/mod.ny` / `serialize/mod.ny` (multi-key encode; not full schema serde), `uuid/mod.ny`, `url` helpers, `async.ny`, `reflect/mod.ny` | Use NyraPkg (`ny-serde`) for full schema serde |
+| **MVP / partial** | `serialize/mod.ny` (TOML/YAML field MVP), `uuid/mod.ny`, `url` helpers, `async.ny`, `reflect/mod.ny` | Use NyraPkg `ny-toml` for full TOML |
 | **Native when linked** | `db/postgres.ny` (`link pq`), `db/mysql.ny` (`link mysqlclient`), `compress/bzip2.ny` (`link bz2`) |
 | **Shipped** | `env_set`, `process` (POSIX + Windows), Windows prebuilt releases |
 | **Stub → in progress** | `compress/bzip2.ny` (link `bz2`) | Native driver when linked |
@@ -2215,7 +2247,7 @@ fn main() {
 
 Requires `link sqlite3` in `nyra.mod` for SQLite. LSM/B-tree/SQL parser are pure Nyra stdlib.
 
-**Shipped:** `env_set`, `process` on Windows, postgres/mysql native when linked. **NyraPkg** for full serde: `ny-serde`, `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
+**Shipped:** `env_set`, `process` on Windows, postgres/mysql native when linked. Document JSON in stdlib (`parse_json`/`stringify_json`). **NyraPkg** for full TOML: `ny-toml`. [Stdlib reference](https://nyra-lang.github.io/nyra/stdlib.html).
 
 ### net/http API reference
 
@@ -2712,9 +2744,35 @@ fn main() {
 
 
 
+## Race detection (concurrency debug)
+
+```bash
+nyra race .                 # ThreadSanitizer build + run (auto -g)
+nyra race . --native        # portable Nyra race runtime (stdlib/rt/rt_race.c)
+nyra race app.ny --build-only
+nyra build --race           # same detector flags on build/run/test
+nyra watch . --on run --race
+nyra debug . --race         # TSan binary under lldb/gdb
+```
+
+- **`--race`**: Clang TSan — best stacks; needs host TSan clang (not wasm / cross).
+- **`--race-native`**: lightweight lock-set in `stdlib/race.ny` — call `Race_init()` / `Race_track_*`.
+- Race flags auto-enable debug frames; CLI prints a detector banner before link.
+
+## REPL & watch
+
+```bash
+nyra repl              # interactive session (declarations + expr print)
+nyra watch . --on check   # re-check on .ny changes
+nyra watch . --on run     # re-run on save
+```
+
+- REPL keeps top-level items and `let` locals across inputs; expressions are wrapped in `print(...)`.
+- Watch ignores `target/` and only reacts to `.ny` / `.nyra` / `nyra.mod`.
+
 ## Traits & dynamic dispatch (Stable Extended)
 
-Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. Shipped on **Stable Extended** — multi-method vtables, `dyn Trait + Send + Sync` bounds, and trait-object `Drop`. Remaining gate: multi-trait `dyn A + B` objects.
+Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. Shipped on **Stable Extended** — multi-method vtables, `dyn Trait + Send + Sync` bounds, trait-object `Drop`, and **`dyn A + B`** multi-trait objects.
 
 ### Static dispatch
 
@@ -2785,7 +2843,7 @@ See [generics](https://nyra-lang.github.io/nyra/generics.html).
 
 - Copy-sized structs only (heap box via `malloc` + `memcpy`).
 - `dyn Trait + Send + Sync` bounds validated on **casts**; fn-parameter bound checking is partial.
-- No `dyn A + B` multi-trait objects yet.
+- **`dyn A + B`:** multi-trait objects combine vtables (methods deduped by name, first trait wins).
 - Explicit **`return`** required in impl bodies (no implicit tail return).
 - Extended tier: `nyra check --deny-extended` rejects `trait` / `dyn` in Core-only CI.
 
@@ -2827,7 +2885,7 @@ in repo.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
 - **`nyra inspect NAME --at file:line`** — compile-time ownership/borrow snapshot at a source line; **`nyra check --ownership-verbose`** — per-binding summary at function exit. Not runtime reflection. Rust stable toolchain has no equivalent.
 - No `extern export fn` — use `extern fn` or `export fn` separately.
-- Async/`await`: promise handles + **executor v0.0.1** + **state-machine v0.0.1** + **v0.0.1 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
+- Async/`await`: promise handles + **executor v0.0.1** + **state-machine v0.0.1** + **v0.0.1 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra race`** (or `nyra build --race`) enables TSan; **`nyra race --native`** uses the portable lock-set runtime. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
 - **`Serialize` trait** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
 - Arrow functions are **Extended** tier — use `nyra check --deny-extended` in Core-only CI if you avoid them.
@@ -2841,6 +2899,7 @@ Stable codes — explain with `nyra explain E003` or `nyra explain --list`. JSON
 | Code | Title | Meaning |
 |------|-------|---------|
 | **E001** | import not found | `import "path"` does not resolve |
+| **E039** | import symbol | selective `import { name }` missing or `priv` |
 | **E002** | undefined name | Variable/function/type not in scope |
 | **E003** | type mismatch | Expression type ≠ expected context |
 | **E004** | cannot infer type | Add explicit `: Type` annotation |

@@ -476,7 +476,7 @@ fn compile_test_file(path: &Path, opts: &CompileOptions) -> Result<CompileOutput
     let use_file_loader = path.file_name().is_some_and(|n| n == "main.ny")
         || source.lines().any(|line| {
             let t = line.trim();
-            t.starts_with("import \"") || t.starts_with("import \"")
+            t.starts_with("import \"") || t.starts_with("import {")
         });
     if use_file_loader {
         return Compiler::compile_file(path, opts);

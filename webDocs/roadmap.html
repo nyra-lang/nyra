@@ -139,7 +139,7 @@
 
       <div class="callout callout-status" role="note">
         <strong>Production-ready tier</strong>
-        <p>Ship CLI tools, servers, and native apps on Core + Stable Extended (<code>?</code>, enum payloads, spawn, async/await, traits, serde). Remaining gates: multi-trait <code>dyn</code> objects and advanced trait-object bounds — see <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a>.</p>
+        <p>Ship CLI tools, servers, and native apps on Core + Stable Extended (<code>?</code>, enum payloads, spawn, async/await, traits, serde). Multi-trait <code>dyn A + B</code> objects ship on Stable Extended. Remaining focus: exotic generic serde edge cases — see <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a>.</p>
       </div>
 
       <h2>Version history</h2>
@@ -172,8 +172,8 @@
       <ul>
         <li>Full trait-object dispatch (basic trait bounds on generics shipped)</li>
         <li>Richer lifetime variance and region inference</li>
-        <li>Production async scheduler (executor + linear state-machine — nested <code>await</code> in control flow still evolving)</li>
-        <li>Full schema serde in stdlib (NyraPkg <code>ny-serde</code> today)</li>
+        <li>Production async scheduler (task-pool <code>async fn</code> + cooperative state machine + async channels shipped; full M:N preemption and async IO surface still evolving)</li>
+        <li>Richer multi-format serialize (TOML/YAML beyond field MVP; JSON document API shipped in stdlib)</li>
       </ul>
 
       <h2>Shipped (Stable Extended)</h2>

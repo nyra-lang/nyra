@@ -165,8 +165,8 @@ impl Codegen {
     }
 
     pub(super) fn compile_cast(&mut self, c: &CastExpr, env: &Env) -> ExprValue {
-        if let TypeAnnotation::DynTrait { trait_name, .. } = &c.target_type {
-            return self.compile_trait_object_box(trait_name, &c.expr, env);
+        if let TypeAnnotation::DynTrait { traits, .. } = &c.target_type {
+            return self.compile_trait_object_box(traits, &c.expr, env);
         }
         let inner = self.compile_expr(&c.expr, env);
         let target = self.llvm_type_of(&c.target_type);

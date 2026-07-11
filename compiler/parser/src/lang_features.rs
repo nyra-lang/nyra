@@ -236,17 +236,25 @@ impl Parser {
                     return TypeAnnotation::Void;
                 }
             };
-            let mut bounds = Vec::new();
+            let mut traits = vec![trait_name];
+            let mut auto_bounds = Vec::new();
             while check(&self.tokens, self.position, &TokenKind::Plus) {
                 self.advance();
                 if let TokenKind::Identifier(b) = self.current_kind().clone() {
-                    bounds.push(b);
+                    if is_dyn_auto_trait(&b) {
+                        auto_bounds.push(b);
+                    } else {
+                        traits.push(b);
+                    }
                     self.advance();
                 } else {
                     break;
                 }
             }
-            return TypeAnnotation::DynTrait { trait_name, bounds };
+            return TypeAnnotation::DynTrait {
+                traits,
+                auto_bounds,
+            };
         }
         if check(&self.tokens, self.position, &TokenKind::For) {
             self.advance();

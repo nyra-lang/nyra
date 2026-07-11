@@ -125,7 +125,7 @@
       "tagline": "سريعة كالنمر. حادة في التصميم.",
       "lead": "بساطة Go. أمان Rust. سرعة C++ — منصة واحدة، و LLVM في القلب.",
       "mvpBannerTitle": "جاهز للإنتاج — Core + Stable Extended",
-      "mvpBannerBody": "<strong>Core</strong> و<strong>Stable Extended</strong> مستقران semver: async/await و<code>?</code> وspawn وtraits وserde وenum payloads بدون W001. إصدارات جاهزة لـ Linux وmacOS وWindows. بعض المجالات المتقدمة (multi-trait <code>dyn</code>، serde عام معقد) ما زالت تتطور — راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>.",
+      "mvpBannerBody": "<strong>Core</strong> و<strong>Stable Extended</strong> مستقران semver: async/await و<code>?</code> وspawn وtraits (بما فيها <code>dyn A + B</code>) وserde وenum payloads بدون W001. إصدارات جاهزة لـ Linux وmacOS وWindows. بعض حالات serde العامة المعقدة ما زالت تتطور — راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>.",
       "chipFast": "سريع",
       "chipSafe": "آمن",
       "chipMinimal": "بسيط",
@@ -158,7 +158,7 @@
       "pillarSafetyP": "الملكية، إسقاط تلقائي، borrow بـ NLL — بدون GC وبدون تسريب في الكود العادي",
       "pillarSafetyLink": "الذاكرة والملكية →",
       "pillarSpeedP": "<code>nyra build --release</code>، thin LTO، IR <code>opt</code>",
-      "pillarToolingP": "run وbuild وtest وfmt وpkg في ثنائي واحد",
+      "pillarToolingP": "run وbuild وtest وfmt وwatch وrepl وrace وpkg في ثنائي واحد",
       "pillarAsyncP": "<code>spawn</code> مع captures و<code>Send</code>/<code>Sync</code> وقنوات pthread",
       "pipelineTitle": "مسار الترجمة",
       "pipelineDesc": "من المصدر إلى ملف تنفيذي أصلي.",
@@ -181,7 +181,7 @@
       "cardExamplesP": "Calculator وgreet وenums — انسخ وشغّل",
       "cardImportsP": "دوال وstruct وenum وثوابت",
       "cardLanguageP": "متغيرات وحلقات وmatch ودوال",
-      "cardToolingP": "build وtest وfmt وإعدادات الإصدار",
+      "cardToolingP": "build وtest وfmt وwatch وrepl وrace وأعلام الإصدار",
       "bentoApi": "مرجع API",
       "cardStdlibP": "stdlib قوية — collections وFS وHTTP/TCP وcrypto وDB وserde وWebSocket <strong>ضمن اللغة</strong>",
       "cardReferenceP": "كلمات مفتاحية وعوامل وملكية سريعة",
@@ -189,7 +189,7 @@
       "cardSpecP": "Spec 1.0 المعياري (تجميد v0.2)",
       "cardLearningPathP": "من الصفر إلى تطبيق كامل — خطوة بخطوة",
       "statusTitle": "حالة المشروع",
-      "statusBody": "Nyra <strong>جاهزة للإنتاج</strong> على Core + Stable Extended (async و<code>?</code> وspawn وtraits وserde). إصدارات جاهزة لـ Linux وmacOS وWindows. راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">سياسة الاستقرار</a>.",
+      "statusBody": "Nyra <strong>جاهز للإنتاج</strong> على Core + Stable Extended (async و<code>?</code> وspawn وtraits بما فيها <code>dyn A + B</code> وserde). إصدارات جاهزة لـ Linux وmacOS وWindows. راجع <a href=\"roadmap.html\">خارطة الطريق</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a> و<a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">سياسة الاستقرار</a>.",
       "aiSkillTitle": "للمساعدين الذكاء الاصطناعي",
       "aiSkillDesc": "حمّل المرجع الرسمي لـ Nyra لـ Cursor وChatGPT وClaude وغيرها.",
       "aiSkillBody": "ملف واحد <code>nyra-skill.md</code> — الصياغة، الملكية، stdlib، PGO، escape analysis، مستويات الاستقرار، ومنع الهلوسة (v0.0.1).",
@@ -200,7 +200,7 @@
       "resultTodayH": "مُطلَق (Stable Extended)",
       "resultTodayP": "عامل <code>?</code> و<code>Result&lt;T,E&gt;</code> العام عبر <code>import \"stdlib/option.ny\"</code> واختبارات مثل <code>tests/nyra/result_propagate_test.ny</code>.",
       "resultMissingH": "ما زال يتطور",
-      "resultMissingP": "كائنات multi-trait <code>dyn A + B</code> وبعض حالات serde العامة المعقدة — راجع بوابات الإنتاج في خارطة الطريق.",
+      "resultMissingP": "بعض حالات serde العامة المعقدة — راجع بوابات الإنتاج في خارطة الطريق.",
       "resultProdH": "جاهزية الإنتاج",
       "resultProdP": "جاهز لمعالجة الأخطاء في أدوات CLI والخوادم على Core + Stable Extended.",
       "resultExampleLink": "مرجع Result ومثال ←"
@@ -340,7 +340,7 @@
     "imports": {
       "metaTitle": "دليل الاستيراد — توثيق Nyra",
       "h1": "دليل الاستيراد",
-      "lead": "قسّم تطبيقك إلى ملفات <code>.ny</code> وشارك الدوال والأنواع والثوابت بـ <code>import \"path.ny\"</code> — ثم ابنِ من جذر المشروع."
+      "lead": "قسّم تطبيقك إلى ملفات <code>.ny</code> وشارك الدوال والأنواع والثوابت بـ <code>import \"path.ny\"</code> أو الاستيراد الانتقائي <code>import { name } from \"path.ny\"</code> — ثم ابنِ من جذر المشروع."
     },
     "examples": {
       "metaTitle": "تطبيقات مثال — توثيق Nyra",

@@ -49,6 +49,37 @@ Before finishing:
 
 As an AI agent, you must ensure the long-term stability and reliability of the system by converting every bug or failure you identify and resolve into a *permanent regression test*. This log serves as an evolving source of truth for the system’s resilience: if you discover a defect, design a targeted test that reproduces it, and make sure it gets added immediately. This way, the test suite acts as an AI memory, persistently encoding learnings to prevent regressions. Over time, this strategy will transform the language into a robust, self-healing platform.
 
+### Golden rule — no fix without a regression test
+
+**Do not land a language/compiler/runtime fix without a test that would have failed before the fix.** Unit tests alone are not enough when the failure appears in **LLVM codegen, linkage, drop/ownership, or `nyra run`**.
+
+| Failure surface | Where to put the guard |
+|-----------------|------------------------|
+| Compile + link + run / stdout / exit status / malloc abort | `tests/suite/run/regression/*.ny` (`// run-stdout:`) |
+| Must not compile (type/borrow) | `tests/suite/fail/regression/*.ny` or `tests/conformance/fail/<area>/` |
+| IR / ownership contract | `compiler/driver/tests/conformance/` (`CONF-*`) |
+| Feature behavior (assert) | `tests/conformance/pass/<area>/` |
+
+These suites run in CI via `make test-all` / compiletest / conformance gates.
+
+### Inference vs explicit types — matrix when styles diverge
+
+Nyra is **zero-types by default**; explicit annotations must behave the same. When a bug shows up only with annotations (or only without them), capture it as a **matrix** of the same logic:
+
+1. **Zero-types** — no annotations (inference)
+2. **Explicit types** — full annotations (`Option<string>`, params, returns)
+3. **Comptime** — `#[comptime]` / `const` folding of the same idea when applicable
+4. **Generics** — `fn f<T>(…)` / monomorph path
+
+If (1) passes and (2) fails (or the reverse), that pair is the bug report pattern for language maintainers. Prefer one combined matrix file plus focused single-scenario files under `tests/suite/run/regression/`.
+
+### When you hit a language problem in the wild
+
+1. Minimize a `.ny` repro that fails under `nyra build` / `nyra run`
+2. Add it under `tests/suite/run/regression/` (or fail/conformance as above) **before or with** the fix
+3. Cover both zero-types and explicit types; add comptime/generics matrix cells when the bug touches inference, monomorph, or folding
+4. Only then fix codegen/typecheck/drop — the new test must go green and stay in CI
+
 
 ## Scope
 

@@ -124,7 +124,7 @@
       "tagline": "Fast like a panther. Sharp by design.",
       "lead": "Go’s simplicity. Rust’s safety. C++’s speed — one toolchain, LLVM under the hood.",
       "mvpBannerTitle": "Production-ready — Core + Stable Extended",
-      "mvpBannerBody": "<strong>Core</strong> and <strong>Stable Extended</strong> are semver-stable: async/await, <code>?</code>, spawn, traits, serde, and enum payloads ship without W001. Prebuilt Linux, macOS, and Windows releases. A few advanced areas (multi-trait <code>dyn</code>, exotic generic serde) are still maturing — see <a href=\"roadmap.html\">Roadmap</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>.",
+      "mvpBannerBody": "<strong>Core</strong> and <strong>Stable Extended</strong> are semver-stable: async/await, <code>?</code>, spawn, traits (including <code>dyn A + B</code>), serde, and enum payloads ship without W001. Prebuilt Linux, macOS, and Windows releases. A few exotic generic serde edge cases are still maturing — see <a href=\"roadmap.html\">Roadmap</a> and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>.",
       "chipFast": "Fast",
       "chipSafe": "Safe",
       "chipMinimal": "Minimal",
@@ -157,7 +157,7 @@
       "pillarSafetyP": "Ownership, auto-drop, NLL borrows — no GC, no leaks in normal code",
       "pillarSafetyLink": "Memory & ownership →",
       "pillarSpeedP": "<code>nyra build --release</code>, thin LTO, IR <code>opt</code>",
-      "pillarToolingP": "run, build, test, fmt, pkg in one binary",
+      "pillarToolingP": "run, build, test, fmt, watch, repl, race, pkg in one binary",
       "pillarAsyncP": "<code>spawn</code> with captures, <code>Send</code>/<code>Sync</code>, pthread channels",
       "pipelineTitle": "Compilation pipeline",
       "pipelineDesc": "From source to native executable.",
@@ -181,7 +181,7 @@
       "cardExamplesP": "Calculator, greet, enums — copy & run",
       "cardImportsP": "Functions, structs, enums, consts",
       "cardLanguageP": "Variables, loops, match, functions",
-      "cardToolingP": "build, test, fmt, release flags",
+      "cardToolingP": "build, test, fmt, watch, repl, race, release flags",
       "bentoApi": "API reference",
       "cardStdlibP": "Strong stdlib — collections, FS, HTTP/TCP, crypto, DB, serde, WebSocket <strong>in-tree</strong>",
       "cardReferenceP": "Keywords, operators, ownership quick ref",
@@ -198,12 +198,12 @@
       "resultTodayH": "Shipped (Stable Extended)",
       "resultTodayP": "The <code>?</code> operator, generic <code>Result&lt;T,E&gt;</code> via <code>import \"stdlib/option.ny\"</code>, and tests such as <code>tests/nyra/result_propagate_test.ny</code>.",
       "resultMissingH": "Still maturing",
-      "resultMissingP": "Multi-trait <code>dyn A + B</code> objects and some exotic generic serde cases — see roadmap production gates.",
+      "resultMissingP": "Some exotic generic serde edge cases — see roadmap production gates.",
       "resultProdH": "Production readiness",
       "resultProdP": "Ready for production error-handling in CLI tools and servers on Core + Stable Extended.",
       "resultExampleLink": "Result reference & example →",
       "statusTitle": "Project status",
-      "statusBody": "Nyra is <strong>production-ready</strong> on Core + Stable Extended (async, <code>?</code>, spawn, traits, serde). Prebuilt releases for Linux, macOS, and Windows. See <a href=\"roadmap.html\">Roadmap</a>, <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>, and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability policy</a>."
+      "statusBody": "Nyra is <strong>production-ready</strong> on Core + Stable Extended (async, <code>?</code>, spawn, traits including <code>dyn A + B</code>, serde). Prebuilt releases for Linux, macOS, and Windows. See <a href=\"roadmap.html\">Roadmap</a>, <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/status.md\">status.md</a>, and <a href=\"https://github.com/nyra-lang/nyra/blob/main/docs/stability-v1.md\">stability policy</a>."
     },
     "getting-started": {
       "metaTitle": "Getting started — Nyra Docs",
@@ -343,7 +343,7 @@
     "imports": {
       "metaTitle": "Imports guide — Nyra Docs",
       "h1": "Imports guide",
-      "lead": "Split your app into multiple `.ny` files and share functions, types, and constants with `import \"path.ny\"` — then build from the project root."
+      "lead": "Split your app into multiple `.ny` files and share functions, types, and constants with `import \"path.ny\"` or selective `import { name } from \"path.ny\"` — then build from the project root."
     },
     "examples": {
       "metaTitle": "Example applications — Nyra Docs",

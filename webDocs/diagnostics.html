@@ -153,6 +153,7 @@ nyra check . --ownership-verbose</code></pre>
 nyra explain P001
 nyra explain --list</code></pre>
 <p>Prints a static explanation for stable diagnostic codes (like <code>rustc --explain</code>). Use after seeing <code>error[E003]:</code> in the terminal or LSP.</p>
+<p>Import-related codes: <code>E001</code> (path not found), <code>E039</code> (selective <code>import { name }</code> missing or <code>priv</code>), <code>W002</code> (unused import). See <a href="imports.html#rules">Imports guide → rules</a>.</p>
 
 <h2 id="ownership-errors">Ownership diagnostics</h2>
 <pre><code>error: use of moved value 'user'

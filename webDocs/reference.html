@@ -173,7 +173,7 @@
           <tr><td><code>struct</code> / <code>enum</code></td><td>User-defined types</td></tr>
           <tr><td><code>impl</code></td><td>Methods on a type; <code>impl Trait for Type</code></td></tr>
           <tr><td><code>for</code> (in types)</td><td>HRTB binder: <code>for&lt;'a&gt; fn(...)</code></td></tr>
-          <tr><td><code>import</code></td><td>Load another <code>.ny</code> file</td></tr>
+          <tr><td><code>import</code></td><td>Load another <code>.ny</code> file — <code>import "path"</code>, <code>as</code> alias, or <code>import { name } from "path"</code></td></tr>
           <tr><td><code>module</code></td><td>Module declaration (parsed)</td></tr>
           <tr><td><code>extern</code> / <code>export</code></td><td>FFI declare / export symbol</td></tr>
           <tr><td><code>test</code></td><td>Test function</td></tr>
@@ -182,7 +182,7 @@
           <tr><td><code>defer</code></td><td>Scope-exit call (LIFO) — <strong>Extended</strong>; prefer auto-drop / <code>impl Drop</code></td></tr>
           <tr><td><code>unsafe</code></td><td>Block for raw memory (deref, ptr arithmetic, raw casts)</td></tr>
           <tr><td><code>asm</code></td><td>Inline assembly: <code>asm "template"</code> (inside <code>unsafe</code>)</td></tr>
-          <tr><td><code>as</code></td><td>Type cast: <code>expr as Type</code> (raw casts need <code>unsafe</code>)</td></tr>
+          <tr><td><code>as</code></td><td>Type cast: <code>expr as Type</code>; also import alias / selective rename</td></tr>
           <tr><td><code>no_std</code></td><td>Top-level directive — skip runtime link; no <code>print</code>/<code>spawn</code></td></tr>
           <tr><td><code>move</code> / <code>clone</code></td><td>Unary prefixes at call sites — explicit move or clone</td></tr>
           <tr><td><code>async</code> / <code>await</code></td><td>Stable Extended — promises + <code>await</code>; not on wasm32</td></tr>
@@ -312,7 +312,8 @@ let x = 1 /* inline */ + 2
         <li><code>asm "template"</code> — LLVM inline asm (inside <code>unsafe</code>)</li>
         <li><code>*ptr = expr</code> — pointer store (inside <code>unsafe</code>)</li>
         <li><code>no_std</code> — file-level directive (first statement)</li>
-        <li><code>import "path.ny"</code></li>
+        <li><code>import "path.ny"</code> / <code>import "path.ny" as alias</code></li>
+        <li><code>import { a, b as c } from "path.ny"</code> — selective (only named <code>pub</code> symbols)</li>
         <li>Expression statement: bare call, e.g. <code>free(s)</code></li>
       </ul>
 

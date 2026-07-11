@@ -27,7 +27,7 @@ Organized by feature area; run via `make/lib/conformance-tests.sh` (included in 
 | `borrow/` | i32 copy, NLL happy paths |
 | `edge/` | empty loops, nested expr |
 | `imports/` | local const |
-| `option/` / `result/` | `Option`, `Result`, `?` propagation |
+| `option/` / `result/` | `Option`, `Result`, `?` propagation; `string_nullish.ny` for `Option<string>` + `??` |
 | `hashmap/` | insert/get |
 | `async/` | `async`/`await`, executor, promises |
 | `spawn/` | `spawn`, `spawn:thread`, join |

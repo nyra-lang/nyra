@@ -371,8 +371,35 @@ let m = &amp;mut y   // y must be let mut</code></pre></div>
           <tr><td><code>PhantomData</code> / <code>Pin</code> / <code>Cow</code></td><td>—</td><td>❌</td><td>Advanced Rust-only; not required for Nyra MVP</td></tr>
           <tr><td><code>!</code> (never)</td><td>—</td><td>❌</td><td>Use <code>void</code> or a concrete return type</td></tr>
           <tr><td><code>()</code> unit</td><td><code>void</code></td><td>✅ Language</td><td>Inferred when a function has no <code>return</code></td></tr>
+          <tr><td><code>size_of::&lt;T&gt;()</code> / <code>align_of::&lt;T&gt;()</code></td><td><code>size_of&lt;T&gt;()</code>, <code>align_of&lt;T&gt;()</code></td><td>✅ Language</td><td>Layout size / alignment in bytes; helpers in <code>stdlib/mem/layout.ny</code></td></tr>
         </tbody>
       </table>
+
+      <h3 id="size-of">size_of / align_of</h3>
+      <p>Compiler intrinsics — no import. Returns layout size and alignment in <strong>bytes</strong> (×8 for bits).</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    print(size_of&lt;i32&gt;())      // 4
+    print(size_of&lt;i64&gt;())      // 8
+    print(align_of&lt;i64&gt;())     // 8
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    print(size_of&lt;i32&gt;())      // 4
+    print(size_of&lt;i64&gt;())      // 8
+    print(align_of&lt;i64&gt;())     // 8
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p class="example-output-label">Output</p>
+      <pre class="example-output"><code>4
+8
+8</code></pre>
+      <p>Full guide: <a href="stdlib.html#size-of">stdlib → size_of</a> · <a href="memory.html#layout">Memory → Type layout</a></p>
+
       <p>Example tour: <code>examples/syntax/systems_types.ny</code> · Full stdlib matrix: <a href="stdlib.html">Standard library</a></p>
 
       <footer class="site-footer"><a href="modules.html">Modules →</a></footer>

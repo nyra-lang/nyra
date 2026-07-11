@@ -104,7 +104,7 @@ pub fn inject_lazy_stdlib_prelude(
             // Resolve sibling imports so free helpers land before impl wrappers
             // with the same mangled name (codegen skips emit when the free fn exists).
             let sub = crate::load_file_recursive(&path, visited, errors)?;
-            merge::merge_program(program, sub, None);
+            let _ = merge::merge_program(program, sub, None, &[]);
         }
     }
     Ok(())

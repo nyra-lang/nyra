@@ -23,7 +23,7 @@ Nyra ships a full LSP via `nyra lsp` (stdio):
 
 **LSP reliability:** incremental sync, debounced diagnostics (250ms), `didClose` cleanup, workspace file watcher refresh.
 
-**LSP depth:** semantic tokens, inlay hints (inferred types), code actions, signature help, workspace symbols, document highlight, span-accurate rename.
+**LSP depth:** semantic tokens, inlay hints (types + param names), CodeLens ▶ Run Test, `source.fixAll` (inferred types), code actions, signature help, workspace symbols, document highlight, span-accurate rename.
 
 **Extension polish:** Test Explorer (`nyra test --list-json`), format-on-save, status bar version, `$nyra` problem matcher, snippets, bundled-toolchain option, `scripts/package-vscode-extension.sh`.
 

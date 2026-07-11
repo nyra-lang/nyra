@@ -21,6 +21,8 @@ mod pgo;
 mod target;
 mod toolchain;
 mod watch;
+mod repl;
+mod race;
 mod timings;
 mod daemon;
 

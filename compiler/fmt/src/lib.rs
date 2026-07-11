@@ -7,16 +7,35 @@ mod legacy;
 mod comments;
 
 use ast::{
-    ArrowBody, BinaryOp, Block, ConstDef, EnumDef, EnumVariantDef, Expression, ExternFn,
-    ForKind, ForStmt, Function, IfStmt, ImplDef, LetStmt, Literal, MatchArm, MatchPayloadPattern,
-    MatchPattern,
-    Param, ParallelConfig, ParallelMode, ParallelOp, ParallelThreads, ProgressConfig, Program, SpawnKind, Statement, StructDef,
-    StructField, TraitDef, TraitImpl, TypeAnnotation, UnaryOp, WhileStmt,
+    format_dyn_trait, ArrowBody, BinaryOp, Block, ConstDef, EnumDef, EnumVariantDef, Expression,
+    ExternFn, ForKind, ForStmt, Function, IfStmt, ImplDef, ImportDecl, LetStmt, Literal, MatchArm,
+    MatchPayloadPattern, MatchPattern, Param, ParallelConfig, ParallelMode, ParallelOp,
+    ParallelThreads, ProgressConfig, Program, SpawnKind, Statement, StructDef, StructField,
+    TraitDef, TraitImpl, TypeAnnotation, UnaryOp, WhileStmt,
 };
 use lexer::Lexer;
 use parser::Parser;
 
 const INDENT: &str = "    ";
+
+fn format_import(imp: &ImportDecl) -> String {
+    if imp.names.is_empty() {
+        return match &imp.alias {
+            Some(a) => format!("import \"{}\" as {a}", imp.path),
+            None => format!("import \"{}\"", imp.path),
+        };
+    }
+    let names = imp
+        .names
+        .iter()
+        .map(|n| match &n.rename {
+            Some(r) => format!("{} as {r}", n.name),
+            None => n.name.clone(),
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+    format!("import {{ {names} }} from \"{}\"", imp.path)
+}
 
 pub fn format_source(source: &str, file: &str) -> Option<String> {
     let (tokens, lex_errs) = Lexer::new(source, file).tokenize();
@@ -49,7 +68,8 @@ pub fn format_program(program: &Program) -> String {
         out.push_str(&format!("module {module}\n\n"));
     }
     for import in &program.imports {
-        out.push_str(&format!("import \"{}\"\n", import.path));
+        out.push_str(&format_import(import));
+        out.push('\n');
     }
     if !program.imports.is_empty() {
         out.push('\n');
@@ -995,13 +1015,10 @@ pub fn format_type(ty: &TypeAnnotation) -> String {
             let base = format_type(elem);
             format!("{base}x{lanes}")
         }
-        TypeAnnotation::DynTrait { trait_name, bounds } => {
-            if bounds.is_empty() {
-                format!("dyn {trait_name}")
-            } else {
-                format!("dyn {trait_name} + {}", bounds.join(" + "))
-            }
-        }
+        TypeAnnotation::DynTrait {
+            traits,
+            auto_bounds,
+        } => format_dyn_trait(&traits, &auto_bounds),
     }
 }
 

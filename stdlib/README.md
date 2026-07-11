@@ -19,7 +19,7 @@ These constraints come from the Nyra project guidelines and apply to every stdli
 |--------|---------|--------|
 | **Crypto** | `crypto/mod.ny` | SHA-256/512, HMAC, AES, secure random |
 | **Databases** | `db/sql.ny`, `db/sqlite.ny`, `db/postgres.ny`, `db/mysql.ny` | Generic driver, SQLite, PG/MySQL stubs |
-| **Serialization** | `json/mod.ny`, `serialize/mod.ny` | Full JSON, TOML, YAML, binary serde |
+| **Serialization** | `json/mod.ny`, `serialize/mod.ny`, `serde/mod.ny` | Full JSON (incl. `parse_json`/`stringify_json`), TOML/YAML MVP, schema traits |
 | **Networking** | `net/tcp.ny`, `net/http/`, `net/websocket.ny`, `net/udp.ny` | TCP, HTTP, WebSocket, UDP |
 | **Compression** | `compress/mod.ny` | gzip, zip |
 | **Encoding** | `encoding/mod.ny`, `encoding/csv.ny` | base64, hex, URL, CSV |
@@ -69,7 +69,7 @@ Some modules are still **stubs or MVP** while native code lands. They compile an
 | Status | Examples |
 |--------|----------|
 | **Shipped** | `vec`, `vec_str`, `map`, `collections/*`, `fs`, `strings`, `crypto` (SHA/HMAC/AES), `encoding/base64`, `net/tcp`, `net/http`, `net/udp`, `net/websocket`, `compress`, `serialize`, `json`, `db/sqlite`, `strconv`, `flag`, `bufio`, `sync`, `context`, `process` (POSIX + Windows), `env_set`, `bridge`, `terminal/pty`, `encoding/csv`, `archive/zip`, `mime`, `time`, `random_bytes`, `embed`, `slog`, `testing/fstest`, `testing/quick` |
-| **MVP / partial** | `json`/`serialize` (not full schema serde — use NyraPkg `ny-serde`), `uuid`, `url` encoding |
+| **MVP / partial** | `serialize` (TOML/YAML field MVP — use NyraPkg `ny-toml` for full TOML), `uuid`, `url` encoding |
 | **Native when linked** | `db/postgres` (`link pq`), `db/mysql` (`link mysqlclient`), `compress/bzip2` (`link bz2`) |
 
 See `webDocs/stdlib.html#status` for the live inventory.

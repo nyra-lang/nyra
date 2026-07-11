@@ -138,7 +138,7 @@
 
 <div class="callout callout-status" role="note">
 <strong>Production-ready — Core + Stable Extended</strong>
-<p>This skill file is the <strong>authoritative reference for AI-assisted coding</strong>. Nyra ships async/await, <code>?</code>, spawn, traits, and serde on Core + Stable Extended — prebuilt Linux, macOS, and Windows releases. Advanced gates (multi-trait <code>dyn</code>, exotic generic serde) are still maturing. See <a href="roadmap.html">Roadmap</a> and <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a>.</p>
+<p>This skill file is the <strong>authoritative reference for AI-assisted coding</strong>. Nyra ships async/await, <code>?</code>, spawn, traits, and serde on Core + Stable Extended — prebuilt Linux, macOS, and Windows releases. Multi-trait <code>dyn A + B</code> ships on Stable Extended; a few exotic generic serde edge cases are still maturing. See <a href="roadmap.html">Roadmap</a> and <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a>.</p>
 </div>
 
 <div class="callout">
@@ -161,7 +161,7 @@
     <li><a href="packages.html">NyraPkg</a> — <code>nyra.mod</code> syntax (<code>module</code>, <code>tls</code>, <code>require</code>, <code>link</code>), semver, <code>link-source</code>, <a href="packages.html#prune"><code>nyra pkg prune</code></a></li>
     <li><a href="net-http.html#tls-backends">HTTPS / TLS</a> — <code>tls rustls|native|openssl</code>, <code>get("https://…")</code>, <code>tls_last_error()</code></li>
     <li><a href="#result-errors">Result &amp; errors</a> — <code>?</code> propagation and explicit <code>match</code></li>
-    <li><a href="tooling.html">Toolchain</a> — <code>run</code>, <code>build --release</code>, cross-compile, <code>check</code></li>
+    <li><a href="tooling.html">Toolchain</a> — <code>run</code>, <code>build --release</code>, <code>watch</code>, <code>repl</code>, <code>race</code>, cross-compile, <code>check</code></li>
   </ul>
 </nav>
 
@@ -211,9 +211,9 @@ fn main() {
 <table>
   <thead><tr><th>Shipped (Stable Extended)</th><th>Still maturing</th></tr></thead>
   <tbody>
-    <tr><td>Payload <code>Ok</code> / <code>Err</code>, <code>?</code> operator, explicit <code>match</code></td><td>Multi-trait <code>dyn A + B</code> objects</td></tr>
-    <tr><td><code>tests/nyra/result_propagate_test.ny</code></td><td>Exotic generic serde edge cases</td></tr>
-    <tr><td><code>nyra run examples/result_propagate_verbose.ny</code></td><td>See <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a> production gates</td></tr>
+    <tr><td>Payload <code>Ok</code> / <code>Err</code>, <code>?</code> operator, explicit <code>match</code></td><td>Exotic generic serde edge cases</td></tr>
+    <tr><td>Traits + <code>dyn Trait</code> and multi-trait <code>dyn A + B</code></td><td>See <a href="https://github.com/nyra-lang/nyra/blob/main/docs/status.md">status.md</a> production gates</td></tr>
+    <tr><td><code>tests/nyra/result_propagate_test.ny</code> · <code>nyra run examples/result_propagate_verbose.ny</code></td><td></td></tr>
   </tbody>
 </table>
 <p><strong>Production use:</strong> ready for CLI tools and servers on Core + Stable Extended. Full rules in <a href="nyra-skill.md">nyra-skill.md</a> § Enums &amp; payloads · Conformance <code>CONF-ADT-003</code>.</p>

@@ -38,6 +38,32 @@ fn raw_ptr_deref_requires_unsafe() {
         .any(|e| e.message.contains("unsafe")));
 }
 
+/// `skip_typecheck` must not be used for `nyra run`: it hides exactly these errors.
+#[test]
+fn skip_typecheck_suppresses_unsafe_errors() {
+    let mut options = CompileOptions::default();
+    options.skip_typecheck = true;
+    let out = Compiler::compile_source(
+        r#"fn main() {
+    let x = 42
+    let p = &x as *i32
+    let v = *p
+    print(v)
+}"#,
+        "skip_tc.ny",
+        &options,
+    )
+    .unwrap();
+    assert!(
+        out.type_errors.is_empty(),
+        "documents that skip_typecheck hides unsafe errors — do not enable for run/build"
+    );
+    assert!(
+        out.llvm_ir.is_some(),
+        "skip_typecheck still codegen's; that is why run must never set it"
+    );
+}
+
 #[test]
 fn raw_ptr_deref_in_unsafe_ok() {
     let out = compile(

@@ -8,7 +8,7 @@ Any modification or addition to the language, compiler, stdlib, CLI, or runtime 
 
 **Cross-impact:** Any code change can break something elsewhere. Do not stop after the failing test passes — run broad enough suites (often `make test-all`) and check dependent paths so a fix in one place does not create a regression in another.
 
-1. **Tests** — Cover with all supported test types; run `make test-all` for full language verification when appropriate.
+1. **Tests** — Cover with all supported test types; run `make test-all` for full language verification when appropriate. **No language/compiler fix without a regression test** (prefer `tests/suite/run/regression/` for link+run/LLVM/drop bugs; matrix zero-types vs explicit vs comptime vs generics when inference and annotations diverge). See `.cursor/rules/nyra-guidelines.mdc`.
 2. **Examples** — Add or update an example under `examples/` for new or changed features.
 3. **No regressions** — Ensure the change does not break or negatively affect other features (compiler stages, fail suites, snapshots, unrelated examples).
 4. **webDocs** — Update documentation; rebuild skill + search index when needed (see `agents/skill.md`).

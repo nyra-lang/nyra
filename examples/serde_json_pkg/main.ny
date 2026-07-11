@@ -1,7 +1,6 @@
-// ny-serde demo — full project: examples/serde_json_pkg/
-// nyra bind rust serde_json --template --project examples/serde_json_pkg
+// Document JSON via stdlib (formerly NyraPkg ny-serde).
 // nyra run examples/serde_json_pkg/main.ny
-import "../packages/ny-serde/serde.ny"
+import "stdlib/json/mod.ny"
 
 fn main() {
     let parsed = parse_json("{\"lang\":\"nyra\",\"version\":1}")

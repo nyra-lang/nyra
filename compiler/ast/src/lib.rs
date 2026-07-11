@@ -25,12 +25,32 @@ pub struct StructAttrs {
     pub packed: bool,
 }
 
+/// One binding in `import { name as rename, … } from "…"`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImportName {
+    /// Symbol name in the imported module.
+    pub name: String,
+    /// Local binding when `as` is used (`add as sum` → rename `sum`).
+    pub rename: Option<String>,
+    pub span: Span,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ImportDecl {
     pub path: String,
     /// `import "path.ny" as alias` — symbols merged as `alias__name` / `alias::name`.
+    /// Not used with selective `import { … } from "…"` (names flatten into scope).
     pub alias: Option<String>,
+    /// `import { a, b } from "path.ny"` — empty means whole-module import (all `pub` symbols).
+    pub names: Vec<ImportName>,
     pub span: Span,
+}
+
+impl ImportDecl {
+    /// Selective import: only listed names (plus same-file dependency closure) are merged.
+    pub fn is_selective(&self) -> bool {
+        !self.names.is_empty()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -854,10 +874,71 @@ pub enum TypeAnnotation {
         params: Vec<TypeAnnotation>,
         return_type: Option<Box<TypeAnnotation>>,
     },
-    /// Trait object type: `dyn TraitName` or `dyn Trait + Send + Sync`.
+    /// Trait object type: `dyn Trait`, `dyn A + B`, or `dyn Trait + Send + Sync`.
+    /// `traits` is non-empty (principal first). `auto_bounds` holds only `Send` / `Sync`.
     DynTrait {
-        trait_name: String,
-        bounds: Vec<String>,
+        traits: Vec<String>,
+        auto_bounds: Vec<String>,
     },
+}
+
+/// True for built-in auto traits allowed on `dyn` objects.
+pub fn is_dyn_auto_trait(name: &str) -> bool {
+    matches!(name, "Send" | "Sync")
+}
+
+/// Mangle key for a trait-object combo (`Add`, `Add_Mul`).
+pub fn dyn_combo_key(traits: &[String]) -> String {
+    traits.join("_")
+}
+
+/// Synthesized fat-pointer struct name (`Dyn_Add`, `Dyn_Add_Mul`).
+pub fn dyn_struct_name(traits: &[String]) -> String {
+    format!("Dyn_{}", dyn_combo_key(traits))
+}
+
+/// Pretty-print `dyn A + B + Send`.
+pub fn format_dyn_trait(traits: &[String], auto_bounds: &[String]) -> String {
+    let mut parts: Vec<&str> = traits.iter().map(|s| s.as_str()).collect();
+    parts.extend(auto_bounds.iter().map(|s| s.as_str()));
+    format!("dyn {}", parts.join(" + "))
+}
+
+/// Recover trait names from `Dyn_Add_Mul` using known trait defs (longest-match greedy).
+pub fn traits_from_dyn_struct(dyn_name: &str, known_traits: &[String]) -> Option<Vec<String>> {
+    let rest = dyn_name.strip_prefix("Dyn_")?;
+    if rest.is_empty() {
+        return None;
+    }
+    if known_traits.iter().any(|t| t == rest) {
+        return Some(vec![rest.to_string()]);
+    }
+    let mut sorted: Vec<&String> = known_traits.iter().collect();
+    sorted.sort_by_key(|t| std::cmp::Reverse(t.len()));
+    let mut remaining = rest;
+    let mut out = Vec::new();
+    while !remaining.is_empty() {
+        let mut matched = false;
+        for t in &sorted {
+            if remaining == t.as_str() {
+                out.push((*t).clone());
+                return Some(out);
+            }
+            let prefix = format!("{t}_");
+            if let Some(tail) = remaining.strip_prefix(&prefix) {
+                out.push((*t).clone());
+                remaining = tail;
+                matched = true;
+                break;
+            }
+        }
+        if !matched {
+            if out.is_empty() {
+                return Some(vec![rest.to_string()]);
+            }
+            return None;
+        }
+    }
+    Some(out)
 }
 

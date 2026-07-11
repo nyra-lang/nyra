@@ -348,8 +348,10 @@ declare ptr @json_get_array(ptr %0, ptr %1)
 declare ptr @json_get_object(ptr %0, ptr %1)
 declare ptr @json_get_string(ptr %0, ptr %1)
 declare ptr @json_join_raw_array(ptr %0)
+declare ptr @json_parse_document(ptr %0)
 declare ptr @json_raw_get(ptr %0, ptr %1)
 declare ptr @json_split_array_elements(ptr %0)
+declare ptr @json_stringify_document(ptr %0)
 declare ptr @json_top_keys(ptr %0)
 declare ptr @malloc(i64)
 declare ptr @map_i32_i32_new()
@@ -365,7 +367,7 @@ declare ptr @rt_bridge_exec(ptr %0, ptr %1)
 declare ptr @rt_bridge_exec_arg(ptr %0, ptr %1, ptr %2)
 declare ptr @rt_tls_last_error()
 declare ptr @rt_tls_read(i32 %0, i32 %1)
-declare ptr @spawn_capture(ptr, ptr, i64)
+declare ptr @spawn_task_capture(ptr, ptr, i64)
 declare ptr @str_after_sep(ptr %0, ptr %1)
 declare ptr @str_before_sep(ptr %0, ptr %1)
 declare ptr @str_buf_build(ptr %0)
@@ -444,7 +446,7 @@ declare void @os_exit(i32 %0)
 declare void @rt_tls_close(i32 %0)
 declare void @rt_tls_listener_close(i32 %0)
 declare void @sleep_ms(i32 %0)
-declare void @spawn_handle_drop(ptr)
+declare void @spawn_task_handle_drop(ptr)
 declare void @str_buf_append(ptr %0, ptr %1)
 declare void @str_buf_append_char(ptr %0, i32 %1)
 declare void @str_buf_drop(ptr %0)
@@ -1503,8 +1505,8 @@ entry:
   store i32 %call.N, i32* %spawn.gep.N
   %spawn.heap.N = call ptr @malloc(i64 8)
   call void @llvm.memcpy.p0.p0.i64(ptr %spawn.heap.N, ptr %spawn.cap.N, i64 8, i1 false)
-  %spawn.handle.N = call ptr @spawn_capture(ptr @__spawn_work_0, ptr %spawn.heap.N, i64 8)
-  call void @spawn_handle_drop(ptr %spawn.handle.N)
+  %spawn.handle.N = call ptr @spawn_task_capture(ptr @__spawn_work_0, ptr %spawn.heap.N, i64 8)
+  call void @spawn_task_handle_drop(ptr %spawn.handle.N)
   %alloca.N = alloca %Future_i32
   %gep.N = getelementptr inbounds %Future_i32, %Future_i32* %alloca.N, i32 0, i32 0
   store i32 %call.N, i32* %gep.N
@@ -10396,6 +10398,11 @@ entry:
   %call.N = call ptr @str_pad_center(ptr %0, i32 %1, ptr %2)
   ret ptr %call.N
 }
+define ptr @parse_json(ptr %0) {
+entry:
+  %call.N = call ptr @json_parse_document(ptr %0)
+  ret ptr %call.N
+}
 define ptr @path_from_line(ptr %0) {
 entry:
   %str.N = getelementptr inbounds i8, ptr @.str.N, i64 0
@@ -10803,6 +10810,11 @@ else.N:
   br label %endif.N
 endif.N:
   %call.N = call ptr @substring(ptr %0, i32 0, i32 %call.N)
+  ret ptr %call.N
+}
+define ptr @stringify_json(ptr %0) {
+entry:
+  %call.N = call ptr @json_stringify_document(ptr %0)
   ret ptr %call.N
 }
 define ptr @strip_ansi(ptr %0) {

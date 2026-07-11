@@ -157,7 +157,36 @@
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END --><p class="example-output-label">Output</p>
 <pre class="example-output"><code>Hello, Nyra!</code></pre>
-</section><nav class="lesson-nav" aria-label="Learn navigation">
+</section>
+<section class="doc-ex">
+  <h2 id="cli-essentials">Essential CLI commands</h2>
+  <p class="doc-ex-prose">After install, these are the commands you use every day. Full reference: <a href="tooling.html">Toolchain &amp; CLI</a>.</p>
+  <pre><code>nyra run .              # compile + run the project
+nyra build . --release  # ship a binary under target/release/
+nyra check .            # type-check only (fast)
+nyra test .             # run every test fn
+nyra fmt . --write      # format sources
+nyra --help             # list all subcommands</code></pre>
+  <p class="doc-ex-prose">Example test (run with <code>nyra test</code>):</p>
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/testing.ny&quot;
+
+test fn adds() {
+    assert_eq(2 + 3, 5)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/testing.ny&quot;
+
+test fn adds() {
+    assert_eq(2 + 3, 5)
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+</section>
+<nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-intro.html">← Nyra Intro</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
 <a class="lesson-nav-next" href="learn-syntax.html">Nyra Syntax →</a>

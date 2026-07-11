@@ -165,13 +165,22 @@
     <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;src/helpers.ny&quot;
-import &quot;lib/api.ny&quot;</code></pre></div>
+import &quot;lib/api.ny&quot;
+import { add, mul } from &quot;src/math.ny&quot;
+import { greet as hi } from &quot;src/helpers.ny&quot;</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;src/helpers.ny&quot;
-import &quot;lib/api.ny&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Public items from imported files merge into one program. Use <code>pub</code> / <code>priv</code> on functions, structs, enums, and <code>const</code> to control what importers can see (default: public).</p>
+import &quot;lib/api.ny&quot;
+import { add, mul } from &quot;src/math.ny&quot;
+import { greet as hi } from &quot;src/helpers.ny&quot;</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->      <p>
+        Whole-module <code>import "path"</code> merges all <code>pub</code> items.
+        Selective <code>import { a, b } from "path"</code> merges only those names (plus same-file helpers they need) — prefer for lean builds.
+        Use <code>pub</code> / <code>priv</code> on functions, structs, enums, and <code>const</code> (default: public).
+        Details: <a href="imports.html#selective">Imports guide → selective</a>.
+      </p>
 
       <h2>Import alias &amp; qualified names</h2>
-      <p>rename an import and call through <code>::</code> (desugars to <code>alias__symbol</code>):</p>
+      <p>Rename a whole-module import and call through <code>::</code> (desugars to <code>alias__symbol</code>):</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -188,7 +197,8 @@ fn main() {
 fn main() -&gt; void {
     print(h::greet(&quot;nyra&quot;))
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>Without <code>as</code>, public symbols keep their original names. <code>priv</code> items stay in the defining file only.</p>
+</div><!-- NYRA_SNIPPET_END -->      <p>Without <code>as</code>, public symbols keep their original names. <code>priv</code> items stay in the defining file only.
+      For renaming a single symbol without a module prefix, use selective import: <code>import { greet as hi } from "…"</code>.</p>
 
       <h2>Running a project</h2>
       <table>

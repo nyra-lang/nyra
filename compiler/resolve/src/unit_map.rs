@@ -161,7 +161,7 @@ mod tests {
         let merged = {
             let sub = parse_file_only(&helpers).expect("parse helpers");
             let mut p = program;
-            crate::merge::merge_program(&mut p, sub, Some("h"));
+            crate::merge::merge_program(&mut p, sub, Some("h"), &[]);
             p
         };
         let map = assign_functions_to_units(&units, &merged);

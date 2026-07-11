@@ -246,9 +246,10 @@
           <tr id="min-max-f64"><td><code>min_f64(a, b)</code> / <code>max_f64(a, b)</code></td><td>2 × <code>f64</code></td><td><code>f64</code></td><td>Min / max</td><td><code>min_f64(1.0, 2.0)</code></td></tr>
           <tr id="clamp"><td><code>clamp_i32(x, lo, hi)</code></td><td>3 × <code>i32</code></td><td><code>i32</code></td><td>Clamp to range</td><td><code>clamp_i32(15, 0, 10)</code></td></tr>
           <tr id="cpu-count"><td><code>cpu_count()</code></td><td>—</td><td><code>i32</code></td><td>Logical CPU count</td><td><a href="#ex-cpu-count"><code>cpu_count()</code></a></td></tr>
+          <tr id="size-of"><td><code>size_of&lt;T&gt;()</code> / <code>align_of&lt;T&gt;()</code></td><td>type param</td><td><code>i32</code></td><td>Layout size / alignment in <strong>bytes</strong> (×8 for bits)</td><td><a href="stdlib.html#size-of"><code>size_of&lt;i32&gt;()</code></a></td></tr>
         </tbody>
       </table>
-      <p>Example: <a href="#ex-math-intrinsics"><code>abs / min / max</code></a> · See also <a href="#stdlib-math-f64"><code>stdlib/math.ny</code> f64 helpers</a> · <a href="#js-math">legacy Math_*</a></p>
+      <p>Example: <a href="#ex-math-intrinsics"><code>abs / min / max</code></a> · See also <a href="#stdlib-math-f64"><code>stdlib/math.ny</code> f64 helpers</a> · <a href="#js-math">legacy Math_*</a> · <a href="stdlib.html#size-of">size_of / align_of</a></p>
 
       <h3 id="stdlib-math-f64"><code>import "stdlib/math.ny"</code> — <code>f64</code> math <span class="badge">stdlib</span></h3>
       <p>Runtime libm-backed helpers with short aliases (<code>floor(x)</code> → <code>floor_f64</code>). Examples in the gallery below.</p>
@@ -433,7 +434,7 @@
           <tr id="parallel-thread"><td><code>parallel:thread(...) for ...</code></td><td>parallel loop</td><td>OS thread fork-join per chunk</td><td><a href="#ex-parallel-thread"><code>parallel:thread(max = 4)</code></a></td></tr>
           <tr id="progress-for"><td><code>progress for x in items { ... }</code></td><td>loop + progress bar</td><td>Optional <code>label</code></td><td><a href="#ex-progress"><code>progress for</code></a></td></tr>
           <tr id="defer-stmt"><td><code>defer expr</code></td><td>scope-exit call (LIFO)</td><td>Extended — prefer <code>impl Drop</code></td><td><a href="#ex-defer"><code>defer</code></a> · <a href="#ex-defer-lifo">LIFO</a></td></tr>
-          <tr id="async-fn"><td><code>async fn … { … }</code></td><td>promise / future handle</td><td>Body on <code>spawn:thread</code>; not on wasm32</td><td><a href="#ex-async-fn"><code>async fn</code></a></td></tr>
+          <tr id="async-fn"><td><code>async fn … { … }</code></td><td>promise / future handle</td><td>Body on task pool (<code>spawn:task</code>); not on wasm32</td><td><a href="#ex-async-fn"><code>async fn</code></a></td></tr>
           <tr id="await-expr"><td><code>await handle</code></td><td>blocks until complete</td><td>Inside <code>async fn</code> or at call site</td><td><a href="#ex-await"><code>await</code></a></td></tr>
         </tbody>
       </table>

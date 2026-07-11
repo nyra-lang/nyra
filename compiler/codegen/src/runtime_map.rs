@@ -238,6 +238,8 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("json_top_keys", "rt_json.c"),
         ("json_raw_get", "rt_json.c"),
         ("json_value_kind", "rt_json.c"),
+        ("json_parse_document", "rt_json.c"),
+        ("json_stringify_document", "rt_json.c"),
         ("bin_buf_new", "rt_bin.c"),
         ("bin_buf_write_i32", "rt_bin.c"),
         ("bin_buf_write_bool", "rt_bin.c"),
@@ -306,6 +308,9 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("channel_new", "rt_channel.c"),
         ("channel_send", "rt_channel.c"),
         ("channel_recv", "rt_channel.c"),
+        ("channel_try_recv", "rt_channel.c"),
+        ("channel_try_value", "rt_channel.c"),
+        ("channel_recv_async", "rt_channel.c"),
         ("channel_free", "rt_channel.c"),
         ("channel_str_new", "rt_channel.c"),
         ("channel_str_send", "rt_channel.c"),
@@ -787,6 +792,10 @@ impl RuntimeProfile {
         if self.symbols.contains("spawn") {
             mods.insert("rt_spawn.c");
         }
+        // Channel / io_pool complete async promises defined in rt_async.c (link the whole unit).
+        if mods.contains("rt_channel.c") || mods.contains("rt_io_pool.c") {
+            mods.insert("rt_async.c");
+        }
         if mods.contains("rt_async.c") {
             mods.insert("rt_spawn.c");
             // rt_async.c calls io_uring_* on Linux via extern; link the implementation unit.
@@ -1170,6 +1179,22 @@ mod tests {
         p.symbols.insert("spawn".into());
         assert!(p.modules().contains("rt_spawn.c"));
         assert!(p.modules().contains("rt_async.c"));
+    }
+
+    #[test]
+    fn channel_pulls_async_and_ws2_on_windows() {
+        let mut p = RuntimeProfile::default();
+        p.symbols.insert("channel_new".into());
+        p.symbols.insert("channel_send".into());
+        p.symbols.insert("spawn_capture".into());
+        let mods = p.modules();
+        assert!(mods.contains("rt_channel.c"));
+        assert!(
+            mods.contains("rt_async.c"),
+            "rt_channel.c calls async_promise_*; must link rt_async.c"
+        );
+        assert!(p.uses_ws2_32("x86_64-pc-windows-gnu"));
+        assert!(!p.uses_ws2_32("x86_64-unknown-linux-gnu"));
     }
 
     #[test]

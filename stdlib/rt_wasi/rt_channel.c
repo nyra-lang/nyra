@@ -12,6 +12,20 @@ int channel_recv(void *ch) {
     return 0;
 }
 
+int channel_try_recv(void *ch) {
+    (void)ch;
+    return 0;
+}
+
+int channel_try_value(void) {
+    return 0;
+}
+
+int channel_recv_async(void *ch) {
+    (void)ch;
+    return -1;
+}
+
 void channel_free(void *ch) {
     (void)ch;
 }

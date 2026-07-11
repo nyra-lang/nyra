@@ -149,7 +149,12 @@ pub(crate) fn load_file_recursive(
             match resolve_import_path(base_dir, &imp.path) {
                 Ok(resolved) => {
                     let sub = load_file_recursive(&resolved, visited, errors)?;
-                    merge::merge_program(&mut merged, sub, imp.alias.as_deref());
+                    errors.extend(merge::merge_program(
+                        &mut merged,
+                        sub,
+                        imp.alias.as_deref(),
+                        &imp.names,
+                    ));
                 }
                 Err(_msg) => {
                     errors.push(
@@ -202,7 +207,12 @@ pub(crate) fn load_file_recursive(
         match resolve_import_path(base_dir, &imp.path) {
             Ok(resolved) => {
                 let sub = load_file_recursive(&resolved, visited, errors)?;
-                merge::merge_program(&mut merged, sub, imp.alias.as_deref());
+                errors.extend(merge::merge_program(
+                    &mut merged,
+                    sub,
+                    imp.alias.as_deref(),
+                    &imp.names,
+                ));
             }
             Err(_msg) => {
                 errors.push(

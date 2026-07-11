@@ -5,11 +5,11 @@ use std::process::Command;
 use std::time::{Duration, Instant};
 
 use compiler::{
-    build_signature_manifest, can_skip_typecheck_for_dirty, can_skip_codegen,
-    compute_source_fingerprint, entry_path_for_compile, is_incremental_hit, link_cache_key,
-    load_manifest, load_signatures, mix_crate_manifest, options_cache_key, read_runtime_cache,
-    save_manifest, save_signatures, write_cached_fingerprint, write_runtime_cache, CompileOptions,
-    Compiler, CrateManifest, IncrementalContext,
+    build_signature_manifest, can_skip_codegen, compute_source_fingerprint,
+    entry_path_for_compile, is_incremental_hit, link_cache_key, load_manifest,
+    mix_crate_manifest, options_cache_key, read_runtime_cache, save_manifest, save_signatures,
+    write_cached_fingerprint, write_runtime_cache, CompileOptions, Compiler, CrateManifest,
+    IncrementalContext,
 };
 use pkg::{build_link_crate, needs_dependency_sync, resolve_project_native_link};
 
@@ -588,15 +588,9 @@ pub(crate) fn compile_and_link(
         link_hash,
     );
 
-    let skip_typecheck = !release
-        && !dirty_paths.is_empty()
-        && load_signatures(&layout.profile_dir, &entry_id)
-            .map(|prev| can_skip_typecheck_for_dirty(&dirty_paths, &prev).unwrap_or(false))
-            .unwrap_or(false);
-
-    if skip_typecheck && !skipped_codegen {
-        eprintln!("    Finished `types` profile [cached signatures] target(s) in 0.00s");
-    }
+    // Never skip typecheck: body-only edits can add type/`unsafe` errors that
+    // `nyra check` would catch. Incremental speedup remains via IR unit cache.
+    let skip_typecheck = false;
 
     let build_started = Instant::now();
     let ui = Ui::new();

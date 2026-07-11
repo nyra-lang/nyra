@@ -73,10 +73,23 @@ fn lint_import(
         Ok(resolved) => {
             if let Ok(imported) = resolve::parse_file_only(&resolved) {
                 if !skip_unused {
-                    let exported = top_level_names(&imported);
-                    let used = exported.iter().any(|name| uses.contains(name));
-                    if !used && !exported.is_empty() {
-                        out.push(unused_import_diag(&imp.path, &imported, &imp.span));
+                    if imp.is_selective() {
+                        for name in &imp.names {
+                            // Missing / private symbols are reported as E039 at resolve time.
+                            if !is_selectable_export(&imported, &name.name) {
+                                continue;
+                            }
+                            let local = name.rename.as_ref().unwrap_or(&name.name);
+                            if !uses.contains(local) {
+                                out.push(unused_named_import_diag(imp, name, local));
+                            }
+                        }
+                    } else {
+                        let exported = top_level_names(&imported);
+                        let used = exported.iter().any(|name| uses.contains(name));
+                        if !used && !exported.is_empty() {
+                            out.push(unused_import_diag(&imp.path, &imported, &imp.span));
+                        }
                     }
                 }
                 lint_file_imports(entry, &resolved, merged_uses, visited, out);
@@ -127,6 +140,45 @@ fn unused_import_diag(import_path: &str, imported: &Program, span: &errors::Span
         ));
     }
     err
+}
+
+fn unused_named_import_diag(
+    imp: &ImportDecl,
+    name: &ast::ImportName,
+    local: &str,
+) -> NyraError {
+    NyraError::coded_warning(
+        W002_UNUSED_IMPORT,
+        ErrorKind::Lint,
+        name.span.clone(),
+        format!("unused import `{local}`"),
+    )
+    .label(format!("`{local}` is imported but never used"))
+    .help(format!(
+        "remove `{local}` from `import {{ … }} from \"{}\"`",
+        imp.path
+    ))
+}
+
+fn is_selectable_export(program: &Program, name: &str) -> bool {
+    if let Some(f) = program.functions.iter().find(|f| f.name == name) {
+        return f.public;
+    }
+    if let Some(c) = program.consts.iter().find(|c| c.name == name) {
+        return c.public;
+    }
+    if let Some(s) = program.structs.iter().find(|s| s.name == name) {
+        return s.public;
+    }
+    if let Some(e) = program.enums.iter().find(|e| e.name == name) {
+        return e.public;
+    }
+    if let Some(u) = program.unions.iter().find(|u| u.name == name) {
+        return u.public;
+    }
+    program.traits.iter().any(|t| t.name == name)
+        || program.macros.iter().any(|m| m.name == name)
+        || program.externs.iter().any(|e| e.name == name)
 }
 
 fn top_level_names(program: &Program) -> HashSet<String> {

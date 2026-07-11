@@ -79,7 +79,7 @@ fn main() {
     );
     assert!(out.type_errors.is_empty(), "{:?}", out.type_errors);
     let ir = out.llvm_ir.expect("ir");
-    assert_ir_patterns(&ir, &["spawn_capture", "async_promise_complete"], &[]);
+    assert_ir_patterns(&ir, &["spawn_task_capture", "async_promise_complete"], &[]);
 }
 
 #[test]

@@ -153,6 +153,7 @@
           <li><a href="#custom-drop">Custom Drop for structs</a></li>
           <li><a href="#spawn-send">spawn, closures &amp; Send/Sync</a></li>
           <li><a href="#ffi">FFI boundary</a></li>
+          <li><a href="#layout">Type layout (size_of / align_of)</a></li>
           <li><a href="#pipeline">Compiler pipeline</a></li>
           <li><a href="#errors">Common errors &amp; fixes</a></li>
           <li><a href="#cookbook">Examples cookbook</a></li>
@@ -773,6 +774,44 @@ fn main() -&gt; void {
         <li>Do <strong>not</strong> call <code>free</code> on live Nyra bindings — the compiler warns.</li>
       </ul>
       <p>Full ABI: <a href="ffi-abi.html">FFI &amp; ABI</a>.</p>
+
+      <h2 id="layout">Type layout (<code>size_of</code> / <code>align_of</code>)</h2>
+      <p>Measure how many <strong>bytes</strong> a type occupies (and its alignment). Useful for FFI buffers, <code>repr(C)</code> structs, and understanding integer widths. Multiply by 8 for bits. Intrinsics need no import; helpers live in <code>stdlib/mem/layout.ny</code>.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Packet repr(C) align(8) {
+    kind: i32
+    port: i32
+}
+
+fn main() {
+    print(size_of&lt;i32&gt;())         // 4 bytes = 32 bits
+    print(size_of&lt;i64&gt;())         // 8 bytes = 64 bits
+    print(size_of&lt;Packet&gt;())      // 8
+    print(align_of&lt;Packet&gt;())     // 8
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Packet repr(C) align(8) {
+    kind: i32
+    port: i32
+}
+
+fn main() -&gt; void {
+    print(size_of&lt;i32&gt;())         // 4 bytes = 32 bits
+    print(size_of&lt;i64&gt;())         // 8 bytes = 64 bits
+    print(size_of&lt;Packet&gt;())      // 8
+    print(align_of&lt;Packet&gt;())     // 8
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p class="example-output-label">Output</p>
+      <pre class="example-output"><code>4
+8
+8
+8</code></pre>
+      <p>More examples: <a href="stdlib.html#size-of">stdlib → size_of / align_of</a>.</p>
 
       <h2 id="pipeline">Compiler pipeline</h2>
       <pre class="pipeline">Source (.ny)

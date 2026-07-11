@@ -518,4 +518,39 @@ fn main() { print(0) }"#;
             Some(TypeAnnotation::Applied { ref base, .. }) if base == "Vec"
         ));
     }
+
+    #[test]
+    fn parses_selective_import() {
+        let src = r#"import { add, mul as product } from "math.ny"
+
+fn main() {
+    print(add(1, 2))
+    print(product(3, 4))
+}"#;
+        let (tokens, _) = Lexer::new(src, "sel.ny").tokenize();
+        let (program, errs) = Parser::new(tokens).parse();
+        assert!(errs.is_empty(), "{errs:?}");
+        assert_eq!(program.imports.len(), 1);
+        let imp = &program.imports[0];
+        assert_eq!(imp.path, "math.ny");
+        assert!(imp.alias.is_none());
+        assert_eq!(imp.names.len(), 2);
+        assert_eq!(imp.names[0].name, "add");
+        assert!(imp.names[0].rename.is_none());
+        assert_eq!(imp.names[1].name, "mul");
+        assert_eq!(imp.names[1].rename.as_deref(), Some("product"));
+    }
+
+    #[test]
+    fn parses_whole_module_import_still() {
+        let src = r#"import "math.ny" as m
+
+fn main() {}"#;
+        let (tokens, _) = Lexer::new(src, "whole.ny").tokenize();
+        let (program, errs) = Parser::new(tokens).parse();
+        assert!(errs.is_empty(), "{errs:?}");
+        assert_eq!(program.imports[0].path, "math.ny");
+        assert_eq!(program.imports[0].alias.as_deref(), Some("m"));
+        assert!(program.imports[0].names.is_empty());
+    }
 }
