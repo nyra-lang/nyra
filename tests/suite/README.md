@@ -42,6 +42,7 @@ fn main() {
 ```
 
 | `fail/regression/` | Curated regression guards (must never start compiling) |
+| `run/regression/` | Curated **link+run** regressions (LLVM/codegen/drop/malloc); see `run/regression/README.md` |
 | `run/generated/` | Generated runtime stdout tests |
 
 ## Regenerating combinatorial tests
@@ -87,3 +88,5 @@ Included in `make test-all` via `cargo test --workspace` and counted by `make te
 ## Contribution rule
 
 Every language feature change should add **≥3 pass** and **≥2 fail** tests in the matching subdirectory.
+
+**Bug fixes (mandatory):** any defect found in the wild — especially inference vs explicit types, Option/Result payloads, or LLVM link/drop crashes — must land a `run/regression/` (or `fail/regression/`) test with the fix. Prefer a zero-types / explicit / comptime / generics matrix when styles diverge. See `.cursor/rules/nyra-guidelines.mdc`.

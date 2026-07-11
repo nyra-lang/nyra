@@ -158,20 +158,12 @@ impl Codegen {
         self.emit(&format!(
             "  %{pay_gep} = getelementptr inbounds {enum_ty}, {enum_ty}* {enum_ptr}, i32 0, i32 1"
         ));
+        // Always branch on the tag before freeing. Unit variants (e.g. Option.None)
+        // share the payload slot layout but must never free — a prior fast-path that
+        // skipped the tag check double-freed / freed garbage for Option<string>.None.
         let skip_l = self.fresh_label("enum_drop.skip");
         let free_l = self.fresh_label("enum_drop.free");
         let end_l = self.fresh_label("enum_drop.end");
-        if heap_tags.len() == 1 && self.enum_variant_payload_llvm.get(enum_name).is_none_or(|m| {
-            m.values().all(|t| t == "ptr")
-        }) {
-            let loaded = self.fresh("enum_drop_load");
-            self.emit(&format!("  %{loaded} = load ptr, ptr %{pay_gep}"));
-            self.emit_runtime_call(
-                "free",
-                &format!("  call void @free(ptr %{loaded})"),
-            );
-            return;
-        }
         let mut checks = heap_tags.clone();
         let first = checks.remove(0);
         let cmp = self.fresh("enum_drop_cmp");

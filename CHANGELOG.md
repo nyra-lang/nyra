@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.1 (2026-07-11)
+
+**Bug fix — `Option<string>` drop / nullish**
+
+- Enum payload drop always tag-checks before `free` (fixes malloc abort on `Option<string> = Option.None` + `??`).
+- Regression suite: `tests/suite/run/regression/option_string_*` (zero-types / explicit / Some / generic / comptime / matrix) + conformance `pass/option/string_nullish.ny`.
+- Guidelines: mandatory regression test + inference/explicit matrix for language defects (`.cursor/rules/nyra-guidelines.mdc`).
+
 ## v0.1.0 (2026-07-09)
 
 **Stdlib gap-fill release** — ~116 builtins and stdlib helpers landed via `make gen-batch3` … `gen-batch6` contribute automation (batch3–batch6).

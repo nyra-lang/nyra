@@ -222,3 +222,32 @@ fn main() {
     let ir = out.llvm_ir.expect("ir");
     assert_ir_patterns(&ir, &["free"], &[]);
 }
+
+/// REG: Option<string>.None must tag-check before free (no unconditional payload free).
+#[test]
+fn conf_own_016_option_string_none_drop_checks_tag() {
+    let out = compile(
+        r#"enum Option<T> {
+    None
+    Some(T)
+}
+fn main() {
+    let opt: Option<string> = Option.None
+    print(0)
+}"#,
+    );
+    assert!(out.borrow_errors.is_empty(), "{:?}", out.borrow_errors);
+    let ir = out.llvm_ir.expect("ir");
+    assert!(
+        ir.contains("icmp eq i32") || ir.contains("icmp eq"),
+        "Option<string> None drop must compare tag before free:\n{ir}"
+    );
+    assert!(
+        ir.contains("enum_drop.free") || ir.contains("free"),
+        "expected free path present for Some payloads:\n{ir}"
+    );
+    assert!(
+        ir.contains("enum_drop.skip") || ir.contains("br i1"),
+        "expected conditional branch around free for None:\n{ir}"
+    );
+}
