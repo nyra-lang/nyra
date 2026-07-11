@@ -181,10 +181,22 @@ function execNyra(
   run: vscode.TestRun
 ): Promise<boolean> {
   return new Promise((resolve) => {
+    let stdout = "";
     const proc = runNyra(command, args, cwd);
-    proc.stdout.on("data", (d) => run.appendOutput(String(d)));
+    proc.stdout.on("data", (d) => {
+      const s = String(d);
+      stdout += s;
+      run.appendOutput(s);
+    });
     proc.stderr.on("data", (d) => run.appendOutput(String(d)));
-    proc.on("close", (code) => resolve(code === 0));
+    proc.on("close", (code) => {
+      // Prefer exit code; also surface explicit FAIL lines in output.
+      if (/\bFAIL\b/.test(stdout) && code === 0) {
+        resolve(false);
+        return;
+      }
+      resolve(code === 0);
+    });
     proc.on("error", () => resolve(false));
   });
 }

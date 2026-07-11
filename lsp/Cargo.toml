@@ -7,10 +7,14 @@ authors.workspace = true
 description = "Nyra language server (diagnostics, completion, hover, rename, format)"
 
 [dependencies]
+ast = { path = "../compiler/ast" }
 compiler = { path = "../compiler/driver" }
 errors = { path = "../compiler/errors" }
+lexer = { path = "../compiler/lexer" }
+lint = { path = "../compiler/lint" }
 nyra-analysis = { path = "../compiler/analysis" }
 nyra-fmt = { path = "../compiler/fmt" }
+parser = { path = "../compiler/parser" }
 resolve = { path = "../compiler/resolve" }
 serde_json = "1"
 tower-lsp = "0.20"

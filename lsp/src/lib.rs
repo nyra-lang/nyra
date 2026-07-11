@@ -1,4 +1,5 @@
 mod code_actions;
+mod code_lens;
 mod diagnostics;
 mod document;
 mod semantic;
@@ -20,7 +21,8 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 
-use crate::code_actions::code_actions_from_errors;
+use crate::code_actions::code_actions_for_document;
+use crate::code_lens::{collect_test_lenses, test_lens_command};
 use crate::diagnostics::diagnostic_from_error;
 use crate::document::{apply_changes, full_document_range};
 use crate::semantic::{encode_semantic_tokens, semantic_tokens_legend};
@@ -174,6 +176,15 @@ fn compile_errors(path: &str, source: &str) -> Vec<NyraError> {
         .collect()
 }
 
+
+fn parse_doc_program(source: &str, path: &str) -> Option<(ast::Program, Vec<NyraError>)> {
+    let (tokens, lex_errs) = lexer::Lexer::new(source, path).tokenize();
+    if !lex_errs.is_empty() {
+        return None;
+    }
+    Some(parser::Parser::new(tokens).parse())
+}
+
 #[tower_lsp::async_trait]
 impl LanguageServer for NyraLanguageServer {
     async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
@@ -227,7 +238,22 @@ impl LanguageServer for NyraLanguageServer {
                     trigger_characters: Some(vec!["(".into(), ",".into()]),
                     ..Default::default()
                 }),
-                code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+                code_action_provider: Some(CodeActionProviderCapability::Options(CodeActionOptions {
+                    code_action_kinds: Some(vec![
+                        CodeActionKind::QUICKFIX,
+                        CodeActionKind::SOURCE_FIX_ALL,
+                        CodeActionKind::SOURCE,
+                    ]),
+                    resolve_provider: Some(false),
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
+                })),
+                code_lens_provider: Some(CodeLensOptions {
+                    resolve_provider: Some(false),
+                }),
+                execute_command_provider: Some(ExecuteCommandOptions {
+                    commands: vec!["nyra.runTest".into()],
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
+                }),
                 document_highlight_provider: Some(OneOf::Left(true)),
                 workspace_symbol_provider: Some(OneOf::Left(true)),
                 workspace: Some(WorkspaceServerCapabilities {
@@ -483,18 +509,28 @@ impl LanguageServer for NyraLanguageServer {
         let hints: Vec<InlayHint> = analysis
             .inlay_hints
             .iter()
-            .map(|h| InlayHint {
-                position: Position {
-                    line: h.line,
-                    character: h.character,
-                },
-                label: InlayHintLabel::String(h.label.clone()),
-                kind: Some(InlayHintKind::TYPE),
-                text_edits: None,
-                tooltip: None,
-                padding_left: None,
-                padding_right: Some(true),
-                data: None,
+            .map(|h| {
+                let (kind, padding_left, padding_right) = match h.kind {
+                    nyra_analysis::InlayHintKind::Type => {
+                        (InlayHintKind::TYPE, None, Some(true))
+                    }
+                    nyra_analysis::InlayHintKind::Parameter => {
+                        (InlayHintKind::PARAMETER, None, Some(true))
+                    }
+                };
+                InlayHint {
+                    position: Position {
+                        line: h.line,
+                        character: h.character,
+                    },
+                    label: InlayHintLabel::String(h.label.clone()),
+                    kind: Some(kind),
+                    text_edits: None,
+                    tooltip: None,
+                    padding_left,
+                    padding_right,
+                    data: None,
+                }
             })
             .collect();
         Ok(Some(hints))
@@ -543,11 +579,51 @@ impl LanguageServer for NyraLanguageServer {
         };
         let path = Self::file_path(&uri);
         let errors = compile_errors(&path, &doc.text);
-        let actions = code_actions_from_errors(&uri, &errors);
+        let only = params
+            .context
+            .only
+            .as_ref()
+            .map(|v| v.as_slice());
+        let actions = code_actions_for_document(
+            &uri,
+            &doc.text,
+            &path,
+            &errors,
+            Some(params.range),
+            only,
+        );
         if actions.is_empty() {
             return Ok(None);
         }
         Ok(Some(actions))
+    }
+
+    async fn code_lens(&self, params: CodeLensParams) -> Result<Option<Vec<CodeLens>>> {
+        let uri = params.text_document.uri;
+        let docs = self.documents.read().await;
+        let Some(doc) = docs.get(&uri) else {
+            return Ok(None);
+        };
+        let path = Self::file_path(&uri);
+        let Some((program, errs)) = parse_doc_program(&doc.text, &path) else {
+            return Ok(None);
+        };
+        if !errs.is_empty() {
+            return Ok(None);
+        }
+        let lenses = collect_test_lenses(&program, &path);
+        if lenses.is_empty() {
+            return Ok(None);
+        }
+        let out: Vec<CodeLens> = lenses
+            .iter()
+            .map(|l| CodeLens {
+                range: l.range,
+                command: Some(test_lens_command(l)),
+                data: None,
+            })
+            .collect();
+        Ok(Some(out))
     }
 
     async fn document_highlight(

@@ -103,6 +103,16 @@
         "category": "Nyra"
       },
       {
+        "command": "nyra.runTest",
+        "title": "Nyra: Run Test",
+        "category": "Nyra"
+      },
+      {
+        "command": "nyra.applySourceFixAll",
+        "title": "Nyra: Fix All Unused (source.fixAll)",
+        "category": "Nyra"
+      },
+      {
         "command": "nyra.showToolchainInfo",
         "title": "Nyra: Show Toolchain Info",
         "category": "Nyra"

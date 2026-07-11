@@ -10,7 +10,7 @@
 | **Core tier** | **Stable** (semver from v0.1.0) |
 | **Stable Extended** | **Stable** — async CFG desugar, traits + `dyn Send/Sync`, struct JSON (nested + collections), macros, defer |
 | **Extended preview** | **None** |
-| **Toolchain** | CLI **done**; **`nyra build --race` (TSan)**; LSP depth (semantic tokens, inlay hints, code actions, signature help) |
+| **Toolchain** | CLI **done** (`nyra repl`, `nyra watch`, `nyra race`); concurrency detectors `--race` / `--race-native`; LSP depth (inlays, code actions, CodeLens) |
 | **Releases** | Linux, macOS, **Windows prebuilt** (GitHub Releases) |
 
 ## Language
@@ -99,6 +99,6 @@
 - Full auto-trait checking on fn params
 - Generic struct fields beyond monomorph instances (manual serde for exotic `T`)
 
-Native race runtime ships as **`--race-native`**; TSan remains **`--race`**.
+Concurrency race tooling: **`nyra race`** (TSan) / **`nyra race --native`**; also `--race` / `--race-native` on `build`/`run`/`test`/`watch`/`debug`.
 
 See [`docs/stability-v1.md`](stability-v1.md) and [`webDocs/roadmap.html`](../webDocs/roadmap.html).

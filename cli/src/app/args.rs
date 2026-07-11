@@ -84,14 +84,14 @@ pub(crate) struct OptFlags {
     /// Raw linker argument passed to clang (repeatable).
     #[arg(long = "link-arg", value_name = "ARG")]
     pub(crate) link_arg: Vec<String>,
-    /// Enable ThreadSanitizer for data-race detection (`-fsanitize=thread`).
-    #[arg(long, conflicts_with_all = ["race_native", "sanitize"])]
+    /// ThreadSanitizer data-race detector (`-fsanitize=thread`). Prefer `nyra race` for build+run.
+    #[arg(long, conflicts_with_all = ["race_native", "sanitize"], help_heading = "Concurrency debugging")]
     pub(crate) race: bool,
-    /// Enable native Nyra race runtime (`stdlib/rt/rt_race.c`) — lightweight lock-set detector.
-    #[arg(long, conflicts_with_all = ["race", "sanitize"])]
+    /// Native Nyra race runtime (`stdlib/rt/rt_race.c`) — portable lock-set detector (no TSan).
+    #[arg(long, conflicts_with_all = ["race", "sanitize"], help_heading = "Concurrency debugging")]
     pub(crate) race_native: bool,
-    /// Enable AddressSanitizer (`-fsanitize=address`) for heap corruption detection.
-    #[arg(long, conflicts_with_all = ["race", "race_native"])]
+    /// AddressSanitizer for heap corruption (`-fsanitize=address`).
+    #[arg(long, conflicts_with_all = ["race", "race_native"], help_heading = "Concurrency debugging")]
     pub(crate) sanitize: bool,
 }
 
@@ -285,6 +285,28 @@ pub(crate) enum Commands {
         #[command(subcommand)]
         cmd: IdeCommands,
     },
+    /// Interactive read-eval-print loop.
+    Repl,
+    /// Build and run under a concurrency race detector (TSan by default).
+    ///
+    /// Examples:
+    ///   nyra race .
+    ///   nyra race app.ny --native
+    ///   nyra race . --build-only
+    ///   nyra race . -- --arg1
+    Race {
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Use the native Nyra race runtime instead of ThreadSanitizer.
+        #[arg(long)]
+        native: bool,
+        /// Build only; print the binary path (do not execute).
+        #[arg(long)]
+        build_only: bool,
+        /// Arguments forwarded to the program under the race detector.
+        #[arg(last = true)]
+        args: Vec<String>,
+    },
     /// Rebuild on file changes (check, build, or run).
     Watch {
         #[arg(default_value = ".")]
@@ -292,6 +314,12 @@ pub(crate) enum Commands {
         /// Action on change: check (default), build, or run.
         #[arg(long, default_value = "check")]
         on: String,
+        /// Enable ThreadSanitizer when rebuilding (`--on build|run`).
+        #[arg(long, conflicts_with = "race_native", help_heading = "Concurrency debugging")]
+        race: bool,
+        /// Enable native race runtime when rebuilding (`--on build|run`).
+        #[arg(long, conflicts_with = "race", help_heading = "Concurrency debugging")]
+        race_native: bool,
     },
     /// Build with debug symbols and launch lldb/gdb.
     Debug {
@@ -303,6 +331,12 @@ pub(crate) enum Commands {
         /// Write `.vscode/launch.json` + `tasks.json` for the project.
         #[arg(long)]
         init_vscode: bool,
+        /// Build under ThreadSanitizer before launching the debugger.
+        #[arg(long, conflicts_with = "race_native", help_heading = "Concurrency debugging")]
+        race: bool,
+        /// Build under the native Nyra race runtime before launching the debugger.
+        #[arg(long, conflicts_with = "race", help_heading = "Concurrency debugging")]
+        race_native: bool,
         /// Arguments passed to the program under debug.
         #[arg(last = true)]
         args: Vec<String>,

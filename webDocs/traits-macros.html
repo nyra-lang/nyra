@@ -171,6 +171,7 @@ impl Show for Counter {
       <h2>Static vs dynamic dispatch</h2>
       <p><strong>Static:</strong> <code>impl Trait for Type</code> — method calls on a concrete struct resolve to a mangled function at compile time.</p>
       <p><strong>Dynamic:</strong> <code>dyn Trait</code> trait objects — cast with <code>value as dyn Trait</code>, pass to functions taking <code>dyn Trait</code>, call methods through a vtable. Multi-method traits use per-method vtable slots; trait objects run a <code>Drop</code> thunk that frees heap-boxed data.</p>
+      <p><strong>Multi-trait objects:</strong> <code>dyn A + B</code> (and optional <code>+ Send</code> / <code>+ Sync</code> auto bounds) use a combined vtable. The concrete type must implement every listed trait; methods are dispatched in trait order (first-wins on name clashes). See <code>examples/trait_dyn_ab.ny</code> and <code>examples/dyn_multi_trait.ny</code>.</p>
       <p><strong>Trait bounds:</strong> <code>fn f&lt;T: Trait&gt;(x: T)</code> — generic functions constrained by traits; validated when monomorphized. See <code>examples/trait_bounds.ny</code>.</p>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -212,7 +213,76 @@ impl Add for Counter {
 fn via_dyn(g: dyn Add) -&gt; i32 {
     return g.add(1)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <p>See <code>examples/trait_dyn.ny</code>, <code>examples/trait_dyn_multi.ny</code>, and <code>tests/nyra/trait_dispatch_test.ny</code>, <code>trait_dyn_multi_test.ny</code>.</p>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>Multi-trait example:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>trait Add {
+    fn add(self, other)
+}
+trait Scale {
+    fn scale(self, k)
+}
+
+struct Counter {
+    value: i32
+}
+
+impl Add for Counter {
+    fn add(self, other) {
+        return self.value + other
+    }
+}
+impl Scale for Counter {
+    fn scale(self, k) {
+        return self.value * k
+    }
+}
+
+fn both(g) {
+    return g.add(1) + g.scale(2)
+}
+
+fn main() {
+    let c = Counter { value: 10 }
+    print(both(c as dyn Add + Scale))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>trait Add {
+    fn add(self, other: i32) -&gt; i32
+}
+trait Scale {
+    fn scale(self, k: i32) -&gt; i32
+}
+
+struct Counter {
+    value: i32
+}
+
+impl Add for Counter {
+    fn add(self, other: i32) -&gt; i32 {
+        return self.value + other
+    }
+}
+impl Scale for Counter {
+    fn scale(self, k: i32) -&gt; i32 {
+        return self.value * k
+    }
+}
+
+fn both(g: dyn Add + Scale) -&gt; i32 {
+    return g.add(1) + g.scale(2)
+}
+
+fn main() -&gt; void {
+    let c = Counter { value: 10 }
+    print(both(c as dyn Add + Scale))
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>See <code>examples/trait_dyn.ny</code>, <code>examples/trait_dyn_multi.ny</code>, <code>examples/trait_dyn_ab.ny</code>, <code>examples/dyn_multi_trait.ny</code>, and <code>tests/nyra/trait_dispatch_test.ny</code>, <code>trait_dyn_multi_test.ny</code>.</p>
       <footer class="site-footer"><a href="spec.html">Language spec →</a></footer>
     </main>
   </div>

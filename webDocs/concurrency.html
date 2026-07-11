@@ -384,6 +384,22 @@ fn main() -&gt; void {
       </table>
       <p>On <code>wasm32-wasi</code>, <code>parallel for</code> runs sequentially (no pthreads).</p>
 
+      <h2 id="race">Race detection</h2>
+      <p><strong>Job:</strong> Catch data races in <code>spawn</code> / <code>parallel</code> / async workloads before they ship.</p>
+      <pre><code>nyra race .                 # ThreadSanitizer (recommended on host)
+nyra race . --native        # portable Nyra lock-set runtime
+nyra run . --race
+nyra test . --race-native
+nyra watch . --on run --race</code></pre>
+      <table>
+        <thead><tr><th>Detector</th><th>Command</th><th>Platform notes</th></tr></thead>
+        <tbody>
+          <tr><td>ThreadSanitizer</td><td><code>nyra race</code> / <code>--race</code></td><td>Linux / macOS / Windows host clang with TSan; not for wasm or cross targets</td></tr>
+          <tr><td>Native lock-set</td><td><code>nyra race --native</code> / <code>--race-native</code></td><td>Works wherever the Nyra runtime links; instrument with <code>stdlib/race.ny</code></td></tr>
+        </tbody>
+      </table>
+      <p>CLI details: <a href="tooling.html#race">Toolchain → nyra race</a>. Async overview: <a href="async.html">Async</a>.</p>
+
       <h2 id="benchmark-block">benchmark { }</h2>
       <p><strong>Name:</strong> <code>benchmark { … }</code><br>
       <strong>Explanation:</strong> Prints wall time, RSS delta, and CPU% for a block. Requires <code>allow_extended</code>.<br>

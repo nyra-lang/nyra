@@ -83,7 +83,7 @@ impl DocumentAnalysis {
         let mut checker = TypeChecker::new();
         checker.check_program(&program);
         let typecheck_ok = !checker.has_errors();
-        let inlay_hints = collect_inlay_hints(&checker);
+        let inlay_hints = collect_inlay_hints(&checker, &program);
 
         let mut symbols = collect_symbols(&program);
         symbols.extend(keyword_symbols());

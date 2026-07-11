@@ -138,6 +138,9 @@ nyra cc -c vendor/shim.c -o vendor/shim.o # clang driver
 nyra bind rust uuid # crates.io → C-ABI + .ny stubs
 nyra bind c api.h --lib mylib # C header → extern fn
 nyra watch . --on run # rebuild + run on save
+nyra repl # interactive REPL
+nyra race . # concurrency race detector (TSan)
+nyra race . --native # portable native race runtime
 nyra lsp # language server (stdio)
 nyra ide goto-def main.ny 0 --character 20
 ```
@@ -165,7 +168,7 @@ myapp/
 
 Ship the executable from `target/release/` (or `target/{triple}/release/`) for production; run `./target/debug/main` while developing.
 
-Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` (ThreadSanitizer for async/concurrency debug), `--for`, `--os`, `--arch`, `--target`.
+Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` / `--race-native` (or `nyra race` / `nyra race --native`) for concurrency debug, `--for`, `--os`, `--arch`, `--target`.
 
 Systems / freestanding: `--no-std` (skip runtime link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`.
 
@@ -2735,6 +2738,32 @@ fn main() {
 
 
 
+## Race detection (concurrency debug)
+
+```bash
+nyra race .                 # ThreadSanitizer build + run (auto -g)
+nyra race . --native        # portable Nyra race runtime (stdlib/rt/rt_race.c)
+nyra race app.ny --build-only
+nyra build --race           # same detector flags on build/run/test
+nyra watch . --on run --race
+nyra debug . --race         # TSan binary under lldb/gdb
+```
+
+- **`--race`**: Clang TSan — best stacks; needs host TSan clang (not wasm / cross).
+- **`--race-native`**: lightweight lock-set in `stdlib/race.ny` — call `Race_init()` / `Race_track_*`.
+- Race flags auto-enable debug frames; CLI prints a detector banner before link.
+
+## REPL & watch
+
+```bash
+nyra repl              # interactive session (declarations + expr print)
+nyra watch . --on check   # re-check on .ny changes
+nyra watch . --on run     # re-run on save
+```
+
+- REPL keeps top-level items and `let` locals across inputs; expressions are wrapped in `print(...)`.
+- Watch ignores `target/` and only reacts to `.ny` / `.nyra` / `nyra.mod`.
+
 ## Traits & dynamic dispatch (Stable Extended)
 
 Nyra supports **trait definitions**, **`impl Trait for Type`**, and **trait objects** via `dyn Trait`. Shipped on **Stable Extended** — multi-method vtables, `dyn Trait + Send + Sync` bounds, trait-object `Drop`, and **`dyn A + B`** multi-trait objects.
@@ -2850,7 +2879,7 @@ in repo.
 - No **`defer free(x)`** for owned `string` — auto-drop handles it; use **`impl Drop` RAII** for handles, not `defer`, when possible (`defer` is Extended).
 - **`nyra inspect NAME --at file:line`** — compile-time ownership/borrow snapshot at a source line; **`nyra check --ownership-verbose`** — per-binding summary at function exit. Not runtime reflection. Rust stable toolchain has no equivalent.
 - No `extern export fn` — use `extern fn` or `export fn` separately.
-- Async/`await`: promise handles + **executor v0.0.1** + **state-machine v0.0.1** + **v0.0.1 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra build --race`** enables TSan. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
+- Async/`await`: promise handles + **executor v0.0.1** + **state-machine v0.0.1** + **v0.0.1 CFG** (`await` in `if`/`while`/range `for`). `async fn` body runs on **`spawn:thread`**. `spawn`/`unsafe` with `await` still blocking. **`JoinHandle.join()`** blocks on task/thread completion. **`nyra race`** (or `nyra build --race`) enables TSan; **`nyra race --native`** uses the portable lock-set runtime. See [async guide](https://nyra-lang.github.io/nyra/async.html) · [concurrency](https://nyra-lang.github.io/nyra/concurrency.html).
 - **Struct JSON** — `{Struct}_json_encode/decode` after monomorph; fields: `string`/`i32`/`bool`/nested struct/**`ptr` Vec_i32/fixed `[T; N]`**.
 - **`Serialize` trait** — `u.to_json()` / `u.to_bytes()`; import `stdlib/serde/mod.ny` for trait defs; decode via `{Struct}_json_decode`.
 - Arrow functions are **Extended** tier — use `nyra check --deny-extended` in Core-only CI if you avoid them.

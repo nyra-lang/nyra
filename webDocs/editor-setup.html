@@ -141,7 +141,21 @@
       <pre><code>bash scripts/package-vscode-extension.sh
 # or: cd extensions/nyra &amp;&amp; npm install &amp;&amp; npm run compile &amp;&amp; npm run package
 code --install-extension extensions/nyra/nyra-*.vsix</code></pre>
-      <p>Uses <code>nyra lsp</code> and <code>nyra dap</code> on your <code>PATH</code> (or bundled binary with <code>nyra.useBundledToolchain</code>). Features: format-on-save, Test Explorer (<code>nyra test --list-json</code>), status bar version, snippets. Publish steps: <code>extensions/nyra/PUBLISHING.md</code>.</p>
+      <p>Uses <code>nyra lsp</code> and <code>nyra dap</code> on your <code>PATH</code> (or bundled binary with <code>nyra.useBundledToolchain</code>). Features: format-on-save, Test Explorer (<code>nyra test --list-json</code>), CodeLens <strong>▶ Run Test</strong>, status bar version, snippets. Publish steps: <code>extensions/nyra/PUBLISHING.md</code>.</p>
+
+      <h2>LSP capabilities</h2>
+      <table>
+        <thead><tr><th>Feature</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Diagnostics</td><td>Same pipeline as <code>nyra diag</code> / <code>nyra check</code></td></tr>
+          <tr><td>Completion / hover / signature help</td><td>Symbols + stdlib docs where available</td></tr>
+          <tr><td>Go to definition / references / rename</td><td>Cross-file via project index</td></tr>
+          <tr><td>Inlay hints</td><td>Inferred types and parameter names</td></tr>
+          <tr><td>Code actions</td><td>Quick fixes, “did you mean”, <code>source.fixAll</code></td></tr>
+          <tr><td>CodeLens</td><td><strong>▶ Run Test</strong> above <code>test fn</code></td></tr>
+          <tr><td>Format</td><td>AST formatter (<code>nyra fmt</code>)</td></tr>
+        </tbody>
+      </table>
 
       <h2>Manual LSP / DAP</h2>
       <pre><code>{
@@ -149,7 +163,7 @@ code --install-extension extensions/nyra/nyra-*.vsix</code></pre>
   "nyra.languageServerArgs": ["lsp"],
   "nyra.debugAdapterPath": "nyra"
 }</code></pre>
-      <p>Debug with <code>nyra build . --debug-symbols</code> then launch type <code>nyra</code> (breakpoints, stack, locals, stepping via <code>nyra dap</code>).</p>
+      <p>Debug with <code>nyra build . --debug-symbols</code> then launch type <code>nyra</code> (breakpoints, stack, locals, stepping via <code>nyra dap</code>). For race hunting under the debugger: <code>nyra debug . --race</code> or <code>nyra race .</code>.</p>
 
       <h2>Grammar only</h2>
       <p>Grammar file: <code>grammar/nyra.tmLanguage.json</code></p>

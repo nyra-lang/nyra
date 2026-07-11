@@ -261,7 +261,7 @@ fn main() -&gt; void {
       <h2>State-machine desugar</h2>
       <p>See <a href="#async-state-machine">state machine example</a> above. <code>await</code> inside <code>spawn</code>/<code>unsafe</code> still uses blocking <code>async_await</code>.</p>
       <h2>Race detection</h2>
-      <p><code>nyra build --race</code> links with ThreadSanitizer (<code>-fsanitize=thread</code>). Compile-time Send/Sync checks remain the default; use TSan to catch races in <code>unsafe</code> or FFI.</p>
+      <p><code>nyra race</code> (or <code>nyra build --race</code>) links with ThreadSanitizer (<code>-fsanitize=thread</code>). Prefer <code>nyra race --native</code> for the portable lock-set runtime. Compile-time Send/Sync checks remain the default; use these detectors to catch races in <code>unsafe</code> or FFI.</p>
       <p>Extended tier — not available on <strong>wasm32</strong>. Cross-compile to Windows: see <a href="targets.html">Targets</a>.</p>
       <footer class="site-footer"><a href="concurrency.html">Concurrency →</a></footer>
     </main>

@@ -9,6 +9,17 @@ This repository is independent from the [Nyra compiler](https://github.com/nyra-
 
 ## Unreleased
 
+**CLI & tooling**
+
+- [tooling.html](tooling.html) — `nyra repl`, `nyra race`, expanded `watch` (`--race` / `--race-native`), richer LSP capabilities.
+- [concurrency.html](concurrency.html) — Race detection section (TSan + native; Linux / macOS / Windows host notes).
+- [editor-setup.html](editor-setup.html) — LSP inlay hints, code actions, CodeLens ▶ Run Test.
+- [traits-macros.html](traits-macros.html) — multi-trait `dyn A + B` docs + Without/With types snippets.
+- Locales / index / roadmap / ai-skill — `dyn A + B` marked shipped; still-maturing text narrowed to exotic serde.
+- [nyra-skill.md](nyra-skill.md) — REPL / race / watch lines fixed and expanded.
+
+**CLI reference expansion**
+
 **CLI reference expansion**
 
 - [tooling.html](tooling.html) — full CLI TOC; quick-ref with examples; expanded `nyra test` (COMPILE/LINK/PASS walkthrough, `--filter`, `--list-json`); new `nyra toolchain`, `nyra cc`, `nyra bind` sections; help/version.

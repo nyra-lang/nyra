@@ -151,6 +151,8 @@
           <li><a href="#diag"><code>nyra diag</code></a></li>
           <li><a href="#explain"><code>nyra explain</code></a></li>
           <li><a href="#watch"><code>nyra watch</code></a></li>
+          <li><a href="#repl"><code>nyra repl</code></a></li>
+          <li><a href="#race"><code>nyra race</code></a></li>
           <li><a href="#debug"><code>nyra debug</code></a></li>
           <li><a href="#lsp"><code>nyra lsp</code></a> · <a href="#dap"><code>dap</code></a> · <a href="#ide"><code>ide</code></a></li>
           <li><a href="#pkg"><code>nyrapkg</code> / <code>nyra pkg</code></a></li>
@@ -174,6 +176,8 @@
           <tr><td><a href="#diag"><code>nyra diag</code></a></td><td>Print diagnostics (JSON for editors)</td><td><code>nyra diag . --json</code></td></tr>
           <tr><td><a href="#explain"><code>nyra explain</code></a></td><td>Explain stable diagnostic codes</td><td><code>nyra explain E003</code></td></tr>
           <tr><td><a href="#watch"><code>nyra watch</code></a></td><td>Re-check / rebuild on save</td><td><code>nyra watch . --on run</code></td></tr>
+          <tr><td><a href="#repl"><code>nyra repl</code></a></td><td>Interactive read-eval-print loop</td><td><code>nyra repl</code></td></tr>
+          <tr><td><a href="#race"><code>nyra race</code></a></td><td>Build + run under a race detector</td><td><code>nyra race .</code> / <code>--native</code></td></tr>
           <tr><td><a href="#debug"><code>nyra debug</code></a></td><td>Build with symbols + launch lldb/gdb</td><td><code>nyra debug .</code></td></tr>
           <tr><td><a href="#lsp"><code>nyra lsp</code></a></td><td>Language Server (stdio)</td><td><code>nyra lsp</code></td></tr>
           <tr><td><a href="#dap"><code>nyra dap</code></a></td><td>Debug Adapter Protocol (stdio)</td><td><code>nyra dap</code></td></tr>
@@ -383,23 +387,54 @@ nyra explain P001
 nyra explain --list</code></pre>
 
       <h2 id="watch"><code>nyra watch</code></h2>
-      <p><strong>Job:</strong> Keep a terminal open while coding — re-run checks or builds on every save.</p>
+      <p><strong>Job:</strong> Keep a terminal open while coding — re-run checks or builds on every save. Watches <code>.ny</code> / <code>.nyra</code> / <code>nyra.mod</code> and ignores <code>target/</code>.</p>
       <pre><code>nyra watch .                  # re-check on change (default)
 nyra watch . --on build       # rebuild binary
-nyra watch . --on run         # rebuild + run main</code></pre>
+nyra watch . --on run         # rebuild + run main
+nyra watch . --on run --race  # rebuild under ThreadSanitizer
+nyra watch . --on run --race-native</code></pre>
+
+      <h2 id="repl"><code>nyra repl</code></h2>
+      <p><strong>Job:</strong> Interactive session for exploring Nyra without a project file. Declarations persist; expressions are printed.</p>
+      <pre><code>nyra repl
+nyra&gt; 1 + 2
+3
+nyra&gt; fn add(a: i32, b: i32) -&gt; i32 { return a + b }
+ok
+nyra&gt; add(10, 5)
+15
+:help / :quit / :clear / :load file.ny</code></pre>
+      <p>Works on Linux, macOS, and Windows hosts (compile-and-run; not available for wasm targets).</p>
+
+      <h2 id="race"><code>nyra race</code></h2>
+      <p><strong>Job:</strong> Build and run under a concurrency race detector. Prefer this over remembering flag combinations.</p>
+      <pre><code>nyra race .                 # ThreadSanitizer (TSan) + auto -g
+nyra race . --native        # portable Nyra lock-set runtime
+nyra race app.ny --build-only
+nyra race . -- --port 8080  # program args after --</code></pre>
+      <table>
+        <thead><tr><th>Mode</th><th>Flag</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><td>TSan</td><td><code>nyra race</code> / <code>--race</code></td><td>Best stacks; needs host clang with <code>-fsanitize=thread</code> (not wasm / cross)</td></tr>
+          <tr><td>Native</td><td><code>nyra race --native</code> / <code>--race-native</code></td><td>Portable; use <code>stdlib/race.ny</code> (<code>Race_init</code>, <code>Race_track_*</code>)</td></tr>
+        </tbody>
+      </table>
+      <p>Same detectors also work on <code>build</code>, <code>run</code>, <code>test</code>, <code>watch</code>, and <code>debug</code>. See <a href="concurrency.html#race">Concurrency → Race detection</a> and <a href="async.html">Async</a>.</p>
 
       <h2 id="debug"><code>nyra debug</code></h2>
       <p><strong>Job:</strong> Step through your program with lldb (macOS) or gdb (Linux).</p>
       <pre><code>nyra debug .                           # build -g + lldb
 nyra debug . -- --port 8080            # program args after --
 nyra debug . --debugger gdb            # force gdb
+nyra debug . --race                    # TSan binary under the debugger
+nyra debug . --race-native
 nyra debug . --init-vscode             # write .vscode/launch.json + tasks.json</code></pre>
       <p>For VS Code / Cursor, prefer the official extension which uses <code>nyra dap</code> (DAP) instead of raw lldb. See <a href="editor-setup.html">Editor setup</a>.</p>
 
       <h2 id="lsp"><code>nyra lsp</code></h2>
       <p><strong>Job:</strong> Wire Nyra into any LSP-capable editor (diagnostics, completion, hover, go-to-definition, references, rename, format).</p>
       <pre><code>nyra lsp    # stdio — configured by extensions/nyra or your editor</code></pre>
-      <p>Capabilities: cross-file <strong>go to definition</strong>, <strong>find references</strong>, workspace rename, document symbols, formatting</p>
+      <p>Capabilities: cross-file <strong>go to definition</strong>, <strong>find references</strong>, workspace rename, document symbols, formatting, semantic tokens, signature help, <strong>inlay hints</strong> (inferred types + param names), <strong>code actions</strong> / <code>source.fixAll</code>, CodeLens <strong>▶ Run Test</strong>.</p>
 
       <h2 id="dap"><code>nyra dap</code></h2>
       <p><strong>Job:</strong> Debug from VS Code “Run and Debug” via the Debug Adapter Protocol (LLDB/GDB bridge).</p>
@@ -540,7 +575,9 @@ nyra build . --release --lto-full    # full LTO (slower link)</code></pre>
           <tr><td><code>--link-lib foo</code></td><td>Link <code>-lfoo</code> (repeatable)</td></tr>
           <tr><td><code>--link-search-path dir</code></td><td>Add <code>-Ldir</code></td></tr>
           <tr><td><code>--cdylib</code></td><td>Emit shared library instead of executable</td></tr>
-          <tr><td><code>--race</code></td><td>ThreadSanitizer (<code>-fsanitize=thread</code>) for data-race detection</td></tr>
+          <tr><td><code>nyra race</code></td><td>Build + run under ThreadSanitizer (use <code>--native</code> for the portable detector)</td></tr>
+          <tr><td><code>--race</code></td><td>ThreadSanitizer (<code>-fsanitize=thread</code>) on <code>build</code>/<code>run</code>/<code>test</code>/<code>watch</code>/<code>debug</code></td></tr>
+          <tr><td><code>--race-native</code></td><td>Nyra lock-set race runtime (<code>stdlib/rt/rt_race.c</code>)</td></tr>
           <tr><td><code>--sanitize</code></td><td>AddressSanitizer (<code>-fsanitize=address</code>) for heap corruption detection</td></tr>
         </tbody>
       </table>
@@ -577,7 +614,7 @@ nyra build . --no-std</code></pre>
           <tr><td>VS Code extension</td><td><code>extensions/nyra</code></td><td>Grammar + LSP + DAP + Test Explorer + tasks</td></tr>
           <tr><td>Test discovery</td><td><code>nyra test --list-json</code></td><td>IDE test explorer JSON</td></tr>
           <tr><td>TextMate grammar</td><td><code>grammar/nyra.tmLanguage.json</code></td><td>Syntax highlighting only</td></tr>
-          <tr><td>Language server</td><td><code>nyra lsp</code></td><td>Completion, hover, goto-def, refs, rename</td></tr>
+          <tr><td>Language server</td><td><code>nyra lsp</code></td><td>Completion, hover, goto-def, refs, rename, inlays, code actions, CodeLens</td></tr>
           <tr><td>Debug adapter</td><td><code>nyra dap</code></td><td>VS Code debugger — breakpoints, stack, locals, stepping</td></tr>
           <tr><td>CLI navigation</td><td><code>nyra ide goto-def</code></td><td>Terminal / CI symbol lookup</td></tr>
         </tbody>
