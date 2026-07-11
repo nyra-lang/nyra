@@ -20,7 +20,7 @@ Types, inference, control flow, modules, structs, enum tags, ownership, borrow/N
 | **Explicit lifetimes / HRTB** | Borrowck + lifetime pass |
 | **`defer`** | LIFO on block fall-through and `return` |
 | **Struct spread** | `..base` in struct literals |
-| **Stdlib JSON/serialize** | Flat + nested object encode/decode in `rt_json.c` |
+| **Stdlib JSON/serialize** | Flat + nested object encode/decode + document `parse_json`/`stringify_json` in `rt_json.c` |
 
 `nyra check --deny-extended` — reserved for **future** preview features (none in v1.2).
 
@@ -28,8 +28,9 @@ Types, inference, control flow, modules, structs, enum tags, ownership, borrow/N
 
 | Tier | API |
 |------|-----|
-| **In-tree** | `json/mod.ny` — `decode_*`, `encode_object`, nested objects, bool fields |
-| **Full schema** | NyraPkg `ny-serde` (Rust serde_json bridge) for arbitrary structs |
+| **Document JSON** | `json/mod.ny` — `parse_json` / `stringify_json` (validate + compact) |
+| **Field / object** | `json/mod.ny` — `decode_*`, `encode_object`, `JSON_parse_object`, nested objects |
+| **Schema traits** | `serde/mod.ny` — `Serialize` / `Deserialize` + compiler `{Struct}_json_encode/decode` |
 
 ## Releases
 

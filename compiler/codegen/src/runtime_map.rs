@@ -238,6 +238,8 @@ pub fn symbol_module_map() -> HashMap<&'static str, &'static str> {
         ("json_top_keys", "rt_json.c"),
         ("json_raw_get", "rt_json.c"),
         ("json_value_kind", "rt_json.c"),
+        ("json_parse_document", "rt_json.c"),
+        ("json_stringify_document", "rt_json.c"),
         ("bin_buf_new", "rt_bin.c"),
         ("bin_buf_write_i32", "rt_bin.c"),
         ("bin_buf_write_bool", "rt_bin.c"),

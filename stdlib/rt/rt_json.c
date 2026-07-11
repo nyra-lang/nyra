@@ -738,3 +738,305 @@ int json_value_kind(const char *json) {
     if (strncmp(json, "null", 4) == 0) return 0;
     return 0;
 }
+
+/* --- Document-level parse / stringify (validate + compact) --- */
+
+typedef struct {
+    const char *p;
+    char *out;
+    size_t len;
+    size_t cap;
+    int ok;
+} JsonDocBuf;
+
+static void jd_fail(JsonDocBuf *d) {
+    d->ok = 0;
+}
+
+static void jd_emit(JsonDocBuf *d, char c) {
+    if (!d->ok) {
+        return;
+    }
+    if (d->len + 1 >= d->cap) {
+        size_t ncap = d->cap ? d->cap * 2 : 64;
+        char *n = (char *)realloc(d->out, ncap);
+        if (!n) {
+            jd_fail(d);
+            return;
+        }
+        d->out = n;
+        d->cap = ncap;
+    }
+    d->out[d->len++] = c;
+}
+
+static void jd_emit_n(JsonDocBuf *d, const char *s, size_t n) {
+    size_t i;
+    for (i = 0; i < n; i++) {
+        jd_emit(d, s[i]);
+    }
+}
+
+static void jd_skip_ws(JsonDocBuf *d) {
+    while (*d->p == ' ' || *d->p == '\t' || *d->p == '\n' || *d->p == '\r') {
+        d->p++;
+    }
+}
+
+static void jd_parse_value(JsonDocBuf *d);
+
+static void jd_parse_string(JsonDocBuf *d) {
+    if (*d->p != '"') {
+        jd_fail(d);
+        return;
+    }
+    jd_emit(d, '"');
+    d->p++;
+    while (*d->p && *d->p != '"') {
+        if (*d->p == '\\') {
+            jd_emit(d, '\\');
+            d->p++;
+            if (!*d->p) {
+                jd_fail(d);
+                return;
+            }
+            char esc = *d->p;
+            if (esc == '"' || esc == '\\' || esc == '/' || esc == 'b' || esc == 'f' ||
+                esc == 'n' || esc == 'r' || esc == 't') {
+                jd_emit(d, esc);
+                d->p++;
+            } else if (esc == 'u') {
+                jd_emit(d, 'u');
+                d->p++;
+                int i;
+                for (i = 0; i < 4; i++) {
+                    char h = *d->p;
+                    if (!((h >= '0' && h <= '9') || (h >= 'a' && h <= 'f') || (h >= 'A' && h <= 'F'))) {
+                        jd_fail(d);
+                        return;
+                    }
+                    jd_emit(d, h);
+                    d->p++;
+                }
+            } else {
+                jd_fail(d);
+                return;
+            }
+            continue;
+        }
+        if ((unsigned char)*d->p < 0x20) {
+            jd_fail(d);
+            return;
+        }
+        jd_emit(d, *d->p);
+        d->p++;
+    }
+    if (*d->p != '"') {
+        jd_fail(d);
+        return;
+    }
+    jd_emit(d, '"');
+    d->p++;
+}
+
+static void jd_parse_number(JsonDocBuf *d) {
+    const char *start = d->p;
+    if (*d->p == '-') {
+        d->p++;
+    }
+    if (*d->p == '0') {
+        d->p++;
+    } else if (*d->p >= '1' && *d->p <= '9') {
+        while (*d->p >= '0' && *d->p <= '9') {
+            d->p++;
+        }
+    } else {
+        jd_fail(d);
+        return;
+    }
+    if (*d->p == '.') {
+        d->p++;
+        if (*d->p < '0' || *d->p > '9') {
+            jd_fail(d);
+            return;
+        }
+        while (*d->p >= '0' && *d->p <= '9') {
+            d->p++;
+        }
+    }
+    if (*d->p == 'e' || *d->p == 'E') {
+        d->p++;
+        if (*d->p == '+' || *d->p == '-') {
+            d->p++;
+        }
+        if (*d->p < '0' || *d->p > '9') {
+            jd_fail(d);
+            return;
+        }
+        while (*d->p >= '0' && *d->p <= '9') {
+            d->p++;
+        }
+    }
+    jd_emit_n(d, start, (size_t)(d->p - start));
+}
+
+static void jd_parse_object(JsonDocBuf *d) {
+    if (*d->p != '{') {
+        jd_fail(d);
+        return;
+    }
+    jd_emit(d, '{');
+    d->p++;
+    jd_skip_ws(d);
+    if (*d->p == '}') {
+        jd_emit(d, '}');
+        d->p++;
+        return;
+    }
+    for (;;) {
+        jd_skip_ws(d);
+        if (*d->p != '"') {
+            jd_fail(d);
+            return;
+        }
+        jd_parse_string(d);
+        if (!d->ok) {
+            return;
+        }
+        jd_skip_ws(d);
+        if (*d->p != ':') {
+            jd_fail(d);
+            return;
+        }
+        jd_emit(d, ':');
+        d->p++;
+        jd_skip_ws(d);
+        jd_parse_value(d);
+        if (!d->ok) {
+            return;
+        }
+        jd_skip_ws(d);
+        if (*d->p == ',') {
+            jd_emit(d, ',');
+            d->p++;
+            continue;
+        }
+        if (*d->p == '}') {
+            jd_emit(d, '}');
+            d->p++;
+            return;
+        }
+        jd_fail(d);
+        return;
+    }
+}
+
+static void jd_parse_array(JsonDocBuf *d) {
+    if (*d->p != '[') {
+        jd_fail(d);
+        return;
+    }
+    jd_emit(d, '[');
+    d->p++;
+    jd_skip_ws(d);
+    if (*d->p == ']') {
+        jd_emit(d, ']');
+        d->p++;
+        return;
+    }
+    for (;;) {
+        jd_skip_ws(d);
+        jd_parse_value(d);
+        if (!d->ok) {
+            return;
+        }
+        jd_skip_ws(d);
+        if (*d->p == ',') {
+            jd_emit(d, ',');
+            d->p++;
+            continue;
+        }
+        if (*d->p == ']') {
+            jd_emit(d, ']');
+            d->p++;
+            return;
+        }
+        jd_fail(d);
+        return;
+    }
+}
+
+static void jd_parse_value(JsonDocBuf *d) {
+    jd_skip_ws(d);
+    if (*d->p == '"') {
+        jd_parse_string(d);
+        return;
+    }
+    if (*d->p == '{') {
+        jd_parse_object(d);
+        return;
+    }
+    if (*d->p == '[') {
+        jd_parse_array(d);
+        return;
+    }
+    if (*d->p == '-' || (*d->p >= '0' && *d->p <= '9')) {
+        jd_parse_number(d);
+        return;
+    }
+    if (strncmp(d->p, "true", 4) == 0) {
+        jd_emit_n(d, "true", 4);
+        d->p += 4;
+        return;
+    }
+    if (strncmp(d->p, "false", 5) == 0) {
+        jd_emit_n(d, "false", 5);
+        d->p += 5;
+        return;
+    }
+    if (strncmp(d->p, "null", 4) == 0) {
+        jd_emit_n(d, "null", 4);
+        d->p += 4;
+        return;
+    }
+    jd_fail(d);
+}
+
+/* Validate + compact JSON document. Empty string on invalid input. */
+char *json_parse_document(const char *input) {
+    if (!input) {
+        return dup_slice("", 0);
+    }
+    JsonDocBuf d;
+    d.p = input;
+    d.out = NULL;
+    d.len = 0;
+    d.cap = 0;
+    d.ok = 1;
+    jd_skip_ws(&d);
+    if (!*d.p) {
+        return dup_slice("", 0);
+    }
+    jd_parse_value(&d);
+    if (d.ok) {
+        jd_skip_ws(&d);
+        if (*d.p) {
+            jd_fail(&d);
+        }
+    }
+    if (!d.ok) {
+        free(d.out);
+        return dup_slice("", 0);
+    }
+    jd_emit(&d, '\0');
+    if (!d.ok) {
+        free(d.out);
+        return dup_slice("", 0);
+    }
+    return d.out;
+}
+
+/* Compact stringify — same semantics as parse for document text. */
+char *json_stringify_document(const char *input) {
+    return json_parse_document(input);
+}

@@ -24,6 +24,8 @@ extern fn json_decode_ptr_token(json: string, key: string) -> ptr
 extern fn json_top_keys(json: string) -> ptr
 extern fn json_raw_get(json: string, key: string) -> string
 extern fn json_value_kind(json: string) -> i32
+extern fn json_parse_document(input: string) -> string
+extern fn json_stringify_document(input: string) -> string
 extern fn strlen(s: &string) -> i32
 extern fn strcat(a: &string, b: &string) -> string
 extern fn i32_to_string(n: i32) -> string
@@ -34,6 +36,16 @@ const JSON_KIND_ARRAY = 2
 const JSON_KIND_STRING = 3
 const JSON_KIND_NUMBER = 4
 const JSON_KIND_BOOL = 5
+
+// Document-level JSON (validate + compact). Empty string on invalid input.
+// Graduated from NyraPkg ny-serde — no bind / link-crate required.
+fn parse_json(input: string) -> string {
+    return json_parse_document(input)
+}
+
+fn stringify_json(value: string) -> string {
+    return json_stringify_document(value)
+}
 
 fn decode_string(json: string, key: string) -> string {
     return json_get_string(json, key)

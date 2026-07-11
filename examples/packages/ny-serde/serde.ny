@@ -1,13 +1,6 @@
-// NyraPkg ny-serde — clean JSON API over rust::serde_json.
-import "rust/serde_json"
-
-fn parse_json(input: string) -> string {
-    return parse(input)
-}
-
-fn stringify_json(value: string) -> string {
-    return stringify(value)
-}
+// ny-serde — compatibility shim over stdlib JSON document API.
+// Prefer: import "stdlib/json/mod.ny" (parse_json / stringify_json).
+import "stdlib/json/mod.ny"
 
 fn from_json(input: string) -> string {
     return parse_json(input)

@@ -427,18 +427,16 @@ import &quot;pkg/ny-sqlite&quot;</code></pre></div>
 nyrapkg install ny-sqlite@^0.1.0   # semver, cache, link sqlite3 + rt/sqlite.c
 
 import &quot;pkg/ny-sqlite&quot;</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <h2>Serialization packages (ny-serde, ny-toml)</h2>
-      <p>Full JSON/TOML via Rust bridges — <code>nyra bind rust serde_json</code> / <code>toml</code> under the hood. Stdlib <code>serialize/mod.ny</code> stays a lightweight MVP; use packages for production serde.</p>
-      <pre><code>nyrapkg install ny-serde@^0.1.0
-nyra bind rust serde_json --template   # once per project
-
-import "pkg/ny-serde/serde.ny"
+</div><!-- NYRA_SNIPPET_END -->      <h2>Serialization</h2>
+      <p>Document JSON ships in <strong>stdlib</strong> — no package or <code>nyra bind</code> required:</p>
+      <pre><code>import "stdlib/json/mod.ny"
 let obj = parse_json("{\"ok\":true}")
-print(stringify_json(obj))
-
-nyrapkg install ny-toml@^0.1.0
+print(stringify_json(obj))</code></pre>
+      <p>Schema traits: <code>stdlib/serde/mod.ny</code>. Legacy shim: <code>examples/packages/ny-serde</code> (re-exports stdlib). Full TOML still uses NyraPkg:</p>
+      <pre><code>nyrapkg install ny-toml@^0.1.0
+nyra bind rust toml --template
 import "pkg/ny-toml/toml.ny"</code></pre>
-      <p>Example: <code>examples/serde_json_pkg.ny</code> · bundled sources: <code>examples/packages/ny-serde</code>, <code>examples/packages/ny-toml</code>.</p>
+      <p>Example: <code>examples/serde_json_pkg.ny</code> · bundled sources: <code>examples/packages/ny-serde</code> (shim), <code>examples/packages/ny-toml</code>.</p>
       <p>Packages land in <code>.nyra/cache/&lt;name&gt;/</code> inside your project. Sources: bundled examples (dev with <code>NYRA_HOME</code>), HTTP registry (default <code>http://127.0.0.1:9470</code> in <code>~/.nyra/config</code>), or Git URLs. Native <code>link</code> lines merge into your <code>nyra.mod</code>; <code>link-source</code> <code>.c</code> files compile at <code>nyra build</code>.</p>
 
       <h2>Design (v1)</h2>
@@ -464,7 +462,7 @@ link-source vendor/shim.c</code></pre>
         <thead><tr><th>Import</th><th>Resolves to</th></tr></thead>
         <tbody>
           <tr><td><code>import "pkg/ny-sqlite"</code></td><td><code>.nyra/cache/ny-sqlite/</code> after <code>nyrapkg install</code>/<code>sync</code> or auto-fetch on <code>nyra run</code></td></tr>
-          <tr><td><code>import "pkg/ny-serde/serde.ny"</code></td><td>JSON <code>parse_json</code> / <code>stringify_json</code> via <code>rust::serde_json</code></td></tr>
+          <tr><td><code>import "pkg/ny-serde/serde.ny"</code></td><td>Compatibility shim → stdlib <code>parse_json</code> / <code>stringify_json</code> (prefer <code>stdlib/json/mod.ny</code>)</td></tr>
           <tr><td><code>import "pkg/ny-toml/toml.ny"</code></td><td>TOML <code>parse_toml</code> / <code>stringify_toml</code> via <code>rust::toml</code></td></tr>
           <tr><td><code>import "stdlib/vec.ny"</code></td><td><code>$NYRA_HOME/share/stdlib/</code> or repo <code>stdlib/</code></td></tr>
         </tbody>
@@ -481,7 +479,7 @@ link-source vendor/shim.c</code></pre>
         <thead><tr><th>Package</th><th>Native lib</th><th>Import</th></tr></thead>
         <tbody>
           <tr><td><code>ny-sqlite</code></td><td><code>libsqlite3</code></td><td><code>import "pkg/ny-sqlite"</code></td></tr>
-          <tr><td><code>ny-serde</code></td><td><code>rust::serde_json</code></td><td><code>import "pkg/ny-serde/serde.ny"</code></td></tr>
+          <tr><td><code>ny-serde</code></td><td>stdlib shim (no native lib)</td><td><code>import "pkg/ny-serde/serde.ny"</code> — prefer <code>stdlib/json/mod.ny</code></td></tr>
           <tr><td><code>ny-toml</code></td><td><code>rust::toml</code></td><td><code>import "pkg/ny-toml/toml.ny"</code></td></tr>
           <tr><td><code>ny-redis</code></td><td><code>hiredis</code></td><td><code>import "pkg/ny-redis"</code></td></tr>
           <tr><td><code>ny-postgres</code></td><td><code>libpq</code></td><td><code>import "pkg/ny-postgres"</code></td></tr>

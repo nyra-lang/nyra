@@ -1009,6 +1009,20 @@ tier = "stable"
 since = "0.0.1"
 
 [[symbol]]
+name = "json_parse_document"
+c_sig = "char *json_parse_document(const char *input)"
+module = "rt_json.c"
+tier = "stable"
+since = "0.1.1"
+
+[[symbol]]
+name = "json_stringify_document"
+c_sig = "char *json_stringify_document(const char *input)"
+module = "rt_json.c"
+tier = "stable"
+since = "0.1.1"
+
+[[symbol]]
 name = "race_runtime_init"
 c_sig = "void race_runtime_init(void)"
 module = "rt_race.c"

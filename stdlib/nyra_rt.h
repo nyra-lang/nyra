@@ -420,6 +420,12 @@ char *json_raw_get(const char *json, const char *key);
 /* since Nyra 0.0.1 */
 int json_value_kind(const char *json);
 
+/* since Nyra 0.1.1 */
+char *json_parse_document(const char *input);
+
+/* since Nyra 0.1.1 */
+char *json_stringify_document(const char *input);
+
 /* since Nyra 0.0.1 */
 char *sha256_hex(const char *data);
 

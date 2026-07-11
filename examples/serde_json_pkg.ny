@@ -1,9 +1,8 @@
-// JSON via rust::serde_json — same API surface as NyraPkg ny-serde.
-// For packaged use: nyra pkg install ny-serde@^0.1.0
+// Document JSON via stdlib — same API as former NyraPkg ny-serde.
 // Project demo: examples/serde_json_pkg/main.ny
-import "rust/serde_json"
+import "stdlib/json/mod.ny"
 
 fn main() {
-    let raw = stringify("{\"name\":\"nyra\",\"n\":1}")
+    let raw = stringify_json("{\"name\":\"nyra\",\"n\":1}")
     print(raw)
 }
