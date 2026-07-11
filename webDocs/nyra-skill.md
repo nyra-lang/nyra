@@ -132,7 +132,17 @@ nyra build lib.ny -o mylib --cdylib # shared lib for Python/Node/Rust hosts
 nyra debug . # build -g + launch lldb/gdb (CLI)
 nyra dap # DAP adapter (stdio) — VS Code extension
 nyra build . --debug-symbols # required before source-level debugging
+nyra toolchain info # clang/opt/lld paths under $NYRA_HOME
+nyra toolchain install # install/link LLVM into $NYRA_HOME/lib/llvm
+nyra cc -c vendor/shim.c -o vendor/shim.o # clang driver
+nyra bind rust uuid # crates.io → C-ABI + .ny stubs
+nyra bind c api.h --lib mylib # C header → extern fn
+nyra watch . --on run # rebuild + run on save
+nyra lsp # language server (stdio)
+nyra ide goto-def main.ny 0 --character 20
 ```
+
+Docs: [Toolchain & CLI](https://nyra-lang.github.io/nyra/tooling.html) — every subcommand with examples.
 
 ### Build output layout (Cargo-style)
 
@@ -489,6 +499,19 @@ Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` �
 | SIMD | `simd_add_i32x4`, `stdlib/simd/mod.ny` | Portable + platform (`x86.ny`, `arm.ny`) |
 
  (zero types) and `.typed.ny`.
+
+**Layout example** (`size_of` returns bytes; ×8 for bits — no import):
+
+```ny
+fn main() {
+    print(size_of<i32>())      // 4
+    print(size_of<i32>() * 8)  // 32 bits
+    print(size_of<i64>())      // 8
+    print(align_of<i64>())     // 8
+}
+```
+
+Helpers: `import "stdlib/mem/layout.ny"` → `size_of_i32()`, `align_of_ptr()`. Docs: [stdlib → size_of](https://nyra-lang.github.io/nyra/stdlib.html#size-of).
 
 **Integer literals** default to `i32`, but bind to any integer type when the target is known — e.g. `let c = Color { r: 18, g: 52, b: 86, a: 255 }` with `r: u8` fields accepts `255` without `: u8` on each literal.
 

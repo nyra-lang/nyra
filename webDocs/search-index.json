@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-09T22:53:31.707Z",
+  "generated": "2026-07-11T15:11:04.104Z",
   "docs": [
     {
       "pageTitle": "AI skill file",
@@ -600,6 +600,16 @@
       "title": "Changelog",
       "heading": "Changelog",
       "body": "Changelog Spec freeze history and release notes."
+    },
+    {
+      "pageTitle": "Changelog",
+      "url": "changelog.html#unreleased",
+      "section": "Project",
+      "kind": "content",
+      "id": "changelog.html#unreleased",
+      "title": "Changelog",
+      "heading": "Unreleased",
+      "body": "Unreleased CLI reference — tooling.html expanded: TOC, every nyra subcommand with examples, detailed nyra test walkthrough, toolchain / cc / bind . Get started — essential CLI commands on learn-get-started . Layout docs — size_of<T>() / align_of<T>() examples on stdlib , learn data types , types , and memory . Reflect & helpers — examples for type_name_* , FixedStep , and terminal raw mode."
     },
     {
       "pageTitle": "Changelog",
@@ -2639,7 +2649,17 @@
       "id": "learn-data-types.html#examples-by-type",
       "title": "Data Types",
       "heading": "Examples by type",
-      "body": "Examples by type You can write the type explicitly or let the compiler infer it. Without types With types fn main() { let count = 42 let flag = true let name = \"Nyra\" print(count) print(flag) print(name) } fn main() -> void { let count: i32 = 42 let flag = true let name: string = \"Nyra\" print(count) print(flag) print(name) } Output 42 true Nyra ← Variables Learn overview Constants →"
+      "body": "Examples by type You can write the type explicitly or let the compiler infer it. Without types With types fn main() { let count = 42 let flag = true let name = \"Nyra\" print(count) print(flag) print(name) } fn main() -> void { let count: i32 = 42 let flag = true let name: string = \"Nyra\" print(count) print(flag) print(name) } Output 42 true Nyra"
+    },
+    {
+      "pageTitle": "Data Types",
+      "url": "learn-data-types.html#type-sizes",
+      "section": "Learn",
+      "kind": "content",
+      "id": "learn-data-types.html#type-sizes",
+      "title": "Data Types",
+      "heading": "Type sizes (bytes & bits)",
+      "body": "Type sizes (bytes & bits) The number in the type name is its width in bits : i32 is 32 bits, i64 is 64 bits. Use the compiler intrinsic size_of<T>() to get the size in bytes (multiply by 8 for bits). No import needed. Type Bits Bytes ( size_of ) i8 / u8 8 1 i16 / u16 16 2 i32 / u32 32 4 i64 / u64 64 8 i128 / u128 128 16 Without types With types fn main() { let num = 10 let num2: i64 = 20 print(size_of<i32>()) // 4 bytes print(size_of<i32>() * 8) // 32 bits print(size_of<i64>()) // 8 bytes print(size_of<i64>() * 8) // 64 bits } fn main() -> void { let num: i32 = 10 let num2: i64 = 20 print(size_of<i32>()) // 4 bytes print(size_of<i32>() * 8) // 32 bits print(size_of<i64>()) // 8 bytes print(size_of<i64>() * 8) // 64 bits } Output 4 32 8 64 More: stdlib → size_of / align_of . ← Variables Learn overview Constants →"
     },
     {
       "pageTitle": "Enums",
@@ -2729,7 +2749,17 @@
       "id": "learn-get-started.html#run-a-ready-made-example",
       "title": "Get Started",
       "heading": "Run a ready-made example",
-      "body": "Run a ready-made example The run command and its output: Without types With types fn main() { print(\"Hello, Nyra!\") } fn main() -> void { print(\"Hello, Nyra!\") } Output Hello, Nyra! ← Nyra Intro Learn overview Nyra Syntax →"
+      "body": "Run a ready-made example The run command and its output: Without types With types fn main() { print(\"Hello, Nyra!\") } fn main() -> void { print(\"Hello, Nyra!\") } Output Hello, Nyra!"
+    },
+    {
+      "pageTitle": "Get Started",
+      "url": "learn-get-started.html#cli-essentials",
+      "section": "Learn",
+      "kind": "content",
+      "id": "learn-get-started.html#cli-essentials",
+      "title": "Get Started",
+      "heading": "Essential CLI commands",
+      "body": "Essential CLI commands After install, these are the commands you use every day. Full reference: Toolchain & CLI . nyra run . # compile + run the project nyra build . --release # ship a binary under target/release/ nyra check . # type-check only (fast) nyra test . # run every test fn nyra fmt . --write # format sources nyra --help # list all subcommands Example test (run with nyra test ): Without types With types import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) } import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) } ← Nyra Intro Learn overview Nyra Syntax →"
     },
     {
       "pageTitle": "HashMap",
@@ -3169,7 +3199,7 @@
       "id": "memory.html#intro",
       "title": "Memory & ownership",
       "heading": "Memory & ownership",
-      "body": "Memory & ownership How Nyra manages memory at compile time — no garbage collector, no manual free in normal code, and no leaks when you follow the rules the compiler enforces. For developer-friendly ownership (auto-borrow, auto-Copy, inference) see Ownership UX . On this page Philosophy: safety without a GC Ownership UX Copy vs Move types Ownership rules Automatic cleanup (Drop plan) Non-lexical borrows (NLL) Lifetimes How Nyra prevents memory leaks Double-free & use-after-free defer (LIFO cleanup) Custom Drop for structs spawn, closures & Send/Sync FFI boundary Compiler pipeline Common errors & fixes Examples cookbook"
+      "body": "Memory & ownership How Nyra manages memory at compile time — no garbage collector, no manual free in normal code, and no leaks when you follow the rules the compiler enforces. For developer-friendly ownership (auto-borrow, auto-Copy, inference) see Ownership UX . On this page Philosophy: safety without a GC Ownership UX Copy vs Move types Ownership rules Automatic cleanup (Drop plan) Non-lexical borrows (NLL) Lifetimes How Nyra prevents memory leaks Double-free & use-after-free defer (LIFO cleanup) Custom Drop for structs spawn, closures & Send/Sync FFI boundary Type layout (size_of / align_of) Compiler pipeline Common errors & fixes Examples cookbook"
     },
     {
       "pageTitle": "Memory & ownership",
@@ -3453,6 +3483,16 @@
     },
     {
       "pageTitle": "Memory & ownership",
+      "url": "memory.html#layout",
+      "section": "Language",
+      "kind": "content",
+      "id": "memory.html#layout",
+      "title": "Memory & ownership",
+      "heading": "Type layout ( size_of / align_of )",
+      "body": "Type layout ( size_of / align_of ) Measure how many bytes a type occupies (and its alignment). Useful for FFI buffers, repr(C) structs, and understanding integer widths. Multiply by 8 for bits. Intrinsics need no import; helpers live in stdlib/mem/layout.ny . Without types With types struct Packet repr(C) align(8) { kind: i32 port: i32 } fn main() { print(size_of<i32>()) // 4 bytes = 32 bits print(size_of<i64>()) // 8 bytes = 64 bits print(size_of<Packet>()) // 8 print(align_of<Packet>()) // 8 } struct Packet repr(C) align(8) { kind: i32 port: i32 } fn main() -> void { print(size_of<i32>()) // 4 bytes = 32 bits print(size_of<i64>()) // 8 bytes = 64 bits print(size_of<Packet>()) // 8 print(align_of<Packet>()) // 8 } Output 4 8 8 8 More examples: stdlib → size_of / align_of ."
+    },
+    {
+      "pageTitle": "Memory & ownership",
       "url": "memory.html#pipeline",
       "section": "Language",
       "kind": "content",
@@ -3579,7 +3619,7 @@
       "id": "methods.html#numbers",
       "title": "Built-in methods",
       "heading": "Number & math no import",
-      "body": "Number & math no import Compiler math intrinsics — lowered to LLVM, no call overhead. Type overload on abs . Call Args Returns Notes Example abs(x) i32 or f64 same as arg Absolute value abs(-5) abs_i32(x) / abs_f64(x) 1 numeric i32 / f64 Explicit typed variants abs_i32(-42) min_i32(a, b) / max_i32(a, b) 2 × i32 i32 Min / max max_i32(3, 7) min_f64(a, b) / max_f64(a, b) 2 × f64 f64 Min / max min_f64(1.0, 2.0) clamp_i32(x, lo, hi) 3 × i32 i32 Clamp to range clamp_i32(15, 0, 10) cpu_count() — i32 Logical CPU count cpu_count() Example: abs / min / max · See also stdlib/math.ny f64 helpers · legacy Math_*"
+      "body": "Number & math no import Compiler math intrinsics — lowered to LLVM, no call overhead. Type overload on abs . Call Args Returns Notes Example abs(x) i32 or f64 same as arg Absolute value abs(-5) abs_i32(x) / abs_f64(x) 1 numeric i32 / f64 Explicit typed variants abs_i32(-42) min_i32(a, b) / max_i32(a, b) 2 × i32 i32 Min / max max_i32(3, 7) min_f64(a, b) / max_f64(a, b) 2 × f64 f64 Min / max min_f64(1.0, 2.0) clamp_i32(x, lo, hi) 3 × i32 i32 Clamp to range clamp_i32(15, 0, 10) cpu_count() — i32 Logical CPU count cpu_count() size_of<T>() / align_of<T>() type param i32 Layout size / alignment in bytes (×8 for bits) size_of<i32>() Example: abs / min / max · See also stdlib/math.ny f64 helpers · legacy Math_* · size_of / align_of"
     },
     {
       "pageTitle": "Built-in methods",
@@ -7119,7 +7159,7 @@
       "id": "sitemap.html",
       "title": "Sitemap",
       "heading": "",
-      "body": "Sitemap All documentation pages. Page Topic Overview Start here Getting started First project Installation Install guide Learning path Curriculum AI skill nyra-skill.md for LLMs Language basics Variables, loops, structs, imports Syntax Core syntax Types Types & data Reference Operators, literals, quick lookup Keywords Reserved words, @ raw identifiers, #[…] attributes Spec Normative spec Generics Monomorphization Comptime Compile-time evaluation (optional) Match Pattern matching Memory Ownership Ownership UX Auto-borrow, auto-Copy, inference, f64 Async async/await Traits Traits & macros Stdlib API reference Built-in methods Strings, arrays, numbers, maps — one-page lookup net/http API HTTP client & server reference OS, files & hardware Filesystem, platform, FFI, bridge Toolchain CLI Performance Release flags, LTO PGO Automated profile-guided optimization Diagnostics Errors FFI ABI policy C Bindgen C header → extern fn ; nyra pkg c add Targets Native & Wasm Editor Grammar NyraPkg Packages Roadmap Status Changelog History Overview →"
+      "body": "Sitemap All documentation pages. Page Topic Overview Start here Getting started First project Installation Install guide Learning path Curriculum AI skill nyra-skill.md for LLMs Language basics Variables, loops, structs, imports Syntax Core syntax Types Types & data Reference Operators, literals, quick lookup Keywords Reserved words, @ raw identifiers, #[…] attributes Spec Normative spec Generics Monomorphization Comptime Compile-time evaluation (optional) Match Pattern matching Memory Ownership Ownership UX Auto-borrow, auto-Copy, inference, f64 Async async/await Traits Traits & macros Stdlib API reference Built-in methods Strings, arrays, numbers, maps — one-page lookup net/http API HTTP client & server reference OS, files & hardware Filesystem, platform, FFI, bridge Toolchain & CLI Every nyra subcommand with examples Performance Release flags, LTO PGO Automated profile-guided optimization Diagnostics Errors FFI ABI policy C Bindgen C header → extern fn ; nyra pkg c add Targets Native & Wasm Editor Grammar NyraPkg Packages Roadmap Status Changelog History Overview →"
     },
     {
       "pageTitle": "Language specification",
@@ -7379,7 +7419,47 @@
       "id": "stdlib.html#reflect-mem",
       "title": "Standard library",
       "heading": "Reflect, result & memory utils",
-      "body": "Reflect, result & memory utils Import API stdlib/reflect/mod.ny typeof_i32 , type_name_string — no runtime RTTI stdlib/result.ny option_is_some , result_is_ok stdlib/mem/util.ny size_of_i32 , align_of_ptr , swap_i32 stdlib/arc.ny Arc_i32 , Arc_from_i32 , Arc_from_string — refcounted shared ownership; see Memory stdlib/option.ny Option helpers — see Match stdlib/box.ny Heap box — see Memory stdlib/math.ny abs_i32 , pow_i32 , sqrt_i32 , sin , cos , floor , gcd_i32 , saturating_add , leading_zeros , is_finite , … stdlib/random.ny shuffle_pick ; builtins random , random_f64 stdlib/terminal/raw.ny terminal_raw_on , terminal_read_key stdlib/time/fixed_step.ny FixedStep_new , FixedStep_tick stdlib/testing.ny assert_eq , assert_ne , assert_true , assert , assert_bool — see testing stdlib/process.ny Command_new , .run — see Subprocess & commands stdlib/bridge/mod.ny bridge_exec , bridge_result — see examples/bridge/"
+      "body": "Reflect, result & memory utils Import API stdlib/reflect/mod.ny typeof_i32 , type_name_i32 , type_name_string — no runtime RTTI stdlib/result.ny option_is_some , result_is_ok compiler intrinsic size_of<T>() , align_of<T>() — type layout in bytes (no import) stdlib/mem/layout.ny size_of_i32 , size_of_ptr , align_of_i32 , align_of_ptr — wrappers over the intrinsics stdlib/mem/util.ny MVP scalars ( size_of_i32 , align_of_ptr , swap_i32 ) — prefer layout.ny / intrinsics stdlib/arc.ny Arc_i32 , Arc_from_i32 , Arc_from_string — refcounted shared ownership; see Memory stdlib/option.ny Option helpers — see Match stdlib/box.ny Heap box — see Memory stdlib/math.ny abs_i32 , pow_i32 , sqrt_i32 , sin , cos , floor , gcd_i32 , saturating_add , leading_zeros , is_finite , … stdlib/random.ny shuffle_pick ; builtins random , random_f64 stdlib/terminal/raw.ny terminal_raw_on , terminal_read_key stdlib/time/fixed_step.ny FixedStep_new , FixedStep_tick stdlib/testing.ny assert_eq , assert_ne , assert_true , assert , assert_bool — see testing stdlib/process.ny Command_new , .run — see Subprocess & commands stdlib/bridge/mod.ny bridge_exec , bridge_result — see examples/bridge/"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#size-of",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#size-of",
+      "title": "Standard library",
+      "heading": "size_of / align_of",
+      "body": "size_of / align_of Ask the compiler for a type’s layout size and alignment in bytes . Multiply by 8 for bits ( i32 → 4 bytes → 32 bits). Works on scalars, repr(C) structs, and unions — no import required for the intrinsics. Without types With types struct Packet repr(C) align(8) { kind: i32 port: i32 } fn main() { print(size_of<i32>()) // 4 bytes print(size_of<i32>() * 8) // 32 bits print(size_of<i64>()) // 8 bytes print(align_of<i64>()) // 8 print(size_of<Packet>()) // 8 print(align_of<Packet>()) // 8 } struct Packet repr(C) align(8) { kind: i32 port: i32 } fn main() -> void { print(size_of<i32>()) // 4 bytes print(size_of<i32>() * 8) // 32 bits print(size_of<i64>()) // 8 bytes print(align_of<i64>()) // 8 print(size_of<Packet>()) // 8 print(align_of<Packet>()) // 8 } Output 4 32 8 8 8 8 Named helpers (same values) via import \"stdlib/mem/layout.ny\" : Without types With types import \"stdlib/mem/layout.ny\" fn main() { print(size_of_i32()) print(align_of_ptr()) } import \"stdlib/mem/layout.ny\" fn main() -> void { print(size_of_i32()) print(align_of_ptr()) } Output (64-bit target) 4 8 Also see Memory → Type layout and Learn → Data types → Type sizes ."
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#reflect-typeof",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#reflect-typeof",
+      "title": "Standard library",
+      "heading": "Reflect — type names",
+      "body": "Reflect — type names Compile-time helpers only — Nyra has no runtime RTTI . Useful for tests and debug labels. typeof_i32(x) returns TypeKind.I32 (and siblings for bool / string ). Without types With types import \"stdlib/reflect/mod.ny\" fn main() { print(type_name_i32()) print(type_name_string()) print(type_name_bool()) } import \"stdlib/reflect/mod.ny\" fn main() -> void { print(type_name_i32()) print(type_name_string()) print(type_name_bool()) } Output i32 string bool"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#fixed-step",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#fixed-step",
+      "title": "Standard library",
+      "heading": "Fixed-step clock",
+      "body": "Fixed-step clock Game-loop helper: accumulate frame time and return how many fixed simulation steps to run. Without types With types import \"stdlib/time/fixed_step.ny\" fn main() { let mut clock = FixedStep_new(60) // 60 Hz → ~16.67 ms/step let steps = FixedStep_tick(clock, 33.0) print(steps) // 1 (33 ms covers one step) print(FixedStep_hz(clock)) } import \"stdlib/time/fixed_step.ny\" fn main() -> void { let mut clock: FixedStep = FixedStep_new(60) let steps: i32 = FixedStep_tick(clock, 33.0) print(steps) print(FixedStep_hz(clock)) } Output 1 60"
+    },
+    {
+      "pageTitle": "Standard library",
+      "url": "stdlib.html#terminal-raw",
+      "section": "Standard library",
+      "kind": "content",
+      "id": "stdlib.html#terminal-raw",
+      "title": "Standard library",
+      "heading": "Terminal raw mode",
+      "body": "Terminal raw mode Disable line buffering to read single key codes (TUI / games). Always restore cooked mode afterward. Without types With types import \"stdlib/terminal/raw.ny\" fn main() { terminal_raw_on() let key = terminal_read_key() // blocks until a key is pressed terminal_raw_off() print(key) } import \"stdlib/terminal/raw.ny\" fn main() -> void { terminal_raw_on() let key: i32 = terminal_read_key() terminal_raw_off() print(key) }"
     },
     {
       "pageTitle": "Standard library",
@@ -7389,7 +7469,7 @@
       "id": "stdlib.html#testing",
       "title": "Standard library",
       "heading": "Testing helpers",
-      "body": "Testing helpers Import for nyra test and the CONF-LANG suite ( tests/conformance/pass/ ): Import API stdlib/testing.ny assert_eq , assert_ne , assert_true , assert_bool stdlib/testing/fstest.ny assert_file_contains , assert_file_exists stdlib/testing/quick.ny quick_check_range_i32 — property-style checks Without types With types import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) assert_bool(true) } import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) assert_bool(true) } Function Job assert_eq(actual, expected) i32 equality — exits 1 on mismatch assert_ne(actual, expected) i32 inequality assert_true(cond) / assert(cond) Non-zero i32 condition assert_bool(cond) bool must be true Run conformance: bash scripts/conformance-tests.sh · Toolchain → CONF-LANG"
+      "body": "Testing helpers Import for nyra test and the CONF-LANG suite ( tests/conformance/pass/ ). Full CLI walkthrough (COMPILE → LINK → PASS, --filter , --list-json ): Toolchain → nyra test . Import API stdlib/testing.ny assert_eq , assert_ne , assert_true , assert_bool stdlib/testing/fstest.ny assert_file_contains , assert_file_exists stdlib/testing/quick.ny quick_check_range_i32 — property-style checks Without types With types import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) assert_bool(true) } import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) assert_bool(true) } nyra test . # run all test fn in the project nyra test . --filter adds # only matching names nyra test . --list-json # IDE discovery Function Job assert_eq(actual, expected) i32 equality — exits 1 on mismatch assert_ne(actual, expected) i32 inequality assert_true(cond) / assert(cond) Non-zero i32 condition assert_bool(cond) bool must be true Run conformance: bash scripts/conformance-tests.sh · Toolchain → CONF-LANG"
     },
     {
       "pageTitle": "Standard library",
@@ -8932,282 +9012,352 @@
       "body": "wasm32-wasi nyra build --for wasm app.ny -o app.wasm nyra build --target wasm32-wasi app.ny -o app.wasm Timing/memory no-ops; spawn limited. Performance →"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#intro",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#intro",
-      "title": "Toolchain",
-      "heading": "Toolchain",
-      "body": "Toolchain The nyra CLI — every command with a job (what you are trying to do) and a copy-paste example. Project paths default to . when omitted."
+      "title": "Toolchain & CLI",
+      "heading": "Toolchain & CLI",
+      "body": "Toolchain & CLI Every nyra subcommand — what it does, when to use it, and a copy-paste example. Path arguments default to . (the current project). Run nyra --help or nyra <cmd> --help for the live flag list. On this page Quick reference Help & version nyra run nyra build nyra check nyra inspect nyra test nyra fmt nyra diag nyra explain nyra watch nyra debug nyra lsp · dap · ide nyrapkg / nyra pkg nyra bind nyra toolchain nyra cc Build layout · Cross-compile · CI"
     },
     {
-      "pageTitle": "Toolchain",
-      "url": "tooling.html#quick-reference",
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#quick-ref",
       "section": "Toolchain",
       "kind": "content",
-      "id": "tooling.html#quick-reference",
-      "title": "Toolchain",
+      "id": "tooling.html#quick-ref",
+      "title": "Toolchain & CLI",
       "heading": "Quick reference",
-      "body": "Quick reference Command Job nyra run Compile + execute (dev loop) nyra build Emit binary under target/ nyra check Type-check + borrow without codegen nyra inspect Compile-time ownership snapshot for a binding at file:line — see Ownership inspect nyra test Run test fn / *_test.ny nyra fmt Format sources (AST-based) nyra diag Print diagnostics (JSON for editors) nyra explain Explain stable diagnostic codes (E003, P001, …) nyra watch Re-check / rebuild on save nyra debug Build with symbols + launch lldb/gdb nyra lsp Language Server (stdio) nyra dap Debug Adapter Protocol (stdio) nyra ide Goto-definition / references (CLI) nyrapkg … Dependencies — init , add , install , verify — see nyrapkg nyra pkg … Build helpers — build , prune , c , bind — see packages nyra pkg c add NAME System C lib — install + bind + link (raylib, zlib, …) nyra pkg c remove NAME Remove C lib from project nyra pkg c list List installed C libs nyra bind c C header → extern fn — see C Bindgen"
+      "body": "Quick reference Command Job Example nyra run Compile + execute (dev loop) nyra run . nyra build Emit binary under target/ nyra build . --release nyra check Type-check + borrow without codegen nyra check . nyra inspect Ownership snapshot at file:line nyra inspect name --at main.ny:42 nyra test Run test fn / *_test.ny nyra test . nyra fmt Format sources (AST-based) nyra fmt . --write nyra diag Print diagnostics (JSON for editors) nyra diag . --json nyra explain Explain stable diagnostic codes nyra explain E003 nyra watch Re-check / rebuild on save nyra watch . --on run nyra debug Build with symbols + launch lldb/gdb nyra debug . nyra lsp Language Server (stdio) nyra lsp nyra dap Debug Adapter Protocol (stdio) nyra dap nyra ide Goto-definition / references (CLI) nyra ide goto-def main.ny 0 --character 20 nyrapkg … Dependencies — init , add , install , verify nyrapkg init nyra pkg … Build helpers — build , prune , c , bind nyra pkg c add raylib nyra bind c / rust C header or crates.io → Nyra FFI nyra bind c api.h --lib mylib nyra toolchain Install / inspect LLVM under $NYRA_HOME nyra toolchain info nyra cc Clang driver for C/C++ (zig-cc style) nyra cc -c shim.c -o shim.o"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#help",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#help",
+      "title": "Toolchain & CLI",
+      "heading": "Help & version",
+      "body": "Help & version Job: Discover commands and confirm which nyra binary is on your PATH . nyra --version # e.g. nyra 0.1.1 nyra --help # list all subcommands nyra test --help # flags for one command nyra --color never … # disable ANSI colors (also respects NO_COLOR)"
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#comptime-modules",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#comptime-modules",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "Comptime modules",
       "body": "Comptime modules Job: Validate a compile-time-only file (lookup tables, generated constants) without a main or runtime codegen. nyra check examples/toolchain/comptime_tables.ny nyra run examples/toolchain/comptime_import_main.ny Three forms: file-level comptime , function #[comptime] , and block comptime { … } . Full guide: Comptime evaluation ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#start-a-project",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#start-a-project",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "Start a project",
       "body": "Start a project Job: Scaffold main.ny , nyra.mod , and lockfiles before your first build. File roles: packages.html . mkdir myapp && cd myapp nyrapkg init nyra run . Multi-file layout (imports resolved from project root): Without types With types myapp/ main.ny # import \"src/helper.ny\" src/helper.ny nyra.mod target/debug/main myapp/ main.ny # import \"src/helper.ny\" src/helper.ny nyra.mod target/debug/main"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#run",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#run",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra run",
       "body": "nyra run Job: Fastest feedback — compile and run in one step while you edit code. If nyra.mod require lines changed, Nyra syncs first: fetches missing packages and removes orphaned ones from .nyra/cache/ (like cargo run ). nyra run . # project with main.ny nyra run examples/syntax/hello.ny # single file nyra run . --release # optimized run nyra run . -- --arg1 value # pass args to your program (after --)"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#build",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#build",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra build",
       "body": "nyra build Job: Produce a binary you ship, profile, or debug — without executing it. Same auto-sync of require lines as nyra run . nyra build . # target/debug/main nyra build . --release # target/release/main nyra build . --pgo # release + automated PGO (see pgo.html) nyra build . --verbose # escape analysis report (see escape-analysis.html) nyra build . -o mybin # target/debug/mybin nyra build . --debug-symbols # DWARF for lldb/gdb nyra build app.ny --release -o app # single-file stem Job (incremental): Second build skips codegen when sources and link flags are unchanged. nyra build . # incremental: cache hit (4 source files) # edit one file → reports dirty crates, then rebuilds nyra build . # incremental: 1 crate(s) changed: helper.ny Per-file manifest: target/debug/.nyra-cache/crates/manifest.json (Cargo-style dirty tracking)."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#check",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#check",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra check",
       "body": "nyra check Job: Catch type and borrow errors quickly — no object files, no link. nyra check . nyra check src/module.ny nyra check . --deny-extended # Core-only (reject async, traits, macros, …) nyra check . --ownership-verbose # per-binding ownership at function exit With --ownership-verbose , stderr lists each local binding’s Copy/Move kind and valid/moved status at function exit (same borrowck walk as compile). Full guide: Ownership inspect ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#inspect",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#inspect",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra inspect",
       "body": "nyra inspect Job: See who owns a variable and who borrows it at a specific source line — compile-time only (not a runtime method). Unique among systems languages today: Rust has no stable equivalent. nyra inspect name --at main.ny:42 nyra inspect user --at src/app.ny:18 . Example output (Move): myname2 (string) @ main.ny:5 in main ownership chain: name ──move──► myname ──move──► myname2 current owner: `myname2` (owns value) Example output (Borrow): myname2 (&&string) @ main.ny:11 in main you inspect: `myname2` (borrower) heap owner: `name` (owns Move value) borrow chain: name ◄──borrow── myname ◄──borrow── myname2 Color-coded on TTYs. Respects NLL (borrows end at last use of the ref). See Ownership inspect · Memory · Ownership UX ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#test",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#test",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra test",
-      "body": "nyra test Job: Run unit tests in CI or before a commit. Without types With types import \"stdlib/testing.ny\" test fn sum_works() { assert_eq(1 + 2, 3) } import \"stdlib/testing.ny\" test fn sum_works() { assert_eq(1 + 2, 3) } nyra test . # all tests in project nyra test tests/conformance/pass # language conformance (pass only) nyra test examples/smoke_test_test.ny # one test file nyra test . --release # optimized test binary Assertions: import \"stdlib/testing.ny\" — assert_eq , assert_ne , assert_true , assert , assert_bool . See stdlib → testing . Legacy: *_test.ny files run main as a test harness. Use a freshly built CLI ( ./target/debug/nyra ) when testing stdlib imports — a stale global install may not resolve project paths."
+      "body": "nyra test Job: Discover and run unit tests — each test fn is compiled, linked, and executed as its own temporary binary (similar to cargo test )."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#write-a-test",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#write-a-test",
+      "title": "Toolchain & CLI",
+      "heading": "Write a test",
+      "body": "Write a test Without types With types import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) assert_bool(true) } import \"stdlib/testing.ny\" test fn adds() { assert_eq(2 + 3, 5) assert_bool(true) } Discovery rules: test fn name() { … } — preferred Functions named test_* also count Legacy: files named *_test.ny run main as the harness"
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#run-tests",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#run-tests",
+      "title": "Toolchain & CLI",
+      "heading": "Run tests",
+      "body": "Run tests nyra test # same as nyra test . nyra test . # all tests under the project nyra test main.ny # one file nyra test . --filter adds # only tests whose name contains \"adds\" nyra test . --list-json # discover only — JSON for IDE Test Explorer nyra test . --release # optimized test binaries nyra test tests/conformance/pass"
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#what-the-output-means",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#what-the-output-means",
+      "title": "Toolchain & CLI",
+      "heading": "What the output means",
+      "body": "What the output means Example successful run: nyra test: root=. timeout=60s COMPILE ./main.ny::adds LINK ./main.ny::adds -> /tmp/…/test_bin RUN ./main.ny::adds … RUNNING pid=… bin=/tmp/…/test_bin PASS ./main.ny::adds (0.74s) 1 tests passed Line Meaning COMPILE …::adds Compile only that test fn (not fn main ) LINK … → test_bin Link a temporary executable in a temp directory RUN / RUNNING Execute the binary (default timeout 60s) PASS All assertions succeeded (exit code 0) FAIL Assertion failed or panic — printed message, non-zero exit Assertions: import \"stdlib/testing.ny\" — assert_eq , assert_ne , assert_true , assert , assert_bool , assert_str_eq . See stdlib → testing . Use a freshly built CLI ( ./target/debug/nyra ) when testing stdlib imports — a stale global install may not resolve project paths."
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#conformance",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#conformance",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "Language conformance (CONF-LANG)",
       "body": "Language conformance (CONF-LANG) Job: Verify each language feature with Nyra-source pass and fail tests — separate from Rust CONF-* compile/IR contracts and the large tests/suite/ compiletest grid. Path Runner Expectation tests/conformance/pass/ nyra test Compile, link, run; assertions pass tests/conformance/fail/ nyra check Must not compile (type / borrow errors) tests/conformance/fixtures/ nyra run Multi-file import smoke Pass areas: variables, control, match, types, functions, arrays, enums, strings, generics, borrow, edge, imports. Fail areas: immutable assign, use-after-move, type mismatches. cargo build -p cli bash scripts/conformance-tests.sh # or pass-only: ./target/debug/nyra test tests/conformance/pass Spec: tests/conformance/README.md in the repo. When adding a language feature, add ≥2 pass tests under pass/<area>/ and ≥2 fail tests under fail/<area>/ ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#test-layers",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#test-layers",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "Testing layers (repository)",
       "body": "Testing layers (repository) Suite Purpose Gate tests/conformance/ (CONF-LANG) Feature-by-feature Nyra pass + fail scripts/conformance-tests.sh compiler/driver/tests/conformance/ Rust CONF-* IR / borrow contracts cargo test -p compiler --test conformance tests/suite/ File-based compiletest (~1.6k fast profile; --profile full for ~10k) cargo test -p driver suite_* tests/nyra/ Legacy native syntax / ownership smoke nyra test tests/nyra"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#fmt",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#fmt",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra fmt",
       "body": "nyra fmt Job: Normalize style before review; gate formatting in CI. nyra fmt . # print formatted stdout nyra fmt . --write # rewrite files in place nyra fmt src/helper.ny --write nyra fmt . --check # exit 1 if not formatted (CI) AST-based when the file parses; line-based fallback otherwise. Preserves // comments."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#diag",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#diag",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra diag",
       "body": "nyra diag Job: Pipe structured errors into editors or scripts. nyra diag . nyra diag src/broken.ny nyra diag . --json # machine-readable for custom integrations nyra diag . --deny-extended See also Diagnostics . The LSP uses the same compiler pipeline via nyra lsp . JSON output includes code , label , notes , helps , and end positions."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#explain",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#explain",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra explain",
       "body": "nyra explain Job: Explain stable diagnostic codes after a compile error. nyra explain E003 nyra explain P001 nyra explain --list"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#watch",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#watch",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra watch",
       "body": "nyra watch Job: Keep a terminal open while coding — re-run checks or builds on every save. nyra watch . # re-check on change (default) nyra watch . --on build # rebuild binary nyra watch . --on run # rebuild + run main"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#debug",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#debug",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra debug",
       "body": "nyra debug Job: Step through your program with lldb (macOS) or gdb (Linux). nyra debug . # build -g + lldb nyra debug . -- --port 8080 # program args after -- nyra debug . --debugger gdb # force gdb nyra debug . --init-vscode # write .vscode/launch.json + tasks.json For VS Code / Cursor, prefer the official extension which uses nyra dap (DAP) instead of raw lldb. See Editor setup ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#lsp",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#lsp",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra lsp",
       "body": "nyra lsp Job: Wire Nyra into any LSP-capable editor (diagnostics, completion, hover, go-to-definition, references, rename, format). nyra lsp # stdio — configured by extensions/nyra or your editor Capabilities: cross-file go to definition , find references , workspace rename, document symbols, formatting"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#dap",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#dap",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra dap",
       "body": "nyra dap Job: Debug from VS Code “Run and Debug” via the Debug Adapter Protocol (LLDB/GDB bridge). nyra dap # stdio — launched by the Nyra VS Code extension Launch config type: nyra . Build with --debug-symbols first."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#ide",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#ide",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra ide",
       "body": "nyra ide Job: Script goto-definition and find-references in CI or terminal workflows (same index as LSP). # cursor on helper_fn in main.ny line 0, column 20 nyra ide goto-def myapp/main.ny 0 --character 20 # → myapp/src/helper.ny:42:1 nyra ide references myapp/main.ny 0 --character 20 # → JSON array of { file, start, end, name }"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#pkg",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#pkg",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyrapkg & nyra pkg",
-      "body": "nyrapkg & nyra pkg Dependencies: use nyrapkg ( full guide ). Build / C libs / prune: use nyra pkg . nyrapkg init nyrapkg install ny-sqlite@^0.1.0 nyrapkg verify nyra pkg build . nyra pkg prune --check nyra pkg c add raylib"
+      "body": "nyrapkg & nyra pkg Dependencies: use nyrapkg ( full guide ). Build / C libs / prune: use nyra pkg . nyrapkg init nyrapkg install ny-sqlite@^0.1.0 nyrapkg verify # Same flows via nyra pkg (delegates to nyrapkg where noted): nyra pkg init nyra pkg install ny-sqlite@^0.1.0 nyra pkg sync nyra pkg build . nyra pkg prune --check nyra pkg c add raylib"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#pkg-c",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#pkg-c",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "System C libraries — nyra pkg c",
       "body": "System C libraries — nyra pkg c Job: Add or remove a system C library in one command. Full guide: C Bindgen → nyra pkg c . Command Job nyra pkg c add raylib brew install + full bind + nyra.mod + manifest nyra pkg c list Show installed C libs in this project nyra pkg c remove raylib Delete bindings + unlink nyra.mod nyra pkg c add raylib nyra pkg c add zlib nyra pkg c add sqlite3 nyra pkg c add sdl2 import \"vendor/bindings/raylib.ny\" Manifest: vendor/bindings/c-libs.toml · Flags: --path DIR , --no-install"
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#bind-c",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#bind-c",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "nyra bind c / nyra pkg bind c (advanced)",
       "body": "nyra bind c / nyra pkg bind c (advanced) Job: Generate Nyra FFI from a C header (libclang). Full guide: C Bindgen · copy-paste zlib walkthrough: zlib tutorial . # zlib on macOS (Homebrew keg-only paths) brew install zlib llvm SDK=$(xcrun --show-sdk-path) nyra pkg bind c /opt/homebrew/opt/zlib/include/zlib.h --lib z \\ -I /opt/homebrew/opt/zlib/include -I \"$SDK/usr/include\" \\ --export zlibVersion -o vendor/bindings/zlib.ny # nyra.mod: link z + link -L /opt/homebrew/opt/zlib/lib nyra bind c vendor/api.h --lib mylib -I vendor/include --update-mod nyra bind c vendor/api.h --stdout --prefix mylib_ # preview nyra bind c complex.h --no-shim # skip auto C shims Outputs vendor/bindings/{header}.ny , optional vendor/bindings/shim.c , and link / link-source lines in nyra.mod ."
     },
     {
-      "pageTitle": "Toolchain",
-      "url": "tooling.html#build-output-layout",
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#bind",
       "section": "Toolchain",
       "kind": "content",
-      "id": "tooling.html#build-output-layout",
-      "title": "Toolchain",
+      "id": "tooling.html#bind",
+      "title": "Toolchain & CLI",
+      "heading": "nyra bind (C & Rust crates)",
+      "body": "nyra bind (C & Rust crates) Job: Generate FFI stubs into the current package. nyra bind c sqlite3.h --lib sqlite3 nyra bind rust uuid nyra bind rust serde_json@^1.0 bind c uses libclang (see above). bind rust wraps a crates.io crate as a C-ABI + .ny stubs for calling from Nyra."
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#toolchain",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#toolchain",
+      "title": "Toolchain & CLI",
+      "heading": "nyra toolchain",
+      "body": "nyra toolchain Job: Install or inspect the native LLVM/clang toolchain under $NYRA_HOME (zig-cc–style layout). nyra toolchain info # print clang / opt / lld paths and Nyra home nyra toolchain install # link or download LLVM into $NYRA_HOME/lib/llvm After install, ensure NYRA_HOME and PATH point at your Nyra root — see Installation ."
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#cc",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#cc",
+      "title": "Toolchain & CLI",
+      "heading": "nyra cc",
+      "body": "nyra cc Job: Drive LLVM clang for C/C++ sources (vendor shims, mixed projects) with the same target flags as nyra build . nyra cc -c vendor/shim.c -o vendor/shim.o nyra cc --for wasm -c app.c -o app.o nyra cc --print-toolchain # show discovered clang/opt/lld nyra cc -v -- -Wall vendor/shim.c # verbose; args after -- go to clang CC=\"nyra cc\" make # use as drop-in CC"
+    },
+    {
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#layout",
+      "section": "Toolchain",
+      "kind": "content",
+      "id": "tooling.html#layout",
+      "title": "Toolchain & CLI",
       "heading": "Build output layout",
       "body": "Build output layout Like Rust/Cargo, artifacts live beside your project: myapp/ main.ny target/ debug/main # nyra build (host) release/main # nyra build --release x86_64-pc-windows-gnu/ release/main.exe # nyra build --release --for windows Project ( nyra build ): binary name main . Single file ( nyra build app.ny ): binary stem app . -o mybin : custom name inside target/{debug|release}/ (or target/<triple>/{profile}/ when cross-compiling). Add target/ to .gitignore ."
     },
     {
-      "pageTitle": "Toolchain",
-      "url": "tooling.html#cross-compilation",
+      "pageTitle": "Toolchain & CLI",
+      "url": "tooling.html#cross",
       "section": "Toolchain",
       "kind": "content",
-      "id": "tooling.html#cross-compilation",
-      "title": "Toolchain",
+      "id": "tooling.html#cross",
+      "title": "Toolchain & CLI",
       "heading": "Cross-compilation",
       "body": "Cross-compilation Build for another OS from your dev machine. Use --for for a memorable command, or --os / --arch for precision: nyra build . --release --for windows nyra build . --release --for linux nyra build . --release --for macos nyra build . --release --os linux --arch aarch64 nyra build . --release --target x86_64-unknown-linux-gnu Flag Effect --for OS Easy alias: windows , linux , macos , wasm --os OS Same as --for ; pair with --arch --arch ARCH x86_64 or aarch64 (default: host CPU) --target TRIPLE Full LLVM triple; overrides --for / --os Cross builds land under target/<triple>/{debug|release}/ . nyra run refuses foreign binaries (build only). --native-cpu is rejected when cross-compiling. See Compilation targets for toolchain prerequisites."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#release-optimization",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#release-optimization",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "Release / optimization",
       "body": "Release / optimization Job: Ship a faster binary or tune for your CPU. nyra build --release nyra run --release nyra build --release app.ny nyra build . --release --native-cpu # explicit -march=native (host) nyra build . --release --no-native-cpu # portable release (disables default native tuning) nyra build . --release --no-prelude # disable lazy stdlib auto-prelude nyra build . --release --lto-full # full LTO (slower link) --release enables LLVM IR opt , clang -O3 , thin LTO, and -march=native on host builds (unless --no-native-cpu ). Flag Job --opt 0..3 Override clang optimization level --lto Thin link-time optimization --no-lto Disable LTO even with --release --no-prelude Disable lazy stdlib auto-prelude — require explicit import \"stdlib/…\" for every stdlib symbol. Compiler builtins ( print , math intrinsics like abs_i32 ) still work. --no-native-cpu Disable default -march=native on host --release builds --pgo-generate Generate PGO profile data --pgo-use <file> Build using an existing profile --link-lib foo Link -lfoo (repeatable) --link-search-path dir Add -Ldir --cdylib Emit shared library instead of executable --race ThreadSanitizer ( -fsanitize=thread ) for data-race detection --sanitize AddressSanitizer ( -fsanitize=address ) for heap corruption detection More: Performance toolchain ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#ci",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#ci",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "CI cookbook",
       "body": "CI cookbook Job: Typical pipeline steps for GitHub Actions or any CI. nyra check . nyra fmt . --check nyra test . nyra build . --release Repository scripts: make test-all (includes make test-conformance for CONF-LANG), make test-sanitizer . Workflow: .github/workflows/ci.yml ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#freestanding",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#freestanding",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "no_std & freestanding builds",
       "body": "no_std & freestanding builds Job: Bare-metal firmware or kernels without the Nyra runtime. no_std // in main.ny, or CLI flag nyra build firmware.ny --no-std --freestanding -o firmware nyra build . --no-std Flag Effect --no-std Skip runtime link; print / spawn rejected --freestanding Clang -ffreestanding -nostdlib (pair with --no-std ) You supply entry point, linker script, and libc stubs for your target. Low-level helpers: import \"stdlib/core/mem.ny\" ."
     },
     {
-      "pageTitle": "Toolchain",
+      "pageTitle": "Toolchain & CLI",
       "url": "tooling.html#editor-ide",
       "section": "Toolchain",
       "kind": "content",
       "id": "tooling.html#editor-ide",
-      "title": "Toolchain",
+      "title": "Toolchain & CLI",
       "heading": "Editor & IDE",
       "body": "Editor & IDE Job: Syntax, LSP, and debugging in VS Code / Cursor. Tool Command / path Job VS Code extension extensions/nyra Grammar + LSP + DAP + Test Explorer + tasks Test discovery nyra test --list-json IDE test explorer JSON TextMate grammar grammar/nyra.tmLanguage.json Syntax highlighting only Language server nyra lsp Completion, hover, goto-def, refs, rename Debug adapter nyra dap VS Code debugger — breakpoints, stack, locals, stepping CLI navigation nyra ide goto-def Terminal / CI symbol lookup # settings.json (extension defaults) { \"nyra.languageServerPath\": \"nyra\", \"nyra.languageServerArgs\": [\"lsp\"], \"nyra.debugAdapterPath\": \"nyra\" } Setup guide: Editor setup · Grammar: grammar/README.md nyrapkg →"
     },
@@ -9369,7 +9519,17 @@
       "id": "types.html#systems-types",
       "title": "Types & data",
       "heading": "Systems & stdlib types (Rust comparison)",
-      "body": "Systems & stdlib types (Rust comparison) All annotations below are optional . Nyra infers types by default; add names when you want clarity or FFI boundaries. Rust concept Nyra Status Notes fn(i32) -> i32 fn(i32) -> i32 ✅ Language Function pointers; closures that escape promote to fn(...) |x| x + 1 (x) => x + 1 ✅ Extended Arrow closures; captures by value (Copy/Move) struct / enum struct / enum ✅ Language User ADTs; enum payloads with generics (Extended) Option<T> import \"stdlib/option.ny\" ✅ Stdlib Option.Some(v) , ?? , ?. Result<T,E> stdlib/option.ny + stdlib/result.ny ✅ Stdlib ? operator for propagation Vec<T> Vec_i32 , import \"stdlib/vec.ny\" ✅ Stdlib Monomorph C-backed growable vector; generic Vec<T> syntax monomorphizes HashMap<K,V> HashMap_str_i32 , HashMap_str_str ✅ Stdlib import \"stdlib/map.ny\" HashSet<T> HashSet_str ✅ Stdlib import \"stdlib/collections/set.ny\" BTreeMap<K,V> BTreeMap_str_i32 ⚠️ Stub MVP wrapper over hash map; real B-tree in apps ( Apps/Basics/BTree ) Box<T> stdlib/box.ny ⚠️ Partial Generic Box<T> struct; heap API ships for string Arc<T> stdlib/arc.ny ✅ Stdlib Arc<i32> , Arc<string> Mutex<T> / RwLock<T> Mutex , RwLock , Mutex_i32 ✅ Stdlib import \"stdlib/sync/mutex.ny\" AtomicI32 / AtomicBool Atomic_i32 , AtomicBool ✅ Stdlib import \"stdlib/sync/atomic.ny\" Rc<T> — ❌ Use Arc for shared ownership; single-thread Rc planned Cell / RefCell — ❌ Use mut + borrow checker, or Mutex across threads PhantomData / Pin / Cow — ❌ Advanced Rust-only; not required for Nyra MVP ! (never) — ❌ Use void or a concrete return type () unit void ✅ Language Inferred when a function has no return Example tour: examples/syntax/systems_types.ny · Full stdlib matrix: Standard library Modules →"
+      "body": "Systems & stdlib types (Rust comparison) All annotations below are optional . Nyra infers types by default; add names when you want clarity or FFI boundaries. Rust concept Nyra Status Notes fn(i32) -> i32 fn(i32) -> i32 ✅ Language Function pointers; closures that escape promote to fn(...) |x| x + 1 (x) => x + 1 ✅ Extended Arrow closures; captures by value (Copy/Move) struct / enum struct / enum ✅ Language User ADTs; enum payloads with generics (Extended) Option<T> import \"stdlib/option.ny\" ✅ Stdlib Option.Some(v) , ?? , ?. Result<T,E> stdlib/option.ny + stdlib/result.ny ✅ Stdlib ? operator for propagation Vec<T> Vec_i32 , import \"stdlib/vec.ny\" ✅ Stdlib Monomorph C-backed growable vector; generic Vec<T> syntax monomorphizes HashMap<K,V> HashMap_str_i32 , HashMap_str_str ✅ Stdlib import \"stdlib/map.ny\" HashSet<T> HashSet_str ✅ Stdlib import \"stdlib/collections/set.ny\" BTreeMap<K,V> BTreeMap_str_i32 ⚠️ Stub MVP wrapper over hash map; real B-tree in apps ( Apps/Basics/BTree ) Box<T> stdlib/box.ny ⚠️ Partial Generic Box<T> struct; heap API ships for string Arc<T> stdlib/arc.ny ✅ Stdlib Arc<i32> , Arc<string> Mutex<T> / RwLock<T> Mutex , RwLock , Mutex_i32 ✅ Stdlib import \"stdlib/sync/mutex.ny\" AtomicI32 / AtomicBool Atomic_i32 , AtomicBool ✅ Stdlib import \"stdlib/sync/atomic.ny\" Rc<T> — ❌ Use Arc for shared ownership; single-thread Rc planned Cell / RefCell — ❌ Use mut + borrow checker, or Mutex across threads PhantomData / Pin / Cow — ❌ Advanced Rust-only; not required for Nyra MVP ! (never) — ❌ Use void or a concrete return type () unit void ✅ Language Inferred when a function has no return size_of::<T>() / align_of::<T>() size_of<T>() , align_of<T>() ✅ Language Layout size / alignment in bytes; helpers in stdlib/mem/layout.ny"
+    },
+    {
+      "pageTitle": "Types & data",
+      "url": "types.html#size-of",
+      "section": "Language",
+      "kind": "content",
+      "id": "types.html#size-of",
+      "title": "Types & data",
+      "heading": "size_of / align_of",
+      "body": "size_of / align_of Compiler intrinsics — no import. Returns layout size and alignment in bytes (×8 for bits). Without types With types fn main() { print(size_of<i32>()) // 4 print(size_of<i64>()) // 8 print(align_of<i64>()) // 8 } fn main() -> void { print(size_of<i32>()) // 4 print(size_of<i64>()) // 8 print(align_of<i64>()) // 8 } Output 4 8 8 Full guide: stdlib → size_of · Memory → Type layout Example tour: examples/syntax/systems_types.ny · Full stdlib matrix: Standard library Modules →"
     },
     {
       "id": "nav:index.html",
@@ -10057,7 +10217,7 @@
       "pageTitle": "Nyra AI Skill (nyra-skill.md)",
       "title": "Nyra AI Skill (nyra-skill.md)",
       "heading": "Toolchain",
-      "body": "Toolchain From a project root (directory with `main.ny`), path arguments default to **`.`** — same idea as `cargo test` with no path. ### Build output layout (Cargo-style) - **Projects** (`nyra build` / `nyra build .`): binary name is **`main`** (from `main.ny`). - **Single file** (`nyra build app.ny`): binary stem matches the file (`app`). - **`-o name`**: override binary name inside `target/{profile}/` or `target/{triple}/{profile}/` when cross-compiling. - **Cross-compile:** `--for windows|linux|macos|wasm`, or `--os` + optional `--arch`, or `--target TRIPLE`. - **Windows cross:** `.exe` extension; `spawn`, TCP, and `async`/`await` supported (Winsock2 + Win32 threads/sync). Requires MinGW-w64 sysroot when cross-compiling from macOS/Linux (`NYRA_SYSROOT` or `--target x86_64-pc-windows-gnu` with clang + mingw). - **Wasm:** `nyra build --for wasm app.ny -o app.wasm` → `target/wasm32-wasi/debug/app.wasm`. - Add **`target/`** to `.gitignore` (like Rust). Ship the executable from `target/release/` (or `target/{triple}/release/`) for production; run `./target/debug/main` while developing. Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` (ThreadSanitizer for async/concurrency debug), `--for`, `--os`, `--arch`, `--target`. Systems / freestanding: `--no-std` (skip runtime link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`. **Environment variables:** | Variable | Purpose | |----------|---------| | `NYRA_SYSROOT` | MinGW/sysroot path for Windows cross-compile from macOS/Linux | | `NYRA_HOME` / `~/.nyra/config` | NyraPkg registry URL and cache defaults |",
+      "body": "Toolchain From a project root (directory with `main.ny`), path arguments default to **`.`** — same idea as `cargo test` with no path. Docs: [Toolchain & CLI](https://nyra-lang.github.io/nyra/tooling.html) — every subcommand with examples. ### Build output layout (Cargo-style) - **Projects** (`nyra build` / `nyra build .`): binary name is **`main`** (from `main.ny`). - **Single file** (`nyra build app.ny`): binary stem matches the file (`app`). - **`-o name`**: override binary name inside `target/{profile}/` or `target/{triple}/{profile}/` when cross-compiling. - **Cross-compile:** `--for windows|linux|macos|wasm`, or `--os` + optional `--arch`, or `--target TRIPLE`. - **Windows cross:** `.exe` extension; `spawn`, TCP, and `async`/`await` supported (Winsock2 + Win32 threads/sync). Requires MinGW-w64 sysroot when cross-compiling from macOS/Linux (`NYRA_SYSROOT` or `--target x86_64-pc-windows-gnu` with clang + mingw). - **Wasm:** `nyra build --for wasm app.ny -o app.wasm` → `target/wasm32-wasi/debug/app.wasm`. - Add **`target/`** to `.gitignore` (like Rust). Ship the executable from `target/release/` (or `target/{triple}/release/`) for production; run `./target/debug/main` while developing. Release flags: `--release`, `--opt 0-3`, `--lto`, `--lto-full`, `--no-lto`, `--no-llvm-opt`, `--no-prelude`, `--native-cpu`, `--no-native-cpu` (host `--release` uses `-march=native` by default), `--pgo-generate`, `--pgo-use FILE`, `--race` (ThreadSanitizer for async/concurrency debug), `--for`, `--os`, `--arch`, `--target`. Systems / freestanding: `--no-std` (skip runtime link), `--freestanding` (`-ffreestanding -nostdlib`). Top-level `no_std` in source has the same effect as `--no-std`. **Environment variables:** | Variable | Purpose | |----------|---------| | `NYRA_SYSROOT` | MinGW/sysroot path for Windows cross-compile from macOS/Linux | | `NYRA_HOME` / `~/.nyra/config` | NyraPkg registry URL and cache defaults |",
       "section": "AI",
       "kind": "content"
     },
@@ -10097,7 +10257,7 @@
       "pageTitle": "Nyra AI Skill (nyra-skill.md)",
       "title": "Nyra AI Skill (nyra-skill.md)",
       "heading": "Types",
-      "body": "Types > **Optional annotations:** Nyra has a full static type system (`i32`, `string`, structs, enums, generics), but **you do not have to write types** for most code. Add them only when you want clarity or the compiler requires them. See [Design philosophy](#design-philosophy). | Type | Ownership | Notes | |------|-----------|-------| | i8–i128, u8–u128, isize, usize | Copy | Full integer families (optional annotations); literals default to `i32` | | f32 | Copy | IEEE-754 single; literals `1.5f32` or annotate `f32` | | f64 | Copy | IEEE-754 double; literals like `3.14`, `1e-3` (default for floats) | | char | Copy | Unicode scalar; literals `'a'`, `'\\n'`, `'\\u{1F600}'` | | bool | Copy | true / false | | string | Move | UTF-8 pointer; literals are static | | bytes | Move | Binary blob handle; **not** implicitly convertible to `string` | | void | — | No return value (Rust `()` unit type) | | struct Name { fields } | Copy or Move | Move if any field is Move; `repr(C)`, `align(N)`, `packed` | | union Name { fields } | Copy | C-style union; field access only in `unsafe` | | enum Name { A, B } | Copy | **Tag-only** by default — unit variants, no stored data | | enum Name { Some(T) } | Copy or Move | **With payload** — heterogeneous payloads per variant supported | | i32x4 / f32x4 / f64x2 | Copy | Portable SIMD vector types | | option / Option | Copy | Built-in **tag names** for `??` / `?.` desugar; **payloads only after** `import \"stdlib/option.ny\"` | | result / Result | Copy | Same split as `Option` — tags built-in; `Ok(v)` / `Err(e)` need stdlib import or monomorph enum | | [T; N] | depends | Fixed array; type syntax `[i32; N]` or `[i32: N]` | | [T] | depends | Slice (MVP) | | (T, U, ...) | depends | Tuple; field access `.0`, `.1`; `let (a, b) = pair` | | &T / &mut T | Borrow | References | | &'a T | Borrow | Explicit lifetime | | for<'a> fn(...) | — | HRTB function pointer type | | ptr | Copy | Opaque FFI handle; Send | | *T | Copy | Typed raw pointer; `*const T` / `*mut T` accepted (same semantics); !Send / !Sync | Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` — all optional when inference suffices. ### Systems & stdlib types (vs Rust) | Rust | Nyra | Status | |------|------|--------| | `fn(i32)->i32` | `fn(i32) -> i32` | Language | | `\\|x\\| x+1` | `(x) => x + 1` | Extended closures | | `struct` / `enum` | `struct` / `enum` | Language | | `Option<T>` / `Result<T,E>` | `import \"stdlib/option.ny\"` | Stdlib + `?` / `??` / `?.` | | `Vec<T>` | `Vec_i32`, `import \"stdlib/vec.ny\"` | Stdlib (monomorph) | | `Vec<Vec<i32>>` | `Vec_Vec_i32_*`, `import \"stdlib/collections/nested_vec.ny\"` | Stdlib (nested MVP v0.0.1) | | `Vec<MoveStruct>` | `Vec_{Struct}_*`, `import \"stdlib/collections/vec_pod.ny\"` | Reloc expand (string + scalars + nested; v0.0.1) | | `HashMap<K,V>` | `HashMap_str_i32`, `HashMap_str_str` | Stdlib | | `HashSet<T>` | `HashSet_str` | Stdlib | | `Box<T>` / `Arc<T>` | `stdlib/box.ny`, `stdlib/arc.ny` | Partial / shipped | | `Mutex<T>` / `RwLock<T>` | `stdlib/sync/mutex.ny`, `rwlock.ny` | Stdlib | | `AtomicI32` / `AtomicBool` | `Atomic_i32`, `AtomicBool` in `stdlib/sync/atomic.ny` | Stdlib | | `Rc`, `Cell`, `RefCell`, `Pin`, `PhantomData`, `Cow`, `!` | — | Not in Nyra MVP | | `size_of` / `align_of` | `size_of<T>()`, `align_of<T>()` | Compiler intrinsics (`stdlib/mem/layout.ny`) | | Stack buffer | `StackBuffer_i32_64` (`stdlib/buf/stack.ny`) | Stack-only; cannot be returned | | Arena | `Arena_new` / `Arena_alloc` (`stdlib/alloc/arena.ny`) | Bump allocator, O(1) reset | | SIMD | `simd_add_i32x4`, `stdlib/simd/mod.ny` | Portable + platform (`x86.ny`, `arm.ny`) | (zero types) and `.typed.ny`. **Integer literals** default to `i32`, but bind to any integer type when the target is known — e.g. `let c = Color { r: 18, g: 52, b: 86, a: 255 }` with `r: u8` fields accepts `255` without `: u8` on each literal. ### Clone (strings & cloneable structs) Two equivalent forms (both compile): Use when a `string` (Move type) must be reused after a call that would move it (e.g. `strcat(a, b)`).",
+      "body": "Types > **Optional annotations:** Nyra has a full static type system (`i32`, `string`, structs, enums, generics), but **you do not have to write types** for most code. Add them only when you want clarity or the compiler requires them. See [Design philosophy](#design-philosophy). | Type | Ownership | Notes | |------|-----------|-------| | i8–i128, u8–u128, isize, usize | Copy | Full integer families (optional annotations); literals default to `i32` | | f32 | Copy | IEEE-754 single; literals `1.5f32` or annotate `f32` | | f64 | Copy | IEEE-754 double; literals like `3.14`, `1e-3` (default for floats) | | char | Copy | Unicode scalar; literals `'a'`, `'\\n'`, `'\\u{1F600}'` | | bool | Copy | true / false | | string | Move | UTF-8 pointer; literals are static | | bytes | Move | Binary blob handle; **not** implicitly convertible to `string` | | void | — | No return value (Rust `()` unit type) | | struct Name { fields } | Copy or Move | Move if any field is Move; `repr(C)`, `align(N)`, `packed` | | union Name { fields } | Copy | C-style union; field access only in `unsafe` | | enum Name { A, B } | Copy | **Tag-only** by default — unit variants, no stored data | | enum Name { Some(T) } | Copy or Move | **With payload** — heterogeneous payloads per variant supported | | i32x4 / f32x4 / f64x2 | Copy | Portable SIMD vector types | | option / Option | Copy | Built-in **tag names** for `??` / `?.` desugar; **payloads only after** `import \"stdlib/option.ny\"` | | result / Result | Copy | Same split as `Option` — tags built-in; `Ok(v)` / `Err(e)` need stdlib import or monomorph enum | | [T; N] | depends | Fixed array; type syntax `[i32; N]` or `[i32: N]` | | [T] | depends | Slice (MVP) | | (T, U, ...) | depends | Tuple; field access `.0`, `.1`; `let (a, b) = pair` | | &T / &mut T | Borrow | References | | &'a T | Borrow | Explicit lifetime | | for<'a> fn(...) | — | HRTB function pointer type | | ptr | Copy | Opaque FFI handle; Send | | *T | Copy | Typed raw pointer; `*const T` / `*mut T` accepted (same semantics); !Send / !Sync | Type annotations: `let x: i32 = 0`, `let b: u8 = 255`, `fn f(n: i32) -> bool` — all optional when inference suffices. ### Systems & stdlib types (vs Rust) | Rust | Nyra | Status | |------|------|--------| | `fn(i32)->i32` | `fn(i32) -> i32` | Language | | `\\|x\\| x+1` | `(x) => x + 1` | Extended closures | | `struct` / `enum` | `struct` / `enum` | Language | | `Option<T>` / `Result<T,E>` | `import \"stdlib/option.ny\"` | Stdlib + `?` / `??` / `?.` | | `Vec<T>` | `Vec_i32`, `import \"stdlib/vec.ny\"` | Stdlib (monomorph) | | `Vec<Vec<i32>>` | `Vec_Vec_i32_*`, `import \"stdlib/collections/nested_vec.ny\"` | Stdlib (nested MVP v0.0.1) | | `Vec<MoveStruct>` | `Vec_{Struct}_*`, `import \"stdlib/collections/vec_pod.ny\"` | Reloc expand (string + scalars + nested; v0.0.1) | | `HashMap<K,V>` | `HashMap_str_i32`, `HashMap_str_str` | Stdlib | | `HashSet<T>` | `HashSet_str` | Stdlib | | `Box<T>` / `Arc<T>` | `stdlib/box.ny`, `stdlib/arc.ny` | Partial / shipped | | `Mutex<T>` / `RwLock<T>` | `stdlib/sync/mutex.ny`, `rwlock.ny` | Stdlib | | `AtomicI32` / `AtomicBool` | `Atomic_i32`, `AtomicBool` in `stdlib/sync/atomic.ny` | Stdlib | | `Rc`, `Cell`, `RefCell`, `Pin`, `PhantomData`, `Cow`, `!` | — | Not in Nyra MVP | | `size_of` / `align_of` | `size_of<T>()`, `align_of<T>()` | Compiler intrinsics (`stdlib/mem/layout.ny`) | | Stack buffer | `StackBuffer_i32_64` (`stdlib/buf/stack.ny`) | Stack-only; cannot be returned | | Arena | `Arena_new` / `Arena_alloc` (`stdlib/alloc/arena.ny`) | Bump allocator, O(1) reset | | SIMD | `simd_add_i32x4`, `stdlib/simd/mod.ny` | Portable + platform (`x86.ny`, `arm.ny`) | (zero types) and `.typed.ny`. **Layout example** (`size_of` returns bytes; ×8 for bits — no import): Helpers: `import \"stdlib/mem/layout.ny\"` → `size_of_i32()`, `align_of_ptr()`. Docs: [stdlib → size_of](https://nyra-lang.github.io/nyra/stdlib.html#size-of). **Integer literals** default to `i32`, but bind to any integer type when the target is known — e.g. `let c = Color { r: 18, g: 52, b: 86, a: 255 }` with `r: u8` fields accepts `255` without `: u8` on each literal. ### Clone (strings & cloneable structs) Two equivalent forms (both compile): Use when a `string` (Move type) must be reused after a call that would move it (e.g. `strcat(a, b)`).",
       "section": "AI",
       "kind": "content"
     },

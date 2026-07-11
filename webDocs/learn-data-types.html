@@ -179,7 +179,53 @@
 <pre class="example-output"><code>42
 true
 Nyra</code></pre>
-</section><nav class="lesson-nav" aria-label="Learn navigation">
+</section>
+<section class="doc-ex">
+  <h2 id="type-sizes">Type sizes (bytes &amp; bits)</h2>
+  <p class="doc-ex-prose">The number in the type name is its width in <strong>bits</strong>: <code>i32</code> is 32 bits, <code>i64</code> is 64 bits. Use the compiler intrinsic <code>size_of&lt;T&gt;()</code> to get the size in <strong>bytes</strong> (multiply by 8 for bits). No import needed.</p>
+  <table>
+    <thead><tr><th>Type</th><th>Bits</th><th>Bytes (<code>size_of</code>)</th></tr></thead>
+    <tbody>
+      <tr><td><code>i8</code> / <code>u8</code></td><td>8</td><td>1</td></tr>
+      <tr><td><code>i16</code> / <code>u16</code></td><td>16</td><td>2</td></tr>
+      <tr><td><code>i32</code> / <code>u32</code></td><td>32</td><td>4</td></tr>
+      <tr><td><code>i64</code> / <code>u64</code></td><td>64</td><td>8</td></tr>
+      <tr><td><code>i128</code> / <code>u128</code></td><td>128</td><td>16</td></tr>
+    </tbody>
+  </table>
+<!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>fn main() {
+    let num = 10
+    let num2: i64 = 20
+
+    print(size_of&lt;i32&gt;())        // 4 bytes
+    print(size_of&lt;i32&gt;() * 8)    // 32 bits
+    print(size_of&lt;i64&gt;())        // 8 bytes
+    print(size_of&lt;i64&gt;() * 8)    // 64 bits
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>fn main() -&gt; void {
+    let num: i32 = 10
+    let num2: i64 = 20
+
+    print(size_of&lt;i32&gt;())        // 4 bytes
+    print(size_of&lt;i32&gt;() * 8)    // 32 bits
+    print(size_of&lt;i64&gt;())        // 8 bytes
+    print(size_of&lt;i64&gt;() * 8)    // 64 bits
+}</code></pre></div>
+</div><!-- NYRA_SNIPPET_END -->
+  <p class="example-output-label">Output</p>
+  <pre class="example-output"><code>4
+32
+8
+64</code></pre>
+  <p class="doc-ex-prose">More: <a href="stdlib.html#size-of">stdlib → size_of / align_of</a>.</p>
+</section>
+<nav class="lesson-nav" aria-label="Learn navigation">
 <a class="lesson-nav-prev" href="learn-variables.html">← Variables</a>
 <a class="lesson-nav-hub" href="learn-intro.html">Learn overview</a>
 <a class="lesson-nav-next" href="learn-constants.html">Constants →</a>

@@ -119,7 +119,7 @@ Toolchain, performance, FFI, packaging, project status.
 
 | Page | Topic |
 |------|-------|
-| `tooling.html` | CLI, fmt, test, conformance (`CONF-*`) |
+| `tooling.html` | Full CLI reference — every `nyra` subcommand with examples, test walkthrough, toolchain/cc |
 | `performance.html` | Release builds, LTO, optimization |
 | `pgo.html` | Profile-guided optimization |
 | `escape-analysis.html` | Escape analysis pass |

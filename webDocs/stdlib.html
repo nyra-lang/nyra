@@ -530,9 +530,11 @@ fn main() {
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
-          <tr><td><code>stdlib/reflect/mod.ny</code></td><td><code>typeof_i32</code>, <code>type_name_string</code> — no runtime RTTI</td></tr>
+          <tr><td><code>stdlib/reflect/mod.ny</code></td><td><code>typeof_i32</code>, <code>type_name_i32</code>, <code>type_name_string</code> — no runtime RTTI</td></tr>
           <tr><td><code>stdlib/result.ny</code></td><td><code>option_is_some</code>, <code>result_is_ok</code></td></tr>
-          <tr><td><code>stdlib/mem/util.ny</code></td><td><code>size_of_i32</code>, <code>align_of_ptr</code>, <code>swap_i32</code></td></tr>
+          <tr><td><em>compiler intrinsic</em></td><td><code>size_of&lt;T&gt;()</code>, <code>align_of&lt;T&gt;()</code> — type layout in <strong>bytes</strong> (no import)</td></tr>
+          <tr><td><code>stdlib/mem/layout.ny</code></td><td><code>size_of_i32</code>, <code>size_of_ptr</code>, <code>align_of_i32</code>, <code>align_of_ptr</code> — wrappers over the intrinsics</td></tr>
+          <tr><td><code>stdlib/mem/util.ny</code></td><td>MVP scalars (<code>size_of_i32</code>, <code>align_of_ptr</code>, <code>swap_i32</code>) — prefer <code>layout.ny</code> / intrinsics</td></tr>
           <tr><td><code>stdlib/arc.ny</code></td><td><code>Arc_i32</code>, <code>Arc_from_i32</code>, <code>Arc_from_string</code> — refcounted shared ownership; see <a href="memory.html">Memory</a></td></tr>
           <tr><td><code>stdlib/option.ny</code></td><td><code>Option</code> helpers — see <a href="match.html">Match</a></td></tr>
           <tr><td><code>stdlib/box.ny</code></td><td>Heap box — see <a href="memory.html">Memory</a></td></tr>
@@ -546,8 +548,163 @@ fn main() {
         </tbody>
       </table>
 
+      <h3 id="size-of">size_of / align_of</h3>
+      <p>Ask the compiler for a type’s layout size and alignment in <strong>bytes</strong>. Multiply by 8 for bits (<code>i32</code> → 4 bytes → 32 bits). Works on scalars, <code>repr(C)</code> structs, and unions — no import required for the intrinsics.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>struct Packet repr(C) align(8) {
+    kind: i32
+    port: i32
+}
+
+fn main() {
+    print(size_of&lt;i32&gt;())        // 4 bytes
+    print(size_of&lt;i32&gt;() * 8)    // 32 bits
+    print(size_of&lt;i64&gt;())        // 8 bytes
+    print(align_of&lt;i64&gt;())       // 8
+    print(size_of&lt;Packet&gt;())     // 8
+    print(align_of&lt;Packet&gt;())    // 8
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>struct Packet repr(C) align(8) {
+    kind: i32
+    port: i32
+}
+
+fn main() -&gt; void {
+    print(size_of&lt;i32&gt;())        // 4 bytes
+    print(size_of&lt;i32&gt;() * 8)    // 32 bits
+    print(size_of&lt;i64&gt;())        // 8 bytes
+    print(align_of&lt;i64&gt;())       // 8
+    print(size_of&lt;Packet&gt;())     // 8
+    print(align_of&lt;Packet&gt;())    // 8
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+      <p class="example-output-label">Output</p>
+      <pre class="example-output"><code>4
+32
+8
+8
+8
+8</code></pre>
+      <p>Named helpers (same values) via <code>import "stdlib/mem/layout.ny"</code>:</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import "stdlib/mem/layout.ny"
+
+fn main() {
+    print(size_of_i32())
+    print(align_of_ptr())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import "stdlib/mem/layout.ny"
+
+fn main() -&gt; void {
+    print(size_of_i32())
+    print(align_of_ptr())
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+      <p class="example-output-label">Output (64-bit target)</p>
+      <pre class="example-output"><code>4
+8</code></pre>
+      <p>Also see <a href="memory.html#layout">Memory → Type layout</a> and <a href="learn-data-types.html#type-sizes">Learn → Data types → Type sizes</a>.</p>
+
+      <h3 id="reflect-typeof">Reflect — type names</h3>
+      <p>Compile-time helpers only — Nyra has <strong>no runtime RTTI</strong>. Useful for tests and debug labels. <code>typeof_i32(x)</code> returns <code>TypeKind.I32</code> (and siblings for <code>bool</code> / <code>string</code>).</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import "stdlib/reflect/mod.ny"
+
+fn main() {
+    print(type_name_i32())
+    print(type_name_string())
+    print(type_name_bool())
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import "stdlib/reflect/mod.ny"
+
+fn main() -&gt; void {
+    print(type_name_i32())
+    print(type_name_string())
+    print(type_name_bool())
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+      <p class="example-output-label">Output</p>
+      <pre class="example-output"><code>i32
+string
+bool</code></pre>
+
+      <h3 id="fixed-step">Fixed-step clock</h3>
+      <p>Game-loop helper: accumulate frame time and return how many fixed simulation steps to run.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import "stdlib/time/fixed_step.ny"
+
+fn main() {
+    let mut clock = FixedStep_new(60)   // 60 Hz → ~16.67 ms/step
+    let steps = FixedStep_tick(clock, 33.0)
+    print(steps)                        // 1 (33 ms covers one step)
+    print(FixedStep_hz(clock))
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import "stdlib/time/fixed_step.ny"
+
+fn main() -&gt; void {
+    let mut clock: FixedStep = FixedStep_new(60)
+    let steps: i32 = FixedStep_tick(clock, 33.0)
+    print(steps)
+    print(FixedStep_hz(clock))
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+      <p class="example-output-label">Output</p>
+      <pre class="example-output"><code>1
+60</code></pre>
+
+      <h3 id="terminal-raw">Terminal raw mode</h3>
+      <p>Disable line buffering to read single key codes (TUI / games). Always restore cooked mode afterward.</p>
+      <!-- NYRA_SNIPPET_START -->
+<div class="code-tabs" data-code-tabs>
+  <div class="code-tabs-bar" role="tablist">
+    <button type="button" class="code-tab active" role="tab" data-tab="easy" aria-selected="true">Without types</button>
+    <button type="button" class="code-tab" role="tab" data-tab="typed" aria-selected="false">With types</button>
+  </div>
+  <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import "stdlib/terminal/raw.ny"
+
+fn main() {
+    terminal_raw_on()
+    let key = terminal_read_key()   // blocks until a key is pressed
+    terminal_raw_off()
+    print(key)
+}</code></pre></div>
+  <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import "stdlib/terminal/raw.ny"
+
+fn main() -&gt; void {
+    terminal_raw_on()
+    let key: i32 = terminal_read_key()
+    terminal_raw_off()
+    print(key)
+}</code></pre></div>
+</div>
+<!-- NYRA_SNIPPET_END -->
+
       <h2 id="testing">Testing helpers</h2>
-      <p>Import for <code>nyra test</code> and the <strong>CONF-LANG</strong> suite (<code>tests/conformance/pass/</code>):</p>
+      <p>Import for <code>nyra test</code> and the <strong>CONF-LANG</strong> suite (<code>tests/conformance/pass/</code>). Full CLI walkthrough (COMPILE → LINK → PASS, <code>--filter</code>, <code>--list-json</code>): <a href="tooling.html#test">Toolchain → nyra test</a>.</p>
       <table>
         <thead><tr><th>Import</th><th>API</th></tr></thead>
         <tbody>
@@ -576,6 +733,9 @@ test fn adds() {
 }</code></pre></div>
 </div>
 <!-- NYRA_SNIPPET_END -->
+      <pre><code>nyra test .                 # run all test fn in the project
+nyra test . --filter adds   # only matching names
+nyra test . --list-json     # IDE discovery</code></pre>
       <table>
         <thead><tr><th>Function</th><th>Job</th></tr></thead>
         <tbody>

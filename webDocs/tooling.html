@@ -134,34 +134,64 @@
 </nav>
     </aside>
     <main class="content">
-      <h1 data-i18n="pages.tooling.h1">Toolchain</h1>
-      <p class="lead" data-i18n-html="pages.tooling.lead">The <code>nyra</code> CLI — every command with a <strong>job</strong> (what you are trying to do) and a copy-paste example. Project paths default to <code>.</code> when omitted.</p>
+      <h1 data-i18n="pages.tooling.h1">Toolchain &amp; CLI</h1>
+      <p class="lead" data-i18n-html="pages.tooling.lead">Every <code>nyra</code> subcommand — what it does, when to use it, and a copy-paste example. Path arguments default to <code>.</code> (the current project). Run <code>nyra --help</code> or <code>nyra &lt;cmd&gt; --help</code> for the live flag list.</p>
 
-      <h2>Quick reference</h2>
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#quick-ref">Quick reference</a></li>
+          <li><a href="#help">Help &amp; version</a></li>
+          <li><a href="#run"><code>nyra run</code></a></li>
+          <li><a href="#build"><code>nyra build</code></a></li>
+          <li><a href="#check"><code>nyra check</code></a></li>
+          <li><a href="#inspect"><code>nyra inspect</code></a></li>
+          <li><a href="#test"><code>nyra test</code></a></li>
+          <li><a href="#fmt"><code>nyra fmt</code></a></li>
+          <li><a href="#diag"><code>nyra diag</code></a></li>
+          <li><a href="#explain"><code>nyra explain</code></a></li>
+          <li><a href="#watch"><code>nyra watch</code></a></li>
+          <li><a href="#debug"><code>nyra debug</code></a></li>
+          <li><a href="#lsp"><code>nyra lsp</code></a> · <a href="#dap"><code>dap</code></a> · <a href="#ide"><code>ide</code></a></li>
+          <li><a href="#pkg"><code>nyrapkg</code> / <code>nyra pkg</code></a></li>
+          <li><a href="#bind"><code>nyra bind</code></a></li>
+          <li><a href="#toolchain"><code>nyra toolchain</code></a></li>
+          <li><a href="#cc"><code>nyra cc</code></a></li>
+          <li><a href="#layout">Build layout</a> · <a href="#cross">Cross-compile</a> · <a href="#ci">CI</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="quick-ref">Quick reference</h2>
       <table>
-        <thead><tr><th>Command</th><th>Job</th></tr></thead>
+        <thead><tr><th>Command</th><th>Job</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><code>nyra run</code></td><td>Compile + execute (dev loop)</td></tr>
-          <tr><td><code>nyra build</code></td><td>Emit binary under <code>target/</code></td></tr>
-          <tr><td><code>nyra check</code></td><td>Type-check + borrow without codegen</td></tr>
-          <tr><td><code>nyra inspect</code></td><td>Compile-time ownership snapshot for a binding at <code>file:line</code> — see <a href="ownership-inspect.html">Ownership inspect</a></td></tr>
-          <tr><td><code>nyra test</code></td><td>Run <code>test fn</code> / <code>*_test.ny</code></td></tr>
-          <tr><td><code>nyra fmt</code></td><td>Format sources (AST-based)</td></tr>
-          <tr><td><code>nyra diag</code></td><td>Print diagnostics (JSON for editors)</td></tr>
-          <tr><td><code>nyra explain</code></td><td>Explain stable diagnostic codes (E003, P001, …)</td></tr>
-          <tr><td><code>nyra watch</code></td><td>Re-check / rebuild on save</td></tr>
-          <tr><td><code>nyra debug</code></td><td>Build with symbols + launch lldb/gdb</td></tr>
-          <tr><td><code>nyra lsp</code></td><td>Language Server (stdio)</td></tr>
-          <tr><td><code>nyra dap</code></td><td>Debug Adapter Protocol (stdio)</td></tr>
-          <tr><td><code>nyra ide</code></td><td>Goto-definition / references (CLI)</td></tr>
-          <tr><td><code>nyrapkg …</code></td><td>Dependencies — <code>init</code>, <code>add</code>, <code>install</code>, <code>verify</code> — see <a href="packages.html">nyrapkg</a></td></tr>
-          <tr><td><code>nyra pkg …</code></td><td>Build helpers — <code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code> — see <a href="packages.html">packages</a></td></tr>
-          <tr><td><code>nyra pkg c add NAME</code></td><td>System C lib — install + bind + link (raylib, zlib, …)</td></tr>
-          <tr><td><code>nyra pkg c remove NAME</code></td><td>Remove C lib from project</td></tr>
-          <tr><td><code>nyra pkg c list</code></td><td>List installed C libs</td></tr>
-          <tr><td><code>nyra bind c</code></td><td>C header → <code>extern fn</code> — see <a href="c-bindgen.html">C Bindgen</a></td></tr>
+          <tr><td><a href="#run"><code>nyra run</code></a></td><td>Compile + execute (dev loop)</td><td><code>nyra run .</code></td></tr>
+          <tr><td><a href="#build"><code>nyra build</code></a></td><td>Emit binary under <code>target/</code></td><td><code>nyra build . --release</code></td></tr>
+          <tr><td><a href="#check"><code>nyra check</code></a></td><td>Type-check + borrow without codegen</td><td><code>nyra check .</code></td></tr>
+          <tr><td><a href="#inspect"><code>nyra inspect</code></a></td><td>Ownership snapshot at <code>file:line</code></td><td><code>nyra inspect name --at main.ny:42</code></td></tr>
+          <tr><td><a href="#test"><code>nyra test</code></a></td><td>Run <code>test fn</code> / <code>*_test.ny</code></td><td><code>nyra test .</code></td></tr>
+          <tr><td><a href="#fmt"><code>nyra fmt</code></a></td><td>Format sources (AST-based)</td><td><code>nyra fmt . --write</code></td></tr>
+          <tr><td><a href="#diag"><code>nyra diag</code></a></td><td>Print diagnostics (JSON for editors)</td><td><code>nyra diag . --json</code></td></tr>
+          <tr><td><a href="#explain"><code>nyra explain</code></a></td><td>Explain stable diagnostic codes</td><td><code>nyra explain E003</code></td></tr>
+          <tr><td><a href="#watch"><code>nyra watch</code></a></td><td>Re-check / rebuild on save</td><td><code>nyra watch . --on run</code></td></tr>
+          <tr><td><a href="#debug"><code>nyra debug</code></a></td><td>Build with symbols + launch lldb/gdb</td><td><code>nyra debug .</code></td></tr>
+          <tr><td><a href="#lsp"><code>nyra lsp</code></a></td><td>Language Server (stdio)</td><td><code>nyra lsp</code></td></tr>
+          <tr><td><a href="#dap"><code>nyra dap</code></a></td><td>Debug Adapter Protocol (stdio)</td><td><code>nyra dap</code></td></tr>
+          <tr><td><a href="#ide"><code>nyra ide</code></a></td><td>Goto-definition / references (CLI)</td><td><code>nyra ide goto-def main.ny 0 --character 20</code></td></tr>
+          <tr><td><a href="#pkg"><code>nyrapkg …</code></a></td><td>Dependencies — <code>init</code>, <code>add</code>, <code>install</code>, <code>verify</code></td><td><code>nyrapkg init</code></td></tr>
+          <tr><td><a href="#pkg"><code>nyra pkg …</code></a></td><td>Build helpers — <code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code></td><td><code>nyra pkg c add raylib</code></td></tr>
+          <tr><td><a href="#bind"><code>nyra bind c</code></a> / <code>rust</code></td><td>C header or crates.io → Nyra FFI</td><td><code>nyra bind c api.h --lib mylib</code></td></tr>
+          <tr><td><a href="#toolchain"><code>nyra toolchain</code></a></td><td>Install / inspect LLVM under <code>$NYRA_HOME</code></td><td><code>nyra toolchain info</code></td></tr>
+          <tr><td><a href="#cc"><code>nyra cc</code></a></td><td>Clang driver for C/C++ (zig-cc style)</td><td><code>nyra cc -c shim.c -o shim.o</code></td></tr>
         </tbody>
       </table>
+
+      <h2 id="help">Help &amp; version</h2>
+      <p><strong>Job:</strong> Discover commands and confirm which <code>nyra</code> binary is on your <code>PATH</code>.</p>
+      <pre><code>nyra --version          # e.g. nyra 0.1.1
+nyra --help             # list all subcommands
+nyra test --help        # flags for one command
+nyra --color never …    # disable ANSI colors (also respects NO_COLOR)</code></pre>
 
       <h2>Comptime modules</h2>
       <p><strong>Job:</strong> Validate a compile-time-only file (lookup tables, generated constants) without a <code>main</code> or runtime codegen.</p>
@@ -242,7 +272,9 @@ nyra inspect user --at src/app.ny:18 .</code></pre>
       <p>Color-coded on TTYs. Respects <strong>NLL</strong> (borrows end at last use of the ref). See <a href="ownership-inspect.html">Ownership inspect</a> · <a href="memory.html">Memory</a> · <a href="ownership-ux.html">Ownership UX</a>.</p>
 
       <h2 id="test"><code>nyra test</code></h2>
-      <p><strong>Job:</strong> Run unit tests in CI or before a commit.</p>
+      <p><strong>Job:</strong> Discover and run unit tests — each <code>test fn</code> is compiled, linked, and executed as its own temporary binary (similar to <code>cargo test</code>).</p>
+
+      <h3>Write a test</h3>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
   <div class="code-tabs-bar" role="tablist">
@@ -251,20 +283,54 @@ nyra inspect user --at src/app.ny:18 .</code></pre>
   </div>
   <div class="code-panel active" data-panel="easy" role="tabpanel"><pre><code>import &quot;stdlib/testing.ny&quot;
 
-test fn sum_works() {
-    assert_eq(1 + 2, 3)
+test fn adds() {
+    assert_eq(2 + 3, 5)
+    assert_bool(true)
 }</code></pre></div>
   <div class="code-panel" data-panel="typed" role="tabpanel" hidden><pre><code>import &quot;stdlib/testing.ny&quot;
 
-test fn sum_works() {
-    assert_eq(1 + 2, 3)
+test fn adds() {
+    assert_eq(2 + 3, 5)
+    assert_bool(true)
 }</code></pre></div>
-</div><!-- NYRA_SNIPPET_END -->      <pre><code>nyra test .                              # all tests in project
-nyra test tests/conformance/pass         # language conformance (pass only)
-nyra test examples/smoke_test_test.ny    # one test file
-nyra test . --release                    # optimized test binary</code></pre>
-      <p>Assertions: <code>import "stdlib/testing.ny"</code> — <code>assert_eq</code>, <code>assert_ne</code>, <code>assert_true</code>, <code>assert</code>, <code>assert_bool</code>. See <a href="stdlib.html#testing">stdlib → testing</a>.</p>
-      <p>Legacy: <code>*_test.ny</code> files run <code>main</code> as a test harness. Use a freshly built CLI (<code>./target/debug/nyra</code>) when testing stdlib imports — a stale global install may not resolve project paths.</p>
+</div><!-- NYRA_SNIPPET_END -->
+      <p>Discovery rules:</p>
+      <ul>
+        <li><code>test fn name() { … }</code> — preferred</li>
+        <li>Functions named <code>test_*</code> also count</li>
+        <li>Legacy: files named <code>*_test.ny</code> run <code>main</code> as the harness</li>
+      </ul>
+
+      <h3>Run tests</h3>
+      <pre><code>nyra test                       # same as nyra test .
+nyra test .                     # all tests under the project
+nyra test main.ny               # one file
+nyra test . --filter adds       # only tests whose name contains "adds"
+nyra test . --list-json         # discover only — JSON for IDE Test Explorer
+nyra test . --release           # optimized test binaries
+nyra test tests/conformance/pass</code></pre>
+
+      <h3>What the output means</h3>
+      <p>Example successful run:</p>
+      <pre><code>nyra test: root=. timeout=60s
+COMPILE ./main.ny::adds
+LINK ./main.ny::adds -&gt; /tmp/…/test_bin
+RUN ./main.ny::adds …
+RUNNING pid=… bin=/tmp/…/test_bin
+PASS ./main.ny::adds (0.74s)
+1 tests passed</code></pre>
+      <table>
+        <thead><tr><th>Line</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>COMPILE …::adds</code></td><td>Compile only that <code>test fn</code> (not <code>fn main</code>)</td></tr>
+          <tr><td><code>LINK … → test_bin</code></td><td>Link a temporary executable in a temp directory</td></tr>
+          <tr><td><code>RUN</code> / <code>RUNNING</code></td><td>Execute the binary (default timeout 60s)</td></tr>
+          <tr><td><code>PASS</code></td><td>All assertions succeeded (exit code 0)</td></tr>
+          <tr><td><code>FAIL</code></td><td>Assertion failed or panic — printed message, non-zero exit</td></tr>
+        </tbody>
+      </table>
+      <p>Assertions: <code>import "stdlib/testing.ny"</code> — <code>assert_eq</code>, <code>assert_ne</code>, <code>assert_true</code>, <code>assert</code>, <code>assert_bool</code>, <code>assert_str_eq</code>. See <a href="stdlib.html#testing">stdlib → testing</a>.</p>
+      <p>Use a freshly built CLI (<code>./target/debug/nyra</code>) when testing stdlib imports — a stale global install may not resolve project paths.</p>
 
       <h2 id="conformance">Language conformance (CONF-LANG)</h2>
       <p><strong>Job:</strong> Verify each language feature with Nyra-source pass <em>and</em> fail tests — separate from Rust <code>CONF-*</code> compile/IR contracts and the large <code>tests/suite/</code> compiletest grid.</p>
@@ -355,6 +421,10 @@ nyra ide references myapp/main.ny 0 --character 20
 nyrapkg install ny-sqlite@^0.1.0
 nyrapkg verify
 
+# Same flows via nyra pkg (delegates to nyrapkg where noted):
+nyra pkg init
+nyra pkg install ny-sqlite@^0.1.0
+nyra pkg sync
 nyra pkg build .
 nyra pkg prune --check
 nyra pkg c add raylib</code></pre>
@@ -392,7 +462,28 @@ nyra bind c vendor/api.h --stdout --prefix mylib_   # preview
 nyra bind c complex.h --no-shim                    # skip auto C shims</code></pre>
       <p>Outputs <code>vendor/bindings/{header}.ny</code>, optional <code>vendor/bindings/shim.c</code>, and <code>link</code> / <code>link-source</code> lines in <code>nyra.mod</code>.</p>
 
-      <h2>Build output layout</h2>
+      <h2 id="bind"><code>nyra bind</code> (C &amp; Rust crates)</h2>
+      <p><strong>Job:</strong> Generate FFI stubs into the current package.</p>
+      <pre><code>nyra bind c sqlite3.h --lib sqlite3
+nyra bind rust uuid
+nyra bind rust serde_json@^1.0</code></pre>
+      <p><code>bind c</code> uses libclang (see above). <code>bind rust</code> wraps a crates.io crate as a C-ABI + <code>.ny</code> stubs for calling from Nyra.</p>
+
+      <h2 id="toolchain"><code>nyra toolchain</code></h2>
+      <p><strong>Job:</strong> Install or inspect the native LLVM/clang toolchain under <code>$NYRA_HOME</code> (zig-cc–style layout).</p>
+      <pre><code>nyra toolchain info       # print clang / opt / lld paths and Nyra home
+nyra toolchain install    # link or download LLVM into $NYRA_HOME/lib/llvm</code></pre>
+      <p>After install, ensure <code>NYRA_HOME</code> and <code>PATH</code> point at your Nyra root — see <a href="install.html">Installation</a>.</p>
+
+      <h2 id="cc"><code>nyra cc</code></h2>
+      <p><strong>Job:</strong> Drive LLVM clang for C/C++ sources (vendor shims, mixed projects) with the same target flags as <code>nyra build</code>.</p>
+      <pre><code>nyra cc -c vendor/shim.c -o vendor/shim.o
+nyra cc --for wasm -c app.c -o app.o
+nyra cc --print-toolchain          # show discovered clang/opt/lld
+nyra cc -v -- -Wall vendor/shim.c  # verbose; args after -- go to clang
+CC="nyra cc" make                  # use as drop-in CC</code></pre>
+
+      <h2 id="layout">Build output layout</h2>
       <p>Like Rust/Cargo, artifacts live beside your project:</p>
       <pre><code>myapp/
   main.ny
@@ -408,7 +499,7 @@ nyra bind c complex.h --no-shim                    # skip auto C shims</code></p
         <li>Add <code>target/</code> to <code>.gitignore</code>.</li>
       </ul>
 
-      <h2>Cross-compilation</h2>
+      <h2 id="cross">Cross-compilation</h2>
       <p>Build for another OS from your dev machine. Use <code>--for</code> for a memorable command, or <code>--os</code> / <code>--arch</code> for precision:</p>
       <pre><code>nyra build . --release --for windows
 nyra build . --release --for linux
