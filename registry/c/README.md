@@ -17,6 +17,17 @@ dnf = "gsl-devel"
 aliases = ["gnu-gsl"]
 ```
 
+Header-only libs that live on GitHub (e.g. raygui):
+
+```toml
+name = "raygui"
+headers = ["src/raygui.h"]
+libs = ["raylib"]
+brew = "raylib"
+git = "https://github.com/raysan5/raygui.git"
+depends = ["raylib"]
+```
+
 User overrides (optional): put extra manifests in `~/.nyra/registry/c/`.
 
 For GitHub C projects, prefer shipping a root `nyra.toml`:

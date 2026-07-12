@@ -73,9 +73,15 @@ pub fn bind_c(opts: CBindOptions) -> Result<(), String> {
             .map_err(|e| e.to_string())?
             .join(opts.header)
     };
+    let mut includes = opts.include;
+    for p in crate::c_lib::system_includes().unwrap_or_default() {
+        if !includes.iter().any(|x| x == &p) {
+            includes.push(p);
+        }
+    }
     let config = BindConfig {
         header: header.clone(),
-        includes: opts.include,
+        includes,
         defines: opts.define,
         link_libs: opts.link_lib,
         function_prefix: opts.prefix,

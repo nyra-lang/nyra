@@ -1,8 +1,10 @@
 name = "raygui"
-description = "Immediate-mode GUI for raylib"
-headers = ["raygui.h"]
+description = "Immediate-mode GUI for raylib (header-only; fetched from GitHub)"
+headers = ["src/raygui.h"]
 libs = ["raylib"]
 brew = "raylib"
 apt = "libraylib-dev"
 pacman = "raylib"
 dnf = "raylib-devel"
+git = "https://github.com/raysan5/raygui.git"
+depends = ["raylib"]

@@ -26,6 +26,12 @@ pub struct RegistryEntry {
     pub dnf: Option<String>,
     #[serde(default)]
     pub aliases: Vec<String>,
+    /// Optional git URL — clone into `vendor/c-src/<name>/` (e.g. header-only libs).
+    #[serde(default)]
+    pub git: Option<String>,
+    /// Registry names that must be installed first (headers + link paths).
+    #[serde(default)]
+    pub depends: Vec<String>,
 }
 
 impl RegistryEntry {
@@ -129,12 +135,7 @@ pub fn find_entry(name: &str) -> Result<RegistryEntry, String> {
         if e.libs.iter().any(|l| l.eq_ignore_ascii_case(&key)) {
             return Ok(e.clone());
         }
-        if e.brew
-            .as_ref()
-            .is_some_and(|b| b.eq_ignore_ascii_case(&key))
-        {
-            return Ok(e.clone());
-        }
+        // Do not match on `brew` — multiple entries can share a formula (e.g. raygui → raylib).
     }
     let known: Vec<_> = map.keys().cloned().collect();
     Err(format!(
@@ -205,5 +206,14 @@ include_dirs = ["include"]
         let c = t.c.unwrap();
         assert_eq!(c.headers, vec!["include/cool.h"]);
         assert_eq!(c.libraries, vec!["cool"]);
+    }
+
+    #[test]
+    fn loads_raygui_git() {
+        let e = find_entry("raygui").unwrap();
+        assert_eq!(e.name, "raygui");
+        assert!(e.git.as_deref().unwrap().contains("raygui"));
+        assert_eq!(e.depends, vec!["raylib"]);
+        assert_eq!(e.primary_header().unwrap(), "src/raygui.h");
     }
 }

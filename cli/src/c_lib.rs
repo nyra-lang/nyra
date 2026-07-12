@@ -111,6 +111,12 @@ pub fn c_add(name: &str, opts: AddOptions) -> Result<(), String> {
     if entry.name == "raylib" {
         println!("{}", ui.hint("nyra run .  — see examples/c_raylib/main.ny"));
     }
+    if entry.name == "raygui" {
+        println!(
+            "{}",
+            ui.hint("import \"vendor/bindings/raylib.ny\" and \"vendor/bindings/raygui.ny\"")
+        );
+    }
     Ok(())
 }
 
@@ -251,8 +257,15 @@ fn resolve_paths(
             })
             .unwrap_or_else(|| PathBuf::from("."));
         let mut includes = vec![include_dir];
+        let (dep_libs, dep_inc) = resolve_dependency_paths(entry, opts)?;
+        includes.extend(dep_inc);
         includes.extend(clang_system_includes()?);
-        return Ok((header, vec![], includes));
+        return Ok((header, dep_libs, includes));
+    }
+
+    // Header-only / GitHub-sourced libs (e.g. raygui).
+    if let Some(git_url) = entry.git.as_deref() {
+        return resolve_git_entry(entry, opts, git_url);
     }
 
     // Prefer pkg-config when available.
@@ -271,6 +284,125 @@ fn resolve_paths(
     } else {
         Err("nyra pkg add (C): macOS, Linux, and Windows are supported".into())
     }
+}
+
+fn resolve_git_entry(
+    entry: &RegistryEntry,
+    opts: &AddOptions,
+    git_url: &str,
+) -> Result<(PathBuf, Vec<String>, Vec<PathBuf>), String> {
+    let root = opts
+        .project
+        .clone()
+        .unwrap_or_else(|| PathBuf::from("."));
+    let (dep_libs, mut dep_inc) = resolve_dependency_paths(entry, opts)?;
+
+    let src = ensure_git_clone(&root, &entry.name, git_url)?;
+    let header_rel = entry.primary_header()?;
+    let header = src.join(header_rel);
+    if !header.is_file() {
+        return Err(format!(
+            "header not found after clone: {} (from {git_url})",
+            header.display()
+        ));
+    }
+
+    let mut includes = Vec::new();
+    if let Some(parent) = header.parent() {
+        includes.push(parent.to_path_buf());
+    }
+    if src.join("include").is_dir() {
+        includes.push(src.join("include"));
+    }
+    if src.join("src").is_dir() {
+        includes.push(src.join("src"));
+    }
+    includes.append(&mut dep_inc);
+    includes.extend(clang_system_includes()?);
+    Ok((header, dep_libs, includes))
+}
+
+/// Install/locate dependency packages and return (lib_dirs, include_dirs).
+fn resolve_dependency_paths(
+    entry: &RegistryEntry,
+    opts: &AddOptions,
+) -> Result<(Vec<String>, Vec<PathBuf>), String> {
+    let mut lib_dirs = Vec::new();
+    let mut includes = Vec::new();
+    for dep_name in &entry.depends {
+        let dep = c_registry::find_entry(dep_name)?;
+        // Avoid recursion into another git entry's full resolve; use system package paths.
+        if cfg!(target_os = "macos") {
+            let formula = dep.brew_formula();
+            let prefix = match brew_prefix(formula) {
+                Ok(p) => p,
+                Err(_) => {
+                    ensure_installed(&dep, opts)?;
+                    brew_prefix(formula)?
+                }
+            };
+            includes.push(prefix.join("include"));
+            lib_dirs.push(prefix.join("lib").display().to_string());
+        } else if cfg!(target_os = "linux") {
+            let header_rel = dep.primary_header().unwrap_or("");
+            if find_header_in_roots(header_rel, &linux_include_roots()).is_none()
+                && !header_rel.is_empty()
+            {
+                ensure_installed(&dep, opts)?;
+            }
+            includes.extend(linux_include_roots());
+            for cand in [
+                "/usr/lib/x86_64-linux-gnu",
+                "/usr/lib/aarch64-linux-gnu",
+                "/usr/lib64",
+                "/usr/lib",
+                "/usr/local/lib",
+            ] {
+                if Path::new(cand).is_dir() {
+                    lib_dirs.push(cand.to_string());
+                    break;
+                }
+            }
+        } else if cfg!(windows) {
+            includes.extend(windows_include_roots());
+            lib_dirs.extend(
+                windows_lib_roots()
+                    .into_iter()
+                    .map(|p| p.display().to_string()),
+            );
+        }
+    }
+    Ok((lib_dirs, includes))
+}
+
+fn ensure_git_clone(root: &Path, name: &str, url: &str) -> Result<PathBuf, String> {
+    let src_dir = root.join("vendor/c-src").join(name);
+    if src_dir.is_dir() && src_dir.join(".git").is_dir() {
+        eprintln!(
+            "{}",
+            Ui::new().dim(&format!("using existing {}", src_dir.display()))
+        );
+        return Ok(src_dir);
+    }
+    // Reuse a previous non-git copy (e.g. earlier failed add) if the header tree exists.
+    let header_guess = src_dir.join("src").join(format!("{name}.h"));
+    if header_guess.is_file() || src_dir.join(format!("{name}.h")).is_file() {
+        return Ok(src_dir);
+    }
+    if src_dir.exists() {
+        std::fs::remove_dir_all(&src_dir).map_err(|e| e.to_string())?;
+    }
+    eprintln!("{}", Ui::new().dim(&format!("cloning {url} …")));
+    std::fs::create_dir_all(src_dir.parent().unwrap()).map_err(|e| e.to_string())?;
+    let status = Command::new("git")
+        .args(["clone", "--depth", "1", url])
+        .arg(&src_dir)
+        .status()
+        .map_err(|e| format!("git clone failed: {e}"))?;
+    if !status.success() {
+        return Err(format!("git clone {url} failed"));
+    }
+    Ok(src_dir)
 }
 
 fn resolve_via_pkg_config(
@@ -608,6 +740,11 @@ fn prompt_yes_no(question: &str) -> Result<bool, String> {
     Ok(t.is_empty() || t == "y" || t == "yes")
 }
 
+/// Clang/SDK include paths required for system headers (`stddef.h`, `stdarg.h`, …).
+pub fn system_includes() -> Result<Vec<PathBuf>, String> {
+    clang_system_includes()
+}
+
 fn clang_system_includes() -> Result<Vec<PathBuf>, String> {
     let mut paths = Vec::new();
     if cfg!(target_os = "macos") {
@@ -685,16 +822,17 @@ fn add_from_git(url: &str, opts: AddOptions) -> Result<(), String> {
         Ok(()) => Ok(()),
         Err(e) => {
             eprintln!();
-            eprintln!("{}", ui.bold("Couldn't determine how to generate bindings."));
+            eprintln!("{}", ui.bold("Couldn't finish generating bindings."));
+            eprintln!("{}", ui.dim(&format!("  reason: {e}")));
             eprintln!();
             eprintln!("  Please specify:");
-            eprintln!("    Header:  include/{name}.h   (example)");
+            eprintln!("    Header:  path/to/{name}.h");
             eprintln!("    Library: {name}");
             eprintln!();
             eprintln!(
                 "  {}",
                 ui.cmd(&format!(
-                    "nyra bind c vendor/c-src/{name}/include/{name}.h --lib {name} --update-mod"
+                    "nyra bind c vendor/c-src/{name}/src/{name}.h --lib {name} --update-mod"
                 ))
             );
             eprintln!();
@@ -703,9 +841,9 @@ fn add_from_git(url: &str, opts: AddOptions) -> Result<(), String> {
                 ui.path("nyra.toml")
             );
             eprintln!("    [c]");
-            eprintln!("    headers = [\"include/{name}.h\"]");
+            eprintln!("    headers = [\"src/{name}.h\"]");
             eprintln!("    libraries = [\"{name}\"]");
-            eprintln!("    include_dirs = [\"include\"]");
+            eprintln!("    include_dirs = [\"src\"]");
             Err(e)
         }
     }
