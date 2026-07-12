@@ -183,8 +183,8 @@
           <tr><td><a href="#dap"><code>nyra dap</code></a></td><td>Debug Adapter Protocol (stdio)</td><td><code>nyra dap</code></td></tr>
           <tr><td><a href="#ide"><code>nyra ide</code></a></td><td>Goto-definition / references (CLI)</td><td><code>nyra ide goto-def main.ny 0 --character 20</code></td></tr>
           <tr><td><a href="#pkg"><code>nyrapkg …</code></a></td><td>Dependencies — <code>init</code>, <code>add</code>, <code>install</code>, <code>verify</code></td><td><code>nyrapkg init</code></td></tr>
-          <tr><td><a href="#pkg"><code>nyra pkg …</code></a></td><td>Build helpers — <code>build</code>, <code>prune</code>, <code>c</code>, <code>bind</code></td><td><code>nyra pkg c add raylib</code></td></tr>
-          <tr><td><a href="#bind"><code>nyra bind c</code></a> / <code>rust</code></td><td>C header or crates.io → Nyra FFI</td><td><code>nyra bind c api.h --lib mylib</code></td></tr>
+          <tr><td><a href="#pkg"><code>nyra pkg …</code></a></td><td>Build helpers — <code>build</code>, <code>prune</code>, <code>c</code>, <code>add</code></td><td><code>nyra pkg add gsl</code></td></tr>
+          <tr><td><a href="#bind"><code>nyra bind</code></a> / <code>c</code> / <code>rust</code></td><td>Registry lib, C header, or crates.io → Nyra FFI</td><td><code>nyra bind gsl</code> · <code>nyra bind c api.h --lib mylib</code></td></tr>
           <tr><td><a href="#toolchain"><code>nyra toolchain</code></a></td><td>Install / inspect LLVM under <code>$NYRA_HOME</code></td><td><code>nyra toolchain info</code></td></tr>
           <tr><td><a href="#cc"><code>nyra cc</code></a></td><td>Clang driver for C/C++ (zig-cc style)</td><td><code>nyra cc -c shim.c -o shim.o</code></td></tr>
         </tbody>
@@ -462,25 +462,27 @@ nyra pkg install ny-sqlite@^0.1.0
 nyra pkg sync
 nyra pkg build .
 nyra pkg prune --check
-nyra pkg c add raylib</code></pre>
+nyra pkg add gsl</code></pre>
 
-      <h2 id="pkg-c">System C libraries — <code>nyra pkg c</code></h2>
-      <p><strong>Job:</strong> Add or remove a system C library in one command. Full guide: <a href="c-bindgen.html#pkg-c">C Bindgen → nyra pkg c</a>.</p>
+      <h2 id="pkg-c">System C libraries — <code>nyra pkg add</code></h2>
+      <p><strong>Job:</strong> Add a registry C library, auto-detect an installed one, or clone a GitHub C repo. Full guide: <a href="c-bindgen.html#pkg-c">C Bindgen</a>.</p>
       <table>
         <thead><tr><th>Command</th><th>Job</th></tr></thead>
         <tbody>
-          <tr><td><code>nyra pkg c add raylib</code></td><td>brew install + full bind + <code>nyra.mod</code> + manifest</td></tr>
+          <tr><td><code>nyra pkg add gsl</code></td><td>Install (prompt) + bind + <code>nyra.mod</code> + manifest</td></tr>
+          <tr><td><code>nyra pkg add https://github.com/org/lib</code></td><td>Clone, build if needed, bindgen</td></tr>
+          <tr><td><code>nyra bind gsl</code></td><td>Auto-detect headers on an already-installed lib</td></tr>
           <tr><td><code>nyra pkg c list</code></td><td>Show installed C libs in this project</td></tr>
-          <tr><td><code>nyra pkg c remove raylib</code></td><td>Delete bindings + unlink <code>nyra.mod</code></td></tr>
+          <tr><td><code>nyra pkg c remove gsl</code></td><td>Delete bindings + unlink <code>nyra.mod</code></td></tr>
         </tbody>
       </table>
-      <pre><code>nyra pkg c add raylib
-nyra pkg c add zlib
-nyra pkg c add sqlite3
-nyra pkg c add sdl2
+      <pre><code>nyra pkg add gsl
+nyra pkg add zlib
+nyra pkg add sqlite3
+nyra pkg add openssl
 
-import "vendor/bindings/raylib.ny"</code></pre>
-      <p>Manifest: <code>vendor/bindings/c-libs.toml</code> · Flags: <code>--path DIR</code>, <code>--no-install</code></p>
+import "vendor/bindings/gsl_sf.ny"</code></pre>
+      <p>Manifest: <code>vendor/bindings/c-libs.toml</code> · Registry: <code>registry/c/</code> · Flags: <code>-y</code>, <code>--path DIR</code>, <code>--no-install</code>, <code>--header</code></p>
 
       <h2 id="bind-c"><code>nyra bind c</code> / <code>nyra pkg bind c</code> (advanced)</h2>
       <p><strong>Job:</strong> Generate Nyra FFI from a C header (libclang). Full guide: <a href="c-bindgen.html">C Bindgen</a> · copy-paste zlib walkthrough: <a href="c-bindgen.html#tutorial-zlib">zlib tutorial</a>.</p>

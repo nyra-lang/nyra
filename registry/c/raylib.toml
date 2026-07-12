@@ -1,0 +1,9 @@
+name = "raylib"
+description = "Simple and easy-to-use game programming library"
+headers = ["raylib.h"]
+libs = ["raylib"]
+pkg_config = "raylib"
+brew = "raylib"
+apt = "libraylib-dev"
+pacman = "raylib"
+dnf = "raylib-devel"

@@ -1,34 +1,136 @@
-# Nyra C Bindgen (`nyra bind c`)
+# Nyra C Bindgen (`nyra bind c` / `nyra pkg add`)
 
 Automatic **C header → Nyra `extern fn`** bindings via **libclang** (same AST engine as Clang/LLVM).
 
-> Call millions of C libraries with zero manual FFI — regenerate when headers change.
+> Call C libraries with one command — registry install, auto-detect, or GitHub clone.
 
-## Quick start — `nyra pkg c` (recommended)
-
-One command per system library: install (Homebrew/apt), full bindgen, `nyra.mod` link lines, manifest.
+## Quick start — `nyra pkg add` (recommended)
 
 ```bash
 nyra pkg init && cd myapp
 
-nyra pkg c add raylib     # graphics / games
-nyra pkg c add zlib       # compression
-nyra pkg c add sqlite3    # database
-nyra pkg c add sdl2       # 2D / input
+nyra pkg add gsl          # registry: install + bind + nyra.mod
+nyra pkg add zlib
+nyra pkg add sqlite3
+nyra pkg add https://github.com/org/cool-c-lib   # clone + discover + bind
 
 nyra pkg c list           # installed in this project
-nyra pkg c remove raylib  # delete bindings + unlink nyra.mod
-
-import "vendor/bindings/raylib.ny"
+nyra pkg c remove gsl
 ```
 
-**Catalog:** `raylib`, `zlib`, `sqlite3` (alias `sqlite`), `sdl2`.
+Same flow via the explicit alias: `nyra pkg c add gsl`.
 
-**Flags:** `--path DIR`, `--no-install` (skip `brew install`).
+**What happens automatically**
 
-**Manifest:** `vendor/bindings/c-libs.toml` — used by `remove`.
+1. Resolve OS (macOS Homebrew / Linux apt|pacman|dnf / Windows vcpkg|MSYS2 paths)
+2. Install the package if missing (interactive prompt, or `-y`)
+3. Find headers (`pkg-config`, Homebrew prefix, `/usr/include`, …)
+4. Run bindgen → `vendor/bindings/*.ny`
+5. Patch `nyra.mod` (`link` + `link -L`)
+6. Record install in `vendor/bindings/c-libs.toml`
 
-**Prerequisites:** `brew install llvm` or `nyra toolchain install` (libclang).
+```ny
+import "vendor/bindings/gsl_sf.ny"
+```
+
+### Registry
+
+Built-in manifests live in [`registry/c/`](../registry/c/):
+
+`curl`, `gsl`, `libpng`, `openssl`, `raygui`, `raylib`, `sdl2`, `sqlite3`, `zlib`
+
+Override / extend locally:
+
+- `~/.nyra/registry/c/*.toml`
+- `$NYRA_C_REGISTRY/*.toml`
+- `./registry/c/*.toml`
+
+Example manifest:
+
+```toml
+name = "gsl"
+description = "GNU Scientific Library"
+headers = ["gsl/gsl_sf.h"]
+libs = ["gsl", "gslcblas"]
+pkg_config = "gsl"
+brew = "gsl"
+apt = "libgsl-dev"
+pacman = "gsl"
+dnf = "gsl-devel"
+```
+
+### Flags
+
+| Flag | Meaning |
+|------|---------|
+| `-y` / `--yes` | Install without prompting |
+| `--no-install` | Never run brew/apt; fail if missing |
+| `--header PATH` | Custom header |
+| `-I DIR` | Extra include path |
+| `--lib NAME` | Override link name(s) |
+| `--path DIR` | Project root |
+
+## Auto-detect — `nyra bind gsl`
+
+If the library is already installed:
+
+```bash
+nyra bind gsl
+nyra bind zlib --no-install
+nyra bind gsl --header /custom/include/gsl/gsl_sf.h -I /custom/include
+```
+
+Searches (among others):
+
+- **macOS:** `/opt/homebrew/include`, `/usr/local/include`, Homebrew kegs, `pkg-config`
+- **Linux:** `/usr/include`, `/usr/local/include`, `pkg-config`
+- **Windows:** `%VCPKG_ROOT%`, MSYS2, `C:\Program Files`
+
+If missing, prompts:
+
+```text
+Library 'gsl' not found.
+
+Install with: brew install gsl
+
+Install it? [Y/n]
+```
+
+## GitHub / any git URL
+
+```bash
+nyra pkg add https://github.com/someone/cool-library
+```
+
+Nyra will:
+
+1. `git clone --depth 1` → `vendor/c-src/<name>/`
+2. Read optional root **`nyra.toml`** (best)
+3. Else detect `CMakeLists.txt` / `meson.build` / `configure` / `Makefile` and try to build into `vendor/c-prefix/<name>/`
+4. Find a header and run bindgen
+5. Update `nyra.mod`
+
+### Upstream `nyra.toml` (recommended for C repos)
+
+```toml
+[c]
+headers = ["include/cool.h"]
+libraries = ["cool"]
+include_dirs = ["include"]
+link_dirs = ["lib"]
+```
+
+If discovery fails:
+
+```text
+Couldn't determine how to generate bindings.
+
+Please specify:
+  Header:  include/cool.h
+  Library: cool
+
+  nyra bind c vendor/c-src/cool-library/include/cool.h --lib cool --update-mod
+```
 
 ## Manual bind (any header)
 
@@ -37,8 +139,6 @@ nyra bind c /path/to/header.h --lib foo --update-mod
 nyra pkg bind c vendor/api.h --lib mylib --update-mod
 nyra bind c vendor/api.h --stdout --prefix mylib_
 ```
-
-Default: **all bindable functions** in `vendor/bindings/{stem}.ny`. C params that are Nyra keywords become `in_`, `type_`, etc. Optional `--export SYM` to shrink.
 
 ## Generated output
 
@@ -52,19 +152,15 @@ extern fn make_point(x: i32, y: i32) -> Point
 extern fn sqlite3_open(filename: string, ppDb: ptr) -> i32
 ```
 
-With `--update-mod`, `nyra.mod` gets:
-
-```text
-link sqlite3
-```
-
 ## CLI reference
 
 ```text
-nyra pkg c add NAME [--path DIR] [--no-install]
+nyra pkg add NAME|URL [-y] [--no-install] [--header PATH] [-I DIR] [--lib NAME] [--path DIR]
+nyra pkg c add NAME|URL …
 nyra pkg c remove NAME [--path DIR]
 nyra pkg c list [--path DIR]
 
+nyra bind NAME [-y] [--no-install] [--header PATH] [-I DIR] [--lib NAME]
 nyra bind c HEADER [options]
 nyra pkg bind c HEADER [options]
 
@@ -101,15 +197,11 @@ nyra pkg bind c HEADER [options]
 | C enum | `i32` |
 | pointers, fn pointers | `ptr` |
 
-Unsupported signatures are skipped unless **auto shims** (`--shim`, experimental). ~25 Raylib symbols need shims or manual wrappers.
+Unsupported signatures are skipped unless **auto shims** (`--shim`, experimental).
 
-## Regenerate after header updates
+## Prerequisites
 
-```bash
-nyra pkg c add raylib    # refreshes bindings + manifest
-# or
-nyra pkg bind c vendor/foo.h --lib foo --update-mod
-```
+`brew install llvm` or `nyra toolchain install` (libclang).
 
 ## Examples
 
@@ -119,12 +211,15 @@ nyra pkg bind c vendor/foo.h --lib foo --update-mod
 ## Architecture
 
 ```
-header.h  →  libclang AST  →  nyra-c-bindgen  →  vendor/bindings/*.ny
-                                              →  vendor/bindings/shim.c (optional, --shim)
-                                              →  nyra.mod link lines
-                                              →  vendor/bindings/c-libs.toml (nyra pkg c)
+registry/c/*.toml  ──┐
+nyra.toml (upstream) ├──→ resolve paths / install
+git URL + build      ──┘
+         ↓
+header.h  →  libclang AST  →  vendor/bindings/*.ny
+                           →  nyra.mod link lines
+                           →  vendor/bindings/c-libs.toml
 ```
 
-Crate: `c-bindgen/` · CLI: `nyra pkg c` / `nyra bind c` / `nyra pkg bind c`
+Crate: `c-bindgen/` · CLI: `cli/src/c_lib.rs`, `cli/src/c_registry.rs`
 
 See also [native-cc.md](native-cc.md) · [bindings.md](bindings.md) · `webDocs/c-bindgen.html`

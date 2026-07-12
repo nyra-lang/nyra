@@ -26,7 +26,31 @@ pub(crate) fn pkg_command(cmd: PkgCommands) -> Result<(), String> {
             }
             delegate_nyrapkg(args)
         }
-        PkgCommands::Add { module } => delegate_nyrapkg(vec!["add".into(), module]),
+        PkgCommands::Add {
+            module,
+            path,
+            no_install,
+            yes,
+            header,
+            include,
+            libs,
+        } => {
+            if c_lib::should_handle_pkg_add(&module) {
+                c_lib::pkg_add_smart(
+                    &module,
+                    c_lib::AddOptions {
+                        project: path,
+                        no_install,
+                        yes,
+                        header,
+                        include,
+                        libs,
+                    },
+                )
+            } else {
+                delegate_nyrapkg(vec!["add".into(), module])
+            }
+        }
         PkgCommands::Install { module } => match module {
             Some(m) => delegate_nyrapkg(vec!["install".into(), m]),
             None => delegate_nyrapkg(vec!["install".into()]),
@@ -130,7 +154,37 @@ pub(crate) fn pkg_command(cmd: PkgCommands) -> Result<(), String> {
                 name,
                 path,
                 no_install,
-            } => c_lib::c_add(&name, path, no_install),
+                yes,
+                header,
+                include,
+                libs,
+            } => {
+                if c_lib::looks_like_git_url(&name) {
+                    c_lib::pkg_add_smart(
+                        &name,
+                        c_lib::AddOptions {
+                            project: path,
+                            no_install,
+                            yes,
+                            header,
+                            include,
+                            libs,
+                        },
+                    )
+                } else {
+                    c_lib::c_add(
+                        &name,
+                        c_lib::AddOptions {
+                            project: path,
+                            no_install,
+                            yes,
+                            header,
+                            include,
+                            libs,
+                        },
+                    )
+                }
+            }
             PkgCCommands::Remove { name, path } => c_lib::c_remove(&name, path),
             PkgCCommands::List { path } => c_lib::c_list(path),
         },

@@ -1,0 +1,10 @@
+name = "sdl2"
+description = "Simple DirectMedia Layer 2"
+headers = ["SDL2/SDL.h"]
+libs = ["SDL2"]
+pkg_config = "sdl2"
+brew = "sdl2"
+apt = "libsdl2-dev"
+pacman = "sdl2"
+dnf = "SDL2-devel"
+aliases = ["SDL2"]

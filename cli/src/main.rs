@@ -1,6 +1,7 @@
 mod app;
 mod c_cache;
 mod c_lib;
+mod c_registry;
 mod llvm_obj;
 mod prebuilt_rt;
 mod prebuilt_tls;

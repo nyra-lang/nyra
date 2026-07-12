@@ -1,0 +1,10 @@
+name = "curl"
+description = "URL transfer library"
+headers = ["curl/curl.h"]
+libs = ["curl"]
+pkg_config = "libcurl"
+brew = "curl"
+apt = "libcurl4-openssl-dev"
+pacman = "curl"
+dnf = "libcurl-devel"
+aliases = ["libcurl"]

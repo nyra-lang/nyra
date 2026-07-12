@@ -1,0 +1,10 @@
+name = "sqlite3"
+description = "Embedded SQL database engine"
+headers = ["sqlite3.h"]
+libs = ["sqlite3"]
+pkg_config = "sqlite3"
+brew = "sqlite"
+apt = "libsqlite3-dev"
+pacman = "sqlite"
+dnf = "sqlite-devel"
+aliases = ["sqlite"]

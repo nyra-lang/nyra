@@ -557,19 +557,21 @@ fn id<T>(x: T) -> T {
 - `export fn` — unmangled C symbol for FFI out.
 - `extern fn` — declare C/runtime symbol (not `extern export fn`).
 
-### C Bindgen & `nyra pkg c`
+### C Bindgen & `nyra pkg add`
 
-**Recommended:** `nyra pkg c add NAME` — raylib, zlib, sqlite3, sdl2. Installs (Homebrew), full bindgen, `nyra.mod`, `vendor/bindings/c-libs.toml`.
+**Recommended:** `nyra pkg add NAME` — registry libs (gsl, zlib, sqlite3, openssl, curl, raylib, sdl2, …) or a GitHub URL. Installs (prompt), full bindgen, `nyra.mod`, `vendor/bindings/c-libs.toml`.
 
 ```bash
-nyra pkg c add raylib
-nyra pkg c add zlib
+nyra pkg add gsl
+nyra pkg add zlib
+nyra bind gsl              # already installed — auto-detect headers
+nyra pkg add https://github.com/org/cool-c-lib
 nyra pkg c list
-nyra pkg c remove raylib # delete bindings + unlink nyra.mod
-nyra pkg c add raylib --no-install --path ./myapp
+nyra pkg c remove gsl
+nyra pkg add zlib --no-install --path ./myapp
 ```
 
-**Manual bind** (any `.h`): `nyra pkg bind c HEADER --lib foo --update-mod`
+**Manual bind** (any `.h`): `nyra bind c HEADER --lib foo --update-mod`
 
 Default: all bindable functions in `vendor/bindings/{stem}.ny`. C keyword params → `in_`, `type_`. Optional `--export` to shrink. `--shim` experimental.
 
@@ -2443,7 +2445,7 @@ Nyra does **not** require libraries to be written in Nyra. Pick the pattern:
 
 | Need | Pattern | Example |
 |------|---------|---------|
-| C API (raylib, zlib, sqlite3) | `nyra pkg c add NAME` — one command | [c-bindgen](https://nyra-lang.github.io/nyra/c-bindgen.html#pkg-c) |
+| C API (gsl, zlib, sqlite3, …) | `nyra pkg add NAME` — one command (or GitHub URL) | [c-bindgen](https://nyra-lang.github.io/nyra/c-bindgen.html#pkg-c) |
 | pip / npm / Maven ecosystem | **Language bridge** — subprocess JSON workers | `stdlib/bridge/mod.ny` |
 | Run system command (exit code) | **Command** — fork/exec MVP | `stdlib/process.ny` |
 | Host calls Nyra | `export fn` + `--cdylib` | NyraPkg registry / `nyra pkg install` |

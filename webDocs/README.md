@@ -125,7 +125,7 @@ Toolchain, performance, FFI, packaging, project status.
 | `escape-analysis.html` | Escape analysis pass |
 | `diagnostics.html` | Errors, warnings, LSP |
 | `ffi-abi.html` | FFI & stable ABI |
-| `c-bindgen.html` | C bindings & `nyra pkg c` |
+| `c-bindgen.html` | C bindings & `nyra pkg add` / registry |
 | `targets.html` | Cross-compilation targets |
 | `editor-setup.html` | VS Code / editor integration |
 | `packages.html` | NyraPkg |

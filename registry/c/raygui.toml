@@ -1,0 +1,8 @@
+name = "raygui"
+description = "Immediate-mode GUI for raylib"
+headers = ["raygui.h"]
+libs = ["raylib"]
+brew = "raylib"
+apt = "libraylib-dev"
+pacman = "raylib"
+dnf = "raylib-devel"

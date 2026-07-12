@@ -130,77 +130,102 @@
     </aside>
     <main class="content">
       <h1>C Bindgen</h1>
-      <p class="lead">Automatic <strong>C header → Nyra <code>extern fn</code></strong> bindings via libclang — call SQLite, zlib, OpenSSL, and the rest of the C ecosystem without hand-written FFI.</p>
+      <p class="lead">Automatic <strong>C header → Nyra <code>extern fn</code></strong> bindings via libclang — one command for registry libraries, auto-detect, or any GitHub C repo.</p>
 
       <h2>Quick start</h2>
-      <pre><code># Easiest — known system libraries (raylib, zlib, sqlite3, sdl2)
-nyra pkg c add raylib
-nyra pkg c remove raylib
-nyra pkg c list
+      <pre><code># Easiest — registry name (install + bind + nyra.mod)
+nyra pkg add gsl
+nyra pkg add zlib
+nyra pkg add https://github.com/org/cool-c-lib
+
+# Already installed? just bind
+nyra bind gsl
 
 # Advanced — any header path
-nyra bind c /path/to/header.h --lib foo --update-mod
-nyra pkg bind c vendor/api.h --lib mylib --update-mod</code></pre>
+nyra bind c /path/to/header.h --lib foo --update-mod</code></pre>
 
       <p>Default output: <code>vendor/bindings/{header-stem}.ny</code> with <strong>every bindable function</strong> from the header. Use <code>--export SYM</code> only if you want a smaller file; delete unused lines manually anytime.</p>
 
-      <h2 id="pkg-c"><code>nyra pkg c</code> — one command per library</h2>
-      <p>The recommended way to add system C libraries to a NyraPkg project. No manual <code>-I</code> paths, no Homebrew keg paths, no hand-editing <code>nyra.mod</code>.</p>
+      <h2 id="pkg-c"><code>nyra pkg add</code> — one command per library</h2>
+      <p>The recommended way to add system C libraries. No manual <code>-I</code> paths, no Homebrew keg paths, no hand-editing <code>nyra.mod</code>. Alias: <code>nyra pkg c add</code>.</p>
 
-      <pre><code>nyrapkg init &amp;&amp; cd myapp
+      <pre><code>nyra pkg init &amp;&amp; cd myapp
 
-nyra pkg c add raylib     # brew install + full bind + nyra.mod
-nyra pkg c add zlib
-nyra pkg c add sqlite3
-nyra pkg c add sdl2
+nyra pkg add gsl          # brew/apt install + full bind + nyra.mod
+nyra pkg add zlib
+nyra pkg add sqlite3
+nyra pkg add https://github.com/someone/cool-library
 
 nyra pkg c list           # what's installed in this project
-nyra pkg c remove raylib  # delete bindings + unlink nyra.mod
+nyra pkg c remove gsl
 
-import "vendor/bindings/raylib.ny"</code></pre>
+import "vendor/bindings/gsl_sf.ny"</code></pre>
 
       <h3>What <code>add</code> does automatically</h3>
       <table>
         <thead><tr><th>Step</th><th>Action</th></tr></thead>
         <tbody>
-          <tr><td>Install</td><td><code>brew install …</code> on macOS (or show <code>apt install</code> hint on Linux)</td></tr>
-          <tr><td>Discover</td><td>Resolve keg-only paths (<code>$(brew --prefix raylib)/include</code>)</td></tr>
-          <tr><td>Bindgen</td><td>Full header → <code>vendor/bindings/{name}.ny</code> (all bindable symbols)</td></tr>
-          <tr><td>Keywords</td><td>C params like <code>in</code>, <code>type</code> → <code>in_</code>, <code>type_</code></td></tr>
+          <tr><td>Detect OS</td><td>macOS Homebrew · Linux apt/pacman/dnf · Windows vcpkg/MSYS2 paths</td></tr>
+          <tr><td>Install</td><td>Prompt (or <code>-y</code>) then <code>brew install</code> / <code>apt install</code> / …</td></tr>
+          <tr><td>Discover</td><td><code>pkg-config</code>, keg prefixes, <code>/usr/include</code>, custom <code>--header</code></td></tr>
+          <tr><td>Bindgen</td><td>Header → <code>vendor/bindings/{stem}.ny</code></td></tr>
           <tr><td>Link</td><td>Append <code>link …</code> and <code>link -L …/lib</code> to <code>nyra.mod</code></td></tr>
           <tr><td>Track</td><td>Write <code>vendor/bindings/c-libs.toml</code> for clean <code>remove</code></td></tr>
         </tbody>
       </table>
 
-      <h3>Built-in catalog</h3>
+      <h3>Built-in registry (<code>registry/c/</code>)</h3>
       <table>
-        <thead><tr><th><code>nyra pkg c add …</code></th><th>Homebrew</th><th>Linux (apt)</th><th>Import</th></tr></thead>
+        <thead><tr><th><code>nyra pkg add …</code></th><th>Homebrew</th><th>Linux (apt)</th><th>Import</th></tr></thead>
         <tbody>
-          <tr><td><code>raylib</code></td><td><code>brew install raylib</code></td><td><code>libraylib-dev</code></td><td><code>vendor/bindings/raylib.ny</code></td></tr>
-          <tr><td><code>zlib</code></td><td><code>brew install zlib</code></td><td><code>zlib1g-dev</code></td><td><code>vendor/bindings/zlib.ny</code></td></tr>
-          <tr><td><code>sqlite3</code> (alias <code>sqlite</code>)</td><td><code>brew install sqlite</code></td><td><code>libsqlite3-dev</code></td><td><code>vendor/bindings/sqlite3.ny</code></td></tr>
-          <tr><td><code>sdl2</code></td><td><code>brew install sdl2</code></td><td><code>libsdl2-dev</code></td><td><code>vendor/bindings/SDL.ny</code></td></tr>
+          <tr><td><code>gsl</code></td><td><code>gsl</code></td><td><code>libgsl-dev</code></td><td><code>vendor/bindings/gsl_sf.ny</code></td></tr>
+          <tr><td><code>zlib</code></td><td><code>zlib</code></td><td><code>zlib1g-dev</code></td><td><code>vendor/bindings/zlib.ny</code></td></tr>
+          <tr><td><code>sqlite3</code></td><td><code>sqlite</code></td><td><code>libsqlite3-dev</code></td><td><code>vendor/bindings/sqlite3.ny</code></td></tr>
+          <tr><td><code>openssl</code></td><td><code>openssl</code></td><td><code>libssl-dev</code></td><td><code>vendor/bindings/ssl.ny</code></td></tr>
+          <tr><td><code>curl</code></td><td><code>curl</code></td><td><code>libcurl4-openssl-dev</code></td><td><code>vendor/bindings/curl.ny</code></td></tr>
+          <tr><td><code>libpng</code></td><td><code>libpng</code></td><td><code>libpng-dev</code></td><td><code>vendor/bindings/png.ny</code></td></tr>
+          <tr><td><code>raylib</code></td><td><code>raylib</code></td><td><code>libraylib-dev</code></td><td><code>vendor/bindings/raylib.ny</code></td></tr>
+          <tr><td><code>sdl2</code></td><td><code>sdl2</code></td><td><code>libsdl2-dev</code></td><td><code>vendor/bindings/SDL.ny</code></td></tr>
         </tbody>
       </table>
+      <p>Extend with <code>~/.nyra/registry/c/*.toml</code> or <code>$NYRA_C_REGISTRY</code>. See <code>registry/c/README.md</code>.</p>
+
+      <h3 id="bind-lib">Auto-detect — <code>nyra bind gsl</code></h3>
+      <pre><code>nyra bind gsl
+nyra bind zlib --no-install
+nyra bind gsl --header /custom/include/gsl/gsl_sf.h -I /custom/include</code></pre>
+      <p>If the library is missing, Nyra prompts to install it (Homebrew / apt / pacman / dnf).</p>
+
+      <h3 id="git-url">GitHub / git URL</h3>
+      <pre><code>nyra pkg add https://github.com/someone/cool-library</code></pre>
+      <p>Clones into <code>vendor/c-src/</code>, reads optional upstream <code>nyra.toml</code>, tries CMake/Meson/configure/Make, then bindgen. If discovery fails, Nyra prints the exact <code>nyra bind c …</code> command to run.</p>
+      <pre><code># Optional file in the C repo root
+[c]
+headers = ["include/cool.h"]
+libraries = ["cool"]
+include_dirs = ["include"]</code></pre>
 
       <h3>Flags</h3>
       <table>
         <thead><tr><th>Flag</th><th>Description</th></tr></thead>
         <tbody>
+          <tr><td><code>-y</code> / <code>--yes</code></td><td>Install without prompting</td></tr>
           <tr><td><code>--path DIR</code></td><td>Project root (default <code>.</code>)</td></tr>
-          <tr><td><code>--no-install</code></td><td>Skip <code>brew install</code>; fail if library missing</td></tr>
+          <tr><td><code>--no-install</code></td><td>Skip package install; fail if library missing</td></tr>
+          <tr><td><code>--header PATH</code></td><td>Custom header path</td></tr>
+          <tr><td><code>-I DIR</code> / <code>--lib NAME</code></td><td>Extra includes / override link names</td></tr>
         </tbody>
       </table>
 
       <h3>Manifest (<code>vendor/bindings/c-libs.toml</code>)</h3>
-      <pre><code># Managed by nyra pkg c add|remove
+      <pre><code># Managed by nyra pkg add / nyra pkg c add|remove
 
 [raylib]
 bindings = "vendor/bindings/raylib.ny"
 link = "raylib"
 header = "/opt/homebrew/opt/raylib/include/raylib.h"
 link_search = ["/opt/homebrew/opt/raylib/lib"]</code></pre>
-      <p>Re-running <code>nyra pkg c add raylib</code> refreshes bindings. Unknown libraries still work via <a href="#bind-c">manual <code>nyra pkg bind c</code></a>.</p>
+      <p>Re-running <code>nyra pkg add raylib</code> refreshes bindings. Unknown libraries still work via <a href="#bind-c">manual <code>nyra pkg bind c</code></a> or a git URL.</p>
 
       <h3>Prerequisites</h3>
       <pre><code>brew install llvm    # libclang for bindgen
@@ -218,7 +243,7 @@ nyra toolchain install   # alternative</code></pre>
       <table>
         <thead><tr><th>Step</th><th>Command / file</th><th>Result</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><code>nyra pkg c add raylib</code></td><td>Install + bind + link (one command)</td></tr>
+          <tr><td>1</td><td><code>nyra pkg add raylib</code></td><td>Install + bind + link (one command)</td></tr>
           <tr><td>2</td><td><code>import "vendor/bindings/raylib.ny"</code></td><td>Call C from Nyra like any module</td></tr>
           <tr><td>3</td><td><code>nyra run .</code></td><td>Links native lib and runs</td></tr>
         </tbody>
@@ -227,7 +252,7 @@ nyra toolchain install   # alternative</code></pre>
       <h2 id="tutorial-zlib">Tutorial: zlib</h2>
       <p><strong>Recommended:</strong></p>
       <pre><code>nyrapkg init &amp;&amp; cd myapp
-nyra pkg c add zlib
+nyra pkg add zlib
 nyra run .</code></pre>
       <!-- NYRA_SNIPPET_START -->
 <div class="code-tabs" data-code-tabs>
@@ -270,7 +295,7 @@ nyra pkg bind c /opt/homebrew/opt/zlib/include/zlib.h --lib z \
   --export zlibVersion --stdout</code></pre>
 
       <h3>3 — Fix <code>nyra.mod</code> link paths</h3>
-      <p>With <code>nyra pkg c add</code> this is automatic. For manual bind, ensure <code>link -L</code> points at the <strong>lib</strong> directory:</p>
+      <p>With <code>nyra pkg add</code> this is automatic. For manual bind, ensure <code>link -L</code> points at the <strong>lib</strong> directory:</p>
       <pre><code>module example.local
 
 link z
@@ -324,7 +349,7 @@ fn main() -&gt; void {
 </div><!-- NYRA_SNIPPET_END -->      </details>
 
       <h2 id="tutorial-sqlite">Tutorial: SQLite</h2>
-      <pre><code>nyra pkg c add sqlite3
+      <pre><code>nyra pkg add sqlite3
 
 import "vendor/bindings/sqlite3.ny"
 
@@ -335,7 +360,7 @@ fn main() {
 
       <h2 id="tutorial-raylib">Tutorial: Raylib graphics &amp; games 🎮</h2>
       <p><a href="https://www.raylib.com/">Raylib</a> — 2D/3D games in C. One command gives you the <strong>full</strong> API (~556 functions):</p>
-      <pre><code>nyra pkg c add raylib
+      <pre><code>nyra pkg add raylib
 import "vendor/bindings/raylib.ny"</code></pre>
       <p>Homebrew path pitfalls (<code>/opt/homebrew/include/raylib.h</code> vs keg-only) are handled automatically.</p>
 
@@ -416,8 +441,8 @@ fn main() -&gt; void {
       <pre><code># Debian / Ubuntu — install dev packages first
 sudo apt install libraylib-dev zlib1g-dev libsqlite3-dev llvm-dev
 
-nyra pkg c add raylib
-nyra pkg c add zlib
+nyra pkg add raylib
+nyra pkg add zlib
 
 # Or manual bind
 nyra pkg bind c /usr/include/zlib.h --lib z -o vendor/bindings/zlib.ny</code></pre>

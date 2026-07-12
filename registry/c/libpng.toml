@@ -1,0 +1,10 @@
+name = "libpng"
+description = "PNG image codec"
+headers = ["png.h"]
+libs = ["png"]
+pkg_config = "libpng"
+brew = "libpng"
+apt = "libpng-dev"
+pacman = "libpng"
+dnf = "libpng-devel"
+aliases = ["png"]

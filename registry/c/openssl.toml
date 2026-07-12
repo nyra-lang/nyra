@@ -1,0 +1,10 @@
+name = "openssl"
+description = "TLS / cryptography toolkit"
+headers = ["openssl/ssl.h"]
+libs = ["ssl", "crypto"]
+pkg_config = "openssl"
+brew = "openssl"
+apt = "libssl-dev"
+pacman = "openssl"
+dnf = "openssl-devel"
+aliases = ["ssl"]

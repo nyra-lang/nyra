@@ -472,6 +472,9 @@ pub(crate) enum BindCommands {
         #[arg(long)]
         no_shim: bool,
     },
+    /// Auto-detect a registry / system C library: `nyra bind gsl`
+    #[command(external_subcommand)]
+    Lib(Vec<String>),
 }
 
 #[derive(Subcommand)]
@@ -480,9 +483,30 @@ pub(crate) enum PkgCommands {
     Init {
         path: Option<PathBuf>,
     },
-    /// Add a dependency (delegates to `nyrapkg`).
+    /// Add a NyraPkg dependency, registry C library, or GitHub C repo.
+    ///
+    /// Examples: `nyra pkg add sqlite3` · `nyra pkg add gsl` ·
+    /// `nyra pkg add https://github.com/org/cool-c-lib`
     Add {
         module: String,
+        /// Project root (C libs / git URLs only).
+        #[arg(long)]
+        path: Option<PathBuf>,
+        /// Do not auto-install missing system packages.
+        #[arg(long)]
+        no_install: bool,
+        /// Assume yes for install prompts.
+        #[arg(long, short = 'y')]
+        yes: bool,
+        /// Override C header path.
+        #[arg(long)]
+        header: Option<PathBuf>,
+        /// Extra include dir (`-I`, repeatable).
+        #[arg(long = "include", short = 'I', value_name = "DIR")]
+        include: Vec<PathBuf>,
+        /// Override link library name(s).
+        #[arg(long = "lib", value_name = "NAME")]
+        libs: Vec<String>,
     },
     /// Fetch package and update lock files (delegates to `nyrapkg`).
     /// Omit `module` to sync existing `require` lines only (`nyrapkg install` / `sync`).
@@ -569,7 +593,7 @@ pub(crate) enum PkgToolchainCommands {
 pub(crate) enum PkgCCommands {
     /// Add a system C library: install (Homebrew/apt), bind header, update nyra.mod.
     Add {
-        /// Library name (raylib, zlib, sqlite3, sdl2, …).
+        /// Library name (raylib, zlib, sqlite3, gsl, …) or GitHub URL.
         name: String,
         /// Project root (default: current directory).
         #[arg(long)]
@@ -577,6 +601,18 @@ pub(crate) enum PkgCCommands {
         /// Do not run brew/apt install if the library is missing.
         #[arg(long)]
         no_install: bool,
+        /// Assume yes for install prompts.
+        #[arg(long, short = 'y')]
+        yes: bool,
+        /// Override C header path.
+        #[arg(long)]
+        header: Option<PathBuf>,
+        /// Extra include dir (`-I`, repeatable).
+        #[arg(long = "include", short = 'I', value_name = "DIR")]
+        include: Vec<PathBuf>,
+        /// Override link library name(s).
+        #[arg(long = "lib", value_name = "NAME")]
+        libs: Vec<String>,
     },
     /// Remove a C library from this project (bindings + nyra.mod lines).
     Remove {

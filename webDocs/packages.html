@@ -178,8 +178,9 @@ nyrapkg update nyra|self [version]  # aliases</code></pre>
       <p>Still part of the compiler — native linking, C bindings, and project build:</p>
       <pre><code>nyra pkg build [path]              # verify lock + compile
 nyra pkg prune [--check]           # remove unused imports / prefix locals
-nyra pkg c add raylib              # system C lib (one command)
+nyra pkg add gsl                   # registry C lib (or GitHub URL)
 nyra pkg c list | c remove NAME
+nyra bind gsl                      # auto-detect installed lib
 nyra pkg bind c vendor/api.h --lib foo --update-mod</code></pre>
 
       <h2 id="project-files">Project files after <code>nyrapkg init</code></h2>
@@ -331,7 +332,7 @@ nyrapkg install ny-sqlite@^0.1.0
 nyrapkg verify
 
 # Toolchain → nyra pkg
-nyra pkg c add raylib
+nyra pkg add gsl
 nyra pkg build
 nyra pkg prune --check
 nyra run .</code></pre>
@@ -388,15 +389,17 @@ fn main() -&gt; void {
 }</code></pre></div>
 </div><!-- NYRA_SNIPPET_END -->      <p>Implementation: <code>compiler/lint/src/prune.rs</code> · <code>Compiler::prune_project()</code> in the driver · CLI: <code>cli/src/commands/pkg.rs</code>. Tests: <code>cargo test -p lint</code>, <code>cargo test -p compiler --test pkg_prune</code>, fixture <code>tests/fixtures/prune_unused/</code>.</p>
 
-      <h2>System C libraries (<code>nyra pkg c</code>)</h2>
-      <p>One command — no manual <code>-I</code> paths or Homebrew keg paths:</p>
-      <pre><code>nyra pkg c add raylib      # brew install + full bind + nyra.mod
-nyra pkg c add zlib
+      <h2>System C libraries (<code>nyra pkg add</code>)</h2>
+      <p>One command — registry install, auto-detect, or GitHub clone. No manual <code>-I</code> paths:</p>
+      <pre><code>nyra pkg add gsl           # brew/apt + bindgen + nyra.mod
+nyra pkg add zlib
+nyra pkg add https://github.com/org/cool-c-lib
+nyra bind gsl              # already installed? just bind
 nyra pkg c list
-nyra pkg c remove raylib
+nyra pkg c remove gsl
 
-import "vendor/bindings/raylib.ny"</code></pre>
-      <p>Manifest: <code>vendor/bindings/c-libs.toml</code>. See <a href="c-bindgen.html">C Bindgen</a>.</p>
+import "vendor/bindings/gsl_sf.ny"</code></pre>
+      <p>Manifest: <code>vendor/bindings/c-libs.toml</code> · Registry: <code>registry/c/</code>. See <a href="c-bindgen.html">C Bindgen</a>.</p>
 
       <h2>Bind a system C library (manual)</h2>
       <p>Generate <code>extern fn</code> from a system header without a NyraPkg wrapper. Step-by-step: <a href="c-bindgen.html#tutorial-zlib">C Bindgen → zlib</a>.</p>

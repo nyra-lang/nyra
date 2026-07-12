@@ -1,0 +1,9 @@
+name = "gsl"
+description = "GNU Scientific Library"
+headers = ["gsl/gsl_sf.h"]
+libs = ["gsl", "gslcblas"]
+pkg_config = "gsl"
+brew = "gsl"
+apt = "libgsl-dev"
+pacman = "gsl"
+dnf = "gsl-devel"

@@ -1,0 +1,10 @@
+name = "zlib"
+description = "Lossless compression library"
+headers = ["zlib.h"]
+libs = ["z"]
+pkg_config = "zlib"
+brew = "zlib"
+apt = "zlib1g-dev"
+pacman = "zlib"
+dnf = "zlib-devel"
+aliases = ["z"]
